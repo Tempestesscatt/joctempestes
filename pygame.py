@@ -1,195 +1,118 @@
+import streamlit as st
 import pygame
-import sys
+import os
+from io import BytesIO
 
 # =============================================================================
-# 1. INICIALIZACIÓN Y CONFIGURACIÓN
+# CONFIGURACIÓN INICIAL Y CARGA DE RECURSOS (SOLO SE EJECUTA UNA VEZ)
 # =============================================================================
 
-# Inicializar todos los módulos de Pygame
-pygame.init()
-
-# Configuración de la pantalla
+# --- Configuración de la pantalla (virtual, no se mostrará) ---
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption("Mi Juego de Plataformas")
-
-# Reloj para controlar la velocidad de fotogramas (FPS)
-clock = pygame.time.Clock()
-
-# Definir la altura del suelo (basado en la imagen)
 GROUND_LEVEL = 480
 
+# --- Función para cargar la imagen de forma segura ---
+# st.cache_data asegura que la imagen se cargue solo una vez para mejorar el rendimiento.
+@st.cache_data
+def load_image():
+    # Construir la ruta absoluta al archivo para evitar FileNotFoundError
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    background_path = os.path.join(script_dir, 'background.png')
+    
+    if not os.path.exists(background_path):
+        st.error(f"No se encontró 'background.png' en la ruta: {background_path}")
+        st.stop()
+        
+    background_image = pygame.image.load(background_path).convert()
+    
+    # Redimensionar la imagen
+    bg_width = background_image.get_width()
+    bg_height = background_image.get_height()
+    scale_factor = SCREEN_WIDTH / bg_width
+    return pygame.transform.scale(background_image, (SCREEN_WIDTH, int(bg_height * scale_factor)))
+
+# --- Inicializar Pygame y cargar la imagen ---
+pygame.init()
+background_image = load_image()
+
 # =============================================================================
-# 2. CARGAR RECURSOS (IMÁGENES Y SONIDOS)
+# CLASE DEL JUGADOR (Simplificada para este ejemplo)
 # =============================================================================
-
-# Cargar la imagen de fondo
-try:
-    # Usamos .convert() para optimizar el rendimiento del dibujado
-    background_image = pygame.image.load('background.png').convert()
-except pygame.error as e:
-    print(f"Error: No se pudo cargar la imagen 'background.png'.")
-    print("Asegúrate de que la imagen está en la misma carpeta que el script.")
-    print(f"Detalle del error: {e}")
-    sys.exit()
-
-# Redimensionar la imagen para que el ancho coincida con la pantalla
-bg_width = background_image.get_width()
-bg_height = background_image.get_height()
-scale_factor = SCREEN_WIDTH / bg_width
-background_image = pygame.transform.scale(background_image, (SCREEN_WIDTH, int(bg_height * scale_factor)))
-
-# Variable para controlar el desplazamiento horizontal del fondo
-scroll = 0
-
-# =============================================================================
-# 3. CLASE DEL JUGADOR
-# =============================================================================
-
 class Player(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self, pos_x, pos_y):
         super().__init__()
-        
-        # Apariencia del jugador (un simple rectángulo rojo por ahora)
-        self.original_image = pygame.Surface((32, 64))
-        self.original_image.fill((255, 0, 0)) # Color rojo
-        self.image = self.original_image.copy()
-        
-        # Posición y rectángulo de colisión
-        self.rect = self.image.get_rect(midbottom=(150, GROUND_LEVEL))
-        
-        # Físicas y movimiento
-        self.gravity = 0.8
-        self.velocity_y = 0
-        self.jump_speed = -18
-        self.move_speed = 5
-        
-        # Estado del jugador
-        self.on_ground = True
-        self.is_crouching = False
-
-    def handle_input(self):
-        """Gestiona las entradas del teclado para el movimiento."""
-        keys = pygame.key.get_pressed()
-        
-        # Movimiento horizontal (devuelve el desplazamiento para el fondo)
-        scroll_direction = 0
-        if keys[pygame.K_LEFT]:
-            scroll_direction = -self.move_speed
-        if keys[pygame.K_RIGHT]:
-            scroll_direction = self.move_speed
-            
-        # Salto
-        if keys[pygame.K_UP] and self.on_ground:
-            self.jump()
-
-        # Agacharse
-        if keys[pygame.K_DOWN]:
-            self.crouch()
-        else:
-            # Si la tecla de agacharse no está presionada, se levanta
-            if self.is_crouching:
-                self.stand_up()
-        
-        return scroll_direction
-
-    def apply_gravity(self):
-        """Aplica la gravedad al jugador."""
-        self.velocity_y += self.gravity
-        self.rect.y += self.velocity_y
-        
-        # Simular colisión con el suelo
-        if self.rect.bottom >= GROUND_LEVEL:
-            self.rect.bottom = GROUND_LEVEL
-            self.velocity_y = 0
-            if not self.on_ground:
-                # Solo se activa si acaba de aterrizar
-                self.on_ground = True
-
-    def jump(self):
-        """Hace que el jugador salte."""
-        if self.on_ground:
-            self.velocity_y = self.jump_speed
-            self.on_ground = False # Ya no está en el suelo
-
-    def crouch(self):
-        """Agacha al jugador cambiando el tamaño de su rectángulo."""
-        if not self.is_crouching and self.on_ground:
-            self.is_crouching = True
-            # Reducir la altura a la mitad y mantener la base en su sitio
-            self.image = pygame.transform.scale(self.original_image, (32, 32))
-            self.rect = self.image.get_rect(midbottom=self.rect.midbottom)
-
-    def stand_up(self):
-        """Levanta al jugador a su tamaño original."""
-        self.is_crouching = False
-        self.image = self.original_image.copy()
-        self.rect = self.image.get_rect(midbottom=self.rect.midbottom)
-
-    def update(self):
-        """Actualiza el estado del jugador en cada fotograma."""
-        self.apply_gravity()
-        # El manejo de la entrada se hará en el bucle principal
-        # para poder controlar el scroll del fondo.
-
+        self.image = pygame.Surface((32, 64))
+        self.image.fill((255, 0, 0)) # Rojo
+        self.rect = self.image.get_rect(midbottom=(pos_x, pos_y))
 
 # =============================================================================
-# 4. CONFIGURACIÓN INICIAL DEL JUEGO
+# FUNCIÓN DE DIBUJO PRINCIPAL
 # =============================================================================
 
-# Crear el jugador
-player = Player()
-
-# Crear un grupo de sprites (facilita dibujar y actualizar todos los sprites a la vez)
-player_group = pygame.sprite.Group()
-player_group.add(player)
-
-# =============================================================================
-# 5. BUCLE PRINCIPAL DEL JUEGO
-# =============================================================================
-
-running = True
-while running:
+def draw_game_frame(scroll_pos, player_pos_x, player_pos_y):
+    """
+    Dibuja un único fotograma del juego en una superficie de Pygame.
+    Devuelve la imagen como bytes para que Streamlit pueda mostrarla.
+    """
+    # Crear una superficie virtual donde dibujar
+    surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
     
-    # --- 5.1. Manejo de Eventos ---
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-
-    # --- 5.2. Lógica del Juego ---
-    
-    # Obtener la dirección del movimiento del jugador
-    scroll_change = player.handle_input()
-    scroll += scroll_change
-    
-    # Reiniciar el scroll para crear un bucle infinito
-    # Si el scroll se pasa del ancho de una imagen, se resetea.
-    if abs(scroll) > SCREEN_WIDTH:
-        scroll = 0
-
-    # Actualizar todos los sprites en el grupo (llama al método player.update())
-    player_group.update()
-
-    # --- 5.3. Dibujado ---
-    
-    # Dibujar el fondo desplazable. Se dibujan dos copias para que no haya espacios vacíos.
+    # 1. Dibujar el fondo desplazable
     for i in range(2):
-        screen.blit(background_image, (i * SCREEN_WIDTH - scroll, 0))
+        surface.blit(background_image, (i * SCREEN_WIDTH - scroll_pos, 0))
+        
+    # 2. Dibujar al jugador
+    player = Player(player_pos_x, player_pos_y)
+    player_group = pygame.sprite.Group()
+    player_group.add(player)
+    player_group.draw(surface)
     
-    # Dibujar todos los sprites en su nueva posición
-    player_group.draw(screen)
-
-    # --- 5.4. Actualizar la Pantalla ---
-    
-    # Muestra todo lo que se ha dibujado en este fotograma
-    pygame.display.flip()
-    
-    # Limitar el juego a 60 fotogramas por segundo (FPS)
-    clock.tick(60)
+    # 3. Convertir la superficie de Pygame a una imagen en memoria
+    img_in_memory = BytesIO()
+    pygame.image.save(surface, img_in_memory, 'PNG')
+    return img_in_memory
 
 # =============================================================================
-# 6. SALIR DEL JUEGO
+# LÓGICA DE LA APLICACIÓN STREAMLIT
 # =============================================================================
-pygame.quit()
-sys.exit()
+
+st.set_page_config(page_title="Juego en Streamlit", layout="centered")
+st.title("Demo de Pygame en Streamlit")
+st.write("Usa los botones para mover el mundo. ¡El juego no es en tiempo real!")
+
+# --- Inicializar el estado del juego (solo la primera vez que se ejecuta) ---
+if 'scroll' not in st.session_state:
+    st.session_state.scroll = 0
+    st.session_state.player_y = GROUND_LEVEL # El jugador no se mueve verticalmente en esta demo simple
+
+# --- Crear columnas para los botones de control ---
+col1, col2, col3 = st.columns([1, 1, 1])
+
+with col1:
+    if st.button("⬅️ Mover Izquierda"):
+        st.session_state.scroll -= 50 # Mueve el fondo
+
+with col2:
+    if st.button("⬆️ Saltar (No implementado)"):
+        # La lógica del salto sería más compleja, actualizando player_y
+        st.info("La función de salto requeriría una simulación por pasos.")
+        
+with col3:
+    if st.button("➡️ Mover Derecha"):
+        st.session_state.scroll += 50 # Mueve el fondo
+
+# Asegurar que el scroll se reinicie para un efecto infinito
+if abs(st.session_state.scroll) > SCREEN_WIDTH:
+    st.session_state.scroll = 0
+
+# --- Dibujar y mostrar el fotograma actual del juego ---
+game_image = draw_game_frame(
+    scroll_pos=st.session_state.scroll,
+    player_pos_x=150, # El jugador se queda fijo en el eje X
+    player_pos_y=st.session_state.player_y
+)
+
+st.image(game_image, caption=f"Posición del Scroll: {st.session_state.scroll}")
+
+st.info("Cada clic en un botón recarga la app, actualiza el estado y genera una nueva imagen.")
