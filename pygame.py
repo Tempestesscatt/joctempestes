@@ -277,239 +277,115 @@ VIDA = {
     ]
 }
 
-def get_current_avatar():
-    base = VIDA['base_avatar'][st.session_state.base_avatar_idx]['icon']
-    skin = VIDA['skin_tones'][st.session_state.skin_tone_idx]['modifier']
-    profession = VIDA['professions'][st.session_state.professions_idx]['icon']
-    return f"{base}{skin}{profession}"
+st.set_page_config(page_title="Simulador de Vida Sostenible", page_icon="🌱", layout="wide")
 
-def iniciar_joc(nivell):
-    st.session_state.session_correctes = 0
-    st.session_state.session_performance_ambit = {}
-    preguntes_filtrades = [p for p in PREGUNTES if p.get('nivell') == nivell]
-    st.session_state.preguntes = random.sample(preguntes_filtrades, 10)
-    st.session_state.guanys_sessio = 0
-    st.session_state.pregunta_actual_idx = 0
-    st.session_state.estat_joc = 'jugant'
-    st.rerun()
+# ======================
+# ESTATS INICIALS
+# ======================
+if "eco" not in st.session_state:
+    st.session_state.eco = 100
+if "nivell" not in st.session_state:
+    st.session_state.nivell = 1
+if "jugant" not in st.session_state:
+    st.session_state.jugant = False
+if "resultat" not in st.session_state:
+    st.session_state.resultat = ""
+if "ultima_actualitzacio" not in st.session_state:
+    st.session_state.ultima_actualitzacio = time.time()
 
-def comprovar_resposta_multiple(respostes_usuari, respostes_correctes):
-    return sorted(respostes_usuari) == sorted(respostes_correctes)
 
-def anar_a_seleccio():
-    for key in ['preguntes', 'guanys_sessio', 'pregunta_actual_idx', 'resposta_enviada',
-                'resposta_correcta', 'session_correctes', 'session_performance_ambit']:
-        st.session_state.pop(key, None)
-    st.session_state.estat_joc = 'seleccion_nivell'
-    st.rerun()
+# ======================
+# FUNCIÓ DE DESCOMPTE AUTOMÀTIC
+# ======================
+def restar_diners():
+    while st.session_state.jugant:
+        time.sleep(3)
+        # Només restem diners si no hi ha hagut una acció recent
+        if time.time() - st.session_state.ultima_actualitzacio > 2:
+            st.session_state.eco = max(0, st.session_state.eco - 5)
+            st.experimental_rerun()
 
-def calcular_multiplicador_total():
-    multiplicador = 1.0
-    for hab_id in st.session_state.get('habilitats_comprades', []):
-        habilitat = next((h for h in VIDA['habilitats'] if h['id'] == hab_id), None)
-        if habilitat:
-            multiplicador *= habilitat['multiplicador']
-    return multiplicador
 
-# --- ESTAT INICIAL ---
-if 'estat_joc' not in st.session_state:
-    st.session_state.estat_joc = 'seleccion_nivell'
-    st.session_state.ecos = 10
-    st.session_state.nivells_desbloquejats = ['principiant']
-    st.session_state.base_avatar_idx = 0
-    st.session_state.skin_tone_idx = 2
-    st.session_state.professions_idx = 0
-    st.session_state.casa_idx = 0
-    st.session_state.vehicle_idx = 0
-    st.session_state.habilitats_comprades = []
-    st.session_state.stats = {
-        'total_preguntes': 0, 'total_correctes': 0, 'total_guanyat': 0,
-        'total_perdut': 0, 'rendiment_ambit': {}
-    }
+# ======================
+# INICIAR JOC
+# ======================
+def iniciar_joc():
+    st.session_state.jugant = True
+    st.session_state.eco = 100
+    st.session_state.nivell = 1
+    st.session_state.resultat = ""
+    threading.Thread(target=restar_diners, daemon=True).start()
 
-# --- LÒGICA PRINCIPAL ---
 
-if st.session_state.estat_joc == 'seleccion_nivell':
-    st.title("🎓 Borsa del Saber")
-    st.header("Selecciona un examen per posar a prova els teus coneixements")
-
-    st.metric("El teu Saldo Actual", f"{st.session_state.ecos} ECO$")
-    st.markdown("---")
-
-    COSTOS_NIVELL = {'principiant': 0, 'avançat': 1000, 'expert': 5000, 'llegenda': 20000}
-    nivells_info = {
-        'principiant': ("🌱 Mercat Emergent", "Inversions segures. 10 preguntes fonamentals."),
-        'avançat': ("🧠 Mercat Consolidat", "Major risc i recompensa."),
-        'expert': ("🔥 Alt Risc", "Volatilitat màxima. Preguntes complexes."),
-        'llegenda': ("👑 Fons d'Inversió", "El repte final amb múltiples respostes.")
-    }
-
-    cols = st.columns(len(nivells_info))
-    for i, (nivell, (titol, desc)) in enumerate(nivells_info.items()):
-        with cols[i]:
-            with st.container(border=True):
-                st.subheader(titol)
-                st.write(desc)
-                if nivell in st.session_state.nivells_desbloquejats:
-                    if st.button(f"Jugar Examen", key=f"btn_jugar_{nivell}", use_container_width=True):
-                        iniciar_joc(nivell)
-                else:
-                    cost = COSTOS_NIVELL[nivell]
-                    if st.button(f"Desbloquejar ({cost} ECO$)", key=f"btn_desbloquejar_{nivell}", use_container_width=True):
-                        if st.session_state.ecos >= cost:
-                            st.session_state.ecos -= cost
-                            st.session_state.nivells_desbloquejats.append(nivell)
-                            st.toast(f"Has desbloquejat '{titol}'!", icon="🎉")
-                            st.rerun()
-                        else:
-                            st.warning("No tens suficients ECO$!")
-
-    st.markdown("---")
-    if st.button("🛍️ Anar a la Botiga de Millores", use_container_width=True):
-        st.session_state.estat_joc = 'botiga'
-        st.rerun()
-
-elif st.session_state.estat_joc == 'jugant':
-    if 'preguntes' not in st.session_state or st.session_state.pregunta_actual_idx >= len(st.session_state.preguntes):
-        st.session_state.estat_joc = 'resultats'
-        st.rerun()
-
-    pregunta_actual = st.session_state.preguntes[st.session_state.pregunta_actual_idx]
-    guanys = st.session_state.get('guanys_sessio', 0)
-    color = "#34d399" if guanys >= 0 else "#f87171"
-
-    # Mostra el balanç de sessió
-    st.markdown(f"""
-        <div style='text-align:center;margin-bottom:10px'>
-        <p style='font-size:1.5rem;opacity:0.7;'>Balanç de l'Examen</p>
-        <p style='font-size:5rem;font-weight:600;color:{color};line-height:1;'>{guanys} ECO$</p>
-        </div>
-    """, unsafe_allow_html=True)
-
-    st.progress(st.session_state.pregunta_actual_idx / len(st.session_state.preguntes),
-                text=f"Pregunta {st.session_state.pregunta_actual_idx + 1} de 10")
-
-    if not st.session_state.get('resposta_enviada', False):
-        key_timer = f"timer_start_{st.session_state.pregunta_actual_idx}"
-        if key_timer not in st.session_state:
-            st.session_state[key_timer] = time.time()
-        start_time = st.session_state[key_timer]
-
-        # HTML Timer amb pèrdua cada 3 segons de 5 ECO$
-        html(f"""
-        <h1 id="timer-display" style='text-align:center;color:#34d399;font-size:3rem;'></h1>
-        <script>
-        const s={start_time};
-        function u(){{
-            let e=document.getElementById("timer-display");if(!e)return;
-            let elapsed=(Date.now()/1000)-s;
-            let t=Math.max(0,100 - Math.floor(elapsed/3)*5);
-            e.textContent=`${{t}} ECO$`;
-            if(t<=0)clearInterval(window.ti);
-        }}
-        clearInterval(window.ti);window.ti=setInterval(u,500);u();
-        </script>
-        """, height=70)
-
-    with st.container(border=True):
-        st.markdown(f"#### {pregunta_actual['pregunta']}")
-        disabled = st.session_state.get('resposta_enviada', False)
-        if pregunta_actual['tipus'] == 'opcions':
-            st.radio("Tria la teva inversió:", options=pregunta_actual['opcions'].keys(),
-                     format_func=lambda k: f"{k.upper()}) {pregunta_actual['opcions'][k]}",
-                     index=None, key="widget", disabled=disabled)
-        else:
-            st.multiselect("Selecciona TOTES les correctes:", options=pregunta_actual['opcions'].keys(),
-                           format_func=lambda k: f"{k.upper()}) {pregunta_actual['opcions'][k]}",
-                           key="widget", disabled=disabled)
-
-    if st.session_state.get('resposta_enviada', False):
-        if st.session_state.get('resposta_correcta', False):
-            st.success("✅ Resposta Correcta! Has guanyat ECO$.")
-        else:
-            st.error("❌ Resposta Incorrecta! Has perdut 50 ECO$.")
-        st.info(f"💡 **Anàlisi:** {pregunta_actual['feedback']}")
-        if st.button("Següent Pregunta →", use_container_width=True):
-            st.session_state.pregunta_actual_idx += 1
-            st.session_state.resposta_enviada = False
-            st.session_state.pop('resposta_correcta', None)
-            if st.session_state.pregunta_actual_idx >= 10:
-                st.session_state.estat_joc = 'resultats'
-            st.rerun()
-    else:
-        if st.button("Confirmar Resposta", use_container_width=True):
-            resposta = st.session_state.get("widget")
-            if not resposta:
-                st.warning("Has de seleccionar una opció.")
+# ======================
+# SISTEMA DE DECISIONS
+# ======================
+def decisio(nivell):
+    if nivell == 1:
+        st.write("🚗 Tens l’opció de comprar un cotxe elèctric o continuar amb el de gasolina.")
+        opcio = st.radio("Tria:", ["Cotxe elèctric", "Gasolina"], key="nivell1")
+        if st.button("Confirmar decisió", key="btn1"):
+            st.session_state.ultima_actualitzacio = time.time()
+            if opcio == "Cotxe elèctric":
+                st.session_state.eco += 20
+                st.session_state.resultat = "💚 Bona decisió! Guanyes 20 ECO$."
             else:
-                correcta = (
-                    (pregunta_actual['tipus'] == 'opcions' and resposta == pregunta_actual['correcta']) or
-                    (pregunta_actual['tipus'] == 'multiple' and
-                     comprovar_resposta_multiple(resposta, pregunta_actual['correcta']))
-                )
-                temps = time.time() - st.session_state.get(f"timer_start_{st.session_state.pregunta_actual_idx}", time.time())
-                ambit = pregunta_actual.get('ambit', 'General')
-                st.session_state.stats['total_preguntes'] += 1
-                st.session_state.stats['rendiment_ambit'].setdefault(ambit, {'correctes': 0, 'total': 0})
-                st.session_state.stats['rendiment_ambit'][ambit]['total'] += 1
+                st.session_state.eco -= 15
+                st.session_state.resultat = "💨 Males notícies: perds 15 ECO$ per emissions."
+            st.session_state.nivell += 1
+            st.experimental_rerun()
 
-                if correcta:
-                    st.session_state.session_correctes += 1
-                    valor_final = max(0, 100 - math.floor(temps / 3) * 5)
-                    guany = math.ceil(valor_final * calcular_multiplicador_total())
-                    st.session_state.guanys_sessio = st.session_state.get('guanys_sessio', 0) + guany
-                    st.session_state.ecos += guany
-                    st.session_state.stats['total_correctes'] += 1
-                    st.session_state.stats['rendiment_ambit'][ambit]['correctes'] += 1
-                    st.session_state.stats['total_guanyat'] += guany
-                else:
-                    penalitzacio = 50
-                    st.session_state.guanys_sessio = st.session_state.get('guanys_sessio', 0) - penalitzacio
-                    st.session_state.ecos -= penalitzacio
-                    st.session_state.stats['total_perdut'] += penalitzacio
+    elif nivell == 2:
+        st.write("🔋 Instal·lar plaques solars o seguir amb energia convencional?")
+        opcio = st.radio("Tria:", ["Plaques solars", "Energia convencional"], key="nivell2")
+        if st.button("Confirmar decisió", key="btn2"):
+            st.session_state.ultima_actualitzacio = time.time()
+            if opcio == "Plaques solars":
+                st.session_state.eco += 25
+                st.session_state.resultat = "☀️ Perfecte! Guanyes 25 ECO$."
+            else:
+                st.session_state.eco -= 10
+                st.session_state.resultat = "⚡ Has perdut 10 ECO$ per seguir amb energia bruta."
+            st.session_state.nivell += 1
+            st.experimental_rerun()
 
-                st.session_state.resposta_correcta = correcta
-                st.session_state.resposta_enviada = True
-                st.rerun()
+    elif nivell == 3:
+        st.write("♻️ Com gestiones els residus?")
+        opcio = st.radio("Tria:", ["Reciclar", "Tot al contenidor gris"], key="nivell3")
+        if st.button("Confirmar decisió", key="btn3"):
+            st.session_state.ultima_actualitzacio = time.time()
+            if opcio == "Reciclar":
+                st.session_state.eco += 30
+                st.session_state.resultat = "✅ Excel·lent! Guanyes 30 ECO$."
+            else:
+                st.session_state.eco -= 20
+                st.session_state.resultat = "🚮 Perds 20 ECO$ per no reciclar."
+            st.session_state.nivell += 1
+            st.experimental_rerun()
 
-elif st.session_state.estat_joc == 'resultats':
-    st.title("📊 Resultats de l'Examen")
-    correctes = st.session_state.get('session_correctes', 0)
-    session_earnings = st.session_state.get('guanys_sessio', 0)
-
-    if session_earnings > 0:
-        st.balloons()
-        st.success(f"Has guanyat {session_earnings} ECO$.")
-    elif session_earnings < 0:
-        st.error(f"Has perdut {abs(session_earnings)} ECO$.")
     else:
-        st.info("Ni guany ni pèrdua, neutre.")
+        st.session_state.jugant = False
+        st.session_state.resultat = f"🎉 Has acabat el joc amb {st.session_state.eco} ECO$!"
+        st.experimental_rerun()
 
-    col1, col2, col3 = st.columns(3)
-    col1.metric("Balanç Sessió", f"{session_earnings} ECO$")
-    col2.metric("Correctes", f"{correctes}/10")
-    col3.metric("Precisió", f"{(correctes / 10) * 100:.0f}%")
 
-    st.markdown("---")
-    st.header("Rendiment per Àmbit")
-    performance = st.session_state.get('session_performance_ambit', {})
-    if not performance:
-        st.info("No hi ha dades de rendiment.")
+# ======================
+# INTERFÍCIE PRINCIPAL
+# ======================
+st.title("🌿 Simulador de Vida Sostenible")
+st.caption("💸 Perds 5 ECO$ cada 3 segons mentre penses, però pots guanyar-ne amb bones decisions!")
+
+col1, col2 = st.columns([1, 2])
+with col1:
+    st.metric("ECO$", st.session_state.eco)
+    st.progress(min(st.session_state.eco / 100, 1))
+
+with col2:
+    if not st.session_state.jugant:
+        if st.button("🎮 Iniciar joc"):
+            iniciar_joc()
     else:
-        for ambit, dades in performance.items():
-            percent = dades['correctes'] / dades['total'] if dades['total'] > 0 else 0
-            st.write(f"**{ambit}:** {dades['correctes']} de {dades['total']} correctes")
-            st.progress(percent)
+        decisio(st.session_state.nivell)
 
-    st.markdown("---")
-    col_btn1, col_btn2 = st.columns(2)
-    if col_btn1.button("Tornar a Jugar", use_container_width=True):
-        anar_a_seleccio()
-    if col_btn2.button("Anar a la Botiga", use_container_width=True):
-        anar_a_seleccio()
-        st.session_state.estat_joc = 'botiga'
-        st.rerun()
-
-
-
-
+st.divider()
+st.write(st.session_state.resultat)
