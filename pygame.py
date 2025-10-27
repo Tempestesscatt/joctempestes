@@ -1,179 +1,200 @@
 import streamlit as st
 import time
 import random
-from dataclasses import dataclass
 
-# Streamlit ECO$ Bank - simple game
-# Run: streamlit run streamlit_eco_bank.py
+# --- Configuración inicial ---
+if 'saldo_eco' not in st.session_state:
+    st.session_state.saldo_eco = 100  # Saldo inicial de ECO$
+if 'multiplicador_ganancias' not in st.session_state:
+    st.session_state.multiplicador_ganancias = 1
+if 'ultima_recompensa_tiempo' not in st.session_state:
+    st.session_state.ultima_recompensa_tiempo = time.time()
+if 'pregunta_actual' not in st.session_state:
+    st.session_state.pregunta_actual = None
+if 'mensaje_feedback' not in st.session_state:
+    st.session_state.mensaje_feedback = ""
 
-# --- Data classes & helpers ---
-@dataclass
-class ShopItem:
-    id: str
-    name: str
-    cost: int
-    description: str
-    apply_msg: str
-
-
-SHOP_ITEMS = [
-    ShopItem('m2', 'Multiplicador x2 (permanente)', 200, 'Duplica las ECO$ que ganas por respuesta correcta.', 'Ganancias multiplicadas por 2.'),
-    ShopItem('m3', 'Multiplicador x3 (permanente)', 450, 'Multiplica por 3 las ECO$ que ganas por respuesta correcta.', 'Ganancias multiplicadas por 3.'),
-    ShopItem('shield', 'Escudo (-50% decay 30s)', 300, 'Reduce la caída pasiva un 50% durante 30 segundos.', 'Escudo activo 30s.'),
+# --- Preguntas del juego ---
+preguntas = [
+    {"pregunta": "¿Cuál es la capital de Francia?", "respuesta": "París", "costo_fallo": 20, "ganancia_acierto": 15},
+    {"pregunta": "¿Cuántos planetas tiene el sistema solar (considerando 8 principales)?", "respuesta": "8", "costo_fallo": 25, "ganancia_acierto": 20},
+    {"pregunta": "¿Cuál es el elemento químico con el símbolo 'O'?", "respuesta": "Oxígeno", "costo_fallo": 15, "ganancia_acierto": 10},
+    {"pregunta": "¿Quién pintó la Mona Lisa?", "respuesta": "Leonardo da Vinci", "costo_fallo": 30, "ganancia_acierto": 25},
+    {"pregunta": "¿Cuál es el río más largo del mundo?", "respuesta": "Amazonas", "costo_fallo": 22, "ganancia_acierto": 18},
 ]
 
+# --- Función para generar una pregunta ---
+def generar_pregunta():
+    st.session_state.pregunta_actual = random.choice(preguntas)
+    st.session_state.mensaje_feedback = ""
 
-# --- Session state init ---
-if 'balance' not in st.session_state:
-    st.session_state.balance = 500
-if 'multiplier' not in st.session_state:
-    st.session_state.multiplier = 1
-if 'last_tick' not in st.session_state:
-    st.session_state.last_tick = time.time()
-if 'shield_until' not in st.session_state:
-    st.session_state.shield_until = 0
-if 'current_question' not in st.session_state:
-    st.session_state.current_question = None
-if 'base_reward' not in st.session_state:
-    st.session_state.base_reward = 50
-if 'penalty' not in st.session_state:
-    st.session_state.penalty = 40
-if 'history' not in st.session_state:
-    st.session_state.history = []
-if 'auto_mode' not in st.session_state:
-    st.session_state.auto_mode = False
+# --- Función para verificar respuesta ---
+def verificar_respuesta(respuesta_usuario):
+    if st.session_state.pregunta_actual:
+        if respuesta_usuario.lower() == st.session_state.pregunta_actual["respuesta"].lower():
+            ganancia = st.session_state.pregunta_actual["ganancia_acierto"] * st.session_state.multiplicador_ganancias
+            st.session_state.saldo_eco += ganancia
+            st.session_state.mensaje_feedback = f"¡Correcto! Ganaste {ganancia} ECO$. ¡Buen trabajo!"
+            generar_pregunta() # Genera una nueva pregunta al acertar
+        else:
+            costo = st.session_state.pregunta_actual["costo_fallo"]
+            st.session_state.saldo_eco -= costo
+            st.session_state.mensaje_feedback = f"Incorrecto. Perdiste {costo} ECO$. La respuesta era: {st.session_state.pregunta_actual['respuesta']}"
+            generar_pregunta() # Genera una nueva pregunta al fallar
+    else:
+        st.session_state.mensaje_feedback = "Por favor, genera una pregunta primero."
 
+# --- Recompensa por tiempo ---
+tiempo_actual = time.time()
+if (tiempo_actual - st.session_state.ultima_recompensa_tiempo) >= 5:
+    st.session_state.saldo_eco += 10
+    st.session_state.ultima_recompensa_tiempo = tiempo_actual
+    # st.experimental_rerun() # Esto puede ser agresivo, mejor confiar en el refresco natural de Streamlit
 
-# --- Passive decay logic (every 5 seconds subtract 10 ECO$) ---
-def apply_passive_decay():
-    now = time.time()
-    elapsed = now - st.session_state.last_tick
-    if elapsed < 5:
-        return  # nothing to do
-    ticks = int(elapsed // 5)
-    decay_per_tick = 10
-    # Shield reduces decay by 50% while active
-    factor = 0.5 if time.time() < st.session_state.shield_until else 1.0
-    total_decay = int(decay_per_tick * ticks * factor)
-    if total_decay != 0:
-        st.session_state.balance = max(0, st.session_state.balance - total_decay)
-        st.session_state.history.append(f'Pasivo: -{total_decay} ECO$ ({ticks} ticks)')
-    st.session_state.last_tick += 5 * ticks
+# --- Diseño de la interfaz al estilo BBVA ---
 
+st.set_page_config(
+    page_title="BBVA ECO$ Bank - Tu Futuro Financiero",
+    page_icon="🏦",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
 
-# Try to auto-refresh if user enabled auto_mode and streamlit_autorefresh is available
-if st.session_state.get('auto_mode_refresh_id', None) is None and st.session_state.auto_mode:
-    try:
-        from streamlit_autorefresh import st_autorefresh
-        # request a rerun every 5 seconds (5000 ms)
-        st.session_state.auto_mode_refresh_id = st_autorefresh(interval=5000, limit=None)
-    except Exception:
-        # package not available — inform user later
-        st.session_state.auto_mode_refresh_id = 'missing'
+# Estilo CSS para simular BBVA (colores, fuentes, etc.)
+st.markdown("""
+    <style>
+        .bbva-header {
+            background-color: #004481; /* Azul BBVA oscuro */
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-family: 'BBVA Web Sans', sans-serif;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .bbva-saldo {
+            background-color: #007bff; /* Azul BBVA más claro */
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 2em;
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        .bbva-card {
+            background-color: #f0f2f6; /* Fondo gris claro */
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .bbva-button {
+            background-color: #004481;
+            color: white;
+            border-radius: 5px;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border: none;
+        }
+        .bbva-button:hover {
+            background-color: #0056b3;
+        }
+        .bbva-small-text {
+            font-size: 0.9em;
+            color: #555;
+        }
+        .stButton>button { /* Esto es para aplicar el estilo a los botones de Streamlit */
+            background-color: #004481;
+            color: white;
+            border-radius: 5px;
+            padding: 10px 20px;
+            border: none;
+        }
+        .stButton>button:hover {
+            background-color: #0056b3;
+            color: white;
+        }
+    </style>
+""", unsafe_allow_html=True)
 
-# Apply passive decay on every run when needed
-apply_passive_decay()
+# --- Header ---
+st.markdown('<div class="bbva-header"><h1>BBVA ECO$ Bank</h1><p>Tu futuro financiero en tus manos</p></div>', unsafe_allow_html=True)
 
-# --- UI ---
-st.title('🏦 Banco ECO$ - Streamlit Game')
-st.markdown('Juega con una cuenta bancaria en ECO$. Responde preguntas, compra mejoras y gestiona la caída pasiva de ECO$.')
+col1, col2 = st.columns([2, 1])
 
-col1, col2 = st.columns([2,1])
 with col1:
-    st.subheader('Saldo')
-    st.metric('ECO$', f"{st.session_state.balance}")
-    st.write(f'Multiplicador activo: x{st.session_state.multiplier}')
-    if time.time() < st.session_state.shield_until:
-        st.write(f'Escudo activo hasta {time.strftime("%H:%M:%S", time.localtime(st.session_state.shield_until))}')
+    st.markdown(f'<div class="bbva-saldo">Saldo Actual: {st.session_state.saldo_eco:.2f} ECO$</div>', unsafe_allow_html=True)
 
-    # Question area
-    st.subheader('Pregunta')
-    if st.session_state.current_question is None:
-        # generate a simple random arithmetic question
-        a = random.randint(1, 20)
-        b = random.randint(1, 20)
-        op = random.choice(['+', '-', '*'])
-        question = f"{a} {op} {b}"
-        answer = eval(question)
-        st.session_state.current_question = (question, answer)
+    st.subheader("Simulador de Inversiones y Conocimiento")
+    st.markdown('<div class="bbva-card">', unsafe_allow_html=True)
+    if st.session_state.pregunta_actual is None:
+        st.write("Bienvenido al simulador. ¡Pon a prueba tus conocimientos y gestiona tus ECO$!")
+        if st.button("Generar Nueva Pregunta", key="btn_generar_inicial"):
+            generar_pregunta()
+    else:
+        st.write(f"**Pregunta:** {st.session_state.pregunta_actual['pregunta']}")
+        st.write(f"💰 Costo al fallar: {st.session_state.pregunta_actual['costo_fallo']} ECO$")
+        st.write(f"✅ Ganancia al acertar: {st.session_state.pregunta_actual['ganancia_acierto'] * st.session_state.multiplicador_ganancias} ECO$")
 
-    q_text, q_ans = st.session_state.current_question
-    st.write('Resuelve:')
-    st.markdown(f'### {q_text} = ?')
-    user_ans = st.text_input('Tu respuesta', key='answer_input')
-
-    if st.button('Enviar respuesta'):
-        try:
-            user_val = int(user_ans.strip())
-            if user_val == q_ans:
-                gain = int(st.session_state.base_reward * st.session_state.multiplier)
-                st.session_state.balance += gain
-                st.session_state.history.append(f'Correcto: +{gain} ECO$')
-                st.success(f'¡Correcto! +{gain} ECO$')
+        respuesta_usuario = st.text_input("Tu respuesta:", key="input_respuesta")
+        if st.button("Enviar Respuesta", key="btn_enviar_respuesta"):
+            if respuesta_usuario:
+                verificar_respuesta(respuesta_usuario)
             else:
-                st.session_state.balance = max(0, st.session_state.balance - st.session_state.penalty)
-                st.session_state.history.append(f'Error: -{st.session_state.penalty} ECO$')
-                st.error(f'Incorrecto. -{st.session_state.penalty} ECO$')
-        except Exception:
-            st.warning('Introduce un número entero como respuesta.')
-        # reset question
-        st.session_state.current_question = None
-        st.experimental_rerun()
+                st.session_state.mensaje_feedback = "Por favor, escribe una respuesta."
 
-    st.write('---')
-    st.subheader('Historial reciente')
-    for item in st.session_state.history[-10:][::-1]:
-        st.write('- ' + item)
+        st.markdown(f"<p class='bbva-small-text'>{st.session_state.mensaje_feedback}</p>", unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
 with col2:
-    st.subheader('Tienda (Compra mejoras)')
-    for it in SHOP_ITEMS:
-        st.write(f"**{it.name}** — {it.cost} ECO$")
-        st.write(it.description)
-        if st.button(f'Comprar {it.name} — {it.cost} ECO$', key=f'buy_{it.id}'):
-            if st.session_state.balance >= it.cost:
-                st.session_state.balance -= it.cost
-                st.session_state.history.append(f'Compra: {it.name} -{it.cost} ECO$')
-                if it.id == 'm2':
-                    st.session_state.multiplier = max(st.session_state.multiplier, 2)
-                if it.id == 'm3':
-                    st.session_state.multiplier = max(st.session_state.multiplier, 3)
-                if it.id == 'shield':
-                    st.session_state.shield_until = time.time() + 30
-                st.success(f'Has comprado {it.name}. {it.apply_msg}')
+    st.subheader("Tienda de Recompensas BBVA")
+    st.markdown('<div class="bbva-card">', unsafe_allow_html=True)
+
+    st.write(f"**Multiplicador de Ganancias Actual:** x{st.session_state.multiplicador_ganancias}")
+    st.write("---")
+
+    st.write("**Comprar Multiplicador de Ganancias x2 (Coste: 100 ECO$)**")
+    if st.session_state.multiplicador_ganancias < 2:
+        if st.button("Comprar x2", key="buy_x2"):
+            if st.session_state.saldo_eco >= 100:
+                st.session_state.saldo_eco -= 100
+                st.session_state.multiplicador_ganancias = 2
+                st.success("¡Has comprado el multiplicador x2!")
             else:
-                st.warning('No tienes suficientes ECO$')
+                st.error("No tienes suficientes ECO$ para esta compra.")
+    else:
+        st.info("Ya tienes el multiplicador x2.")
 
-    st.write('---')
-    st.subheader('Controles')
-    if st.button('Simular tick de 5s'):
-        # manual tick useful si no hay autorefresh
-        st.session_state.last_tick = st.session_state.last_tick - 5  # force one tick
-        apply_passive_decay()
-        st.experimental_rerun()
+    st.write("---")
+    st.write("**Comprar Multiplicador de Ganancias x3 (Coste: 250 ECO$)**")
+    if st.session_state.multiplicador_ganancias < 3:
+        if st.button("Comprar x3", key="buy_x3"):
+            if st.session_state.saldo_eco >= 250:
+                st.session_state.saldo_eco -= 250
+                st.session_state.multiplicador_ganancias = 3
+                st.success("¡Has comprado el multiplicador x3!")
+            else:
+                st.error("No tienes suficientes ECO$ para esta compra.")
+    else:
+        st.info("Ya tienes el multiplicador x3 (o superior).")
 
-    auto = st.checkbox('Auto tick (intenta usar streamlit-autorefresh)', value=st.session_state.auto_mode, key='auto_mode_checkbox')
-    st.session_state.auto_mode = auto
-    if st.session_state.auto_mode and st.session_state.auto_mode_refresh_id == 'missing':
-        st.info('Para auto tick automático instala: pip install streamlit-autorefresh')
+    # Puedes añadir más recompensas aquí
+    st.markdown('</div>', unsafe_allow_html=True)
 
-    st.write('---')
-    st.subheader('Ajustes')
-    st.number_input('Recompensa base por acierto', min_value=1, max_value=1000, value=st.session_state.base_reward, key='base_reward_input')
-    st.number_input('Penalización por fallo', min_value=0, max_value=1000, value=st.session_state.penalty, key='penalty_input')
+# --- Footer (Opcional) ---
+st.markdown("""
+    <hr>
+    <p class="bbva-small-text" style="text-align: center;">BBVA ECO$ Bank - Un producto simulado con fines educativos.</p>
+""", unsafe_allow_html=True)
 
-st.write('---')
-st.caption('Nota: la "caída" pasiva resta 10 ECO$ cada 5s. Puedes simular ticks con el botón si no instalas streamlit-autorefresh.')
-
-# persist adjustments
-st.session_state.base_reward = st.session_state.base_reward_input
-st.session_state.penalty = st.session_state.penalty_input
-
-# Footer: quick reset
-st.write('---')
-if st.button('Resetear juego'):
-    for k in ['balance','multiplier','last_tick','shield_until','current_question','base_reward','penalty','history','auto_mode','auto_mode_refresh_id']:
-        if k in st.session_state:
-            del st.session_state[k]
-    st.rerun()
-
+# Esto es para forzar un refresco cada X segundos para que la recompensa por tiempo se active
+# Ten en cuenta que st.rerun() puede causar problemas de rendimiento si se usa excesivamente.
+# Para este juego simple, funciona bien.
+time.sleep(1) # Espera 1 segundo para no hacer reruns instantáneos
+st.rerun()
