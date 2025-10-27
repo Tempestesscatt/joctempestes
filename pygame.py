@@ -405,7 +405,73 @@ elif st.session_state.estat_joc == 'seleccion_nivell':
         go_to_state('botiga')
 
 elif st.session_state.estat_joc == 'jugant':
-    # ... (El bloc de codi de la pantalla de joc es manté igual que a la resposta anterior) ...
+    # Aquesta línia ha d'estar indentada correctament
+    if 'preguntes' not in st.session_state or st.session_state.pregunta_actual_idx >= len(st.session_state.preguntes):
+        go_to_state('resultats')
+    else:
+        pregunta_actual = st.session_state.preguntes[st.session_state.pregunta_actual_idx]
+        
+        guanys = st.session_state.get('guanys_sessio', 0)
+        color = "#34d399" if guanys >= 0 else "#f87171"
+        st.markdown(f"<p style='text-align: center; font-size: 5rem; font-weight: 600; color: {color}; line-height: 1;'>{guanys} ECO$</p>", unsafe_allow_html=True)
+        st.progress(st.session_state.pregunta_actual_idx / len(st.session_state.preguntes), text=f"Pregunta {st.session_state.pregunta_actual_idx + 1} de 10")
+        
+        with st.container(border=True):
+            st.markdown(f"#### {pregunta_actual['pregunta']}")
+            disabled = st.session_state.get('resposta_enviada', False)
+            
+            if pregunta_actual['tipus'] == 'opcions':
+                st.radio("Tria la teva inversió:", options=pregunta_actual['opcions'].keys(), format_func=lambda k: f"{k.upper()}) {pregunta_actual['opcions'][k]}", index=None, key="widget", disabled=disabled)
+            elif pregunta_actual['tipus'] == 'multiple':
+                st.multiselect("Selecciona TOTES les inversions correctes:", options=pregunta_actual['opcions'].keys(), format_func=lambda k: f"{k.upper()}) {pregunta_actual['opcions'][k]}", key="widget", disabled=disabled)
+        
+        if st.session_state.get('resposta_enviada', False):
+            if st.session_state.get('resposta_correcta', False): 
+                st.success("✅ Resposta Correcta!")
+            else: 
+                st.error(f"❌ Resposta Incorrecta! Has perdut 50 ECO$.")
+            st.info(f"💡 **Anàlisi:** {pregunta_actual['feedback']}")
+            if st.button("Següent Pregunta →", use_container_width=True):
+                st.session_state.pregunta_actual_idx += 1
+                st.session_state.resposta_enviada = False
+                del st.session_state.resposta_correcta
+                st.rerun()
+        else:
+            if 'timer_start' not in st.session_state: st.session_state['timer_start'] = time.time()
+
+            if st.button("Confirmar Resposta", use_container_width=True):
+                resposta = st.session_state.get("widget")
+                if resposta:
+                    st.session_state.resposta_enviada = True
+                    correcta = (pregunta_actual['tipus'] == 'opcions' and resposta == pregunta_actual['correcta']) or \
+                               (pregunta_actual['tipus'] == 'multiple' and sorted(resposta) == sorted(pregunta_actual['correcta']))
+                    
+                    temps = time.time() - st.session_state.timer_start
+                    del st.session_state.timer_start
+                    
+                    ambit = pregunta_actual.get('ambit', 'General')
+                    if ambit not in st.session_state.stats['rendiment_ambit']: st.session_state.stats['rendiment_ambit'][ambit] = {'correctes': 0, 'total': 0}
+                    if ambit not in st.session_state.session_performance_ambit: st.session_state.session_performance_ambit[ambit] = {'correctes': 0, 'total': 0}
+
+                    st.session_state.stats['total_preguntes'] += 1; st.session_state.stats['rendiment_ambit'][ambit]['total'] += 1
+                    st.session_state.session_performance_ambit[ambit]['total'] += 1
+                    
+                    if correcta:
+                        st.session_state.session_correctes += 1
+                        valor_final = max(0, 100 - (temps * 5))
+                        guany = math.ceil(valor_final * calcular_multiplicador_total())
+                        st.session_state.guanys_sessio += guany
+                        st.session_state.stats['total_correctes'] += 1; st.session_state.stats['rendiment_ambit'][ambit]['correctes'] += 1
+                        st.session_state.session_performance_ambit[ambit]['correctes'] += 1
+                        st.session_state.stats['total_guanyat'] = st.session_state.stats.get('total_guanyat', 0) + guany
+                    else:
+                        penalitzacio = 50; st.session_state.guanys_sessio -= penalitzacio
+                        st.session_state.stats['total_perdut'] = st.session_state.stats.get('total_perdut', 0) + penalitzacio
+                    
+                    st.session_state.resposta_correcta = correcta
+                    st.rerun()
+                else: 
+                    st.warning("Has de seleccionar una opció.")
 
 elif st.session_state.estat_joc == 'resultats':
     st.title("📊 Resultats de l'Examen")
@@ -522,3 +588,4 @@ if st.session_state.professions_idx == len(VIDA['professions']) - 1 and \
         for key in list(st.session_state.keys()):
             del st.session_state[key]
         st.rerun()
+
