@@ -1,17 +1,4 @@
 
-Model
-ThinkingThoughts
-Manual: 8192
-Expand to view model thoughts
-
-chevron_right
-¡Absolutament! Entenc perfectament. Anem a fer una transformació total per donar-li l'aspecte professional, net i corporatiu d'un banc com el BBVA. A més, implementarem l'efecte visual perquè els diners "pugin" o "baixin" amb cada resposta.
-
-Per aconseguir-ho, farem servir un CSS molt més avançat i un petit truc amb `st.session_state` i `st.rerun` per simular l'animació del saldo.
-
-Aquí tens el codi completament renovat. Copia'l i enganxa'l sencer.
-
-```python
 import streamlit as st
 import time
 import random
