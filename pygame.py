@@ -485,13 +485,36 @@ elif st.session_state.estat_joc == 'jugant':
                 st.warning("Has de seleccionar una opció.")
 
 elif st.session_state.estat_joc == 'resultats':
-    st.title("📊 Resultats de l'Examen")
-    guanys = st.session_state.get('guanys_sessio', 0)
+    # --- LÒGICA DE PROCESSAMENT DE RESULTATS (EXECUCIÓ ÚNICA I SEGURA) ---
+    # Aquesta secció s'assegura que els guanys només s'afegeixen una vegada.
     
+    # Comprovem si encara hi ha guanys de sessió per processar.
+    if 'guanys_sessio' in st.session_state and st.session_state.guanys_sessio is not None:
+        # Guardem els guanys en una variable local per a mostrar-los
+        session_earnings = st.session_state.guanys_sessio
+        
+        # Afegim els guanys al saldo TOTAL (AQUESTA ERA LA PART QUE FALLAVA)
+        st.session_state.ecos += session_earnings
+        
+        # Eliminem els guanys de la sessió per a evitar que es tornin a sumar si la pàgina es refresca
+        del st.session_state.guanys_sessio
+    else:
+        # Si la pàgina es refresca, els guanys ja s'han processat. Els mostrem a 0.
+        session_earnings = 0
+
+    # --- VISUALITZACIÓ DELS RESULTATS ---
+    st.title("📊 Resultats de l'Examen")
+    
+    if session_earnings > 0:
+        st.balloons()
+        st.success(f"Excel·lent sessió! Has guanyat {session_earnings} ECO$.")
+    else:
+        st.error(f"Aquesta sessió ha generat pèrdues. Has perdut {session_earnings} ECO$. Més sort la propera vegada!")
+
     col1, col2, col3 = st.columns(3)
-    col1.metric("Guanys de la Sessió", f"{guanys} ECO$")
-    col2.metric("Respostes Correctes", f"{st.session_state.session_correctes} de 10")
-    col3.metric("Precisió", f"{(st.session_state.session_correctes / 10) * 100:.0f}%")
+    col1.metric("Balanç de la Sessió", f"{session_earnings} ECO$")
+    col2.metric("Respostes Correctes", f"{st.session_state.get('session_correctes', 0)} de 10")
+    col3.metric("Precisió", f"{(st.session_state.get('session_correctes', 0, 0) / 10) * 100:.0f}%")
     
     st.markdown("---")
     st.header("Rendiment per Àmbit")
@@ -509,82 +532,17 @@ elif st.session_state.estat_joc == 'resultats':
                 st.progress(percentatge)
     
     st.markdown("---")
-    
-    # Afegim els guanys al total abans de sortir
-    st.session_state.ecos += guanys
-    st.session_state.guanys_sessio = 0 # Resetejem per seguretat
 
+    # --- BOTONS DE NAVEGACIÓ ---
     col_btn1, col_btn2 = st.columns(2)
-    if col_btn1.button("Tornar a Jugar", use_container_width=True): anar_a_seleccio()
+    if col_btn1.button("Tornar a Jugar", use_container_width=True):
+        anar_a_seleccio()
     if col_btn2.button("Anar a la Botiga", use_container_width=True):
         st.session_state.estat_joc = 'botiga'
+        # Netegem les variables de la sessió d'examen abans d'anar a la botiga
+        session_keys_to_delete = ['preguntes', 'pregunta_actual_idx', 'resposta_enviada', 'resposta_correcta', 'session_correctes', 'session_performance_ambit']
+        for key in session_keys_to_delete:
+            if key in st.session_state: del st.session_state[key]
         st.rerun()
 
-elif st.session_state.estat_joc == 'botiga':
-    st.title("🛍️ Botiga de Millores")
-    st.metric(label="El teu Saldo Actual", value=f"{st.session_state.ecos} ECO$")
-    
-    tabs_icons = ["✏️", "🎓", "🏡", "🚗", "💹"]
-    tabs_names = ["Perfil", "Estil de Vida", "Llar", "Transport", "Habilitats"]
-    tab1, tab2, tab3, tab4, tab5 = st.tabs([f"{icon} {name}" for icon, name in zip(tabs_icons, tabs_names)])
-    
-    with tab1:
-        st.subheader("Personalitza el teu Avatar")
-        col1, col2 = st.columns([2,3])
-        with col1:
-            st.session_state.base_avatar_idx = st.radio("Gènere", range(len(VIDA['base_avatar'])), format_func=lambda i: VIDA['base_avatar'][i]['nom'], horizontal=True, key="base_avatar_selector")
-            
-            st.write("To de pell:")
-            cols_tones = st.columns(len(VIDA['skin_tones']))
-            for i, tone in enumerate(VIDA['skin_tones']):
-                with cols_tones[i]:
-                    selected_border = "2px solid #38bdf8" if st.session_state.skin_tone_idx == i else "2px solid grey"
-                    st.markdown(f"<div style='width:30px; height:30px; background-color:{tone['color']}; border-radius:50%; margin: 5px auto; border: {selected_border};'></div>", unsafe_allow_html=True)
-            
-            st.session_state.skin_tone_idx = st.radio("Selector de to de pell", range(len(VIDA['skin_tones'])), format_func=lambda i: "", horizontal=True, key="skin_tone_selector", label_visibility="collapsed")
-        with col2:
-            st.markdown("**Resultat:**"); st.markdown(f"<div style='width:100%; text-align:center;'><p style='font-size: 8rem; line-height: 1;'>{get_current_avatar()}</p></div>", unsafe_allow_html=True)
-
-    with tab2:
-        for i in range(st.session_state.professions_idx + 1, len(VIDA['professions'])):
-            item = VIDA['professions'][i]; st.markdown(f"### {get_current_avatar().split('‍')[0]}‍{item['icon']} {item['nom']}")
-            if st.button(f"Comprar per {item['cost']} ECO$", key=f"buy_prof_{i}"):
-                if st.session_state.ecos >= item['cost']: st.session_state.ecos -= item['cost']; st.session_state.professions_idx = i; st.toast("Estil millorat!", icon="🎉"); st.rerun()
-                else: st.warning("Saldo insuficient!")
-            st.markdown("---")
-        if st.session_state.professions_idx == len(VIDA['professions']) - 1: st.success("Has assolit el màxim nivell d'estil!")
-    
-    with tab3:
-        for i in range(st.session_state.casa_idx + 1, len(VIDA['casa'])):
-            item = VIDA['casa'][i]; st.markdown(f"### {item['icon']} {item['nom']}")
-            if st.button(f"Comprar per {item['cost']} ECO$", key=f"buy_casa_{i}"):
-                if st.session_state.ecos >= item['cost']: st.session_state.ecos -= item['cost']; st.session_state.casa_idx = i; st.toast("Llar millorada!", icon="🎉"); st.rerun()
-                else: st.warning("Saldo insuficient!")
-            st.markdown("---")
-        if st.session_state.casa_idx == len(VIDA['casa']) - 1: st.success("Tens la millor llar possible!")
-
-    with tab4:
-        for i in range(st.session_state.vehicle_idx + 1, len(VIDA['vehicle'])):
-            item = VIDA['vehicle'][i]; st.markdown(f"### {item['icon']} {item['nom']}")
-            if st.button(f"Comprar per {item['cost']} ECO$", key=f"buy_vehicle_{i}"):
-                if st.session_state.ecos >= item['cost']: st.session_state.ecos -= item['cost']; st.session_state.vehicle_idx = i; st.toast("Transport millorat!", icon="🎉"); st.rerun()
-                else: st.warning("Saldo insuficient!")
-            st.markdown("---")
-        if st.session_state.vehicle_idx == len(VIDA['vehicle']) - 1: st.success("Tens el millor transport del joc!")
-        
-    with tab5:
-        for hab in VIDA['habilitats']:
-            if hab['id'] not in st.session_state.habilitats_comprades:
-                st.markdown(f"### {hab['icon']} {hab['nom']}")
-                st.write(f"Afegeix un multiplicador de: **x{hab['multiplicador']}**")
-                if st.button(f"Comprar per {hab['cost']} ECO$", key=hab['id']):
-                    if st.session_state.ecos >= hab['cost']: st.session_state.ecos -= hab['cost']; st.session_state.habilitats_comprades.append(hab['id']); st.toast(f"Has adquirit {hab['nom']}!", icon="💡"); st.rerun()
-                    else: st.warning("Saldo insuficient!")
-            else:
-                st.markdown(f"### ✅ ~~{hab['icon']} {hab['nom']}~~"); st.success(f"ADQUIRIT (Multiplicador x{hab['multiplicador']} actiu)")
-            st.markdown("---")
-    
-    if st.button("Tornar a la Selecció d'Examen", use_container_width=True):
-        st.session_state.estat_joc = 'seleccion_nivell'
-        st.rerun()
 
