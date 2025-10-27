@@ -1,4 +1,3 @@
-
 import streamlit as st
 import time
 import random
@@ -18,7 +17,7 @@ if 'missatge_feedback' not in st.session_state:
     st.session_state.missatge_feedback = ""
 if 'mostrar_pista' not in st.session_state:
     st.session_state.mostrar_pista = False
-if 'ultima_resposta_correcta' not in st.session_state: # Para mantener el guany_eco visible tras responder
+if 'ultima_resposta_correcta' not in st.session_state:
     st.session_state.ultima_resposta_correcta = 0
 
 # --- Preguntes d'Habilitats Socials (en català) ---
@@ -79,7 +78,7 @@ def generar_pregunta():
     st.session_state.pregunta_actual = random.choice(preguntes_habilitats)
     st.session_state.missatge_feedback = ""
     st.session_state.mostrar_pista = False # Resetejar la pista
-    st.session_state.ultima_resposta_correcta = st.session_state.pregunta_actual["eco_guany"] * st.session_state.multiplicador_eco # Actualizar el valor
+    st.session_state.ultima_resposta_correcta = st.session_state.pregunta_actual["eco_guany"] * st.session_state.multiplicador_eco
 
 # --- Funció per verificar resposta ---
 def verificar_resposta(resposta_usuari):
@@ -119,17 +118,53 @@ st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Open+Sans:wght@400;600&display=swap');
 
-        html, body, [class*="st-emotion"] { /* Actualitzat per Streamlit 1.x */
-            font-family: 'Open Sans', sans-serif;
-            color: #333; /* Color de text general més fosc per millorar el contrast */
+        /* Colors base per al tema clar */
+        :root {
+            --primary-color: #007bff; /* Blau Caixabank */
+            --secondary-color: #28a745; /* Verd ECO */
+            --text-color-light: #333333; /* Gris fosc per text en fons clar */
+            --background-color-light: #ffffff; /* Fons general clar */
+            --card-background-light: #f8f9fa; /* Fons de targeta clar */
+            --border-color-light: #e0e0e0; /* Vores clares */
+            --header-text-color: #ffffff;
+            --pista-background: #fff3cd;
+            --pista-border: #ffc107;
+            --pista-text: #856404;
         }
+
+        /* Colors base per al tema fosc */
+        [data-baseweb="dark"] {
+            --primary-color: #55aaff; /* Blau més clar per tema fosc */
+            --secondary-color: #4CAF50; /* Verd per tema fosc */
+            --text-color-dark: #e0e0e0; /* Gris clar per text en fons fosc */
+            --background-color-dark: #1e1e1e; /* Fons general fosc */
+            --card-background-dark: #2d2d2d; /* Fons de targeta fosc */
+            --border-color-dark: #444444; /* Vores fosques */
+            --header-text-color: #ffffff;
+            --pista-background: #4a412a; /* Fons de pista més fosc */
+            --pista-border: #856404; /* Vora de pista més fosca */
+            --pista-text: #f0e68c; /* Text de pista groc clar */
+        }
+
+        /* Aplicació de colors basats en el tema */
+        html, body, [class*="st-emotion"] {
+            font-family: 'Open Sans', sans-serif;
+            color: var(--text-color-light);
+            background-color: var(--background-color-light);
+        }
+        [data-baseweb="dark"] html, [data-baseweb="dark"] body, [data-baseweb="dark"] [class*="st-emotion"] {
+            color: var(--text-color-dark);
+            background-color: var(--background-color-dark);
+        }
+
         h1, h2, h3, h4, h5, h6 {
             font-family: 'Montserrat', sans-serif;
-            color: #007bff; /* Blau primari per títols */
+            color: var(--primary-color);
         }
+
         .ecocaixa-header {
-            background: linear-gradient(135deg, #007bff, #28a745); /* Degradat blau a verd */
-            color: white;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); /* Degradat blau a verd */
+            color: var(--header-text-color);
             padding: 30px;
             text-align: center;
             border-radius: 15px;
@@ -137,87 +172,158 @@ st.markdown("""
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
         }
         .ecocaixa-header h1 {
-            color: white;
+            color: var(--header-text-color);
             font-size: 3.5em;
             margin-bottom: 5px;
         }
         .ecocaixa-header p {
-            color: rgba(255, 255, 255, 0.9); /* Text del header lleugerament més visible */
+            color: rgba(255, 255, 255, 0.9);
             font-size: 1.2em;
         }
+
         .ecocaixa-saldo-card {
-            background-color: #f8f9fa; /* Fons blanc-gris */
-            border-left: 8px solid #007bff; /* Vora blava */
+            background-color: var(--card-background-light);
+            border-left: 8px solid var(--primary-color);
             border-radius: 10px;
             padding: 25px;
             margin-bottom: 25px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             display: flex;
             align-items: center;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        [data-baseweb="dark"] .ecocaixa-saldo-card {
+            background-color: var(--card-background-dark);
+            border-color: var(--primary-color);
         }
         .ecocaixa-saldo-card .icon {
             font-size: 3em;
             margin-right: 20px;
-            color: #007bff;
+            color: var(--primary-color);
         }
         .ecocaixa-saldo-card .details h2 {
             margin-bottom: 5px;
-            color: #007bff;
+            color: var(--primary-color);
         }
         .ecocaixa-saldo-card .details p {
             font-size: 2.2em;
             font-weight: bold;
-            color: #28a745; /* Verd per al saldo */
+            color: var(--secondary-color);
         }
+
         .ecocaixa-section-card {
-            background-color: #ffffff;
+            background-color: var(--background-color-light);
             border-radius: 10px;
             padding: 25px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
             margin-bottom: 25px;
-            border: 1px solid #e0e0e0;
+            border: 1px solid var(--border-color-light);
+            transition: background-color 0.3s, border-color 0.3s;
         }
-        .stButton>button { /* Estil per tots els botons de Streamlit */
-            background-color: #28a745; /* Verd per accions positives */
+        [data-baseweb="dark"] .ecocaixa-section-card {
+            background-color: var(--card-background-dark);
+            border-color: var(--border-color-dark);
+        }
+
+        .stButton>button {
+            background-color: var(--secondary-color);
             color: white;
             border-radius: 8px;
             padding: 12px 25px;
             font-size: 1.1em;
             font-weight: bold;
             border: none;
-            transition: background-color 0.3s ease;
+            transition: background-color 0.3s ease, color 0.3s ease;
             cursor: pointer;
+            width: 100%; /* Para que ocupen todo el ancho en las columnas */
+            margin-top: 10px; /* Espacio entre botones */
         }
         .stButton>button:hover {
-            background-color: #218838;
+            background-color: #218838; /* Un poco más oscuro */
             color: white;
         }
-        .stButton>button[kind="secondary"] { /* Estil per botons secundaris (pistes, etc.) */
-            background-color: #007bff; /* Blau per accions secundaries */
+        .stButton>button[kind="secondary"] {
+            background-color: var(--primary-color);
         }
         .stButton>button[kind="secondary"]:hover {
-            background-color: #0056b3;
+            background-color: #0056b3; /* Un poco más oscuro */
         }
+
         .stRadio>label {
             font-size: 1.1em;
             margin-bottom: 5px;
+            color: var(--text-color-light);
+        }
+        [data-baseweb="dark"] .stRadio>label {
+            color: var(--text-color-dark);
         }
         .stRadio div[role="radiogroup"] {
             padding-left: 10px;
         }
+
         .pista-box {
-            background-color: #fff3cd; /* Groc clar */
-            border-left: 5px solid #ffc107; /* Vora groga */
+            background-color: var(--pista-background);
+            border-left: 5px solid var(--pista-border);
             padding: 15px;
             border-radius: 5px;
             margin-top: 15px;
-            color: #856404; /* Color de text més fosc per la pista */
+            color: var(--pista-text);
         }
+
         .eco-guany-text {
-            color: #28a745; /* Verd fort per guany ECO$ */
+            color: var(--secondary-color);
             font-weight: bold;
             font-size: 1.1em;
+            margin-bottom: 15px; /* Más espacio */
         }
+
+        /* Ajustes para los st.info, st.success, st.error para mejor contraste */
+        .stAlert {
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 1em;
+            line-height: 1.5;
+            color: var(--text-color-light); /* Asegura que el texto sea legible */
+        }
+         [data-baseweb="dark"] .stAlert {
+            color: var(--text-color-dark);
+        }
+        .stAlert.st-emotion-cache-12fmwye { /* Target an info/success/error box specifically if needed */
+            color: inherit !important; /* Forces text color to inherit from main text color */
+        }
+        .stAlert.st-emotion-cache-12fmwye svg { /* Icon color */
+            fill: inherit !important;
+        }
+
+        /* Asegurar que los textos de la tienda no se desborden */
+        .shop-item-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        .shop-item-description {
+            font-size: 0.95em;
+            line-height: 1.4;
+            margin-bottom: 10px;
+            color: var(--text-color-light);
+        }
+        [data-baseweb="dark"] .shop-item-description {
+             color: var(--text-color-dark);
+        }
+
+        hr {
+            border-color: var(--border-color-light);
+        }
+        [data-baseweb="dark"] hr {
+            border-color: var(--border-color-dark);
+        }
+        .footer-text {
+            color: var(--text-color-light);
+        }
+         [data-baseweb="dark"] .footer-text {
+            color: var(--text-color-dark);
+        }
+
     </style>
 """, unsafe_allow_html=True)
 
@@ -238,8 +344,8 @@ with col_stats_1:
     """, unsafe_allow_html=True)
 with col_stats_2:
     st.markdown(f"""
-        <div class="ecocaixa-saldo-card" style="border-left: 8px solid #28a745;">
-            <span class="icon" style="color: #28a745;">🧠</span>
+        <div class="ecocaixa-saldo-card" style="border-left: 8px solid var(--secondary-color);"> {/* Color verd per la puntuació */}
+            <span class="icon" style="color: var(--secondary-color);">🧠</span>
             <div class="details">
                 <h2>Puntuació d'Habilitats</h2>
                 <p>{st.session_state.puntuacio_habilitats}</p>
@@ -247,24 +353,22 @@ with col_stats_2:
         </div>
     """, unsafe_allow_html=True)
 
-col1, col2 = st.columns([3, 2])
+col1, col2 = st.columns([3, 2]) # Ajustamos las proporciones un poco para dar más espacio a las preguntas
 
 with col1:
     st.markdown('<div class="ecocaixa-section-card">', unsafe_allow_html=True)
     st.subheader("Preguntes d'Habilitats Socials 🤔")
-    st.markdown("Posa a prova els teus coneixements i guanya ECO$ per millorar les teves eines.")
+    st.write("Posa a prova els teus coneixements i guanya ECO$ per millorar les teves eines.") # Ahora con texto visible
 
     if st.session_state.pregunta_actual is None:
         st.info("Fes clic per començar amb una pregunta d'habilitats socials!")
         if st.button("Generar Nova Pregunta", key="btn_generar_inicial", help="Genera una nova pregunta per respondre."):
             generar_pregunta()
-            # Asegurarse de que ultima_resposta_correcta se inicialice correctamente al generar la primera pregunta
-            st.session_state.ultima_resposta_correcta = st.session_state.pregunta_actual["eco_guany"] * st.session_state.multiplicador_eco
     else:
         pregunta = st.session_state.pregunta_actual
         st.write(f"**{pregunta['pregunta']}**")
         
-        # Usar st.session_state.ultima_resposta_correcta para evitar el KeyError
+        # Usar la nueva clase CSS para el texto de ganancia
         st.markdown(f"<p class='eco-guany-text'>Guanyaràs {st.session_state.ultima_resposta_correcta} ECO$ per resposta correcta.</p>", unsafe_allow_html=True)
 
         resposta_usuari = st.radio(
@@ -281,8 +385,8 @@ with col1:
             if st.session_state.pistes_extra > 0:
                 if st.button(f"Usar Pista ({st.session_state.pistes_extra} disponibles)", key="btn_usar_pista", use_container_width=True, type="secondary"):
                     usar_pista()
-            elif st.session_state.pistes_extra == 0:
-                st.button(f"Usar Pista (0 disponibles)", key="btn_usar_pista_disabled", use_container_width=True, disabled=True)
+            else: # Usar un botón deshabilitado pero visible para la pista
+                st.button(f"Usar Pista (0 disponibles)", key="btn_usar_pista_disabled", use_container_width=True, disabled=True, type="secondary")
 
         if st.session_state.mostrar_pista and st.session_state.pregunta_actual:
             st.markdown(f"<div class='pista-box'>Pista: {st.session_state.pregunta_actual['pista']}</div>", unsafe_allow_html=True)
@@ -300,21 +404,20 @@ with col1:
 with col2:
     st.markdown('<div class="ecocaixa-section-card">', unsafe_allow_html=True)
     st.subheader("Botiga de Potenciadors ⚡")
-    st.markdown("Compra eines per millorar el teu aprenentatge i guanyar més ECO$.")
+    st.write("Compra eines per millorar el teu aprenentatge i guanyar més ECO$.") # Ahora con texto visible
 
     st.markdown(f"**Multiplicador ECO$ actual:** **x{st.session_state.multiplicador_eco}**")
     st.markdown(f"**Pistes extra disponibles:** **{st.session_state.pistes_extra}**")
-    st.markdown("---")
+    st.markdown("<hr>", unsafe_allow_html=True) # Separador visual
 
-    st.markdown("### 📚 Multiplicador ECO$ x2")
-    st.write("Duplica els ECO$ que guanyes per cada resposta correcta. **Cost: 150 ECO$**")
+    st.markdown("<p class='shop-item-title'>📚 Multiplicador ECO$ x2</p>", unsafe_allow_html=True)
+    st.markdown("<p class='shop-item-description'>Duplica els ECO$ que guanyes per cada resposta correcta. **Cost: 150 ECO$**</p>", unsafe_allow_html=True)
     if st.session_state.multiplicador_eco < 2:
         if st.button("Comprar Multiplicador x2", key="buy_multi_x2", use_container_width=True):
             if st.session_state.saldo_eco >= 150:
                 st.session_state.saldo_eco -= 150
                 st.session_state.multiplicador_eco = 2
                 st.session_state.missatge_feedback = "¡Has activat el multiplicador x2! Ara guanyes el doble d'ECO$ per cada encert."
-                # Actualizar el valor del eco_guany para la siguiente pregunta mostrada
                 if st.session_state.pregunta_actual:
                     st.session_state.ultima_resposta_correcta = st.session_state.pregunta_actual["eco_guany"] * st.session_state.multiplicador_eco
                 st.success(st.session_state.missatge_feedback)
@@ -323,9 +426,10 @@ with col2:
     else:
         st.info("Ja tens el multiplicador x2 (o superior) activat.")
 
-    st.markdown("---")
-    st.markdown("### 🌟 Multiplicador ECO$ x3")
-    st.write("Triplica els ECO$ que guanyes per cada resposta correcta. **Cost: 350 ECO$**")
+    st.markdown("<hr>", unsafe_allow_html=True) # Separador visual
+
+    st.markdown("<p class='shop-item-title'>🌟 Multiplicador ECO$ x3</p>", unsafe_allow_html=True)
+    st.markdown("<p class='shop-item-description'>Triplica els ECO$ que guanyes per cada resposta correcta. **Cost: 350 ECO$**</p>", unsafe_allow_html=True)
     if st.session_state.multiplicador_eco < 3:
         if st.button("Comprar Multiplicador x3", key="buy_multi_x3", use_container_width=True):
             if st.session_state.saldo_eco >= 350:
@@ -340,9 +444,10 @@ with col2:
     else:
         st.info("Ja tens el multiplicador x3 (o superior) activat.")
 
-    st.markdown("---")
-    st.markdown("### 💡 Paquet de 3 Pistes Extra")
-    st.write("Obtén 3 pistes per a les preguntes més complexes. **Cost: 75 ECO$**")
+    st.markdown("<hr>", unsafe_allow_html=True) # Separador visual
+
+    st.markdown("<p class='shop-item-title'>💡 Paquet de 3 Pistes Extra</p>", unsafe_allow_html=True)
+    st.markdown("<p class='shop-item-description'>Obtén 3 pistes per a les preguntes més complexes. **Cost: 75 ECO$**</p>", unsafe_allow_html=True)
     if st.button("Comprar Pistes Extra", key="buy_pistes", use_container_width=True):
         if st.session_state.saldo_eco >= 75:
             st.session_state.saldo_eco -= 75
@@ -356,8 +461,8 @@ with col2:
 
 # --- Footer (en català) ---
 st.markdown("""
-    <hr style="margin-top: 40px; border-color: #e0e0e0;">
-    <p style="text-align: center; color: #6c757d; font-size: 0.9em;">
+    <hr style="margin-top: 40px; border-color: var(--border-color-light);">
+    <p class="footer-text" style="text-align: center; font-size: 0.9em;">
         ECOCAIXA © 2023 - Una eina lúdica i educativa per al desenvolupament d'habilitats socials.
     </p>
 """, unsafe_allow_html=True)
