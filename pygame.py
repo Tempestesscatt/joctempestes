@@ -17,7 +17,7 @@ if 'missatge_feedback' not in st.session_state:
     st.session_state.missatge_feedback = ""
 if 'mostrar_pista' not in st.session_state:
     st.session_state.mostrar_pista = False
-if 'ultima_resposta_correcta' not in st.session_state:
+if 'ultima_resposta_correcta' not in st.session_state: # Para mantener el guany_eco visible tras responder
     st.session_state.ultima_resposta_correcta = 0
 
 # --- Preguntes d'Habilitats Socials (en català) ---
@@ -147,7 +147,7 @@ st.markdown("""
         }
 
         /* Aplicació de colors basats en el tema */
-        html, body, [class*="st-emotion"] {
+        html, body, [class*="st-emotion"] { /* Targetes CSS de Streamlit */
             font-family: 'Open Sans', sans-serif;
             color: var(--text-color-light);
             background-color: var(--background-color-light);
@@ -252,7 +252,7 @@ st.markdown("""
         .stRadio>label {
             font-size: 1.1em;
             margin-bottom: 5px;
-            color: var(--text-color-light);
+            color: var(--text-color-light); /* Asegura la visibilidad en ambos temas */
         }
         [data-baseweb="dark"] .stRadio>label {
             color: var(--text-color-dark);
@@ -260,6 +260,14 @@ st.markdown("""
         .stRadio div[role="radiogroup"] {
             padding-left: 10px;
         }
+        /* Para que las opciones del radio sean visibles en tema oscuro */
+        .stRadio div[role="radiogroup"] label {
+            color: var(--text-color-light);
+        }
+        [data-baseweb="dark"] .stRadio div[role="radiogroup"] label {
+            color: var(--text-color-dark);
+        }
+
 
         .pista-box {
             background-color: var(--pista-background);
@@ -283,17 +291,16 @@ st.markdown("""
             margin-top: 15px;
             font-size: 1em;
             line-height: 1.5;
-            color: var(--text-color-light); /* Asegura que el texto sea legible */
+            color: var(--text-color-light) !important; /* Fuerza el color para asegurar visibilidad */
         }
          [data-baseweb="dark"] .stAlert {
-            color: var(--text-color-dark);
+            color: var(--text-color-dark) !important;
         }
-        .stAlert.st-emotion-cache-12fmwye { /* Target an info/success/error box specifically if needed */
-            color: inherit !important; /* Forces text color to inherit from main text color */
+        /* Icon color adjustment for alerts */
+        .stAlert svg {
+            fill: currentColor !important; /* Forces icon to use text color */
         }
-        .stAlert.st-emotion-cache-12fmwye svg { /* Icon color */
-            fill: inherit !important;
-        }
+
 
         /* Asegurar que los textos de la tienda no se desborden */
         .shop-item-title {
@@ -313,6 +320,8 @@ st.markdown("""
 
         hr {
             border-color: var(--border-color-light);
+            margin-top: 20px;
+            margin-bottom: 20px;
         }
         [data-baseweb="dark"] hr {
             border-color: var(--border-color-dark);
@@ -324,13 +333,21 @@ st.markdown("""
             color: var(--text-color-dark);
         }
 
+        /* Ajustes para el texto general en las secciones, que pueden no ser H ni P */
+        .ecocaixa-section-card > div > div > div > div:first-child > div:nth-child(2) {
+            color: var(--text-color-light);
+        }
+        [data-baseweb="dark"] .ecocaixa-section-card > div > div > div > div:first-child > div:nth-child(2) {
+            color: var(--text-color-dark);
+        }
+
     </style>
 """, unsafe_allow_html=True)
 
 # --- Header ECOCAIXA ---
 st.markdown('<div class="ecocaixa-header"><h1>ECOCAIXA</h1><p>Desenvolupa les teves habilitats socials, guanya ECO$!</p></div>', unsafe_allow_html=True)
 
-# --- Saldo Actual i Puntuació Habilitats ---
+# --- Saldo Actual i Puntuació d'Habilitats ---
 col_stats_1, col_stats_2 = st.columns(2)
 with col_stats_1:
     st.markdown(f"""
@@ -344,7 +361,7 @@ with col_stats_1:
     """, unsafe_allow_html=True)
 with col_stats_2:
     st.markdown(f"""
-        <div class="ecocaixa-saldo-card" style="border-left: 8px solid var(--secondary-color);"> {/* Color verd per la puntuació */}
+        <div class="ecocaixa-saldo-card" style="border-left: 8px solid var(--secondary-color);">
             <span class="icon" style="color: var(--secondary-color);">🧠</span>
             <div class="details">
                 <h2>Puntuació d'Habilitats</h2>
@@ -353,12 +370,12 @@ with col_stats_2:
         </div>
     """, unsafe_allow_html=True)
 
-col1, col2 = st.columns([3, 2]) # Ajustamos las proporciones un poco para dar más espacio a las preguntas
+col1, col2 = st.columns([3, 2])
 
 with col1:
     st.markdown('<div class="ecocaixa-section-card">', unsafe_allow_html=True)
     st.subheader("Preguntes d'Habilitats Socials 🤔")
-    st.write("Posa a prova els teus coneixements i guanya ECO$ per millorar les teves eines.") # Ahora con texto visible
+    st.write("Posa a prova els teus coneixements i guanya ECO$ per millorar les teves eines.")
 
     if st.session_state.pregunta_actual is None:
         st.info("Fes clic per començar amb una pregunta d'habilitats socials!")
@@ -368,7 +385,6 @@ with col1:
         pregunta = st.session_state.pregunta_actual
         st.write(f"**{pregunta['pregunta']}**")
         
-        # Usar la nueva clase CSS para el texto de ganancia
         st.markdown(f"<p class='eco-guany-text'>Guanyaràs {st.session_state.ultima_resposta_correcta} ECO$ per resposta correcta.</p>", unsafe_allow_html=True)
 
         resposta_usuari = st.radio(
@@ -385,7 +401,7 @@ with col1:
             if st.session_state.pistes_extra > 0:
                 if st.button(f"Usar Pista ({st.session_state.pistes_extra} disponibles)", key="btn_usar_pista", use_container_width=True, type="secondary"):
                     usar_pista()
-            else: # Usar un botón deshabilitado pero visible para la pista
+            else:
                 st.button(f"Usar Pista (0 disponibles)", key="btn_usar_pista_disabled", use_container_width=True, disabled=True, type="secondary")
 
         if st.session_state.mostrar_pista and st.session_state.pregunta_actual:
@@ -404,11 +420,11 @@ with col1:
 with col2:
     st.markdown('<div class="ecocaixa-section-card">', unsafe_allow_html=True)
     st.subheader("Botiga de Potenciadors ⚡")
-    st.write("Compra eines per millorar el teu aprenentatge i guanyar més ECO$.") # Ahora con texto visible
+    st.write("Compra eines per millorar el teu aprenentatge i guanyar més ECO$.")
 
     st.markdown(f"**Multiplicador ECO$ actual:** **x{st.session_state.multiplicador_eco}**")
     st.markdown(f"**Pistes extra disponibles:** **{st.session_state.pistes_extra}**")
-    st.markdown("<hr>", unsafe_allow_html=True) # Separador visual
+    st.markdown("<hr>", unsafe_allow_html=True)
 
     st.markdown("<p class='shop-item-title'>📚 Multiplicador ECO$ x2</p>", unsafe_allow_html=True)
     st.markdown("<p class='shop-item-description'>Duplica els ECO$ que guanyes per cada resposta correcta. **Cost: 150 ECO$**</p>", unsafe_allow_html=True)
@@ -426,7 +442,7 @@ with col2:
     else:
         st.info("Ja tens el multiplicador x2 (o superior) activat.")
 
-    st.markdown("<hr>", unsafe_allow_html=True) # Separador visual
+    st.markdown("<hr>", unsafe_allow_html=True)
 
     st.markdown("<p class='shop-item-title'>🌟 Multiplicador ECO$ x3</p>", unsafe_allow_html=True)
     st.markdown("<p class='shop-item-description'>Triplica els ECO$ que guanyes per cada resposta correcta. **Cost: 350 ECO$**</p>", unsafe_allow_html=True)
@@ -444,7 +460,7 @@ with col2:
     else:
         st.info("Ja tens el multiplicador x3 (o superior) activat.")
 
-    st.markdown("<hr>", unsafe_allow_html=True) # Separador visual
+    st.markdown("<hr>", unsafe_allow_html=True)
 
     st.markdown("<p class='shop-item-title'>💡 Paquet de 3 Pistes Extra</p>", unsafe_allow_html=True)
     st.markdown("<p class='shop-item-description'>Obtén 3 pistes per a les preguntes més complexes. **Cost: 75 ECO$**</p>", unsafe_allow_html=True)
