@@ -118,7 +118,6 @@ with col1:
             st.warning('Introduce un número entero como respuesta.')
         # reset question
         st.session_state.current_question = None
-        st.session_state.answer_input = ''
         st.experimental_rerun()
 
     st.write('---')
