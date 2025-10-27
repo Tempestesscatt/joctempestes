@@ -277,13 +277,6 @@ VIDA = {
     ]
 }
 
-# --- FUNCIONS DEL JOC ---
-import streamlit as st
-import random, math, time
-from streamlit.components.v1 import html
-
-# --- FUNCIONS AUXILIARS ---
-
 def get_current_avatar():
     base = VIDA['base_avatar'][st.session_state.base_avatar_idx]['icon']
     skin = VIDA['skin_tones'][st.session_state.skin_tone_idx]['modifier']
@@ -314,7 +307,8 @@ def calcular_multiplicador_total():
     multiplicador = 1.0
     for hab_id in st.session_state.get('habilitats_comprades', []):
         habilitat = next((h for h in VIDA['habilitats'] if h['id'] == hab_id), None)
-        if habilitat: multiplicador *= habilitat['multiplicador']
+        if habilitat:
+            multiplicador *= habilitat['multiplicador']
     return multiplicador
 
 # --- ESTAT INICIAL ---
@@ -334,6 +328,7 @@ if 'estat_joc' not in st.session_state:
     }
 
 # --- LÒGICA PRINCIPAL ---
+
 if st.session_state.estat_joc == 'seleccion_nivell':
     st.title("🎓 Borsa del Saber")
     st.header("Selecciona un examen per posar a prova els teus coneixements")
@@ -380,9 +375,10 @@ elif st.session_state.estat_joc == 'jugant':
         st.rerun()
 
     pregunta_actual = st.session_state.preguntes[st.session_state.pregunta_actual_idx]
-
     guanys = st.session_state.get('guanys_sessio', 0)
     color = "#34d399" if guanys >= 0 else "#f87171"
+
+    # Mostra el balanç de sessió
     st.markdown(f"""
         <div style='text-align:center;margin-bottom:10px'>
         <p style='font-size:1.5rem;opacity:0.7;'>Balanç de l'Examen</p>
@@ -398,16 +394,22 @@ elif st.session_state.estat_joc == 'jugant':
         if key_timer not in st.session_state:
             st.session_state[key_timer] = time.time()
         start_time = st.session_state[key_timer]
+
+        # HTML Timer amb pèrdua cada 3 segons de 5 ECO$
         html(f"""
-        <h1 id="timer-display" style='text-align:center;color:#34d399;font-size:4rem;'></h1>
+        <h1 id="timer-display" style='text-align:center;color:#34d399;font-size:3rem;'></h1>
         <script>
         const s={start_time};
-        function u(){{let e=document.getElementById("timer-display");if(!e)return;
-        let t=Math.max(0,100-Math.floor(((Date.now()/1000)-s)*5));
-        e.textContent=`+${{t}} ECO$`;if(t<=0)clearInterval(window.ti);}}
-        clearInterval(window.ti);window.ti=setInterval(u,200);u();
+        function u(){{
+            let e=document.getElementById("timer-display");if(!e)return;
+            let elapsed=(Date.now()/1000)-s;
+            let t=Math.max(0,100 - Math.floor(elapsed/3)*5);
+            e.textContent=`${{t}} ECO$`;
+            if(t<=0)clearInterval(window.ti);
+        }}
+        clearInterval(window.ti);window.ti=setInterval(u,500);u();
         </script>
-        """, height=80)
+        """, height=70)
 
     with st.container(border=True):
         st.markdown(f"#### {pregunta_actual['pregunta']}")
@@ -423,7 +425,7 @@ elif st.session_state.estat_joc == 'jugant':
 
     if st.session_state.get('resposta_enviada', False):
         if st.session_state.get('resposta_correcta', False):
-            st.success("✅ Resposta Correcta!")
+            st.success("✅ Resposta Correcta! Has guanyat ECO$.")
         else:
             st.error("❌ Resposta Incorrecta! Has perdut 50 ECO$.")
         st.info(f"💡 **Anàlisi:** {pregunta_actual['feedback']}")
@@ -453,15 +455,17 @@ elif st.session_state.estat_joc == 'jugant':
 
                 if correcta:
                     st.session_state.session_correctes += 1
-                    valor_final = max(0, 100 - (temps * 5))
+                    valor_final = max(0, 100 - math.floor(temps / 3) * 5)
                     guany = math.ceil(valor_final * calcular_multiplicador_total())
-                    st.session_state.guanys_sessio += guany
+                    st.session_state.guanys_sessio = st.session_state.get('guanys_sessio', 0) + guany
+                    st.session_state.ecos += guany
                     st.session_state.stats['total_correctes'] += 1
                     st.session_state.stats['rendiment_ambit'][ambit]['correctes'] += 1
                     st.session_state.stats['total_guanyat'] += guany
                 else:
                     penalitzacio = 50
-                    st.session_state.guanys_sessio -= penalitzacio
+                    st.session_state.guanys_sessio = st.session_state.get('guanys_sessio', 0) - penalitzacio
+                    st.session_state.ecos -= penalitzacio
                     st.session_state.stats['total_perdut'] += penalitzacio
 
                 st.session_state.resposta_correcta = correcta
@@ -469,17 +473,18 @@ elif st.session_state.estat_joc == 'jugant':
                 st.rerun()
 
 elif st.session_state.estat_joc == 'resultats':
-    session_earnings = st.session_state.get('guanys_sessio', 0)
-    st.session_state.ecos += session_earnings
-    st.session_state.pop('guanys_sessio', None)
-
     st.title("📊 Resultats de l'Examen")
+    correctes = st.session_state.get('session_correctes', 0)
+    session_earnings = st.session_state.get('guanys_sessio', 0)
+
     if session_earnings > 0:
         st.balloons()
         st.success(f"Has guanyat {session_earnings} ECO$.")
-    else:
+    elif session_earnings < 0:
         st.error(f"Has perdut {abs(session_earnings)} ECO$.")
-    correctes = st.session_state.get('session_correctes', 0)
+    else:
+        st.info("Ni guany ni pèrdua, neutre.")
+
     col1, col2, col3 = st.columns(3)
     col1.metric("Balanç Sessió", f"{session_earnings} ECO$")
     col2.metric("Correctes", f"{correctes}/10")
@@ -504,6 +509,7 @@ elif st.session_state.estat_joc == 'resultats':
         anar_a_seleccio()
         st.session_state.estat_joc = 'botiga'
         st.rerun()
+
 
 
 
