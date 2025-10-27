@@ -4,74 +4,128 @@ import random
 
 # --- Configuración inicial ---
 if 'saldo_eco' not in st.session_state:
-    st.session_state.saldo_eco = 500  # Saldo inicial de ECO$ para inversiones
-if 'propiedades' not in st.session_state:
-    st.session_state.propiedades = [] # Lista de propiedades invertidas
-if 'multiplicador_ganancias' not in st.session_state:
-    st.session_state.multiplicador_ganancias = 1
-if 'mensaje_feedback' not in st.session_state:
-    st.session_state.mensaje_feedback = ""
-if 'oportunidad_actual' not in st.session_state:
-    st.session_state.oportunidad_actual = None
+    st.session_state.saldo_eco = 200  # Saldo inicial de ECO$
+if 'puntuacio_habilitats' not in st.session_state:
+    st.session_state.puntuacio_habilitats = 0 # Puntuación para llevar un registro de respuestas correctas
+if 'multiplicador_eco' not in st.session_state:
+    st.session_state.multiplicador_eco = 1 # Multiplicador de ECO$ per pregunta correcta
+if 'pistes_extra' not in st.session_state:
+    st.session_state.pistes_extra = 0 # Número de pistas extra disponibles
+if 'pregunta_actual' not in st.session_state:
+    st.session_state.pregunta_actual = None
+if 'missatge_feedback' not in st.session_state:
+    st.session_state.missatge_feedback = ""
+if 'mostrar_pista' not in st.session_state:
+    st.session_state.mostrar_pista = False
 
-# --- Oportunidades de Inversión ---
-oportunidades = [
-    {"nombre": "Apartamento Urbano", "costo": 100, "min_ganancia": 120, "max_ganancia": 180, "prob_exito": 0.7, "icono": "🏢"},
-    {"nombre": "Terreno Rural", "costo": 150, "min_ganancia": 150, "max_ganancia": 250, "prob_exito": 0.6, "icono": "🏞️"},
-    {"nombre": "Local Comercial", "costo": 200, "min_ganancia": 200, "max_ganancia": 350, "prob_exito": 0.5, "icono": "🏪"},
-    {"nombre": "Chalet de Lujo", "costo": 300, "min_ganancia": 300, "max_ganancia": 500, "prob_exito": 0.4, "icono": "别墅"},
-    {"nombre": "Piso en el centro", "costo": 80, "min_ganancia": 90, "max_ganancia": 130, "prob_exito": 0.8, "icono": "🏠"},
+# --- Preguntes d'Habilitats Socials (en català) ---
+preguntes_habilitats = [
+    {
+        "pregunta": "¿Quina és la millor manera d'escoltar activament?",
+        "opcions": ["Interrompre per donar la teva opinió", "Mirar al mòbil mentre l'altre parla", "Fer contacte visual i assentir amb el cap", "Planificar la teva resposta abans que acabi"],
+        "resposta_correcta": "Fer contacte visual i assentir amb el cap",
+        "pista": "Implica atenció plena al que diu l'altra persona, tant verbalment com no verbalment.",
+        "eco_guany": 10
+    },
+    {
+        "pregunta": "¿Què NO és un component clau de la comunicació no verbal?",
+        "opcions": ["El to de veu", "La postura corporal", "Les paraules que utilitzes", "El contacte visual"],
+        "resposta_correcta": "Les paraules que utilitzes",
+        "pista": "La comunicació no verbal no implica el llenguatge verbal.",
+        "eco_guany": 10
+    },
+    {
+        "pregunta": "Com expressaries una queixa de manera assertiva?",
+        "opcions": ["Cridant i fent retrets", "Ignorant la situació i esperant que millori", "Descrivint el problema i expressant els teus sentiments sense agressivitat", "Parlar a l'esquena de la persona"],
+        "resposta_correcta": "Descrivint el problema i expressant els teus sentiments sense agressivitat",
+        "pista": "L'assertivitat és el punt mig entre la passivitat i l'agressivitat.",
+        "eco_guany": 10
+    },
+    {
+        "pregunta": "¿Quin dels següents és un signe d'empatia?",
+        "opcions": ["Dir a algú que 'no és per tant'", "Intentar posar-te al lloc de l'altra persona", "Explicar la teva pròpia història sense escoltar la seva", "Jutjar ràpidament les seves emocions"],
+        "resposta_correcta": "Intentar posar-te al lloc de l'altra persona",
+        "pista": "L'empatia és la capacitat de comprendre els sentiments dels altres.",
+        "eco_guany": 10
+    },
+    {
+        "pregunta": "En una discussió, quina actitud afavoreix la resolució de conflictes?",
+        "opcions": ["Imposar la teva opinió", "Evitar el tema completament", "Buscar un terreny comú i una solució satisfactòria per a ambdues parts", "Rendir-te immediatament per evitar enfrontaments"],
+        "resposta_correcta": "Buscar un terreny comú i una solució satisfactòria per a ambdues parts",
+        "pista": "La cooperació és clau per arribar a un acord.",
+        "eco_guany": 10
+    },
+    {
+        "pregunta": "¿Quina d'aquestes afirmacions fomenta una bona autoestima?",
+        "opcions": ["'Sóc un inútil'", "'No sóc bo en res'", "'M'accepto tal com sóc, amb els meus defectes i virtuts'", "'Sempre ho faig tot malament'"],
+        "resposta_correcta": "'M'accepto tal com sóc, amb els meus defectes i virtuts'",
+        "pista": "La clau és l'acceptació personal i una visió equilibrada de tu mateix.",
+        "eco_guany": 10
+    },
+    {
+        "pregunta": "Com reaccionaries si algú et fa un elogi?",
+        "opcions": ["Desviar el compliment o minimitzar-lo", "Acceptar-lo amb un 'gràcies' sincer", "Pensar que t'està prenent el pèl", "Respondre amb un elogi forçat"],
+        "resposta_correcta": "Acceptar-lo amb un 'gràcies' sincer",
+        "pista": "Permet-te rebre la valoració positiva dels altres sense complexos.",
+        "eco_guany": 10
+    },
 ]
 
-# --- Función para generar una oportunidad de inversión ---
-def generar_oportunidad():
-    st.session_state.oportunidad_actual = random.choice(oportunidades)
-    st.session_state.mensaje_feedback = ""
+# --- Funció per generar una pregunta ---
+def generar_pregunta():
+    st.session_state.pregunta_actual = random.choice(preguntes_habilitats)
+    st.session_state.missatge_feedback = ""
+    st.session_state.mostrar_pista = False # Resetejar la pista
 
-# --- Función para invertir ---
-def invertir_en_propiedad(oportunidad):
-    if st.session_state.saldo_eco >= oportunidad["costo"]:
-        st.session_state.saldo_eco -= oportunidad["costo"]
-        
-        # Simular el éxito o fracaso de la inversión
-        if random.random() < oportunidad["prob_exito"]:
-            ganancia = random.randint(oportunidad["min_ganancia"], oportunidad["max_ganancia"])
-            ganancia_con_multiplicador = ganancia * st.session_state.multiplicador_ganancias
-            st.session_state.saldo_eco += ganancia_con_multiplicador
-            st.session_state.propiedades.append(oportunidad["nombre"])
-            st.session_state.mensaje_feedback = f"🎉 ¡Éxito! Tu inversión en '{oportunidad['nombre']}' fue rentable. Ganaste {ganancia_con_multiplicador} ECO$."
+# --- Funció per verificar resposta ---
+def verificar_resposta(resposta_usuari):
+    if st.session_state.pregunta_actual:
+        if resposta_usuari == st.session_state.pregunta_actual["resposta_correcta"]:
+            guany_eco = st.session_state.pregunta_actual["eco_guany"] * st.session_state.multiplicador_eco
+            st.session_state.saldo_eco += guany_eco
+            st.session_state.puntuacio_habilitats += 1
+            st.session_state.missatge_feedback = f"🎉 ¡Correcte! Has guanyat {guany_eco} ECO$. La teva puntuació d'habilitats és {st.session_state.puntuacio_habilitats}."
+            generar_pregunta() # Genera una nova pregunta en encertar
         else:
-            st.session_state.mensaje_feedback = f"😔 ¡Lo siento! Tu inversión en '{oportunidad['nombre']}' no fue rentable. Perdiste los {oportunidad['costo']} ECO$ invertidos."
-        
-        # Generar una nueva oportunidad después de invertir
-        generar_oportunidad() 
+            st.session_state.missatge_feedback = f"😔 Incorrecte. La resposta correcta era: '{st.session_state.pregunta_actual['resposta_correcta']}'."
+            # En aquest mode, no perdem ECO$ per fallar, només no en guanyem.
+            generar_pregunta() # Genera una nova pregunta en fallar
     else:
-        st.session_state.mensaje_feedback = "💰 No tienes suficientes ECO$ para esta inversión."
+        st.session_state.missatge_feedback = "Per favor, genera una pregunta primer."
 
-# --- Diseño de la interfaz al estilo ECOCAIXA ---
+# --- Botó de pista ---
+def usar_pista():
+    if st.session_state.pistes_extra > 0:
+        st.session_state.pistes_extra -= 1
+        st.session_state.mostrar_pista = True
+        st.info("Has utilitzat una pista extra.")
+    else:
+        st.warning("No tens pistes extra disponibles. Compra-les a la botiga!")
+
+# --- Disseny de la interfície al estil ECOCAIXA (ara en català) ---
 
 st.set_page_config(
-    page_title="ECOCAIXA - Tu Banco del Futuro",
-    page_icon="🌿",
+    page_title="ECOCAIXA - Habilitats Socials",
+    page_icon="🧠", # Icona de cervell per habilitats
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Estilo CSS para simular ECOCAIXA (colores verdes/azules, fuentes, tarjetas)
+# Estil CSS per simular ECOCAIXA (colors verds/blaus, fonts, targetes)
 st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Open+Sans:wght@400;600&display=swap');
 
-        html, body, [class*="css"] {
+        html, body, [class*="st-emotion"] { /* Actualitzat per Streamlit 1.x */
             font-family: 'Open Sans', sans-serif;
             color: #333;
         }
         h1, h2, h3, h4, h5, h6 {
             font-family: 'Montserrat', sans-serif;
-            color: #007bff; /* Azul primario para títulos */
+            color: #007bff; /* Blau primari per títols */
         }
         .ecocaixa-header {
-            background: linear-gradient(135deg, #007bff, #28a745); /* Degradado azul a verde */
+            background: linear-gradient(135deg, #007bff, #28a745); /* Degradat blau a verd */
             color: white;
             padding: 30px;
             text-align: center;
@@ -89,8 +143,8 @@ st.markdown("""
             font-size: 1.2em;
         }
         .ecocaixa-saldo-card {
-            background-color: #f8f9fa; /* Fondo blanco-gris */
-            border-left: 8px solid #007bff; /* Borde azul */
+            background-color: #f8f9fa; /* Fons blanc-gris */
+            border-left: 8px solid #007bff; /* Vora blava */
             border-radius: 10px;
             padding: 25px;
             margin-bottom: 25px;
@@ -110,7 +164,7 @@ st.markdown("""
         .ecocaixa-saldo-card .details p {
             font-size: 2.2em;
             font-weight: bold;
-            color: #28a745; /* Verde para el saldo */
+            color: #28a745; /* Verd per al saldo */
         }
         .ecocaixa-section-card {
             background-color: #ffffff;
@@ -120,8 +174,8 @@ st.markdown("""
             margin-bottom: 25px;
             border: 1px solid #e0e0e0;
         }
-        .ecocaixa-button {
-            background-color: #28a745; /* Verde para acciones positivas */
+        .stButton>button { /* Estil per tots els botons de Streamlit */
+            background-color: #28a745; /* Verd per accions positives */
             color: white;
             border-radius: 8px;
             padding: 12px 25px;
@@ -131,169 +185,159 @@ st.markdown("""
             transition: background-color 0.3s ease;
             cursor: pointer;
         }
-        .ecocaixa-button:hover {
-            background-color: #218838;
-            color: white;
-        }
-        .ecocaixa-button.secondary {
-            background-color: #007bff; /* Azul para acciones secundarias */
-        }
-        .ecocaixa-button.secondary:hover {
-            background-color: #0056b3;
-        }
-        .stButton>button { /* Esto es para aplicar el estilo a los botones de Streamlit */
-            background-color: #28a745;
-            color: white;
-            border-radius: 8px;
-            padding: 12px 25px;
-            font-size: 1.1em;
-            font-weight: bold;
-            border: none;
-            transition: background-color 0.3s ease;
-        }
         .stButton>button:hover {
             background-color: #218838;
             color: white;
         }
-        .stTextInput>div>div>input {
-            border-radius: 8px;
-            border: 1px solid #ced4da;
-            padding: 10px;
+        .stButton>button[kind="secondary"] { /* Estil per botons secundaris (pistes, etc.) */
+            background-color: #007bff; /* Blau per accions secundaries */
         }
-        .stAlert {
-            border-radius: 8px;
+        .stButton>button[kind="secondary"]:hover {
+            background-color: #0056b3;
         }
-        .oportunidad-item {
-            background-color: #e9ecef;
+        .stRadio>label {
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+        .stRadio div[role="radiogroup"] {
+            padding-left: 10px;
+        }
+        .pista-box {
+            background-color: #fff3cd; /* Groc clar */
+            border-left: 5px solid #ffc107; /* Vora groga */
             padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            border: 1px dashed #adb5bd;
-            font-weight: bold;
-        }
-        .propiedad-lista {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
+            border-radius: 5px;
             margin-top: 15px;
-        }
-        .propiedad-tag {
-            background-color: #e0f7fa;
-            color: #007bff;
-            padding: 8px 12px;
-            border-radius: 20px;
-            font-size: 0.9em;
-            border: 1px solid #b2ebf2;
+            color: #856404;
         }
     </style>
 """, unsafe_allow_html=True)
 
 # --- Header ECOCAIXA ---
-st.markdown('<div class="ecocaixa-header"><h1>ECOCAIXA</h1><p>Invierte, crece, prospera.</p></div>', unsafe_allow_html=True)
+st.markdown('<div class="ecocaixa-header"><h1>ECOCAIXA</h1><p>Desenvolupa les teves habilitats socials, guanya ECO$!</p></div>', unsafe_allow_html=True)
 
-# --- Saldo Actual ---
-st.markdown(f"""
-    <div class="ecocaixa-saldo-card">
-        <span class="icon">🏦</span>
-        <div class="details">
-            <h2>Tu Saldo</h2>
-            <p>{st.session_state.saldo_eco:.2f} ECO$</p>
+# --- Saldo Actual i Puntuació Habilitats ---
+col_stats_1, col_stats_2 = st.columns(2)
+with col_stats_1:
+    st.markdown(f"""
+        <div class="ecocaixa-saldo-card">
+            <span class="icon">💰</span>
+            <div class="details">
+                <h2>El teu Saldo</h2>
+                <p>{st.session_state.saldo_eco:.2f} ECO$</p>
+            </div>
         </div>
-    </div>
-""", unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
+with col_stats_2:
+    st.markdown(f"""
+        <div class="ecocaixa-saldo-card" style="border-left: 8px solid #28a745;">
+            <span class="icon" style="color: #28a745;">🧠</span>
+            <div class="details">
+                <h2>Puntuació d'Habilitats</h2>
+                <p>{st.session_state.puntuacio_habilitats}</p>
+            </div>
+        </div>
+    """, unsafe_allow_html=True)
 
 col1, col2 = st.columns([3, 2])
 
 with col1:
     st.markdown('<div class="ecocaixa-section-card">', unsafe_allow_html=True)
-    st.subheader("Oportunidades de Inversión Inmobiliaria 📈")
-    st.markdown("Invierte en bienes raíces y haz crecer tu capital ECO$.")
+    st.subheader("Preguntes d'Habilitats Socials 🤔")
+    st.markdown("Posa a prova els teus coneixements i guanya ECO$ per millorar les teves eines.")
 
-    if st.session_state.oportunidad_actual is None:
-        st.info("Haz clic para descubrir una nueva oportunidad de inversión.")
-        if st.button("Buscar Oportunidad", key="btn_buscar_oportunidad_inicial", help="Genera una nueva propiedad para invertir."):
-            generar_oportunidad()
+    if st.session_state.pregunta_actual is None:
+        st.info("Fes clic per començar amb una pregunta d'habilitats socials!")
+        if st.button("Generar Nova Pregunta", key="btn_generar_inicial", help="Genera una nova pregunta per respondre."):
+            generar_pregunta()
     else:
-        oportunidad = st.session_state.oportunidad_actual
-        st.markdown(f"""
-            <div class="oportunidad-item">
-                <span style="font-size: 1.5em;">{oportunidad['icono']}</span> <strong>{oportunidad['nombre']}</strong><br>
-                💰 Costo de Inversión: <span style="color: #dc3545;">{oportunidad['costo']} ECO$</span><br>
-                📈 Ganancia Estimada: <span style="color: #28a745;">{oportunidad['min_ganancia'] * st.session_state.multiplicador_ganancias} - {oportunidad['max_ganancia'] * st.session_state.multiplicador_ganancias} ECO$</span> (con tu multiplicador)<br>
-                📊 Probabilidad de Éxito: {(oportunidad['prob_exito'] * 100):.0f}%
-            </div>
-        """, unsafe_allow_html=True)
+        pregunta = st.session_state.pregunta_actual
+        st.write(f"**{pregunta['pregunta']}**")
+        st.markdown(f"<p style='color:#28a745;'>Guanyaràs {pregunta['eco_guany'] * st.session_state.multiplicador_eco} ECO$ per resposta correcta.</p>", unsafe_allow_html=True)
 
-        st.write("") # Espacio
-        if st.button(f"Invertir en {oportunidad['nombre']}", key="btn_invertir", help="Invierte tus ECO$ en esta propiedad."):
-            invertir_en_propiedad(oportunidad)
+        resposta_usuari = st.radio(
+            "Selecciona la teva resposta:",
+            pregunta["opcions"],
+            key="radio_respostes"
+        )
         
-        if st.button("Buscar Otra Oportunidad", key="btn_otra_oportunidad", help="Descartar esta y buscar una nueva.", type="secondary"):
-            generar_oportunidad()
+        col_btns_pregunta_1, col_btns_pregunta_2 = st.columns(2)
+        with col_btns_pregunta_1:
+            if st.button("Enviar Resposta", key="btn_enviar_resposta", use_container_width=True):
+                verificar_resposta(resposta_usuari)
+        with col_btns_pregunta_2:
+            if st.session_state.pistes_extra > 0:
+                if st.button(f"Usar Pista ({st.session_state.pistes_extra} disponibles)", key="btn_usar_pista", use_container_width=True, type="secondary"):
+                    usar_pista()
+            elif st.session_state.pistes_extra == 0:
+                st.button(f"Usar Pista (0 disponibles)", key="btn_usar_pista_disabled", use_container_width=True, disabled=True)
 
-    if st.session_state.mensaje_feedback:
-        if "Éxito" in st.session_state.mensaje_feedback:
-            st.success(st.session_state.mensaje_feedback)
-        elif "No tienes suficientes" in st.session_state.mensaje_feedback:
-            st.warning(st.session_state.mensaje_feedback)
+        if st.session_state.mostrar_pista and st.session_state.pregunta_actual:
+            st.markdown(f"<div class='pista-box'>Pista: {st.session_state.pregunta_actual['pista']}</div>", unsafe_allow_html=True)
+
+    if st.session_state.missatge_feedback:
+        if "Correcte" in st.session_state.missatge_feedback:
+            st.success(st.session_state.missatge_feedback)
+        elif "Incorrecte" in st.session_state.missatge_feedback:
+            st.error(st.session_state.missatge_feedback)
         else:
-            st.error(st.session_state.mensaje_feedback)
+            st.info(st.session_state.missatge_feedback)
     
     st.markdown('</div>', unsafe_allow_html=True)
 
-    st.markdown('<div class="ecocaixa-section-card">', unsafe_allow_html=True)
-    st.subheader("Tus Propiedades Adquiridas 🏡")
-    if st.session_state.propiedades:
-        st.markdown("<div class='propiedad-lista'>", unsafe_allow_html=True)
-        for prop in st.session_state.propiedades:
-            st.markdown(f"<span class='propiedad-tag'>{prop}</span>", unsafe_allow_html=True)
-        st.markdown("</div>", unsafe_allow_html=True)
-    else:
-        st.info("Aún no tienes propiedades en tu cartera. ¡Empieza a invertir!")
-    st.markdown('</div>', unsafe_allow_html=True)
-
-
 with col2:
     st.markdown('<div class="ecocaixa-section-card">', unsafe_allow_html=True)
-    st.subheader("Centro de Mejora de Inversiones ✨")
-    st.markdown("Mejora tus herramientas para maximizar tus ganancias en cada operación.")
+    st.subheader("Botiga de Potenciadors ⚡")
+    st.markdown("Compra eines per millorar el teu aprenentatge i guanyar més ECO$.")
 
-    st.markdown(f"**Multiplicador de Ganancias Actual:** **x{st.session_state.multiplicador_ganancias}**")
+    st.markdown(f"**Multiplicador ECO$ actual:** **x{st.session_state.multiplicador_eco}**")
+    st.markdown(f"**Pistes extra disponibles:** **{st.session_state.pistes_extra}**")
     st.markdown("---")
 
-    st.markdown("### 🚀 Multiplicador x2")
-    st.write("Aumenta el rendimiento de tus inversiones al doble. **Coste: 300 ECO$**")
-    if st.session_state.multiplicador_ganancias < 2:
-        if st.button("Comprar Multiplicador x2", key="buy_x2", use_container_width=True):
-            if st.session_state.saldo_eco >= 300:
-                st.session_state.saldo_eco -= 300
-                st.session_state.multiplicador_ganancias = 2
-                st.success("¡Has activado el multiplicador x2! Tus ganancias ahora serán el doble.")
+    st.markdown("### 📚 Multiplicador ECO$ x2")
+    st.write("Duplica els ECO$ que guanyes per cada resposta correcta. **Cost: 150 ECO$**")
+    if st.session_state.multiplicador_eco < 2:
+        if st.button("Comprar Multiplicador x2", key="buy_multi_x2", use_container_width=True):
+            if st.session_state.saldo_eco >= 150:
+                st.session_state.saldo_eco -= 150
+                st.session_state.multiplicador_eco = 2
+                st.success("¡Has activat el multiplicador x2! Ara guanyes el doble d'ECO$ per cada encert.")
             else:
-                st.error("Necesitas 300 ECO$ para comprar este multiplicador.")
+                st.error("No tens suficients ECO$ per aquesta compra.")
     else:
-        st.info("Ya tienes el multiplicador x2 (o superior) activado.")
+        st.info("Ja tens el multiplicador x2 (o superior) activat.")
 
     st.markdown("---")
-    st.markdown("### 🌟 Multiplicador x3")
-    st.write("Triple el potencial de tus ganancias en cada inversión. **Coste: 700 ECO$**")
-    if st.session_state.multiplicador_ganancias < 3:
-        if st.button("Comprar Multiplicador x3", key="buy_x3", use_container_width=True):
-            if st.session_state.saldo_eco >= 700:
-                st.session_state.saldo_eco -= 700
-                st.session_state.multiplicador_ganancias = 3
-                st.success("¡Has activado el multiplicador x3! Tus ganancias ahora serán el triple.")
+    st.markdown("### 🌟 Multiplicador ECO$ x3")
+    st.write("Triplica els ECO$ que guanyes per cada resposta correcta. **Cost: 350 ECO$**")
+    if st.session_state.multiplicador_eco < 3:
+        if st.button("Comprar Multiplicador x3", key="buy_multi_x3", use_container_width=True):
+            if st.session_state.saldo_eco >= 350:
+                st.session_state.saldo_eco -= 350
+                st.session_state.multiplicador_eco = 3
+                st.success("¡Has activat el multiplicador x3! Ara guanyes el triple d'ECO$ per cada encert.")
             else:
-                st.error("Necesitas 700 ECO$ para comprar este multiplicador.")
+                st.error("No tens suficients ECO$ per aquesta compra.")
     else:
-        st.info("Ya tienes el multiplicador x3 (o superior) activado.")
+        st.info("Ja tens el multiplicador x3 (o superior) activat.")
+
+    st.markdown("---")
+    st.markdown("### 💡 Paquet de 3 Pistes Extra")
+    st.write("Obtén 3 pistes per a les preguntes més complexes. **Cost: 75 ECO$**")
+    if st.button("Comprar Pistes Extra", key="buy_pistes", use_container_width=True):
+        if st.session_state.saldo_eco >= 75:
+            st.session_state.saldo_eco -= 75
+            st.session_state.pistes_extra += 3
+            st.success("¡Has comprat 3 pistes extra!")
+        else:
+            st.error("No tens suficients ECO$ per comprar pistes.")
 
     st.markdown('</div>', unsafe_allow_html=True)
 
-# --- Footer (Opcional) ---
+# --- Footer (en català) ---
 st.markdown("""
     <hr style="margin-top: 40px; border-color: #e0e0e0;">
     <p style="text-align: center; color: #6c757d; font-size: 0.9em;">
-        ECOCAIXA © 2023 - Un producto simulado con fines lúdicos y educativos. Invierte con responsabilidad.
+        ECOCAIXA © 2023 - Una eina lúdica i educativa per al desenvolupament d'habilitats socials.
     </p>
 """, unsafe_allow_html=True)
