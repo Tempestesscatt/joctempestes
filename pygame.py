@@ -175,4 +175,5 @@ if st.button('Resetear juego'):
     for k in ['balance','multiplier','last_tick','shield_until','current_question','base_reward','penalty','history','auto_mode','auto_mode_refresh_id']:
         if k in st.session_state:
             del st.session_state[k]
-    st.experimental_rerun()
+    st.rerun()
+
