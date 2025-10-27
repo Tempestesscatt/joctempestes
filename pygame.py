@@ -476,15 +476,12 @@ elif st.session_state.estat_joc == 'jugant':
 elif st.session_state.estat_joc == 'resultats':
     st.title("📊 Resultats de l'Examen")
     
+    # Simplement mostrem els guanys de la sessió, sense processar-los encara
     session_earnings = st.session_state.get('guanys_sessio', 0)
     
-    # Lògica per processar els guanys només una vegada
-    if 'guanys_processats' not in st.session_state:
-        st.session_state.ecos += session_earnings
-        st.session_state.guanys_processats = True
-
     if session_earnings > 0:
-        st.balloons(); st.success(f"Excel·lent sessió! Has guanyat {session_earnings} ECO$.")
+        st.balloons()
+        st.success(f"Excel·lent sessió! Has obtingut un balanç de {session_earnings} ECO$.")
     else:
         st.error(f"Aquesta sessió ha generat pèrdues de {session_earnings} ECO$. Més sort la propera vegada!")
 
@@ -494,22 +491,39 @@ elif st.session_state.estat_joc == 'resultats':
     col2.metric("Respostes Correctes", f"{session_correctes} de 10")
     col3.metric("Precisió", f"{(session_correctes / 10) * 100:.0f}%")
     
-    st.markdown("---"); st.header("Rendiment per Àmbit")
+    st.markdown("---")
+    st.header("Rendiment per Àmbit")
     
     performance = st.session_state.get('session_performance_ambit', {})
     if not performance:
         st.info("No s'han registrat dades de rendiment en aquesta sessió.")
     else:
         for ambit, dades in performance.items():
-            correctes = dades.get('correctes', 0); total = dades.get('total', 0)
+            correctes = dades.get('correctes', 0)
+            total = dades.get('total', 0)
             if total > 0:
-                st.write(f"**{ambit}:** {correctes} de {total} correctes"); st.progress(correctes / total)
+                st.write(f"**{ambit}:** {correctes} de {total} correctes")
+                st.progress(correctes / total)
     
     st.markdown("---")
+
+    # --- NOU SISTEMA DE BOTONS ---
     
-    col_btn1, col_btn2 = st.columns(2)
-    if col_btn1.button("Tornar a Jugar", use_container_width=True): go_to_state('seleccion_nivell')
-    if col_btn2.button("Anar a la Botiga", use_container_width=True): go_to_state('botiga')
+    # Botó per retirar guanys i anar al menú principal (ara és l'acció principal)
+    if st.button(f"💸 Retirar {session_earnings} ECO$ i Tornar al Menú", use_container_width=True):
+        # AQUESTA ÉS L'ACCIÓ CLAU: SUMEM ELS GUANYS AL TOTAL
+        st.session_state.ecos += session_earnings
+        # I després netegem i anem a la selecció de nivell
+        go_to_state('seleccion_nivell')
+        
+    st.write("") # Espai
+    
+    # Botó secundari per anar a la botiga (els guanys també es retiraran)
+    if st.button("🛍️ Retirar i Anar a la Botiga", use_container_width=True):
+        # SUMEM ELS GUANYS AL TOTAL
+        st.session_state.ecos += session_earnings
+        # I després netegem i anem a la botiga
+        go_to_state('botiga')
 
 elif st.session_state.estat_joc == 'botiga':
     st.title("🛍️ Botiga de Millores")
@@ -588,4 +602,5 @@ if st.session_state.professions_idx == len(VIDA['professions']) - 1 and \
         for key in list(st.session_state.keys()):
             del st.session_state[key]
         st.rerun()
+
 
