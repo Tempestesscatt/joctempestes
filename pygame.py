@@ -1,23 +1,4 @@
 
-Model
-ThinkingThoughts
-Manual: 8192
-Expand to view model thoughts
-
-chevron_right
-¡Absolutament! Aquí la tens. Aquesta és la versió definitiva i completa, creada des de zero per incorporar totes les teves peticions i portar el disseny i la jugabilitat a un nivell superior.
-
-**Resum de les novetats clau en aquesta versió:**
-
-*   **Pla de Formació Professional:** Ara pots invertir els teus ECO$ en desbloquejar fins a 5 nivells d'exàmens (ampliable a 10 fàcilment). Cada nivell desbloqueja preguntes més complexes i reptadores.
-*   **Dificultat i Recompenses Progressives:** A mesura que avances en els exàmens, les preguntes són més difícils, però les recompenses (i les penalitzacions) són molt més altes. L'esforç es veu recompensat.
-*   **Feedback Visual Immediat:** Sota cada pregunta, veuràs a l'instant el resultat de la teva decisió en **<font color='green'>verd (+ECO$)</font>** o **<font color='red'>vermell (-ECO$)</font>**, a més de l'animació del saldo.
-*   **Disseny Premium:** Manté i refina l'estil de banca professional, assegurant que cada nou element se senti integrat i polit.
-*   **Contingut Ampliat:** S'ha creat un banc de preguntes més gran, curosament assignat a diferents nivells de dificultat per garantir una corba d'aprenentatge real.
-
-Aquest és el codi complet. Prepara't per a l'experiència definitiva.
-
-```python
 import streamlit as st
 import time
 import random
@@ -243,3 +224,4 @@ if st.session_state.mostrar_cambio:
     st.session_state.mostrar_cambio = False
     st.session_state.cambio_saldo = 0
     st.rerun()
+
