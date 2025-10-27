@@ -278,6 +278,12 @@ VIDA = {
 }
 
 # --- FUNCIONS DEL JOC ---
+import streamlit as st
+import random, math, time
+from streamlit.components.v1 import html
+
+# --- FUNCIONS AUXILIARS ---
+
 def get_current_avatar():
     base = VIDA['base_avatar'][st.session_state.base_avatar_idx]['icon']
     skin = VIDA['skin_tones'][st.session_state.skin_tone_idx]['modifier']
@@ -285,12 +291,10 @@ def get_current_avatar():
     return f"{base}{skin}{profession}"
 
 def iniciar_joc(nivell):
-    # Reseteja les estadístiques de la sessió actual
     st.session_state.session_correctes = 0
     st.session_state.session_performance_ambit = {}
-    
     preguntes_filtrades = [p for p in PREGUNTES if p.get('nivell') == nivell]
-    st.session_state.preguntes = random.sample(preguntes_filtrades, 10) # Sempre 10 preguntes
+    st.session_state.preguntes = random.sample(preguntes_filtrades, 10)
     st.session_state.guanys_sessio = 0
     st.session_state.pregunta_actual_idx = 0
     st.session_state.estat_joc = 'jugant'
@@ -300,9 +304,9 @@ def comprovar_resposta_multiple(respostes_usuari, respostes_correctes):
     return sorted(respostes_usuari) == sorted(respostes_correctes)
 
 def anar_a_seleccio():
-    session_keys_to_delete = ['preguntes', 'guanys_sessio', 'pregunta_actual_idx', 'resposta_enviada', 'resposta_correcta', 'session_correctes', 'session_performance_ambit']
-    for key in session_keys_to_delete:
-        if key in st.session_state: del st.session_state[key]
+    for key in ['preguntes', 'guanys_sessio', 'pregunta_actual_idx', 'resposta_enviada',
+                'resposta_correcta', 'session_correctes', 'session_performance_ambit']:
+        st.session_state.pop(key, None)
     st.session_state.estat_joc = 'seleccion_nivell'
     st.rerun()
 
@@ -313,7 +317,7 @@ def calcular_multiplicador_total():
         if habilitat: multiplicador *= habilitat['multiplicador']
     return multiplicador
 
-# --- INICIALITZACIÓ DE L'ESTAT DE LA SESSIÓ ---
+# --- ESTAT INICIAL ---
 if 'estat_joc' not in st.session_state:
     st.session_state.estat_joc = 'seleccion_nivell'
     st.session_state.ecos = 10
@@ -324,10 +328,12 @@ if 'estat_joc' not in st.session_state:
     st.session_state.casa_idx = 0
     st.session_state.vehicle_idx = 0
     st.session_state.habilitats_comprades = []
-    st.session_state.stats = {'total_preguntes': 0, 'total_correctes': 0, 'total_guanyat': 0, 'total_perdut': 0, 'rendiment_ambit': {}}
+    st.session_state.stats = {
+        'total_preguntes': 0, 'total_correctes': 0, 'total_guanyat': 0,
+        'total_perdut': 0, 'rendiment_ambit': {}
+    }
 
-# --- LÒGICA PRINCIPAL DE L'APLICACIÓ ---
-
+# --- LÒGICA PRINCIPAL ---
 if st.session_state.estat_joc == 'seleccion_nivell':
     st.title("🎓 Borsa del Saber")
     st.header("Selecciona un examen per posar a prova els teus coneixements")
@@ -338,9 +344,9 @@ if st.session_state.estat_joc == 'seleccion_nivell':
     COSTOS_NIVELL = {'principiant': 0, 'avançat': 1000, 'expert': 5000, 'llegenda': 20000}
     nivells_info = {
         'principiant': ("🌱 Mercat Emergent", "Inversions segures. 10 preguntes fonamentals."),
-        'avançat': ("🧠 Mercat Consolidat", "Major risc i recompensa. 10 preguntes de detalls específics."),
-        'expert': ("🔥 Alt Risc", "Volatilitat màxima. 10 preguntes complexes."),
-        'llegenda': ("👑 Fons d'Inversió", "El repte final. 10 preguntes amb múltiples respostes.")
+        'avançat': ("🧠 Mercat Consolidat", "Major risc i recompensa."),
+        'expert': ("🔥 Alt Risc", "Volatilitat màxima. Preguntes complexes."),
+        'llegenda': ("👑 Fons d'Inversió", "El repte final amb múltiples respostes.")
     }
 
     cols = st.columns(len(nivells_info))
@@ -358,191 +364,146 @@ if st.session_state.estat_joc == 'seleccion_nivell':
                         if st.session_state.ecos >= cost:
                             st.session_state.ecos -= cost
                             st.session_state.nivells_desbloquejats.append(nivell)
-                            st.toast(f"Has desbloquejat l'examen '{titol}'!", icon="🎉")
+                            st.toast(f"Has desbloquejat '{titol}'!", icon="🎉")
                             st.rerun()
                         else:
                             st.warning("No tens suficients ECO$!")
-    
+
     st.markdown("---")
     if st.button("🛍️ Anar a la Botiga de Millores", use_container_width=True):
         st.session_state.estat_joc = 'botiga'
         st.rerun()
 
 elif st.session_state.estat_joc == 'jugant':
-    # Importem la llibreria de components dins del bloc per mantenir el codi organitzat
-    from streamlit.components.v1 import html
-
-    # Comprovació de seguretat per si l'estat es corromp
     if 'preguntes' not in st.session_state or st.session_state.pregunta_actual_idx >= len(st.session_state.preguntes):
-        anar_a_seleccio()
-    
+        st.session_state.estat_joc = 'resultats'
+        st.rerun()
+
     pregunta_actual = st.session_state.preguntes[st.session_state.pregunta_actual_idx]
-    
-    # --- VISUALITZADOR DE PUNTUACIÓ DE SESSIÓ (TARGETA DE CRÈDIT) ---
+
     guanys = st.session_state.get('guanys_sessio', 0)
-    color = "#34d399" if guanys >= 0 else "#f87171" # Verd per positiu, vermell per negatiu
+    color = "#34d399" if guanys >= 0 else "#f87171"
     st.markdown(f"""
-        <div style='text-align: center; margin-bottom: 10px;'>
-            <p style='font-size: 1.5rem; opacity: 0.7;'>Balanç de l'Examen</p>
-            <p style='font-size: 5rem; font-weight: 600; color: {color}; line-height: 1;'>
-                {guanys} ECO$
-            </p>
+        <div style='text-align:center;margin-bottom:10px'>
+        <p style='font-size:1.5rem;opacity:0.7;'>Balanç de l'Examen</p>
+        <p style='font-size:5rem;font-weight:600;color:{color};line-height:1;'>{guanys} ECO$</p>
         </div>
     """, unsafe_allow_html=True)
-    st.progress(st.session_state.pregunta_actual_idx / len(st.session_state.preguntes), text=f"Pregunta {st.session_state.pregunta_actual_idx + 1} de 10")
-    
-    # --- LÒGICA DEL CRONÒMETRE (ARA FUNCIONAL) ---
+
+    st.progress(st.session_state.pregunta_actual_idx / len(st.session_state.preguntes),
+                text=f"Pregunta {st.session_state.pregunta_actual_idx + 1} de 10")
+
     if not st.session_state.get('resposta_enviada', False):
         key_timer = f"timer_start_{st.session_state.pregunta_actual_idx}"
         if key_timer not in st.session_state:
             st.session_state[key_timer] = time.time()
         start_time = st.session_state[key_timer]
-
-        # SOLUCIÓ DEFINITIVA AMB JAVASCRIPT AÏLLAT DINS DEL SEU PROPI COMPONENT
-        html_code = f"""
-        <h1 id="timer-display" style='text-align: center; color: #34d399; font-size: 4rem; margin-top: -20px;'></h1>
+        html(f"""
+        <h1 id="timer-display" style='text-align:center;color:#34d399;font-size:4rem;'></h1>
         <script>
-            // Funció per actualitzar el cronòmetre
-            function updateTimer() {{
-                const displayElement = document.getElementById('timer-display');
-                if (!displayElement) return;
-
-                const startTime = {start_time};
-                const elapsedSeconds = (Date.now() / 1000) - startTime;
-                const currentValue = Math.max(0, 100 - Math.floor(elapsedSeconds * 5));
-                
-                displayElement.textContent = `+${{currentValue}} ECO$`;
-
-                if (currentValue <= 0) {{
-                    clearInterval(window.currentTimerInterval);
-                }}
-            }}
-
-            // Aturem qualsevol interval anterior per seguretat
-            if (window.currentTimerInterval) {{
-                clearInterval(window.currentTimerInterval);
-            }}
-
-            // Creem el nou interval i el guardem
-            window.currentTimerInterval = setInterval(updateTimer, 200); // Actualitzem 5 cops per segon
-            updateTimer(); // Cridem una vegada per mostrar el valor inicial immediatament
+        const s={start_time};
+        function u(){{let e=document.getElementById("timer-display");if(!e)return;
+        let t=Math.max(0,100-Math.floor(((Date.now()/1000)-s)*5));
+        e.textContent=`+${{t}} ECO$`;if(t<=0)clearInterval(window.ti);}}
+        clearInterval(window.ti);window.ti=setInterval(u,200);u();
         </script>
-        """
-        html(html_code, height=80)
+        """, height=80)
 
-    # --- CONTENIDOR DE LA PREGUNTA I BOTONS ---
     with st.container(border=True):
         st.markdown(f"#### {pregunta_actual['pregunta']}")
         disabled = st.session_state.get('resposta_enviada', False)
-        
         if pregunta_actual['tipus'] == 'opcions':
-            st.radio("Tria la teva inversió:", options=pregunta_actual['opcions'].keys(), format_func=lambda k: f"{k.upper()}) {pregunta_actual['opcions'][k]}", index=None, key="widget", disabled=disabled)
-        elif pregunta_actual['tipus'] == 'multiple':
-            st.multiselect("Selecciona TOTES les inversions correctes:", options=pregunta_actual['opcions'].keys(), format_func=lambda k: f"{k.upper()}) {pregunta_actual['opcions'][k]}", key="widget", disabled=disabled)
-    
+            st.radio("Tria la teva inversió:", options=pregunta_actual['opcions'].keys(),
+                     format_func=lambda k: f"{k.upper()}) {pregunta_actual['opcions'][k]}",
+                     index=None, key="widget", disabled=disabled)
+        else:
+            st.multiselect("Selecciona TOTES les correctes:", options=pregunta_actual['opcions'].keys(),
+                           format_func=lambda k: f"{k.upper()}) {pregunta_actual['opcions'][k]}",
+                           key="widget", disabled=disabled)
+
     if st.session_state.get('resposta_enviada', False):
-        if st.session_state.get('resposta_correcta', False): 
+        if st.session_state.get('resposta_correcta', False):
             st.success("✅ Resposta Correcta!")
-        else: 
-            st.error(f"❌ Resposta Incorrecta! Has perdut 50 ECO$.")
+        else:
+            st.error("❌ Resposta Incorrecta! Has perdut 50 ECO$.")
         st.info(f"💡 **Anàlisi:** {pregunta_actual['feedback']}")
         if st.button("Següent Pregunta →", use_container_width=True):
             st.session_state.pregunta_actual_idx += 1
             st.session_state.resposta_enviada = False
-            del st.session_state.resposta_correcta
+            st.session_state.pop('resposta_correcta', None)
+            if st.session_state.pregunta_actual_idx >= 10:
+                st.session_state.estat_joc = 'resultats'
             st.rerun()
     else:
         if st.button("Confirmar Resposta", use_container_width=True):
             resposta = st.session_state.get("widget")
-            if resposta:
-                st.session_state.resposta_enviada = True
-                correcta = (pregunta_actual['tipus'] == 'opcions' and resposta == pregunta_actual['correcta']) or \
-                           (pregunta_actual['tipus'] == 'multiple' and sorted(resposta) == sorted(pregunta_actual['correcta']))
-                
+            if not resposta:
+                st.warning("Has de seleccionar una opció.")
+            else:
+                correcta = (
+                    (pregunta_actual['tipus'] == 'opcions' and resposta == pregunta_actual['correcta']) or
+                    (pregunta_actual['tipus'] == 'multiple' and
+                     comprovar_resposta_multiple(resposta, pregunta_actual['correcta']))
+                )
                 temps = time.time() - st.session_state.get(f"timer_start_{st.session_state.pregunta_actual_idx}", time.time())
                 ambit = pregunta_actual.get('ambit', 'General')
-                if ambit not in st.session_state.stats['rendiment_ambit']: st.session_state.stats['rendiment_ambit'][ambit] = {'correctes': 0, 'total': 0}
-                if ambit not in st.session_state.session_performance_ambit: st.session_state.session_performance_ambit[ambit] = {'correctes': 0, 'total': 0}
+                st.session_state.stats['total_preguntes'] += 1
+                st.session_state.stats['rendiment_ambit'].setdefault(ambit, {'correctes': 0, 'total': 0})
+                st.session_state.stats['rendiment_ambit'][ambit]['total'] += 1
 
-                st.session_state.stats['total_preguntes'] += 1; st.session_state.stats['rendiment_ambit'][ambit]['total'] += 1
-                st.session_state.session_performance_ambit[ambit]['total'] += 1
-                
                 if correcta:
                     st.session_state.session_correctes += 1
                     valor_final = max(0, 100 - (temps * 5))
                     guany = math.ceil(valor_final * calcular_multiplicador_total())
                     st.session_state.guanys_sessio += guany
-                    st.session_state.stats['total_correctes'] += 1; st.session_state.stats['rendiment_ambit'][ambit]['correctes'] += 1
-                    st.session_state.session_performance_ambit[ambit]['correctes'] += 1
-                    st.session_state.stats['total_guanyat'] = st.session_state.stats.get('total_guanyat', 0) + guany
+                    st.session_state.stats['total_correctes'] += 1
+                    st.session_state.stats['rendiment_ambit'][ambit]['correctes'] += 1
+                    st.session_state.stats['total_guanyat'] += guany
                 else:
-                    penalitzacio = 50; st.session_state.guanys_sessio -= penalitzacio
-                    st.session_state.stats['total_perdut'] = st.session_state.stats.get('total_perdut', 0) + penalitzacio
-                
+                    penalitzacio = 50
+                    st.session_state.guanys_sessio -= penalitzacio
+                    st.session_state.stats['total_perdut'] += penalitzacio
+
                 st.session_state.resposta_correcta = correcta
+                st.session_state.resposta_enviada = True
                 st.rerun()
-            else: 
-                st.warning("Has de seleccionar una opció.")
 
 elif st.session_state.estat_joc == 'resultats':
-    # --- LÒGICA DE PROCESSAMENT DE RESULTATS (EXECUCIÓ ÚNICA I SEGURA) ---
-    # Aquesta secció s'assegura que els guanys només s'afegeixen una vegada.
-    
-    # Comprovem si encara hi ha guanys de sessió per processar.
-    if 'guanys_sessio' in st.session_state and st.session_state.guanys_sessio is not None:
-        # Guardem els guanys en una variable local per a mostrar-los
-        session_earnings = st.session_state.guanys_sessio
-        
-        # Afegim els guanys al saldo TOTAL (AQUESTA ERA LA PART QUE FALLAVA)
-        st.session_state.ecos += session_earnings
-        
-        # Eliminem els guanys de la sessió per a evitar que es tornin a sumar si la pàgina es refresca
-        del st.session_state.guanys_sessio
-    else:
-        # Si la pàgina es refresca, els guanys ja s'han processat. Els mostrem a 0.
-        session_earnings = 0
+    session_earnings = st.session_state.get('guanys_sessio', 0)
+    st.session_state.ecos += session_earnings
+    st.session_state.pop('guanys_sessio', None)
 
-    # --- VISUALITZACIÓ DELS RESULTATS ---
     st.title("📊 Resultats de l'Examen")
-    
     if session_earnings > 0:
         st.balloons()
-        st.success(f"Excel·lent sessió! Has guanyat {session_earnings} ECO$.")
+        st.success(f"Has guanyat {session_earnings} ECO$.")
     else:
-        st.error(f"Aquesta sessió ha generat pèrdues. Has perdut {session_earnings} ECO$. Més sort la propera vegada!")
-
+        st.error(f"Has perdut {abs(session_earnings)} ECO$.")
+    correctes = st.session_state.get('session_correctes', 0)
     col1, col2, col3 = st.columns(3)
-    col1.metric("Balanç de la Sessió", f"{session_earnings} ECO$")
-    col2.metric("Respostes Correctes", f"{st.session_state.get('session_correctes', 0)} de 10")
-    col3.metric("Precisió", f"{(st.session_state.get('session_correctes', 0, 0) / 10) * 100:.0f}%")
-    
+    col1.metric("Balanç Sessió", f"{session_earnings} ECO$")
+    col2.metric("Correctes", f"{correctes}/10")
+    col3.metric("Precisió", f"{(correctes / 10) * 100:.0f}%")
+
     st.markdown("---")
     st.header("Rendiment per Àmbit")
-    
     performance = st.session_state.get('session_performance_ambit', {})
     if not performance:
-        st.info("No s'han registrat dades de rendiment en aquesta sessió.")
+        st.info("No hi ha dades de rendiment.")
     else:
         for ambit, dades in performance.items():
-            correctes = dades.get('correctes', 0)
-            total = dades.get('total', 0)
-            if total > 0:
-                percentatge = correctes / total
-                st.write(f"**{ambit}:** {correctes} de {total} correctes")
-                st.progress(percentatge)
-    
-    st.markdown("---")
+            percent = dades['correctes'] / dades['total'] if dades['total'] > 0 else 0
+            st.write(f"**{ambit}:** {dades['correctes']} de {dades['total']} correctes")
+            st.progress(percent)
 
-    # --- BOTONS DE NAVEGACIÓ ---
+    st.markdown("---")
     col_btn1, col_btn2 = st.columns(2)
     if col_btn1.button("Tornar a Jugar", use_container_width=True):
         anar_a_seleccio()
     if col_btn2.button("Anar a la Botiga", use_container_width=True):
+        anar_a_seleccio()
         st.session_state.estat_joc = 'botiga'
-        # Netegem les variables de la sessió d'examen abans d'anar a la botiga
-        session_keys_to_delete = ['preguntes', 'pregunta_actual_idx', 'resposta_enviada', 'resposta_correcta', 'session_correctes', 'session_performance_ambit']
-        for key in session_keys_to_delete:
-            if key in st.session_state: del st.session_state[key]
         st.rerun()
+
 
 
