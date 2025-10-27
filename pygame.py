@@ -65,7 +65,7 @@ def apply_passive_decay():
 if st.session_state.get('auto_mode_refresh_id', None) is None and st.session_state.auto_mode:
     try:
         from streamlit_autorefresh import st_autorefresh
-n        # request a rerun every 5 seconds (5000 ms)
+        # request a rerun every 5 seconds (5000 ms)
         st.session_state.auto_mode_refresh_id = st_autorefresh(interval=5000, limit=None)
     except Exception:
         # package not available — inform user later
