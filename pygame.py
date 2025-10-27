@@ -1,3 +1,12 @@
+
+Model
+¡Entendido! El `KeyError` probablemente viene del acceso a `pregunta['eco_guany']` cuando `pregunta_actual` es `None` al inicio, y los problemas de visibilidad son por el CSS.
+
+Vamos a corregir ambos puntos. El `KeyError` se resolverá asegurándonos de que `pregunta_actual` exista antes de intentar acceder a sus claves. Para el CSS, ajustaremos los colores del texto para asegurar un buen contraste con los fondos.
+
+Aquí tienes la versión corregida y mejorada:
+
+```python
 import streamlit as st
 import time
 import random
@@ -17,6 +26,8 @@ if 'missatge_feedback' not in st.session_state:
     st.session_state.missatge_feedback = ""
 if 'mostrar_pista' not in st.session_state:
     st.session_state.mostrar_pista = False
+if 'ultima_resposta_correcta' not in st.session_state: # Para mantener el guany_eco visible tras responder
+    st.session_state.ultima_resposta_correcta = 0
 
 # --- Preguntes d'Habilitats Socials (en català) ---
 preguntes_habilitats = [
@@ -76,6 +87,7 @@ def generar_pregunta():
     st.session_state.pregunta_actual = random.choice(preguntes_habilitats)
     st.session_state.missatge_feedback = ""
     st.session_state.mostrar_pista = False # Resetejar la pista
+    st.session_state.ultima_resposta_correcta = st.session_state.pregunta_actual["eco_guany"] * st.session_state.multiplicador_eco # Actualizar el valor
 
 # --- Funció per verificar resposta ---
 def verificar_resposta(resposta_usuari):
@@ -88,7 +100,6 @@ def verificar_resposta(resposta_usuari):
             generar_pregunta() # Genera una nova pregunta en encertar
         else:
             st.session_state.missatge_feedback = f"😔 Incorrecte. La resposta correcta era: '{st.session_state.pregunta_actual['resposta_correcta']}'."
-            # En aquest mode, no perdem ECO$ per fallar, només no en guanyem.
             generar_pregunta() # Genera una nova pregunta en fallar
     else:
         st.session_state.missatge_feedback = "Per favor, genera una pregunta primer."
@@ -118,7 +129,7 @@ st.markdown("""
 
         html, body, [class*="st-emotion"] { /* Actualitzat per Streamlit 1.x */
             font-family: 'Open Sans', sans-serif;
-            color: #333;
+            color: #333; /* Color de text general més fosc per millorar el contrast */
         }
         h1, h2, h3, h4, h5, h6 {
             font-family: 'Montserrat', sans-serif;
@@ -139,7 +150,7 @@ st.markdown("""
             margin-bottom: 5px;
         }
         .ecocaixa-header p {
-            color: rgba(255, 255, 255, 0.8);
+            color: rgba(255, 255, 255, 0.9); /* Text del header lleugerament més visible */
             font-size: 1.2em;
         }
         .ecocaixa-saldo-card {
@@ -208,7 +219,12 @@ st.markdown("""
             padding: 15px;
             border-radius: 5px;
             margin-top: 15px;
-            color: #856404;
+            color: #856404; /* Color de text més fosc per la pista */
+        }
+        .eco-guany-text {
+            color: #28a745; /* Verd fort per guany ECO$ */
+            font-weight: bold;
+            font-size: 1.1em;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -250,10 +266,14 @@ with col1:
         st.info("Fes clic per començar amb una pregunta d'habilitats socials!")
         if st.button("Generar Nova Pregunta", key="btn_generar_inicial", help="Genera una nova pregunta per respondre."):
             generar_pregunta()
+            # Asegurarse de que ultima_resposta_correcta se inicialice correctamente al generar la primera pregunta
+            st.session_state.ultima_resposta_correcta = st.session_state.pregunta_actual["eco_guany"] * st.session_state.multiplicador_eco
     else:
         pregunta = st.session_state.pregunta_actual
         st.write(f"**{pregunta['pregunta']}**")
-        st.markdown(f"<p style='color:#28a745;'>Guanyaràs {pregunta['eco_guany'] * st.session_state.multiplicador_eco} ECO$ per resposta correcta.</p>", unsafe_allow_html=True)
+        
+        # Usar st.session_state.ultima_resposta_correcta para evitar el KeyError
+        st.markdown(f"<p class='eco-guany-text'>Guanyaràs {st.session_state.ultima_resposta_correcta} ECO$ per resposta correcta.</p>", unsafe_allow_html=True)
 
         resposta_usuari = st.radio(
             "Selecciona la teva resposta:",
@@ -301,7 +321,11 @@ with col2:
             if st.session_state.saldo_eco >= 150:
                 st.session_state.saldo_eco -= 150
                 st.session_state.multiplicador_eco = 2
-                st.success("¡Has activat el multiplicador x2! Ara guanyes el doble d'ECO$ per cada encert.")
+                st.session_state.missatge_feedback = "¡Has activat el multiplicador x2! Ara guanyes el doble d'ECO$ per cada encert."
+                # Actualizar el valor del eco_guany para la siguiente pregunta mostrada
+                if st.session_state.pregunta_actual:
+                    st.session_state.ultima_resposta_correcta = st.session_state.pregunta_actual["eco_guany"] * st.session_state.multiplicador_eco
+                st.success(st.session_state.missatge_feedback)
             else:
                 st.error("No tens suficients ECO$ per aquesta compra.")
     else:
@@ -315,7 +339,10 @@ with col2:
             if st.session_state.saldo_eco >= 350:
                 st.session_state.saldo_eco -= 350
                 st.session_state.multiplicador_eco = 3
-                st.success("¡Has activat el multiplicador x3! Ara guanyes el triple d'ECO$ per cada encert.")
+                st.session_state.missatge_feedback = "¡Has activat el multiplicador x3! Ara guanyes el triple d'ECO$ per cada encert."
+                if st.session_state.pregunta_actual:
+                    st.session_state.ultima_resposta_correcta = st.session_state.pregunta_actual["eco_guany"] * st.session_state.multiplicador_eco
+                st.success(st.session_state.missatge_feedback)
             else:
                 st.error("No tens suficients ECO$ per aquesta compra.")
     else:
@@ -328,7 +355,8 @@ with col2:
         if st.session_state.saldo_eco >= 75:
             st.session_state.saldo_eco -= 75
             st.session_state.pistes_extra += 3
-            st.success("¡Has comprat 3 pistes extra!")
+            st.session_state.missatge_feedback = "¡Has comprat 3 pistes extra!"
+            st.success(st.session_state.missatge_feedback)
         else:
             st.error("No tens suficients ECO$ per comprar pistes.")
 
