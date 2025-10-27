@@ -1,17 +1,4 @@
 
-Model
-Tens tota la raó. Mil disculpes, sembla que la resposta anterior es va tallar. Un error inacceptable. Ara sí, aquí tens el **codi 100% complet i absolutament final**, sense talls ni omissions, revisat de dalt a baix per assegurar que tot hi és.
-
-Aquest arxiu únic conté:
-
-*   El **banc de 120 preguntes** amb les seves categories.
-*   El **Pla de Carrera Professional** amb les certificacions.
-*   El **Panell de Rendiment** amb estadístiques i el gràfic d'àrees de millora.
-*   Tot el **disseny premium** i les **animacions**.
-
-Simplement copia tot el contingut d'aquest bloc, enganxa'l en un únic arxiu `.py` i executa'l. Aquesta vegada, no hi faltarà res.
-
-```python
 import streamlit as st
 import time
 import random
@@ -282,3 +269,4 @@ if st.session_state.mostrar_cambio:
     st.session_state.mostrar_cambio = False
     st.session_state.cambio_saldo = 0
     st.rerun()
+
