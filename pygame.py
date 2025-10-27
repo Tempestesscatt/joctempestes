@@ -466,34 +466,51 @@ elif st.session_state.estat_joc == 'jugant':
 elif st.session_state.estat_joc == 'resultats':
     st.title("📊 Resultats de l'Examen")
     
+    # --- LÒGICA DE PROCESSAMENT DE RESULTATS (CORREGIDA I SEGURA) ---
     session_earnings = st.session_state.get('guanys_sessio', 0)
     
+    # Aquesta línia s'executarà només una vegada després de l'examen
+    if 'guanys_processats' not in st.session_state:
+        st.session_state.ecos += session_earnings
+        st.session_state.guanys_processats = True # Marcat com a processat
+
     if session_earnings > 0:
-        st.balloons(); st.success(f"Excel·lent sessió! Has guanyat {session_earnings} ECO$.")
+        st.balloons()
+        st.success(f"Excel·lent sessió! Has guanyat {session_earnings} ECO$.")
     else:
         st.error(f"Aquesta sessió ha generat pèrdues de {session_earnings} ECO$. Més sort la propera vegada!")
 
     col1, col2, col3 = st.columns(3)
     col1.metric("Balanç de la Sessió", f"{session_earnings} ECO$")
-    col2.metric("Respostes Correctes", f"{st.session_state.get('session_correctes', 0)} de 10")
-    col3.metric("Precisió", f"{(st.session_state.get('session_correctes', 0, 0) / 10) * 100:.0f}%")
     
-    st.markdown("---"); st.header("Rendiment per Àmbit")
+    # --- CORRECCIÓ DE SINTAXI ---
+    # st.session_state.get() només accepta 2 arguments
+    session_correctes = st.session_state.get('session_correctes', 0)
+    col2.metric("Respostes Correctes", f"{session_correctes} de 10")
+    col3.metric("Precisió", f"{(session_correctes / 10) * 100:.0f}%")
+    
+    st.markdown("---")
+    st.header("Rendiment per Àmbit")
     
     performance = st.session_state.get('session_performance_ambit', {})
     if not performance:
         st.info("No s'han registrat dades de rendiment en aquesta sessió.")
     else:
         for ambit, dades in performance.items():
-            correctes = dades.get('correctes', 0); total = dades.get('total', 0)
+            correctes = dades.get('correctes', 0)
+            total = dades.get('total', 0)
             if total > 0:
-                st.write(f"**{ambit}:** {correctes} de {total} correctes"); st.progress(correctes / total)
+                st.write(f"**{ambit}:** {correctes} de {total} correctes")
+                st.progress(correctes / total)
     
     st.markdown("---")
 
+    # --- BOTONS DE NAVEGACIÓ ---
     col_btn1, col_btn2 = st.columns(2)
-    if col_btn1.button("Tornar a Jugar", use_container_width=True): go_to_state('seleccion_nivell')
-    if col_btn2.button("Anar a la Botiga", use_container_width=True): go_to_state('botiga')
+    if col_btn1.button("Tornar a Jugar", use_container_width=True):
+        go_to_state('seleccion_nivell')
+    if col_btn2.button("Anar a la Botiga", use_container_width=True):
+        go_to_state('botiga')
 
 elif st.session_state.estat_joc == 'botiga':
     st.title("🛍️ Botiga de Millores")
@@ -572,3 +589,4 @@ if st.session_state.professions_idx == len(VIDA['professions']) - 1 and \
         for key in list(st.session_state.keys()):
             del st.session_state[key]
         st.rerun()
+
