@@ -1,12 +1,4 @@
 
-Model
-¡Entendido! El `KeyError` probablemente viene del acceso a `pregunta['eco_guany']` cuando `pregunta_actual` es `None` al inicio, y los problemas de visibilidad son por el CSS.
-
-Vamos a corregir ambos puntos. El `KeyError` se resolverá asegurándonos de que `pregunta_actual` exista antes de intentar acceder a sus claves. Para el CSS, ajustaremos los colores del texto para asegurar un buen contraste con los fondos.
-
-Aquí tienes la versión corregida y mejorada:
-
-```python
 import streamlit as st
 import time
 import random
