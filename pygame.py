@@ -265,3 +265,4 @@ if st.session_state.get('mostrar_cambio', False):
     st.session_state.mostrar_cambio = False
     st.session_state.cambio_saldo = 0
     st.rerun()
+
