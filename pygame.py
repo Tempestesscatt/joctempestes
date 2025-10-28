@@ -89,6 +89,10 @@ if 'puntuacio' not in st.session_state:
     st.session_state.puntuacio = 0
 if 'pregunta_actual' not in st.session_state:
     st.session_state.pregunta_actual = None
+if 'opcions_actuals' not in st.session_state: # NOU: Per guardar les opcions barrejades
+    st.session_state.opcions_actuals = []
+if 'resposta_enviada' not in st.session_state: # NOU: Per controlar l'estat de la pregunta
+    st.session_state.resposta_enviada = False
 if 'missatge_feedback' not in st.session_state:
     st.session_state.missatge_feedback = ""
 if 'cambio_saldo' not in st.session_state:
@@ -113,6 +117,7 @@ if 'nivell_potenciador_actual' not in st.session_state:
 
 # --- FUNCIONS DEL JOC ---
 def generar_pregunta():
+    """Selecciona una nova pregunta, barreja les seves opcions i reinicia l'estat per respondre."""
     nivell_maxim = max(c['nivell_dificultat'] for c in st.session_state.certificacions if c['unlocked'])
     
     preguntes_disponibles = [
@@ -128,18 +133,23 @@ def generar_pregunta():
         idx, pregunta_seleccionada = random.choice(preguntes_disponibles)
         st.session_state.pregunta_actual = pregunta_seleccionada
         st.session_state.preguntes_recents.append(idx)
+        # Barreja i guarda les opcions per evitar que canviïn
+        st.session_state.opcions_actuals = random.sample(pregunta_seleccionada["opcions"], len(pregunta_seleccionada["opcions"]))
     else:
-        st.session_state.pregunta_actual = None # No hi ha més preguntes per aquest nivell
+        st.session_state.pregunta_actual = None
     
+    # Reinicia l'estat per a la nova pregunta
     st.session_state.missatge_feedback = ""
+    st.session_state.resposta_enviada = False
 
 def verificar_resposta(resposta_usuari):
+    """Verifica la resposta de l'usuari, actualitza les puntuacions i prepara el feedback."""
     pregunta = st.session_state.pregunta_actual
     st.session_state.preguntes_respostes += 1
     
     if resposta_usuari == pregunta["resposta_correcta"]:
         guany_base = pregunta["gc_guany"]
-        guany_final = int(guany_base * st.session_state.multiplicador_actual) # Aplicar multiplicador
+        guany_final = int(guany_base * st.session_state.multiplicador_actual)
         st.session_state.geo_credits += guany_final
         st.session_state.puntuacio += 1
         st.session_state.respostes_correctes += 1
@@ -148,13 +158,13 @@ def verificar_resposta(resposta_usuari):
     else:
         perdua_gc = pregunta["gc_perdua"]
         st.session_state.geo_credits -= perdua_gc
-        st.session_state.missatge_feedback = f"😔 Resposta Incorrecta. <span class='feedback-perdua'>-{perdua_gc} GC</span>"
+        st.session_state.missatge_feedback = f"😔 Resposta Incorrecta. La correcta era: **{pregunta['resposta_correcta']}**. <span class='feedback-perdua'>-{perdua_gc} GC</span>"
         st.session_state.cambio_saldo = -perdua_gc
         categoria_error = pregunta.get('categoria', 'General')
         st.session_state.errors_per_categoria[categoria_error] = st.session_state.errors_per_categoria.get(categoria_error, 0) + 1
 
     st.session_state.mostrar_cambio = True
-    generar_pregunta()
+    st.session_state.resposta_enviada = True # Marca la pregunta com a contestada
 
 def comprar_potenciador():
     nivell_actual = st.session_state.nivell_potenciador_actual
@@ -171,9 +181,10 @@ def comprar_potenciador():
             st.error("No tens suficients GeoCrèdits per aquesta millora.")
 
 
-# --- DISSENY DE LA INTERFÍCIE (UI) "NEO-BANK" ADAPTADA ---
+# --- DISSENY DE LA INTERFÍCIE (UI) ---
 st.markdown("""
     <style>
+        /* ... (El teu CSS no necessita canvis, és perfecte) ... */
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
         :root {
             --primary-color: #8B4513; --accent-color: #50C878; --text-color: #E0E0E0;
@@ -255,24 +266,36 @@ with tab1:
         st.markdown(f"**Nivell de Certificació:** `{pregunta['dificultat']}` | **Categoria:** `{pregunta['categoria']}`")
         st.markdown(f"#### {pregunta['pregunta']}")
         
-        opcions_barrejades = random.sample(pregunta["opcions"], len(pregunta["opcions"]))
-        resposta_usuari = st.radio("Selecciona la teva resposta:", opcions_barrejades, key="radio_respostes", label_visibility="collapsed")
+        # El radio button ara es desactiva un cop s'ha enviat la resposta
+        resposta_usuari = st.radio(
+            "Selecciona la teva resposta:", 
+            st.session_state.opcions_actuals, 
+            key="radio_respostes", 
+            label_visibility="collapsed",
+            disabled=st.session_state.resposta_enviada
+        )
         
-        if st.button("Confirmar Resposta", key="btn_enviar_resposta", use_container_width=True):
-            verificar_resposta(resposta_usuari)
-            st.rerun()
-
-        if st.session_state.missatge_feedback:
-            st.markdown(f"<div style='margin-top: 20px; text-align: center; font-size: 1.1em;'>{st.session_state.missatge_feedback}</div>", unsafe_allow_html=True)
+        # LÒGICA DE BOTONS CORREGIDA
+        if not st.session_state.resposta_enviada:
+            if st.button("Confirmar Resposta", key="btn_enviar_resposta", use_container_width=True):
+                verificar_resposta(resposta_usuari)
+                st.rerun()
+        else:
+            # Mostra el feedback un cop la resposta ha estat enviada
+            if st.session_state.missatge_feedback:
+                st.markdown(f"<div style='margin-top: 20px; text-align: center; font-size: 1.1em;'>{st.session_state.missatge_feedback}</div>", unsafe_allow_html=True)
+            
+            if st.button("Següent Pregunta", key="btn_seguent_pregunta", use_container_width=True):
+                generar_pregunta()
+                st.rerun()
 
 with tab2:
+    # Aquesta pestanya no necessita canvis
     st.subheader("El Teu Camí d'Expert en Sòls")
     st.markdown('<div class="career-path">', unsafe_allow_html=True)
-
     for i, cert in enumerate(st.session_state.get('certificacions', [])):
         status_class = "unlocked" if cert["unlocked"] else "locked"
         can_unlock = st.session_state.certificacions[i-1]['unlocked'] if i > 0 else True
-        
         st.markdown(f'<div class="step {status_class}">', unsafe_allow_html=True)
         st.markdown(f'<span class="step-icon">{cert["icon"]}</span>', unsafe_allow_html=True)
         st.markdown(f"""
@@ -281,7 +304,6 @@ with tab2:
                 <span>{'✅ Certificació Obtinguda' if cert['unlocked'] else f"Inversió: {cert['cost']} GC"}</span>
             </div>
         """, unsafe_allow_html=True)
-        
         if not cert['unlocked'] and can_unlock:
             if st.button(f"Desbloquejar Nivell {cert['id']}", key=f"buy_cert_{cert['id']}", disabled=(st.session_state.geo_credits < cert['cost'])):
                 st.session_state.geo_credits -= cert['cost']
@@ -289,15 +311,14 @@ with tab2:
                 st.success(f"Felicitats! Has obtingut la certificació '{cert['nom']}'!")
                 time.sleep(1.5)
                 st.rerun()
-        
         st.markdown('</div>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
 with tab3:
+    # Aquesta pestanya no necessita canvis
     st.subheader("Laboratori de Millores Permanents")
     st.markdown(f"La teva eficiència d'investigació actual multiplica els guanys per **{st.session_state.multiplicador_actual:.2f}x**.")
     st.markdown("---")
-
     nivell_actual = st.session_state.nivell_potenciador_actual
     if nivell_actual < len(POTENCIADORS_TENDA):
         propera_millora = POTENCIADORS_TENDA[nivell_actual]
@@ -305,13 +326,13 @@ with tab3:
         st.markdown(f"### {propera_millora['nom']}")
         st.markdown(f"Aquesta millora augmentarà el teu multiplicador de guanys a **{propera_millora['multiplicador']:.2f}x**.")
         st.markdown(f"**Cost de la inversió:** `{propera_millora['cost']} GC`")
-        
         if st.button("Adquirir Millora", key="buy_upgrade", use_container_width=True, disabled=(st.session_state.geo_credits < propera_millora['cost'])):
             comprar_potenciador()
     else:
         st.success("🎉 Has assolit el màxim nivell d'investigació! Ets una llegenda de l'edafologia. 🎉")
 
 with tab4:
+    # Aquesta pestanya no necessita canvis
     st.subheader("Anàlisi de Rendiment")
     if st.session_state.preguntes_respostes > 0:
         st.markdown("<h5>Estadístiques Generals</h5>", unsafe_allow_html=True)
@@ -321,7 +342,6 @@ with tab4:
             <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1);"><span style="color: #BDBDBD;">Respostes Correctes</span><span style="font-weight: 600; color: var(--accent-color);">{correctes}</span></div>
             <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1);"><span style="color: #BDBDBD;">Respostes Incorrectes</span><span style="font-weight: 600; color: #FF5252;">{total_respostes - correctes}</span></div>
         """, unsafe_allow_html=True)
-        
         st.write("")
         st.markdown("<h5>Àrees de Millora (Basat en Errors)</h5>", unsafe_allow_html=True)
         if st.session_state.errors_per_categoria:
