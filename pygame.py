@@ -243,34 +243,35 @@ with tab2:
 
 with tab3:
     st.subheader("Anàlisi de Rendiment")
-    if st.session_state.preguntes_respostes > 0:
-        st.markdown("<h5>Estadístiques Generals</h5>", unsafe_allow_html=True)
-        st.markdown(f"""
-            <div class="stat-item"><span class="stat-label">Percentatge d'Encerts</span><span class="stat-value">{percentatge_encert:.1f}%</span></div>
-            <div class="stat-item"><span class="stat-label">Preguntes Respostes</span><span class="stat-value">{total_respostes}</span></div>
-            <div class="stat-item"><span class="stat-label">Respostes Correctes</span><span class="stat-value" style="color: var(--accent-color);">{correctes}</span></div>
-            <div class="stat-item"><span class="stat-label">Respostes Incorrectes</span><span class="stat-value" style="color: #FF5252;">{total_respostes - correctes}</span></div>
-        """, unsafe_allow_html=True)
-        
-        st.write("")
-        st.markdown("<h5>Àrees de Millora</h5>", unsafe_allow_html=True)
-        if st.session_state.errors_per_categoria:
+    if st.session_state.errors_per_categoria:
             errors_df = pd.DataFrame(list(st.session_state.errors_per_categoria.items()), columns=['Habilitat', 'Errors'])
+            
+            # --- CODI DEL GRÀFIC MILLORAT ---
             chart = alt.Chart(errors_df).mark_bar(
                 cornerRadius=5,
+                height=25  # Ajusta l'alçada de les barres si cal
             ).encode(
                 x=alt.X('Errors:Q', title="Nombre d'Errors"),
                 y=alt.Y('Habilitat:N', title="", sort='-x'),
                 tooltip=['Habilitat', 'Errors'],
-                color=alt.Color('Habilitat:N', legend=None, scale=alt.Scale(scheme='blues'))
+                color=alt.Color('Habilitat:N', legend=None, scale=alt.Scale(scheme='blues', reverse=True)) # Esquema de color coherent
+            ).properties(
+                title=alt.TitleParams(
+                    text='Errors per Categoria d\'Habilitat',
+                    anchor='start',  # Alinea el títol a l'esquerra
+                    color='#E0E0E0'
+                )
+            ).configure_view(
+                strokeWidth=0  # Elimina la vora del gràfic
             ).configure_axis(
                 labelColor='#E0E0E0',
-                titleColor='#BDBDBD'
-            ).configure_title(
-                color='#E0E0E0'
-            ).configure_view(
-                strokeWidth=0
+                titleColor='#BDBDBD',
+                gridColor='rgba(255, 255, 255, 0.1)', # Línies de la graella subtils
+                domain=False # Elimina la línia de l'eix
+            ).configure(
+                background='transparent'  # Fons transparent
             )
+            
             st.altair_chart(chart, use_container_width=True)
         else:
             st.success("🎉 De moment, cap error! El teu rendiment és perfecte.")
@@ -283,3 +284,4 @@ if st.session_state.get('mostrar_cambio', False):
     st.session_state.mostrar_cambio = False
     st.session_state.cambio_saldo = 0
     st.rerun()
+
