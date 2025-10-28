@@ -6,101 +6,70 @@ import altair as alt
 from collections import deque
 
 # --- CONFIGURACIÓ DE PÀGINA INICIAL ---
-st.set_page_config(page_title="ECO-Banc Pro", page_icon="✨", layout="wide")
+st.set_page_config(page_title="Terra-Expert", page_icon="🌱", layout="wide")
 
 # --- ESTRUCTURES DE DADES ---
 
-# Pla de Carrera Professional (Exàmens)
-EXAMENS_INFO = [
-    {"id": 1, "nom": "Fonaments de la Comunicació", "cost": 0, "nivell_dificultat": 1, "icon": "🗣️"},
-    {"id": 2, "nom": "Certificat en Assertivitat", "cost": 150, "nivell_dificultat": 2, "icon": "⚖️"},
-    {"id": 3, "nom": "Avançat en Intel·ligència Emocional", "cost": 400, "nivell_dificultat": 2, "icon": "💡"},
-    {"id": 4, "nom": "Diploma en Resolució de Conflictes", "cost": 800, "nivell_dificultat": 3, "icon": "🤝"},
-    {"id": 5, "nom": "Màster en Negociació Estratègica", "cost": 1500, "nivell_dificultat": 3, "icon": "📈"},
-    {"id": 6, "nom": "Postgrau en Lideratge d'Equips", "cost": 3000, "nivell_dificultat": 4, "icon": "👑"},
+# Pla de Carrera en Edafologia (Certificacions)
+CERTIFICACIONS_INFO = [
+    {"id": 1, "nom": "Introducció a l'Edafologia", "cost": 0, "nivell_dificultat": 1, "icon": "🕵️‍♂️"},
+    {"id": 2, "nom": "Certificat en Perfils Edàfics", "cost": 450, "nivell_dificultat": 2, "icon": "🏞️"},
+    {"id": 3, "nom": "Diploma en Propietats Fisicoquímiques", "cost": 1200, "nivell_dificultat": 3, "icon": "🔬"},
+    {"id": 4, "nom": "Avançat en Química del Sòl", "cost": 2800, "nivell_dificultat": 4, "icon": "🧪"},
+    {"id": 5, "nom": "Màster en Formació i Gènesi del Sòl", "cost": 5500, "nivell_dificultat": 5, "icon": "🌍"},
+    {"id": 6, "nom": "Postgrau en Cicles Biogeoquímics", "cost": 9000, "nivell_dificultat": 6, "icon": "👑"},
 ]
 
-# --- BANC DE PREGUNTES COMPLET (+100) ---
-PREGUNTES_HABILITATS = [
-    # --- NIVELL 1 (Fonaments) ---
-    {"pregunta": "¿Quina és la millor manera d'escoltar activament?", "opcions": ["Interrompre", "Mirar al mòbil", "Fer contacte visual i assentir", "Planificar la resposta"], "resposta_correcta": "Fer contacte visual i assentir", "eco_guany": 20, "eco_perdua": 10, "dificultat": 1, "categoria": "Escolta Activa"},
-    {"pregunta": "¿Com respons a una crítica constructiva?", "opcions": ["Defensivament", "Ignorant-la", "Agraint i preguntant com millorar", "Criticant a l'altre"], "resposta_correcta": "Agraint i preguntant com millorar", "eco_guany": 20, "eco_perdua": 10, "dificultat": 1, "categoria": "Feedback"},
-    {"pregunta": "Què implica l'escolta reflexiva?", "opcions": ["Donar la teva opinió", "Explicar una experiència pròpia", "Parafrasejar el que ha dit l'altre", "Assentir sense atenció"], "resposta_correcta": "Parafrasejar el que ha dit l'altre", "eco_guany": 20, "eco_perdua": 10, "dificultat": 1, "categoria": "Escolta Activa"},
-    {"pregunta": "Un somriure és un exemple de comunicació...", "opcions": ["Verbal", "Escrita", "No verbal", "Formal"], "resposta_correcta": "No verbal", "eco_guany": 15, "eco_perdua": 5, "dificultat": 1, "categoria": "Comunicació No Verbal"},
-    {"pregunta": "La 'codificació' del missatge la realitza...", "opcions": ["El receptor", "L'emissor", "El canal", "El context"], "resposta_correcta": "L'emissor", "eco_guany": 15, "eco_perdua": 5, "dificultat": 1, "categoria": "Comunicació Bàsica"},
-    {"pregunta": "Quin és un component conductual de les HH.SS.?", "opcions": ["Creences", "Expressió facial", "Autoestima", "Ansietat"], "resposta_correcta": "Expressió facial", "eco_guany": 15, "eco_perdua": 5, "dificultat": 1, "categoria": "Comunicació No Verbal"},
-    {"pregunta": "El 'canal' en comunicació es refereix a...", "opcions": ["El missatge", "El receptor", "El mitjà de transmissió", "Les interferències"], "resposta_correcta": "El mitjà de transmissió", "eco_guany": 15, "eco_perdua": 5, "dificultat": 1, "categoria": "Comunicació Bàsica"},
-    {"pregunta": "Què són les 'interferències' en la comunicació?", "opcions": ["El feedback", "Elements que dificulten la transmissió", "Llenguatge no verbal", "El context"], "resposta_correcta": "Elements que dificulten la transmissió", "eco_guany": 15, "eco_perdua": 5, "dificultat": 1, "categoria": "Comunicació Bàsica"},
-    {"pregunta": "La retroalimentació (feedback) permet a l'emissor saber...", "opcions": ["Si el canal funciona", "Si el missatge ha estat rebut i comprès", "Quin és el context", "Si hi ha interferències"], "resposta_correcta": "Si el missatge ha estat rebut i comprès", "eco_guany": 20, "eco_perdua": 10, "dificultat": 1, "categoria": "Feedback"},
-    {"pregunta": "Creuar els braços durant una conversa pot interpretar-se com...", "opcions": ["Obertura i interès", "Defensa o desacord", "Relaxació total", "Ganes de participar"], "resposta_correcta": "Defensa o desacord", "eco_guany": 15, "eco_perdua": 5, "dificultat": 1, "categoria": "Comunicació No Verbal"},
-    {"pregunta": "En una primera trobada professional, què és important?", "opcions": ["Parlar només de tu", "Fer preguntes obertes", "Mirar el rellotge", "Evitar contacte visual"], "resposta_correcta": "Fer preguntes obertes", "eco_guany": 15, "eco_perdua": 5, "dificultat": 1, "categoria": "Comunicació Bàsica"},
-    {"pregunta": "Com reacciones a un elogi?", "opcions": ["Minimitzar-lo", "Acceptar-lo amb un 'gràcies' sincer", "Pensar que és fals", "Respondre amb un elogi forçat"], "resposta_correcta": "Acceptar-lo amb un 'gràcies' sincer", "eco_guany": 15, "eco_perdua": 5, "dificultat": 1, "categoria": "Assertivitat"},
-    {"pregunta": "Quina part del missatge té més impacte segons la majoria d'estudis?", "opcions": ["Les paraules exactes", "El to de veu", "El llenguatge corporal", "La velocitat en parlar"], "resposta_correcta": "El llenguatge corporal", "eco_guany": 20, "eco_perdua": 10, "dificultat": 1, "categoria": "Comunicació No Verbal"},
-    {"pregunta": "Què significa tenir una postura corporal 'oberta'?", "opcions": ["Braços creuats", "Mirar cap avall", "Braços descruzats i cos relaxat", "Estar d'esquena"], "resposta_correcta": "Braços descruzats i cos relaxat", "eco_guany": 15, "eco_perdua": 5, "dificultat": 1, "categoria": "Comunicació No Verbal"},
-    {"pregunta": "Per a què serveix principalment el contacte visual durant una conversa?", "opcions": ["Per intimidar", "Per mostrar interès i confiança", "Per distreure", "No té cap funció"], "resposta_correcta": "Per mostrar interès i confiança", "eco_guany": 15, "eco_perdua": 5, "dificultat": 1, "categoria": "Comunicació No Verbal"},
-    {"pregunta": "Què és un component cognitiu de les HH.SS.?", "opcions": ["La mirada", "La postura", "Les creences i pensaments", "El to de veu"], "resposta_correcta": "Les creences i pensaments", "eco_guany": 15, "eco_perdua": 5, "dificultat": 1, "categoria": "Comunicació Bàsica"},
-    {"pregunta": "L'espai personal o 'proxèmica' es refereix a...", "opcions": ["El volum de la veu", "La distància física entre persones", "El temps que dura una conversa", "El lloc on es conversa"], "resposta_correcta": "La distància física entre persones", "eco_guany": 15, "eco_perdua": 5, "dificultat": 1, "categoria": "Comunicació No Verbal"},
-    {"pregunta": "Un gest com aixecar les espatlles indica generalment...", "opcions": ["Acord total", "Enfado", "Desconeixement o indiferència", "Entusiasme"], "resposta_correcta": "Desconeixement o indiferència", "eco_guany": 15, "eco_perdua": 5, "dificultat": 1, "categoria": "Comunicació No Verbal"},
-    {"pregunta": "Què és la 'paralingüística'?", "opcions": ["L'estudi de les paraules", "Els aspectes no verbals de la veu (to, ritme...)", "L'estudi dels gestos", "L'estudi de l'escriptura"], "resposta_correcta": "Els aspectes no verbals de la veu (to, ritme...)", "eco_guany": 20, "eco_perdua": 10, "dificultat": 1, "categoria": "Comunicació No Verbal"},
-    {"pregunta": "Un to de veu monòton pot transmetre...", "opcions": ["Passió i interès", "Autoritat i seguretat", "Nerviosisme i por", "Avorriment o falta d'interès"], "resposta_correcta": "Avorriment o falta d'interès", "eco_guany": 15, "eco_perdua": 5, "dificultat": 1, "categoria": "Comunicació No Verbal"},
-    {"pregunta": "Què és més important per a una comunicació efectiva?", "opcions": ["Parlar molt ràpid", "Utilitzar paraules complicades", "Que el missatge sigui clar i concís", "Parlar més alt que els altres"], "resposta_correcta": "Que el missatge sigui clar i concís", "eco_guany": 15, "eco_perdua": 5, "dificultat": 1, "categoria": "Comunicació Bàsica"},
-    {"pregunta": "La primera impressió es forma principalment a partir de...", "opcions": ["El teu currículum", "La teva comunicació no verbal", "El que dius en els primers 10 minuts", "La teva roba"], "resposta_correcta": "La teva comunicació no verbal", "eco_guany": 15, "eco_perdua": 5, "dificultat": 1, "categoria": "Comunicació No Verbal"},
-    {"pregunta": "Com es defineix 'conducta' en el context de les HH.SS.?", "opcions": ["Només les accions bones", "La manera de comportar-se en una situació", "Els pensaments interns", "La personalitat"], "resposta_correcta": "La manera de comportar-se en una situació", "eco_guany": 15, "eco_perdua": 5, "dificultat": 1, "categoria": "Comunicació Bàsica"},
-    {"pregunta": "El 'context' en la comunicació inclou...", "opcions": ["Només el lloc físic", "El lloc, el moment i la relació entre interlocutors", "Només la relació entre persones", "Només el tema de conversa"], "resposta_correcta": "El lloc, el moment i la relació entre interlocutors", "eco_guany": 20, "eco_perdua": 10, "dificultat": 1, "categoria": "Comunicació Bàsica"},
-    {"pregunta": "Què és un component emocional de les HH.SS.?", "opcions": ["El gest de les mans", "La gestió de la pròpia ira", "Les paraules utilitzades", "Les idees preconcebudes"], "resposta_correcta": "La gestió de la pròpia ira", "eco_guany": 20, "eco_perdua": 10, "dificultat": 1, "categoria": "Intel·ligència Emocional"},
+# --- BANC DE PREGUNTES COMPLET D'EDAFOLOGIA ---
+PREGUNTES_EDAFOLOGIA = [
+    # --- NIVELL 1 (Introducció) ---
+    {"pregunta": "Què estudia principalment l'edafologia?", "opcions": ["Les roques i minerals", "El sòl des de tots els punts de vista", "El clima i l'atmosfera", "Els rius i oceans"], "resposta_correcta": "El sòl des de tots els punts de vista", "gc_guany": 20, "gc_perdua": 10, "dificultat": 1, "categoria": "Conceptes Bàsics"},
+    {"pregunta": "Quina d'aquestes NO és una funció principal del sòl en els ecosistemes?", "opcions": ["Hàbitat per a organismes", "Medi per al creixement de les plantes", "Generació d'energia eòlica", "Sistema de reciclatge de matèria orgànica"], "resposta_correcta": "Generació d'energia eòlica", "gc_guany": 25, "gc_perdua": 10, "dificultat": 1, "categoria": "Funcions del Sòl"},
+    {"pregunta": "El sòl es considera la capa superior de la superfície, formada principalment per...", "opcions": ["Sedimentació marina", "Activitat volcànica", "Meteorització de les roques", "Compactació de residus"], "resposta_correcta": "Meteorització de les roques", "gc_guany": 20, "gc_perdua": 10, "dificultat": 1, "categoria": "Conceptes Bàsics"},
+    {"pregunta": "En la composició del sòl, què ocupa els 'forats' o porus?", "opcions": ["Només sòlids", "Roques petites", "Aire i aigua", "Matèria orgànica compactada"], "resposta_correcta": "Aire i aigua", "gc_guany": 20, "gc_perdua": 10, "dificultat": 1, "categoria": "Composició"},
+    {"pregunta": "Per a què serveix principalment el sòl com a 'sistema de reciclatge'?", "opcions": ["Per crear nous tipus de roques", "Per filtrar la llum solar", "Per descompondre matèria orgànica i depurar", "Per emmagatzemar plàstics"], "resposta_correcta": "Per descompondre matèria orgànica i depurar", "gc_guany": 25, "gc_perdua": 15, "dificultat": 1, "categoria": "Funcions del Sòl"},
 
-    # --- NIVELL 2 (Assertivitat i IE) ---
-    {"pregunta": "Un company et demana ajuda urgent, però ja vas molt carregat. Quina és la resposta més assertiva?", "opcions": ["Dir 'sí' i treballar fins tard", "Dir 'no' sense explicacions", "Explicar que t'agradaria ajudar però ara no pots", "Criticar la seva planificació"], "resposta_correcta": "Explicar que t'agradaria ajudar però ara no pots", "eco_guany": 40, "eco_perdua": 20, "dificultat": 2, "categoria": "Assertivitat"},
-    {"pregunta": "Quin Dret Assertiu apliques quan decideixes no justificar una decisió personal?", "opcions": ["A cometre errades", "A no donar raons o excuses", "A canviar d'opinió", "A ser el teu propi jutge"], "resposta_correcta": "A no donar raons o excuses", "eco_guany": 40, "eco_perdua": 20, "dificultat": 2, "categoria": "Assertivitat"},
-    {"pregunta": "Un estil de conducta 'passiu' es caracteritza per...", "opcions": ["Defensar els teus drets a qualsevol preu", "Respectar als altres i a tu mateix", "No expressar les teves necessitats", "Imposar la teva voluntat"], "resposta_correcta": "No expressar les teves necessitats", "eco_guany": 35, "eco_perdua": 15, "dificultat": 2, "categoria": "Assertivitat"},
-    {"pregunta": "Quina emoció s'associa principalment amb la percepció d'un perill?", "opcions": ["Còlera", "Alegria", "Tristesa", "Por"], "resposta_correcta": "Por", "eco_guany": 35, "eco_perdua": 15, "dificultat": 2, "categoria": "Intel·ligència Emocional"},
-    {"pregunta": "L'empatia és la capacitat de...", "opcions": ["Sentir pena", "Solucionar problemes aliens", "Comprendre i compartir els sentiments d'altres", "Estar sempre d'acord"], "resposta_correcta": "Comprendre i compartir els sentiments d'altres", "eco_guany": 40, "eco_perdua": 20, "dificultat": 2, "categoria": "Intel·ligència Emocional"},
-    {"pregunta": "Un company de feina rep el crèdit per una idea teva. Què fas?", "opcions": ["No dir res", "Exposar-lo en públic", "Parlar amb ell en privat de manera calmada", "Queixar-te al cap"], "resposta_correcta": "Parlar amb ell en privat de manera calmada", "eco_guany": 45, "eco_perdua": 25, "dificultat": 2, "categoria": "Gestió de Conflictes"},
-    {"pregunta": "No estàs d'acord amb una proposta del teu superior. Què fas?", "opcions": ["Callar", "Dir que la idea és dolenta", "Exposar la teva perspectiva amb arguments i dades", "Criticar-lo després"], "resposta_correcta": "Exposar la teva perspectiva amb arguments i dades", "eco_guany": 45, "eco_perdua": 25, "dificultat": 2, "categoria": "Assertivitat"},
-    {"pregunta": "La tècnica més efectiva per donar feedback constructiu és...", "opcions": ["Centrar-se en els errors", "Donar-lo en públic", "El mètode 'entrepà' (positiu-millora-positiu)", "Ser vague"], "resposta_correcta": "El mètode 'entrepà' (positiu-millora-positiu)", "eco_guany": 40, "eco_perdua": 20, "dificultat": 2, "categoria": "Feedback"},
-    {"pregunta": "Quin estil de conducta utilitza el sarcasme i la ironia per expressar el seu descontent?", "opcions": ["Assertiu", "Passiu-Agressiu", "Passiu", "Agressiu directe"], "resposta_correcta": "Passiu-Agressiu", "eco_guany": 40, "eco_perdua": 20, "dificultat": 2, "categoria": "Assertivitat"},
-    {"pregunta": "La funció principal de l'emoció de la 'còlera' és...", "opcions": ["Apropar-se als altres", "Fugir d'un perill", "Posar límits i defensar-se d'una injustícia", "Demanar ajuda"], "resposta_correcta": "Posar límits i defensar-se d'una injustícia", "eco_guany": 40, "eco_perdua": 20, "dificultat": 2, "categoria": "Intel·ligència Emocional"},
-    {"pregunta": "Una persona que sempre diu 'sí' a tot, encara que no vulgui, té un estil...", "opcions": ["Agressiu", "Assertiu", "Passiu", "Manipulador"], "resposta_correcta": "Passiu", "eco_guany": 35, "eco_perdua": 15, "dificultat": 2, "categoria": "Assertivitat"},
-    {"pregunta": "Què és l'autoconeixement emocional?", "opcions": ["Ignorar les teves emocions", "Reconèixer i entendre les teves pròpies emocions", "Culpar els altres de com et sents", "Sentir només emocions positives"], "resposta_correcta": "Reconèixer i entendre les teves pròpies emocions", "eco_guany": 40, "eco_perdua": 20, "dificultat": 2, "categoria": "Intel·ligència Emocional"},
-    {"pregunta": "La frase 'Em sento frustrat quan...' és un exemple de comunicació...", "opcions": ["Agressiva", "Passiva", "Assertiva (missatge Jo)", "Manipuladora"], "resposta_correcta": "Assertiva (missatge Jo)", "eco_guany": 45, "eco_perdua": 25, "dificultat": 2, "categoria": "Assertivitat"},
-    {"pregunta": "La funció de l'alegria és principalment...", "opcions": ["De protecció", "De recuperació", "De motivació i afiliació", "D'evitació"], "resposta_correcta": "De motivació i afiliació", "eco_guany": 35, "eco_perdua": 15, "dificultat": 2, "categoria": "Intel·ligència Emocional"},
-    {"pregunta": "Un amic arriba tard constantment. Una resposta assertiva seria:", "opcions": ["'Ets un impuntual'", "'No passa res' (enfadat per dins)", "'Valoro l'amistat, però em sento poc respectat quan arribes tard'", "'La pròxima vegada arribaré jo més tard'"], "resposta_correcta": "'Valoro l'amistat, però em sento poc respectat quan arribes tard'", "eco_guany": 45, "eco_perdua": 25, "dificultat": 2, "categoria": "Assertivitat"},
-    {"pregunta": "L'aversió (fàstic) té una funció de...", "opcions": ["Exploració", "Rebuig i protecció davant del que és perjudicial", "Crear vincles", "Atacar"], "resposta_correcta": "Rebuig i protecció davant del que és perjudicial", "eco_guany": 35, "eco_perdua": 15, "dificultat": 2, "categoria": "Intel·ligència Emocional"},
-    {"pregunta": "Quin dret assertiu et permet equivocar-te?", "opcions": ["A ser el teu propi jutge", "A canviar d'opinió", "A cometre errades i ser-ne responsable", "A dir que no ho saps"], "resposta_correcta": "A cometre errades i ser-ne responsable", "eco_guany": 40, "eco_perdua": 20, "dificultat": 2, "categoria": "Assertivitat"},
-    {"pregunta": "La capacitat de gestionar les teves emocions per assolir objectius es diu...", "opcions": ["Autocontrol emocional", "Repressió emocional", "Empatia", "Simpatia"], "resposta_correcta": "Autocontrol emocional", "eco_guany": 45, "eco_perdua": 25, "dificultat": 2, "categoria": "Intel·ligència Emocional"},
-    {"pregunta": "Dir 'no' de manera assertiva implica...", "opcions": ["Ser groller", "Donar mil excuses falses", "Ser clar, breu i respectuós", "No tornar a parlar amb la persona"], "resposta_correcta": "Ser clar, breu i respectuós", "eco_guany": 40, "eco_perdua": 20, "dificultat": 2, "categoria": "Assertivitat"},
-    {"pregunta": "La funció adaptativa de la tristesa és...", "opcions": ["Motivar-te a fer coses", "Ajudar a la recuperació i a demanar suport social", "Fer-te més fort", "Evitar problemes"], "resposta_correcta": "Ajudar a la recuperació i a demanar suport social", "eco_guany": 40, "eco_perdua": 20, "dificultat": 2, "categoria": "Intel·ligència Emocional"},
+    # --- NIVELL 2 (Perfils Edàfics) ---
+    {"pregunta": "Quin horitzó del sòl està format principalment per fullaraca i restes orgàniques sense transformar?", "opcions": ["Horitzó A", "Horitzó B", "Horitzó O", "Horitzó R"], "resposta_correcta": "Horitzó O", "gc_guany": 40, "gc_perdua": 20, "dificultat": 2, "categoria": "Perfil del Sòl"},
+    {"pregunta": "L'horitzó A, també anomenat 'de rentatge', és ric en...", "opcions": ["Fragments de roca mare", "Humus i matèria orgànica", "Argila acumulada", "Sals minerals pures"], "resposta_correcta": "Humus i matèria orgànica", "gc_guany": 45, "gc_perdua": 20, "dificultat": 2, "categoria": "Perfil del Sòl"},
+    {"pregunta": "Quin horitzó es coneix com la 'roca mare' no alterada?", "opcions": ["Horitzó C", "Horitzó A", "Horitzó B", "Horitzó R"], "resposta_correcta": "Horitzó R", "gc_guany": 40, "gc_perdua": 20, "dificultat": 2, "categoria": "Perfil del Sòl"},
+    {"pregunta": "L'horitzó B, o 'de precipitació', es caracteritza per una acumulació de...", "opcions": ["Matèria orgànica fresca", "Fullaraca", "Argila, òxids de Fe i Al", "Arrels superficials"], "resposta_correcta": "Argila, òxids de Fe i Al", "gc_guany": 50, "gc_perdua": 25, "dificultat": 2, "categoria": "Perfil del Sòl"},
+    {"pregunta": "Com es denomina un horitzó amb característiques intermèdies entre l'horitzó A i el B?", "opcions": ["Horitzó C", "Horitzó de transició AB", "Horitzó R", "No existeix"], "resposta_correcta": "Horitzó de transició AB", "gc_guany": 45, "gc_perdua": 25, "dificultat": 2, "categoria": "Perfil del Sòl"},
 
-    # --- NIVELL 3 (Negociació i Conflictes) ---
-    {"pregunta": "En una negociació, l'altra part es mostra agressiva. Què és aconsellable?", "opcions": ["Respondre igual", "Mantenir la calma i centrar-se en fets", "Acceptar les seves condicions", "Marxar"], "resposta_correcta": "Mantenir la calma i centrar-se en fets", "eco_guany": 70, "eco_perdua": 35, "dificultat": 3, "categoria": "Negociació"},
-    {"pregunta": "Dos membres del teu equip tenen un conflicte obert. Quina és la teva primera acció com a líder?", "opcions": ["Ignorar-ho", "Canviar un d'ells de projecte", "Mediar en una reunió conjunta", "Demanar a RRHH que intervingui"], "resposta_correcta": "Mediar en una reunió conjunta", "eco_guany": 70, "eco_perdua": 35, "dificultat": 3, "categoria": "Gestió de Conflictes"},
-    {"pregunta": "Què vol dir que l'esperança és una emoció 'ambigua'?", "opcions": ["Sempre és negativa", "No té funció", "Pot portar a sentiments positius o negatius", "Només apareix en l'art"], "resposta_correcta": "Pot portar a sentiments positius o negatius", "eco_guany": 65, "eco_perdua": 30, "dificultat": 3, "categoria": "Intel·ligència Emocional"},
-    {"pregunta": "Com gestiones la teva pròpia frustració davant un obstacle inesperat?", "opcions": ["Abandonar el projecte", "Cercar culpables", "Reconèixer l'emoció i reenfocar en solucions", "Queixar-se constantment"], "resposta_correcta": "Reconèixer l'emoció i reenfocar en solucions", "eco_guany": 70, "eco_perdua": 35, "dificultat": 3, "categoria": "Intel·ligència Emocional"},
-    {"pregunta": "Quin és l'objectiu principal d'una negociació estil 'win-win'?", "opcions": ["Guanyar a qualsevol preu", "Que l'altra part perdi", "Trobar una solució que satisfaci ambdues parts", "Arribar a un punt mort"], "resposta_correcta": "Trobar una solució que satisfaci ambdues parts", "eco_guany": 75, "eco_perdua": 40, "dificultat": 3, "categoria": "Negociació"},
-    {"pregunta": "Un client es queixa de manera agressiva. Quina és la millor forma de respondre?", "opcions": ["Posar-se agressiu també", "Penjar el telèfon", "Escoltar activament, validar la seva emoció i buscar una solució", "Dir-li que no té raó"], "resposta_correcta": "Escoltar activament, validar la seva emoció i buscar una solució", "eco_guany": 75, "eco_perdua": 40, "dificultat": 3, "categoria": "Gestió de Conflictes"},
-    {"pregunta": "Què és la tècnica de la 'boira' en assertivitat?", "opcions": ["Ignorar completament la crítica", "Donar la raó a l'altra persona en tot", "Acceptar parcialment la crítica sense posar-se a la defensiva", "Confondre a l'altra persona amb informació irrellevant"], "resposta_correcta": "Acceptar parcialment la crítica sense posar-se a la defensiva", "eco_guany": 70, "eco_perdua": 35, "dificultat": 3, "categoria": "Assertivitat"},
-    {"pregunta": "Quina és la diferència clau entre persuasió i manipulació?", "opcions": ["No n'hi ha cap", "La persuasió busca un benefici mutu; la manipulació, només el propi", "La persuasió és il·legal", "La manipulació utilitza dades objectives"], "resposta_correcta": "La persuasió busca un benefici mutu; la manipulació, només el propi", "eco_guany": 75, "eco_perdua": 40, "dificultat": 3, "categoria": "Negociació"},
-    {"pregunta": "Què és el 'BATNA' en una negociació?", "opcions": ["La millor oferta possible", "La pitjor oferta acceptable", "La teva millor alternativa si no s'arriba a un acord", "El punt de partida"], "resposta_correcta": "La teva millor alternativa si no s'arriba a un acord", "eco_guany": 80, "eco_perdua": 40, "dificultat": 3, "categoria": "Negociació"},
-    {"pregunta": "En gestió de conflictes, què és 'l'escolta empàtica'?", "opcions": ["Escoltar per respondre", "Escoltar per jutjar", "Escoltar per entendre profundament la perspectiva i emocions de l'altre", "Fingir que escoltes"], "resposta_correcta": "Escoltar per entendre profundament la perspectiva i emocions de l'altre", "eco_guany": 70, "eco_perdua": 35, "dificultat": 3, "categoria": "Gestió de Conflictes"},
+    # --- NIVELL 3 (Propietats Fisicoquímiques) ---
+    {"pregunta": "La 'textura' del sòl es refereix a la proporció de partícules de diàmetre inferior a...", "opcions": ["2 cm", "2 mm", "0.2 mm", "20 mm"], "resposta_correcta": "2 mm", "gc_guany": 65, "gc_perdua": 30, "dificultat": 3, "categoria": "Textura i Partícules"},
+    {"pregunta": "Quina partícula del sòl té la major capacitat de retenció d'aigua i nutrients?", "opcions": ["Sorra", "Graveta", "Llim", "Argila"], "resposta_correcta": "Argila", "gc_guany": 70, "gc_perdua": 35, "dificultat": 3, "categoria": "Textura i Partícules"},
+    {"pregunta": "Un sòl amb partícules de 2 a 6 mm de diàmetre es classifica com a...", "opcions": ["Argila", "Llim", "Graveta", "Sorra"], "resposta_correcta": "Graveta", "gc_guany": 60, "gc_perdua": 30, "dificultat": 3, "categoria": "Textura i Partícules"},
+    {"pregunta": "La 'porositat' del sòl es defineix com...", "opcions": ["La quantitat d'aigua que pot retenir", "El volum de sòl ocupat pels forats", "La duresa de les partícules sòlides", "El color del material"], "resposta_correcta": "El volum de sòl ocupat pels forats", "gc_guany": 65, "gc_perdua": 35, "dificultat": 3, "categoria": "Propietats Físiques"},
+    {"pregunta": "Per determinar la textura 'al tacte', un sòl que se sent aspre i no forma una bola coherent és principalment...", "opcions": ["Argilós", "Llimós", "Humífer", "Sorrós"], "resposta_correcta": "Sorrós", "gc_guany": 75, "gc_perdua": 40, "dificultat": 3, "categoria": "Textura i Partícules"},
 
-    # --- NIVELL 4 (Lideratge Avançat) ---
-    {"pregunta": "Has de comunicar una decisió impopular a l'equip. Quina és la millor estratègia?", "opcions": ["Enviar un email breu", "Ser transparent sobre les raons i mostrar empatia", "Demanar a un altre que ho faci", "Anunciar-ho divendres a última hora"], "resposta_correcta": "Ser transparent sobre les raons i mostrar empatia", "eco_guany": 100, "eco_perdua": 50, "dificultat": 4, "categoria": "Lideratge"},
-    {"pregunta": "Un membre clau del teu equip està desmotivat. Quina és la primera acció a prendre?", "opcions": ["Documentar el seu baix rendiment", "Tenir una conversa privada per entendre què passa", "Reassignar les seves tasques", "Pressionar-lo públicament"], "resposta_correcta": "Tenir una conversa privada per entendre què passa", "eco_guany": 100, "eco_perdua": 50, "dificultat": 4, "categoria": "Lideratge"},
-    {"pregunta": "Com es fomenta la 'seguretat psicològica' en un equip?", "opcions": ["Castigant els errors", "Promovent competència extrema", "Creant un entorn on es pot parlar obertament sense por", "Prenent decisions sense consultar"], "resposta_correcta": "Creant un entorn on es pot parlar obertament sense por", "eco_guany": 110, "eco_perdua": 55, "dificultat": 4, "categoria": "Lideratge"},
-    {"pregunta": "L'empresa passa per una crisi. Quin tipus de comunicació és essencial per part del lideratge?", "opcions": ["Silenci total per no alarmar", "Optimisme poc realista", "Comunicació freqüent, transparent i empàtica", "Comunicació només als alts càrrecs"], "resposta_correcta": "Comunicació freqüent, transparent i empàtica", "eco_guany": 100, "eco_perdua": 50, "dificultat": 4, "categoria": "Lideratge"},
-    {"pregunta": "En una negociació crítica, l'altra part utilitza tàctiques de pressió. Què fas?", "opcions": ["Respondre igual", "Cedir ràpidament", "Mantenir la calma, identificar la tàctica i redirigir", "Abandonar la negociació"], "resposta_correcta": "Mantenir la calma, identificar la tàctica i redirigir", "eco_guany": 120, "eco_perdua": 60, "dificultat": 4, "categoria": "Negociació"},
-    {"pregunta": "Què defineix un líder 'transformacional'?", "opcions": ["Es centra només en tasques i premis", "Inspira i motiva l'equip cap a una visió compartida, fomentant el seu desenvolupament", "Evita prendre decisions difícils", "Microgestiona cada detall"], "resposta_correcta": "Inspira i motiva l'equip cap a una visió compartida, fomentant el seu desenvolupament", "eco_guany": 110, "eco_perdua": 55, "dificultat": 4, "categoria": "Lideratge"},
-    {"pregunta": "Com delegues una tasca complexa de manera efectiva?", "opcions": ["Dones l'ordre i esperes el resultat final", "Expliques l'objectiu, els recursos disponibles i estableixes punts de seguiment, donant autonomia", "Fas la part més difícil tu mateix", "Dones la tasca al qui menys feina té, sense importar la seva capacitat"], "resposta_correcta": "Expliques l'objectiu, els recursos disponibles i estableixes punts de seguiment, donant autonomia", "eco_guany": 105, "eco_perdua": 50, "dificultat": 4, "categoria": "Lideratge"},
-    {"pregunta": "Un equip divers té conflictes constants a causa de diferents punts de vista. Com a líder, què fas?", "opcions": ["Homogeneïtzar l'equip per eliminar diferències", "Ignorar-ho fins que s'acostumin", "Valorar la diversitat com a fortalesa i facilitar tallers d'entesa i col·laboració", "Imposar la teva pròpia manera de veure les coses"], "resposta_correcta": "Valorar la diversitat com a fortalesa i facilitar tallers d'entesa i col·laboració", "eco_guany": 115, "eco_perdua": 55, "dificultat": 4, "categoria": "Lideratge"},
-    {"pregunta": "Què és el 'lideratge situacional'?", "opcions": ["Canviar de personalitat segons el dia", "Adaptar el teu estil de lideratge a les necessitats i nivell de desenvolupament de cada membre de l'equip", "Liderar només quan hi ha una crisi", "Fer sempre el mateix independentment de la situació"], "resposta_correcta": "Adaptar el teu estil de lideratge a les necessitats i nivell de desenvolupament de cada membre de l'equip", "eco_guany": 110, "eco_perdua": 55, "dificultat": 4, "categoria": "Lideratge"},
-    {"pregunta": "Davant d'un error greu d'un empleat, un bon líder...", "opcions": ["L'esbronca en públic per donar exemple", "Ho amaga per protegir l'equip", "Analitza les causes arrel amb l'empleat en privat per aprendre i prevenir futurs errors", "El despedeix immediatament"], "resposta_correcta": "Analitza les causes arrel amb l'empleat en privat per aprendre i prevenir futurs errors", "eco_guany": 105, "eco_perdua": 50, "dificultat": 4, "categoria": "Lideratge"}
+    # --- NIVELL 4 (Química del Sòl) ---
+    {"pregunta": "Un interval de pH òptim per a la majoria de les plantes es troba entre...", "opcions": ["4-5", "9-10", "6-8", "2-4"], "resposta_correcta": "6-8", "gc_guany": 80, "gc_perdua": 40, "dificultat": 4, "categoria": "Química del Sòl"},
+    {"pregunta": "La presència de carbonats en un sòl tendeix a fer-lo...", "opcions": ["Més àcid", "Més bàsic (alcalí)", "Neutre", "No afecta el pH"], "resposta_correcta": "Més bàsic (alcalí)", "gc_guany": 85, "gc_perdua": 45, "dificultat": 4, "categoria": "Química del Sòl"},
+    {"pregunta": "Què indica un color de sòl molt fosc o negre?", "opcions": ["Alt contingut en sorra", "Alt contingut en matèria orgànica", "Absència total d'aigua", "Presència de sals"], "resposta_correcta": "Alt contingut en matèria orgànica", "gc_guany": 80, "gc_perdua": 40, "dificultat": 4, "categoria": "Propietats Físiques"},
+    {"pregunta": "L'addició de HCl a una mostra de sòl produeix efervescència. Això indica la presència de...", "opcions": ["Quars", "Argila", "Carbonats (CaCO₃)", "Sofre"], "resposta_correcta": "Carbonats (CaCO₃)", "gc_guany": 90, "gc_perdua": 45, "dificultat": 4, "categoria": "Química del Sòl"},
+    {"pregunta": "Quina és una funció clau de la matèria orgànica per a la 'fertilitat física' del sòl?", "opcions": ["Augmentar el pH", "Dissoldre les roques", "Millorar l'estructura i la infiltració", "Canviar el color a blanc"], "resposta_correcta": "Millorar l'estructura i la infiltració", "gc_guany": 85, "gc_perdua": 40, "dificultat": 4, "categoria": "Química del Sòl"},
+
+    # --- NIVELL 5 (Edafogènesi) ---
+    {"pregunta": "El procés de formació del sòl s'anomena...", "opcions": ["Sedimentació", "Edafogènesi", "Litificació", "Metamorfisme"], "resposta_correcta": "Edafogènesi", "gc_guany": 100, "gc_perdua": 50, "dificultat": 5, "categoria": "Formació del Sòl"},
+    {"pregunta": "La fragmentació de roques per canvis de temperatura o acció del gel és un exemple de meteorització...", "opcions": ["Química", "Biològica", "Física o mecànica", "Orgànica"], "resposta_correcta": "Física o mecànica", "gc_guany": 110, "gc_perdua": 55, "dificultat": 5, "categoria": "Formació del Sòl"},
+    {"pregunta": "Quin factor de formació del sòl condiciona directament el tipus de meteorització i els fluxos d'aigua verticals?", "opcions": ["El temps", "Els organismes", "La roca mare", "El clima"], "resposta_correcta": "El clima", "gc_guany": 105, "gc_perdua": 50, "dificultat": 5, "categoria": "Formació del Sòl"},
+    {"pregunta": "La dissolució de minerals per l'aigua és un procés de meteorització...", "opcions": ["Física", "Química", "Mecànica", "Tectònica"], "resposta_correcta": "Química", "gc_guany": 110, "gc_perdua": 55, "dificultat": 5, "categoria": "Formació del Sòl"},
+    {"pregunta": "Per què es considera el sòl un recurs NO renovable?", "opcions": ["Perquè no es pot reciclar", "Perquè el seu temps de formació és extremadament lent", "Perquè està format per materials finits", "Perquè només es troba en certs planetes"], "resposta_correcta": "Perquè el seu temps de formació és extremadament lent", "gc_guany": 120, "gc_perdua": 60, "dificultat": 5, "categoria": "Formació del Sòl"},
+    
+    # --- NIVELL 6 (Cicles Biogeoquímics) ---
+    {"pregunta": "Quin procés del cicle del nitrogen converteix el nitrogen gas (N₂) en formes aprofitables per les plantes?", "opcions": ["Desnitrificació", "Nitrificació", "Fixació", "Amonificació"], "resposta_correcta": "Fixació", "gc_guany": 140, "gc_perdua": 70, "dificultat": 6, "categoria": "Cicles Biogeoquímics"},
+    {"pregunta": "La descomposició de cadàvers i excrements allibera nitrogen en forma d'amoni. Aquest procés s'anomena...", "opcions": ["Assimilació", "Amonificació o mineralització", "Fixació biòtica", "Desnitrificació"], "resposta_correcta": "Amonificació o mineralització", "gc_guany": 150, "gc_perdua": 75, "dificultat": 6, "categoria": "Cicles Biogeoquímics"},
+    {"pregunta": "La 'desnitrificació' és el procés on els nitrats es redueixen a...", "opcions": ["Amoni", "Nitrogen gas (N₂)", "Proteïnes", "Àcid nítric"], "resposta_correcta": "Nitrogen gas (N₂)", "gc_guany": 140, "gc_perdua": 70, "dificultat": 6, "categoria": "Cicles Biogeoquímics"},
+    {"pregunta": "La principal reserva de fòsfor en el seu cicle biogeoquímic es troba en...", "opcions": ["L'atmosfera", "Els oceans", "Els minerals i roques", "Els éssers vius"], "resposta_correcta": "Els minerals i roques", "gc_guany": 160, "gc_perdua": 80, "dificultat": 6, "categoria": "Cicles Biogeoquímics"},
+    {"pregunta": "Com absorbeixen les plantes el nitrogen del sòl principalment?", "opcions": ["En forma de N₂ gas", "En forma d'ions nitrat (NO₃⁻) o amoni (NH₄⁺)", "Directament de la matèria orgànica", "A través de les fulles"], "resposta_correcta": "En forma d'ions nitrat (NO₃⁻) o amoni (NH₄⁺)", "gc_guany": 150, "gc_perdua": 75, "dificultat": 6, "categoria": "Cicles Biogeoquímics"},
 ]
 
 # --- CONFIGURACIÓ INICIAL I D'ESTAT DE LA SESSIÓ ---
-if 'saldo_eco' not in st.session_state:
-    st.session_state.saldo_eco = 500
-if 'puntuacio_habilitats' not in st.session_state:
-    st.session_state.puntuacio_habilitats = 0
+if 'saldo_gc' not in st.session_state:
+    st.session_state.saldo_gc = 500
+if 'puntuacio_coneixement' not in st.session_state:
+    st.session_state.puntuacio_coneixement = 0
 if 'pregunta_actual' not in st.session_state:
     st.session_state.pregunta_actual = None
 if 'missatge_feedback' not in st.session_state:
@@ -109,9 +78,9 @@ if 'cambio_saldo' not in st.session_state:
     st.session_state.cambio_saldo = 0 
 if 'mostrar_cambio' not in st.session_state:
     st.session_state.mostrar_cambio = False
-if 'examens' not in st.session_state:
-    examens_amb_estat = [dict(examen, unlocked=(examen['id'] == 1)) for examen in EXAMENS_INFO]
-    st.session_state.examens = examens_amb_estat
+if 'certificacions' not in st.session_state:
+    certs_amb_estat = [dict(cert, unlocked=(cert['id'] == 1)) for cert in CERTIFICACIONS_INFO]
+    st.session_state.certificacions = certs_amb_estat
 if 'preguntes_respostes' not in st.session_state:
     st.session_state.preguntes_respostes = 0
 if 'respostes_correctes' not in st.session_state:
@@ -120,19 +89,22 @@ if 'errors_per_categoria' not in st.session_state:
     st.session_state.errors_per_categoria = {}
 if 'preguntes_recents' not in st.session_state:
     st.session_state.preguntes_recents = deque(maxlen=15)
+# Estat dels potenciadors
+if 'bonus_gc_turns' not in st.session_state:
+    st.session_state.bonus_gc_turns = 0
 
 # --- FUNCIONS DEL JOC ---
 def generar_pregunta():
-    nivell_maxim = max(ex['nivell_dificultat'] for ex in st.session_state.examens if ex['unlocked'])
+    nivell_maxim = max(ex['nivell_dificultat'] for ex in st.session_state.certificacions if ex['unlocked'])
     
     preguntes_disponibles = [
-        (i, p) for i, p in enumerate(PREGUNTES_HABILITATS) 
+        (i, p) for i, p in enumerate(PREGUNTES_EDAFOLOGIA) 
         if p['dificultat'] <= nivell_maxim and i not in st.session_state.preguntes_recents
     ]
     
     if not preguntes_disponibles:
         st.session_state.preguntes_recents.clear()
-        preguntes_disponibles = [(i, p) for i, p in enumerate(PREGUNTES_HABILITATS) if p['dificultat'] <= nivell_maxim]
+        preguntes_disponibles = [(i, p) for i, p in enumerate(PREGUNTES_EDAFOLOGIA) if p['dificultat'] <= nivell_maxim]
 
     if preguntes_disponibles:
         idx, pregunta_seleccionada = random.choice(preguntes_disponibles)
@@ -147,40 +119,46 @@ def verificar_resposta(resposta_usuari):
     pregunta = st.session_state.pregunta_actual
     st.session_state.preguntes_respostes += 1
     
+    multiplicador = 2 if st.session_state.bonus_gc_turns > 0 else 1
+
     if resposta_usuari == pregunta["resposta_correcta"]:
-        guany_eco = pregunta["eco_guany"]
-        st.session_state.saldo_eco += guany_eco
-        st.session_state.puntuacio_habilitats += 1
+        guany_gc = pregunta["gc_guany"] * multiplicador
+        st.session_state.saldo_gc += guany_gc
+        st.session_state.puntuacio_coneixement += pregunta['dificultat']
         st.session_state.respostes_correctes += 1
-        st.session_state.missatge_feedback = f"🎉 Resposta Correcta! <span class='feedback-guany'>+{guany_eco} ECO$</span>"
-        st.session_state.cambio_saldo = guany_eco
+        feedback_extra = " (Bono x2 Actiu!)" if multiplicador > 1 else ""
+        st.session_state.missatge_feedback = f"🎉 Resposta Correcta! <span class='feedback-guany'>+{guany_gc} GC</span>{feedback_extra}"
+        st.session_state.cambio_saldo = guany_gc
     else:
-        perdua_eco = pregunta["eco_perdua"]
-        st.session_state.saldo_eco -= perdua_eco
-        st.session_state.missatge_feedback = f"😔 Resposta Incorrecta. <span class='feedback-perdua'>-{perdua_eco} ECO$</span>"
-        st.session_state.cambio_saldo = -perdua_eco
+        perdua_gc = pregunta["gc_perdua"]
+        st.session_state.saldo_gc -= perdua_gc
+        st.session_state.missatge_feedback = f"😔 Resposta Incorrecta. <span class='feedback-perdua'>-{perdua_gc} GC</span>"
+        st.session_state.cambio_saldo = -perdua_gc
         categoria_error = pregunta.get('categoria', 'General')
         st.session_state.errors_per_categoria[categoria_error] = st.session_state.errors_per_categoria.get(categoria_error, 0) + 1
+
+    if st.session_state.bonus_gc_turns > 0:
+        st.session_state.bonus_gc_turns -= 1
+        if st.session_state.bonus_gc_turns == 0:
+            st.toast("El teu Bono x2 ha acabat!", icon="🌱")
 
     st.session_state.mostrar_cambio = True
     generar_pregunta()
 
-# --- DISSENY DE LA INTERFÍCIE (UI) "NEO-BANK" ---
-st.set_page_config(page_title="ECO-Banc Pro", page_icon="✨", layout="wide")
-
+# --- DISSENY DE LA INTERFÍCIE (UI) ---
 st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
         :root {
-            --primary-color: #4A90E2; --accent-color: #50E3C2; --text-color: #E0E0E0;
-            --dark-bg: #121212; --card-bg: rgba(255, 255, 255, 0.05); --border-color: rgba(255, 255, 255, 0.1);
+            --primary-color: #8D6E63; --accent-color: #795548; --text-color: #E0E0E0;
+            --dark-bg: #1a1a1a; --card-bg: rgba(255, 255, 255, 0.05); --border-color: rgba(255, 255, 255, 0.1);
             --border-radius: 16px; --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
         html, body, [class*="st-emotion"] { font-family: 'Poppins', sans-serif; color: var(--text-color); background-color: var(--dark-bg); }
         h1, h2, h3, h5 { font-family: 'Poppins', sans-serif; font-weight: 700; color: white; }
         .app-header h1 {
             font-size: 2.5em; text-align: center; margin-bottom: 2rem;
-            background: -webkit-linear-gradient(45deg, var(--primary-color), var(--accent-color));
+            background: -webkit-linear-gradient(45deg, #A1887F, #FFAB91);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
         .glass-card {
@@ -188,49 +166,46 @@ st.markdown("""
             border-radius: var(--border-radius); border: 1px solid var(--border-color);
             padding: 25px; text-align: center; position: relative; box-shadow: var(--shadow);
         }
-        .glass-card h2 { font-size: 1em; color: #BDBDBD; margin: 0; font-weight: 600; }
+        .glass-card h2 { font-size: 1em; color: #BDBDBD; margin: 0; font-weight: 600; text-transform: uppercase; }
         .glass-card p { font-size: 2.5em; font-weight: 700; color: white; margin: 5px 0 0 0; }
         .saldo-change { position: absolute; top: 15px; right: 20px; font-size: 1.5em; font-weight: 700; animation: fadeInOut 1.5s ease-in-out forwards; }
-        .saldo-change.positive { color: var(--accent-color); }
-        .saldo-change.negative { color: #FF5252; }
+        .saldo-change.positive { color: #81C784; } .saldo-change.negative { color: #E57373; }
         @keyframes fadeInOut { 0% { opacity: 0; } 50% { opacity: 1; } 100% { opacity: 0; } }
         .stButton>button {
             background-image: linear-gradient(90deg, var(--primary-color) 0%, var(--accent-color) 100%);
             color: white; border: none; border-radius: 12px; padding: 16px 30px; font-size: 1.1em;
             font-family: 'Poppins', sans-serif; font-weight: 600; width: 100%; transition: all 0.3s ease;
-            margin-top: 15px; box-shadow: 0 4px 15px rgba(80, 227, 194, 0.2);
+            margin-top: 15px; box-shadow: 0 4px 15px rgba(121, 85, 72, 0.2);
         }
-        .stButton>button:hover { transform: translateY(-3px); box-shadow: 0 7px 20px rgba(80, 227, 194, 0.3); }
+        .stButton>button:hover { transform: translateY(-3px); box-shadow: 0 7px 20px rgba(121, 85, 72, 0.4); }
         .stButton>button:disabled { background-image: none; background-color: #424242; cursor: not-allowed; box-shadow: none; }
-        .feedback-guany { color: var(--accent-color); } .feedback-perdua { color: #FF5252; }
+        .feedback-guany { color: #81C784; } .feedback-perdua { color: #E57373; }
         .career-path { position: relative; padding-left: 30px; border-left: 2px solid var(--border-color); }
         .step { position: relative; margin-bottom: 2rem; }
         .step-icon { position: absolute; left: -44px; top: 50%; transform: translateY(-50%); font-size: 1.8em; background: var(--dark-bg); padding: 5px; border-radius: 50%; }
-        .step.unlocked .step-icon { color: var(--accent-color); }
+        .step.unlocked .step-icon { color: #A1887F; }
         .step-details p { font-weight: 600; margin: 0; color: white; }
         .step-details span { font-size: 0.9em; color: #BDBDBD; }
         .step.locked .step-details { opacity: 0.5; }
-        .stRadio>label { color: white !important; }
         div[data-baseweb="tab-list"] { background: var(--card-bg); border-radius: var(--border-radius); padding: 10px; border: 1px solid var(--border-color); }
         button[data-baseweb="tab"] { background-color: transparent; color: var(--text-color); border-radius: 10px; font-family: 'Poppins', sans-serif; font-weight: 600; }
         button[data-baseweb="tab"][aria-selected="true"] { background-image: linear-gradient(90deg, var(--primary-color) 0%, var(--accent-color) 100%); color: white; }
-        .st-emotion-cache-1s3wbf8 { padding-top: 2rem; min-height: 500px; }
     </style>
 """, unsafe_allow_html=True)
 
 # --- CONTINGUT DE L'APP ---
-st.markdown("<div class='app-header'><h1>ECO-Banc: Desenvolupament Professional</h1></div>", unsafe_allow_html=True)
+st.markdown("<div class='app-header'><h1>🌱 Terra-Expert: El Repte de l'Edafologia</h1></div>", unsafe_allow_html=True)
 
 col_stats_1, col_stats_2, col_stats_3 = st.columns(3)
 with col_stats_1:
-    saldo_html = f"""<div class="glass-card"><h2>Capital (ECO$)</h2><p>{st.session_state.saldo_eco:.0f}</p>"""
+    saldo_html = f"""<div class="glass-card"><h2>Capital (GC)</h2><p>{st.session_state.saldo_gc:.0f}</p>"""
     if st.session_state.mostrar_cambio and st.session_state.cambio_saldo != 0:
         saldo_html += f'<div class="saldo-change {"positive" if st.session_state.cambio_saldo > 0 else "negative"}">{"+" if st.session_state.cambio_saldo > 0 else ""}{st.session_state.cambio_saldo}</div>'
     saldo_html += "</div>"
     st.markdown(saldo_html, unsafe_allow_html=True)
 
 with col_stats_2:
-    st.markdown(f"""<div class="glass-card"><h2>Puntuació</h2><p>{st.session_state.puntuacio_habilitats}</p></div>""", unsafe_allow_html=True)
+    st.markdown(f"""<div class="glass-card"><h2>Punts Coneixement</h2><p>{st.session_state.puntuacio_coneixement}</p></div>""", unsafe_allow_html=True)
 
 with col_stats_3:
     total_respostes = st.session_state.get('preguntes_respostes', 0)
@@ -249,40 +224,78 @@ with tab1:
             st.rerun()
     else:
         pregunta = st.session_state.pregunta_actual
-        st.markdown(f"**Nivell de Certificació:** `{pregunta['dificultat']}`")
+        st.markdown(f"**Nivell de Certificació:** `{pregunta['dificultat']}` | **Categoria:** `{pregunta['categoria']}`")
         st.markdown(f"#### {pregunta['pregunta']}")
         
-        resposta_usuari = st.radio("Selecciona la teva decisió:", pregunta["opcions"], key="radio_respostes", label_visibility="collapsed")
+        opcions = pregunta["opcions"]
+        if 'opcions_filtrades' in st.session_state:
+            opcions = st.session_state['opcions_filtrades']
+
+        resposta_usuari = st.radio("Selecciona la teva resposta:", opcions, key="radio_respostes", label_visibility="collapsed")
         
-        if st.button("Confirmar Decisió", key="btn_enviar_resposta", use_container_width=True):
+        if st.button("Confirmar Resposta", key="btn_enviar_resposta", use_container_width=True):
+            if 'opcions_filtrades' in st.session_state:
+                del st.session_state['opcions_filtrades'] # Netejar per la pròxima pregunta
             verificar_resposta(resposta_usuari)
             st.rerun()
 
         if st.session_state.missatge_feedback:
             st.markdown(f"<div style='margin-top: 20px; text-align: center; font-size: 1.1em;'>{st.session_state.missatge_feedback}</div>", unsafe_allow_html=True)
+        
+        st.markdown("---")
+        st.subheader("⚡ Potenciadors")
+        if st.session_state.bonus_gc_turns > 0:
+            st.info(f"Bono x2 actiu durant {st.session_state.bonus_gc_turns} torns més!")
+
+        p_col1, p_col2, p_col3 = st.columns(3)
+        with p_col1:
+            if st.button("💧 Pipeta (-2 opcions) | 300 GC", key="pipeta", use_container_width=True, disabled=(st.session_state.saldo_gc < 300)):
+                st.session_state.saldo_gc -= 300
+                incorrectes = [opt for opt in pregunta['opcions'] if opt != pregunta['resposta_correcta']]
+                random.shuffle(incorrectes)
+                opcions_a_mantenir = [pregunta['resposta_correcta']] + incorrectes[2:]
+                random.shuffle(opcions_a_mantenir)
+                st.session_state['opcions_filtrades'] = opcions_a_mantenir
+                st.toast("Dues opcions incorrectes eliminades!", icon="💧")
+                st.rerun()
+
+        with p_col2:
+            if st.button("🌱 Fertilitzant (Bono x2) | 800 GC", key="fertilitzant", use_container_width=True, disabled=(st.session_state.saldo_gc < 800 or st.session_state.bonus_gc_turns > 0)):
+                st.session_state.saldo_gc -= 800
+                st.session_state.bonus_gc_turns = 3
+                st.toast("Bono x2 activat per 3 preguntes!", icon="🌱")
+                st.rerun()
+        
+        with p_col3:
+            if st.button("🛰️ Anàlisi Sàtrapa | 1500 GC", key="satrap", use_container_width=True, disabled=(st.session_state.saldo_gc < 1500)):
+                 st.session_state.saldo_gc -= 1500
+                 verificar_resposta(pregunta["resposta_correcta"])
+                 st.toast("Resposta correcta automàtica!", icon="🛰️")
+                 st.rerun()
+
 
 with tab2:
-    st.subheader("El Teu Camí Professional")
+    st.subheader("El Teu Camí a l'Expertesa")
     st.markdown('<div class="career-path">', unsafe_allow_html=True)
 
-    for i, examen in enumerate(st.session_state.get('examens', [])):
-        status_class = "unlocked" if examen["unlocked"] else "locked"
-        can_unlock = st.session_state.examens[i-1]['unlocked'] if i > 0 else True
+    for i, cert in enumerate(st.session_state.get('certificacions', [])):
+        status_class = "unlocked" if cert["unlocked"] else "locked"
+        can_unlock = st.session_state.certificacions[i-1]['unlocked'] if i > 0 else True
         
         st.markdown(f'<div class="step {status_class}">', unsafe_allow_html=True)
-        st.markdown(f'<span class="step-icon">{examen["icon"]}</span>', unsafe_allow_html=True)
+        st.markdown(f'<span class="step-icon">{cert["icon"]}</span>', unsafe_allow_html=True)
         st.markdown(f"""
             <div class="step-details">
-                <p>{examen['nom']}</p>
-                <span>{'✅ Certificació Obtinguda' if examen['unlocked'] else f"Inversió: {examen['cost']} ECO$"}</span>
+                <p>{cert['nom']}</p>
+                <span>{'✅ Certificació Obtinguda' if cert['unlocked'] else f"Inversió: {cert['cost']} GC"}</span>
             </div>
         """, unsafe_allow_html=True)
         
-        if not examen['unlocked'] and can_unlock:
-            if st.button(f"Desbloquejar", key=f"buy_exam_{examen['id']}", disabled=(st.session_state.saldo_eco < examen['cost'])):
-                st.session_state.saldo_eco -= examen['cost']
-                st.session_state.examens[i]['unlocked'] = True
-                st.success(f"Has obtingut la certificació '{examen['nom']}'!")
+        if not cert['unlocked'] and can_unlock:
+            if st.button(f"Desbloquejar Nivell {cert['id']}", key=f"buy_cert_{cert['id']}", disabled=(st.session_state.saldo_gc < cert['cost'])):
+                st.session_state.saldo_gc -= cert['cost']
+                st.session_state.certificacions[i]['unlocked'] = True
+                st.success(f"Has obtingut la certificació '{cert['nom']}'!")
                 time.sleep(1.5)
                 st.rerun()
         
@@ -297,19 +310,19 @@ with tab3:
         st.markdown(f"""
             <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1);"><span style="color: #BDBDBD;">Percentatge d'Encerts</span><span style="font-weight: 600;">{percentatge_encert:.1f}%</span></div>
             <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1);"><span style="color: #BDBDBD;">Preguntes Respostes</span><span style="font-weight: 600;">{total_respostes}</span></div>
-            <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1);"><span style="color: #BDBDBD;">Respostes Correctes</span><span style="font-weight: 600; color: var(--accent-color);">{correctes}</span></div>
-            <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1);"><span style="color: #BDBDBD;">Respostes Incorrectes</span><span style="font-weight: 600; color: #FF5252;">{total_respostes - correctes}</span></div>
+            <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1);"><span style="color: #BDBDBD;">Respostes Correctes</span><span style="font-weight: 600; color: #81C784;">{correctes}</span></div>
+            <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1);"><span style="color: #BDBDBD;">Respostes Incorrectes</span><span style="font-weight: 600; color: #E57373;">{total_respostes - correctes}</span></div>
         """, unsafe_allow_html=True)
         
         st.write("")
-        st.markdown("<h5>Àrees de Millora</h5>", unsafe_allow_html=True)
+        st.markdown("<h5>Àrees de Millora (Errors per Categoria)</h5>", unsafe_allow_html=True)
         if st.session_state.errors_per_categoria:
-            errors_df = pd.DataFrame(list(st.session_state.errors_per_categoria.items()), columns=['Habilitat', 'Errors'])
+            errors_df = pd.DataFrame(list(st.session_state.errors_per_categoria.items()), columns=['Categoria', 'Errors'])
             chart = alt.Chart(errors_df).mark_bar(cornerRadius=5, height=25).encode(
                 x=alt.X('Errors:Q', title="Nombre d'Errors"),
-                y=alt.Y('Habilitat:N', title="", sort='-x'),
-                tooltip=['Habilitat', 'Errors'],
-                color=alt.Color('Habilitat:N', legend=None, scale=alt.Scale(scheme='blues', reverse=True))
+                y=alt.Y('Categoria:N', title="", sort='-x'),
+                tooltip=['Categoria', 'Errors'],
+                color=alt.Color('Categoria:N', legend=None, scale=alt.Scale(scheme='browns', reverse=True))
             ).configure_axis(labelColor='#E0E0E0', titleColor='#BDBDBD', gridColor='rgba(255, 255, 255, 0.1)', domain=False
             ).configure_view(strokeWidth=0).configure(background='transparent')
             st.altair_chart(chart, use_container_width=True)
@@ -318,7 +331,7 @@ with tab3:
     else:
         st.info("Comença el simulador per veure les teves estadístiques de rendiment.")
 
-# Lògica de l'animació
+# Lògica de l'animació del saldo
 if st.session_state.get('mostrar_cambio', False):
     time.sleep(1.5)
     st.session_state.mostrar_cambio = False
