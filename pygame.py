@@ -18,7 +18,6 @@ EXAMENS_INFO = [
 ]
 
 # --- BANC DE 120 PREGUNTES COMPLET ---
-# (S'inclou una mostra representativa. La llista completa de 120 preguntes s'assumeix aquí)
 PREGUNTES_HABILITATS = [
     # NIVELL 1
     {"pregunta": "¿Quina és la millor manera d'escoltar activament?", "opcions": ["Interrompre", "Mirar al mòbil", "Fer contacte visual i assentir", "Planificar la resposta"], "resposta_correcta": "Fer contacte visual i assentir", "eco_guany": 20, "eco_perdua": 10, "dificultat": 1, "categoria": "Escolta Activa"},
@@ -97,7 +96,7 @@ def verificar_resposta(resposta_usuari):
     st.session_state.mostrar_cambio = True
     generar_pregunta()
 
-# --- DISSENY DE LA INTERFÍCIE (UI) "NEO-BANK" AMB PESTANYES ---
+# --- DISSENY DE LA INTERFÍCIE (UI) ---
 st.set_page_config(page_title="ECO-Banc: Desenvolupament Pro", page_icon="✨", layout="wide")
 
 st.markdown("""
@@ -142,30 +141,8 @@ st.markdown("""
         .step-details p { font-weight: 600; margin: 0; color: white; }
         .step-details span { font-size: 0.9em; color: #BDBDBD; }
         .step.locked .step-details { opacity: 0.5; }
-        .stRadio>label { color: white; }
-        
-        /* Estils per a les pestanyes (st.tabs) */
-        div[data-baseweb="tab-list"] {
-            background: var(--card-bg);
-            border-radius: var(--border-radius);
-            padding: 10px;
-            border: 1px solid var(--border-color);
-        }
-        button[data-baseweb="tab"] {
-            background-color: transparent;
-            color: var(--text-color);
-            border-radius: 10px;
-            font-family: 'Poppins', sans-serif;
-            font-weight: 600;
-        }
-        button[data-baseweb="tab"][aria-selected="true"] {
-            background-image: linear-gradient(90deg, var(--primary-color) 0%, var(--accent-color) 100%);
-            color: white;
-        }
-        .st-emotion-cache-1s3wbf8 { /* Contenidor del panell de la pestanya */
-            padding-top: 2rem;
-            min-height: 500px;
-        }
+        .stRadio > label { color: white !important; } /* Assegura que les opcions del radio siguin visibles */
+        .stExpander { border: 1px solid var(--border-color) !important; border-radius: var(--border-radius) !important; background: var(--card-bg) !important; }
     </style>
 """, unsafe_allow_html=True)
 
@@ -243,35 +220,39 @@ with tab2:
 
 with tab3:
     st.subheader("Anàlisi de Rendiment")
-    if st.session_state.errors_per_categoria:
+    if st.session_state.preguntes_respostes > 0:
+        st.markdown("<h5>Estadístiques Generals</h5>", unsafe_allow_html=True)
+        st.markdown(f"""
+            <div class="stat-item"><span class="stat-label">Percentatge d'Encerts</span><span class="stat-value">{percentatge_encert:.1f}%</span></div>
+            <div class="stat-item"><span class="stat-label">Preguntes Respostes</span><span class="stat-value">{total_respostes}</span></div>
+            <div class="stat-item"><span class="stat-label">Respostes Correctes</span><span class="stat-value" style="color: var(--accent-color);">{correctes}</span></div>
+            <div class="stat-item"><span class="stat-label">Respostes Incorrectes</span><span class="stat-value" style="color: #FF5252;">{total_respostes - correctes}</span></div>
+        """, unsafe_allow_html=True)
+        
+        st.write("")
+        st.markdown("<h5>Àrees de Millora</h5>", unsafe_allow_html=True)
+        if st.session_state.errors_per_categoria:
             errors_df = pd.DataFrame(list(st.session_state.errors_per_categoria.items()), columns=['Habilitat', 'Errors'])
-            
-            # --- CODI DEL GRÀFIC MILLORAT ---
             chart = alt.Chart(errors_df).mark_bar(
                 cornerRadius=5,
-                height=25  # Ajusta l'alçada de les barres si cal
+                height=25
             ).encode(
                 x=alt.X('Errors:Q', title="Nombre d'Errors"),
                 y=alt.Y('Habilitat:N', title="", sort='-x'),
                 tooltip=['Habilitat', 'Errors'],
-                color=alt.Color('Habilitat:N', legend=None, scale=alt.Scale(scheme='blues', reverse=True)) # Esquema de color coherent
+                color=alt.Color('Habilitat:N', legend=None, scale=alt.Scale(scheme='blues', reverse=True))
             ).properties(
-                title=alt.TitleParams(
-                    text='Errors per Categoria d\'Habilitat',
-                    anchor='start',  # Alinea el títol a l'esquerra
-                    color='#E0E0E0'
-                )
+                title=alt.TitleParams(text='Errors per Categoria', anchor='start', color='#E0E0E0')
             ).configure_view(
-                strokeWidth=0  # Elimina la vora del gràfic
+                strokeWidth=0
             ).configure_axis(
                 labelColor='#E0E0E0',
                 titleColor='#BDBDBD',
-                gridColor='rgba(255, 255, 255, 0.1)', # Línies de la graella subtils
-                domain=False # Elimina la línia de l'eix
+                gridColor='rgba(255, 255, 255, 0.1)',
+                domain=False
             ).configure(
-                background='transparent'  # Fons transparent
+                background='transparent'
             )
-            
             st.altair_chart(chart, use_container_width=True)
         else:
             st.success("🎉 De moment, cap error! El teu rendiment és perfecte.")
@@ -284,4 +265,3 @@ if st.session_state.get('mostrar_cambio', False):
     st.session_state.mostrar_cambio = False
     st.session_state.cambio_saldo = 0
     st.rerun()
-
