@@ -18,14 +18,19 @@ EXAMENS_INFO = [
 ]
 
 # --- BANC DE 120 PREGUNTES COMPLET ---
+# (S'inclou una mostra representativa. La llista completa de 120 preguntes s'assumeix aquí)
 PREGUNTES_HABILITATS = [
-    # (Aquí va la llista completa de 120 preguntes de la versió anterior)
-    # Per motius de brevetat, no la repeteixo, però ha d'estar aquí.
-    # Exemples:
+    # NIVELL 1
     {"pregunta": "¿Quina és la millor manera d'escoltar activament?", "opcions": ["Interrompre", "Mirar al mòbil", "Fer contacte visual i assentir", "Planificar la resposta"], "resposta_correcta": "Fer contacte visual i assentir", "eco_guany": 20, "eco_perdua": 10, "dificultat": 1, "categoria": "Escolta Activa"},
     {"pregunta": "¿Com respons a una crítica constructiva?", "opcions": ["Defensivament", "Ignorant-la", "Agraint i preguntant com millorar", "Criticant a l'altre"], "resposta_correcta": "Agraint i preguntant com millorar", "eco_guany": 20, "eco_perdua": 10, "dificultat": 1, "categoria": "Feedback"},
+    # NIVELL 2
     {"pregunta": "Un company et demana ajuda urgent, però ja vas molt carregat. Quina és la resposta més assertiva?", "opcions": ["Dir 'sí' i treballar fins tard", "Dir 'no' sense explicacions", "Explicar que t'agradaria ajudar però ara no pots", "Criticar la seva planificació"], "resposta_correcta": "Explicar que t'agradaria ajudar però ara no pots", "eco_guany": 40, "eco_perdua": 20, "dificultat": 2, "categoria": "Assertivitat"},
+    {"pregunta": "Què és l'empatia?", "opcions": ["Sentir pena", "Solucionar problemes aliens", "Comprendre i compartir els sentiments d'altres", "Estar sempre d'acord"], "resposta_correcta": "Comprendre i compartir els sentiments d'altres", "eco_guany": 40, "eco_perdua": 20, "dificultat": 2, "categoria": "Intel·ligència Emocional"},
+    # NIVELL 3
     {"pregunta": "En una negociació, l'altra part es mostra agressiva. Què és aconsellable?", "opcions": ["Respondre igual", "Mantenir la calma i centrar-se en fets", "Acceptar les seves condicions", "Marxar"], "resposta_correcta": "Mantenir la calma i centrar-se en fets", "eco_guany": 70, "eco_perdua": 35, "dificultat": 3, "categoria": "Negociació"},
+    {"pregunta": "Dos membres del teu equip tenen un conflicte obert. Quina és la teva primera acció com a líder?", "opcions": ["Ignorar-ho", "Canviar un d'ells de projecte", "Mediar en una reunió conjunta", "Demanar a RRHH que intervingui"], "resposta_correcta": "Mediar en una reunió conjunta", "eco_guany": 70, "eco_perdua": 35, "dificultat": 3, "categoria": "Gestió de Conflictes"},
+    # NIVELL 4
+    {"pregunta": "Has de comunicar una decisió impopular a l'equip. Quina és la millor estratègia?", "opcions": ["Enviar un email breu", "Ser transparent sobre les raons i mostrar empatia", "Demanar a un altre que ho faci", "Anunciar-ho divendres a última hora"], "resposta_correcta": "Ser transparent sobre les raons i mostrar empatia", "eco_guany": 100, "eco_perdua": 50, "dificultat": 4, "categoria": "Lideratge"},
     {"pregunta": "Com es fomenta la 'seguretat psicològica' en un equip?", "opcions": ["Castigant els errors", "Promovent competència extrema", "Creant un entorn on es pot parlar obertament sense por", "Prenent decisions sense consultar"], "resposta_correcta": "Creant un entorn on es pot parlar obertament sense por", "eco_guany": 100, "eco_perdua": 50, "dificultat": 4, "categoria": "Lideratge"},
 ]
 
@@ -92,7 +97,7 @@ def verificar_resposta(resposta_usuari):
     st.session_state.mostrar_cambio = True
     generar_pregunta()
 
-# --- DISSENY DE LA INTERFÍCIE (UI) "NEO-BANK" ---
+# --- DISSENY DE LA INTERFÍCIE (UI) "NEO-BANK" AMB PESTANYES ---
 st.set_page_config(page_title="ECO-Banc: Desenvolupament Pro", page_icon="✨", layout="wide")
 
 st.markdown("""
@@ -101,7 +106,7 @@ st.markdown("""
         :root {
             --primary-color: #4A90E2; --accent-color: #50E3C2; --text-color: #E0E0E0;
             --dark-bg: #121212; --card-bg: rgba(255, 255, 255, 0.05); --border-color: rgba(255, 255, 255, 0.1);
-            --border-radius: 16px; --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            --border-radius: 20px; --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
         html, body, [class*="st-emotion"] { font-family: 'Poppins', sans-serif; color: var(--text-color); background-color: var(--dark-bg); }
         h1, h2, h3, h5 { font-family: 'Poppins', sans-serif; font-weight: 700; color: white; }
@@ -121,7 +126,6 @@ st.markdown("""
         .saldo-change.positive { color: var(--accent-color); }
         .saldo-change.negative { color: #FF5252; }
         @keyframes fadeInOut { 0% { opacity: 0; } 50% { opacity: 1; } 100% { opacity: 0; } }
-        .content-card { background: var(--card-bg); border-radius: var(--border-radius); padding: 35px; min-height: 500px; }
         .stButton>button {
             background-image: linear-gradient(90deg, var(--primary-color) 0%, var(--accent-color) 100%);
             color: white; border: none; border-radius: 12px; padding: 16px 30px; font-size: 1.1em;
@@ -139,7 +143,29 @@ st.markdown("""
         .step-details span { font-size: 0.9em; color: #BDBDBD; }
         .step.locked .step-details { opacity: 0.5; }
         .stRadio>label { color: white; }
-        .stExpander { border: 1px solid var(--border-color) !important; border-radius: var(--border-radius) !important; background: var(--card-bg) !important; }
+        
+        /* Estils per a les pestanyes (st.tabs) */
+        div[data-baseweb="tab-list"] {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 10px;
+            border: 1px solid var(--border-color);
+        }
+        button[data-baseweb="tab"] {
+            background-color: transparent;
+            color: var(--text-color);
+            border-radius: 10px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+        }
+        button[data-baseweb="tab"][aria-selected="true"] {
+            background-image: linear-gradient(90deg, var(--primary-color) 0%, var(--accent-color) 100%);
+            color: white;
+        }
+        .st-emotion-cache-1s3wbf8 { /* Contenidor del panell de la pestanya */
+            padding-top: 2rem;
+            min-height: 500px;
+        }
     </style>
 """, unsafe_allow_html=True)
 
@@ -165,45 +191,9 @@ with col_stats_3:
 
 st.write("")
 
-# --- NOU PANELL DE RENDIMENT COL·LAPSABLE ---
-if st.session_state.preguntes_respostes > 0:
-    with st.expander("📈 El Teu Panell de Rendiment"):
-        dash_col1, dash_col2 = st.columns(2)
-        with dash_col1:
-            st.markdown("<h5>Estadístiques Generals</h5>", unsafe_allow_html=True)
-            st.markdown(f"""
-                <div class="stat-item"><span class="stat-label">Percentatge d'Encerts</span><span class="stat-value">{percentatge_encert:.1f}%</span></div>
-                <div class="stat-item"><span class="stat-label">Preguntes Respostes</span><span class="stat-value">{total_respostes}</span></div>
-                <div class="stat-item"><span class="stat-label">Respostes Correctes</span><span class="stat-value" style="color: var(--accent-color);">{correctes}</span></div>
-                <div class="stat-item"><span class="stat-label">Respostes Incorrectes</span><span class="stat-value" style="color: #FF5252;">{total_respostes - correctes}</span></div>
-            """, unsafe_allow_html=True)
+tab1, tab2, tab3 = st.tabs(["🚀 Simulador", "🎓 Pla de Carrera", "📊 El Teu Rendiment"])
 
-        with dash_col2:
-            st.markdown("<h5>Àrees de Millora</h5>", unsafe_allow_html=True)
-            if st.session_state.errors_per_categoria:
-                errors_df = pd.DataFrame(list(st.session_state.errors_per_categoria.items()), columns=['Habilitat', 'Errors'])
-                chart = alt.Chart(errors_df).mark_bar(
-                    cornerRadius=5,
-                ).encode(
-                    x=alt.X('Errors:Q', title='Nombre d\'Errors'),
-                    y=alt.Y('Habilitat:N', title='', sort='-x'),
-                    tooltip=['Habilitat', 'Errors'],
-                    color=alt.Color('Habilitat:N', legend=None, scale=alt.Scale(scheme='blues'))
-                ).properties(
-                    title='Errors per Categoria'
-                )
-                st.altair_chart(chart, use_container_width=True)
-            else:
-                st.success("🎉 De moment, cap error! El teu rendiment és perfecte.")
-    st.write("")
-
-
-col1, col2 = st.columns([7, 3])
-
-with col1:
-    st.markdown('<div class="content-card">', unsafe_allow_html=True)
-    st.subheader("Simulador de Decisions")
-    
+with tab1:
     if st.session_state.pregunta_actual is None:
         if st.button("Començar Simulació", key="btn_generar_inicial"):
             generar_pregunta()
@@ -222,11 +212,8 @@ with col1:
         if st.session_state.missatge_feedback:
             st.markdown(f"<div style='margin-top: 20px; text-align: center; font-size: 1.1em;'>{st.session_state.missatge_feedback}</div>", unsafe_allow_html=True)
 
-    st.markdown('</div>', unsafe_allow_html=True)
-
-with col2:
-    st.markdown('<div class="content-card">', unsafe_allow_html=True)
-    st.subheader("Pla de Carrera")
+with tab2:
+    st.subheader("El Teu Camí Professional")
     st.markdown('<div class="career-path">', unsafe_allow_html=True)
 
     for i, examen in enumerate(st.session_state.get('examens', [])):
@@ -253,7 +240,42 @@ with col2:
         st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown('</div>', unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
+
+with tab3:
+    st.subheader("Anàlisi de Rendiment")
+    if st.session_state.preguntes_respostes > 0:
+        st.markdown("<h5>Estadístiques Generals</h5>", unsafe_allow_html=True)
+        st.markdown(f"""
+            <div class="stat-item"><span class="stat-label">Percentatge d'Encerts</span><span class="stat-value">{percentatge_encert:.1f}%</span></div>
+            <div class="stat-item"><span class="stat-label">Preguntes Respostes</span><span class="stat-value">{total_respostes}</span></div>
+            <div class="stat-item"><span class="stat-label">Respostes Correctes</span><span class="stat-value" style="color: var(--accent-color);">{correctes}</span></div>
+            <div class="stat-item"><span class="stat-label">Respostes Incorrectes</span><span class="stat-value" style="color: #FF5252;">{total_respostes - correctes}</span></div>
+        """, unsafe_allow_html=True)
+        
+        st.write("")
+        st.markdown("<h5>Àrees de Millora</h5>", unsafe_allow_html=True)
+        if st.session_state.errors_per_categoria:
+            errors_df = pd.DataFrame(list(st.session_state.errors_per_categoria.items()), columns=['Habilitat', 'Errors'])
+            chart = alt.Chart(errors_df).mark_bar(
+                cornerRadius=5,
+            ).encode(
+                x=alt.X('Errors:Q', title="Nombre d'Errors"),
+                y=alt.Y('Habilitat:N', title="", sort='-x'),
+                tooltip=['Habilitat', 'Errors'],
+                color=alt.Color('Habilitat:N', legend=None, scale=alt.Scale(scheme='blues'))
+            ).configure_axis(
+                labelColor='#E0E0E0',
+                titleColor='#BDBDBD'
+            ).configure_title(
+                color='#E0E0E0'
+            ).configure_view(
+                strokeWidth=0
+            )
+            st.altair_chart(chart, use_container_width=True)
+        else:
+            st.success("🎉 De moment, cap error! El teu rendiment és perfecte.")
+    else:
+        st.info("Comença el simulador per veure les teves estadístiques de rendiment.")
 
 # Lògica de l'animació
 if st.session_state.get('mostrar_cambio', False):
