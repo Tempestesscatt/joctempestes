@@ -1,6 +1,7 @@
 import pygame
 import numpy as np
 from perlin_noise import PerlinNoise
+import sys
 
 # --- 1. CONFIGURACIÓN DEL JUEGO ---
 pygame.init()
@@ -101,3 +102,4 @@ while running:
     CLOCK.tick(60)
 
 pygame.quit()
+
