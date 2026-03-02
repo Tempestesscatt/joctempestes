@@ -1,0 +1,13 @@
+# Python
+__pycache__/
+*.pyc
+venv/
+env/
+
+# Sistema
+.DS_Store
+Thumbs.db
+.vscode/
+
+# Mantenim la carpeta web_data però no els fitxers temporals
+!web_data/.gitkeep
