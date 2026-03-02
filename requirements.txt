@@ -1,5 +1,0 @@
-# requirements.txt
-streamlit
-numpy
-matplotlib
-perlin-noise # Si estás usando la simulación de nubes anterior
