@@ -86,11 +86,11 @@ def section(title):
 # ─────────────────────────────────────────────
 LON_MIN, LON_MAX = -4.6, 4.0
 LAT_MIN, LAT_MAX = 38.5, 42.9
-N_GRID       = 50
+N_GRID       = 28
 MODEL        = "arome_seamless"
 URL_BASE     = "https://api.open-meteo.com/v1/meteofrance"
 FORECAST_DAYS = 2
-CHUNK_SIZE   = 10
+CHUNK_SIZE   = 2
 MAX_ATTEMPTS = 5
 
 VARS_SFC = {
@@ -186,7 +186,7 @@ def main():
 
         for att in range(MAX_ATTEMPTS):
             try:
-                r = requests.get(URL_BASE, params=params, timeout=65)
+                r = requests.get(URL_BASE, params=params, timeout=30)
 
                 if r.status_code == 429:
                     w = 20 * (att + 1)
@@ -253,7 +253,7 @@ def main():
             fatal_warn(f"Paquet {idx+1} perdut definitiu ({len(ci)} punts s'interpolaran)")
             for ip in ci: results_dict[ip] = None
 
-        time.sleep(2.5)
+        time.sleep(1.5)
 
     draw_bar(total_chunks, total_chunks, n_errors, n_fatal, "", "completat!")
     print("\n")
