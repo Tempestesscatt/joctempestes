@@ -90,7 +90,7 @@ N_GRID       = 50
 MODEL        = "arome_seamless"
 URL_BASE     = "https://api.open-meteo.com/v1/meteofrance"
 FORECAST_DAYS = 2
-CHUNK_SIZE   = 2
+CHUNK_SIZE   = 10
 MAX_ATTEMPTS = 5
 
 VARS_SFC = {
