@@ -86,12 +86,12 @@ def section(title):
 # ─────────────────────────────────────────────
 LON_MIN, LON_MAX = -4.6, 4.0
 LAT_MIN, LAT_MAX = 38.5, 42.9
-N_GRID       = 28
-MODEL        = "arome_seamless"
-URL_BASE     = "https://api.open-meteo.com/v1/meteofrance"
+N_GRID        = 40
+MODEL         = "arome_seamless"
+URL_BASE      = "https://api.open-meteo.com/v1/meteofrance"
 FORECAST_DAYS = 2
-CHUNK_SIZE   = 2
-MAX_ATTEMPTS = 5
+CHUNK_SIZE    = 10
+MAX_ATTEMPTS  = 5
 
 VARS_SFC = {
     "temperature_2m":       "temperature",
@@ -149,7 +149,7 @@ def main():
     info("Zona",           f"{LAT_MIN}–{LAT_MAX}°N  {LON_MIN}–{LON_MAX}°E", WHT)
     info("Graella",        f"{N_GRID}×{N_GRID} = {total_punts} punts", GRN)
     info("Paquets API",    f"{total_chunks}  ({CHUNK_SIZE} punts/paquet)", WHT)
-    info("Temps estimat",  "~90–120 min", YLW)
+    info("Temps estimat",  "~1h 30min – 2h", YLW)
     print(f"  {D}{'─'*52}{R}")
 
     # ── DESCÀRREGA ────────────────────────────
@@ -173,12 +173,12 @@ def main():
         draw_bar(idx, total_chunks, n_errors, n_fatal, eta, "descarregant...")
 
         params = {
-            "latitude":     ",".join(map(str, cl)),
-            "longitude":    ",".join(map(str, co)),
-            "hourly":       hourly_str,
-            "models":       MODEL,
-            "forecast_days":FORECAST_DAYS,
-            "timezone":     "auto",
+            "latitude":      ",".join(map(str, cl)),
+            "longitude":     ",".join(map(str, co)),
+            "hourly":        hourly_str,
+            "models":        MODEL,
+            "forecast_days": FORECAST_DAYS,
+            "timezone":      "auto",
         }
 
         ok   = False
@@ -186,17 +186,17 @@ def main():
 
         for att in range(MAX_ATTEMPTS):
             try:
-                r = requests.get(URL_BASE, params=params, timeout=30)
+                r = requests.get(URL_BASE, params=params, timeout=60)
 
                 if r.status_code == 429:
-                    w = 20 * (att + 1)
+                    w = 60 * (att + 1)
                     n_errors += 1
                     warn(f"Rate limit (429) — esperant {w}s", idx, att)
                     time.sleep(w)
                     continue
 
                 if r.status_code >= 500:
-                    w = 15 * (att + 1)
+                    w = 20 * (att + 1)
                     n_errors += 1
                     warn(f"Error servidor ({r.status_code}) — esperant {w}s", idx, att)
                     time.sleep(w)
@@ -205,7 +205,6 @@ def main():
                 r.raise_for_status()
                 data = r.json()
 
-                # Validació mínima
                 if isinstance(data, dict) and "hourly" not in data:
                     raise ValueError("Resposta sense 'hourly'")
                 if isinstance(data, list) and len(data) == 0:
@@ -215,19 +214,19 @@ def main():
                 break
 
             except requests.exceptions.Timeout:
-                w = 15 * (att + 1)
+                w = 20 * (att + 1)
                 n_errors += 1
                 warn(f"Timeout — esperant {w}s", idx, att)
                 time.sleep(w)
 
             except requests.exceptions.ConnectionError:
-                w = 20 * (att + 1)
+                w = 30 * (att + 1)
                 n_errors += 1
                 warn(f"Connexió perduda — esperant {w}s", idx, att)
                 time.sleep(w)
 
             except requests.exceptions.HTTPError as ex:
-                w = 10 * (att + 1)
+                w = 15 * (att + 1)
                 n_errors += 1
                 warn(f"HTTP {ex} — esperant {w}s", idx, att)
                 time.sleep(w)
@@ -253,7 +252,7 @@ def main():
             fatal_warn(f"Paquet {idx+1} perdut definitiu ({len(ci)} punts s'interpolaran)")
             for ip in ci: results_dict[ip] = None
 
-        time.sleep(1.5)
+        time.sleep(3.5)
 
     draw_bar(total_chunks, total_chunks, n_errors, n_fatal, "", "completat!")
     print("\n")
@@ -261,7 +260,7 @@ def main():
     elapsed_total = time.time() - t0
     ok_count = sum(1 for v in results_dict.values() if v is not None)
     c_ok = GRN if n_fatal == 0 else YLW
-    info("Paquets OK",       f"{ok_count}/{total_punts}", c_ok)
+    info("Paquets OK",        f"{ok_count}/{total_punts}", c_ok)
     info("Errors recuperats", str(n_errors), GRN if n_errors == 0 else YLW)
     info("Paquets perduts",   str(n_fatal),  GRN if n_fatal  == 0 else RED)
     info("Temps descàrrega",  fmt_time(elapsed_total), WHT)
