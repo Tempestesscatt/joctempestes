@@ -75,7 +75,7 @@ def section(title):
 # ─────────────────────────────────────────────
 LON_MIN, LON_MAX = -4.6, 4.0
 LAT_MIN, LAT_MAX = 38.5, 42.9
-N_GRID        = 50          # ← 50×50 = 2500 punts
+N_GRID        = 40       # ← 50×50 = 2500 punts
 MODEL         = "arome_seamless"
 URL_BASE      = "https://api.open-meteo.com/v1/meteofrance"
 FORECAST_DAYS = 2
