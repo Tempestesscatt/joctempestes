@@ -75,6 +75,7 @@ def section(title):
 # ─────────────────────────────────────────────
 #  CONFIGURACIÓ
 # ─────────────────────────────────────────────
+<<<<<<< HEAD
 LON_MIN, LON_MAX =  0.15,  3.33   # Catalunya
 LAT_MIN, LAT_MAX = 40.51, 42.88
 
@@ -85,6 +86,16 @@ START_DATE   = "2005-01-01"
 END_DATE     = "2024-12-31"
 CHUNK_SIZE   = 10
 MAX_ATTEMPTS = 5
+=======
+LON_MIN, LON_MAX = -4.6, 4.0
+LAT_MIN, LAT_MAX = 38.5, 42.9
+N_GRID        = 40
+MODEL         = "arome_seamless"
+URL_BASE      = "https://api.open-meteo.com/v1/meteofrance"
+FORECAST_DAYS = 2
+CHUNK_SIZE    = 10
+MAX_ATTEMPTS  = 5
+>>>>>>> deae97f7520762f70e0841d3fc77273a774e4bcf
 
 VARS_SFC = {
     "temperature_2m":       "temperature",
@@ -122,7 +133,11 @@ def main():
     info("Graella",        f"{N_GRID}×{N_GRID} = {total_punts} punts", GRN)
     info("Variables",      ", ".join(VARS_SFC.values()),              WHT)
     info("Paquets API",    f"{total_chunks}  ({CHUNK_SIZE} punts/paquet)", WHT)
+<<<<<<< HEAD
     info("Temps estimat",  "~2–4 hores (20 anys de dades)",           YLW)
+=======
+    info("Temps estimat",  "~1h 30min – 2h", YLW)
+>>>>>>> deae97f7520762f70e0841d3fc77273a774e4bcf
     print(f"  {D}{'─'*52}{R}")
 
     # ── DESCÀRREGA ────────────────────────────
@@ -146,6 +161,7 @@ def main():
         draw_bar(idx, total_chunks, n_errors, n_fatal, eta, "descarregant...")
 
         params = {
+<<<<<<< HEAD
             "latitude":   ",".join(map(str, cl)),
             "longitude":  ",".join(map(str, co)),
             "hourly":     hourly_str,
@@ -153,6 +169,14 @@ def main():
             "start_date": START_DATE,
             "end_date":   END_DATE,
             "timezone":   "UTC",
+=======
+            "latitude":      ",".join(map(str, cl)),
+            "longitude":     ",".join(map(str, co)),
+            "hourly":        hourly_str,
+            "models":        MODEL,
+            "forecast_days": FORECAST_DAYS,
+            "timezone":      "auto",
+>>>>>>> deae97f7520762f70e0841d3fc77273a774e4bcf
         }
 
         ok   = False
@@ -160,7 +184,11 @@ def main():
 
         for att in range(MAX_ATTEMPTS):
             try:
+<<<<<<< HEAD
                 r = requests.get(URL_BASE, params=params, timeout=120)
+=======
+                r = requests.get(URL_BASE, params=params, timeout=60)
+>>>>>>> deae97f7520762f70e0841d3fc77273a774e4bcf
 
                 if r.status_code == 429:
                     w = 60 * (att + 1)
@@ -170,7 +198,11 @@ def main():
                     continue
 
                 if r.status_code >= 500:
+<<<<<<< HEAD
                     w = 30 * (att + 1)
+=======
+                    w = 20 * (att + 1)
+>>>>>>> deae97f7520762f70e0841d3fc77273a774e4bcf
                     n_errors += 1
                     warn(f"Error servidor ({r.status_code}) — esperant {w}s", idx, att)
                     time.sleep(w)
@@ -188,7 +220,11 @@ def main():
                 break
 
             except requests.exceptions.Timeout:
+<<<<<<< HEAD
                 w = 30 * (att + 1)
+=======
+                w = 20 * (att + 1)
+>>>>>>> deae97f7520762f70e0841d3fc77273a774e4bcf
                 n_errors += 1
                 warn(f"Timeout — esperant {w}s", idx, att)
                 time.sleep(w)
@@ -200,7 +236,11 @@ def main():
                 time.sleep(w)
 
             except requests.exceptions.HTTPError as ex:
+<<<<<<< HEAD
                 w = 20 * (att + 1)
+=======
+                w = 15 * (att + 1)
+>>>>>>> deae97f7520762f70e0841d3fc77273a774e4bcf
                 n_errors += 1
                 warn(f"HTTP {ex} — esperant {w}s", idx, att)
                 time.sleep(w)
@@ -226,17 +266,29 @@ def main():
             fatal_warn(f"Paquet {idx+1} perdut definitiu ({len(ci)} punts s'interpolaran)")
             for ip in ci: results_dict[ip] = None
 
+<<<<<<< HEAD
         time.sleep(3.0)  # més conservador per dades històriques pesades
+=======
+        time.sleep(3.5)
+>>>>>>> deae97f7520762f70e0841d3fc77273a774e4bcf
 
     draw_bar(total_chunks, total_chunks, n_errors, n_fatal, "", "completat!")
     print("\n")
 
     elapsed_total = time.time() - t0
     ok_count = sum(1 for v in results_dict.values() if v is not None)
+<<<<<<< HEAD
     info("Paquets OK",        f"{ok_count}/{total_punts}", GRN if n_fatal == 0 else YLW)
     info("Errors recuperats", str(n_errors),               GRN if n_errors == 0 else YLW)
     info("Paquets perduts",   str(n_fatal),                GRN if n_fatal  == 0 else RED)
     info("Temps descàrrega",  fmt_time(elapsed_total),     WHT)
+=======
+    c_ok = GRN if n_fatal == 0 else YLW
+    info("Paquets OK",        f"{ok_count}/{total_punts}", c_ok)
+    info("Errors recuperats", str(n_errors), GRN if n_errors == 0 else YLW)
+    info("Paquets perduts",   str(n_fatal),  GRN if n_fatal  == 0 else RED)
+    info("Temps descàrrega",  fmt_time(elapsed_total), WHT)
+>>>>>>> deae97f7520762f70e0841d3fc77273a774e4bcf
 
     # ── REPARACIÓ FORATS ─────────────────────
     failed = [i for i, v in results_dict.items() if v is None]
