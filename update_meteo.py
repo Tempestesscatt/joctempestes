@@ -79,8 +79,8 @@ N_GRID        = 50          # ← 50×50 = 2500 punts
 MODEL         = "arome_seamless"
 URL_BASE      = "https://api.open-meteo.com/v1/meteofrance"
 FORECAST_DAYS = 2
-CHUNK_SIZE    = 4           # petit per evitar timeouts amb 50×50
-SLEEP         = 4.0         # més sleep per evitar 429 amb tanta càrrega
+CHUNK_SIZE    = 6           # menys paquets totals → 417 en comptes de 625
+SLEEP         = 8.0         # més espera entre paquets → evita 429
 MAX_ATTEMPTS  = 5
 
 VARS_SFC = {
@@ -180,9 +180,15 @@ def main():
                 r = requests.get(URL_BASE, params=params, timeout=45)
 
                 if r.status_code == 429:
-                    w = 60 * (att + 1)  # backoff més agressiu per 50×50
+                    w = 60 * (att + 1)
                     n_errors += 1
-                    warn(f"Rate limit (429) — esperant {w}s", idx, att)
+                    # Mostrar missatge complet de l'API per saber quin límit és
+                    try:
+                        err_body = r.json()
+                        err_msg  = err_body.get('reason', err_body.get('error', str(err_body)))
+                    except Exception:
+                        err_msg = r.text[:200] if r.text else "sense missatge"
+                    warn(f"Rate limit (429) — {YLW}{err_msg}{R} — esperant {w}s", idx, att)
                     time.sleep(w)
                     continue
 
