@@ -6,21 +6,89 @@ import numpy as np
 # ─────────────────────────────────────────────
 #  COLORS ANSI
 # ─────────────────────────────────────────────
+<<<<<<< HEAD
 R="\033[0m"; B="\033[1m"; D="\033[2m"
 RED="\033[91m"; GRN="\033[92m"; YLW="\033[93m"; CYN="\033[96m"; WHT="\033[97m"
+=======
+R  = "\033[0m"
+B  = "\033[1m"
+D  = "\033[2m"
+RED    = "\033[91m"
+GRN    = "\033[92m"
+YLW    = "\033[93m"
+CYN    = "\033[96m"
+WHT    = "\033[97m"
+
+# ─────────────────────────────────────────────
+#  HELPERS DE TERMINAL
+# ─────────────────────────────────────────────
+def cls():
+    sys.stdout.write("\033[2K\r")
+    sys.stdout.flush()
+
+def fmt_time(s):
+    if s < 0 or s > 86400: return "..."
+    if s < 60: return f"{int(s)}s"
+    return f"{int(s//60)}m {int(s%60):02d}s"
+
+def fmt_size(b):
+    if b < 1024: return f"{b} B"
+    if b < 1024**2: return f"{b/1024:.1f} KB"
+    return f"{b/1024**2:.2f} MB"
+
+def draw_bar(current, total, errors=0, fatal=0, eta="", label=""):
+    W = 38
+    pct = current / total if total else 0
+    filled = int(W * pct)
+    empty  = W - filled
+    col = RED if fatal > 0 else (YLW if errors > 0 else GRN)
+    bar   = f"{col}{B}{'█' * filled}{R}{D}{'░' * empty}{R}"
+    pct_s = f"{B}{WHT}{pct*100:5.1f}%{R}"
+    cnt_s = f"{D}({current}/{total}){R}"
+    eta_s = f"  {CYN}ETA {eta}{R}" if eta else ""
+    err_s = f"  {YLW}⚠ {errors}err{R}" if errors > 0 else ""
+    fat_s = f"  {RED}{B}✗ {fatal} perduts{R}" if fatal > 0 else ""
+    lbl_s = f"  {D}{label}{R}" if label else ""
+    sys.stdout.write(f"\r  [{bar}] {pct_s} {cnt_s}{eta_s}{err_s}{fat_s}{lbl_s}   ")
+    sys.stdout.flush()
+
+def warn(msg, paquet=None, intent=None):
+    cls()
+    parts = []
+    if paquet is not None: parts.append(f"paquet {paquet+1}")
+    if intent is not None: parts.append(f"intent {intent+1}")
+    loc = f"{YLW}[{', '.join(parts)}]{R} " if parts else ""
+    print(f"  {YLW}⚠  {loc}{msg}{R}")
+
+def fatal_warn(msg):
+    cls()
+    print(f"  {RED}{B}✗  FATAL: {msg}{R}")
+
+def info(k, v, c=WHT):
+    print(f"  {D}│{R}  {CYN}{k:<22}{R} {c}{B}{v}{R}")
+
+def section(title):
+    print(f"\n  {YLW}{B}▶ {title}{R}")
+    print(f"  {D}{'─'*52}{R}")
+>>>>>>> b3c3621ff00acb0cc6d8f49accb4e7592f25f212
 
 # ─────────────────────────────────────────────
 #  CONFIGURACIÓ
 # ─────────────────────────────────────────────
 LON_MIN, LON_MAX = -4.6, 4.0
 LAT_MIN, LAT_MAX = 38.5, 42.9
-N_GRID        = 40
+N_GRID        = 40       # ← 50×50 = 2500 punts
 MODEL         = "arome_seamless"
 URL_BASE      = "https://api.open-meteo.com/v1/meteofrance"
 FORECAST_DAYS = 2
+<<<<<<< HEAD
 CHUNK_SIZE    = 5     # ← reduït a 5: paquets més petits = menys timeout
 SLEEP_OK      = 4.0  # entre paquets normals
 SLEEP_ERR     = 8.0  # després d'un error
+=======
+CHUNK_SIZE    = 6           # menys paquets totals → 417 en comptes de 625
+SLEEP         = 8.0         # més espera entre paquets → evita 429
+>>>>>>> b3c3621ff00acb0cc6d8f49accb4e7592f25f212
 MAX_ATTEMPTS  = 5
 TIMEOUT       = 90   # més generós
 
@@ -100,6 +168,7 @@ def fatal(msg):
 #  DESCÀRREGA D'UNA PASSADA
 #  passada: 'sfc' o 'pl'
 # ─────────────────────────────────────────────
+<<<<<<< HEAD
 def download_pass(lats_flat, lons_flat, passada, prev_results=None):
     total_punts  = len(lats_flat)
     total_chunks = math.ceil(total_punts / CHUNK_SIZE)
@@ -109,6 +178,43 @@ def download_pass(lats_flat, lons_flat, passada, prev_results=None):
     t0           = time.time()
 
     empty_arr = [None] * (FORECAST_DAYS * 24)
+=======
+def main():
+    total_punts  = N_GRID * N_GRID
+    total_chunks = (total_punts + CHUNK_SIZE - 1) // CHUNK_SIZE
+    eta_total    = total_chunks * (SLEEP + 2)  # estimació conservadora
+
+    print()
+    print(f"  {CYN}{B}╔══════════════════════════════════════════════════════╗{R}")
+    print(f"  {CYN}{B}║       TEMPESTES.CAT  —  DESCÀRREGA AROME             ║{R}")
+    print(f"  {CYN}{B}╚══════════════════════════════════════════════════════╝{R}")
+    print()
+    info("Model",         "AROME Seamless",                           CYN)
+    info("Zona",          f"{LAT_MIN}–{LAT_MAX}°N  {LON_MIN}–{LON_MAX}°E", WHT)
+    info("Graella",       f"{N_GRID}×{N_GRID} = {total_punts} punts", GRN)
+    info("Paquets API",   f"{total_chunks}  ({CHUNK_SIZE} punts/paquet)", WHT)
+    info("Sleep",         f"{SLEEP}s entre paquets",                  DIM if False else WHT)
+    info("Temps estimat", f"~{fmt_time(eta_total)} (sense errors)",   YLW)
+    print(f"  {D}{'─'*52}{R}")
+
+    lats_flat = np.round(np.meshgrid(
+        np.linspace(LON_MIN, LON_MAX, N_GRID),
+        np.linspace(LAT_MIN, LAT_MAX, N_GRID)
+    )[1].flatten(), 4)
+    lons_flat = np.round(np.meshgrid(
+        np.linspace(LON_MIN, LON_MAX, N_GRID),
+        np.linspace(LAT_MIN, LAT_MAX, N_GRID)
+    )[0].flatten(), 4)
+
+    # ── DESCÀRREGA ────────────────────────────
+    section("DESCÀRREGA")
+    print()
+
+    results_dict = {}
+    t0       = time.time()
+    n_errors = 0
+    n_fatal  = 0
+>>>>>>> b3c3621ff00acb0cc6d8f49accb4e7592f25f212
 
     for idx in range(total_chunks):
         s  = idx * CHUNK_SIZE
@@ -146,14 +252,60 @@ def download_pass(lats_flat, lons_flat, passada, prev_results=None):
 
         for att in range(MAX_ATTEMPTS):
             try:
+<<<<<<< HEAD
                 r = requests.get(URL_BASE, params=params, timeout=TIMEOUT)
 
                 if r.status_code == 429:
                     # Rate limit — pausa llarga progressiva
                     w = 90 * (att + 1)  # 90s, 180s, 270s...
+=======
+                r = requests.get(URL_BASE, params=params, timeout=45)
+
+                if r.status_code == 429:
+>>>>>>> b3c3621ff00acb0cc6d8f49accb4e7592f25f212
                     n_errors += 1
-                    warn(f"Rate limit (429) — esperant {w}s", idx, att)
-                    time.sleep(w)
+                    # Llegir missatge de l'API
+                    try:
+                        err_body = r.json()
+                        err_msg  = err_body.get('reason', err_body.get('error', str(err_body))).lower()
+                    except Exception:
+                        err_msg = (r.text[:300] if r.text else "").lower()
+
+                    # Detectar tipus de límit
+                    if 'daily' in err_msg or 'day' in err_msg:
+                        cls()
+                        print(f"\n  {RED}{B}╔══════════════════════════════════════════════════════╗{R}")
+                        print(f"  {RED}{B}║   ✗  LÍMIT DIARI EXHAURIT — ACTUALITZACIÓ CANCEL·LADA  ║{R}")
+                        print(f"  {RED}{B}╚══════════════════════════════════════════════════════╝{R}")
+                        print(f"\n  {WHT}Missatge API:{R} {YLW}{err_msg}{R}")
+                        print(f"  {D}Torna a executar demà quan es reinicia el comptador.{R}\n")
+                        sys.exit(1)
+
+                    elif 'minute' in err_msg or 'minutely' in err_msg:
+                        wait = 90
+                        tipo = f"{YLW}límit/minut{R}"
+                    else:
+                        # Hourly o desconegut → esperar 1h
+                        wait = 3600
+                        tipo = f"{YLW}límit/hora{R}"
+
+                    cls()
+                    print(f"  {YLW}⚠  [paquet {idx+1}] Rate limit 429 ({tipo}): {err_msg[:80]}{R}")
+
+                    # Countdown visual en una sola línia
+                    t_wait = time.time()
+                    while True:
+                        remaining = int(wait - (time.time() - t_wait))
+                        if remaining <= 0: break
+                        mins, secs = divmod(remaining, 60)
+                        bar_w   = 30
+                        elapsed_w = wait - remaining
+                        filled_w  = int(bar_w * elapsed_w / wait)
+                        bar_str = f"{GRN}{'█' * filled_w}{D}{'░' * (bar_w - filled_w)}{R}"
+                        sys.stdout.write(f"\r  {D}esperant [{bar_str}] {CYN}{mins:02d}:{secs:02d}{R}   ")
+                        sys.stdout.flush()
+                        time.sleep(1)
+                    cls()
                     continue
 
                 if r.status_code >= 500:
@@ -181,11 +333,29 @@ def download_pass(lats_flat, lons_flat, passada, prev_results=None):
                 time.sleep(w)
 
             except requests.exceptions.ConnectionError:
+<<<<<<< HEAD
                 w = 45 * (att + 1)
+=======
+                w = 25 * (att + 1)
+>>>>>>> b3c3621ff00acb0cc6d8f49accb4e7592f25f212
                 n_errors += 1
                 warn(f"Connexió perduda — esperant {w}s", idx, att)
                 time.sleep(w)
 
+<<<<<<< HEAD
+=======
+            except requests.exceptions.HTTPError as ex:
+                w = 10 * (att + 1)
+                n_errors += 1
+                warn(f"HTTP {ex} — esperant {w}s", idx, att)
+                time.sleep(w)
+
+            except ValueError as ex:
+                n_errors += 1
+                warn(f"Dades invàlides: {ex}", idx, att)
+                time.sleep(5)
+
+>>>>>>> b3c3621ff00acb0cc6d8f49accb4e7592f25f212
             except Exception as ex:
                 n_errors += 1
                 warn(f"{type(ex).__name__}: {ex}", idx, att)
@@ -202,13 +372,18 @@ def download_pass(lats_flat, lons_flat, passada, prev_results=None):
             for ip in ci:
                 results[ip] = None
 
+<<<<<<< HEAD
         # Sleep adaptatiu — si hi ha hagut errors recents, espera més
         time.sleep(SLEEP_ERR if n_errors > 0 and idx < 5 else SLEEP_OK)
+=======
+        time.sleep(SLEEP)
+>>>>>>> b3c3621ff00acb0cc6d8f49accb4e7592f25f212
 
     draw_bar(total_chunks, total_chunks, n_errors, n_fatal, "", "completat!")
     print("\n")
     return results, n_errors, n_fatal
 
+<<<<<<< HEAD
 # ─────────────────────────────────────────────
 #  REPARAR FORATS
 # ─────────────────────────────────────────────
@@ -236,6 +411,14 @@ def repair_holes(results, lats_flat, lons_flat):
             results[fi] = nearest
             repaired += 1
     return results, repaired
+=======
+    elapsed_total = time.time() - t0
+    ok_count = sum(1 for v in results_dict.values() if v is not None)
+    info("Paquets OK",        f"{ok_count}/{total_punts}", GRN if n_fatal == 0 else YLW)
+    info("Errors recuperats", str(n_errors), GRN if n_errors == 0 else YLW)
+    info("Paquets perduts",   str(n_fatal),  GRN if n_fatal  == 0 else RED)
+    info("Temps descàrrega",  fmt_time(elapsed_total), WHT)
+>>>>>>> b3c3621ff00acb0cc6d8f49accb4e7592f25f212
 
 # ─────────────────────────────────────────────
 #  MAIN
@@ -377,10 +560,17 @@ def main():
     print()
     info("Fitxer",        js_path,                                    GRN)
     info("Mida",          fmt_size(os.path.getsize(js_path)),          WHT)
+<<<<<<< HEAD
     info("Resolució",     f"{N_GRID}×{N_GRID} = {total_punts} punts",  CYN)
     info("Temps total",   fmt_time(temps_total),                       WHT)
     info("Errors totals", str(n_errors), GRN if n_errors==0 else YLW)
     info("Perduts",       str(n_fatal),  GRN if n_fatal==0  else RED)
+=======
+    info("Resolució",     f"{N_GRID}×{N_GRID} = {total_punts} punts", CYN)
+    info("Temps total",   fmt_time(temps_total),                       WHT)
+    info("Errors totals", str(n_errors), GRN if n_errors == 0 else YLW)
+    info("Perduts",       str(n_fatal),  GRN if n_fatal  == 0 else RED)
+>>>>>>> b3c3621ff00acb0cc6d8f49accb4e7592f25f212
     if n_fatal > 0:
         cob = 100 * (1 - n_fatal * CHUNK_SIZE / total_punts)
         info("Cobertura", f"{cob:.1f}%", YLW)
