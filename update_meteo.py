@@ -1,7 +1,4 @@
-import json
-import os
-import sys
-import time
+import json, os, sys, time, math
 from datetime import datetime, timezone
 import requests
 import numpy as np
@@ -9,77 +6,8 @@ import numpy as np
 # ─────────────────────────────────────────────
 #  COLORS ANSI
 # ─────────────────────────────────────────────
-R  = "\033[0m"
-B  = "\033[1m"
-D  = "\033[2m"
-RED    = "\033[91m"
-GRN    = "\033[92m"
-YLW    = "\033[93m"
-CYN    = "\033[96m"
-WHT    = "\033[97m"
-BGGRN  = "\033[42m"
-BGRED  = "\033[41m"
-BGYLW  = "\033[43m"
-
-# ─────────────────────────────────────────────
-#  HELPERS DE TERMINAL
-# ─────────────────────────────────────────────
-def cls():
-    sys.stdout.write("\033[2K\r")
-    sys.stdout.flush()
-
-def fmt_time(s):
-    if s < 0 or s > 86400: return "..."
-    if s < 60: return f"{int(s)}s"
-    return f"{int(s//60)}m {int(s%60):02d}s"
-
-def fmt_size(b):
-    if b < 1024: return f"{b} B"
-    if b < 1024**2: return f"{b/1024:.1f} KB"
-    return f"{b/1024**2:.2f} MB"
-
-def draw_bar(current, total, errors=0, fatal=0, eta="", label=""):
-    W = 38
-    pct = current / total if total else 0
-    filled = int(W * pct)
-    empty  = W - filled
-
-    if fatal > 0:
-        col = RED
-    elif errors > 0:
-        col = YLW
-    else:
-        col = GRN
-
-    bar = f"{col}{B}{'█' * filled}{R}{D}{'░' * empty}{R}"
-    pct_s = f"{B}{WHT}{pct*100:5.1f}%{R}"
-    cnt_s = f"{D}({current}/{total}){R}"
-    eta_s = f"  {CYN}ETA {eta}{R}" if eta else ""
-    err_s = f"  {RED}⚠ {errors}err{R}" if errors > 0 else ""
-    fat_s = f"  {RED}{B}✗ {fatal} perduts{R}" if fatal > 0 else ""
-    lbl_s = f"  {D}{label}{R}" if label else ""
-
-    sys.stdout.write(f"\r  [{bar}] {pct_s} {cnt_s}{eta_s}{err_s}{fat_s}{lbl_s}   ")
-    sys.stdout.flush()
-
-def warn(msg, paquet=None, intent=None):
-    cls()
-    parts = []
-    if paquet is not None: parts.append(f"paquet {paquet+1}")
-    if intent is not None: parts.append(f"intent {intent+1}")
-    loc = f"{YLW}[{', '.join(parts)}]{R} " if parts else ""
-    print(f"  {YLW}⚠  {loc}{msg}{R}")
-
-def fatal_warn(msg):
-    cls()
-    print(f"  {RED}{B}✗  FATAL: {msg}{R}")
-
-def info(k, v, c=WHT):
-    print(f"  {D}│{R}  {CYN}{k:<22}{R} {c}{B}{v}{R}")
-
-def section(title):
-    print(f"\n  {YLW}{B}▶ {title}{R}")
-    print(f"  {D}{'─'*52}{R}")
+R="\033[0m"; B="\033[1m"; D="\033[2m"
+RED="\033[91m"; GRN="\033[92m"; YLW="\033[93m"; CYN="\033[96m"; WHT="\033[97m"
 
 # ─────────────────────────────────────────────
 #  CONFIGURACIÓ
@@ -90,9 +18,19 @@ N_GRID        = 40
 MODEL         = "arome_seamless"
 URL_BASE      = "https://api.open-meteo.com/v1/meteofrance"
 FORECAST_DAYS = 2
-CHUNK_SIZE    = 10
+CHUNK_SIZE    = 5     # ← reduït a 5: paquets més petits = menys timeout
+SLEEP_OK      = 4.0  # entre paquets normals
+SLEEP_ERR     = 8.0  # després d'un error
 MAX_ATTEMPTS  = 5
+TIMEOUT       = 90   # més generós
 
+LEVELS = [
+    "1000hPa","950hPa","925hPa","900hPa","850hPa",
+    "800hPa","700hPa","600hPa","500hPa",
+    "400hPa","300hPa","250hPa","200hPa","150hPa","100hPa",
+]
+
+# ── PASSADA 1: només superfície ──────────────
 VARS_SFC = {
     "temperature_2m":       "temperature",
     "relative_humidity_2m": "relative_humidity",
@@ -103,12 +41,10 @@ VARS_SFC = {
     "wind_direction_10m":   "wind_direction",
     "wind_gusts_10m":       "wind_gusts",
     "cape":                 "cape",
+    "surface_pressure":     "surface_pressure",
 }
-LEVELS = [
-    "1000hPa","950hPa","925hPa","900hPa","850hPa",
-    "800hPa","700hPa","600hPa","500hPa",
-    "400hPa","300hPa","250hPa","200hPa","150hPa","100hPa",
-]
+
+# ── PASSADA 2: nivells de pressió ────────────
 VARS_PL = {
     "temperature":       "temperature",
     "relative_humidity": "relative_humidity",
@@ -117,64 +53,88 @@ VARS_PL = {
     "wind_direction":    "wind_direction",
 }
 
-hourly_params = list(VARS_SFC.keys()) + ["surface_pressure"]
-for lvl in LEVELS:
-    for v in VARS_PL.keys():
-        hourly_params.append(f"{v}_{lvl}")
-hourly_str = ",".join(hourly_params)
+# ─────────────────────────────────────────────
+#  HELPERS
+# ─────────────────────────────────────────────
+def fmt_time(s):
+    if s < 0 or s > 86400: return "..."
+    if s < 60: return f"{int(s)}s"
+    return f"{int(s//60)}m {int(s%60):02d}s"
+
+def fmt_size(b):
+    if b < 1024**2: return f"{b/1024:.1f} KB"
+    return f"{b/1024**2:.2f} MB"
+
+def info(k, v, c=WHT):
+    print(f"  {D}│{R}  {CYN}{k:<24}{R} {c}{B}{v}{R}")
+
+def section(t):
+    print(f"\n  {YLW}{B}▶ {t}{R}")
+    print(f"  {D}{'─'*54}{R}")
+
+def draw_bar(cur, tot, nerr=0, nfat=0, eta="", lbl=""):
+    W   = 36
+    pct = cur/tot if tot else 0
+    col = RED if nfat>0 else (YLW if nerr>0 else GRN)
+    bar = f"{col}{B}{'█'*int(W*pct)}{R}{D}{'░'*(W-int(W*pct))}{R}"
+    parts = [f"\r  [{bar}] {B}{WHT}{pct*100:5.1f}%{R} {D}({cur}/{tot}){R}"]
+    if eta:   parts.append(f"  {CYN}ETA {eta}{R}")
+    if nerr:  parts.append(f"  {YLW}⚠ {nerr}err{R}")
+    if nfat:  parts.append(f"  {RED}{B}✗ {nfat} perduts{R}")
+    if lbl:   parts.append(f"  {D}{lbl}{R}")
+    sys.stdout.write("".join(parts) + "   ")
+    sys.stdout.flush()
+
+def warn(msg, idx=None, att=None):
+    sys.stdout.write("\033[2K\r")
+    loc = ""
+    if idx is not None: loc += f"paquet {idx+1}"
+    if att is not None: loc += f", intent {att+1}"
+    print(f"  {YLW}⚠  [{loc}] {msg}{R}")
+
+def fatal(msg):
+    sys.stdout.write("\033[2K\r")
+    print(f"  {RED}{B}✗  FATAL: {msg}{R}")
 
 # ─────────────────────────────────────────────
-#  MAIN
+#  DESCÀRREGA D'UNA PASSADA
+#  passada: 'sfc' o 'pl'
 # ─────────────────────────────────────────────
-def main():
-    print()
-    print(f"  {CYN}{B}╔══════════════════════════════════════════════════════╗{R}")
-    print(f"  {CYN}{B}║       TEMPESTES.CAT  —  DESCÀRREGA AROME             ║{R}")
-    print(f"  {CYN}{B}╚══════════════════════════════════════════════════════╝{R}")
-    print()
-
-    lats_flat = np.round(np.meshgrid(
-        np.linspace(LON_MIN, LON_MAX, N_GRID),
-        np.linspace(LAT_MIN, LAT_MAX, N_GRID)
-    )[1].flatten(), 4)
-    lons_flat = np.round(np.meshgrid(
-        np.linspace(LON_MIN, LON_MAX, N_GRID),
-        np.linspace(LAT_MIN, LAT_MAX, N_GRID)
-    )[0].flatten(), 4)
-
+def download_pass(lats_flat, lons_flat, passada, prev_results=None):
     total_punts  = len(lats_flat)
-    total_chunks = (total_punts + CHUNK_SIZE - 1) // CHUNK_SIZE
-
-    info("Model",          "AROME Seamless",                  CYN)
-    info("Zona",           f"{LAT_MIN}–{LAT_MAX}°N  {LON_MIN}–{LON_MAX}°E", WHT)
-    info("Graella",        f"{N_GRID}×{N_GRID} = {total_punts} punts", GRN)
-    info("Paquets API",    f"{total_chunks}  ({CHUNK_SIZE} punts/paquet)", WHT)
-    info("Temps estimat",  "~1h 30min – 2h", YLW)
-    print(f"  {D}{'─'*52}{R}")
-
-    # ── DESCÀRREGA ────────────────────────────
-    section("DESCÀRREGA")
-    print()
-
-    results_dict = {}
-    t0           = time.time()
+    total_chunks = math.ceil(total_punts / CHUNK_SIZE)
+    results      = {}
     n_errors     = 0
     n_fatal      = 0
+    t0           = time.time()
+
+    empty_arr = [None] * (FORECAST_DAYS * 24)
 
     for idx in range(total_chunks):
         s  = idx * CHUNK_SIZE
         e  = min(s + CHUNK_SIZE, total_punts)
-        cl = lats_flat[s:e]
-        co = lons_flat[s:e]
+        cl = lats_flat[s:e].tolist()
+        co = lons_flat[s:e].tolist()
         ci = list(range(s, e))
 
         elapsed = time.time() - t0
-        eta     = fmt_time((elapsed / idx) * (total_chunks - idx)) if idx > 0 else ""
-        draw_bar(idx, total_chunks, n_errors, n_fatal, eta, "descarregant...")
+        eta = fmt_time((elapsed/idx)*(total_chunks-idx)) if idx > 0 else ""
+        draw_bar(idx, total_chunks, n_errors, n_fatal, eta, f"passada {passada}...")
+
+        # Construir params segons passada
+        if passada == 'sfc':
+            hourly_str = ",".join(VARS_SFC.keys())
+        else:
+            # Nivells de pressió: dividits en 2 subpassades per no sobrecarregar
+            pl_vars = []
+            for lvl in LEVELS:
+                for v in VARS_PL.keys():
+                    pl_vars.append(f"{v}_{lvl}")
+            hourly_str = ",".join(pl_vars)
 
         params = {
-            "latitude":      ",".join(map(str, cl)),
-            "longitude":     ",".join(map(str, co)),
+            "latitude":      cl,
+            "longitude":     co,
             "hourly":        hourly_str,
             "models":        MODEL,
             "forecast_days": FORECAST_DAYS,
@@ -186,17 +146,18 @@ def main():
 
         for att in range(MAX_ATTEMPTS):
             try:
-                r = requests.get(URL_BASE, params=params, timeout=60)
+                r = requests.get(URL_BASE, params=params, timeout=TIMEOUT)
 
                 if r.status_code == 429:
-                    w = 60 * (att + 1)
+                    # Rate limit — pausa llarga progressiva
+                    w = 90 * (att + 1)  # 90s, 180s, 270s...
                     n_errors += 1
                     warn(f"Rate limit (429) — esperant {w}s", idx, att)
                     time.sleep(w)
                     continue
 
                 if r.status_code >= 500:
-                    w = 20 * (att + 1)
+                    w = 30 * (att + 1)
                     n_errors += 1
                     warn(f"Error servidor ({r.status_code}) — esperant {w}s", idx, att)
                     time.sleep(w)
@@ -214,92 +175,131 @@ def main():
                 break
 
             except requests.exceptions.Timeout:
-                w = 20 * (att + 1)
+                w = 30 * (att + 1)
                 n_errors += 1
                 warn(f"Timeout — esperant {w}s", idx, att)
                 time.sleep(w)
 
             except requests.exceptions.ConnectionError:
-                w = 30 * (att + 1)
+                w = 45 * (att + 1)
                 n_errors += 1
                 warn(f"Connexió perduda — esperant {w}s", idx, att)
                 time.sleep(w)
 
-            except requests.exceptions.HTTPError as ex:
-                w = 15 * (att + 1)
-                n_errors += 1
-                warn(f"HTTP {ex} — esperant {w}s", idx, att)
-                time.sleep(w)
-
-            except ValueError as ex:
-                n_errors += 1
-                warn(f"Dades invàlides: {ex}", idx, att)
-                time.sleep(5)
-
             except Exception as ex:
                 n_errors += 1
                 warn(f"{type(ex).__name__}: {ex}", idx, att)
-                time.sleep(5)
+                time.sleep(10)
 
         if ok and data is not None:
-            if isinstance(data, list):
-                for j, dp in enumerate(data):
-                    if j < len(ci): results_dict[ci[j]] = dp
-            else:
-                results_dict[ci[0]] = data
+            items = data if isinstance(data, list) else [data]
+            for j, dp in enumerate(items):
+                if j < len(ci):
+                    results[ci[j]] = dp
         else:
             n_fatal += 1
-            fatal_warn(f"Paquet {idx+1} perdut definitiu ({len(ci)} punts s'interpolaran)")
-            for ip in ci: results_dict[ip] = None
+            fatal(f"Paquet {idx+1} perdut ({len(ci)} punts s'interpolaran)")
+            for ip in ci:
+                results[ip] = None
 
-        time.sleep(3.5)
+        # Sleep adaptatiu — si hi ha hagut errors recents, espera més
+        time.sleep(SLEEP_ERR if n_errors > 0 and idx < 5 else SLEEP_OK)
 
     draw_bar(total_chunks, total_chunks, n_errors, n_fatal, "", "completat!")
     print("\n")
+    return results, n_errors, n_fatal
 
-    elapsed_total = time.time() - t0
-    ok_count = sum(1 for v in results_dict.values() if v is not None)
-    c_ok = GRN if n_fatal == 0 else YLW
-    info("Paquets OK",        f"{ok_count}/{total_punts}", c_ok)
-    info("Errors recuperats", str(n_errors), GRN if n_errors == 0 else YLW)
-    info("Paquets perduts",   str(n_fatal),  GRN if n_fatal  == 0 else RED)
-    info("Temps descàrrega",  fmt_time(elapsed_total), WHT)
+# ─────────────────────────────────────────────
+#  REPARAR FORATS
+# ─────────────────────────────────────────────
+def repair_holes(results, lats_flat, lons_flat):
+    failed = [i for i, v in results.items() if v is None]
+    if not failed:
+        return results, 0
+    repaired = 0
+    for fi in failed:
+        row, col = divmod(fi, N_GRID)
+        nearest  = None
+        for d in range(1, 8):
+            best_dist = float('inf')
+            for dr in range(-d, d+1):
+                for dc in range(-d, d+1):
+                    nr, nc = row+dr, col+dc
+                    if 0 <= nr < N_GRID and 0 <= nc < N_GRID:
+                        ni = nr*N_GRID + nc
+                        if results.get(ni) is not None:
+                            dist = abs(lats_flat[ni]-lats_flat[fi]) + abs(lons_flat[ni]-lons_flat[fi])
+                            if dist < best_dist:
+                                best_dist, nearest = dist, results[ni]
+            if nearest: break
+        if nearest:
+            results[fi] = nearest
+            repaired += 1
+    return results, repaired
 
-    # ── REPARACIÓ FORATS ─────────────────────
-    failed = [i for i, v in results_dict.items() if v is None]
-    if failed:
-        section(f"REPARACIÓ ({len(failed)} forats)")
-        print()
-        repaired = 0
-        for i, fi in enumerate(failed):
-            draw_bar(i + 1, len(failed), label="reparant forats...")
-            row, col = divmod(fi, N_GRID)
-            nearest  = None
-            for d in range(1, 6):
-                best_dist = float('inf')
-                for dr in range(-d, d+1):
-                    for dc in range(-d, d+1):
-                        nr, nc = row+dr, col+dc
-                        if 0 <= nr < N_GRID and 0 <= nc < N_GRID:
-                            ni = nr*N_GRID + nc
-                            if results_dict.get(ni) is not None:
-                                dist = abs(lats_flat[ni]-lats_flat[fi]) + abs(lons_flat[ni]-lons_flat[fi])
-                                if dist < best_dist:
-                                    best_dist = dist
-                                    nearest   = results_dict[ni]
-                if nearest: break
-            if nearest:
-                results_dict[fi] = nearest
-                repaired += 1
-        print("\n")
-        if repaired == len(failed):
-            print(f"  {GRN}{B}✓  Tots els forats reparats ({repaired}/{len(failed)}){R}")
-        else:
-            print(f"  {YLW}⚠  Reparats {repaired}/{len(failed)} — {len(failed)-repaired} punts buits restants{R}")
-    else:
-        print(f"\n  {GRN}{B}✓  Cap forat! Dades perfectes.{R}")
+# ─────────────────────────────────────────────
+#  MAIN
+# ─────────────────────────────────────────────
+def main():
+    print()
+    print(f"  {CYN}{B}╔══════════════════════════════════════════════════════╗{R}")
+    print(f"  {CYN}{B}║       TEMPESTES.CAT  —  DESCÀRREGA AROME  v2         ║{R}")
+    print(f"  {CYN}{B}╚══════════════════════════════════════════════════════╝{R}")
+    print()
 
-    # ── CONSTRUCCIÓ JSON ─────────────────────
+    lats_flat = np.round(np.meshgrid(
+        np.linspace(LON_MIN, LON_MAX, N_GRID),
+        np.linspace(LAT_MIN, LAT_MAX, N_GRID)
+    )[1].flatten(), 4)
+    lons_flat = np.round(np.meshgrid(
+        np.linspace(LON_MIN, LON_MAX, N_GRID),
+        np.linspace(LAT_MIN, LAT_MAX, N_GRID)
+    )[0].flatten(), 4)
+
+    total_punts  = len(lats_flat)
+    total_chunks = math.ceil(total_punts / CHUNK_SIZE)
+
+    info("Model",         "AROME Seamless",                          CYN)
+    info("Zona",          f"{LAT_MIN}–{LAT_MAX}°N  {LON_MIN}–{LON_MAX}°E", WHT)
+    info("Graella",       f"{N_GRID}×{N_GRID} = {total_punts} punts",     GRN)
+    info("Paquets/passa", f"{total_chunks}  ({CHUNK_SIZE} pts/paquet)",    WHT)
+    info("Passades",      "2  (superfície + nivells pressió)",             YLW)
+    info("Temps estimat", "~45min – 1h 15min",                             GRN)
+    print(f"  {D}{'─'*54}{R}")
+
+    t_total = time.time()
+
+    # ══ PASSADA 1: SUPERFÍCIE ════════════════
+    section("PASSADA 1/2 — SUPERFÍCIE")
+    print()
+    res_sfc, err_sfc, fat_sfc = download_pass(lats_flat, lons_flat, 'sfc')
+
+    info("Errors superfície", str(err_sfc), GRN if err_sfc==0 else YLW)
+    info("Perduts superfície", str(fat_sfc), GRN if fat_sfc==0 else RED)
+
+    if fat_sfc > 0:
+        print(f"\n  {YLW}⟲ Reparant forats superfície...{R}")
+        res_sfc, rep = repair_holes(res_sfc, lats_flat, lons_flat)
+        print(f"  {GRN}✓ Reparats {rep}/{fat_sfc}{R}")
+
+    # Pausa entre passades per deixar refredar l'API
+    print(f"\n  {D}Pausa 30s entre passades per evitar rate limit...{R}")
+    time.sleep(30)
+
+    # ══ PASSADA 2: NIVELLS DE PRESSIÓ ════════
+    section("PASSADA 2/2 — NIVELLS DE PRESSIÓ")
+    print()
+    res_pl, err_pl, fat_pl = download_pass(lats_flat, lons_flat, 'pl')
+
+    info("Errors pressió", str(err_pl), GRN if err_pl==0 else YLW)
+    info("Perduts pressió", str(fat_pl), GRN if fat_pl==0 else RED)
+
+    if fat_pl > 0:
+        print(f"\n  {YLW}⟲ Reparant forats pressió...{R}")
+        res_pl, rep = repair_holes(res_pl, lats_flat, lons_flat)
+        print(f"  {GRN}✓ Reparats {rep}/{fat_pl}{R}")
+
+    # ══ CONSTRUCCIÓ JSON ══════════════════════
     section("CONSTRUCCIÓ DEL FITXER")
     print()
 
@@ -323,42 +323,40 @@ def main():
         final_json["hourly"][lvl] = {k: [] for k in VARS_PL.values()}
 
     for pt in range(total_punts):
-        draw_bar(pt + 1, total_punts, label="construint JSON...")
-        loc = results_dict.get(pt)
+        draw_bar(pt+1, total_punts, label="construint JSON...")
 
-        if loc is None or "hourly" not in loc:
-            for jk in VARS_SFC.values():
-                final_json["hourly"]["surface"][jk].append(empty_arr[:])
-            for lvl in LEVELS:
-                for jk in VARS_PL.values():
-                    final_json["hourly"][lvl][jk].append(empty_arr[:])
-            final_json["meta"]["surface_pressure"].append(1013)
-            continue
+        sfc = res_sfc.get(pt)
+        pl  = res_pl.get(pt)
 
-        h = loc["hourly"]
+        # Superfície
+        h_sfc = sfc["hourly"] if sfc and "hourly" in sfc else {}
         for ak, jk in VARS_SFC.items():
-            arr = h.get(ak, empty_arr)
+            arr = h_sfc.get(ak, empty_arr)
             final_json["hourly"]["surface"][jk].append(
-                [round(x, 1) if isinstance(x, (int, float)) else x for x in arr])
+                [round(x,1) if isinstance(x,(int,float)) else x for x in arr])
+
+        sp = h_sfc.get("surface_pressure", [])
+        final_json["meta"]["surface_pressure"].append(
+            round(sp[0],1) if sp and sp[0] is not None else 1013)
+
+        # Nivells pressió
+        h_pl = pl["hourly"] if pl and "hourly" in pl else {}
         for lvl in LEVELS:
             for ak, jk in VARS_PL.items():
-                arr = h.get(f"{ak}_{lvl}", empty_arr)
+                arr = h_pl.get(f"{ak}_{lvl}", empty_arr)
                 final_json["hourly"][lvl][jk].append(
-                    [round(x, 1) if isinstance(x, (int, float)) else x for x in arr])
-        sp = h.get("surface_pressure", [])
-        final_json["meta"]["surface_pressure"].append(
-            round(sp[0], 1) if sp and sp[0] is not None else 1013)
+                    [round(x,1) if isinstance(x,(int,float)) else x for x in arr])
 
     print("\n")
 
-    # ── GUARDAR ──────────────────────────────
+    # ══ GUARDAR ══════════════════════════════
     os.makedirs("web_data", exist_ok=True)
     js_path = os.path.join("web_data", "dades.js")
     print(f"  {D}Guardant {js_path}...{R}", end=" ", flush=True)
     try:
         with open(js_path, 'w', encoding='utf-8') as f:
             f.write("const DADES_CAT = ")
-            json.dump(final_json, f, separators=(',', ':'))
+            json.dump(final_json, f, separators=(',',':'))
             f.write(";")
         mida = os.path.getsize(js_path)
         print(f"{GRN}{B}✓{R}  {D}({fmt_size(mida)}){R}")
@@ -366,25 +364,28 @@ def main():
         print(f"{RED}✗  Error guardant: {ex}{R}")
         sys.exit(1)
 
-    # ── RESUM FINAL ──────────────────────────
-    temps_total = time.time() - t0
-    print()
+    # ══ RESUM FINAL ══════════════════════════
+    temps_total = time.time() - t_total
+    n_errors = err_sfc + err_pl
+    n_fatal  = fat_sfc + fat_pl
     c_box = GRN if n_fatal == 0 else YLW
+
+    print()
     print(f"  {c_box}{B}╔══════════════════════════════════════════════════════╗{R}")
     print(f"  {c_box}{B}║                ✓  COMPLETAT!                         ║{R}")
     print(f"  {c_box}{B}╚══════════════════════════════════════════════════════╝{R}")
     print()
-    info("Fitxer",          js_path,                                   GRN)
-    info("Mida",            fmt_size(os.path.getsize(js_path)),         WHT)
-    info("Resolució",       f"{N_GRID}×{N_GRID} = {total_punts} punts", CYN)
-    info("Temps total",     fmt_time(temps_total),                      WHT)
-    info("Errors totals",   str(n_errors),  GRN if n_errors == 0 else YLW)
-    info("Perduts",         str(n_fatal),   GRN if n_fatal  == 0 else RED)
+    info("Fitxer",        js_path,                                    GRN)
+    info("Mida",          fmt_size(os.path.getsize(js_path)),          WHT)
+    info("Resolució",     f"{N_GRID}×{N_GRID} = {total_punts} punts",  CYN)
+    info("Temps total",   fmt_time(temps_total),                       WHT)
+    info("Errors totals", str(n_errors), GRN if n_errors==0 else YLW)
+    info("Perduts",       str(n_fatal),  GRN if n_fatal==0  else RED)
     if n_fatal > 0:
         cob = 100 * (1 - n_fatal * CHUNK_SIZE / total_punts)
-        info("Cobertura",   f"{cob:.1f}%", YLW)
+        info("Cobertura", f"{cob:.1f}%", YLW)
     else:
-        info("Cobertura",   "100% — sense forats", GRN)
+        info("Cobertura", "100% — sense forats", GRN)
     print()
 
 if __name__ == "__main__":
