@@ -180,16 +180,49 @@ def main():
                 r = requests.get(URL_BASE, params=params, timeout=45)
 
                 if r.status_code == 429:
-                    w = 60 * (att + 1)
                     n_errors += 1
-                    # Mostrar missatge complet de l'API per saber quin límit és
+                    # Llegir missatge de l'API
                     try:
                         err_body = r.json()
-                        err_msg  = err_body.get('reason', err_body.get('error', str(err_body)))
+                        err_msg  = err_body.get('reason', err_body.get('error', str(err_body))).lower()
                     except Exception:
-                        err_msg = r.text[:200] if r.text else "sense missatge"
-                    warn(f"Rate limit (429) — {YLW}{err_msg}{R} — esperant {w}s", idx, att)
-                    time.sleep(w)
+                        err_msg = (r.text[:300] if r.text else "").lower()
+
+                    # Detectar tipus de límit
+                    if 'daily' in err_msg or 'day' in err_msg:
+                        cls()
+                        print(f"\n  {RED}{B}╔══════════════════════════════════════════════════════╗{R}")
+                        print(f"  {RED}{B}║   ✗  LÍMIT DIARI EXHAURIT — ACTUALITZACIÓ CANCEL·LADA  ║{R}")
+                        print(f"  {RED}{B}╚══════════════════════════════════════════════════════╝{R}")
+                        print(f"\n  {WHT}Missatge API:{R} {YLW}{err_msg}{R}")
+                        print(f"  {D}Torna a executar demà quan es reinicia el comptador.{R}\n")
+                        sys.exit(1)
+
+                    elif 'minute' in err_msg or 'minutely' in err_msg:
+                        wait = 90
+                        tipo = f"{YLW}límit/minut{R}"
+                    else:
+                        # Hourly o desconegut → esperar 1h
+                        wait = 3600
+                        tipo = f"{YLW}límit/hora{R}"
+
+                    cls()
+                    print(f"  {YLW}⚠  [paquet {idx+1}] Rate limit 429 ({tipo}): {err_msg[:80]}{R}")
+
+                    # Countdown visual en una sola línia
+                    t_wait = time.time()
+                    while True:
+                        remaining = int(wait - (time.time() - t_wait))
+                        if remaining <= 0: break
+                        mins, secs = divmod(remaining, 60)
+                        bar_w   = 30
+                        elapsed_w = wait - remaining
+                        filled_w  = int(bar_w * elapsed_w / wait)
+                        bar_str = f"{GRN}{'█' * filled_w}{D}{'░' * (bar_w - filled_w)}{R}"
+                        sys.stdout.write(f"\r  {D}esperant [{bar_str}] {CYN}{mins:02d}:{secs:02d}{R}   ")
+                        sys.stdout.flush()
+                        time.sleep(1)
+                    cls()
                     continue
 
                 if r.status_code >= 500:
