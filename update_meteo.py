@@ -17,9 +17,6 @@ GRN    = "\033[92m"
 YLW    = "\033[93m"
 CYN    = "\033[96m"
 WHT    = "\033[97m"
-BGGRN  = "\033[42m"
-BGRED  = "\033[41m"
-BGYLW  = "\033[43m"
 
 # ─────────────────────────────────────────────
 #  HELPERS DE TERMINAL
@@ -43,22 +40,14 @@ def draw_bar(current, total, errors=0, fatal=0, eta="", label=""):
     pct = current / total if total else 0
     filled = int(W * pct)
     empty  = W - filled
-
-    if fatal > 0:
-        col = RED
-    elif errors > 0:
-        col = YLW
-    else:
-        col = GRN
-
-    bar = f"{col}{B}{'█' * filled}{R}{D}{'░' * empty}{R}"
+    col = RED if fatal > 0 else (YLW if errors > 0 else GRN)
+    bar   = f"{col}{B}{'█' * filled}{R}{D}{'░' * empty}{R}"
     pct_s = f"{B}{WHT}{pct*100:5.1f}%{R}"
     cnt_s = f"{D}({current}/{total}){R}"
     eta_s = f"  {CYN}ETA {eta}{R}" if eta else ""
-    err_s = f"  {RED}⚠ {errors}err{R}" if errors > 0 else ""
+    err_s = f"  {YLW}⚠ {errors}err{R}" if errors > 0 else ""
     fat_s = f"  {RED}{B}✗ {fatal} perduts{R}" if fatal > 0 else ""
     lbl_s = f"  {D}{label}{R}" if label else ""
-
     sys.stdout.write(f"\r  [{bar}] {pct_s} {cnt_s}{eta_s}{err_s}{fat_s}{lbl_s}   ")
     sys.stdout.flush()
 
@@ -86,12 +75,13 @@ def section(title):
 # ─────────────────────────────────────────────
 LON_MIN, LON_MAX = -4.6, 4.0
 LAT_MIN, LAT_MAX = 38.5, 42.9
-N_GRID       = 30
-MODEL        = "arome_seamless"
-URL_BASE     = "https://api.open-meteo.com/v1/meteofrance"
+N_GRID        = 50          # ← 50×50 = 2500 punts
+MODEL         = "arome_seamless"
+URL_BASE      = "https://api.open-meteo.com/v1/meteofrance"
 FORECAST_DAYS = 2
-CHUNK_SIZE   = 4
-MAX_ATTEMPTS = 5
+CHUNK_SIZE    = 4           # petit per evitar timeouts amb 50×50
+SLEEP         = 4.0         # més sleep per evitar 429 amb tanta càrrega
+MAX_ATTEMPTS  = 5
 
 VARS_SFC = {
     "temperature_2m":       "temperature",
@@ -127,11 +117,22 @@ hourly_str = ",".join(hourly_params)
 #  MAIN
 # ─────────────────────────────────────────────
 def main():
+    total_punts  = N_GRID * N_GRID
+    total_chunks = (total_punts + CHUNK_SIZE - 1) // CHUNK_SIZE
+    eta_total    = total_chunks * (SLEEP + 2)  # estimació conservadora
+
     print()
     print(f"  {CYN}{B}╔══════════════════════════════════════════════════════╗{R}")
     print(f"  {CYN}{B}║       TEMPESTES.CAT  —  DESCÀRREGA AROME             ║{R}")
     print(f"  {CYN}{B}╚══════════════════════════════════════════════════════╝{R}")
     print()
+    info("Model",         "AROME Seamless",                           CYN)
+    info("Zona",          f"{LAT_MIN}–{LAT_MAX}°N  {LON_MIN}–{LON_MAX}°E", WHT)
+    info("Graella",       f"{N_GRID}×{N_GRID} = {total_punts} punts", GRN)
+    info("Paquets API",   f"{total_chunks}  ({CHUNK_SIZE} punts/paquet)", WHT)
+    info("Sleep",         f"{SLEEP}s entre paquets",                  DIM if False else WHT)
+    info("Temps estimat", f"~{fmt_time(eta_total)} (sense errors)",   YLW)
+    print(f"  {D}{'─'*52}{R}")
 
     lats_flat = np.round(np.meshgrid(
         np.linspace(LON_MIN, LON_MAX, N_GRID),
@@ -142,24 +143,14 @@ def main():
         np.linspace(LAT_MIN, LAT_MAX, N_GRID)
     )[0].flatten(), 4)
 
-    total_punts  = len(lats_flat)
-    total_chunks = (total_punts + CHUNK_SIZE - 1) // CHUNK_SIZE
-
-    info("Model",          "AROME Seamless",                  CYN)
-    info("Zona",           f"{LAT_MIN}–{LAT_MAX}°N  {LON_MIN}–{LON_MAX}°E", WHT)
-    info("Graella",        f"{N_GRID}×{N_GRID} = {total_punts} punts", GRN)
-    info("Paquets API",    f"{total_chunks}  ({CHUNK_SIZE} punts/paquet)", WHT)
-    info("Temps estimat",  "~90–120 min", YLW)
-    print(f"  {D}{'─'*52}{R}")
-
     # ── DESCÀRREGA ────────────────────────────
     section("DESCÀRREGA")
     print()
 
     results_dict = {}
-    t0           = time.time()
-    n_errors     = 0
-    n_fatal      = 0
+    t0       = time.time()
+    n_errors = 0
+    n_fatal  = 0
 
     for idx in range(total_chunks):
         s  = idx * CHUNK_SIZE
@@ -173,12 +164,12 @@ def main():
         draw_bar(idx, total_chunks, n_errors, n_fatal, eta, "descarregant...")
 
         params = {
-            "latitude":     ",".join(map(str, cl)),
-            "longitude":    ",".join(map(str, co)),
-            "hourly":       hourly_str,
-            "models":       MODEL,
-            "forecast_days":FORECAST_DAYS,
-            "timezone":     "auto",
+            "latitude":      ",".join(map(str, cl)),
+            "longitude":     ",".join(map(str, co)),
+            "hourly":        hourly_str,
+            "models":        MODEL,
+            "forecast_days": FORECAST_DAYS,
+            "timezone":      "auto",
         }
 
         ok   = False
@@ -186,17 +177,17 @@ def main():
 
         for att in range(MAX_ATTEMPTS):
             try:
-                r = requests.get(URL_BASE, params=params, timeout=30)
+                r = requests.get(URL_BASE, params=params, timeout=45)
 
                 if r.status_code == 429:
-                    w = 20 * (att + 1)
+                    w = 60 * (att + 1)  # backoff més agressiu per 50×50
                     n_errors += 1
                     warn(f"Rate limit (429) — esperant {w}s", idx, att)
                     time.sleep(w)
                     continue
 
                 if r.status_code >= 500:
-                    w = 15 * (att + 1)
+                    w = 20 * (att + 1)
                     n_errors += 1
                     warn(f"Error servidor ({r.status_code}) — esperant {w}s", idx, att)
                     time.sleep(w)
@@ -205,7 +196,6 @@ def main():
                 r.raise_for_status()
                 data = r.json()
 
-                # Validació mínima
                 if isinstance(data, dict) and "hourly" not in data:
                     raise ValueError("Resposta sense 'hourly'")
                 if isinstance(data, list) and len(data) == 0:
@@ -215,13 +205,13 @@ def main():
                 break
 
             except requests.exceptions.Timeout:
-                w = 15 * (att + 1)
+                w = 20 * (att + 1)
                 n_errors += 1
                 warn(f"Timeout — esperant {w}s", idx, att)
                 time.sleep(w)
 
             except requests.exceptions.ConnectionError:
-                w = 20 * (att + 1)
+                w = 25 * (att + 1)
                 n_errors += 1
                 warn(f"Connexió perduda — esperant {w}s", idx, att)
                 time.sleep(w)
@@ -253,15 +243,14 @@ def main():
             fatal_warn(f"Paquet {idx+1} perdut definitiu ({len(ci)} punts s'interpolaran)")
             for ip in ci: results_dict[ip] = None
 
-        time.sleep(1.5)
+        time.sleep(SLEEP)
 
     draw_bar(total_chunks, total_chunks, n_errors, n_fatal, "", "completat!")
     print("\n")
 
     elapsed_total = time.time() - t0
     ok_count = sum(1 for v in results_dict.values() if v is not None)
-    c_ok = GRN if n_fatal == 0 else YLW
-    info("Paquets OK",       f"{ok_count}/{total_punts}", c_ok)
+    info("Paquets OK",        f"{ok_count}/{total_punts}", GRN if n_fatal == 0 else YLW)
     info("Errors recuperats", str(n_errors), GRN if n_errors == 0 else YLW)
     info("Paquets perduts",   str(n_fatal),  GRN if n_fatal  == 0 else RED)
     info("Temps descàrrega",  fmt_time(elapsed_total), WHT)
@@ -375,17 +364,17 @@ def main():
     print(f"  {c_box}{B}║                ✓  COMPLETAT!                         ║{R}")
     print(f"  {c_box}{B}╚══════════════════════════════════════════════════════╝{R}")
     print()
-    info("Fitxer",          js_path,                                   GRN)
-    info("Mida",            fmt_size(os.path.getsize(js_path)),         WHT)
-    info("Resolució",       f"{N_GRID}×{N_GRID} = {total_punts} punts", CYN)
-    info("Temps total",     fmt_time(temps_total),                      WHT)
-    info("Errors totals",   str(n_errors),  GRN if n_errors == 0 else YLW)
-    info("Perduts",         str(n_fatal),   GRN if n_fatal  == 0 else RED)
+    info("Fitxer",        js_path,                                    GRN)
+    info("Mida",          fmt_size(os.path.getsize(js_path)),          WHT)
+    info("Resolució",     f"{N_GRID}×{N_GRID} = {total_punts} punts", CYN)
+    info("Temps total",   fmt_time(temps_total),                       WHT)
+    info("Errors totals", str(n_errors), GRN if n_errors == 0 else YLW)
+    info("Perduts",       str(n_fatal),  GRN if n_fatal  == 0 else RED)
     if n_fatal > 0:
         cob = 100 * (1 - n_fatal * CHUNK_SIZE / total_punts)
-        info("Cobertura",   f"{cob:.1f}%", YLW)
+        info("Cobertura", f"{cob:.1f}%", YLW)
     else:
-        info("Cobertura",   "100% — sense forats", GRN)
+        info("Cobertura", "100% — sense forats", GRN)
     print()
 
 if __name__ == "__main__":
