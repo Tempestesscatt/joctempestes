@@ -19,8 +19,8 @@ MODEL         = "arome_seamless"
 URL_BASE      = "https://api.open-meteo.com/v1/meteofrance"
 FORECAST_DAYS = 2
 CHUNK_SIZE    = 5
-SLEEP_OK      = 4.0  # entre paquets normals
-SLEEP_ERR     = 8.0  # després d'un error
+SLEEP_OK      = 8.0  # entre paquets normals (més generós per evitar 429)
+SLEEP_ERR     = 15.0 # després d'un error
 MAX_ATTEMPTS  = 3    # ← màxim 3 intents, després es dona per perdut
 TIMEOUT       = 60   # 60s per intent
 
