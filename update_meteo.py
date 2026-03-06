@@ -18,11 +18,11 @@ N_GRID        = 40
 MODEL         = "arome_seamless"
 URL_BASE      = "https://api.open-meteo.com/v1/meteofrance"
 FORECAST_DAYS = 2
-CHUNK_SIZE    = 5     # ← reduït a 5: paquets més petits = menys timeout
+CHUNK_SIZE    = 5
 SLEEP_OK      = 4.0  # entre paquets normals
 SLEEP_ERR     = 8.0  # després d'un error
-MAX_ATTEMPTS  = 5
-TIMEOUT       = 90   # més generós
+MAX_ATTEMPTS  = 3    # ← màxim 3 intents, després es dona per perdut
+TIMEOUT       = 60   # 60s per intent
 
 LEVELS = [
     "1000hPa","950hPa","925hPa","900hPa","850hPa",
@@ -98,7 +98,6 @@ def fatal(msg):
 
 # ─────────────────────────────────────────────
 #  DESCÀRREGA D'UNA PASSADA
-#  passada: 'sfc' o 'pl'
 # ─────────────────────────────────────────────
 def download_pass(lats_flat, lons_flat, passada, prev_results=None):
     total_punts  = len(lats_flat)
@@ -121,11 +120,9 @@ def download_pass(lats_flat, lons_flat, passada, prev_results=None):
         eta = fmt_time((elapsed/idx)*(total_chunks-idx)) if idx > 0 else ""
         draw_bar(idx, total_chunks, n_errors, n_fatal, eta, f"passada {passada}...")
 
-        # Construir params segons passada
         if passada == 'sfc':
             hourly_str = ",".join(VARS_SFC.keys())
         else:
-            # Nivells de pressió: dividits en 2 subpassades per no sobrecarregar
             pl_vars = []
             for lvl in LEVELS:
                 for v in VARS_PL.keys():
@@ -149,18 +146,16 @@ def download_pass(lats_flat, lons_flat, passada, prev_results=None):
                 r = requests.get(URL_BASE, params=params, timeout=TIMEOUT)
 
                 if r.status_code == 429:
-                    # Rate limit — pausa llarga progressiva
-                    w = 90 * (att + 1)  # 90s, 180s, 270s...
+                    # 60s fix per intent, màxim 3 intents
                     n_errors += 1
-                    warn(f"Rate limit (429) — esperant {w}s", idx, att)
-                    time.sleep(w)
+                    warn(f"Rate limit (429) — esperant 60s (intent {att+1}/{MAX_ATTEMPTS})", idx, att)
+                    time.sleep(60)
                     continue
 
                 if r.status_code >= 500:
-                    w = 30 * (att + 1)
                     n_errors += 1
-                    warn(f"Error servidor ({r.status_code}) — esperant {w}s", idx, att)
-                    time.sleep(w)
+                    warn(f"Error servidor ({r.status_code}) — esperant 60s", idx, att)
+                    time.sleep(60)
                     continue
 
                 r.raise_for_status()
@@ -175,16 +170,14 @@ def download_pass(lats_flat, lons_flat, passada, prev_results=None):
                 break
 
             except requests.exceptions.Timeout:
-                w = 30 * (att + 1)
                 n_errors += 1
-                warn(f"Timeout — esperant {w}s", idx, att)
-                time.sleep(w)
+                warn(f"Timeout — esperant 60s (intent {att+1}/{MAX_ATTEMPTS})", idx, att)
+                time.sleep(60)
 
             except requests.exceptions.ConnectionError:
-                w = 45 * (att + 1)
                 n_errors += 1
-                warn(f"Connexió perduda — esperant {w}s", idx, att)
-                time.sleep(w)
+                warn(f"Connexió perduda — esperant 60s (intent {att+1}/{MAX_ATTEMPTS})", idx, att)
+                time.sleep(60)
 
             except Exception as ex:
                 n_errors += 1
@@ -202,7 +195,6 @@ def download_pass(lats_flat, lons_flat, passada, prev_results=None):
             for ip in ci:
                 results[ip] = None
 
-        # Sleep adaptatiu — si hi ha hagut errors recents, espera més
         time.sleep(SLEEP_ERR if n_errors > 0 and idx < 5 else SLEEP_OK)
 
     draw_bar(total_chunks, total_chunks, n_errors, n_fatal, "", "completat!")
@@ -264,7 +256,7 @@ def main():
     info("Graella",       f"{N_GRID}×{N_GRID} = {total_punts} punts",     GRN)
     info("Paquets/passa", f"{total_chunks}  ({CHUNK_SIZE} pts/paquet)",    WHT)
     info("Passades",      "2  (superfície + nivells pressió)",             YLW)
-    info("Temps estimat", "~45min – 1h 15min",                             GRN)
+    info("Intents/paquet","3  (60s entre intents, després perdut)",        YLW)
     print(f"  {D}{'─'*54}{R}")
 
     t_total = time.time()
@@ -282,7 +274,6 @@ def main():
         res_sfc, rep = repair_holes(res_sfc, lats_flat, lons_flat)
         print(f"  {GRN}✓ Reparats {rep}/{fat_sfc}{R}")
 
-    # Pausa entre passades per deixar refredar l'API
     print(f"\n  {D}Pausa 30s entre passades per evitar rate limit...{R}")
     time.sleep(30)
 
@@ -323,12 +314,11 @@ def main():
         final_json["hourly"][lvl] = {k: [] for k in VARS_PL.values()}
 
     for pt in range(total_punts):
-        draw_bar(pt+1, total_punts, label="construint JSON...")
+        draw_bar(pt+1, total_punts, lbl="construint JSON...")
 
         sfc = res_sfc.get(pt)
         pl  = res_pl.get(pt)
 
-        # Superfície
         h_sfc = sfc["hourly"] if sfc and "hourly" in sfc else {}
         for ak, jk in VARS_SFC.items():
             arr = h_sfc.get(ak, empty_arr)
@@ -339,7 +329,6 @@ def main():
         final_json["meta"]["surface_pressure"].append(
             round(sp[0],1) if sp and sp[0] is not None else 1013)
 
-        # Nivells pressió
         h_pl = pl["hourly"] if pl and "hourly" in pl else {}
         for lvl in LEVELS:
             for ak, jk in VARS_PL.items():
