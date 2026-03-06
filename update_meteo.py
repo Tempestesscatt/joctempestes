@@ -14,13 +14,13 @@ RED="\033[91m"; GRN="\033[92m"; YLW="\033[93m"; CYN="\033[96m"; WHT="\033[97m"
 # ─────────────────────────────────────────────
 LON_MIN, LON_MAX = -4.6, 4.0
 LAT_MIN, LAT_MAX = 38.5, 42.9
-N_GRID        = 28
+N_GRID        = 40
 MODEL         = "arome_seamless"
 URL_BASE      = "https://api.open-meteo.com/v1/meteofrance"
 FORECAST_DAYS = 2
 CHUNK_SIZE    = 5
-SLEEP_OK      = 8.0  # entre paquets normals (més generós per evitar 429)
-SLEEP_ERR     = 15.0 # després d'un error
+SLEEP_OK      = 10  # entre paquets normals (més generós per evitar 429)
+SLEEP_ERR     = 19.0 # després d'un error
 MAX_ATTEMPTS  = 3    # ← màxim 3 intents, després es dona per perdut
 TIMEOUT       = 60   # 60s per intent
 
