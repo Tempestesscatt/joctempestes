@@ -14,7 +14,7 @@ RED="\033[91m"; GRN="\033[92m"; YLW="\033[93m"; CYN="\033[96m"; WHT="\033[97m"
 # ─────────────────────────────────────────────
 LON_MIN, LON_MAX = -4.6, 4.0
 LAT_MIN, LAT_MAX = 38.5, 42.9
-N_GRID        = 40
+N_GRID        = 30
 MODEL         = "arome_seamless"
 URL_BASE      = "https://api.open-meteo.com/v1/meteofrance"
 FORECAST_DAYS = 2
