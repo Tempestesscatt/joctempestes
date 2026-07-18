@@ -1,5 +1,5 @@
 """
-t_final_blindado.py — VERSIÓ FINAL COMPLETA · 51 HORES · WCS INTERPOLAT · RUN INTEL·LIGENT
+t_final_blindado.py — VERSIÓ FINAL COMPLETA · PROVA 1 HORA · WCS INTERPOLAT · RUN INTEL·LIGENT
 ═══════════════════════════════════════════════════════════════════════════════
  SFC: meteofetch SP1+SP2 (19 vars, ràpid, sense API key)
  3D: meteofetch IP1+IP3 (pressió, vent, humitat, etc.)
@@ -10,13 +10,19 @@ t_final_blindado.py — VERSIÓ FINAL COMPLETA · 51 HORES · WCS INTERPOLAT · 
  RUN INTEL·LIGENT: millor run per cada font
  STATUS.JSON: metadades dels runs utilitzats + informe d'integritat
 
- ══════════════ BLINDATGE AFEGIT EN AQUESTA VERSIÓ ══════════════
+ ══════════════ CANVIS EN AQUESTA VERSIÓ (prova) ══════════════
+  • TOTAL_HORES = 1 (només la primera hora disponible, per fer una prova
+    ràpida i veure el pes real abans de llançar les 51h completes).
+  • Nomenclatura de sortida: {hora}_{tipus}.js en lloc de {tipus}_{hora}.json
+    → 00_sfc.js, 00_3d.js, 01_sfc.js, 01_3d.js...
+  • Contingut: JSON pur (només canvia l'extensió i l'ordre del nom).
+ ══════════════ BLINDATGE (heretat de la versió anterior) ══════════════
   • Descàrregues GRIB/TIFF verificades: mida (Content-Length) + capçalera
     binària (magic bytes) abans de donar-les per bones. Res de fitxers
     truncats o corruptes passant per bons.
   • Reintents amb backoff exponencial + jitter (no espera fixa "a cegues").
   • Escriptura ATÒMICA de tots els JSON (escriu a .tmp i fa os.replace):
-    si el procés es talla a mitges, mai queda un .json corrupte/parcial.
+    si el procés es talla a mitges, mai queda un .js corrupte/parcial.
   • Comprovació de connexió abans de començar (falla ràpid i clar).
   • Validació estricta de config.json (avisa exactament què falta).
   • Gestió de Ctrl+C / SIGTERM: acaba la petició en curs, desa tot el que
@@ -25,8 +31,6 @@ t_final_blindado.py — VERSIÓ FINAL COMPLETA · 51 HORES · WCS INTERPOLAT · 
   • Informe d'integritat final: quines hores/variables falten, explícit.
   • Neteja garantida de fitxers temporals (atexit + finally), també si
     l'execució anterior va petar a mitges.
-  • Bug corregit: graella 3D podia quedar indefinida si no es baixava cap
-    dada (NameError silenciós a l'informe final).
 ═══════════════════════════════════════════════════════════════════════════════
 """
 
@@ -64,7 +68,7 @@ warnings.filterwarnings("ignore", category=FutureWarning)
 
 def carregar_config():
     d = os.path.dirname(os.path.abspath(__file__))
-    path_cfg = os.path.join(d, "configval.json")
+    path_cfg = os.path.join(d, "configarome.json")
 
     if not os.path.exists(path_cfg):
         sys.exit(f"❌ No es troba config.json a: {path_cfg}")
@@ -111,7 +115,7 @@ def carregar_config():
 
 
 CFG = carregar_config()
-TOTAL_HORES = 51
+TOTAL_HORES = 1             # ← PROVA: 1 hora en lloc de 51 (torna-ho a 51 quan validis el pes)
 PAUSA_WCS = 0.15            # pausa entre peticions
 PAUSA_CADA_10 = 5.0         # pausa cada 10 peticions (segons)
 MAX_REINTENTS_WCS = 5
@@ -283,7 +287,7 @@ def borrar_antics():
         return
     n = 0
     pes = 0
-    for p in ["sfc_*.json", "3d_*.json"]:
+    for p in ["*_sfc.js", "*_3d.js"]:
         for f in OUTPUT_DIR.glob(p):
             try:
                 pes += f.stat().st_size
@@ -1053,7 +1057,7 @@ def calcular_convectiu(step, td_data, sfc_step, n_punts_sfc):
     return r
 
 
-# ═══════════════════ JSON ═══════════════════
+# ═══════════════════ JSON (ara .js: {hora}_{tipus}.js) ═══════════════════
 
 def generar_json(step, variables, run_date, lats, lons, prefix, total_steps):
     if not variables:
@@ -1062,7 +1066,7 @@ def generar_json(step, variables, run_date, lats, lons, prefix, total_steps):
     v_ok = {k: v for k, v in variables.items() if len(v.get("datos", [])) == n}
     v_descartades = [k for k in variables if k not in v_ok]
     if v_descartades:
-        avisar(f"{prefix}_{step:02d}: variables descartades per mida incorrecta: {v_descartades}")
+        avisar(f"{step:02d}_{prefix}: variables descartades per mida incorrecta: {v_descartades}")
     if not v_ok:
         return None
 
@@ -1078,7 +1082,8 @@ def generar_json(step, variables, run_date, lats, lons, prefix, total_steps):
         "coordenadas": {"lat": lats, "lon": lons}, "variables": v_ok,
     }
 
-    path = OUTPUT_DIR / f"{prefix}_{step:02d}.json"
+    # ── CANVI DE NOMENCLATURA: {hora}_{tipus}.js  (p.ex. 00_sfc.js, 00_3d.js) ──
+    path = OUTPUT_DIR / f"{step:02d}_{prefix}.js"
     try:
         escriure_json_atomic(path, data)
     except OSError as e:
@@ -1086,7 +1091,7 @@ def generar_json(step, variables, run_date, lats, lons, prefix, total_steps):
         return None
 
     kb = os.path.getsize(path) / 1024
-    print(f"  {prefix}_{step:02d}.json: {kb:.0f} KB ({len(v_ok)} vars) | +{step:02d}h | {data['hora_madrid']}")
+    print(f"  {step:02d}_{prefix}.js: {kb:.0f} KB ({len(v_ok)} vars) | +{step:02d}h | {data['hora_madrid']}")
     return str(path), os.path.getsize(path)
 
 
@@ -1190,7 +1195,7 @@ def main():
 
     try:
         print("=" * 65)
-        print("  AROME 51h: meteofetch SFC + meteofetch 3D + WCS (blindat)")
+        print(f"  AROME PROVA {TOTAL_HORES}h: meteofetch SFC + meteofetch 3D + WCS (blindat)")
         print(f"  Pausa cada 10 req: {PAUSA_CADA_10}s")
         print("=" * 65)
 
@@ -1334,7 +1339,7 @@ def main():
             print(f"  ✅ {n_ok}/{len(steps_bloc)} hores ({format_time(time.time() - t0c)})")
 
         print("\n  ╔══════════════════════════════════════╗")
-        print("  ║  📦 GENERANT JSONs                   ║")
+        print("  ║  📦 GENERANT JSONs (.js)             ║")
         print("  ╚══════════════════════════════════════╝")
 
         ordre_sfc = [
