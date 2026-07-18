@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Fòrum d'Observacions - Tempestes.cat</title>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QDWCZ0Z9XF"></script>
+     <link rel="icon" type="image/png" href="img/favicon.png">
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-QDWCZ0Z9XF');
+</script>
+    <style>
+        :root {
+            --bg: #0a0f18;
+            --bg2: #111927;
+            --bg3: #182233;
+            --border: #1e2d42;
+            --border2: #263548;
+            --text: #dde4ee;
+            --text2: #8899b4;
+            --text3: #556680;
+            --accent: #4a90d9;
+            --accent2: #5da0e9;
+            --danger: #e05555;
+            --success: #45b070;
+            --warning: #d9a040;
+            --purple: #8e6fc4;
+            --radius: 10px;
+            --radius-sm: 6px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: linear-gradient(180deg, #0a0f18 0%, #0d1520 50%, #111927 100%);
+            color: var(--text);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+            padding: 12px;
+            font-size: 15px;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+        .container { 
+            max-width: 700px; 
+            margin: 0 auto;
+            overflow-x: hidden;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            padding: 8px 16px;
+            border-radius: 30px;
+        }
+        .logo svg { flex-shrink: 0; }
+        .title { font-size: 18px; font-weight: 700; }
+        .title span { color: var(--accent2); }
+        .btn {
+            padding: 8px 16px;
+            border-radius: 25px;
+            border: none;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .btn-accent { background: var(--accent); color: #fff; }
+        .btn-accent:hover { background: var(--accent2); transform: translateY(-1px); }
+        .btn-home { background: var(--bg3); border: 1px solid var(--border); color: var(--text2); }
+        .btn-home:hover { border-color: var(--accent); color: var(--text); }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text2);
+            font-size: 10px;
+            padding: 5px 12px;
+            border-radius: 25px;
+        }
+        .btn-outline:hover { border-color: var(--accent); color: var(--text); }
+        .btn-sm {
+            padding: 4px 10px;
+            font-size: 10px;
+            border-radius: 15px;
+        }
+        
+        .user-pill {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            padding: 5px 14px;
+            border-radius: 25px;
+            font-size: 12px;
+        }
+        .avatar {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #fff;
+            font-size: 12px;
+        }
+        
+        .posts-counter {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 12px 16px;
+            margin-bottom: 12px;
+        }
+        .counter-dots { display: flex; gap: 6px; }
+        .counter-dot {
+            width: 14px; height: 14px;
+            border-radius: 50%;
+            background: var(--success);
+            transition: all 0.3s;
+            box-shadow: 0 0 10px rgba(69, 176, 112, 0.3);
+        }
+        .counter-dot.used { background: var(--border2); box-shadow: none; }
+        .counter-text { font-size: 12px; color: var(--text2); flex: 1; }
+        .counter-text strong { color: var(--accent2); }
+        
+        /* CALENDARI */
+        .cal-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            padding: 14px 16px;
+            border-radius: var(--radius);
+            font-size: 14px;
+            font-weight: 600;
+            user-select: none;
+            transition: all 0.2s;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .cal-toggle:active { border-color: var(--accent); }
+        .cal-toggle.open { border-color: var(--accent); background: rgba(74,144,217,0.05); }
+        .cal-toggle svg { flex-shrink: 0; transition: transform 0.3s; }
+        .cal-toggle.open svg.arrow { transform: rotate(180deg); }
+        .cal-toggle span { flex: 1; }
+        
+        .calendar-wrap {
+            display: none;
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 10px 8px;
+            margin-bottom: 12px;
+            animation: slideDown 0.3s ease;
+            width: 100%;
+            overflow: hidden;
+        }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .calendar-wrap.open { display: block; }
+        
+        .cal-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding: 0 4px;
+        }
+        .cal-nav button {
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            color: var(--text);
+            width: 36px; 
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            touch-action: manipulation;
+            flex-shrink: 0;
+        }
+        .cal-nav button:active { 
+            background: var(--accent); 
+            border-color: var(--accent); 
+            color: #fff;
+            transform: scale(0.95);
+        }
+        .cal-nav .month-label { 
+            font-size: 15px; 
+            font-weight: 700; 
+            text-align: center; 
+            color: var(--accent2);
+            flex: 1;
+            padding: 0 8px;
+        }
+        
+        .cal-grid { 
+            display: grid; 
+            grid-template-columns: repeat(7, 1fr); 
+            gap: 3px;
+            width: 100%;
+        }
+        
+        .cal-grid .day-hdr { 
+            text-align: center; 
+            font-size: 10px; 
+            color: var(--text3); 
+            padding: 6px 0; 
+            font-weight: 700; 
+            letter-spacing: 0.3px; 
+            text-transform: uppercase;
+        }
+        
+        .cal-grid .day {
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            border: 2px solid transparent;
+            transition: all 0.15s ease;
+            position: relative;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            min-width: 0;
+            width: 100%;
+            color: var(--text);
+        }
+        
+        .cal-grid .day:active { 
+            background: var(--bg3); 
+            border-color: var(--accent);
+            transform: scale(0.93);
+        }
+        
+        .cal-grid .day.today { 
+            border-color: var(--accent); 
+            background: rgba(74, 144, 217, 0.12); 
+            box-shadow: 0 0 12px rgba(74, 144, 217, 0.12);
+            font-weight: 800;
+        }
+        
+        .cal-grid .day.selected { 
+            background: linear-gradient(135deg, var(--accent), #3a7bc8); 
+            color: #fff; 
+            border-color: var(--accent2); 
+            box-shadow: 0 3px 15px rgba(74, 144, 217, 0.3);
+            font-weight: 800;
+            transform: scale(1.05);
+        }
+        
+        .cal-grid .day.other { 
+            color: var(--text3); 
+            opacity: 0.2; 
+            pointer-events: none; 
+        }
+        
+        .cal-grid .day.empty { 
+            opacity: 0.5;
+        }
+        
+        .cal-grid .day.has-obs { 
+            color: #fff;
+            font-weight: 700;
+        }
+        
+        .cal-grid .day.has-obs::after {
+            content: '';
+            position: absolute;
+            bottom: 4px;
+            width: 5px; 
+            height: 5px;
+            border-radius: 50%;
+            background: var(--success);
+            box-shadow: 0 0 6px rgba(69, 176, 112, 0.5);
+        }
+        
+        .cal-grid .day .day-count { 
+            font-size: 9px; 
+            color: var(--success); 
+            margin-top: 1px;
+            font-weight: 700;
+        }
+        
+        @media (max-width: 400px) {
+            .calendar-wrap { padding: 8px 6px; }
+            .cal-grid { gap: 2px; }
+            .cal-grid .day { 
+                font-size: 13px; 
+                border-radius: 7px;
+            }
+            .cal-grid .day-hdr { font-size: 9px; padding: 5px 0; }
+            .cal-nav button { width: 34px; height: 34px; }
+            .cal-nav .month-label { font-size: 14px; }
+        }
+        
+        @media (max-width: 350px) {
+            .calendar-wrap { padding: 6px 4px; }
+            .cal-grid { gap: 2px; }
+            .cal-grid .day { 
+                font-size: 12px; 
+                border-radius: 6px;
+                border-width: 1.5px;
+            }
+            .cal-grid .day-hdr { font-size: 8px; padding: 4px 0; }
+            .cal-nav button { width: 30px; height: 30px; font-size: 12px; }
+            .cal-nav .month-label { font-size: 13px; }
+        }
+        
+        .form {
+            display: none;
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+        .form.open { display: block; }
+        .form textarea {
+            width: 100%;
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 12px;
+            border-radius: var(--radius-sm);
+            font-family: inherit;
+            font-size: 13px;
+            resize: vertical;
+            min-height: 70px;
+            max-height: 150px;
+            transition: border 0.2s;
+        }
+        .form textarea:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 2px rgba(74,144,217,0.1); }
+        .form input[type="text"] {
+            width: 100%;
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 10px 12px;
+            border-radius: var(--radius-sm);
+            font-family: inherit;
+            font-size: 12px;
+            margin-top: 8px;
+            transition: border 0.2s;
+        }
+        .form input:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 2px rgba(74,144,217,0.1); }
+        .form-row { display: flex; gap: 10px; margin-top: 10px; align-items: center; flex-wrap: wrap; }
+        .img-upload {
+            width: 70px; height: 70px;
+            border-radius: var(--radius-sm);
+            border: 2px dashed var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex-shrink: 0;
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+        .img-upload:hover { border-color: var(--accent); background: rgba(74,144,217,0.05); }
+        .img-upload svg { opacity: 0.4; transition: opacity 0.2s; }
+        .img-upload:hover svg { opacity: 0.7; }
+        .img-upload img { width: 100%; height: 100%; object-fit: cover; }
+        .img-upload.has-img { border-style: solid; border-color: var(--border2); }
+        
+        .send-modal {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.75);
+            z-index: 9997;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+        .send-modal.open { display: flex; }
+        .send-box {
+            background: var(--bg2);
+            border: 1px solid var(--border2);
+            border-radius: var(--radius);
+            padding: 24px;
+            width: 360px;
+            max-width: 92vw;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+        }
+        .send-box h3 { font-size: 16px; margin-bottom: 4px; }
+        .send-box .sub { font-size: 11px; color: var(--text3); margin-bottom: 16px; }
+        .send-box label:not(.anon-option) { display: block; font-size: 10px; color: var(--text3); margin-bottom: 4px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        .send-box input[type="text"] {
+            width: 100%;
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 10px 12px;
+            border-radius: var(--radius-sm);
+            font-family: inherit;
+            font-size: 13px;
+            margin-bottom: 14px;
+            transition: border 0.2s;
+        }
+        .send-box input:focus { border-color: var(--accent); outline: none; }
+        .send-box .anon-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+            font-size: 12px;
+            color: var(--text2);
+            cursor: pointer;
+            padding: 8px 12px;
+            background: var(--bg3);
+            border-radius: var(--radius-sm);
+        }
+        .send-box .anon-option input { width: auto; margin: 0; accent-color: var(--accent); }
+        .send-box .btns { display: flex; gap: 8px; justify-content: flex-end; }
+        
+        .obs-list { display: grid; gap: 12px; }
+        .obs-card {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px;
+            transition: all 0.2s;
+        }
+        .obs-card:hover { border-color: var(--border2); }
+        .obs-top {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .obs-avatar {
+            width: 34px; height: 34px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #fff;
+            flex-shrink: 0;
+            font-size: 14px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        .obs-name { font-weight: 600; font-size: 13px; display: flex; align-items: center; flex-wrap: wrap; gap: 4px; }
+        .obs-meta { font-size: 10px; color: var(--text3); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 2px; }
+        .obs-meta svg { flex-shrink: 0; opacity: 0.6; }
+        .obs-del {
+            margin-left: auto;
+            background: none;
+            border: none;
+            color: var(--text3);
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 6px;
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+        .obs-del:hover { color: var(--danger); background: rgba(224,85,85,0.1); }
+        .obs-text { font-size: 13px; line-height: 1.6; margin-bottom: 12px; word-break: break-word; }
+        .obs-imgs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+        .obs-imgs img {
+            width: 100px; height: 100px;
+            border-radius: 8px;
+            object-fit: cover;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            transition: transform 0.2s;
+        }
+        .obs-imgs img:hover { transform: scale(1.06); }
+        
+        /* Comentaris */
+        .comments-section {
+            border-top: 1px solid var(--border);
+            margin-top: 10px;
+            padding-top: 10px;
+        }
+        .comments-toggle {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            font-size: 11px;
+            color: var(--text2);
+            padding: 6px 0;
+            transition: color 0.2s;
+            user-select: none;
+        }
+        .comments-toggle:hover { color: var(--accent2); }
+        .comments-toggle svg { transition: transform 0.3s; }
+        .comments-toggle.open svg { transform: rotate(180deg); }
+        .comments-list {
+            display: none;
+            margin-top: 8px;
+        }
+        .comments-list.open { display: block; }
+        .comment {
+            display: flex;
+            gap: 10px;
+            padding: 10px 0;
+            border-top: 1px solid rgba(255,255,255,0.03);
+        }
+        .comment:first-child { border-top: none; }
+        .comment-avatar {
+            width: 26px; height: 26px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #fff;
+            flex-shrink: 0;
+            font-size: 11px;
+        }
+        .comment-body { flex: 1; min-width: 0; }
+        .comment-header { display: flex; align-items: center; gap: 8px; margin-bottom: 3px; flex-wrap: wrap; }
+        .comment-name { font-weight: 600; font-size: 11px; display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+        .comment-time { font-size: 9px; color: var(--text3); }
+        .comment-del {
+            margin-left: auto;
+            background: none;
+            border: none;
+            color: var(--text3);
+            cursor: pointer;
+            padding: 2px 6px;
+            font-size: 10px;
+            border-radius: 4px;
+        }
+        .comment-del:hover { color: var(--danger); }
+        .comment-text { font-size: 12px; line-height: 1.5; color: var(--text2); word-break: break-word; }
+        .comment-form {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+            align-items: flex-end;
+        }
+        .comment-form input {
+            flex: 1;
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 8px 10px;
+            border-radius: 20px;
+            font-family: inherit;
+            font-size: 11px;
+            transition: border 0.2s;
+        }
+        .comment-form input:focus { border-color: var(--accent); outline: none; }
+        .comment-form .btn { padding: 6px 14px; font-size: 10px; }
+        
+        .empty { text-align: center; padding: 50px 20px; color: var(--text3); font-size: 13px; }
+        .empty svg { margin-bottom: 12px; opacity: 0.4; }
+        
+        .img-modal {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.93);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .img-modal.open { display: flex; }
+        .img-modal img { max-width: 92vw; max-height: 92vh; border-radius: 10px; }
+        
+        .auth-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 9998;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+        .auth-overlay.open { display: flex; }
+        .auth-box {
+            background: var(--bg2);
+            border: 1px solid var(--border2);
+            border-radius: var(--radius);
+            padding: 24px;
+            text-align: center;
+            width: 310px;
+            max-width: 92vw;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+        }
+        .auth-box h3 { margin-bottom: 16px; font-size: 15px; }
+        
+        .footer { text-align: center; padding: 20px; color: var(--text3); font-size: 10px; margin-top: 20px; }
+        
+        /* Modal nom per comentar */
+        .comment-name-modal {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 9996;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .comment-name-modal.open { display: flex; }
+        .comment-name-box {
+            background: var(--bg2);
+            border: 1px solid var(--border2);
+            border-radius: var(--radius);
+            padding: 20px;
+            width: 320px;
+            max-width: 92vw;
+        }
+        .comment-name-box h3 { font-size: 14px; margin-bottom: 12px; }
+        .comment-name-box input {
+            width: 100%;
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 10px;
+            border-radius: var(--radius-sm);
+            font-family: inherit;
+            font-size: 12px;
+            margin-bottom: 12px;
+        }
+        .comment-name-box .btns { display: flex; gap: 8px; justify-content: flex-end; }
+
+        @keyframes rangSlideUp {
+            from { opacity: 0; transform: translateX(-50%) translateY(50px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+        @keyframes rangFadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+        }
+        
+        /* ETIQUETA DE RANG - ESTIL GLOBAL */
+        .rang-tag {
+            display: inline-flex !important;
+            align-items: center;
+            font-size: 8px !important;
+            font-weight: 700 !important;
+            color: #fff !important;
+            background: #556680 !important;
+            padding: 0px 8px !important;
+            border-radius: 10px !important;
+            margin-left: 4px !important;
+            letter-spacing: 0.3px !important;
+            white-space: nowrap !important;
+            vertical-align: middle !important;
+            line-height: 1.6 !important;
+            height: 18px !important;
+        }
+        .rang-tag i {
+            font-size: 9px !important;
+            margin-right: 3px !important;
+            color: #fff !important;
+        }
+        .obs-name .rang-tag {
+            font-size: 7px !important;
+            padding: 0px 6px !important;
+            height: 16px !important;
+            line-height: 16px !important;
+        }
+        .comment-name .rang-tag {
+            font-size: 6px !important;
+            padding: 0px 5px !important;
+            border-radius: 6px !important;
+            height: 14px !important;
+            line-height: 14px !important;
+        }
+        
+        @media (hover: none) and (pointer: coarse) {
+            .cal-toggle, .cal-grid .day, .cal-nav button {
+                min-height: 44px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <div class="logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent2)" stroke-width="2">
+                <rect x="3" y="3" width="18" height="18" rx="3"/>
+                <circle cx="8.5" cy="8.5" r="1.5" fill="var(--accent2)" stroke="none"/>
+                <circle cx="15.5" cy="8.5" r="1.5" fill="var(--accent2)" stroke="none"/>
+                <path d="M8 14c1.5 2 4 3 6 3s4.5-1 6-3"/>
+            </svg>
+            <div class="title">Observacions <span>diàries</span></div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+            <a href="index.html" class="btn btn-home">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                Inici
+            </a>
+            <button class="btn btn-accent" id="btn-login" onclick="openAuth()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+                Entrar
+            </button>
+            <div class="user-pill" id="user-pill">
+                <div class="avatar" id="user-avatar">?</div>
+                <span id="user-name">Usuari</span>
+                <button class="btn-outline" onclick="logoutUser()">Sortir</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="posts-counter" id="posts-counter">
+        <div class="counter-dots">
+            <div class="counter-dot" id="dot-1"></div>
+            <div class="counter-dot" id="dot-2"></div>
+        </div>
+        <span class="counter-text" id="counter-text">Pots publicar <strong>2</strong> observacions avui</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+    </div>
+    
+    <!-- El contenidor del rang s'injecta aqui automaticament per rangs.js -->
+    
+    <div class="cal-toggle" id="cal-toggle" onclick="toggleCalendar()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent2)" stroke-width="2">
+            <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+        <span id="cal-label">Avui</span>
+        <svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    
+    <div class="calendar-wrap" id="calendar-wrap">
+        <div class="cal-nav">
+            <button onclick="changeMonth(-1)" aria-label="Mes anterior">&#9664;</button>
+            <span class="month-label" id="cal-title"></span>
+            <button onclick="changeMonth(1)" aria-label="Mes següent">&#9654;</button>
+        </div>
+        <div class="cal-grid" id="cal-grid"></div>
+    </div>
+    
+    <div class="form" id="form">
+        <textarea id="obs-text" placeholder="Què has observat avui? (mínim 10 caràcters)" maxlength="500"></textarea>
+        <input type="text" id="obs-loc" placeholder="Ubicació (opcional)" maxlength="100">
+        <div class="form-row">
+            <div class="img-upload" id="img-up-1" onclick="document.getElementById('img-in-1').click()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            </div>
+            <div class="img-upload" id="img-up-2" onclick="document.getElementById('img-in-2').click()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            </div>
+            <input type="file" id="img-in-1" accept="image/*" style="display:none" onchange="handleImg(1)">
+            <input type="file" id="img-in-2" accept="image/*" style="display:none" onchange="handleImg(2)">
+            <button class="btn btn-accent" onclick="askBeforeSend()" style="margin-left:auto;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                Publicar
+            </button>
+        </div>
+    </div>
+    
+    <!-- Modal nom observació -->
+    <div class="send-modal" id="send-modal" onclick="closeSendModal(event)">
+        <div class="send-box" onclick="event.stopPropagation()">
+            <h3>Signa la teva observació</h3>
+            <p class="sub">Tria un nom o publica anònimament</p>
+            <label>Nom</label>
+            <input type="text" id="send-name" placeholder="Com vols signar?" maxlength="25">
+            <label class="anon-option"><input type="checkbox" id="send-anon" onchange="toggleAnon()"> Vull publicar com a <strong>Anònim</strong></label>
+            <div class="btns">
+                <button class="btn btn-outline" onclick="closeSendModal()">Cancel·lar</button>
+                <button class="btn btn-accent" onclick="confirmSend()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                    Enviar
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal nom comentari -->
+    <div class="comment-name-modal" id="comment-name-modal" onclick="closeCommentNameModal(event)">
+        <div class="comment-name-box" onclick="event.stopPropagation()">
+            <h3>Com vols signar el comentari?</h3>
+            <input type="text" id="comment-name-input" placeholder="El teu nom..." maxlength="25">
+            <div class="btns">
+                <button class="btn btn-outline" onclick="closeCommentNameModal()">Cancel·lar</button>
+                <button class="btn btn-accent" id="comment-name-confirm">Comentar</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="obs-list" id="obs-list">
+        <div class="empty">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+            <p>Selecciona un dia al calendari</p>
+        </div>
+    </div>
+    
+    <div class="footer">Tempestes.cat · Fòrum d'Observacions Meteorològiques</div>
+</div>
+
+<div class="img-modal" id="img-modal" onclick="closeImgModal()"><img id="img-modal-img" src="" alt=""></div>
+<div class="auth-overlay" id="auth-overlay" onclick="closeAuth(event)">
+    <div class="auth-box" onclick="event.stopPropagation()">
+        <h3>Inicia sessió per publicar</h3>
+        <button class="btn btn-accent" onclick="loginGoogle()" style="width:100%;justify-content:center;padding:10px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+            Continuar amb Google
+        </button>
+    </div>
+</div>
+
+<!-- Sistema de rangs -->
+<script src="js/rangs.js"></script>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getDatabase, ref, push, get, remove } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
+import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+
+const fc = {
+    apiKey: "AIzaSyBGcGUk2gsoDaHkg9Yv-nqMJ5_x-QPTMS8",
+    authDomain: "tempestescat.firebaseapp.com",
+    databaseURL: "https://tempestescat-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "tempestescat",
+    storageBucket: "tempestescat.firebasestorage.app",
+    messagingSenderId: "683240351775",
+    appId: "1:683240351775:web:bc65d73249537b9cc28d2a"
+};
+
+const app = initializeApp(fc);
+const db = getDatabase(app);
+const auth = getAuth(app);
+
+let user = null;
+let selDate = new Date();
+let calMonth = new Date().getMonth();
+let calYear = new Date().getFullYear();
+let imgs = { 1: null, 2: null };
+let dayCounts = {};
+let myCount = 0;
+let calOpen = false;
+let pendingCommentObsKey = null;
+
+function dk(d) { return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function fd(d) { const m=['Gener','Febrer','Març','Abril','Maig','Juny','Juliol','Agost','Setembre','Octubre','Novembre','Desembre']; return d.getDate()+' de '+m[d.getMonth()]; }
+function esc(t) { return (t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function colr(s) { const c=['#4080c0','#c04040','#40a060','#c08020','#8040c0','#20a0a0']; let h=0; for(let i=0;i<(s||'').length;i++)h=(h*31+(s||'').charCodeAt(i))&0xffff; return c[h%c.length]; }
+function ago(ts) { if(!ts)return''; const m=Math.floor((Date.now()-ts)/60000); if(m<1)return'Ara'; if(m<60)return'Fa '+m+' min'; const h=Math.floor(m/60); if(h<24)return'Fa '+h+' h'; return'Fa '+Math.floor(h/24)+' d'; }
+function uid() { return 'id'+Date.now()+Math.random().toString(36).substr(2,6); }
+
+function updateCounter() {
+    const dot1 = document.getElementById('dot-1');
+    const dot2 = document.getElementById('dot-2');
+    const txt = document.getElementById('counter-text');
+    if (dot1) dot1.className = 'counter-dot' + (myCount >= 1 ? ' used' : '');
+    if (dot2) dot2.className = 'counter-dot' + (myCount >= 2 ? ' used' : '');
+    if(txt) {
+        if(myCount>=2) txt.innerHTML = '<strong>Límit assolit!</strong> Tornes demà';
+        else if(myCount===1) txt.innerHTML = 'Et queda <strong>1</strong> observació avui';
+        else txt.innerHTML = 'Pots publicar <strong>2</strong> observacions avui';
+    }
+}
+
+// Auth - FUNCIONS GLOBALS
+window.openAuth = function() {
+    const overlay = document.getElementById('auth-overlay');
+    if (overlay) overlay.classList.add('open');
+};
+window.closeAuth = function(e) { 
+    if(e && e.target !== e.currentTarget) return;
+    const overlay = document.getElementById('auth-overlay');
+    if (overlay) overlay.classList.remove('open');
+};
+window.loginGoogle = async function() { 
+    try{
+        await signInWithPopup(auth,new GoogleAuthProvider());
+        const overlay = document.getElementById('auth-overlay');
+        if (overlay) overlay.classList.remove('open');
+    }catch(e){ alert(e.message); } 
+};
+window.logoutUser = async function() { 
+    if(confirm('Tancar sessió?')) {
+        await signOut(auth);
+        // Forçar neteja d'imatges
+        imgs = {1:null,2:null};
+        updateImgs();
+    }
+};
+
+// Imatges
+window.handleImg = function(n) {
+    const input = document.getElementById('img-in-'+n);
+    if(!input) return;
+    const f = input.files[0];
+    if(!f) return;
+    if(f.size>5*1024*1024){ alert('Màxim 5MB'); return; }
+    const r = new FileReader();
+    r.onload = e => { imgs[n] = e.target.result; updateImgs(); };
+    r.readAsDataURL(f);
+};
+function updateImgs() {
+    [1,2].forEach(n => {
+        const up = document.getElementById('img-up-'+n);
+        if(!up) return;
+        const svg = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
+        if(imgs[n]) { 
+            up.innerHTML = '<img src="'+imgs[n]+'" style="width:100%;height:100%;object-fit:cover;">'; 
+            up.classList.add('has-img'); 
+        }
+        else { 
+            up.innerHTML = svg; 
+            up.classList.remove('has-img'); 
+        }
+    });
+}
+
+// Modal observació
+window.askBeforeSend = function() {
+    const txt = document.getElementById('obs-text')?.value?.trim()||'';
+    if(txt.length<10) { alert('Mínim 10 caràcters'); return; }
+    if(!user) { openAuth(); return; }
+    if(myCount >= 2) { alert('Límit de 2 per avui'); return; }
+    const nameInput = document.getElementById('send-name');
+    if(nameInput) {
+        nameInput.value = user.displayName || user.email?.split('@')[0] || '';
+        nameInput.disabled = false;
+    }
+    const anonCheck = document.getElementById('send-anon');
+    if(anonCheck) anonCheck.checked = false;
+    const modal = document.getElementById('send-modal');
+    if(modal) modal.classList.add('open');
+};
+window.toggleAnon = function() {
+    const c = document.getElementById('send-anon')?.checked;
+    const inp = document.getElementById('send-name');
+    if(!inp) return;
+    if(c) { inp.value = 'Anònim'; inp.disabled = true; }
+    else { inp.value = user?.displayName || user?.email?.split('@')[0] || ''; inp.disabled = false; }
+};
+window.closeSendModal = function(e) {
+    if(e && e.target !== e.currentTarget) return;
+    const modal = document.getElementById('send-modal');
+    if(modal) modal.classList.remove('open');
+};
+window.confirmSend = async function() {
+    const nameInput = document.getElementById('send-name');
+    let name = nameInput?.value?.trim() || '';
+    if(!name || name.length < 2) { alert('Nom mínim 2 caràcters'); return; }
+    const txt = document.getElementById('obs-text')?.value?.trim()||'';
+    const loc = document.getElementById('obs-loc')?.value?.trim()||'';
+    const images = [imgs[1],imgs[2]].filter(Boolean);
+    const obs = { uid:user.uid, nick:name, description:txt, location:loc, images:images, dateKey:dk(new Date()), timestamp:Date.now() };
+    try {
+        await push(ref(db,'observations'), obs);
+        const textArea = document.getElementById('obs-text');
+        const locInput = document.getElementById('obs-loc');
+        if(textArea) textArea.value = '';
+        if(locInput) locInput.value = '';
+        imgs = {1:null,2:null}; updateImgs();
+        const modal = document.getElementById('send-modal');
+        if(modal) modal.classList.remove('open');
+        myCount++; updateCounter(); updateForm();
+        loadObs(); loadCounts().then(()=>{if(calOpen)renderCal();});
+        // Disparar esdeveniment per actualitzar rangs
+        if(window.TempestescatRangs) window.TempestescatRangs.actualitzar();
+    } catch(e) { alert('Error: '+e.message); }
+};
+
+// Calendari
+window.toggleCalendar = function() {
+    calOpen = !calOpen;
+    const wrap = document.getElementById('calendar-wrap');
+    const toggle = document.getElementById('cal-toggle');
+    if(wrap) wrap.classList.toggle('open', calOpen);
+    if(toggle) toggle.classList.toggle('open', calOpen);
+    if(calOpen) renderCal();
+};
+window.changeMonth = function(d) {
+    calMonth += d;
+    if(calMonth>11){calMonth=0;calYear++;}
+    if(calMonth<0){calMonth=11;calYear--;}
+    renderCal();
+};
+window.selectDay = function(day, month, year) {
+    selDate = new Date(year, month, day);
+    const label = document.getElementById('cal-label');
+    if(label) label.textContent = fd(selDate);
+    const wrap = document.getElementById('calendar-wrap');
+    const toggle = document.getElementById('cal-toggle');
+    if(wrap) wrap.classList.remove('open');
+    if(toggle) toggle.classList.remove('open');
+    calOpen = false;
+    loadObs();
+    updateForm();
+};
+
+function renderCal() {
+    const grid = document.getElementById('cal-grid');
+    const title = document.getElementById('cal-title');
+    if(!grid||!title) return;
+    const m=['Gener','Febrer','Març','Abril','Maig','Juny','Juliol','Agost','Setembre','Octubre','Novembre','Desembre'];
+    title.textContent = m[calMonth]+' '+calYear;
+    const ds=['Dg','Dl','Dt','Dc','Dj','Dv','Ds'];
+    let h = '';
+    ds.forEach(d => h += '<div class="day-hdr">'+d+'</div>');
+    const fd2 = new Date(calYear,calMonth,1).getDay();
+    const dim = new Date(calYear,calMonth+1,0).getDate();
+    const today = dk(new Date());
+    const sel = dk(selDate);
+    const prevD = new Date(calYear,calMonth,0).getDate();
+    for(let i=fd2-1;i>=0;i--) h += '<div class="day other">'+(prevD-i)+'</div>';
+    for(let d=1;d<=dim;d++) {
+        const key = dk(new Date(calYear,calMonth,d));
+        let cls = 'day';
+        if(key===today) cls += ' today';
+        if(key===sel) cls += ' selected';
+        if(dayCounts[key]) cls += ' has-obs';
+        else if(key!==today) cls += ' empty';
+        h += '<div class="'+cls+'" onclick="selectDay('+d+','+calMonth+','+calYear+')">'+d+(dayCounts[key]?'<span class="day-count">'+dayCounts[key]+'</span>':'')+'</div>';
+    }
+    const rem = 42 - (fd2 + dim);
+    for(let d=1;d<=rem;d++) h += '<div class="day other">'+d+'</div>';
+    grid.innerHTML = h;
+}
+
+function updateForm() {
+    const f = document.getElementById('form');
+    if(!f) return;
+    const today = dk(new Date());
+    if(dk(selDate)===today && user) f.classList.add('open');
+    else f.classList.remove('open');
+}
+
+// Comentaris
+window.toggleComments = function(key) {
+    const list = document.getElementById('comments-'+key);
+    const toggle = document.getElementById('cmt-toggle-'+key);
+    if(!list||!toggle) return;
+    const isOpen = list.classList.contains('open');
+    list.classList.toggle('open', !isOpen);
+    toggle.classList.toggle('open', !isOpen);
+    if(!isOpen) loadComments(key);
+};
+
+window.openCommentNameModal = function(obsKey) {
+    if(!user) { openAuth(); return; }
+    pendingCommentObsKey = obsKey;
+    const input = document.getElementById('comment-name-input');
+    if(input) input.value = user.displayName || user.email?.split('@')[0] || '';
+    const modal = document.getElementById('comment-name-modal');
+    if(modal) modal.classList.add('open');
+};
+
+window.closeCommentNameModal = function(e) {
+    if(e && e.target !== e.currentTarget) return;
+    const modal = document.getElementById('comment-name-modal');
+    if(modal) modal.classList.remove('open');
+    pendingCommentObsKey = null;
+};
+
+window.submitCommentWithName = async function() {
+    const nameInput = document.getElementById('comment-name-input');
+    const name = nameInput?.value?.trim() || 'Anònim';
+    if(!name || name.length < 2) { alert('Nom mínim 2 caràcters'); return; }
+    const input = document.getElementById('cmt-input-'+pendingCommentObsKey);
+    const text = input?.value?.trim();
+    if(!text) { alert('Escriu un comentari'); return; }
+    if(!user) return;
+    
+    const comment = {
+        id: uid(),
+        uid: user.uid,
+        nick: name,
+        text: text,
+        timestamp: Date.now()
+    };
+    
+    try {
+        await push(ref(db, 'observations/' + pendingCommentObsKey + '/comments'), comment);
+        if(input) input.value = '';
+        const modal = document.getElementById('comment-name-modal');
+        if(modal) modal.classList.remove('open');
+        loadComments(pendingCommentObsKey);
+        pendingCommentObsKey = null;
+    } catch(e) { alert('Error: '+e.message); }
+};
+
+// Inicialitzar listener del botó de confirmació del modal de comentari
+document.getElementById('comment-name-confirm')?.addEventListener('click', window.submitCommentWithName);
+
+window.delComment = async function(obsKey, commentId) {
+    if(!user) return;
+    if(!confirm('Eliminar comentari?')) return;
+    try {
+        const snap = await get(ref(db, 'observations/' + obsKey + '/comments'));
+        if(snap.exists()) {
+            const data = snap.val();
+            for (const key in data) {
+                if (data[key].id === commentId) {
+                    await remove(ref(db, 'observations/' + obsKey + '/comments/' + key));
+                }
+            }
+        }
+        loadComments(obsKey);
+    } catch(e) { alert('Error: '+e.message); }
+};
+
+async function loadComments(obsKey) {
+    const list = document.getElementById('comments-'+obsKey);
+    if(!list) return;
+    try {
+        const snap = await get(ref(db, 'observations/' + obsKey + '/comments'));
+        let comments = [];
+        if(snap.exists()) {
+            Object.entries(snap.val()).forEach(([key, val]) => {
+                comments.push({ key, ...val });
+            });
+        }
+        comments.sort((a,b) => (a.timestamp||0) - (b.timestamp||0));
+        
+        let html = '';
+        comments.forEach(c => {
+            const isOwn = user && user.uid === c.uid;
+            const rangTag = window.TempestescatRangs ? 
+                `<span class="rang-tag" data-rang-tag="${c.uid || ''}"></span>` : '';
+            html += `
+                <div class="comment">
+                    <div class="comment-avatar" style="background:${colr(c.nick||'X')}">${(c.nick||'?')[0].toUpperCase()}</div>
+                    <div class="comment-body">
+                        <div class="comment-header">
+                            <span class="comment-name">${esc(c.nick||'Anònim')}${rangTag}</span>
+                            <span class="comment-time">${ago(c.timestamp)}</span>
+                            ${isOwn ? `<button class="comment-del" onclick="delComment('${obsKey}','${c.id}')">&#128465;</button>` : ''}
+                        </div>
+                        <div class="comment-text">${esc(c.text)}</div>
+                    </div>
+                </div>`;
+        });
+        
+        html += `
+            <div class="comment-form">
+                <input type="text" id="cmt-input-${obsKey}" placeholder="Escriu un comentari..." maxlength="300">
+                <button class="btn btn-accent btn-sm" onclick="openCommentNameModal('${obsKey}')">Enviar</button>
+            </div>`;
+        
+        list.innerHTML = html;
+        
+        // Actualitzar etiquetes de rang
+        if(window.TempestescatRangs) window.TempestescatRangs.actualitzarEtiquetes();
+    } catch(e) { list.innerHTML = '<p style="color:var(--text3);font-size:11px;">Error</p>'; }
+}
+
+// Eliminar observació
+window.delObs = async function(key, uid) {
+    if(!user||user.uid!==uid) { alert('No pots eliminar això'); return; }
+    if(!confirm('Eliminar?')) return;
+    try {
+        await remove(ref(db,'observations/'+key));
+        if(dk(selDate)===dk(new Date())) { myCount=Math.max(0,myCount-1); updateCounter(); updateForm(); }
+        loadObs(); loadCounts().then(()=>{if(calOpen)renderCal();});
+    } catch(e) { alert('Error: '+e.message); }
+};
+
+window.openImg = function(src) {
+    const img = document.getElementById('img-modal-img');
+    const modal = document.getElementById('img-modal');
+    if(img) img.src = src;
+    if(modal) modal.classList.add('open');
+};
+window.closeImgModal = function() {
+    const modal = document.getElementById('img-modal');
+    if(modal) modal.classList.remove('open');
+};
+
+async function loadObs() {
+    const list = document.getElementById('obs-list');
+    if(!list) return;
+    const key = dk(selDate);
+    try {
+        const snap = await get(ref(db,'observations'));
+        let obs = [];
+        if(snap.exists()) Object.entries(snap.val()).forEach(([k,v]) => { if(v.dateKey===key) obs.push({key:k,...v}); });
+        obs.sort((a,b)=>(b.timestamp||0)-(a.timestamp||0));
+        if(obs.length===0) {
+            list.innerHTML = '<div class="empty"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" opacity="0.4"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg><p>Sense observacions el '+fd(selDate)+'</p></div>';
+            return;
+        }
+        list.innerHTML = '';
+        obs.forEach(o => {
+            const isOwn = user&&user.uid===o.uid;
+            const avH = (o.nick||'?')[0].toUpperCase();
+            let imH = '';
+            if(o.images&&o.images.length) {
+                imH = '<div class="obs-imgs">';
+                o.images.forEach(i => imH += '<img src="'+esc(i)+'" onclick="openImg(\''+esc(i)+'\')" loading="lazy">');
+                imH += '</div>';
+            }
+            const locSvg = o.location ? '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>' : '';
+            const rangTag = window.TempestescatRangs ? 
+                `<span class="rang-tag" data-rang-tag="${o.uid || ''}"></span>` : '';
+            const card = document.createElement('div');
+            card.className = 'obs-card';
+            card.innerHTML =
+                '<div class="obs-top">'+
+                    '<div class="obs-avatar" style="background:'+colr(o.nick||'X')+'">'+avH+'</div>'+
+                    '<div style="flex:1;min-width:0;"><div class="obs-name">'+esc(o.nick||'Anònim')+rangTag+'</div><div class="obs-meta">'+ago(o.timestamp)+(o.location?locSvg+esc(o.location):'')+'</div></div>'+
+                    (isOwn?'<button class="obs-del" title="Eliminar" onclick="delObs(\''+o.key+'\',\''+o.uid+'\')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button>':'')+
+                '</div>'+
+                '<div class="obs-text">'+esc(o.description)+'</div>'+imH+
+                '<div class="comments-section">'+
+                    '<div class="comments-toggle" id="cmt-toggle-'+o.key+'" onclick="toggleComments(\''+o.key+'\')">'+
+                        '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>'+
+                        '<span>Comentaris i debat</span>'+
+                    '</div>'+
+                    '<div class="comments-list" id="comments-'+o.key+'"></div>'+
+                '</div>';
+            list.appendChild(card);
+        });
+        // Actualitzar etiquetes de rang després de carregar
+        if(window.TempestescatRangs) setTimeout(() => window.TempestescatRangs.actualitzarEtiquetes(), 100);
+    } catch(e) { list.innerHTML = '<div class="empty"><p>Error en carregar</p></div>'; }
+}
+
+async function loadCounts() {
+    try {
+        const snap = await get(ref(db,'observations'));
+        dayCounts = {};
+        if(snap.exists()) Object.values(snap.val()).forEach(o => { if(o.dateKey) dayCounts[o.dateKey] = (dayCounts[o.dateKey]||0)+1; });
+    } catch(e) {}
+}
+
+async function loadMyCount() {
+    if(!user) { myCount=0; updateCounter(); updateForm(); return; }
+    try {
+        const snap = await get(ref(db,'observations'));
+        myCount = 0;
+        const today = dk(new Date());
+        if(snap.exists()) Object.values(snap.val()).forEach(o => { if(o.dateKey===today&&o.uid===user.uid) myCount++; });
+        updateCounter(); updateForm();
+    } catch(e) {}
+}
+
+onAuthStateChanged(auth, async (u) => {
+    user = u;
+    const lb = document.getElementById('btn-login');
+    const up = document.getElementById('user-pill');
+    const av = document.getElementById('user-avatar');
+    const nm = document.getElementById('user-name');
+    if(u) {
+        if(lb) lb.style.display='none';
+        if(up) up.style.display='flex';
+        if(nm) nm.textContent = u.displayName||u.email?.split('@')[0]||'Usuari';
+        if(av) av.textContent = (u.displayName||'U')[0].toUpperCase();
+    } else {
+        if(lb) lb.style.display='inline-flex';
+        if(up) up.style.display='none';
+        imgs={1:null,2:null}; updateImgs();
+    }
+    await loadMyCount();
+    await loadCounts();
+    if(calOpen) renderCal();
+    loadObs();
+    updateForm();
+    // Actualitzar rangs després de login/logout
+    if(window.TempestescatRangs) setTimeout(() => window.TempestescatRangs.actualitzar(), 300);
+});
+
+document.addEventListener('keydown',e=>{
+    if(e.key==='Escape'){
+        closeImgModal();
+        document.getElementById('send-modal')?.classList.remove('open');
+        document.getElementById('comment-name-modal')?.classList.remove('open');
+        document.getElementById('auth-overlay')?.classList.remove('open');
+    }
+});
+
+(async()=>{
+    await loadCounts();
+    const label = document.getElementById('cal-label');
+    if(label) label.textContent = fd(selDate);
+    updateCounter();
+    loadObs();
+})();
+</script>
+
+</body>
+</html>

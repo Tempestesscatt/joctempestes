@@ -1,0 +1,145 @@
+name: GFS
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 */15 * * *'  # Cada 15 hores
+permissions:
+  contents: write
+  deployments: write
+
+jobs:
+  gfs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 200
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.PRIVATE_REPO_TOKEN }}
+    
+    - name: Checkout private submodule
+      run: |
+        git config --global url."https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/".insteadOf "https://github.com/"
+        git submodule update --init --recursive
+    
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Instal·lar dependències
+      run: |
+        sudo apt-get update && sudo apt-get install -y libeccodes-dev
+        pip install numpy requests tifffile scipy python-dotenv lxml
+        pip install cfgrib xarray matplotlib cartopy netcdf4 eccodes-python
+
+    # ==================== SINCRONITZAR I BACKUP ====================
+    - name: Sincronitzar i fer backup
+      run: |
+        cd meu-mapa
+        git pull --rebase origin main 2>/dev/null || git pull --rebase origin master 2>/dev/null || true
+        
+        # Backup de TOTES les carpetes EXCEPTE webdataEU
+        mkdir -p /tmp/backup_public
+        for dir in public/*/; do
+          dirname=$(basename "$dir")
+          if [ "$dirname" != "webdataEU" ]; then
+            cp -r "$dir" /tmp/backup_public/ 2>/dev/null || true
+            echo "  Backup preservat: $dirname"
+          fi
+        done
+        echo "Backup completat"
+
+    # ==================== NETEJAR NOMÉS webdataEU ====================
+    - name: Netejar webdataEU
+      run: |
+        rm -rf meu-mapa/public/webdataEU/*
+        mkdir -p meu-mapa/public/webdataEU
+        echo "webdataEU netejat"
+
+    # ==================== EXECUTAR gfs.py ====================
+    - name: Executar gfs.py
+      run: |
+        cd private-scripts
+        python gfs.py
+      timeout-minutes: 200
+      continue-on-error: true
+
+    # ==================== COPIAR RESULTAT GFS ====================
+    - name: Copiar webdataEU generada
+      run: |
+        echo "Buscant webdataEU generada..."
+        if [ -d "private-scripts/public/webdataEU" ]; then
+          cp -r private-scripts/public/webdataEU/* meu-mapa/public/webdataEU/
+          echo "  Copiat des de private-scripts/public/webdataEU"
+        elif [ -d "private-scripts/output/webdataEU" ]; then
+          cp -r private-scripts/output/webdataEU/* meu-mapa/public/webdataEU/
+          echo "  Copiat des de private-scripts/output/webdataEU"
+        else
+          echo "  ⚠️ No s'ha trobat webdataEU. Buscant..."
+          find . -name "webdataEU" -type d 2>/dev/null | head -5
+        fi
+        echo "  webdataEU: $(find meu-mapa/public/webdataEU -type f 2>/dev/null | wc -l) fitxers"
+
+    # ==================== RESTAURAR ====================
+    - name: Restaurar carpetes preservades
+      run: |
+        echo "Restaurant carpetes que no són webdataEU..."
+        if [ -d "/tmp/backup_public" ]; then
+          for dir in /tmp/backup_public/*/; do
+            dirname=$(basename "$dir")
+            if [ "$dirname" != "webdataEU" ]; then
+              rm -rf "meu-mapa/public/$dirname"
+              cp -r "$dir" "meu-mapa/public/$dirname"
+              echo "  Restaurat: $dirname"
+            fi
+          done
+        fi
+
+    # ==================== RESUM ====================
+    - name: Resum final
+      run: |
+        echo "============================================"
+        echo "  RESUM DESPRÉS DE GFS"
+        echo "============================================"
+        echo "web_data (preservat):    $(find meu-mapa/public/web_data -type f 2>/dev/null | wc -l) fitxers"
+        echo "web_data2 (preservat):   $(find meu-mapa/public/web_data2 -type f 2>/dev/null | wc -l) fitxers"
+        echo "bt108_previsio (preservat): $(find meu-mapa/public/bt108_previsio -type f 2>/dev/null | wc -l) fitxers"
+        echo "bt62_previsio (preservat):  $(find meu-mapa/public/bt62_previsio -type f 2>/dev/null | wc -l) fitxers"
+        echo "webdataEU (ACTUALITZAT): $(find meu-mapa/public/webdataEU -type f 2>/dev/null | wc -l) fitxers"
+
+    # ==================== GUARDAR NOMÉS webdataEU ====================
+    - name: Guardar webdataEU al repositori
+      run: |
+        cd meu-mapa
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        
+        git add public/webdataEU/
+        
+        if [[ -n $(git status --porcelain) ]]; then
+          git commit -m "GFS actualitzat - $(date -u +'%Y-%m-%d %H:%M UTC')"
+          git pull --rebase origin main 2>/dev/null || git pull --rebase origin master 2>/dev/null || true
+          git push origin HEAD:main || git push origin HEAD:master
+          echo "✅ webdataEU guardat"
+        else
+          echo "ℹ️ Sense canvis a webdataEU"
+        fi
+
+    # ==================== DEPLOY ====================
+    - name: Deploy a Cloudflare
+      run: |
+        cd meu-mapa
+        npm install -g wrangler
+        echo "Desplegant a Cloudflare ($(find public -type f | wc -l) fitxers)..."
+        wrangler pages deploy public --project-name=tempestes-cat --branch=production --commit-dirty=true
+      env:
+        CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      continue-on-error: true
+
+    - name: Completat
+      run: |
+        echo "============================================"
+        echo "  GFS COMPLETAT - webdataEU actualitzat"
+        echo "============================================"

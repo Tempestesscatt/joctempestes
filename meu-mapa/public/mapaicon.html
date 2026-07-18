@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>joctempestes - visor ICON-EU</title>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-QDWCZ0Z9XF"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-QDWCZ0Z9XF');
+</script>
+
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    font-family: "Segoe UI", "Trebuchet MS", Verdana, sans-serif;
+    background: #1a1a2e;
+    color: #eee;
+  }
+
+  #app {
+    display: flex;
+    height: 100%;
+    width: 100%;
+  }
+
+  #map {
+    flex: 1;
+    min-width: 0;
+    background: #16213e;
+  }
+
+  #panel {
+    width: 280px;
+    background: rgba(22, 33, 62, 0.95);
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+    border-left: 2px solid rgba(255,255,255,0.1);
+    z-index: 1000;
+    font-size: 13px;
+  }
+
+  #panel h3 {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #8892b0;
+    margin: 0 0 8px 0;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+
+  #panel > div {
+    padding: 12px;
+  }
+
+  select, button {
+    width: 100%;
+    padding: 7px 10px;
+    margin-bottom: 8px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 4px;
+    color: #ccd6f6;
+    font-family: inherit;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  select:hover, button:hover {
+    background: rgba(255,255,255,0.12);
+    border-color: rgba(255,255,255,0.25);
+  }
+
+  select:focus, button:focus {
+    outline: none;
+    border-color: #4fb0c6;
+    box-shadow: 0 0 0 2px rgba(79, 176, 198, 0.25);
+  }
+
+  button.active {
+    background: #2f6fa8;
+    border-color: #4fb0c6;
+    color: #fff;
+  }
+
+  button.off {
+    opacity: 0.5;
+  }
+
+  .step-nav {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 8px;
+  }
+
+  .step-nav button {
+    width: 34px;
+    flex-shrink: 0;
+    padding: 7px 0;
+    text-align: center;
+  }
+
+  .step-nav select {
+    flex: 1;
+    margin-bottom: 0;
+  }
+
+  .wind-row {
+    display: flex;
+    gap: 4px;
+  }
+
+  .wind-row button {
+    flex: 1;
+    font-size: 11px;
+    padding: 6px 4px;
+  }
+
+  #legend-title {
+    font-size: 12px;
+    margin-bottom: 6px;
+    color: #ccd6f6;
+  }
+
+  #legend-bar {
+    height: 12px;
+    border-radius: 2px;
+    margin-bottom: 4px;
+  }
+
+  #legend-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: #8892b0;
+    font-family: "Consolas", "Courier New", monospace;
+  }
+
+  .info-text {
+    font-size: 11px;
+    line-height: 1.6;
+    color: #8892b0;
+  }
+
+  .info-text strong {
+    color: #ccd6f6;
+  }
+
+  #statusbar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 280px;
+    padding: 6px 12px;
+    background: rgba(22, 33, 62, 0.9);
+    backdrop-filter: blur(8px);
+    border-top: 1px solid rgba(255,255,255,0.08);
+    font-size: 11px;
+    font-family: "Consolas", "Courier New", monospace;
+    color: #8892b0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    z-index: 1001;
+  }
+
+  #statusbar .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #4fb0c6;
+    box-shadow: 0 0 6px #4fb0c6;
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 700px) {
+    #app { flex-direction: column; }
+    #map { flex: 1; min-height: 0; }
+    #panel {
+      width: 100%;
+      max-height: 45%;
+      flex-shrink: 0;
+      border-left: none;
+      border-top: 2px solid rgba(255,255,255,0.1);
+    }
+    #statusbar { right: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <div id="map"></div>
+
+  <div id="panel">
+    <div>
+      <h3>Variable</h3>
+      <select id="variable-select"></select>
+    </div>
+
+    <div>
+      <h3>Hora del model</h3>
+      <div class="step-nav">
+        <button id="btn-prev" title="Hora anterior">&#9664;</button>
+        <select id="step-select"></select>
+        <button id="btn-next" title="Hora següent">&#9654;</button>
+      </div>
+    </div>
+
+    <div>
+      <h3>Vent</h3>
+      <button id="btn-vent-toggle" title="Activar/desactivar vent">Vent ON</button>
+      <button id="btn-vent-mode" title="Canviar mode de vent">Streamlines</button>
+    </div>
+
+    <div>
+      <h3>Altura del vent</h3>
+<select id="wind-level-select">
+  <option value="10m">10 metres (superficie)</option>
+  <option value="925hPa">925 hPa (~750m)</option>
+  <option value="850hPa">850 hPa (~1500m)</option>
+  <option value="700hPa">700 hPa (~3000m)</option>
+  <option value="500hPa">500 hPa (~5500m)</option>
+  <option value="300hPa">300 hPa (~9000m)</option>
+  <option value="200hPa">200 hPa (~12000m)</option>
+</select>
+    </div>
+
+    <div>
+      <h3>Llegenda</h3>
+      <div id="legend">
+        <div id="legend-title">-</div>
+        <div id="legend-bar"></div>
+        <div id="legend-labels"><span>-</span><span>-</span></div>
+      </div>
+    </div>
+
+    <div>
+      <h3>Sobre el model</h3>
+      <p class="info-text">
+        Dades del model <strong>ICON-EU</strong> (DWD, Servei Meteorologic Alemany),
+        descarregades d'<strong>opendata.dwd.de</strong> i retallades a la Peninsula
+        i Balears.
+      </p>
+    </div>
+  </div>
+</div>
+
+<div id="statusbar">
+  <span class="dot"></span>
+  <span id="status-text">Iniciant visor...</span>
+</div>
+
+<script src="js/mapaicon.js"></script>
+</body>
+</html>

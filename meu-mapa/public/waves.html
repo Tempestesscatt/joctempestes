@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+   <link rel="icon" type="image/png" href="img/favicon.png">
+  <title>Previsió MFWAM0025 · Catalunya</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      background: #1a1e2b;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      color: #e0e4ec;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding: 12px 24px;
+      background: rgba(20, 24, 35, 0.92);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      flex-shrink: 0;
+      z-index: 20;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+    }
+    .brand {
+      font-weight: 500;
+      font-size: 1rem;
+      letter-spacing: 0.4px;
+      color: #b7c9e2;
+      margin-right: 8px;
+    }
+    .brand strong {
+      color: #ffffff;
+      font-weight: 600;
+    }
+    .var-selector {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      background: #232837;
+      padding: 4px 6px;
+      border-radius: 28px;
+      max-width: 70%;
+      overflow-x: auto;
+    }
+    .var-btn {
+      background: transparent;
+      border: none;
+      color: #a6b4cc;
+      font-size: 0.8rem;
+      font-weight: 500;
+      padding: 8px 16px;
+      border-radius: 24px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      letter-spacing: 0.3px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .var-btn:hover {
+      background: rgba(255, 255, 255, 0.06);
+      color: #d6e2f5;
+    }
+    .var-btn.active {
+      background: #3c5a8c;
+      color: white;
+      box-shadow: 0 2px 8px rgba(60, 90, 140, 0.4);
+      font-weight: 600;
+    }
+    .time-box {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    #currentTimeDisplay {
+      font-size: 1.5rem;
+      font-weight: 500;
+      background: #232837;
+      padding: 6px 20px;
+      border-radius: 32px;
+      color: #f0f4ff;
+      letter-spacing: 0.5px;
+      min-width: 130px;
+      text-align: center;
+    }
+    .nav-arrows {
+      display: flex;
+      gap: 6px;
+    }
+    .nav-btn {
+      background: #2d3345;
+      border: none;
+      color: #dce3f2;
+      font-size: 1.2rem;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: 0.2s;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    .nav-btn:hover {
+      background: #434d66;
+      color: white;
+    }
+    .nav-btn:active {
+      background: #3c5a8c;
+    }
+
+    .map-wrapper {
+      flex: 1;
+      position: relative;
+      background: #0c0f16;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    #mapImage {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      transition: transform 0.15s ease;
+      cursor: grab;
+      user-select: none;
+      display: block;
+    }
+    #mapImage:active {
+      cursor: grabbing;
+    }
+
+    .legend-panel {
+      position: absolute;
+      bottom: 24px;
+      right: 24px;
+      background: rgba(22, 26, 38, 0.9);
+      backdrop-filter: blur(12px);
+      padding: 14px 18px;
+      border-radius: 16px;
+      font-size: 0.75rem;
+      color: #cfd9ec;
+      border: 1px solid rgba(255,255,255,0.1);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 140px;
+      z-index: 15;
+    }
+    .legend-title {
+      font-weight: 600;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #cbd5ff;
+      margin-bottom: 4px;
+    }
+    .gradient-bar {
+      width: 100%;
+      height: 12px;
+      border-radius: 8px;
+      margin: 4px 0;
+    }
+    .legend-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.7rem;
+      opacity: 0.85;
+    }
+    .var-description {
+      font-weight: 400;
+      color: #9aa9c1;
+      font-size: 0.7rem;
+    }
+
+    .coords-tag {
+      position: absolute;
+      top: 18px;
+      left: 22px;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(8px);
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      color: #ccd6f0;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .error-msg {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(180, 40, 40, 0.9);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      display: none;
+      z-index: 30;
+    }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <div class="brand"> <strong>MFWAM0025</strong> · Catalunya</div>
+    <div class="var-selector" id="variableSelector"></div>
+    <div class="time-box">
+      <button class="nav-btn" id="prevHourBtn" title="Hora anterior (←)">←</button>
+      <span id="currentTimeDisplay">--:--</span>
+      <button class="nav-btn" id="nextHourBtn" title="Hora següent (→)">→</button>
+    </div>
+  </div>
+
+  <div class="map-wrapper" id="mapWrapper">
+    <img id="mapImage" src="" alt="Mapa previsió" draggable="false" />
+    <div class="coords-tag" id="coordBox"> 40.4°N–42.95°N / 0.1°E–3.6°E</div>
+    <div class="legend-panel" id="legendPanel">
+      <div class="legend-title" id="legendVarName">SWH</div>
+      <div class="gradient-bar" id="legendGradient"></div>
+      <div class="legend-labels">
+        <span id="legendMin">0.0</span>
+        <span id="legendMax">5.0</span>
+      </div>
+      <div class="var-description" id="legendDesc">Alçada significant</div>
+    </div>
+    <div class="error-msg" id="errorMsg">⚠️ No es pot carregar la imatge</div>
+  </div>
+
+  <script>
+    (function() {
+      // ----- CONFIGURACIÓ -----
+      // ATENCIÓ: Canvia aquesta ruta perquè coincideixi amb la ubicació real dels teus PNG
+      // Opció 1: Ruta absoluta (funciona si obres l'HTML directament amb file://)
+      // const BASE_PATH = "C:/Users/simob/Documents/GitHub/joctempestes/meu-mapa/public/webdata_waves/maps/";
+      
+      // Opció 2: Ruta relativa (si l'HTML està a la carpeta public/webdata_waves/)
+      const BASE_PATH = "webdata_waves/maps/";
+      
+      // Variables disponibles
+      const VARIABLES = [
+        { id: "mpts",   name: "MPTS",   desc: "Període pic onada total", gradient: "linear-gradient(90deg, #fde725, #21918c, #440154)" },
+        { id: "mpww",   name: "MPWW",   desc: "Període mitjà mar de vent", gradient: "linear-gradient(90deg, #fde725, #35b779, #440154)" },
+        { id: "mwd",    name: "MWD",    desc: "Direcció onada total (°)", gradient: "linear-gradient(90deg, #e8d5b0, #d44c2f, #2d1e3c)" },
+        { id: "mwp",    name: "MWP",    desc: "Període pic", gradient: "linear-gradient(90deg, #fde725, #238a8d, #440154)" },
+        { id: "pp1d",   name: "PP1D",   desc: "Precipitació total (mm)", gradient: "linear-gradient(90deg, #d4e6f1, #2e86c1, #1b4f72)" },
+        { id: "shts",   name: "SHTS",   desc: "Alçada significant houle (m)", gradient: "linear-gradient(90deg, #fde725, #20a486, #440154)" },
+        { id: "shww",   name: "SHWW",   desc: "Alçada mar de vent (m)", gradient: "linear-gradient(90deg, #fde725, #1f968b, #440154)" },
+        { id: "si10",   name: "SI10",   desc: "Intensitat vent 10m (m/s)", gradient: "linear-gradient(90deg, #f0f921, #f89540, #cc1443)" },
+        { id: "swdir",  name: "SWDIR",  desc: "Direcció houle (°)", gradient: "linear-gradient(90deg, #e8d5b0, #c44c3a, #2d1e3c)" },
+        { id: "swh",    name: "SWH",    desc: "Alçada significant total (m)", gradient: "linear-gradient(90deg, #fde725, #22a884, #440154)" },
+        { id: "unknown",name: "UNKNOWN",desc: "Variable desconeguda", gradient: "linear-gradient(90deg, #cccccc, #555555)" },
+        { id: "wdir10", name: "WDIR10", desc: "Direcció vent 10m (°)", gradient: "linear-gradient(90deg, #e8d5b0, #d44c2f, #2d1e3c)" },
+        { id: "wvdir",  name: "WVDIR",  desc: "Direcció mar de vent (°)", gradient: "linear-gradient(90deg, #e8d5b0, #cc4a30, #2d1e3c)" }
+      ];
+
+      const varMap = Object.fromEntries(VARIABLES.map(v => [v.id, v]));
+      const TOTAL_HOURS = 24;
+
+      // Estat
+      let currentVariable = "swh";
+      let currentHourIndex = 0;
+
+      // DOM
+      const mapImage = document.getElementById('mapImage');
+      const currentTimeDisplay = document.getElementById('currentTimeDisplay');
+      const prevHourBtn = document.getElementById('prevHourBtn');
+      const nextHourBtn = document.getElementById('nextHourBtn');
+      const variableSelector = document.getElementById('variableSelector');
+      const legendVarName = document.getElementById('legendVarName');
+      const legendGradient = document.getElementById('legendGradient');
+      const legendMin = document.getElementById('legendMin');
+      const legendMax = document.getElementById('legendMax');
+      const legendDesc = document.getElementById('legendDesc');
+      const mapWrapper = document.getElementById('mapWrapper');
+      const errorMsg = document.getElementById('errorMsg');
+
+      // ----- ZOOM + PAN -----
+      let scale = 1.0;
+      let translateX = 0, translateY = 0;
+      let isDragging = false;
+      let dragStartX = 0, dragStartY = 0;
+      let startTransX = 0, startTransY = 0;
+      const MIN_SCALE = 1.0;
+      const MAX_SCALE = 5.0;
+
+      function applyTransform() {
+        if (!mapImage) return;
+        mapImage.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+      }
+
+      function clampTranslation() {
+        if (!mapImage || !mapWrapper) return;
+        const wrapperRect = mapWrapper.getBoundingClientRect();
+        const imgW = (mapImage.naturalWidth || 800) * scale;
+        const imgH = (mapImage.naturalHeight || 600) * scale;
+        const wrapW = wrapperRect.width;
+        const wrapH = wrapperRect.height;
+        const maxTX = Math.max(0, (imgW - wrapW) / 2);
+        const maxTY = Math.max(0, (imgH - wrapH) / 2);
+        translateX = Math.min(maxTX, Math.max(-maxTX, translateX));
+        translateY = Math.min(maxTY, Math.max(-maxTY, translateY));
+      }
+
+      function setZoom(newScale, cx = null, cy = null) {
+        const oldScale = scale;
+        scale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, newScale));
+        if (scale === oldScale) return;
+        if (cx !== null && cy !== null && oldScale > 0) {
+          const ratio = scale / oldScale;
+          translateX = cx - ratio * (cx - translateX);
+          translateY = cy - ratio * (cy - translateY);
+        }
+        clampTranslation();
+        applyTransform();
+      }
+
+      function resetView() {
+        scale = 1.0;
+        translateX = 0;
+        translateY = 0;
+        applyTransform();
+      }
+
+      mapImage.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        isDragging = true;
+        dragStartX = e.clientX;
+        dragStartY = e.clientY;
+        startTransX = translateX;
+        startTransY = translateY;
+        mapImage.style.cursor = 'grabbing';
+      });
+
+      window.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        e.preventDefault();
+        translateX = startTransX + (e.clientX - dragStartX);
+        translateY = startTransY + (e.clientY - dragStartY);
+        clampTranslation();
+        applyTransform();
+      });
+
+      window.addEventListener('mouseup', () => {
+        if (isDragging) {
+          isDragging = false;
+          mapImage.style.cursor = 'grab';
+          clampTranslation();
+          applyTransform();
+        }
+      });
+
+      mapWrapper.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        const rect = mapWrapper.getBoundingClientRect();
+        const mx = e.clientX - rect.left;
+        const my = e.clientY - rect.top;
+        setZoom(scale * (e.deltaY > 0 ? 0.9 : 1.1), mx, my);
+      }, { passive: false });
+
+      // Touch
+      let lastDist = 0;
+      mapWrapper.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 2) {
+          lastDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+        }
+      });
+      mapWrapper.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        if (e.touches.length === 2) {
+          const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+          if (lastDist > 0) {
+            const rect = mapWrapper.getBoundingClientRect();
+            const cx = (e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left;
+            const cy = (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top;
+            setZoom(scale * (dist / lastDist), cx, cy);
+          }
+          lastDist = dist;
+        }
+      }, { passive: false });
+      mapWrapper.addEventListener('touchend', () => { lastDist = 0; });
+
+      // ----- FUNCIONS -----
+      function formatHour(index) {
+        return String(index + 1).padStart(2, '0');
+      }
+
+      function getImagePath(varId, hourStr) {
+        // Construeix la ruta: BASE_PATH + variable + / + variable_hXX.png
+        return `${BASE_PATH}${varId}/${varId}_h${hourStr}.png`;
+      }
+
+      function updateDisplay() {
+        const hourStr = formatHour(currentHourIndex);
+        const path = getImagePath(currentVariable, hourStr);
+        
+        console.log('Carregant:', path); // Debug
+        
+        // Ocultar error previ
+        errorMsg.style.display = 'none';
+        
+        mapImage.src = path;
+        
+        // Actualitzar llegenda
+        const info = varMap[currentVariable] || { name: currentVariable.toUpperCase(), desc: "", gradient: "linear-gradient(90deg, #444, #aaa)" };
+        legendVarName.textContent = info.name;
+        legendGradient.style.background = info.gradient;
+        legendDesc.textContent = info.desc;
+        legendMin.textContent = "Min";
+        legendMax.textContent = "Max";
+        
+        updateTimeDisplay();
+        resetView();
+      }
+
+      mapImage.addEventListener('error', () => {
+        console.error('Error carregant:', mapImage.src);
+        errorMsg.style.display = 'block';
+        errorMsg.textContent = '⚠️ No troba: ' + getImagePath(currentVariable, formatHour(currentHourIndex));
+      });
+
+      mapImage.addEventListener('load', () => {
+        errorMsg.style.display = 'none';
+        console.log('Carregat OK:', mapImage.src);
+      });
+
+      function updateTimeDisplay() {
+        try {
+          const now = new Date();
+          const madrid = new Date(now.toLocaleString("en-US", { timeZone: "Europe/Madrid" }));
+          madrid.setMinutes(0, 0, 0);
+          const forecast = new Date(madrid.getTime() + currentHourIndex * 3600000);
+          const hh = String(forecast.getHours()).padStart(2, '0');
+          const mm = String(forecast.getMinutes()).padStart(2, '0');
+          const dd = String(forecast.getDate()).padStart(2, '0');
+          const mm2 = String(forecast.getMonth() + 1).padStart(2, '0');
+          currentTimeDisplay.textContent = `${dd}/${mm2} ${hh}:${mm}`;
+        } catch(e) {
+          currentTimeDisplay.textContent = `H+${String(currentHourIndex+1).padStart(2,'0')}`;
+        }
+      }
+
+      function changeVariable(varId) {
+        if (currentVariable === varId) return;
+        currentVariable = varId;
+        document.querySelectorAll('.var-btn').forEach(b => {
+          b.classList.toggle('active', b.dataset.var === varId);
+        });
+        updateDisplay();
+      }
+
+      function changeHour(delta) {
+        currentHourIndex = (currentHourIndex + delta + TOTAL_HOURS) % TOTAL_HOURS;
+        updateDisplay();
+      }
+
+      function buildButtons() {
+        variableSelector.innerHTML = '';
+        VARIABLES.forEach(v => {
+          const btn = document.createElement('button');
+          btn.className = 'var-btn';
+          btn.dataset.var = v.id;
+          btn.textContent = v.name;
+          btn.title = v.desc;
+          if (v.id === currentVariable) btn.classList.add('active');
+          btn.addEventListener('click', () => changeVariable(v.id));
+          variableSelector.appendChild(btn);
+        });
+      }
+
+      function init() {
+        buildButtons();
+        
+        // Hora actual com a índex inicial
+        try {
+          const now = new Date();
+          const madrid = new Date(now.toLocaleString("en-US", { timeZone: "Europe/Madrid" }));
+          currentHourIndex = Math.min(Math.max(madrid.getHours(), 0), TOTAL_HOURS - 1);
+        } catch(e) {
+          currentHourIndex = 0;
+        }
+        
+        updateDisplay();
+        
+        prevHourBtn.addEventListener('click', () => changeHour(-1));
+        nextHourBtn.addEventListener('click', () => changeHour(1));
+        
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'ArrowLeft') { e.preventDefault(); changeHour(-1); }
+          if (e.key === 'ArrowRight') { e.preventDefault(); changeHour(1); }
+        });
+      }
+
+      init();
+    })();
+  </script>
+</body>
+</html>

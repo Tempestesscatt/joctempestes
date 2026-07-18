@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>GFS Europa · @tempestes.cat</title>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-QDWCZ0Z9XF"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-QDWCZ0Z9XF');
+</script>
+<style>
+/* ============================================================
+   VISOR GFS · TEMPESTES.CAT
+   Mobile-First · Menú Persiana · Tàctil òptim
+   ============================================================ */
+
+:root {
+    --bg: #f0efe8;
+    --border: #c0bdb0;
+    --blue: #2563eb;
+    --blue-dk: #1d4ed8;
+    --sidebar-w: 185px;
+    --strip-h: 110px;
+    --touch-min: 44px;
+    --accordion-speed: 0.25s;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    font-size: 13px;
+    background: var(--bg);
+    color: #1a1a1a;
+    height: 100vh;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    touch-action: manipulation;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   APP LOADER
+   ═══════════════════════════════════════════════════════════ */
+#app-loader {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    background: #0f172a;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.5s, visibility 0.5s;
+}
+#app-loader.fade-out { opacity: 0; visibility: hidden; }
+.loader-ring {
+    width: 50px; height: 50px;
+    border: 3px solid rgba(255,255,255,0.1);
+    border-top-color: #60a5fa;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-bottom: 18px;
+}
+.loader-title { color: #fff; font-size: 18px; font-weight: 700; letter-spacing: 1px; margin-bottom: 6px; }
+.loader-sub { color: #93c5fd; font-size: 12px; font-family: 'SF Mono','Consolas',monospace; margin-bottom: 16px; }
+#loader-bar { width: 280px; max-width: 85vw; height: 5px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden; }
+#loader-bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg,#2563eb,#60a5fa); transition: width 0.4s; border-radius: 3px; }
+#loader-msg { color: #94a3b8; font-family: 'SF Mono','Consolas',monospace; font-size: 10px; margin-top: 12px; min-height: 14px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ═══════════════════════════════════════════════════════════
+   APP WRAPPER
+   ═══════════════════════════════════════════════════════════ */
+#app-wrapper { display: none; flex: 1; flex-direction: column; overflow: hidden; }
+
+/* ═══════════════════════════════════════════════════════════
+   TOPBAR
+   ═══════════════════════════════════════════════════════════ */
+.topbar {
+    background: linear-gradient(180deg,#1e3a5f 0%,#1e40af 100%);
+    padding: 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 38px;
+    min-height: 38px;
+    flex-shrink: 0;
+    border-bottom: 1px solid #1e3a5f;
+}
+.topbar .brand { font-size: 14px; font-weight: 700; color: #fff; letter-spacing: 0.5px; display: flex; align-items: center; gap: 8px; }
+.topbar .brand .live { width: 7px; height: 7px; border-radius: 50%; background: #60a5fa; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.topbar .run-tag { margin-left: auto; font-size: 11px; color: #93c5fd; font-family: 'SF Mono','Consolas',monospace; white-space: nowrap; }
+.topbar .run-tag span { color: #fbbf24; font-weight: 700; }
+.topbar .menu-toggle {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #fff;
+    width: 34px; height: 28px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+}
+.topbar .menu-toggle:active { background: rgba(255,255,255,0.2); }
+
+/* ═══════════════════════════════════════════════════════════
+   LAYOUT
+   ═══════════════════════════════════════════════════════════ */
+.layout { display: flex; flex: 1; min-height: 0; overflow: hidden; }
+
+/* ═══════════════════════════════════════════════════════════
+   SIDEBAR · MENÚ PERSIANA (ACORDIÓ)
+   ═══════════════════════════════════════════════════════════ */
+.sidebar {
+    width: var(--sidebar-w);
+    flex-shrink: 0;
+    background: #fafaf7;
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* SECCIÓ COL·LAPSABLE */
+.accordion-section {
+    border-bottom: 1px solid #e5e3d8;
+}
+
+.accordion-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 10px;
+    background: linear-gradient(180deg,#f8f7f2,#f0efe8);
+    cursor: pointer;
+    border: none;
+    width: 100%;
+    text-align: left;
+    font-size: 10px;
+    font-weight: 700;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    transition: all 0.15s;
+    min-height: 38px;
+    gap: 6px;
+    -webkit-tap-highlight-color: rgba(37,99,235,0.1);
+}
+.accordion-header:hover { background: #eff6ff; }
+.accordion-header:active { background: #dbeafe; }
+.accordion-header .acc-icon {
+    font-size: 12px;
+    transition: transform var(--accordion-speed);
+    color: #64748b;
+    flex-shrink: 0;
+}
+.accordion-header.open .acc-icon {
+    transform: rotate(180deg);
+}
+.accordion-header .acc-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    border: 1px solid rgba(0,0,0,0.15);
+}
+.accordion-header .acc-label {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.accordion-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height var(--accordion-speed) ease;
+}
+.accordion-body.open {
+    max-height: 800px;
+}
+.accordion-body-inner {
+    padding: 4px 6px 6px;
+}
+
+/* BOTONS DINS L'ACORDIÓ */
+.var-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    padding: 8px 6px;
+    background: none;
+    border: 1px solid transparent;
+    color: #334155;
+    font-size: 10px;
+    cursor: pointer;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border-radius: 4px;
+    transition: all 0.1s;
+    min-height: 32px;
+    -webkit-tap-highlight-color: rgba(37,99,235,0.1);
+}
+.var-btn:active { background: #dbeafe; transform: scale(0.97); }
+.var-btn:hover { background: #eff6ff; color: #1e40af; }
+.var-btn.active {
+    background: #2563eb;
+    color: #fff;
+    border-color: #1d4ed8;
+    font-weight: 700;
+}
+.var-btn .dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    border: 1px solid rgba(0,0,0,0.15);
+}
+
+.level-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 3px;
+}
+.level-btn {
+    padding: 7px 4px;
+    background: #fff;
+    border: 1px solid #d4d1c4;
+    color: #334155;
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    border-radius: 4px;
+    transition: all 0.1s;
+    min-height: 32px;
+    -webkit-tap-highlight-color: rgba(37,99,235,0.1);
+}
+.level-btn:active { background: #dbeafe; transform: scale(0.95); }
+.level-btn:hover { background: #eff6ff; border-color: #93c5fd; }
+.level-btn.active {
+    background: #2563eb;
+    color: #fff;
+    border-color: #1d4ed8;
+    font-weight: 700;
+}
+.level-btn.sfc-btn {
+    grid-column: 1 / -1;
+    font-weight: 700;
+    font-size: 11px;
+    padding: 9px;
+    min-height: 36px;
+}
+.level-btn.vortex-btn {
+    grid-column: 1 / -1;
+    font-weight: 700;
+    font-size: 10px;
+    padding: 9px;
+    min-height: 36px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MAIN
+   ═══════════════════════════════════════════════════════════ */
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+
+/* ═══════════════════════════════════════════════════════════
+   TIMELINE
+   ═══════════════════════════════════════════════════════════ */
+.timeline-bar {
+    background: #fafaf7;
+    border-bottom: 1px solid var(--border);
+    padding: 6px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex-shrink: 0;
+}
+.timeline-controls {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+.ctrl-btn {
+    width: var(--touch-min);
+    height: var(--touch-min);
+    min-width: var(--touch-min);
+    min-height: var(--touch-min);
+    background: #fff;
+    border: 1px solid #d4d1c4;
+    color: #334155;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 6px;
+    transition: all 0.1s;
+    -webkit-tap-highlight-color: rgba(37,99,235,0.1);
+}
+.ctrl-btn:active { background: #dbeafe; transform: scale(0.93); }
+.ctrl-btn:hover { background: #eff6ff; border-color: #93c5fd; }
+.ctrl-btn.active-btn { background: #2563eb; color: #fff; border-color: #1d4ed8; }
+.fhour-badge {
+    font-family: 'SF Mono','Consolas',monospace;
+    font-size: 12px; font-weight: 700;
+    color: #1e40af;
+    background: #fff;
+    border: 1px solid #d4d1c4;
+    padding: 4px 10px;
+    height: var(--touch-min);
+    line-height: calc(var(--touch-min) - 8px);
+    min-width: 70px;
+    text-align: center;
+    border-radius: 6px;
+}
+.datetime-badge {
+    font-size: 10px; color: #64748b;
+    flex: 1; padding-left: 8px;
+    font-family: 'SF Mono','Consolas',monospace;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    min-width: 100px;
+}
+.speed-select {
+    background: #fff;
+    border: 1px solid #d4d1c4;
+    font-size: 10px; font-weight: 600;
+    padding: 4px 24px 4px 6px;
+    height: var(--touch-min);
+    cursor: pointer;
+    border-radius: 6px;
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23334155' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 6px center;
+}
+.zoom-tag {
+    font-family: 'SF Mono','Consolas',monospace;
+    font-size: 10px; font-weight: 700;
+    color: #475569;
+    background: #fff;
+    border: 1px solid #d4d1c4;
+    padding: 4px 8px;
+    height: var(--touch-min);
+    line-height: calc(var(--touch-min) - 8px);
+    min-width: 50px;
+    text-align: center;
+    border-radius: 6px;
+}
+.timeline-strip {
+    display: flex; gap: 3px;
+    overflow-x: auto;
+    padding: 4px 2px;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+}
+.t-btn {
+    flex-shrink: 0;
+    padding: 6px 10px;
+    background: #fff;
+    border: 1px solid #d4d1c4;
+    color: #334155;
+    font-size: 10px; font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    border-radius: 5px;
+    transition: all 0.1s;
+    min-height: 32px;
+    -webkit-tap-highlight-color: rgba(37,99,235,0.1);
+}
+.t-btn:active { background: #dbeafe; transform: scale(0.95); }
+.t-btn:hover { background: #eff6ff; border-color: #93c5fd; }
+.t-btn.active { background: #2563eb; color: #fff; border-color: #1d4ed8; font-weight: 700; }
+.t-sep { width: 2px; background: #c0bdb0; margin: 4px 4px; flex-shrink: 0; border-radius: 1px; }
+
+/* ═══════════════════════════════════════════════════════════
+   MAP AREA
+   ═══════════════════════════════════════════════════════════ */
+.map-area {
+    flex: 1; position: relative; overflow: hidden;
+    background: #1a1a2e; min-height: 0;
+    border: 1px solid var(--border);
+    margin: 3px 5px 0 5px;
+    border-radius: 4px;
+    cursor: grab;
+    touch-action: none;
+}
+.map-area.dragging { cursor: grabbing; }
+#mapTransformContainer {
+    position: absolute; top: 0; left: 0;
+    width: 100%; height: 100%;
+    transform-origin: 0 0;
+    will-change: transform;
+}
+#mapImg {
+    width: 100%; height: 100%;
+    object-fit: contain; display: block;
+    image-rendering: auto;
+    user-select: none;
+    -webkit-user-drag: none;
+    background: #1a1a2e;
+    transition: opacity 0.2s;
+    pointer-events: none;
+}
+#mapImg.loading { opacity: 0.15; }
+.copy-btn {
+    position: absolute; top: 10px; right: 10px; z-index: 15;
+    background: rgba(0,0,0,0.75);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.2);
+    padding: 8px 14px;
+    font-size: 11px;
+    font-family: 'SF Mono','Consolas',monospace;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.15s;
+    backdrop-filter: blur(4px);
+    opacity: 0; pointer-events: none;
+    min-height: 36px;
+}
+.copy-btn.visible { opacity: 1; pointer-events: auto; }
+.copy-btn:active { background: rgba(37,99,235,0.9); transform: scale(0.95); }
+.copy-btn.copied { background: rgba(22,163,74,0.85); }
+.copy-btn-msg {
+    position: absolute; top: 10px; right: 70px; z-index: 15;
+    background: rgba(22,163,74,0.9);
+    color: #fff;
+    padding: 6px 12px;
+    font-size: 10px;
+    font-family: 'SF Mono','Consolas',monospace;
+    font-weight: 600;
+    border-radius: 6px;
+    opacity: 0; transition: opacity 0.2s;
+    pointer-events: none;
+}
+.copy-btn-msg.show { opacity: 1; }
+.map-loader-overlay {
+    position: absolute; inset: 0;
+    background: rgba(10,15,25,0.9);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 20; gap: 14px;
+    border-radius: 4px;
+}
+.map-loader-overlay.active { display: flex; }
+.map-loader-spinner {
+    width: 44px; height: 44px;
+    border: 3px solid rgba(255,255,255,0.1);
+    border-top-color: #60a5fa;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+}
+.map-loader-text { color: #fff; font-size: 12px; font-weight: 600; }
+.map-error-overlay {
+    position: absolute; inset: 0;
+    background: rgba(10,10,10,0.95);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 21; gap: 10px;
+    border-radius: 4px;
+}
+.map-error-overlay.active { display: flex; }
+.map-error-text { color: #fca5a5; font-size: 12px; font-weight: 600; text-align: center; padding: 0 20px; }
+.map-error-btn {
+    margin-top: 6px;
+    padding: 10px 24px;
+    background: #2563eb;
+    color: #fff;
+    border: 1px solid #1d4ed8;
+    font-size: 12px; cursor: pointer;
+    border-radius: 6px; font-weight: 700;
+    min-height: 40px;
+    -webkit-tap-highlight-color: rgba(255,255,255,0.2);
+}
+.map-error-btn:active { background: #1d4ed8; transform: scale(0.95); }
+.zoom-hint {
+    position: absolute; bottom: 10px; right: 10px; z-index: 15;
+    background: rgba(0,0,0,0.75);
+    color: #e2e8f0;
+    font-size: 9px;
+    font-family: 'SF Mono','Consolas',monospace;
+    padding: 5px 10px;
+    border-radius: 12px;
+    pointer-events: none;
+    opacity: 0; transition: opacity 0.4s;
+}
+.zoom-hint.visible { opacity: 1; }
+
+/* ═══════════════════════════════════════════════════════════
+   FRAME STRIP
+   ═══════════════════════════════════════════════════════════ */
+.frame-strip-panel {
+    height: var(--strip-h);
+    flex-shrink: 0;
+    background: #fafaf7;
+    border-top: 2px solid var(--border);
+    display: flex; flex-direction: column;
+    overflow: hidden;
+}
+.frame-strip-header {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 10px;
+    background: linear-gradient(180deg,#f5f3e8,#ece9d8);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+}
+.frame-strip-label { font-size: 10px; font-weight: 800; color: #475569; text-transform: uppercase; letter-spacing: 1px; }
+.frame-strip-scroll {
+    flex: 1;
+    display: flex; gap: 4px;
+    overflow-x: auto;
+    padding: 6px 8px;
+    align-items: center;
+    min-height: 0;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+}
+.frame-thumb {
+    flex-shrink: 0;
+    height: 82px;
+    aspect-ratio: 1.6;
+    border: 2px solid #d4d1c4;
+    border-radius: 5px;
+    overflow: hidden;
+    cursor: pointer;
+    position: relative;
+    background: #1a1a2e;
+    transition: all 0.12s;
+    opacity: 0.7;
+    min-width: 100px;
+}
+.frame-thumb:active { transform: scale(0.95); }
+.frame-thumb:hover { border-color: #93c5fd; opacity: 0.9; }
+.frame-thumb.active { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.3); opacity: 1; }
+.frame-thumb.loading-thumb { border-color: #e5e3d8; animation: shimmer 1.5s infinite; }
+@keyframes shimmer { 0%{opacity:0.4} 50%{opacity:0.7} 100%{opacity:0.4} }
+.frame-thumb-img { width: 100%; height: 100%; object-fit: cover; display: block; background: #1a1a2e; pointer-events: none; }
+.frame-thumb-badge {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: rgba(0,0,0,0.8);
+    color: #fbbf24;
+    font-size: 8px;
+    font-family: 'SF Mono','Consolas',monospace;
+    font-weight: 700;
+    padding: 2px 4px;
+    text-align: center;
+    pointer-events: none;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   STATUS BAR
+   ═══════════════════════════════════════════════════════════ */
+.statusbar {
+    background: #fafaf7;
+    border-top: 1px solid var(--border);
+    padding: 5px 10px;
+    display: flex; align-items: center; gap: 10px;
+    font-size: 10px; color: #64748b;
+    flex-shrink: 0; height: 28px;
+    margin: 0 5px 4px 5px;
+    font-family: 'SF Mono','Consolas',monospace;
+    border-radius: 0 0 4px 4px;
+}
+.statusbar .ok { color: #16a34a; font-weight: 700; }
+.statusbar .err { color: #dc2626; }
+.statusbar .loading { color: #2563eb; }
+.status-spinner {
+    width: 12px; height: 12px;
+    border: 2px solid #e2e8f0;
+    border-top-color: #2563eb;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    display: inline-block; vertical-align: middle;
+    margin-right: 5px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════════════════════ */
+@media (max-width: 1024px) {
+    :root { --sidebar-w: 170px; --strip-h: 100px; }
+    .var-btn { font-size: 10px; padding: 7px 5px; }
+    .level-btn { font-size: 9px; padding: 6px 3px; }
+    .frame-thumb { height: 72px; min-width: 90px; }
+}
+
+@media (max-width: 768px) {
+    :root { --sidebar-w: 100%; --strip-h: 90px; --touch-min: 40px; }
+    .topbar .menu-toggle { display: flex; }
+    .layout { flex-direction: column; }
+    .sidebar {
+        width: 100%;
+        max-height: 0;
+        flex-shrink: 0;
+        border-right: none;
+        border-bottom: none;
+        flex-direction: column;
+        overflow-y: auto;
+        overflow-x: hidden;
+        transition: max-height 0.3s ease;
+        position: relative;
+        z-index: 50;
+        box-shadow: none;
+    }
+    .sidebar.mobile-open {
+        max-height: 55vh;
+        border-bottom: 2px solid var(--border);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+    .accordion-section { border-bottom: 1px solid #e5e3d8; }
+    .accordion-header { font-size: 10px; padding: 10px 12px; min-height: 42px; }
+    .var-btn { font-size: 11px; padding: 9px 8px; min-height: 38px; }
+    .level-grid { grid-template-columns: repeat(4, 1fr); gap: 3px; }
+    .level-btn { font-size: 10px; padding: 8px 4px; min-height: 34px; }
+    .level-btn.sfc-btn, .level-btn.vortex-btn { font-size: 11px; padding: 10px; min-height: 38px; }
+    .topbar { height: 36px; min-height: 36px; padding: 0 8px; gap: 6px; }
+    .topbar .brand { font-size: 13px; }
+    .timeline-bar { padding: 5px 6px; gap: 5px; }
+    .ctrl-btn { width: 38px; height: 38px; min-width: 38px; min-height: 38px; font-size: 13px; }
+    .fhour-badge { font-size: 11px; height: 38px; line-height: 30px; }
+    .speed-select { font-size: 10px; height: 38px; }
+    .zoom-tag { font-size: 10px; height: 38px; line-height: 30px; }
+    .t-btn { font-size: 10px; padding: 6px 9px; min-height: 30px; }
+    .map-area { margin: 2px 3px 0 3px; }
+    .frame-strip-panel { height: 85px; }
+    .frame-thumb { height: 65px; min-width: 85px; }
+}
+
+@media (max-width: 480px) {
+    :root { --strip-h: 80px; --touch-min: 36px; }
+    .sidebar.mobile-open { max-height: 50vh; }
+    .accordion-header { font-size: 9px; padding: 8px 10px; min-height: 38px; }
+    .var-btn { font-size: 10px; padding: 7px 6px; min-height: 34px; }
+    .level-grid { grid-template-columns: repeat(2, 1fr); gap: 2px; }
+    .level-btn { font-size: 9px; padding: 7px 3px; min-height: 30px; }
+    .topbar { height: 32px; min-height: 32px; gap: 4px; }
+    .topbar .brand { font-size: 11px; }
+    .topbar .run-tag { font-size: 9px; }
+    .ctrl-btn { width: 34px; height: 34px; min-width: 34px; min-height: 34px; font-size: 11px; }
+    .fhour-badge { font-size: 9px; height: 34px; line-height: 26px; min-width: 54px; }
+    .datetime-badge { font-size: 8px; min-width: 60px; }
+    .t-btn { font-size: 8px; padding: 4px 7px; min-height: 26px; }
+    .frame-strip-panel { height: 70px; }
+    .frame-thumb { height: 54px; min-width: 72px; }
+    .copy-btn { font-size: 9px; padding: 5px 10px; min-height: 30px; }
+}
+
+@media (max-width: 360px) {
+    :root { --touch-min: 32px; }
+    .sidebar.mobile-open { max-height: 45vh; }
+    .var-btn { font-size: 9px; padding: 6px 5px; min-height: 30px; }
+    .ctrl-btn { width: 30px; height: 30px; min-width: 30px; min-height: 30px; font-size: 10px; }
+    .fhour-badge { font-size: 8px; height: 30px; line-height: 22px; min-width: 46px; }
+    .frame-thumb { height: 48px; min-width: 64px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .loader-ring, .map-loader-spinner, .status-spinner { animation-duration: 0.01ms; }
+    .topbar .brand .live { animation: none; }
+}
+:focus-visible { outline: 3px solid #2563eb; outline-offset: 2px; }
+::selection { background: rgba(37,99,235,0.25); }
+</style>
+</head>
+<body>
+
+<!-- LOADER -->
+<div id="app-loader">
+  <div class="loader-ring"></div>
+  <div class="loader-title">GFS Europa</div>
+  <div class="loader-sub" id="loaderSub">Inicialitzant...</div>
+  <div id="loader-bar"><div id="loader-bar-fill"></div></div>
+  <div id="loader-msg">Connectant...</div>
+</div>
+
+<div id="app-wrapper">
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <button class="menu-toggle" id="menuToggle" onclick="toggleMobileMenu()" aria-label="Menú">☰</button>
+  <div class="brand"><span class="live"></span>GFS Europa</div>
+  <div class="run-tag">Run <span id="runLabel">--</span></div>
+</div>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+  <!-- SIDEBAR · MENÚ PERSIANA -->
+  <div class="sidebar" id="sidebar">
+
+    <!-- SECCIÓ 1: NIVELL (SUPERFÍCIE / PRESSIÓ / VORTEX) -->
+    <div class="accordion-section">
+      <button class="accordion-header open" onclick="toggleAccordion(this)" aria-expanded="true">
+        <span></span> <span class="acc-label">Nivell d'Altura</span>
+        <span class="acc-icon">▾</span>
+      </button>
+      <div class="accordion-body open">
+        <div class="accordion-body-inner">
+          <button class="level-btn sfc-btn active" data-level="sfc" onclick="setLevel('sfc',this)"> Superfície</button>
+          <button class="level-btn vortex-btn" data-level="10hPa" onclick="setLevel('10hPa',this)">Vortex 10 hPa</button>
+          <div style="font-size:9px;font-weight:700;color:#64748b;padding:6px 0 3px;text-transform:uppercase;letter-spacing:0.5px;">Pressió (hPa)</div>
+          <div class="level-grid">
+            <button class="level-btn" data-level="300hPa" onclick="setLevel('300hPa',this)">300</button>
+            <button class="level-btn" data-level="500hPa" onclick="setLevel('500hPa',this)">500</button>
+            <button class="level-btn" data-level="850hPa" onclick="setLevel('850hPa',this)">850</button>
+            <button class="level-btn" data-level="925hPa" onclick="setLevel('925hPa',this)">925</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECCIÓ 2: VARIABLES DE SUPERFÍCIE -->
+    <div class="accordion-section" id="sfcVarsAccordion">
+      <button class="accordion-header open" onclick="toggleAccordion(this)" aria-expanded="true">
+        <span class="acc-dot" style="background:#f85149"></span>
+        <span class="acc-label">Variables Superfície</span>
+        <span class="acc-icon">▾</span>
+      </button>
+      <div class="accordion-body open">
+        <div class="accordion-body-inner" id="sfcVarsSection">
+          <button class="var-btn active" data-var="temperature" onclick="setVar('temperature',this)"><span class="dot" style="background:#f85149"></span>Temperatura 2m</button>
+          <button class="var-btn" data-var="dew_point" onclick="setVar('dew_point',this)"><span class="dot" style="background:#58a6ff"></span>Punt de rosada</button>
+          <button class="var-btn" data-var="relative_humidity" onclick="setVar('relative_humidity',this)"><span class="dot" style="background:#79c0ff"></span>Humitat relativa</button>
+          <button class="var-btn" data-var="wind_speed" onclick="setVar('wind_speed',this)"><span class="dot" style="background:#3fb950"></span>Vent 10m</button>
+          <button class="var-btn" data-var="wind_gusts" onclick="setVar('wind_gusts',this)"><span class="dot" style="background:#56d364"></span>Ratxes de vent</button>
+          <button class="var-btn" data-var="rain" onclick="setVar('rain',this)"><span class="dot" style="background:#388bfd"></span>Precipitació</button>
+          <button class="var-btn" data-var="snow" onclick="setVar('snow',this)"><span class="dot" style="background:#a5d6ff"></span>Neu al sòl</button>
+          <button class="var-btn" data-var="mslp" onclick="setVar('mslp',this)"><span class="dot" style="background:#e3b341"></span>MSLP</button>
+          <button class="var-btn" data-var="cape" onclick="setVar('cape',this)"><span class="dot" style="background:#f0883e"></span>CAPE</button>
+          <button class="var-btn" data-var="cin" onclick="setVar('cin',this)"><span class="dot" style="background:#ff7b72"></span>CIN</button>
+          <button class="var-btn" data-var="lifted_index" onclick="setVar('lifted_index',this)"><span class="dot" style="background:#ffa657"></span>Lifted Index</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECCIÓ 3: RISCOS -->
+    <div class="accordion-section" id="riskVarsAccordion">
+      <button class="accordion-header" onclick="toggleAccordion(this)" aria-expanded="false">
+        <span class="acc-dot" style="background:#f03b20"></span>
+        <span class="acc-label">Riscos Meteorològics</span>
+        <span class="acc-icon">▾</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-body-inner" id="riskVarsSection">
+          <button class="var-btn" data-var="heat_risk" onclick="setVar('heat_risk',this)"><span class="dot" style="background:#f03b20"></span>Risc de Calor</button>
+          <button class="var-btn" data-var="cold_risk" onclick="setVar('cold_risk',this)"><span class="dot" style="background:#3182bd"></span>Risc de Fred</button>
+          <button class="var-btn" data-var="wind_risk" onclick="setVar('wind_risk',this)"><span class="dot" style="background:#238b45"></span>Risc de Vent</button>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- SECCIÓ 4: VARIABLES DE PRESSIÓ -->
+    <div class="accordion-section" id="presVarsAccordion" style="display:none">
+      <button class="accordion-header" onclick="toggleAccordion(this)" aria-expanded="false">
+        <span class="acc-dot" style="background:#3fb950"></span>
+        <span class="acc-label">Variables Pressió</span>
+        <span class="acc-icon">▾</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-body-inner" id="presVarsSection">
+          <button class="var-btn pres-var active" data-var="temperature" onclick="setVar('temperature',this)"><span class="dot" style="background:#f85149"></span>Temperatura</button>
+          <button class="var-btn pres-var" data-var="wind_speed" onclick="setVar('wind_speed',this)"><span class="dot" style="background:#3fb950"></span>Vent</button>
+          <button class="var-btn pres-var" data-var="relative_humidity" onclick="setVar('relative_humidity',this)"><span class="dot" style="background:#79c0ff"></span>Humitat relativa</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECCIÓ 5: VORTEX -->
+    <div class="accordion-section" id="vortexVarsAccordion" style="display:none">
+      <button class="accordion-header" onclick="toggleAccordion(this)" aria-expanded="false">
+        <span class="acc-dot" style="background:#8b5cf6"></span>
+        <span class="acc-label">Variables Vortex</span>
+        <span class="acc-icon">▾</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-body-inner" id="vortexVarsSection">
+          <button class="var-btn vortex-var active" data-var="vortex_geopot" onclick="setVar('vortex_geopot',this)"><span class="dot" style="background:#8b5cf6"></span>Geopotencial</button>
+          <button class="var-btn vortex-var" data-var="vortex_temp" onclick="setVar('vortex_temp',this)"><span class="dot" style="background:#f85149"></span>Temperatura</button>
+          <button class="var-btn vortex-var" data-var="vortex_wind" onclick="setVar('vortex_wind',this)"><span class="dot" style="background:#3fb950"></span>Vent</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="timeline-bar">
+      <div class="timeline-controls">
+        <button class="ctrl-btn" onclick="prevHour()" title="Anterior (←)">◀</button>
+        <button class="ctrl-btn" id="playBtn" onclick="togglePlay()" title="Play / Pausa (Espai)">▶</button>
+        <button class="ctrl-btn" onclick="nextHour()" title="Següent (→)">▶</button>
+        <div class="fhour-badge" id="fhourBadge">+000h</div>
+        <div class="datetime-badge" id="datetimeBadge">--</div>
+        <select class="speed-select" id="speedSelect" aria-label="Velocitat animació">
+          <option value="1400">Lent</option>
+          <option value="800" selected>Normal</option>
+          <option value="400">Ràpid</option>
+          <option value="180">Molt ràpid</option>
+        </select>
+        <button class="ctrl-btn" id="animToggleBtn" onclick="toggleAnimMode()" title="Mode animació">A</button>
+        <button class="ctrl-btn" onclick="zoomIn()" title="Zoom +">+</button>
+        <button class="ctrl-btn" onclick="zoomOut()" title="Zoom -">−</button>
+        <button class="ctrl-btn" onclick="resetZoom()" title="Reset zoom">1:1</button>
+        <div class="zoom-tag" id="zoomInfo">100%</div>
+      </div>
+      <div class="timeline-strip" id="timelineStrip"></div>
+    </div>
+
+    <div class="map-area" id="mapArea">
+      <div class="map-loader-overlay" id="mapLoaderOverlay">
+        <div class="map-loader-spinner"></div>
+        <div class="map-loader-text" id="mapLoaderText">Carregant mapa...</div>
+      </div>
+      <div class="map-error-overlay" id="mapErrorOverlay">
+        <div class="map-error-text" id="mapErrorText">Mapa no disponible</div>
+        <button class="map-error-btn" onclick="retryCurrentMap()">Reintentar</button>
+      </div>
+      <div id="mapTransformContainer">
+        <img id="mapImg" src="" alt="Mapa GFS" draggable="false" crossorigin="anonymous">
+      </div>
+      <button class="copy-btn" id="copyBtn" onclick="copyVisibleMap()">Copiar</button>
+      <div class="copy-btn-msg" id="copyMsg">✓ Copiat!</div>
+      <div class="zoom-hint" id="zoomHint">Pessiga per zoom · Arrossega per moure</div>
+    </div>
+
+    <div class="statusbar" id="statusbar">
+      <span id="statusText">Inicialitzant...</span>
+    </div>
+
+    <div class="frame-strip-panel" id="frameStripPanel">
+      <div class="frame-strip-header">
+        <div class="frame-strip-label" id="frameStripLabel">Frames</div>
+        <span style="font-size:9px;color:#94a3b8;font-family:'SF Mono','Consolas',monospace;" id="frameCacheInfo"></span>
+      </div>
+      <div class="frame-strip-scroll" id="frameStripScroll"></div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<script>
+// ───────────────────────────────────────────
+// LOADER
+// ───────────────────────────────────────────
+(function(){
+  const fill=document.getElementById('loader-bar-fill'),sub=document.getElementById('loaderSub'),msg=document.getElementById('loader-msg');
+  const steps=[
+    {p:15,s:'Metadades...',m:'Carregant status_sfc.json'},
+    {p:40,s:'Timeline...',m:'Generant barra temporal'},
+    {p:70,s:'Frames...',m:'Construint thumbnails'},
+    {p:90,s:'Mapa...',m:'Carregant primera imatge'},
+    {p:100,s:'Llest!',m:'GFS Europa · @tempestes.cat'}
+  ];
+  let i=0;
+  function step(){if(i<steps.length){const s=steps[i];fill.style.width=s.p+'%';sub.textContent=s.s;msg.textContent=s.m;i++;}}
+  const iv=setInterval(step,400);
+  window._finishLoader=function(txt){
+    clearInterval(iv);fill.style.width='100%';sub.textContent='Llest!';msg.textContent=txt||'GFS Europa · @tempestes.cat';
+    setTimeout(()=>{const l=document.getElementById('app-loader');l.classList.add('fade-out');document.getElementById('app-wrapper').style.display='flex';setTimeout(()=>l.style.display='none',500);},300);
+  };
+  setTimeout(()=>{if(document.getElementById('app-wrapper').style.display!=='flex')window._finishLoader('Timeout');},15000);
+})();
+
+// ───────────────────────────────────────────
+// ACORDIÓ · PERSIANA
+// ───────────────────────────────────────────
+function toggleAccordion(header){
+  const body=header.nextElementSibling;
+  const isOpen=body.classList.contains('open');
+  if(isOpen){
+    body.classList.remove('open');
+    header.classList.remove('open');
+    header.setAttribute('aria-expanded','false');
+  }else{
+    body.classList.add('open');
+    header.classList.add('open');
+    header.setAttribute('aria-expanded','true');
+  }
+}
+
+// ───────────────────────────────────────────
+// MENÚ MÒBIL
+// ───────────────────────────────────────────
+function toggleMobileMenu(){
+  const sidebar=document.getElementById('sidebar');
+  sidebar.classList.toggle('mobile-open');
+}
+// Tancar menú en seleccionar opció (mòbil)
+function closeMobileMenu(){
+  if(window.innerWidth<=768){
+    document.getElementById('sidebar').classList.remove('mobile-open');
+  }
+}
+
+// ───────────────────────────────────────────
+// CONSTANTS
+// ───────────────────────────────────────────
+const MAPS_BASE='webdataEU/maps',MAX_FH=300,STEP=10,MAX_RETRIES=3,RETRY_MS=1000;
+const VAR_NAMES={
+  temperature:'Temperatura',dew_point:'Punt de rosada',relative_humidity:'Humitat relativa',
+  wind_speed:'Vent',wind_gusts:'Ratxes',rain:'Precipitació',snow:'Neu',mslp:'MSLP',
+  cape:'CAPE',cin:'CIN',lifted_index:'Lifted Index',severe_storm:'Tempesta Severa',
+  heat_risk:'Risc Calor',cold_risk:'Risc Fred',wind_risk:'Risc Vent',
+  vortex_geopot:'Geopotencial',vortex_temp:'Temperatura',vortex_wind:'Vent'
+};
+const LEVEL_NAMES={sfc:'Superfície','10hPa':'10 hPa','300hPa':'300 hPa','500hPa':'500 hPa','850hPa':'850 hPa','925hPa':'925 hPa'};
+const SFC_VARS=['temperature','dew_point','relative_humidity','wind_speed','wind_gusts','rain','snow','mslp','cape','cin','lifted_index','severe_storm','heat_risk','cold_risk','wind_risk'];
+const PRES_VARS=['temperature','wind_speed','relative_humidity'];
+const VORTEX_VARS=['vortex_geopot','vortex_temp','vortex_wind'];
+
+let FORECAST_HOURS=[],availabilityCache={},_mapLoadId=0,thumbCache={},thumbLoadedCount=0,animMode=false,animTimer=null;
+function pad(n,w=3){return String(n).padStart(w,'0');}
+function generateAllHours(){const h=[];for(let hh=0;hh<=MAX_FH;hh+=STEP)h.push(hh);return h;}
+function mapPath(v,l,h){
+  const sp=['severe_storm','heat_risk','cold_risk','wind_risk'];
+  if(sp.includes(v))return`${MAPS_BASE}/gfs_${v}_f${pad(h)}.png`;
+  if(v.startsWith('vortex_'))return`${MAPS_BASE}/gfs_${v}_f${pad(h)}.png`;
+  if(l==='sfc')return`${MAPS_BASE}/gfs_${v}_sfc_f${pad(h)}.png`;
+  return`${MAPS_BASE}/gfs_${v}_${l}_f${pad(h)}.png`;
+}
+
+// ───────────────────────────────────────────
+// HORA CEST/CET
+// ───────────────────────────────────────────
+function formatCEST(ru,fh){
+  if(!ru)return'--';
+  try{
+    const d=new Date(ru);d.setHours(d.getHours()+fh);
+    const month=d.getUTCMonth(),isCEST=month>=2&&month<=9,offset=isCEST?2:1,tz=isCEST?'CEST':'CET';
+    d.setHours(d.getUTCHours()+offset);
+    const dd=String(d.getUTCDate()).padStart(2,'0'),mm=String(d.getUTCMonth()+1).padStart(2,'0'),hh=String(d.getUTCHours()).padStart(2,'0'),min=String(d.getUTCMinutes()).padStart(2,'0');
+    return`${dd}/${mm} ${hh}:${min} ${tz}`;
+  }catch(e){return'--';}
+}
+function loadImgWithRetry(src,retries,delay){
+  retries=retries||MAX_RETRIES;delay=delay||RETRY_MS;
+  return new Promise((resolve,reject)=>{
+    let at=0;
+    function tryL(){at++;const img=new Image();img.crossOrigin='anonymous';img.onload=()=>resolve(img.src);img.onerror=()=>{if(at<retries)setTimeout(tryL,delay);else reject(new Error('No disponible'))};img.src=src+'?_r='+Date.now();}
+    tryL();
+  });
+}
+
+// ───────────────────────────────────────────
+// ZOOM / PAN
+// ───────────────────────────────────────────
+let zp={scale:1,ox:0,oy:0};
+const MIN_SCALE=1,MAX_SCALE=8;
+let dragging=false,dragSX=0,dragSY=0,dragOX=0,dragOY=0,zoomHintTimer=null,copyBtnTimer=null,pinchStartDist=null,pinchStartScale=1,lastTapTime=0;
+function clampOffsets(s,ox,oy){const ma=document.getElementById('mapArea');const W=ma.clientWidth,H=ma.clientHeight;return{ox:Math.min(0,Math.max(W*(1-s),ox)),oy:Math.min(0,Math.max(H*(1-s),oy))};}
+function applyTransform(){const c=document.getElementById('mapTransformContainer');c.style.transformOrigin='0 0';c.style.transform=`translate(${zp.ox}px,${zp.oy}px) scale(${zp.scale})`;document.getElementById('zoomInfo').textContent=Math.round(zp.scale*100)+'%';showZoomHint();showCopyBtn();}
+function showCopyBtn(){const btn=document.getElementById('copyBtn');clearTimeout(copyBtnTimer);if(zp.scale>1||zp.ox!==0||zp.oy!==0){btn.classList.add('visible');}else{copyBtnTimer=setTimeout(()=>btn.classList.remove('visible'),600);}}
+function zoomAt(cx,cy,factor){const r=document.getElementById('mapArea').getBoundingClientRect();const mx=cx-r.left,my=cy-r.top;const ns=Math.min(MAX_SCALE,Math.max(MIN_SCALE,zp.scale*factor));if(ns===zp.scale)return;const c=clampOffsets(ns,mx-(mx-zp.ox)*(ns/zp.scale),my-(my-zp.oy)*(ns/zp.scale));zp.scale=ns;zp.ox=c.ox;zp.oy=c.oy;applyTransform();}
+function zoomIn(){const c=getMapCenter();zoomAt(c.x,c.y,1.5);}
+function zoomOut(){const c=getMapCenter();zoomAt(c.x,c.y,1/1.5);}
+function resetZoom(){zp.scale=1;zp.ox=0;zp.oy=0;applyTransform();}
+function getMapCenter(){const r=document.getElementById('mapArea').getBoundingClientRect();return{x:r.width/2,y:r.height/2};}
+function showZoomHint(){const h=document.getElementById('zoomHint');h.classList.add('visible');clearTimeout(zoomHintTimer);zoomHintTimer=setTimeout(()=>h.classList.remove('visible'),2500);}
+
+const maEl=document.getElementById('mapArea');
+maEl.addEventListener('wheel',e=>{e.preventDefault();zoomAt(e.clientX,e.clientY,e.deltaY<0?1.22:1/1.22);},{passive:false});
+maEl.addEventListener('mousedown',e=>{if(zp.scale<=1)return;dragging=true;dragSX=e.clientX;dragSY=e.clientY;dragOX=zp.ox;dragOY=zp.oy;maEl.classList.add('dragging');e.preventDefault();});
+window.addEventListener('mousemove',e=>{if(!dragging)return;const c=clampOffsets(zp.scale,dragOX+e.clientX-dragSX,dragOY+e.clientY-dragSY);zp.ox=c.ox;zp.oy=c.oy;applyTransform();});
+window.addEventListener('mouseup',()=>{dragging=false;maEl.classList.remove('dragging');});
+maEl.addEventListener('touchstart',e=>{if(e.touches.length===2){const t=e.touches;pinchStartDist=Math.hypot(t[1].clientX-t[0].clientX,t[1].clientY-t[0].clientY);pinchStartScale=zp.scale;dragging=false;}else if(e.touches.length===1){const now=Date.now();if(now-lastTapTime<300){zoomAt(e.touches[0].clientX,e.touches[0].clientY,1.8);lastTapTime=0;return;}lastTapTime=now;if(zp.scale>1){dragging=true;dragSX=e.touches[0].clientX;dragSY=e.touches[0].clientY;dragOX=zp.ox;dragOY=zp.oy;}}},{passive:false});
+maEl.addEventListener('touchmove',e=>{if(e.touches.length===2&&pinchStartDist){e.preventDefault();const t=e.touches;const d=Math.hypot(t[1].clientX-t[0].clientX,t[1].clientY-t[0].clientY);const mx=(t[0].clientX+t[1].clientX)/2,my=(t[0].clientY+t[1].clientY)/2;const factor=d/pinchStartDist;const ns=Math.min(MAX_SCALE,Math.max(MIN_SCALE,pinchStartScale*factor));const r=maEl.getBoundingClientRect();const relX=mx-r.left,relY=my-r.top;const c=clampOffsets(ns,relX-(relX-zp.ox)*(ns/zp.scale),relY-(relY-zp.oy)*(ns/zp.scale));zp.scale=ns;zp.ox=c.ox;zp.oy=c.oy;applyTransform();}else if(e.touches.length===1&&dragging){const c=clampOffsets(zp.scale,dragOX+e.touches[0].clientX-dragSX,dragOY+e.touches[0].clientY-dragSY);zp.ox=c.ox;zp.oy=c.oy;applyTransform();}},{passive:false});
+maEl.addEventListener('touchend',()=>{pinchStartDist=null;dragging=false;maEl.classList.remove('dragging');});
+
+// ───────────────────────────────────────────
+// COPY
+// ───────────────────────────────────────────
+async function copyVisibleMap(){
+  const mapImg=document.getElementById('mapImg'),mapArea=document.getElementById('mapArea'),copyBtn=document.getElementById('copyBtn'),copyMsg=document.getElementById('copyMsg');
+  if(!mapImg.src||!mapImg.complete||mapImg.naturalWidth===0)return;
+  try{
+    const areaW=mapArea.clientWidth,areaH=mapArea.clientHeight;
+    const canvas=document.createElement('canvas');canvas.width=areaW;canvas.height=areaH;
+    const ctx=canvas.getContext('2d');ctx.fillStyle='#1a1a2e';ctx.fillRect(0,0,areaW,areaH);
+    const s=zp.scale,ox=zp.ox,oy=zp.oy,imgRatio=mapImg.naturalWidth/mapImg.naturalHeight,containerRatio=areaW/areaH;
+    let imgW,imgH;
+    if(imgRatio>containerRatio){imgW=areaW;imgH=areaW/imgRatio;}else{imgH=areaH;imgW=areaH*imgRatio;}
+    const offX=(areaW-imgW)/2,offY=(areaH-imgH)/2,sOX=ox+offX*s,sOY=oy+offY*s,sW=imgW*s,sH=imgH*s;
+    const vx1=Math.max(0,sOX),vy1=Math.max(0,sOY),vx2=Math.min(areaW,sOX+sW),vy2=Math.min(areaH,sOY+sH);
+    if(vx1>=vx2||vy1>=vy2){const blob=await new Promise(r=>canvas.toBlob(r,'image/png'));await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]);return;}
+    const srcX=((vx1-sOX)/sW)*mapImg.naturalWidth,srcY=((vy1-sOY)/sH)*mapImg.naturalHeight,srcW=((vx2-vx1)/sW)*mapImg.naturalWidth,srcH=((vy2-vy1)/sH)*mapImg.naturalHeight;
+    ctx.drawImage(mapImg,srcX,srcY,srcW,srcH,0,0,areaW,areaH);
+    const blob=await new Promise(r=>canvas.toBlob(r,'image/png'));
+    await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]);
+    copyBtn.classList.add('copied');copyBtn.textContent='✓ Fet!';copyMsg.classList.add('show');
+    setTimeout(()=>{copyBtn.classList.remove('copied');copyBtn.textContent='📋 Copiar';copyMsg.classList.remove('show');},1800);
+  }catch(e){}
+}
+
+// ───────────────────────────────────────────
+// MAP
+// ───────────────────────────────────────────
+function showMapLoader(t){document.getElementById('mapLoaderOverlay').classList.add('active');document.getElementById('mapLoaderText').textContent=t||'Carregant...';document.getElementById('mapErrorOverlay').classList.remove('active');document.getElementById('mapImg').classList.add('loading');}
+function hideMapLoader(){document.getElementById('mapLoaderOverlay').classList.remove('active');document.getElementById('mapImg').classList.remove('loading');}
+function showMapError(t){hideMapLoader();document.getElementById('mapErrorOverlay').classList.add('active');document.getElementById('mapErrorText').textContent=t||'No disponible';}
+function hideMapError(){document.getElementById('mapErrorOverlay').classList.remove('active');}
+function retryCurrentMap(){hideMapError();delete availabilityCache[mapPath(state.varName,state.level,state.hour)];updateMap();}
+
+async function updateMap(){
+  const loadId=++_mapLoadId,path=mapPath(state.varName,state.level,state.hour),vn=VAR_NAMES[state.varName]||state.varName,ln=LEVEL_NAMES[state.level]||state.level;
+  showMapLoader(`Carregant ${vn} (${ln}) +${pad(state.hour)}h`);
+  setStatus(`<span class="status-spinner"></span><span class="loading">${vn} +${pad(state.hour)}h</span>`);
+  try{
+    const src=await loadImgWithRetry(path);
+    if(loadId!==_mapLoadId)return;
+    availabilityCache[path]=true;
+    document.getElementById('mapImg').src=src;
+    hideMapLoader();hideMapError();
+    const cestTime=formatCEST(state.runUTC,state.hour);
+    setStatus(`<span class="ok">✓</span> ${vn} · ${ln} · +${pad(state.hour)}h · ${cestTime}`);
+    updateThumbActive();
+  }catch(e){
+    if(loadId!==_mapLoadId)return;
+    availabilityCache[path]=false;
+    showMapError(`No disponible: ${vn} +${pad(state.hour)}h`);
+    setStatus(`<span class="err">✗</span> ${vn} +${pad(state.hour)}h`);
+  }
+}
+
+// ───────────────────────────────────────────
+// FRAME STRIP
+// ───────────────────────────────────────────
+function buildThumbStrip(){
+  const scroll=document.getElementById('frameStripScroll');scroll.innerHTML='';thumbCache={};thumbLoadedCount=0;updateThumbCacheInfo();
+  FORECAST_HOURS.forEach((h,idx)=>{
+    const thumb=document.createElement('div');thumb.className='frame-thumb';
+    if(idx===state.hourIdx)thumb.classList.add('active');
+    thumb.title=`+${pad(h)}h - ${formatCEST(state.runUTC,h)}`;
+    thumb.addEventListener('click',()=>setHourIdx(idx));
+    thumb.addEventListener('touchend',(e)=>{e.preventDefault();setHourIdx(idx);});
+    const img=document.createElement('img');img.className='frame-thumb-img';img.draggable=false;img.crossOrigin='anonymous';img.dataset.hour=h;img.loading='lazy';
+    const badge=document.createElement('div');badge.className='frame-thumb-badge';badge.textContent=h%24===0?'Dia '+h/24:'+'+pad(h);
+    thumb.appendChild(img);thumb.appendChild(badge);scroll.appendChild(thumb);
+  });
+  preloadAllThumbs();
+}
+function updateThumbActive(){document.querySelectorAll('.frame-thumb').forEach((t,idx)=>{t.classList.toggle('active',idx===state.hourIdx);});const active=document.querySelector('.frame-thumb.active');if(active)active.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'});}
+function updateThumbCacheInfo(){document.getElementById('frameCacheInfo').textContent=thumbLoadedCount>0?`${thumbLoadedCount}/${FORECAST_HOURS.length}`:'';}
+async function preloadAllThumbs(){
+  const vn=state.varName,ln=state.level,imgs=document.querySelectorAll('.frame-thumb-img');
+  imgs.forEach(i=>i.parentElement.classList.add('loading-thumb'));
+  thumbLoadedCount=0;
+  for(const h of FORECAST_HOURS){const path=mapPath(vn,ln,h);if(thumbCache[path]){thumbLoadedCount++;updateThumbCacheInfo();continue;}try{const src=await loadImgWithRetry(path);thumbCache[path]=src;thumbLoadedCount++;updateThumbCacheInfo();const fi=document.querySelector(`.frame-thumb-img[data-hour="${h}"]`);if(fi){fi.src=src;fi.parentElement.classList.remove('loading-thumb');}}catch(e){thumbLoadedCount++;updateThumbCacheInfo();const fi=document.querySelector(`.frame-thumb-img[data-hour="${h}"]`);if(fi)fi.parentElement.classList.remove('loading-thumb');}}
+}
+
+// ───────────────────────────────────────────
+// ANIM
+// ───────────────────────────────────────────
+function toggleAnimMode(){animMode=!animMode;const btn=document.getElementById('animToggleBtn');if(animMode){btn.classList.add('active-btn');btn.textContent='⏸';startAnimMode();}else{btn.classList.remove('active-btn');btn.textContent='A';stopAnimMode();}}
+function startAnimMode(){const sp=parseInt(document.getElementById('speedSelect').value)||800;animTimer=setInterval(()=>{state.hourIdx=(state.hourIdx+1)%FORECAST_HOURS.length;state.hour=FORECAST_HOURS[state.hourIdx]||0;document.getElementById('fhourBadge').textContent='+'+pad(state.hour)+'h';updateDatetimeBadge();updateTimeline();const path=mapPath(state.varName,state.level,state.hour);if(thumbCache[path]){document.getElementById('mapImg').src=thumbCache[path];hideMapLoader();hideMapError();const vn=VAR_NAMES[state.varName]||state.varName,ln=LEVEL_NAMES[state.level]||state.level,cestTime=formatCEST(state.runUTC,state.hour);setStatus(`<span class="ok">▶</span> ${vn} · ${ln} · +${pad(state.hour)}h · ${cestTime}`);}else{updateMap();}updateThumbActive();},sp);}
+function stopAnimMode(){clearInterval(animTimer);}
+
+// ───────────────────────────────────────────
+// STATE
+// ───────────────────────────────────────────
+const state={hour:0,hourIdx:0,varName:'temperature',level:'sfc',playing:false,playTimer:null,runLabel:'--',runUTC:null};
+async function loadStatus(){try{const r=await fetch('webdataEU/status_sfc.json?_='+Date.now());if(!r.ok)return;const s=await r.json();state.runLabel=s.last_run_label||'--';state.runUTC=s.last_run_utc||null;document.getElementById('runLabel').textContent=state.runLabel;updateDatetimeBadge();}catch(e){}}
+function updateDatetimeBadge(){document.getElementById('datetimeBadge').textContent=formatCEST(state.runUTC,state.hour);}
+function setStatus(h){document.getElementById('statusText').innerHTML=h;}
+
+// ───────────────────────────────────────────
+// TIMELINE
+// ───────────────────────────────────────────
+function buildTimeline(){
+  const strip=document.getElementById('timelineStrip');strip.innerHTML='';let lastDay=-1;
+  FORECAST_HOURS.forEach((h,idx)=>{
+    const dayNumber=Math.floor(h/24);
+    if(dayNumber!==lastDay&&h>0){const sep=document.createElement('div');sep.className='t-sep';strip.appendChild(sep);}
+    lastDay=dayNumber;
+    const btn=document.createElement('button');btn.className='t-btn'+(h===state.hour?' active':'');btn.dataset.idx=idx;
+    if(h%24===0){btn.textContent='D'+h/24;}else{btn.textContent='+'+pad(h);}
+    btn.addEventListener('click',()=>setHourIdx(idx));btn.addEventListener('touchend',(e)=>{e.preventDefault();setHourIdx(idx);});
+    strip.appendChild(btn);
+  });
+}
+function updateTimeline(){document.querySelectorAll('.t-btn').forEach(b=>b.classList.toggle('active',parseInt(b.dataset.idx)===state.hourIdx));const a=document.querySelector('.t-btn.active');if(a)a.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'});}
+
+// ───────────────────────────────────────────
+// NAVIGATION
+// ───────────────────────────────────────────
+function setHourIdx(idx){state.hourIdx=Math.max(0,Math.min(FORECAST_HOURS.length-1,idx));state.hour=FORECAST_HOURS[state.hourIdx]||0;document.getElementById('fhourBadge').textContent='+'+pad(state.hour)+'h';updateDatetimeBadge();updateTimeline();updateMap();}
+function nextHour(){setHourIdx(state.hourIdx+1);}
+function prevHour(){setHourIdx(state.hourIdx-1);}
+
+async function setVar(vn,btn){
+  if(state.varName===vn)return;
+  state.varName=vn;availabilityCache={};thumbCache={};thumbLoadedCount=0;
+  document.querySelectorAll('.var-btn,.pres-var,.vortex-var').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('frameStripLabel').textContent=VAR_NAMES[vn]||vn;
+  setStatus(`<span class="status-spinner"></span><span class="loading">Canviant a ${VAR_NAMES[vn]||vn}...</span>`);
+  buildThumbStrip();updateMap();closeMobileMenu();
+}
+
+async function setLevel(level,btn){
+  if(state.level===level)return;
+  state.level=level;availabilityCache={};thumbCache={};thumbLoadedCount=0;
+  const isSfc=level==='sfc',isVortex=level==='10hPa';
+  document.querySelectorAll('.level-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  
+  // Mostrar/ocultar seccions d'acordió segons el nivell
+  document.getElementById('sfcVarsAccordion').style.display=isSfc?'':'none';
+  document.getElementById('riskVarsAccordion').style.display=isSfc?'':'none';
+  document.getElementById('presVarsAccordion').style.display=(!isSfc&&!isVortex)?'':'none';
+  document.getElementById('vortexVarsAccordion').style.display=isVortex?'':'none';
+  
+  if(isVortex&&!VORTEX_VARS.includes(state.varName)){
+    state.varName='vortex_geopot';
+    document.querySelectorAll('.vortex-var').forEach(b=>b.classList.toggle('active',b.dataset.var==='vortex_geopot'));
+  }else if(!isSfc&&!isVortex&&!PRES_VARS.includes(state.varName)){
+    state.varName='temperature';
+    document.querySelectorAll('.pres-var').forEach(b=>b.classList.toggle('active',b.dataset.var==='temperature'));
+  }
+  document.getElementById('frameStripLabel').textContent=VAR_NAMES[state.varName]||state.varName;
+  setStatus(`<span class="status-spinner"></span><span class="loading">Canviant a ${LEVEL_NAMES[level]||level}...</span>`);
+  buildThumbStrip();updateMap();closeMobileMenu();
+}
+
+// ───────────────────────────────────────────
+// PLAY
+// ───────────────────────────────────────────
+function togglePlay(){state.playing?stopPlay():startPlay();}
+function startPlay(){state.playing=true;document.getElementById('playBtn').innerHTML='⏸';const sp=parseInt(document.getElementById('speedSelect').value)||800;state.playTimer=setInterval(()=>{state.hourIdx<FORECAST_HOURS.length-1?setHourIdx(state.hourIdx+1):setHourIdx(0);},sp);}
+function stopPlay(){state.playing=false;clearInterval(state.playTimer);document.getElementById('playBtn').innerHTML='▶';}
+document.getElementById('speedSelect').addEventListener('change',()=>{if(state.playing){stopPlay();startPlay();}});
+
+// ───────────────────────────────────────────
+// SWIPE
+// ───────────────────────────────────────────
+let swipeStartX=0,swipeStartY=0;
+maEl.addEventListener('touchstart',e=>{if(e.touches.length===1&&zp.scale<=1){swipeStartX=e.touches[0].clientX;swipeStartY=e.touches[0].clientY;}},{passive:true});
+maEl.addEventListener('touchend',e=>{if(zp.scale>1)return;const dx=(e.changedTouches[0]?.clientX||0)-swipeStartX,dy=(e.changedTouches[0]?.clientY||0)-swipeStartY;if(Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>50){if(dx<0)nextHour();else prevHour();}});
+
+// ───────────────────────────────────────────
+// KEYBOARD
+// ───────────────────────────────────────────
+document.addEventListener('keydown',e=>{
+  const t=e.target.tagName;if(t==='INPUT'||t==='SELECT'||t==='TEXTAREA')return;
+  if(e.key==='ArrowRight'){e.preventDefault();nextHour();}
+  if(e.key==='ArrowLeft'){e.preventDefault();prevHour();}
+  if(e.key===' '){e.preventDefault();togglePlay();}
+  if(e.key==='Home'){e.preventDefault();setHourIdx(0);}
+  if(e.key==='End'){e.preventDefault();setHourIdx(FORECAST_HOURS.length-1);}
+  if(e.key==='r'||e.key==='R')retryCurrentMap();
+  if(e.key==='='||e.key==='+')zoomIn();
+  if(e.key==='-')zoomOut();
+  if(e.key==='0')resetZoom();
+  if((e.ctrlKey||e.metaKey)&&e.key==='c'&&(zp.scale>1||zp.ox!==0||zp.oy!==0)){e.preventDefault();copyVisibleMap();}
+});
+
+// ───────────────────────────────────────────
+// INIT
+// ───────────────────────────────────────────
+document.addEventListener('DOMContentLoaded',async()=>{
+  try{
+    await loadStatus();
+    FORECAST_HOURS=generateAllHours();
+    document.getElementById('frameStripLabel').textContent=VAR_NAMES[state.varName]||state.varName;
+    setStatus(`<span class="ok">✓</span> Llesta`);
+    state.hour=FORECAST_HOURS[0]||0;state.hourIdx=0;
+    document.getElementById('fhourBadge').textContent='+'+pad(state.hour)+'h';
+    updateDatetimeBadge();buildTimeline();buildThumbStrip();updateMap();
+    if(typeof window._finishLoader==='function')window._finishLoader();
+  }catch(e){console.error('Error:',e);setStatus(`<span class="err">✗</span> Error carregant`);if(typeof window._finishLoader==='function')window._finishLoader('Error');}
+});
+</script>
+<script src="js/rangs.js"></script>
+</body>
+</html>

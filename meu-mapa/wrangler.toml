@@ -1,0 +1,6 @@
+name = "tempestes-cat"
+pages_build_output_dir = "public"
+
+[[kv_namespaces]]
+binding = "CHAT_MESSAGES"
+id = "fbe46da4c4f040958cba7085faf1b72a"

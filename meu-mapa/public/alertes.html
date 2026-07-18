@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alertes Meteorològiques ⚡</title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="/icons/icon-192.png">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QDWCZ0Z9XF"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-QDWCZ0Z9XF');
+</script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            background: #0a0e1a;
+            color: #e0e8f0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* HEADER */
+        .header {
+            background: linear-gradient(135deg, #0d1528 0%, #1a1a3e 100%);
+            padding: 16px 24px;
+            border-bottom: 2px solid #2a3a6a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .header h1 {
+            font-size: 22px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .header .status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .header .status .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .dot.green {
+            background: #22c55e;
+            box-shadow: 0 0 10px #22c55e;
+        }
+        .dot.yellow {
+            background: #eab308;
+            box-shadow: 0 0 10px #eab308;
+            animation: blink 1s infinite;
+        }
+        .dot.red {
+            background: #ef4444;
+            box-shadow: 0 0 10px #ef4444;
+            animation: blink 0.5s infinite;
+        }
+        .dot.gray {
+            background: #555;
+        }
+        @keyframes blink {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.2;
+            }
+        }
+
+        /* MAPA */
+        .map-container {
+            flex: 1;
+            position: relative;
+            min-height: 400px;
+        }
+        #map {
+            width: 100%;
+            height: 100%;
+            min-height: 500px;
+            background: #0a0e1a;
+        }
+        .map-overlay {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(10, 14, 26, 0.92);
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: 1px solid #2a3a6a;
+            font-size: 12px;
+            text-align: center;
+            max-width: 90%;
+            pointer-events: none;
+            backdrop-filter: blur(8px);
+        }
+        .map-overlay strong {
+            color: #667eea;
+        }
+
+        /* PANELL D'ESTAT */
+        .info-panel {
+            background: #11182a;
+            border-top: 2px solid #2a3a6a;
+            padding: 16px 24px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px 30px;
+            align-items: center;
+            font-size: 13px;
+        }
+        .info-panel .label {
+            color: #7a8aaa;
+            font-weight: 500;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .info-panel .value {
+            font-weight: 700;
+            font-size: 15px;
+            color: #e0e8f0;
+        }
+        .info-panel .value.cobertura {
+            color: #22c55e;
+        }
+        .info-panel .value.fora {
+            color: #ef4444;
+        }
+        .info-panel .item {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        /* BOTÓ ACTIVAR */
+        .btn-activar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            border: none;
+            padding: 10px 28px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+            margin-left: auto;
+        }
+        .btn-activar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(102, 126, 234, 0.5);
+        }
+        .btn-activar:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .btn-activar.actiu {
+            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+            box-shadow: 0 4px 16px rgba(220, 38, 38, 0.3);
+        }
+        .btn-activar.actiu:hover {
+            box-shadow: 0 6px 24px rgba(220, 38, 38, 0.5);
+        }
+
+        /* TOAST */
+        .toast {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1a2238;
+            color: #e0e8f0;
+            padding: 12px 24px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            font-weight: 600;
+            font-size: 13px;
+            max-width: 90%;
+        }
+        .toast.on {
+            opacity: 1;
+        }
+        .toast.error {
+            border-left-color: #ef4444;
+        }
+        .toast.success {
+            border-left-color: #22c55e;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 18px;
+            }
+            .info-panel {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+            }
+            .btn-activar {
+                margin-left: 0;
+                width: 100%;
+                text-align: center;
+            }
+            #map {
+                min-height: 350px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOAST -->
+    <div class="toast" id="toast"></div>
+
+    <!-- HEADER -->
+    <div class="header">
+        <h1>⚡ Alertes Meteorològiques</h1>
+        <div class="status">
+            <span class="dot gray" id="statusDot"></span>
+            <span id="statusText">No connectat</span>
+        </div>
+    </div>
+
+    <!-- MAPA -->
+    <div class="map-container">
+        <div id="map"></div>
+        <div class="map-overlay">
+            🖱️ <strong>Clica al mapa</strong> per seleccionar la teva ubicació<br>
+            <span style="font-size:10px;color:#7a8aaa;">Si està fora de cobertura, no rebràs alertes</span>
+        </div>
+    </div>
+
+    <!-- PANELL D'ESTAT -->
+    <div class="info-panel">
+        <div class="item">
+            <span class="label">📍 Ubicació</span>
+            <span class="value" id="ubicaInfo">--</span>
+        </div>
+        <div class="item">
+            <span class="label">📡 Cobertura</span>
+            <span class="value" id="coberturaInfo">--</span>
+        </div>
+        <div class="item">
+            <span class="label">🔔 Alertes</span>
+            <span class="value" id="alertesInfo">--</span>
+        </div>
+        <button class="btn-activar" id="btnActivar">🔔 Activar Alertes</button>
+    </div>
+
+    <script>
+        // ═══════════════════════════════════════════════════════════════
+        //  ALERTES METEOROLÒGIQUES - VERSIÓ SIMPLIFICADA
+        //  - Mapa per seleccionar ubicació
+        //  - Detecta si està dins de la zona de cobertura
+        //  - Activa notificacions push
+        // ═══════════════════════════════════════════════════════════════
+
+        // ── CONFIGURACIÓ ──
+        const CONFIG = {
+            // Límits de la zona de cobertura (Catalunya)
+            bbox: {
+                latMin: 40.2,
+                latMax: 43.0,
+                lonMin: -0.2,
+                lonMax: 4.0
+            },
+            // Distància màxima per considerar-se dins (km)
+            maxDistancia: 15,
+            // Interval de comprovació (ms)
+            checkInterval: 180000, // 3 minuts
+        };
+
+        // ── ESTAT ──
+        let ubicacio = null;
+        let alertesActives = false;
+        let notificador = null;
+        let marker = null;
+        let cercle = null;
+        let intervalId = null;
+
+        // ── ELEMENTS DOM ──
+        const toast = document.getElementById('toast');
+        const statusDot = document.getElementById('statusDot');
+        const statusText = document.getElementById('statusText');
+        const ubicaInfo = document.getElementById('ubicaInfo');
+        const coberturaInfo = document.getElementById('coberturaInfo');
+        const alertesInfo = document.getElementById('alertesInfo');
+        const btnActivar = document.getElementById('btnActivar');
+
+        // ── INICIALITZAR MAPA ──
+        const mapa = L.map('map', {
+            center: [41.7, 1.8],
+            zoom: 8,
+            minZoom: 6,
+            maxZoom: 13,
+            zoomControl: true,
+        });
+
+        // Capa base
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap',
+            maxZoom: 19,
+        }).addTo(mapa);
+
+        // Mostrar la zona de cobertura (rectangle)
+        const bounds = [
+            [CONFIG.bbox.latMin, CONFIG.bbox.lonMin],
+            [CONFIG.bbox.latMax, CONFIG.bbox.lonMax]
+        ];
+        L.rectangle(bounds, {
+            color: '#667eea',
+            weight: 2,
+            opacity: 0.6,
+            fillColor: '#667eea',
+            fillOpacity: 0.08,
+            dashArray: '5 5',
+            interactive: false,
+        }).addTo(mapa).bindTooltip('📡 Zona de cobertura', { permanent: true, direction: 'top' });
+
+        // ── FUNCIONS ──
+        function dinsCobertura(lat, lng) {
+            const b = CONFIG.bbox;
+            return lat >= b.latMin && lat <= b.latMax && lng >= b.lonMin && lng <= b.lonMax;
+        }
+
+        function mostrarToast(msg, tipus) {
+            toast.textContent = msg;
+            toast.className = 'toast on' + (tipus ? ' ' + tipus : '');
+            clearTimeout(toast._timer);
+            toast._timer = setTimeout(() => toast.classList.remove('on'), 4000);
+        }
+
+        function actualitzarEstat() {
+            if (!ubicacio) {
+                statusDot.className = 'dot gray';
+                statusText.textContent = 'Sense ubicació';
+                ubicaInfo.textContent = '--';
+                coberturaInfo.textContent = '--';
+                alertesInfo.textContent = '--';
+                btnActivar.disabled = true;
+                btnActivar.textContent = '🔔 Activar Alertes';
+                btnActivar.classList.remove('actiu');
+                return;
+            }
+
+            const dins = dinsCobertura(ubicacio.lat, ubicacio.lng);
+
+            // Ubicació
+            ubicaInfo.textContent = `${ubicacio.lat.toFixed(4)}°N, ${ubicacio.lng.toFixed(4)}°E`;
+
+            // Cobertura
+            if (dins) {
+                coberturaInfo.textContent = '✅ Dins de cobertura';
+                coberturaInfo.className = 'value cobertura';
+                statusDot.className = 'dot green';
+                statusText.textContent = 'Cobertura OK';
+                btnActivar.disabled = false;
+            } else {
+                coberturaInfo.textContent = '❌ Fora de cobertura';
+                coberturaInfo.className = 'value fora';
+                statusDot.className = 'dot red';
+                statusText.textContent = 'Fora de cobertura';
+                btnActivar.disabled = true;
+                btnActivar.textContent = '🔔 Activar Alertes';
+                btnActivar.classList.remove('actiu');
+            }
+
+            // Alertes
+            if (alertesActives) {
+                alertesInfo.textContent = '✅ Activades';
+                alertesInfo.style.color = '#22c55e';
+                btnActivar.textContent = '🔕 Desactivar Alertes';
+                btnActivar.classList.add('actiu');
+            } else {
+                alertesInfo.textContent = '❌ Desactivades';
+                alertesInfo.style.color = '#7a8aaa';
+                btnActivar.textContent = '🔔 Activar Alertes';
+                btnActivar.classList.remove('actiu');
+            }
+        }
+
+        // ── SELECCIÓ AL MAPA ──
+        mapa.on('click', function(e) {
+            const { lat, lng } = e.latlng;
+
+            // Eliminar marcador anterior
+            if (marker) {
+                mapa.removeLayer(marker);
+                marker = null;
+            }
+            if (cercle) {
+                mapa.removeLayer(cercle);
+                cercle = null;
+            }
+
+            ubicacio = { lat, lng };
+
+            // Comprovar si està dins
+            const dins = dinsCobertura(lat, lng);
+
+            // Crear marcador
+            const icon = L.divIcon({
+                className: '',
+                html: `<div style="width:16px;height:16px;background:${dins ? '#22c55e' : '#ef4444'};border:3px solid #fff;border-radius:50%;box-shadow:0 0 16px ${dins ? '#22c55e' : '#ef4444'};"></div>`,
+                iconSize: [16, 16],
+                iconAnchor: [8, 8],
+            });
+            marker = L.marker([lat, lng], { icon }).addTo(mapa);
+
+            // Cercle de proximitat
+            cercle = L.circle([lat, lng], {
+                radius: 5000,
+                color: dins ? '#22c55e' : '#ef4444',
+                fillColor: dins ? '#22c55e' : '#ef4444',
+                fillOpacity: 0.08,
+                weight: 1,
+                opacity: 0.3,
+                interactive: false,
+            }).addTo(mapa);
+
+            // Centrar el mapa
+            mapa.setView([lat, lng], 10, { animate: true, duration: 1 });
+
+            // Mostrar missatge
+            if (dins) {
+                mostrarToast(`📍 Ubicació seleccionada: ${lat.toFixed(4)}°N, ${lng.toFixed(4)}°E ✅ Dins de cobertura`, 'success');
+            } else {
+                mostrarToast(`📍 Ubicació fora de cobertura. No es podran rebre alertes.`, 'error');
+            }
+
+            actualitzarEstat();
+
+            // Si ja estaven activades, reiniciar
+            if (alertesActives) {
+                desactivarAlertes();
+                if (dins) activarAlertes();
+            }
+        });
+
+        // ── SISTEMA DE NOTIFICACIONS ──
+        class NotificadorTemps {
+            constructor() {
+                this.interval = CONFIG.checkInterval;
+                this.poblacio = 'Ubicació seleccionada';
+                this.permis = false;
+                this.registrat = false;
+                this.alertesEnviades = {};
+                this.enCurs = false;
+            }
+
+            async registrar() {
+                if (this.registrat) return;
+
+                if ('serviceWorker' in navigator) {
+                    try {
+                        const registration = await navigator.serviceWorker.register('/service-worker.js');
+                        console.log('✅ Service Worker registrat!');
+                        this.registrat = true;
+
+                        if (Notification.permission === 'default') {
+                            const permis = await Notification.requestPermission();
+                            this.permis = permis === 'granted';
+                            if (this.permis) {
+                                try {
+                                    await registration.showNotification('🔔 Alertes activades!', {
+                                        body: 'Rebràs alertes per la teva ubicació',
+                                        icon: '/icons/icon-192.png',
+                                        badge: '/icons/icon-192.png',
+                                        tag: 'welcome',
+                                        requireInteraction: false
+                                    });
+                                } catch (e) {}
+                            }
+                        } else {
+                            this.permis = Notification.permission === 'granted';
+                        }
+                    } catch (error) {
+                        console.error('❌ Error registrant Service Worker:', error);
+                    }
+                }
+            }
+
+            async iniciar(lat, lon) {
+                this.lat = lat;
+                this.lon = lon;
+
+                await this.registrar();
+
+                if (!this.permis) {
+                    mostrarToast('❌ Permís de notificacions denegat. Activa\'l des del navegador.', 'error');
+                    return false;
+                }
+
+                console.log(`🔔 Monitoritzant ubicació...`);
+                mostrarToast('✅ Alertes activades! Rebràs notificacions cada 3 minuts.', 'success');
+
+                // Comprovar immediatament
+                await this.comprovarTemps();
+
+                // I cada interval
+                if (this._interval) clearInterval(this._interval);
+                this._interval = setInterval(() => {
+                    this.comprovarTemps();
+                }, this.interval);
+
+                return true;
+            }
+
+            async comprovarTemps() {
+                if (this.enCurs) return;
+                this.enCurs = true;
+
+                try {
+                    // Carregar dades de la primera hora
+                    const resposta = await fetch('/web_data/dades_aromepi_catalunya_h00.js');
+                    if (!resposta.ok) {
+                        this.enCurs = false;
+                        return;
+                    }
+
+                    const text = await resposta.text();
+                    const inici = text.indexOf('{');
+                    if (inici === -1) { this.enCurs = false; return; }
+
+                    const dades = JSON.parse(text.slice(inici).replace(/;\s*$/, ''));
+                    const surface = dades.surface || {};
+
+                    // Buscar índex més proper
+                    const meta = window._indexData?.meta;
+                    if (!meta) { this.enCurs = false; return; }
+
+                    const N = meta.n_grid;
+                    const ext = meta.extent;
+                    const col = ((this.lon - ext[0]) / (ext[1] - ext[0])) * (N - 1);
+                    const fila = ((ext[3] - this.lat) / (ext[3] - ext[2])) * (N - 1);
+                    const idx = Math.round(fila * N + col);
+
+                    if (idx < 0 || idx >= N * N) { this.enCurs = false; return; }
+
+                    // Última hora disponible
+                    const h = Math.min(surface.total_precip_rate?.length || 0, 47);
+
+                    // Extreure valors
+                    const valors = {
+                        pluja: surface.total_precip_rate?.[idx] ?? 0,
+                        dbz: surface.reflectivity?.[idx] ?? 0,
+                        vent: surface.wind_speed_10m?.[idx] ?? 0,
+                        temp: surface.t_2m?.[idx] ?? 0,
+                        neu: surface.total_snow?.[idx] ?? 0,
+                        ratxa: surface.wind_gust_15min?.[idx] ?? 0,
+                        cape: surface.cape?.[idx] ?? 0,
+                        hail: surface.hail?.[idx] ?? 0,
+                    };
+
+                    await this.comprovarAlertes(valors);
+
+                } catch (error) {
+                    console.error('❌ Error:', error);
+                }
+
+                this.enCurs = false;
+            }
+
+            async comprovarAlertes(v) {
+                const ara = Date.now();
+                const hora = Math.floor(ara / 3600000);
+                const alertes = [];
+
+                // PLUJA
+                if (v.pluja > 5 && !this.alertesEnviades[`pluja_forta_${hora}`]) {
+                    alertes.push({
+                        titol: '🌧️ PLUJA FORTA!',
+                        cos: `${v.pluja.toFixed(1)} mm/h · Porta paraigua!`,
+                        tag: 'pluja_forta'
+                    });
+                    this.alertesEnviades[`pluja_forta_${hora}`] = true;
+                } else if (v.pluja > 1 && !this.alertesEnviades[`pluja_${hora}`]) {
+                    alertes.push({
+                        titol: '🌦️ Pluja',
+                        cos: `${v.pluja.toFixed(1)} mm/h`,
+                        tag: 'pluja'
+                    });
+                    this.alertesEnviades[`pluja_${hora}`] = true;
+                }
+
+                // TEMPESTA
+                if (v.dbz > 35 && !this.alertesEnviades[`tempesta_${hora}`]) {
+                    alertes.push({
+                        titol: '⚡ TEMPESTA!',
+                        cos: `${v.dbz.toFixed(0)} dBZ · Activitat elèctrica`,
+                        tag: 'tempesta'
+                    });
+                    this.alertesEnviades[`tempesta_${hora}`] = true;
+                }
+
+                // VENT
+                if (v.ratxa > 60 && !this.alertesEnviades[`vent_extrem_${hora}`]) {
+                    alertes.push({
+                        titol: '🌪️ VENT MOLT FORT!',
+                        cos: `${v.ratxa.toFixed(0)} km/h · Precaució!`,
+                        tag: 'vent_extrem'
+                    });
+                    this.alertesEnviades[`vent_extrem_${hora}`] = true;
+                } else if (v.vent > 40 && !this.alertesEnviades[`vent_${hora}`]) {
+                    alertes.push({
+                        titol: '💨 Vent fort',
+                        cos: `${v.vent.toFixed(0)} km/h`,
+                        tag: 'vent'
+                    });
+                    this.alertesEnviades[`vent_${hora}`] = true;
+                }
+
+                // NEU
+                if (v.neu > 1 && !this.alertesEnviades[`neu_${hora}`]) {
+                    alertes.push({
+                        titol: '❄️ NEU!',
+                        cos: `${v.neu.toFixed(1)} cm/h`,
+                        tag: 'neu'
+                    });
+                    this.alertesEnviades[`neu_${hora}`] = true;
+                }
+
+                // CALOR EXTREMA
+                if (v.temp > 35 && !this.alertesEnviades[`calor_${hora}`]) {
+                    alertes.push({
+                        titol: '🔥 CALOR EXTREMA!',
+                        cos: `${v.temp.toFixed(1)}°C · Cuida\'t!`,
+                        tag: 'calor'
+                    });
+                    this.alertesEnviades[`calor_${hora}`] = true;
+                }
+
+                // GELADA
+                if (v.temp < 0 && !this.alertesEnviades[`gel_${hora}`]) {
+                    alertes.push({
+                        titol: '🥶 GELADA!',
+                        cos: `${v.temp.toFixed(1)}°C · Risc de gel`,
+                        tag: 'gel'
+                    });
+                    this.alertesEnviades[`gel_${hora}`] = true;
+                }
+
+                // CALAMARSA
+                if (v.hail > 0.1 && !this.alertesEnviades[`calamarsa_${hora}`]) {
+                    alertes.push({
+                        titol: '🧊 CALAMARSA!',
+                        cos: `${v.hail.toFixed(1)} mm · Risc de granís`,
+                        tag: 'calamarsa'
+                    });
+                    this.alertesEnviades[`calamarsa_${hora}`] = true;
+                }
+
+                // Enviar notificacions
+                for (const alerta of alertes) {
+                    await this.enviarNotificacio(alerta);
+                }
+            }
+
+            async enviarNotificacio(alerta) {
+                if (!this.permis) return;
+
+                try {
+                    if (this.registrat) {
+                        const registration = await navigator.serviceWorker.ready;
+                        await registration.showNotification(alerta.titol, {
+                            body: `${alerta.cos}`,
+                            icon: '/icons/icon-192.png',
+                            badge: '/icons/icon-192.png',
+                            vibrate: [200, 100, 200, 100, 300],
+                            tag: alerta.tag + '_' + Date.now(),
+                            requireInteraction: true,
+                            actions: [
+                                { action: 'open', title: '📊 Veure previsió' },
+                                { action: 'dismiss', title: 'Tancar' }
+                            ]
+                        });
+                    } else {
+                        new Notification(alerta.titol, {
+                            body: alerta.cos,
+                            icon: '/icons/icon-192.png',
+                            badge: '/icons/icon-192.png'
+                        });
+                    }
+                    console.log(`📨 Notificació: ${alerta.titol}`);
+                } catch (error) {
+                    console.error('❌ Error:', error);
+                }
+            }
+
+            aturar() {
+                if (this._interval) {
+                    clearInterval(this._interval);
+                    this._interval = null;
+                }
+                console.log('⏹️ Monitorització aturada');
+            }
+        }
+
+        // ── ACTIVAR / DESACTIVAR ──
+        async function activarAlertes() {
+            if (!ubicacio) {
+                mostrarToast('❌ Selecciona una ubicació primer', 'error');
+                return;
+            }
+
+            if (!dinsCobertura(ubicacio.lat, ubicacio.lng)) {
+                mostrarToast('❌ Ubicació fora de cobertura', 'error');
+                return;
+            }
+
+            if (alertesActives) return;
+
+            notificador = new NotificadorTemps();
+            const ok = await notificador.iniciar(ubicacio.lat, ubicacio.lng);
+
+            if (ok) {
+                alertesActives = true;
+                actualitzarEstat();
+                mostrarToast('✅ Alertes activades correctament!', 'success');
+            } else {
+                mostrarToast('❌ No s\'han pogut activar les alertes. Permís denegat?', 'error');
+            }
+        }
+
+        function desactivarAlertes() {
+            if (notificador) {
+                notificador.aturar();
+                notificador = null;
+            }
+            alertesActives = false;
+            actualitzarEstat();
+            mostrarToast('🔕 Alertes desactivades', '');
+        }
+
+        // ── BOTÓ ──
+        btnActivar.addEventListener('click', function() {
+            if (alertesActives) {
+                desactivarAlertes();
+            } else {
+                activarAlertes();
+            }
+        });
+
+        // ── CARREGAR INDEX PER TENIR METADADES ──
+        async function carregarIndex() {
+            try {
+                const r = await fetch('/web_data/dades_aromepi_catalunya_index.js');
+                if (r.ok) {
+                    const text = await r.text();
+                    const start = text.indexOf('{');
+                    if (start !== -1) {
+                        window._indexData = JSON.parse(text.slice(start).replace(/;\s*$/, ''));
+                        console.log('✅ Index carregat');
+                        return true;
+                    }
+                }
+                return false;
+            } catch (e) {
+                console.warn('⚠️ No s\'ha pogut carregar l\'index:', e);
+                return false;
+            }
+        }
+
+        // ── INIT ──
+        async function init() {
+            await carregarIndex();
+
+            // Comprovar si el Service Worker està registrat
+            if ('serviceWorker' in navigator) {
+                try {
+                    const registration = await navigator.serviceWorker.ready;
+                    if (registration) {
+                        console.log('✅ Service Worker actiu');
+                    }
+                } catch (e) {
+                    console.warn('⚠️ Service Worker no disponible');
+                }
+            }
+
+            actualitzarEstat();
+            console.log('⚡ Sistema d\'alertes preparat! Selecciona una ubicació al mapa.');
+        }
+
+        // Esperar que el mapa estigui llest
+        setTimeout(init, 500);
+    </script>
+
+</body>
+</html>

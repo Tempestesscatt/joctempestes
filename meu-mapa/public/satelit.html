@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Visor BT - tempestes.cat</title>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QDWCZ0Z9XF"></script>
+     <link rel="icon" type="image/png" href="img/favicon.png">
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-QDWCZ0Z9XF');
+</script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #0a0a0a; font-family: 'Segoe UI', 'Trebuchet MS', Arial, sans-serif; font-size: 13px; color: #bbb; min-height: 100vh; display: flex; flex-direction: column; overflow: hidden; height: 100vh; touch-action: none; }
+        .barra-top { position: fixed; top: 0; left: 0; right: 0; z-index: 50; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 8px 14px; background: rgba(10,10,10,0.95); border-bottom: 1px solid #222; flex-wrap: wrap; }
+        .barra-top select, .btn { background: #1a1a1a; color: #ccc; border: 1px solid #444; padding: 5px 10px; border-radius: 4px; font-family: inherit; font-size: 13px; cursor: pointer; outline: none; }
+        .btn { padding: 5px 12px; font-size: 12px; white-space: nowrap; }
+        .btn:hover { background: #2a2a2a; border-color: #666; }
+        .btn.actiu { background: #3a3a3a; color: #fff; border-color: #777; }
+        .btn-fletxa { padding: 5px 8px; font-size: 13px; }
+        .btn-toggle { font-size: 11px; }
+        .slider-grup { display: flex; align-items: center; gap: 8px; flex: 1; max-width: 400px; min-width: 160px; }
+        .slider-grup input[type="range"] { -webkit-appearance: none; appearance: none; flex: 1; height: 4px; border-radius: 2px; background: #333; cursor: pointer; outline: none; border: none; }
+        .slider-grup input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 16px; height: 16px; border-radius: 50%; background: #ccc; cursor: pointer; border: none; }
+        .slider-grup .hora-label { font-size: 11px; font-weight: bold; min-width: 32px; text-align: center; color: #999; }
+        .contenidor-principal { position: fixed; top: 46px; left: 0; right: 0; bottom: 28px; overflow: hidden; background: #000; cursor: grab; }
+        .contenidor-principal:active { cursor: grabbing; }
+        .contenidor-principal.panning { cursor: grabbing; }
+        .visor-inner { position: absolute; transform-origin: 0 0; will-change: transform; }
+        .visor-inner canvas { display: block; position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        .overlay-carga { position: fixed; inset: 0; background: rgba(5,5,5,0.95); display: flex; align-items: center; justify-content: center; z-index: 200; }
+        .overlay-carga.fi { display: none; }
+        .caixa-carga { text-align: center; padding: 40px 50px; background: #141414; border: 1px solid #333; border-radius: 8px; }
+        .caixa-carga .pct-gran { font-size: 72px; font-weight: bold; color: #ddd; line-height: 1; }
+        .caixa-carga .barra-progres { width: 200px; height: 4px; background: #222; border-radius: 2px; overflow: hidden; margin: 16px auto 0; }
+        .caixa-carga .barra-progres .ple { height: 100%; background: #666; width: 0%; transition: width 0.08s linear; }
+        .info-peu { position: fixed; bottom: 0; left: 0; right: 0; padding: 5px 12px; background: rgba(10,10,10,0.9); border-top: 1px solid #222; font-size: 10px; color: #666; z-index: 30; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+        .info-peu span { white-space: nowrap; }
+        .indicador-zoom { position: fixed; bottom: 35px; right: 12px; background: rgba(20,20,20,0.85); color: #aaa; padding: 4px 10px; border-radius: 4px; font-size: 11px; z-index: 40; border: 1px solid #333; pointer-events: none; }
+        .boto-reset-zoom { position: fixed; bottom: 35px; right: 80px; background: rgba(20,20,20,0.85); color: #ccc; padding: 4px 10px; border-radius: 4px; font-size: 11px; z-index: 40; cursor: pointer; border: 1px solid #444; pointer-events: auto; display: none; }
+        .boto-reset-zoom:hover { background: #2a2a2a; }
+        @media (max-width: 600px) { .barra-top { gap: 6px; padding: 6px 8px; } .btn { padding: 4px 8px; font-size: 11px; } .slider-grup { max-width: 100%; } .contenidor-principal { top: 42px; bottom: 24px; } .info-peu { font-size: 9px; padding: 4px 8px; } .indicador-zoom { bottom: 30px; right: 8px; font-size: 10px; } .boto-reset-zoom { bottom: 30px; right: 70px; font-size: 10px; } .caixa-carga .pct-gran { font-size: 52px; } }
+    </style>
+</head>
+<body>
+
+<div class="barra-top" id="barraTop">
+    <select id="selectCanal"><option value="bt108" selected>BT 10.8 µm</option><option value="bt62">BT 6.2 µm</option></select>
+    <button class="btn btn-toggle actiu" id="btnGeo" title="Isohipses 500hPa">GEO500</button>
+    <button class="btn btn-toggle actiu" id="btnLlamps" title="Llamps">LLAMPS</button>
+    <button class="btn btn-fletxa" id="btnRetrocedir" title="Enrere">&laquo;</button>
+    <button class="btn" id="btnPlay">Play</button>
+    <button class="btn btn-fletxa" id="btnAvancar" title="Endavant">&raquo;</button>
+    <div class="slider-grup"><span class="hora-label" id="lblHoraInici">+00h</span><input type="range" id="sliderHores" min="0" max="48" value="0" step="1"><span class="hora-label" id="lblHoraFi">+48h</span></div>
+</div>
+<div class="contenidor-principal" id="contenidorPrincipal"><div class="visor-inner" id="visorInner"></div></div>
+<div class="info-peu" id="infoPeu"><span>tempestes.cat</span><span id="infoHoraUtc"></span><span id="infoHoraLocal"></span><span id="infoLlamps"></span></div>
+<div class="indicador-zoom" id="indicadorZoom">285%</div>
+<div class="boto-reset-zoom" id="botoResetZoom" title="Restaurar zoom per defecte">Reset</div>
+<div class="overlay-carga" id="overlayCarga"><div class="caixa-carga"><div class="pct-gran" id="pctGran">0%</div><div class="barra-progres"><div class="ple" id="pleProgres"></div></div></div></div>
+
+<script>
+(function() {
+    var BASE_PATH = './web_data/';
+    var INDEXOS = { bt108: 'index_bt108.json', bt62: 'index_bt62.json' };
+    var RANGS_BT = { bt108: { min: -80, max: 40 }, bt62: { min: -70, max: -30, clip: true } };
+    var canalActual = 'bt108', horaActual = 0, horaMaxima = 48, reproduint = false, timerPlay = null;
+    var mostrarGeo = true, mostrarLlamps = true;
+    var cacheDades = {}, dadesImatges = { bt108: [], bt62: [] };
+    var ampleOriginal = 0, altOriginal = 0;
+
+    // ============================================================
+    //  SISTEMA DE LLAMPS HIPERREALISTES - VERSIÓ SUAU
+    //  LÍMITS: màx 30 flaixos, cooldown llarg, probabilitat reduïda
+    // ============================================================
+    var flaixos = [];
+    var puntsLlampsActuals = [];
+    var bucleLlampsId = null;
+    var darrerTimestamp = null;
+    var MAX_FLAIXOS_ACTIUS = 30;  // ← REDUÏT: abans 90
+
+    // Genera la geometria d'un flaix (més petit i suau)
+    function generarBranques(intensitat) {
+        var branques = [];
+        var numPrincipals = 2 + Math.floor(intensitat * 3);  // ← REDUÏT
+        for (var i = 0; i < numPrincipals; i++) {
+            var angle = Math.random() * Math.PI * 2;
+            var llargadaTotal = (1.2 + Math.random() * 3) * (0.4 + intensitat * 0.4);  // ← REDUÏT
+            var segs = 2 + Math.floor(Math.random() * 2);  // ← REDUÏT
+            var punts = [{x:0, y:0}];
+            var ax = 0, ay = 0, a = angle;
+            for (var s = 0; s < segs; s++) {
+                a += (Math.random() - 0.5) * 0.9;
+                var len = (llargadaTotal / segs) * (1 - s * 0.1);
+                ax += Math.cos(a) * len;
+                ay += Math.sin(a) * len;
+                punts.push({x:ax, y:ay});
+                if (Math.random() < 0.3 && s < segs - 1) {
+                    var suba = a + (Math.random() - 0.5) * 1.2;
+                    var subLen = len * (0.4 + Math.random() * 0.3);
+                    var subx = ax + Math.cos(suba) * subLen;
+                    var suby = ay + Math.sin(suba) * subLen;
+                    branques.push({ punts: [{x:ax,y:ay},{x:subx,y:suby}], gruix: 0.2 + intensitat * 0.2 });
+                }
+            }
+            branques.push({ punts: punts, gruix: 0.3 + intensitat * 0.5 });
+        }
+        return branques;
+    }
+
+    function crearFlaix(p) {
+        return {
+            x: p.x, y: p.y,
+            intensitat: Math.min(0.7, p.intensitat * 0.6),  // ← REDUÏT
+            branques: generarBranques(p.intensitat * 0.6),
+            edat: 0,
+            durada: 0.18 + Math.random() * 0.22,  // ← MÉS CURT
+            doblePols: Math.random() < 0.20  // ← MENYS DOBLE POLS
+        };
+    }
+
+    function brillantorFlaix(frac, doblePols) {
+        if (!doblePols) {
+            if (frac < 0.06) return frac / 0.06;
+            return Math.max(0, 1 - (frac - 0.06) / 0.94);
+        }
+        if (frac < 0.04) return frac / 0.04;
+        if (frac < 0.20) return 1 - (frac - 0.04) / 0.16 * 0.75;
+        if (frac < 0.32) return 0.25;
+        if (frac < 0.38) return 0.25 + (frac - 0.32) / 0.06 * 0.55;
+        return Math.max(0, 0.80 * (1 - (frac - 0.38) / 0.62));
+    }
+
+    function dibuixarFlaix(ctx, f) {
+        var frac = f.edat / f.durada;
+        var b = brillantorFlaix(frac, f.doblePols);
+        if (b <= 0.02) return;
+        var alpha = Math.min(1, b * 0.8);  // ← MÉS SUAU
+        ctx.save();
+
+        // Glow exterior (més petit)
+        var radiAmbient = 6 + f.intensitat * 14;  // ← REDUÏT
+        var glow = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, radiAmbient);
+        glow.addColorStop(0, 'rgba(195,210,255,' + (alpha * 0.20) + ')');
+        glow.addColorStop(0.5, 'rgba(110,135,255,' + (alpha * 0.07) + ')');
+        glow.addColorStop(1, 'rgba(50,60,170,0)');
+        ctx.fillStyle = glow;
+        ctx.beginPath(); ctx.arc(f.x, f.y, radiAmbient, 0, Math.PI * 2); ctx.fill();
+
+        // Branques
+        ctx.strokeStyle = 'rgba(255,255,255,' + Math.min(0.85, alpha * 0.9) + ')';
+        ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+        for (var i = 0; i < f.branques.length; i++) {
+            var br = f.branques[i];
+            ctx.lineWidth = br.gruix * (0.3 + alpha * 0.5);
+            ctx.beginPath();
+            for (var j = 0; j < br.punts.length; j++) {
+                var pt = br.punts[j];
+                var px = f.x + pt.x, py = f.y + pt.y;
+                if (j === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+            }
+            ctx.stroke();
+        }
+
+        // Nucli (més petit)
+        var radiNucli = 1.2 + f.intensitat * 1.8;  // ← REDUÏT
+        var nucli = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, radiNucli);
+        nucli.addColorStop(0, 'rgba(255,255,255,' + (alpha * 0.85) + ')');
+        nucli.addColorStop(0.5, 'rgba(255,250,220,' + (alpha * 0.5) + ')');
+        nucli.addColorStop(1, 'rgba(255,220,150,0)');
+        ctx.fillStyle = nucli;
+        ctx.beginPath(); ctx.arc(f.x, f.y, radiNucli, 0, Math.PI * 2); ctx.fill();
+        ctx.restore();
+    }
+
+    // Bucle amb límits estrictes
+    function bucleLlamps(ts) {
+        if (darrerTimestamp === null) darrerTimestamp = ts;
+        var dt = (ts - darrerTimestamp) / 1000;
+        darrerTimestamp = ts;
+        if (dt > 0.05) dt = 0.05;
+
+        if (canvasLlampsEl) {
+            var ctx = canvasLlampsEl.getContext('2d');
+            ctx.clearRect(0, 0, canvasLlampsEl.width, canvasLlampsEl.height);
+
+            if (mostrarLlamps) {
+                for (var i = 0; i < puntsLlampsActuals.length; i++) {
+                    var p = puntsLlampsActuals[i];
+                    p.cooldown -= dt;
+                    if (p.cooldown <= 0 && flaixos.length < MAX_FLAIXOS_ACTIUS) {
+                        var probPerSegon = 0.04 + p.intensitat * 0.35;  // ← REDUÏT
+                        if (Math.random() < probPerSegon * dt) {
+                            flaixos.push(crearFlaix(p));
+                            p.cooldown = 1.5 + Math.random() * 2.0;  // ← MÉS LLARG
+                        }
+                    }
+                }
+            }
+
+            var vius = [];
+            for (var k = 0; k < flaixos.length; k++) {
+                var f = flaixos[k];
+                f.edat += dt;
+                if (f.edat >= f.durada) continue;
+                vius.push(f);
+                dibuixarFlaix(ctx, f);
+            }
+            flaixos = vius;
+        }
+
+        bucleLlampsId = requestAnimationFrame(bucleLlamps);
+    }
+
+    function processarLlamps(arr, w, h) {
+        if (!arr) return [];
+        var punts = [], min = 0.0005, max = 0.4;  // ← FILTRE MÉS ESTRICTE
+        for (var y = 0; y < h; y++) {
+            for (var x = 0; x < w; x++) {
+                var v = arr[y * w + x];
+                if (v === null || v === undefined || isNaN(v) || v <= min || v > max) continue;
+                punts.push({ x: x, y: h - 1 - y, intensitat: Math.min(0.8, v * 60), cooldown: 0 });
+            }
+        }
+        return punts;
+    }
+    // ============================================================
+    //  FI SISTEMA DE LLAMPS
+    // ============================================================
+
+    var ZOOM_BT108 = 2.85, ZOOM_BT62 = 2.20, ZOOM_PER_DEFECTE = ZOOM_BT108, zoomNivell = ZOOM_PER_DEFECTE, zoomMin = ZOOM_PER_DEFECTE, zoomMax = 6;
+    var panX = 0, panY = 0, zoomInicialitzat = false, arrossegant = false;
+    var iniciPanX = 0, iniciPanY = 0, panInicialX = 0, panInicialY = 0, distTocInicial = 0, zoomInicialToc = ZOOM_PER_DEFECTE;
+    var costesFeatures = null, costesPromise = null;
+    var COSTES_URL = 'https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_50m_admin_0_countries.geojson';
+
+    var canvasBaseEl = null, canvasLlampsEl = null;
+
+    var selectCanal = document.getElementById('selectCanal'), sliderHores = document.getElementById('sliderHores');
+    var btnRetrocedir = document.getElementById('btnRetrocedir'), btnPlay = document.getElementById('btnPlay'), btnAvancar = document.getElementById('btnAvancar');
+    var btnGeo = document.getElementById('btnGeo'), btnLlamps = document.getElementById('btnLlamps');
+    var visorInner = document.getElementById('visorInner'), contenidorPrincipal = document.getElementById('contenidorPrincipal');
+    var overlayCarga = document.getElementById('overlayCarga'), pleProgres = document.getElementById('pleProgres'), pctGran = document.getElementById('pctGran');
+    var infoHoraUtc = document.getElementById('infoHoraUtc'), infoHoraLocal = document.getElementById('infoHoraLocal'), infoLlamps = document.getElementById('infoLlamps');
+    var lblHoraInici = document.getElementById('lblHoraInici'), lblHoraFi = document.getElementById('lblHoraFi');
+    var indicadorZoom = document.getElementById('indicadorZoom'), botoResetZoom = document.getElementById('botoResetZoom');
+
+    function offsetMadrid(d) { var y=d.getUTCFullYear(), m31=new Date(Date.UTC(y,2,31)), dm=new Date(m31); dm.setUTCDate(31-((m31.getUTCDay()+1)%7)); dm.setUTCHours(1); var o31=new Date(Date.UTC(y,9,31)), om=new Date(o31); om.setUTCDate(31-((o31.getUTCDay()+1)%7)); om.setUTCHours(1); return (d>=dm&&d<om)?2:1; }
+    function formatHoraLocal(s) { try { var d=new Date(s.replace('Z','')+'Z'); if(isNaN(d.getTime())) return s; var off=offsetMadrid(d); var loc=new Date(d.getTime()+off*3600000); return String(loc.getUTCDate()).padStart(2,'0')+'/'+String(loc.getUTCMonth()+1).padStart(2,'0')+'/'+loc.getUTCFullYear()+' '+String(loc.getUTCHours()).padStart(2,'0')+':'+String(loc.getUTCMinutes()).padStart(2,'0'); } catch(e) { return s; } }
+    function formatHoraUTC(s) { try { var d=new Date(s.replace('Z','')+'Z'); if(isNaN(d.getTime())) return s; return String(d.getUTCDate()).padStart(2,'0')+'/'+String(d.getUTCMonth()+1).padStart(2,'0')+'/'+d.getUTCFullYear()+' '+String(d.getUTCHours()).padStart(2,'0')+':'+String(d.getUTCMinutes()).padStart(2,'0'); } catch(e) { return s; } }
+
+    function carregarIndex(canal) {
+        if(dadesImatges[canal].length) return Promise.resolve(dadesImatges[canal]);
+        return fetch(BASE_PATH + INDEXOS[canal])
+            .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+            .then(function(d){ d.steps.sort(function(a,b){ return a.hora_previsio - b.hora_previsio; }); dadesImatges[canal] = d.steps; return d.steps; });
+    }
+
+    function precarregarCanal(canal, cb) {
+        var steps = dadesImatges[canal], total = steps.length, fetes = 0, MAX = 6;
+        function carregarUna(step) {
+            var clau = canal + '_+' + String(step.hora_previsio).padStart(2,'0') + 'h';
+            if(cacheDades[clau]) { fetes++; if(cb) cb(fetes,total); return Promise.resolve(); }
+            return fetch(BASE_PATH + step.fitxer)
+                .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+                .then(function(j){ cacheDades[clau]=j; fetes++; if(cb) cb(fetes,total); })
+                .catch(function(){ fetes++; if(cb) cb(fetes,total); });
+        }
+        var pendents = steps.slice();
+        function processarLots() { if(!pendents.length) return Promise.resolve(); var lot = pendents.splice(0, MAX); return Promise.all(lot.map(carregarUna)).then(processarLots); }
+        return processarLots();
+    }
+
+    function carregarTot() {
+        overlayCarga.classList.remove('fi'); pleProgres.style.width='0%'; pctGran.textContent='0%';
+        var ok=0, totalFitxers=0, carregats=0;
+        return Promise.all([
+            carregarIndex('bt108').then(function(s){ var m=Math.max.apply(null,s.map(function(x){return x.hora_previsio;})); if(m>horaMaxima){horaMaxima=m;sliderHores.max=m;lblHoraFi.textContent='+'+String(m).padStart(2,'0')+'h';} totalFitxers+=s.length; ok++; }).catch(function(e){console.warn(e);}),
+            carregarIndex('bt62').then(function(s){ var m=Math.max.apply(null,s.map(function(x){return x.hora_previsio;})); if(m>horaMaxima){horaMaxima=m;sliderHores.max=m;lblHoraFi.textContent='+'+String(m).padStart(2,'0')+'h';} totalFitxers+=s.length; ok++; }).catch(function(e){console.warn(e);})
+        ]).then(function(){
+            if(!ok) return;
+            function actualitzarProgres() { carregats++; var p=Math.round((carregats/totalFitxers)*100); pleProgres.style.width=p+'%'; pctGran.textContent=p+'%'; }
+            var promeses = [];
+            if(dadesImatges['bt108'].length) promeses.push(precarregarCanal('bt108', actualitzarProgres));
+            if(dadesImatges['bt62'].length) promeses.push(precarregarCanal('bt62', actualitzarProgres));
+            return Promise.all(promeses).then(function(){ setTimeout(function(){ overlayCarga.classList.add('fi'); mostrar(); }, 200); });
+        });
+    }
+
+    function actualitzarTransform() { visorInner.style.transform = 'translate(' + panX + 'px, ' + panY + 'px) scale(' + zoomNivell + ')'; indicadorZoom.textContent = Math.round(zoomNivell * 100) + '%'; botoResetZoom.style.display = (zoomNivell !== ZOOM_PER_DEFECTE || panX !== 0 || panY !== 0) ? 'block' : 'none'; }
+    function limitarPan() { var ac=contenidorPrincipal.clientWidth, al=contenidorPrincipal.clientHeight, ae=ampleOriginal*zoomNivell, aa=altOriginal*zoomNivell; var minX=ac-ae, maxX=0, minY=al-aa, maxY=0; if(ae<ac){minX=maxX=(ac-ae)/2;} if(aa<al){minY=maxY=(al-aa)/2;} panX=Math.max(minX,Math.min(maxX,panX)); panY=Math.max(minY,Math.min(maxY,panY)); }
+    function aplicarZoom(nz, cx, cy) { var za=zoomNivell; zoomNivell=Math.max(zoomMin,Math.min(zoomMax,nz)); if(cx!==undefined&&cy!==undefined){var fz=zoomNivell/za; panX=cx-fz*(cx-panX); panY=cy-fz*(cy-panY);} limitarPan(); actualitzarTransform(); }
+    function resetZoom() { zoomNivell=ZOOM_PER_DEFECTE; panX=0; panY=0; centrarImatge(); actualitzarTransform(); }
+    function centrarImatge() { if(!ampleOriginal||!altOriginal) return; var ac=contenidorPrincipal.clientWidth, al=contenidorPrincipal.clientHeight; panX=(ac-ampleOriginal*zoomNivell)/2; panY=(al-altOriginal*zoomNivell)/2; }
+
+    contenidorPrincipal.addEventListener('mousedown', function(e) { if(e.button===0){arrossegant=true;contenidorPrincipal.classList.add('panning');iniciPanX=e.clientX;iniciPanY=e.clientY;panInicialX=panX;panInicialY=panY;e.preventDefault();} });
+    window.addEventListener('mousemove', function(e) { if(!arrossegant) return; panX=panInicialX+(e.clientX-iniciPanX); panY=panInicialY+(e.clientY-iniciPanY); limitarPan(); actualitzarTransform(); });
+    window.addEventListener('mouseup', function() { arrossegant=false;contenidorPrincipal.classList.remove('panning'); });
+    contenidorPrincipal.addEventListener('wheel', function(e) { e.preventDefault(); var r=contenidorPrincipal.getBoundingClientRect(); aplicarZoom(zoomNivell*(e.deltaY>0?0.9:1.1),e.clientX-r.left,e.clientY-r.top); }, {passive:false});
+    contenidorPrincipal.addEventListener('touchstart', function(e) { if(e.touches.length===1){arrossegant=true;contenidorPrincipal.classList.add('panning');iniciPanX=e.touches[0].clientX;iniciPanY=e.touches[0].clientY;panInicialX=panX;panInicialY=panY;}else if(e.touches.length===2){arrossegant=false;distTocInicial=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);zoomInicialToc=zoomNivell;panInicialX=panX;panInicialY=panY;iniciPanX=(e.touches[0].clientX+e.touches[1].clientX)/2;iniciPanY=(e.touches[0].clientY+e.touches[1].clientY)/2;} e.preventDefault(); }, {passive:false});
+    contenidorPrincipal.addEventListener('touchmove', function(e) { if(e.touches.length===1&&arrossegant){panX=panInicialX+(e.touches[0].clientX-iniciPanX);panY=panInicialY+(e.touches[0].clientY-iniciPanY);limitarPan();actualitzarTransform();}else if(e.touches.length===2){var da=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);var cx=(e.touches[0].clientX+e.touches[1].clientX)/2;var cy=(e.touches[0].clientY+e.touches[1].clientY)/2;var r=contenidorPrincipal.getBoundingClientRect();aplicarZoom(zoomInicialToc*(da/distTocInicial),cx-r.left,cy-r.top);} e.preventDefault(); }, {passive:false});
+    contenidorPrincipal.addEventListener('touchend', function(e) { arrossegant=false;contenidorPrincipal.classList.remove('panning');if(e.touches.length===0)distTocInicial=0; });
+    contenidorPrincipal.addEventListener('dblclick', function(e) { resetZoom(); e.preventDefault(); });
+    botoResetZoom.addEventListener('click', function(e) { resetZoom(); e.stopPropagation(); });
+    window.addEventListener('resize', function() { limitarPan(); actualitzarTransform(); });
+
+    function escalaColorSatelit(t) { var r,g,b; if(t<0.55){var tt=t/0.55;var v=Math.round(255-tt*100);r=v;g=v;b=v;} else if(t<0.75){var tt=(t-0.55)/0.20;var v=Math.round(155-tt*60);r=v;g=v;b=v;} else {var tt=(t-0.75)/0.25;tt=Math.max(0,Math.min(1,tt));r=Math.round(95-tt*55);g=Math.round(95-tt*15);b=Math.round(95-tt*55);} return [Math.max(0,Math.min(255,r)),Math.max(0,Math.min(255,g)),Math.max(0,Math.min(255,b))]; }
+
+    function assegurarCanvas(w, h) {
+        if (!canvasBaseEl) {
+            canvasBaseEl = document.createElement('canvas');
+            canvasLlampsEl = document.createElement('canvas');
+            visorInner.innerHTML = '';
+            visorInner.appendChild(canvasBaseEl);
+            visorInner.appendChild(canvasLlampsEl);
+        }
+        if (canvasBaseEl.width !== w || canvasBaseEl.height !== h) {
+            canvasBaseEl.width = w; canvasBaseEl.height = h;
+            canvasLlampsEl.width = w; canvasLlampsEl.height = h;
+            visorInner.style.width = w + 'px';
+            visorInner.style.height = h + 'px';
+        }
+    }
+
+    function dibuixarBTCanvas(canvas, dadesJson) {
+        if (!dadesJson) return;
+        var w = dadesJson.meta.w, h = dadesJson.meta.h, bt = dadesJson.bt_celsius, rang = RANGS_BT[canalActual];
+        var ctx = canvas.getContext('2d'); ctx.imageSmoothingEnabled = false;
+        var imgData = ctx.createImageData(w, h);
+        for (var py = 0; py < h; py++) {
+            var dataRow = h - 1 - py;
+            for (var x = 0; x < w; x++) {
+                var v = bt[dataRow * w + x]; var r = 0, g = 0, b = 0;
+                if (v !== null && v !== undefined && !isNaN(v)) {
+                    var vv = v;
+                    if (rang.clip) vv = Math.max(rang.min, Math.min(rang.max, vv));
+                    var t = (vv - rang.min) / (rang.max - rang.min);
+                    t = Math.max(0, Math.min(1, t));
+                    var color = escalaColorSatelit(t);
+                    r = color[0]; g = color[1]; b = color[2];
+                }
+                var idx = (py * w + x) * 4;
+                imgData.data[idx] = r; imgData.data[idx+1] = g; imgData.data[idx+2] = b; imgData.data[idx+3] = 255;
+            }
+        }
+        ctx.putImageData(imgData, 0, 0);
+        var extent = dadesJson.meta.extent;
+        ctx.imageSmoothingEnabled = true;
+        if (costesFeatures && costesFeatures.length) dibuixarCostes(ctx, extent, w, h);
+        if (mostrarGeo && dadesJson.meta.geo500_disponible && dadesJson.geo500_dam) dibuixarIsohipsesSuaus(ctx, dadesJson.geo500_dam, w, h, dadesJson.meta.geo500_min_dam, dadesJson.meta.geo500_max_dam);
+    }
+
+    function dibuixarBT(canal, dadesJson) {
+        var w = dadesJson.meta.w, h = dadesJson.meta.h;
+        assegurarCanvas(w, h);
+        dibuixarBTCanvas(canvasBaseEl, dadesJson);
+
+        var totalPunts = 0;
+        if (dadesJson.meta.lightning_disponible && dadesJson.lightning_1h) {
+            puntsLlampsActuals = processarLlamps(dadesJson.lightning_1h, w, h);
+            totalPunts = puntsLlampsActuals.length;
+        } else {
+            puntsLlampsActuals = [];
+        }
+        flaixos = [];
+        infoLlamps.textContent = totalPunts > 0 ? (totalPunts + ' focus') : '';
+
+        ampleOriginal = w; altOriginal = h;
+        if (!zoomInicialitzat) { centrarImatge(); zoomInicialitzat = true; }
+        limitarPan(); actualitzarTransform();
+
+        if (bucleLlampsId === null) { darrerTimestamp = null; bucleLlamps(performance.now()); }
+    }
+
+    function interpolarGraella(arr,w,h,factor){var nw=(w-1)*factor+1,nh=(h-1)*factor+1;var result=new Float32Array(nw*nh);for(var y=0;y<nh;y++){var sy=y/factor,i0=Math.floor(sy),i1=Math.min(i0+1,h-1),fy=sy-i0;for(var x=0;x<nw;x++){var sx=x/factor,j0=Math.floor(sx),j1=Math.min(j0+1,w-1),fx=sx-j0;var v00=arr[i0*w+j0]||0,v10=arr[i0*w+j1]||0,v01=arr[i1*w+j0]||0,v11=arr[i1*w+j1]||0;result[y*nw+x]=(v00*(1-fx)+v10*fx)*(1-fy)+(v01*(1-fx)+v11*fx)*fy;}} return {arr:result,w:nw,h:nh}; }
+
+    function dibuixarIsohipsesSuaus(ctx,geo,w,h,vmin,vmax){
+        if(vmin===null||vmax===null)return;
+        var pas=5,nivellIni=Math.ceil(vmin/pas)*pas,nivells=[];
+        for(var n=nivellIni;n<=vmax;n+=pas)nivells.push(n);
+        if(!nivells.length)return;
+        var interp=interpolarGraella(geo,w,h,4);
+        var arrHR=interp.arr,nw=interp.w,nh=interp.h;
+        ctx.save();
+        for(var ni=0;ni<nivells.length;ni++){
+            var nivel=nivells[ni],esMestra=(nivel%10===0);
+            ctx.strokeStyle=esMestra?'rgba(220,220,220,0.65)':'rgba(190,190,190,0.4)';
+            ctx.lineWidth=esMestra?Math.max(1.0,w/400):Math.max(0.6,w/700);
+            ctx.beginPath();
+            var visitat=new Uint8Array((nh-1)*(nw-1));
+            for(var y=0;y<nh-1;y++){for(var x=0;x<nw-1;x++){
+                var idxCel=y*(nw-1)+x;
+                var v00=arrHR[y*nw+x]>=nivel?1:0,v10=arrHR[y*nw+x+1]>=nivel?1:0;
+                var v01=arrHR[(y+1)*nw+x]>=nivel?1:0,v11=arrHR[(y+1)*nw+x+1]>=nivel?1:0;
+                var cas=(v00<<0)|(v10<<1)|(v11<<2)|(v01<<3);
+                if(cas===0||cas===15)continue;
+                if(visitat[idxCel])continue;
+                visitat[idxCel]=1;
+                var ptsCel=puntsCelda(x,y,nivel,arrHR,nw);
+                if(ptsCel.length!==2)continue;
+                var puntsContorn=[];
+                seguirContorn(x,y,ptsCel[0],ptsCel[1],-1,nivel,arrHR,nw,nh,visitat,puntsContorn);
+                puntsContorn.reverse();
+                seguirContorn(x,y,ptsCel[0],ptsCel[1],1,nivel,arrHR,nw,nh,visitat,puntsContorn);
+                if(puntsContorn.length>1){
+                    var sx=puntsContorn[0].x/4,sy=(nh-1-puntsContorn[0].y)/4;
+                    ctx.moveTo(sx,sy);
+                    for(var i=1;i<puntsContorn.length;i++){
+                        var ex=puntsContorn[i].x/4,ey=(nh-1-puntsContorn[i].y)/4;
+                        ctx.quadraticCurveTo((sx+ex)/2,(sy+ey)/2,ex,ey);
+                        sx=ex;sy=ey;
+                    }
+                }
+            }}
+            ctx.stroke();
+        }
+        ctx.restore();
+    }
+
+    function puntsCelda(cx,cy,nivel,arr,nw){var x=cx,y=cy;var v00=arr[y*nw+x],v10=arr[y*nw+x+1],v01=arr[(y+1)*nw+x],v11=arr[(y+1)*nw+x+1];var edges=[];if((v00>=nivel?1:0)!==(v10>=nivel?1:0)){var t=(nivel-v00)/(v10-v00);edges.push({x:x+t,y:y,edge:0});}if((v10>=nivel?1:0)!==(v11>=nivel?1:0)){var t=(nivel-v10)/(v11-v10);edges.push({x:x+1,y:y+t,edge:1});}if((v11>=nivel?1:0)!==(v01>=nivel?1:0)){var t=(nivel-v01)/(v11-v01);edges.push({x:x+(1-t),y:y+1,edge:2});}if((v01>=nivel?1:0)!==(v00>=nivel?1:0)){var t=(nivel-v00)/(v01-v00);edges.push({x:x,y:y+t,edge:3});}return edges;}
+    function seguirContorn(cxIni,cyIni,ptA,ptB,dir,nivel,arr,nw,nh,visitat,punts){var cx=cxIni,cy=cyIni;var puntActual=(dir===1)?ptB:ptA;if(dir===1)punts.push(ptA);punts.push(puntActual);var edgeSortida=puntActual.edge;var edgesAdj={0:[cx,cy-1,2],1:[cx+1,cy,3],2:[cx,cy+1,0],3:[cx-1,cy,1]};var nx=edgesAdj[edgeSortida][0],ny=edgesAdj[edgeSortida][1],edgeEntrada=edgesAdj[edgeSortida][2];while(nx>=0&&nx<nw-1&&ny>=0&&ny<nh-1){var idxCel=ny*(nw-1)+nx;if(visitat[idxCel])break;visitat[idxCel]=1;var pts=puntsCelda(nx,ny,nivel,arr,nw);if(pts.length!==2)break;var ptEnt,ptSort;if(pts[0].edge===edgeEntrada){ptEnt=pts[0];ptSort=pts[1];}else if(pts[1].edge===edgeEntrada){ptEnt=pts[1];ptSort=pts[0];}else{var d0=Math.abs(pts[0].x-puntActual.x)+Math.abs(pts[0].y-puntActual.y);var d1=Math.abs(pts[1].x-puntActual.x)+Math.abs(pts[1].y-puntActual.y);if(d0<d1){ptEnt=pts[0];ptSort=pts[1];}else{ptEnt=pts[1];ptSort=pts[0];}}punts.push(ptSort);puntActual=ptSort;var edgeS=ptSort.edge;var adj={0:[nx,ny-1,2],1:[nx+1,ny,3],2:[nx,ny+1,0],3:[nx-1,ny,1]};nx=adj[edgeS][0];ny=adj[edgeS][1];edgeEntrada=adj[edgeS][2];}}
+
+    function bboxDeAnell(a,b){for(var i=0;i<a.length;i++){var lon=a[i][0],lat=a[i][1];if(lon<b[0])b[0]=lon;if(lon>b[1])b[1]=lon;if(lat<b[2])b[2]=lat;if(lat>b[3])b[3]=lat;}}
+    function carregarCostes(){if(costesPromise)return costesPromise;costesPromise=fetch(COSTES_URL).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();}).then(function(geo){var feats=[];for(var i=0;i<geo.features.length;i++){var geom=geo.features[i].geometry;if(!geom)continue;var poligons=[];if(geom.type==='Polygon')poligons=[geom.coordinates];else if(geom.type==='MultiPolygon')poligons=geom.coordinates;else continue;var bbox=[180,-180,90,-90],anells=[];for(var p=0;p<poligons.length;p++)for(var r=0;r<poligons[p].length;r++){var anell=poligons[p][r];anells.push(anell);bboxDeAnell(anell,bbox);}feats.push({bbox:bbox,anells:anells});}costesFeatures=feats;return feats;}).catch(function(e){console.warn('Costes no disponibles',e);costesFeatures=[];return costesFeatures;});return costesPromise;}
+    function bboxSolapa(a,e){return!(a[1]<e[0]||a[0]>e[1]||a[3]<e[2]||a[2]>e[3]);}
+    function projPx(lon,lat,e,w,h){return[(lon-e[0])/(e[1]-e[0])*w,(e[3]-lat)/(e[3]-e[2])*h];}
+    function dibuixarCostes(ctx,e,w,h){if(!costesFeatures||!costesFeatures.length)return;ctx.save();ctx.strokeStyle='rgba(255,220,60,0.85)';ctx.lineWidth=Math.max(0.3,w/1800);ctx.lineJoin='round';ctx.lineCap='round';for(var i=0;i<costesFeatures.length;i++){var f=costesFeatures[i];if(!bboxSolapa(f.bbox,e))continue;for(var a=0;a<f.anells.length;a++){var an=f.anells[a];ctx.beginPath();var first=true;for(var j=0;j<an.length;j++){var pt=projPx(an[j][0],an[j][1],e,w,h);if(first){ctx.moveTo(pt[0],pt[1]);first=false;}else ctx.lineTo(pt[0],pt[1]);}ctx.stroke();}}ctx.restore();}
+
+    function mostrar(){
+        var dades=dadesImatges[canalActual];
+        if(!dades.length){visorInner.innerHTML='';canvasBaseEl=null;canvasLlampsEl=null;return;}
+        var millor=dades[0],md=Math.abs(millor.hora_previsio-horaActual);
+        for(var i=0;i<dades.length;i++){var d=Math.abs(dades[i].hora_previsio-horaActual);if(d<md){md=d;millor=dades[i];}}
+        var h=millor.hora_previsio;var clau=canalActual+'_+'+String(h).padStart(2,'0')+'h';var json=cacheDades[clau];
+        if(json){dibuixarBT(canalActual,json);}
+        horaActual=h;sliderHores.value=h;
+        infoHoraUtc.textContent='UTC: '+formatHoraUTC(millor.data_utc);
+        infoHoraLocal.textContent='Hora Madrid: '+formatHoraLocal(millor.data_utc);
+        document.title='+'+String(h).padStart(2,'0')+'h BT '+canalActual;
+    }
+
+    function canviarCanal(nou){
+        canalActual=nou;selectCanal.value=nou;
+        if(nou==='bt108'){ZOOM_PER_DEFECTE=ZOOM_BT108;zoomMin=ZOOM_BT108;}else{ZOOM_PER_DEFECTE=ZOOM_BT62;zoomMin=ZOOM_BT62;}
+        zoomNivell=ZOOM_PER_DEFECTE;
+        zoomInicialitzat=false;
+        var dades=dadesImatges[nou];
+        if(dades.length){var m=Math.max.apply(null,dades.map(function(x){return x.hora_previsio;}));horaMaxima=m;sliderHores.max=m;lblHoraFi.textContent='+'+String(m).padStart(2,'0')+'h';if(horaActual>m)horaActual=m;}
+        mostrar();
+    }
+
+    function anar(h){h=Math.max(0,Math.min(horaMaxima,h));horaActual=h;sliderHores.value=h;mostrar();}
+    function togglePlay(){if(reproduint)aturar();else play();}
+    function play(){reproduint=true;btnPlay.textContent='Pausa';btnPlay.classList.add('actiu');function tick(){if(!reproduint)return;var n=horaActual+1;if(n>horaMaxima)n=0;anar(n);timerPlay=setTimeout(tick,400);}tick();}
+    function aturar(){reproduint=false;btnPlay.textContent='Play';btnPlay.classList.remove('actiu');clearTimeout(timerPlay);timerPlay=null;}
+
+    selectCanal.addEventListener('change',function(){aturar();canviarCanal(selectCanal.value);});
+    sliderHores.addEventListener('input',function(){aturar();anar(parseInt(sliderHores.value));});
+    btnRetrocedir.addEventListener('click',function(){aturar();anar(horaActual-1);});
+    btnAvancar.addEventListener('click',function(){aturar();anar(horaActual+1);});
+    btnPlay.addEventListener('click',togglePlay);
+    btnGeo.addEventListener('click',function(){mostrarGeo=!mostrarGeo;btnGeo.classList.toggle('actiu',mostrarGeo);mostrar();});
+    btnLlamps.addEventListener('click',function(){mostrarLlamps=!mostrarLlamps;btnLlamps.classList.toggle('actiu',mostrarLlamps);});
+
+    document.addEventListener('keydown',function(e){if(e.target.tagName==='SELECT'||e.target.tagName==='INPUT')return;switch(e.key){case'ArrowLeft':e.preventDefault();aturar();anar(horaActual-1);break;case'ArrowRight':e.preventDefault();aturar();anar(horaActual+1);break;case' ':e.preventDefault();togglePlay();break;case'1':e.preventDefault();aturar();canviarCanal('bt108');break;case'2':e.preventDefault();aturar();canviarCanal('bt62');break;case'0':e.preventDefault();resetZoom();break;case'+':case'=':e.preventDefault();aplicarZoom(zoomNivell*1.2,contenidorPrincipal.clientWidth/2,contenidorPrincipal.clientHeight/2);break;case'-':e.preventDefault();aplicarZoom(zoomNivell*0.8,contenidorPrincipal.clientWidth/2,contenidorPrincipal.clientHeight/2);break;}});
+
+    carregarCostes();
+    carregarTot();
+})();
+</script>
+
+</body>
+</html>

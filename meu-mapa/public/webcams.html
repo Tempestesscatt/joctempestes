@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WEBCAMS CATALUNYA · TEMPESTES.CAT</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Courier Prime', 'Courier New', monospace;
+    background: #f5f0e8;
+    color: #2c2416;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: #2c2416;
+    color: #f5f0e8;
+    padding: 0 20px;
+    height: 54px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 3px solid #8b6914;
+    flex-shrink: 0;
+  }
+
+  header h1 {
+    font-family: 'Special Elite', serif;
+    font-size: 15px;
+    letter-spacing: 2px;
+    color: #e8d5a3;
+  }
+
+  .header-btn {
+    background: #8b6914;
+    color: #f5f0e8;
+    border: 2px solid #a07820;
+    padding: 6px 14px;
+    font-family: 'Courier Prime', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: background 0.15s;
+  }
+  .header-btn:hover { background: #a07820; }
+
+  /* ── MAP ── */
+  #map {
+    flex: 1;
+    width: 100%;
+    min-height: 0;
+  }
+
+  .leaflet-control-zoom,
+  .leaflet-control-attribution { display: none !important; }
+
+  .leaflet-tooltip {
+    background: #f5f0e8 !important;
+    border: 2px solid #8b6914 !important;
+    color: #2c2416 !important;
+    border-radius: 0 !important;
+    box-shadow: 3px 3px 0 rgba(0,0,0,0.3) !important;
+    font-family: 'Courier Prime', monospace !important;
+    font-size: 12px !important;
+    font-weight: 700;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    background: #2c2416;
+    color: #a08040;
+    padding: 5px 20px;
+    font-size: 11px;
+    border-top: 2px solid #8b6914;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  footer a { color: #e8d5a3; text-decoration: none; }
+
+  /* ── MODAL COMARQUES ── */
+  #cam-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(20, 15, 8, 0.92);
+    z-index: 2000;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 10px;
+  }
+
+  .modal-content {
+    background: #f5f0e8;
+    width: 96%;
+    max-width: 1100px;
+    max-height: 90vh;
+    border: 3px solid #8b6914;
+    box-shadow: 6px 6px 0 #2c2416;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .modal-header {
+    background: #2c2416;
+    padding: 10px 20px;
+    border-bottom: 2px solid #8b6914;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .modal-header span {
+    font-family: 'Special Elite', serif;
+    font-size: 14px;
+    color: #e8d5a3;
+    letter-spacing: 1px;
+  }
+
+  .close-btn {
+    cursor: pointer;
+    font-size: 11px;
+    color: #f5f0e8;
+    border: 2px solid #8b6914;
+    padding: 4px 10px;
+    font-family: 'Courier Prime', monospace;
+    font-weight: 700;
+    background: transparent;
+    letter-spacing: 1px;
+    transition: background 0.15s;
+  }
+  .close-btn:hover { background: #8b6914; cursor: pointer; }
+
+  .modal-body {
+    padding: 16px;
+    overflow-y: auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 14px;
+    background: #ede8da;
+  }
+
+  /* ── CAM BOX ── */
+  .cam-box {
+    background: #f5f0e8;
+    border: 2px solid #c4a84a;
+    padding: 8px;
+    cursor: pointer;
+    transition: box-shadow 0.15s, border-color 0.15s;
+  }
+  .cam-box:hover { border-color: #2c2416; box-shadow: 3px 3px 0 #8b6914; }
+
+  .cam-box-title {
+    font-family: 'Courier Prime', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    color: #2c2416;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid #c4a84a;
+    padding-bottom: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .cam-title-text {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .cam-source-link {
+    font-size: 10px;
+    color: #8b6914;
+    text-decoration: none;
+    border: 1px solid #c4a84a;
+    padding: 2px 6px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: background 0.15s, color 0.15s;
+  }
+  .cam-source-link:hover { background: #8b6914; color: #f5f0e8; }
+
+  .cam-box img {
+    width: 100%;
+    aspect-ratio: 16/9;
+    object-fit: cover;
+    background: #2c2416;
+    display: block;
+  }
+
+  .cam-hint {
+    font-size: 10px;
+    color: #8b6914;
+    text-align: center;
+    padding-top: 4px;
+    font-style: italic;
+  }
+
+  /* ── PANTALLA GRAN (FULLSCREEN) ── */
+  #fullscreen-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 8, 4, 0.97);
+    z-index: 4000;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  #fullscreen-overlay.active { display: flex; }
+
+  #full-img-wrap {
+    max-width: 1400px;
+    width: 100%;
+    border: 3px solid #8b6914;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-height: 78vh;
+    overflow: hidden;
+  }
+
+  #full-img {
+    max-width: 100%;
+    max-height: 78vh;
+    display: block;
+    object-fit: contain;
+  }
+
+  .full-bar {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .full-title {
+    font-family: 'Special Elite', serif;
+    font-size: 14px;
+    color: #e8d5a3;
+    letter-spacing: 1px;
+  }
+
+  .full-btn {
+    font-family: 'Courier Prime', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    border: 2px solid #8b6914;
+    padding: 6px 14px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    background: transparent;
+    color: #f5f0e8;
+    text-decoration: none;
+    display: inline-block;
+    transition: background 0.15s;
+  }
+  .full-btn:hover { background: #8b6914; }
+  .full-btn.tancar { border-color: #6b2a2a; }
+  .full-btn.tancar:hover { background: #6b2a2a; border-color: #6b2a2a; }
+
+  .full-nav {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  /* ── TIMELAPSE SELECTOR ── */
+  #tl-selector-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(20, 15, 8, 0.9);
+    z-index: 3000;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .tl-box {
+    background: #f5f0e8;
+    border: 3px solid #8b6914;
+    box-shadow: 6px 6px 0 #2c2416;
+    width: 90%;
+    max-width: 500px;
+    max-height: 70vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .tl-box-header {
+    background: #2c2416;
+    padding: 10px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'Special Elite', serif;
+    font-size: 13px;
+    color: #e8d5a3;
+    letter-spacing: 1px;
+    flex-shrink: 0;
+  }
+
+  .tl-box-body {
+    overflow-y: auto;
+    padding: 12px;
+    flex: 1;
+    background: #ede8da;
+  }
+
+  .tl-item {
+    padding: 8px 12px;
+    border: 1px solid #c4a84a;
+    margin-bottom: 6px;
+    background: #f5f0e8;
+    cursor: pointer;
+    font-size: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 700;
+    text-transform: uppercase;
+    transition: background 0.15s, color 0.15s;
+  }
+  .tl-item:hover { background: #2c2416; color: #e8d5a3; }
+
+  .tl-dot {
+    width: 8px; height: 8px;
+    background: #2e7d4f;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 8px;
+  }
+
+  .no-cams-msg {
+    font-size: 12px;
+    color: #8b6914;
+    text-align: center;
+    padding: 20px;
+    font-style: italic;
+  }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-track { background: #ede8da; }
+  ::-webkit-scrollbar-thumb { background: #c4a84a; }
+  ::-webkit-scrollbar-thumb:hover { background: #8b6914; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>&#9650; MAPA DE WEBCAMS &mdash; TEMPESTES.CAT</h1>
+  <button class="header-btn" onclick="openTlSelector()">[ &#9201; TIMELAPSES ]</button>
+</header>
+
+<div id="map"></div>
+
+<footer>
+  <span>Fet per <a href="index.html">TEMPESTES.CAT</a> &mdash; Aportació de @meteoguilleries &copy; 2026</span>
+  <span>Clica sobre una comarca verda per veure les càmeres en directe</span>
+</footer>
+
+<!-- Modal comarques -->
+<div id="cam-modal" onclick="closeModalBg(event)">
+  <div class="modal-content" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <span id="modal-title">WEBCAMS</span>
+      <button class="close-btn" onclick="closeCams()">[ TANCAR X ]</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<!-- Pantalla gran -->
+<div id="fullscreen-overlay">
+  <div id="full-img-wrap">
+    <img id="full-img" src="" alt="Vista completa">
+  </div>
+  <div class="full-bar">
+    <div class="full-nav">
+      <button class="full-btn" id="btn-prev" onclick="navFull(-1)">[ &lt; ANTERIOR ]</button>
+      <button class="full-btn" id="btn-next" onclick="navFull(1)">[ SEGUENT &gt; ]</button>
+    </div>
+    <span class="full-title" id="full-title-text"></span>
+    <a class="full-btn" id="full-source-btn" href="#" target="_blank" rel="noopener noreferrer">[ &#8599; FONT ORIGINAL ]</a>
+    <button class="full-btn tancar" onclick="closeFullscreen()">[ X TANCAR ]</button>
+  </div>
+</div>
+
+<!-- Timelapse selector -->
+<div id="tl-selector-modal">
+  <div class="tl-box">
+    <div class="tl-box-header">
+      <span>&#9201; TIMELAPSES ACTIUS</span>
+      <button class="close-btn" onclick="closeTlSelector()">[ X ]</button>
+    </div>
+    <div class="tl-box-body" id="tl-body">
+      <div class="no-cams-msg">En construcció...</div>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+
+const DATA_CAMS = {
+  "Barcelona": [
+    { id: "", t: "Alvar.cat (Maresme)", u: "https://www.alvar.cat/WebCam/Imatge-Camera.jpg", s: "https://www.alvar.cat" },
+    { id: "canet", t: "Canet de Mar", u: "https://www.climameteoinfo.com/webcam/id.CAT_000008.jpg", s: "https://www.climameteoinfo.com" },
+    { id: "santa_susanna", t: "Santa Susanna", u: "https://www.climameteoinfo.com/webcam/id.121.jpg", s: "https://www.climameteoinfo.com" },
+    { id: "st_vicenc_m", t: "Sant Vicenç de Montalt", u: "https://www.jdserver.es/montanya.jpg", s: "https://www.jdserver.es" },
+    { id: "st_vicenc_m2", t: "Sant Vicenç de Montalt 2", u: "https://www.jdserver.es/svm.jpg", s: "https://www.jdserver.es" },
+    { id: "sant_pol", t: "Sant Pol de Mar", u: "https://sagrista.cat/camera.jpg", s: "https://sagrista.cat" },
+    { id: "mataro", t: "Mataró", u: "https://meteoguilleries.cat/ca/webcam/mataro.jpg", s: "https://meteoguilleries.cat" },
+    { id: "arenys", t: "Arenys de Munt", u: "https://www.tempsmataro.net/images/current.jpg", s: "https://www.tempsmataro.net" },
+    { id: "cardedeu", t: "Cardedeu", u: "https://www.jdserver.es/Cardedeu3.jpg", s: "https://www.jdserver.es" },
+    { id: "cardedeu2", t: "Cardedeu 2", u: "https://www.jdserver.es/Cardedeu4.jpg", s: "https://www.jdserver.es" },
+    { id: "santa_susanna2", t: "Santa Susanna 2", u: "https://jfvv.xyz/camara_ip/ultima_imagen.php", s: "https://jfvv.xyz/camara_ip/" },
+    { id: "sant_celoni", t: "Sant Celoni — El Temple", u: "https://webcam.meteomolner.cat/current_sco1.jpg", s: "https://meteomolner.cat" },
+    { id: "montseny", t: "Montseny — Can Cervera", u: "https://www.jdserver.es/montseny.jpg", s: "https://www.jdserver.es" },
+    { id: "montseny2", t: "Montseny — Les Arrels", u: "https://www.jdserver.es/montseny2.jpg", s: "https://www.jdserver.es" },
+    { id: "canoves", t: "Cànoves i Samalús", u: "https://meteoguilleries.cat/ca/webcam/canoves-i-samalus.jpg", s: "https://www.meteoguilleries.cat" },
+    { id: "vacarisses", t: "Vacarisses", u: "https://meteoguilleries.cat/ca/webcam/vacarisses.jpg", s: "https://www.meteoguilleries.cat" },
+    { id: "sant_quirze", t: "Sant Quirze del Vallès", u: "https://www.meteosantquirze.com/webcam/toma_webcam.jpg", s: "https://www.meteosantquirze.com" },
+    { id: "vacarisses2", t: "Vacarisses 2", u: "https://meteovacarisses.es/cam_1.jpg", s: "https://meteovacarisses.es" },
+    { id: "castellar", t: "Castellar del Vallès", u: "https://images-webcams.windy.com/63/1692557163/current/full/1692557163.jpg", s: "https://www.windy.com" },
+    { id: "ripollet", t: "Ripollet", u: "https://www.ripollet.us/techo.jpg", s: "https://www.ripollet.us" },
+    { id: "sabadell", t: "Sabadell", u: "http://www.meteosabadell.cat/www/webcam/webimage.jpg", s: "https://www.meteosabadell.cat" },
+    { id: "badalona", t: "Badalona — CNB", u: "https://badameteo.com/jpgwebcam.jpg", s: "https://badameteo.com" },
+    { id: "baells", t: "Presa de la Baells", u: "https://meteoguilleries.cat/ca/webcam/baells.jpg", s: "https://www.meteoguilleries.cat" },
+    { id: "baga", t: "Bagà", u: "https://meteoguilleries.cat/ca/webcam/baga.jpg", s: "https://www.meteoguilleries.cat" },
+    { id: "cercs", t: "Museu de les Mines de Cercs", u: "https://meteoguilleries.cat/ca/webcam/les-mines-de-cercs.jpg", s: "https://www.meteoguilleries.cat" },
+    { id: "marganell", t: "Marganell", u: "https://meteoguilleries.cat/ca/webcam/MARGANELL.jpg", s: "https://www.meteoguilleries.cat" },
+    { id: "montcau", t: "El Montcau", u: "https://meteoguilleries.cat/ca/webcam/el-montcau.jpg", s: "https://www.meteoguilleries.cat" },
+    { id: "la_mola", t: "La Mola", u: "https://meteoguilleries.cat/ca/webcam/la-mola.jpg", s: "https://www.meteoguilleries.cat" },
+    { id: "aiguafreda", t: "Aiguafreda", u: "https://meteoguilleries.cat/ca/webcam/aiguafreda-ajuntament.jpg", s: "https://www.meteoguilleries.cat" },
+    { id: "el_brull", t: "El Brull", u: "https://meteoguilleries.cat/ca/webcam/brull.jpg", s: "https://www.meteoguilleries.cat" },
+    { id: "vilalleons", t: "Vilalleons", u: "https://meteoguilleries.cat/ca/webcam/vilalleons.jpg", s: "https://www.meteoguilleries.cat" },
+    { id: "calldetenes", t: "Calldetenes", u: "https://meteoguilleries.cat/ca/webcam/calldetenes.jpg", s: "https://www.meteoguilleries.cat" },
+    { id: "st_julia", t: "Sant Julià de Vilatorta", u: "https://meteoguilleries.cat/ca/webcam/sant-julia-de-vilatorta.jpg", s: "https://www.meteoguilleries.cat" },
+    { id: "folgueroles", t: "Folgueroles", u: "https://meteoguilleries.cat/ca/webcam/folgueroles.jpg", s: "https://www.meteoguilleries.cat" },
+    { id: "roda_ter", t: "Roda de Ter", u: "https://meteoguilleries.cat/ca/webcam/roda-de-ter-sant-pere.jpg", s: "https://www.meteoguilleries.cat" },
+    { id: "masies_roda", t: "Masies de Roda", u: "https://meteoguilleries.cat/ca/webcam/masies-de-roda1.jpg", s: "https://www.meteoguilleries.cat" },
+    { id: "vilanova_sau", t: "Vilanova de Sau", u: "https://meteoguilleries.cat/ca/webcam/vilanova-de-sau.jpg", s: "https://www.meteoguilleries.cat" },
+    { id: "seva", t: "Seva — Els Roures", u: "https://meteoguilleries.cat/ca/webcam/seva.jpg", s: "https://www.meteoguilleries.cat" },
+    { id: "vic", t: "Vic", u: "https://meteoguilleries.cat/ca/webcam/vic.jpg", s: "https://www.meteoguilleries.cat" },
+    { id: "monistrol", t: "Monistrol de Calders", u: "https://meteoguilleries.cat/ca/webcam/monistrol-de-calders.jpg", s: "https://www.meteoguilleries.cat" },
+    { id: "sant_pau_ordal", t: "Sant Pau d'Ordal", u: "https://meteosantpau.eu/webcam_/camara1.jpg", s: "https://meteosantpau.eu" },
+    { id: "vallirana", t: "Vallirana", u: "https://meteovallirana.es/wp-content/uploads/meteovallirana.jpg", s: "https://meteovallirana.es" },
+    { id: "sta_margarida", t: "Sta. Margarida de Montbui", u: "https://webcam.meteomontbuipoble.cat/meteocam01.jpg", s: "https://anoiameteo.cat" },
+    { id: "la_llacuna_pla", t: "La Llacuna - El Pla", u: "https://meteollac.cat/webcam-el_pla.php", s: "https://anoiameteo.cat" },
+    { id: "la_llacuna_celler", t: "La Llacuna - Celler Puig-Romeu", u: "https://meteollac.cat/webcam-celler.php", s: "https://anoiameteo.cat" },
+    { id: "vallbona_anoia", t: "Vallbona d'Anoia", u: "https://www.vallbonaanoiameteo.es/webcam/camara.jpg", s: "https://anoiameteo.cat" },
+    { id: "vilanova_port", t: "Vilanova i la Geltrú - Port", u: "https://imgproxy.windy.com/_/full/plain/current/1793900008/original.jpg", s: "https://www.windy.com" },
+    { id: "sant_boi_n", t: "Sant Boi de Llobregat Nord", u: "https://imgproxy.windy.com/_/full/plain/current/1704670044/original.jpg", s: "https://www.windy.com" },
+    { id: "castelldefels", t: "Castelldefels Oest", u: "https://imgproxy.windy.com/_/full/plain/current/1477116313/original.jpg", s: "https://www.windy.com" },
+    { id: "sitges", t: "Sitges Est", u: "https://imgproxy.windy.com/_/full/plain/current/1701435626/original.jpg", s: "https://www.windy.com" },
+    { id: "vallirana_pinars", t: "Vallirana des dels Pinars", u: "https://www.elspinars.es/webcam/webcamReolink.php", s: "https://www.elspinars.es" },
+    { id: "subirats", t: "Subirats", u: "https://imgproxy.windy.com/_/full/plain/current/1693129040/original.jpg", s: "https://www.windy.com" },
+    { id: "sant_boi", t: "Sant Boi", u: "https://imgproxy.windy.com/_/full/plain/current/1717828874/original.jpg", s: "https://www.windy.com" },
+    { id: "cornella", t: "Cornellà de Llobregat", u: "https://imgproxy.windy.com/_/full/plain/current/1693375395/original.jpg", s: "https://www.windy.com" },
+  ],
+  "Gerona": [
+    { id: "blanes_port", t: "Blanes — Port", u: "https://raclus.net/webcams/cvb/1", s: "https://www.cvblanes.cat" },
+    { id: "susqueda_st_marti", t: "Susqueda - Veïnat de St. Martí Sacalm", u: "https://meteoguilleries.cat/ca/webcam/sms.jpg", s: "https://www.meteoguilleries.cat" },
+    { id: "susqueda", t: "Susqueda", u: "https://meteoguilleries.cat/ca/webcam/susqueda.jpg", s: "https://www.meteoguilleries.cat" },
+    { id: "susqueda_far", t: "Susqueda - Veïnat del Far", u: "https://meteoguilleries.cat/ca/webcam/estacio-meteorologica-del-far.jpg", s: "https://www.meteoguilleries.cat" },
+    { id: "breda", t: "Breda", u: "https://webcam.meteomolner.cat/current_br.jpg", s: "https://meteomolner.cat" },
+    { id: "girona_ciutat", t: "Girona ciutat", u: "https://images-webcams.windy.com/94/1274910794/current/full/1274910794.jpg", s: "https://www.windy.com" },
+    { id: "girona", t: "Girona Bescanó", u: "https://www.meteobescano.cat/template/webcam.jpg", s: "https://www.meteobescano.cat" },
+    { id: "palafrugell_calella", t: "Palafrugell — Calella", u: "https://www.costabrava.cc/calella_live_webcam_1.jpg", s: "https://finquesfrigola.com" },
+    { id: "queralbs", t: "Queralbs", u: "https://meteoguilleries.cat/ca/webcam/queralbs-ajuntament.jpg", s: "https://www.meteoguilleries.cat" },
+    { id: "queralbs2", t: "Queralbs 2", u: "https://meteoguilleries.cat/ca/webcam/queralbs-mirador.jpg", s: "https://www.meteoguilleries.cat" },
+    { id: "puigcerda", t: "Puigcerdà", u: "https://www.cerdanya.cat/webcams/puigcerda.jpg", s: "https://www.cerdanya.cat" },
+    { id: "bellver", t: "Bellver de Cerdanya", u: "https://www.cerdanya.cat/webcams/bellver.jpg", s: "https://www.cerdanya.cat" },
+    { id: "llivia", t: "Llívia", u: "https://www.cerdanya.cat/webcams/llivia.jpg", s: "https://www.cerdanya.cat" },
+  ],
+  "Lérida": [
+    { id: "estany_gento", t: "Estany Gento (2141m)", u: "https://meteoguilleries.cat/ca/webcam/gento.jpg", s: "https://www.meteoguilleries.cat" },
+    { id: "filia", t: "Cabana de Filià (1961m)", u: "https://meteoguilleries.cat/ca/webcam/filia.jpg", s: "https://www.meteoguilleries.cat" },
+  ],
+  "Tarragona": [
+    { id: "bellvei", t: "Bellvei", u: "http://alatsaeroclub.ddns.net:85/mjpg/video.mjpg", s: "http://alatsaeroclub.ddns.net:85" },
+    { id: "bellvei2", t: "Bellvei 2", u: "https://www.meteobellvei.cat/webcammeteobellvei.jpg", s: "https://www.meteobellvei.cat" },
+    { id: "almoster", t: "Almoster", u: "http://www.meteoalmoster.net/MeteoAlmoster_000.jpg", s: "http://www.meteoalmoster.net" },
+    { id: "reus", t: "Reus", u: "https://www.climameteoinfo.com/webcam/id.CAT_242407167625.jpg", s: "https://www.climameteoinfo.com" },
+  ],
+};
+
+// ── MAPA ──
+var map = L.map('map', {
+  zoomControl: false,
+  attributionControl: false,
+  minZoom: 7,
+  maxZoom: 12,
+  maxBounds: [[40.3, 0.0], [43.0, 3.8]]
+}).setView([41.7, 1.8], 8);
+
+
+
+fetch('dades/catalunya_comarques.geojson')
+  .then(res => {
+    if (!res.ok) throw new Error('GeoJSON no trobat: ' + res.status);
+    return res.json();
+  })
+  .then(data => {
+    L.geoJSON(data, {
+      style: function(f) {
+        var nom = f.properties.name || f.properties.nom_comar || f.properties.NOMCOMAR;
+        var actiu = DATA_CAMS[nom] && DATA_CAMS[nom].some(c => c.u);
+        return {
+          fillColor: actiu ? '#2e7d4f' : 'rgba(180,160,120,0.1)',
+          weight: 2,
+          color: '#5a3e1b',
+          fillOpacity: actiu ? 0.45 : 0.08
+        };
+      },
+      onEachFeature: function(f, layer) {
+        var nom = f.properties.name || f.properties.nom_comar || f.properties.NOMCOMAR;
+        var actiu = DATA_CAMS[nom] && DATA_CAMS[nom].some(c => c.u);
+        var numCams = actiu ? DATA_CAMS[nom].filter(c => c.u).length : 0;
+        layer.bindTooltip(
+          '<strong>' + nom + '</strong>' + (actiu
+            ? ' &mdash; [ ' + numCams + ' ' + (numCams === 1 ? 'CAMERA' : 'CAMERAS') + ' ]'
+            : ' &mdash; sense webcams'),
+          { sticky: true, direction: 'top' }
+        );
+        layer.on('mouseover', () => layer.setStyle({
+          fillOpacity: 0.7,
+          fillColor: actiu ? '#1a5c36' : '#c4a84a'
+        }));
+        layer.on('mouseout', () => layer.setStyle({
+          fillOpacity: actiu ? 0.45 : 0.08,
+          fillColor: actiu ? '#2e7d4f' : 'rgba(180,160,120,0.1)'
+        }));
+        if (actiu) {
+          layer.on('click', () => openCams(nom));
+          layer.on('add', () => {
+            var el = layer.getElement && layer.getElement();
+            if (el) el.style.cursor = 'pointer';
+          });
+        }
+      }
+    }).addTo(map);
+  })
+  .catch(err => {
+    console.error('Error GeoJSON:', err);
+    document.getElementById('map').innerHTML =
+      '<div style="padding:40px;text-align:center;font-family:monospace;color:#8b6914;background:#f5f0e8;">' +
+      '[ ATENCIO ] No s\'ha trobat el fitxer GeoJSON de comarques.<br><br>' +
+      '<em>Comprova que existeix: <strong>dades/catalunya_comarques.geojson</strong></em></div>';
+  });
+
+// ── VARS GLOBALS ──
+let currentCams = [];
+let currentFullIndex = 0;
+let currentTs = 0;
+
+// ── OBERTURA MODAL COMARQUES ──
+function openCams(comarca) {
+  const modal = document.getElementById('cam-modal');
+  const body  = document.getElementById('modal-body');
+  const title = document.getElementById('modal-title');
+  currentTs   = Date.now();
+  currentCams = DATA_CAMS[comarca].filter(c => c.u && c.t);
+
+  title.textContent = 'WEBCAMS: ' + comarca.toUpperCase() + ' (' + currentCams.length + ' CAMERES)';
+  body.innerHTML = '';
+
+  currentCams.forEach((cam, idx) => {
+    const box = document.createElement('div');
+    box.className = 'cam-box';
+
+    const titleRow = document.createElement('div');
+    titleRow.className = 'cam-box-title';
+
+    const labelEl = document.createElement('span');
+    labelEl.className = 'cam-title-text';
+    labelEl.textContent = cam.t;
+
+    const sourceLink = document.createElement('a');
+    sourceLink.className = 'cam-source-link';
+    sourceLink.href = cam.s || '#';
+    sourceLink.target = '_blank';
+    sourceLink.rel = 'noopener noreferrer';
+    sourceLink.textContent = 'FONT';
+    sourceLink.onclick = e => e.stopPropagation();
+
+    titleRow.appendChild(labelEl);
+    titleRow.appendChild(sourceLink);
+
+    const img = document.createElement('img');
+    img.src = cam.u + '?t=' + currentTs;
+    img.alt = cam.t;
+    img.loading = 'lazy';
+
+    const hint = document.createElement('div');
+    hint.className = 'cam-hint';
+    hint.textContent = '[ clic per obrir en pantalla gran ]';
+
+    box.appendChild(titleRow);
+    box.appendChild(img);
+    box.appendChild(hint);
+
+    box.onclick = () => openFullscreen(idx);
+    body.appendChild(box);
+  });
+
+  modal.style.display = 'flex';
+}
+
+function closeCams() {
+  document.getElementById('cam-modal').style.display = 'none';
+}
+
+function closeModalBg(e) {
+  if (e.target.id === 'cam-modal') closeCams();
+}
+
+// ── PANTALLA GRAN ──
+function openFullscreen(idx) {
+  currentFullIndex = idx;
+  updateFullscreen();
+  document.getElementById('fullscreen-overlay').classList.add('active');
+}
+
+function updateFullscreen() {
+  const cam = currentCams[currentFullIndex];
+  if (!cam) return;
+  document.getElementById('full-img').src = cam.u + '?t=' + currentTs;
+  document.getElementById('full-title-text').textContent =
+    (currentFullIndex + 1) + ' / ' + currentCams.length + ' — ' + cam.t.toUpperCase();
+  document.getElementById('full-source-btn').href = cam.s || cam.u;
+  document.getElementById('btn-prev').disabled = currentFullIndex === 0;
+  document.getElementById('btn-next').disabled = currentFullIndex === currentCams.length - 1;
+}
+
+function navFull(dir) {
+  const newIdx = currentFullIndex + dir;
+  if (newIdx >= 0 && newIdx < currentCams.length) {
+    currentFullIndex = newIdx;
+    updateFullscreen();
+  }
+}
+
+function closeFullscreen() {
+  document.getElementById('fullscreen-overlay').classList.remove('active');
+}
+
+// ── TIMELAPSE ──
+function openTlSelector() {
+  document.getElementById('tl-selector-modal').style.display = 'flex';
+}
+function closeTlSelector() {
+  document.getElementById('tl-selector-modal').style.display = 'none';
+}
+
+// ── TECLAT ──
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    closeFullscreen();
+    closeCams();
+    closeTlSelector();
+  }
+  if (document.getElementById('fullscreen-overlay').classList.contains('active')) {
+    if (e.key === 'ArrowLeft') navFull(-1);
+    if (e.key === 'ArrowRight') navFull(1);
+  }
+});
+
+</script>
+</body>
+</html>

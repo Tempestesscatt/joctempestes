@@ -1,0 +1,373 @@
+name: Arome normal
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  deployments: write
+
+jobs:
+  # ════════════════════════════════════════════════════════════════
+  #  3 JOBS EN PARAL·LEL: cadascun descarrega la seva zona i genera
+  #  els seus JSON a la seva pròpia carpeta. NO fan git commit/push
+  #  ni deploy — això es fa tot junt al final, un cop els 3 han acabat.
+  # ════════════════════════════════════════════════════════════════
+
+  cat:
+    runs-on: ubuntu-latest
+    timeout-minutes: 250
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.PRIVATE_REPO_TOKEN }}
+
+    - name: Checkout private submodule
+      run: |
+        git config --global url."https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/".insteadOf "https://github.com/"
+        git submodule update --init --recursive
+
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Instal·lar dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libgeos-dev libproj-dev proj-data proj-bin
+        python3 -m pip install --upgrade pip
+        python3 -m pip install numpy requests tifffile scipy python-dotenv lxml xarray cfgrib meteofetch
+      continue-on-error: true
+
+    - name: Netejar web_data
+      run: |
+        mkdir -p meu-mapa/public/web_data
+        rm -rf meu-mapa/public/web_data/*
+        echo "web_data netejat"
+
+    - name: Executar cat.py (3 reintents)
+      run: |
+        cd private-scripts
+        sed -i 's/"api_key": "[^"]*"/"api_key": "${{ secrets.AROME_API_KEY }}"/' config.json || true
+
+        MAX_INTENTS=3
+        INTENT=0
+        EXIT_CODE=1
+
+        while [ $INTENT -lt $MAX_INTENTS ]; do
+          INTENT=$((INTENT+1))
+          echo "--- cat.py: intent $INTENT/$MAX_INTENTS ---"
+          python3 cat.py
+          EXIT_CODE=$?
+          if [ $EXIT_CODE -eq 0 ]; then
+            echo "✅ cat.py: èxit a l'intent $INTENT"
+            break
+          else
+            echo "❌ cat.py: ha fallat (codi $EXIT_CODE) a l'intent $INTENT/$MAX_INTENTS"
+            if [ $INTENT -lt $MAX_INTENTS ]; then
+              echo "Esperant 30 segons abans del pròxim intent..."
+              sleep 30
+            fi
+          fi
+        done
+
+        if [ $EXIT_CODE -ne 0 ]; then
+          echo "❌ cat.py: tots els $MAX_INTENTS intents han fallat."
+          exit $EXIT_CODE
+        fi
+      timeout-minutes: 200
+
+    - name: Resum cat
+      run: |
+        echo "web_data (CAT): $(find meu-mapa/public/web_data -type f 2>/dev/null | wc -l) fitxers"
+
+    # Pugem els JSON generats com a artifact perquè el job final els reculli
+    - name: Pujar web_data com a artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: dades-cat
+        path: meu-mapa/public/web_data/
+        retention-days: 1
+
+  val:
+    runs-on: ubuntu-latest
+    timeout-minutes: 250
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.PRIVATE_REPO_TOKEN }}
+
+    - name: Checkout private submodule
+      run: |
+        git config --global url."https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/".insteadOf "https://github.com/"
+        git submodule update --init --recursive
+
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Instal·lar dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libgeos-dev libproj-dev proj-data proj-bin
+        python3 -m pip install --upgrade pip
+        python3 -m pip install numpy requests tifffile scipy python-dotenv lxml xarray cfgrib meteofetch
+      continue-on-error: true
+
+    - name: Netejar webdata_val
+      run: |
+        mkdir -p meu-mapa/public/webdata_val
+        rm -rf meu-mapa/public/webdata_val/*
+        echo "webdata_val netejat"
+
+    - name: Executar val.py (3 reintents)
+      run: |
+        cd private-scripts
+        sed -i 's/"api_key": "[^"]*"/"api_key": "${{ secrets.AROME_API_KEY }}"/' configval.json || true
+
+        MAX_INTENTS=3
+        INTENT=0
+        EXIT_CODE=1
+
+        while [ $INTENT -lt $MAX_INTENTS ]; do
+          INTENT=$((INTENT+1))
+          echo "--- val.py: intent $INTENT/$MAX_INTENTS ---"
+          python3 val.py
+          EXIT_CODE=$?
+          if [ $EXIT_CODE -eq 0 ]; then
+            echo "✅ val.py: èxit a l'intent $INTENT"
+            break
+          else
+            echo "❌ val.py: ha fallat (codi $EXIT_CODE) a l'intent $INTENT/$MAX_INTENTS"
+            if [ $INTENT -lt $MAX_INTENTS ]; then
+              echo "Esperant 30 segons abans del pròxim intent..."
+              sleep 30
+            fi
+          fi
+        done
+
+        if [ $EXIT_CODE -ne 0 ]; then
+          echo "❌ val.py: tots els $MAX_INTENTS intents han fallat."
+          exit $EXIT_CODE
+        fi
+      timeout-minutes: 200
+
+    - name: Resum val
+      run: |
+        echo "webdata_val (VAL): $(find meu-mapa/public/webdata_val -type f 2>/dev/null | wc -l) fitxers"
+
+    - name: Pujar webdata_val com a artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: dades-val
+        path: meu-mapa/public/webdata_val/
+        retention-days: 1
+
+  arago:
+    runs-on: ubuntu-latest
+    timeout-minutes: 250
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.PRIVATE_REPO_TOKEN }}
+
+    - name: Checkout private submodule
+      run: |
+        git config --global url."https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/".insteadOf "https://github.com/"
+        git submodule update --init --recursive
+
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Instal·lar dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libgeos-dev libproj-dev proj-data proj-bin
+        python3 -m pip install --upgrade pip
+        python3 -m pip install numpy requests tifffile scipy python-dotenv lxml xarray cfgrib meteofetch
+      continue-on-error: true
+
+    - name: Netejar webdata_arago
+      run: |
+        mkdir -p meu-mapa/public/webdata_arago
+        rm -rf meu-mapa/public/webdata_arago/*
+        echo "webdata_arago netejat"
+
+    - name: Executar arago.py (3 reintents)
+      run: |
+        cd private-scripts
+        sed -i 's/"api_key": "[^"]*"/"api_key": "${{ secrets.AROME_API_KEY }}"/' configarago.json || true
+
+        MAX_INTENTS=3
+        INTENT=0
+        EXIT_CODE=1
+
+        while [ $INTENT -lt $MAX_INTENTS ]; do
+          INTENT=$((INTENT+1))
+          echo "--- arago.py: intent $INTENT/$MAX_INTENTS ---"
+          python3 arago.py
+          EXIT_CODE=$?
+          if [ $EXIT_CODE -eq 0 ]; then
+            echo "✅ arago.py: èxit a l'intent $INTENT"
+            break
+          else
+            echo "❌ arago.py: ha fallat (codi $EXIT_CODE) a l'intent $INTENT/$MAX_INTENTS"
+            if [ $INTENT -lt $MAX_INTENTS ]; then
+              echo "Esperant 30 segons abans del pròxim intent..."
+              sleep 30
+            fi
+          fi
+        done
+
+        if [ $EXIT_CODE -ne 0 ]; then
+          echo "❌ arago.py: tots els $MAX_INTENTS intents han fallat."
+          exit $EXIT_CODE
+        fi
+      timeout-minutes: 200
+
+    - name: Resum arago
+      run: |
+        echo "webdata_arago (ARA): $(find meu-mapa/public/webdata_arago -type f 2>/dev/null | wc -l) fitxers"
+
+    - name: Pujar webdata_arago com a artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: dades-arago
+        path: meu-mapa/public/webdata_arago/
+        retention-days: 1
+
+  # ════════════════════════════════════════════════════════════════
+  #  JOB FINAL: espera als 3 (needs), recull els artifacts, fa
+  #  commit+push de les 3 carpetes juntes i desplega a Cloudflare.
+  #  if: always() -> es dispara encara que algun dels 3 hagi fallat,
+  #  així es publica igualment el que sí que s'ha aconseguit generar.
+  # ════════════════════════════════════════════════════════════════
+  deploy:
+    needs: [cat, val, arago]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      SCRIPTS_FALLITS: ""
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.PRIVATE_REPO_TOKEN }}
+
+    - name: Comprovar resultat dels jobs anteriors
+      run: |
+        FALLITS=""
+        if [ "${{ needs.cat.result }}" != "success" ]; then FALLITS="$FALLITS cat"; fi
+        if [ "${{ needs.val.result }}" != "success" ]; then FALLITS="$FALLITS val"; fi
+        if [ "${{ needs.arago.result }}" != "success" ]; then FALLITS="$FALLITS arago"; fi
+        if [ -n "$FALLITS" ]; then
+          echo "⚠️  Jobs que NO han acabat en èxit:$FALLITS (es continua igualment amb el que hi hagi)"
+          echo "SCRIPTS_FALLITS=$FALLITS" >> "$GITHUB_ENV"
+        else
+          echo "✅ Els 3 jobs (cat, val, arago) han acabat en èxit"
+        fi
+
+    - name: Sincronitzar amb el remot
+      run: |
+        cd meu-mapa
+        git pull --rebase origin main 2>/dev/null || git pull --rebase origin master 2>/dev/null || true
+
+    - name: Descarregar artifact - cat
+      if: needs.cat.result == 'success'
+      uses: actions/download-artifact@v4
+      with:
+        name: dades-cat
+        path: meu-mapa/public/web_data/
+
+    - name: Descarregar artifact - val
+      if: needs.val.result == 'success'
+      uses: actions/download-artifact@v4
+      with:
+        name: dades-val
+        path: meu-mapa/public/webdata_val/
+
+    - name: Descarregar artifact - arago
+      if: needs.arago.result == 'success'
+      uses: actions/download-artifact@v4
+      with:
+        name: dades-arago
+        path: meu-mapa/public/webdata_arago/
+
+    - name: Resum final
+      run: |
+        echo "============================================"
+        echo "  RESUM ABANS DE COMMIT+DEPLOY"
+        echo "============================================"
+        echo "web_data (CAT):       $(find meu-mapa/public/web_data -type f 2>/dev/null | wc -l) fitxers"
+        echo "webdata_val (VAL):    $(find meu-mapa/public/webdata_val -type f 2>/dev/null | wc -l) fitxers"
+        echo "webdata_arago (ARA):  $(find meu-mapa/public/webdata_arago -type f 2>/dev/null | wc -l) fitxers"
+        if [ -n "$SCRIPTS_FALLITS" ]; then
+          echo "⚠️  Jobs fallits:$SCRIPTS_FALLITS"
+        fi
+
+    # ==================== GUARDAR web_data + webdata_val + webdata_arago ====================
+    - name: Guardar dades al repositori
+      run: |
+        cd meu-mapa
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        echo ".wrangler/" >> .gitignore 2>/dev/null
+
+        git add public/web_data/ public/webdata_val/ public/webdata_arago/ .gitignore
+
+        if [[ -n $(git status --porcelain) ]]; then
+          git commit -m "Actualitzat cat.py/val.py/arago.py (paral·lel) - $(date -u +'%Y-%m-%d %H:%M UTC')"
+
+          PUSH_OK=false
+          for intent in 1 2 3 4 5; do
+            echo "--- Intent de push $intent/5 ---"
+            git fetch origin main 2>/dev/null || git fetch origin master 2>/dev/null || true
+
+            # En cas de conflicte, guanya SEMPRE la versió acabada de generar en aquest job
+            git merge -X ours origin/main --no-edit 2>/dev/null || \
+            git merge -X ours origin/master --no-edit 2>/dev/null || true
+
+            if git push origin HEAD:main 2>/dev/null || git push origin HEAD:master 2>/dev/null; then
+              echo "✅ Push OK a l'intent $intent"
+              PUSH_OK=true
+              break
+            fi
+
+            echo "⚠️ Push rebutjat (el remot ha canviat mentre aquest job corria). Reintentant en 10s..."
+            sleep 10
+          done
+
+          if [ "$PUSH_OK" = false ]; then
+            echo "⚠️ Tots els intents de push normal han fallat. Forçant push..."
+            git push origin HEAD:main --force || git push origin HEAD:master --force
+            echo "✅ Push forçat completat"
+          fi
+
+          echo "✅ Dades guardades"
+        else
+          echo "ℹ️ Sense canvis"
+        fi
+
+    - name: Deploy a Cloudflare
+      run: |
+        cd meu-mapa
+        npm install -g wrangler
+        wrangler pages deploy public --project-name=tempestes-cat --branch=production --commit-dirty=true
+      env:
+        CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      continue-on-error: true
+
+    - name: Comprovar si algun job ha fallat
+      if: ${{ env.SCRIPTS_FALLITS != '' }}
+      run: |
+        echo "❌ Un o més jobs han fallat després de tots els reintents:${{ env.SCRIPTS_FALLITS }}"
+        exit 1
+
+    - name: Completat
+      run: |
+        echo "============================================"
+        echo "  TOT COMPLETAT (execució en paral·lel)!"
+        echo "============================================"

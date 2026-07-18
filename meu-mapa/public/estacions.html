@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Estacions Meteorologiques de Catalunya</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="js/dades_meteo_catalunya.js"></script>
+    <style>
+        :root{--bg:#f2f4f7;--card:#fff;--text:#1a1a2e;--muted:#64748b;--border:#e2e8f0;--shadow:0 1px 2px rgba(0,0,0,0.04);--radius:10px}
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.5;-webkit-font-smoothing:antialiased;padding-bottom:env(safe-area-inset-bottom)}
+        
+        /* TOPBAR */
+        .topbar{background:#fff;border-bottom:1px solid var(--border);padding:0 12px;height:48px;display:flex;align-items:center;position:sticky;top:0;z-index:100}
+        .topbar-content{max-width:1260px;margin:0 auto;width:100%;display:flex;justify-content:space-between;align-items:center;gap:6px}
+        .topbar-left{display:flex;align-items:center;gap:8px;flex:1;min-width:0}
+        .topbar h1{font-size:0.85em;font-weight:600;color:#1e3a5f;letter-spacing:-0.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .topbar-info{font-size:0.6em;color:var(--muted);white-space:nowrap}
+        .btn-home{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:#1e3a5f;color:#fff;border:none;border-radius:5px;font-size:0.65em;font-weight:500;cursor:pointer;text-decoration:none;transition:background 0.2s;font-family:inherit;flex-shrink:0}
+        .btn-home:hover{background:#152b47}
+        .btn-home svg{width:12px;height:12px;fill:currentColor}
+        
+        /* CONTAINER */
+        .container{max-width:1260px;margin:0 auto;padding:10px 10px 20px}
+        
+        /* CONTROLS */
+        .controls{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+        .control-group{display:flex;flex-direction:column;gap:2px}
+        .control-group.full{grid-column:1 / -1}
+        .control-group label{font-size:0.55em;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.3px}
+        select{padding:6px 28px 6px 8px;border:1.5px solid var(--border);border-radius:6px;font-size:0.75em;color:var(--text);background:#fafbfc;cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 10 10'%3E%3Cpath fill='%2364748b' d='M5 7L1 3h8z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 6px center;font-family:inherit;min-width:0;width:100%;transition:border-color 0.2s;background-size:8px}
+        select:focus{outline:none;border-color:#1e3a5f;background:#fff;box-shadow:0 0 0 3px rgba(30,58,95,0.06)}
+        
+        /* GRIDS */
+        .grid-1{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:10px}
+        .grid-2{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:10px}
+        
+        /* CARDS */
+        .chart-card{background:var(--card);border-radius:var(--radius);padding:12px;box-shadow:var(--shadow);border:1px solid var(--border)}
+        .chart-header{margin-bottom:8px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:4px}
+        .chart-title{font-size:0.8em;font-weight:600;color:var(--text);display:flex;align-items:center;gap:6px}
+        .chart-subtitle{font-size:0.6em;color:var(--muted)}
+        .chart-wrap{position:relative;height:220px;width:100%}
+        
+        /* LEGEND */
+        .legend-inline{display:flex;flex-wrap:wrap;gap:6px;font-size:0.6em;color:var(--muted)}
+        .legend-dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:2px;vertical-align:middle}
+        
+        .empty{text-align:center;padding:40px 16px;color:var(--muted);font-size:0.85em}
+        .footer{text-align:center;padding:10px;font-size:0.6em;color:#94a3b8;margin-top:12px;border-top:1px solid var(--border)}
+        
+        /* TABLET AND DESKTOP */
+        @media(min-width:600px){
+            .controls{grid-template-columns:repeat(4,1fr)}
+            .control-group.full{grid-column:auto}
+            .chart-wrap{height:280px}
+            .container{padding:16px 20px 20px}
+            .topbar{padding:0 20px;height:52px}
+            .topbar h1{font-size:0.95em}
+            .topbar-info{font-size:0.7em}
+            .btn-home{font-size:0.75em;padding:5px 14px}
+            .btn-home svg{width:14px;height:14px}
+        }
+        
+        @media(min-width:900px){
+            .grid-2{grid-template-columns:1fr 1fr}
+            .chart-wrap{height:340px}
+            .container{padding:20px 28px}
+            .controls{gap:10px}
+            select{font-size:0.85em;padding:8px 30px 8px 10px}
+            .chart-card{padding:20px}
+            .chart-title{font-size:0.9em}
+            .legend-inline{font-size:0.7em}
+        }
+        
+        /* TOUCH IMPROVEMENTS */
+        select, .btn-home{ -webkit-tap-highlight-color:transparent; touch-action:manipulation }
+        select{font-size:16px} /* Prevents iOS zoom */
+        @media(max-width:599px){select{font-size:16px}}
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div class="topbar-content">
+            <div class="topbar-left">
+                <a href="index.html" class="btn-home" title="Tornar a l'inici">
+                    <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                    Inici
+                </a>
+                <h1>Estacions Meteo</h1>
+            </div>
+            <div class="topbar-info" id="topbarInfo"></div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="controls">
+            <div class="control-group full"><label for="zonaSelect">Estacio</label><select id="zonaSelect" onchange="onChange()"><option value="">Seleccionar...</option></select></div>
+            <div class="control-group"><label for="variableSelect">Variable</label><select id="variableSelect" onchange="actualizarDiario()">
+                <option value="temperatura">Temperatura</option><option value="pluja">Pluja</option>
+                <option value="vent">Vent</option><option value="humitat">Humitat</option>
+                <option value="pressio">Pressio</option><option value="nuvolositat">Nuvolositat</option>
+            </select></div>
+            <div class="control-group"><label for="anySelect">Any</label><select id="anySelect" onchange="actualizarDiario()"></select></div>
+            <div class="control-group"><label for="mesSelect">Mes</label><select id="mesSelect" onchange="actualizarDiario()">
+                <option value="tots">Tots</option><option value="1">Gener</option><option value="2">Febrer</option><option value="3">Marc</option>
+                <option value="4">Abril</option><option value="5">Maig</option><option value="6">Juny</option><option value="7">Juliol</option>
+                <option value="8">Agost</option><option value="9">Setembre</option><option value="10">Octubre</option><option value="11">Novembre</option><option value="12">Desembre</option>
+            </select></div>
+        </div>
+
+        <div id="dashboard" style="display:none;">
+            <div class="grid-1">
+                <div class="chart-card">
+                    <div class="chart-header"><div><div class="chart-title" id="diarioTitle"></div><div class="chart-subtitle" id="diarioSubtitle"></div></div></div>
+                    <div class="chart-wrap"><canvas id="diarioChart"></canvas></div>
+                </div>
+            </div>
+
+            <div class="grid-1">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">Temperatures extremes anuals</div>
+                        <div class="legend-inline">
+                            <span><span class="legend-dot" style="background:#dc3545"></span>Max</span>
+                            <span><span class="legend-dot" style="background:#2563eb"></span>Min</span>
+                            <span><span class="legend-dot" style="background:rgba(0,0,0,0.2)"></span>Mitj</span>
+                        </div>
+                    </div>
+                    <div class="chart-wrap"><canvas id="chartTemp"></canvas></div>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">Pluja total anual</div>
+                        <div class="legend-inline">
+                            <span><span class="legend-dot" style="background:#059669"></span>Pluja</span>
+                            <span><span class="legend-dot" style="background:rgba(0,0,0,0.15)"></span>Mitj</span>
+                        </div>
+                    </div>
+                    <div class="chart-wrap"><canvas id="chartPluja"></canvas></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">Humitat extrema anual</div>
+                        <div class="legend-inline">
+                            <span><span class="legend-dot" style="background:#0ea5e9"></span>Max</span>
+                            <span><span class="legend-dot" style="background:#ca8a04"></span>Min</span>
+                        </div>
+                    </div>
+                    <div class="chart-wrap"><canvas id="chartHumitat"></canvas></div>
+                </div>
+            </div>
+        </div>
+        <div id="emptyPanel" class="empty"><p>Selecciona una estacio per visualitzar les dades</p></div>
+    </div>
+    <div class="footer">Dades Meteostat | <span id="footerInfo"></span></div>
+
+    <script>
+        var MESOS=['Gener','Febrer','Marc','Abril','Maig','Juny','Juliol','Agost','Setembre','Octubre','Novembre','Desembre'];
+        var cDiario=null,cTemp=null,cPluja=null,cHumitat=null;
+
+        function init(){
+            if(typeof DADES_METEO_CATALUNYA==='undefined'){document.getElementById('emptyPanel').innerHTML='<p>Error de carrega</p>';return}
+            var d=DADES_METEO_CATALUNYA;
+            document.getElementById('topbarInfo').textContent=d.anys_disponibles[0]+'-'+d.anys_disponibles[d.anys_disponibles.length-1];
+            document.getElementById('footerInfo').textContent=d.total_anys+' anys | '+d.generat;
+            var sa=document.getElementById('anySelect');
+            d.anys_disponibles.forEach(function(a){var o=document.createElement('option');o.value=a;o.textContent=a;sa.appendChild(o)});
+            sa.value=d.anys_disponibles[d.anys_disponibles.length-1];
+            var zs=document.getElementById('zonaSelect');
+            Object.entries(d.estacions_noms).forEach(function(e){var o=document.createElement('option');o.value=e[0];o.textContent=e[1].nom;zs.appendChild(o)});
+        }
+
+        function getZona(){return document.getElementById('zonaSelect').value}
+        function getAny(){return document.getElementById('anySelect').value}
+        function getMes(){return document.getElementById('mesSelect').value}
+
+        function getDadesAny(zona,any){
+            var ad=DADES_METEO_CATALUNYA.dades_per_any[any];
+            if(!ad||!ad.estacions||!ad.estacions[zona])return null;
+            var e=ad.estacions[zona];
+            if(!e.dades||e.dades.length===0)return null;
+            return e.dades;
+        }
+
+        function filtrarMes(dades){
+            var m=getMes();if(m==='tots')return dades;
+            var mm=parseInt(m);return dades.filter(function(x){return new Date(x.data).getMonth()+1===mm});
+        }
+
+        function calcExtremsAny(dades){
+            var tmax=-Infinity,tmin=Infinity,pluja=0;
+            var hmax=-Infinity,hmin=Infinity;
+            var tc=0;
+            dades.forEach(function(x){
+                if(x.temp_maxima!=null&&!isNaN(x.temp_maxima)&&x.temp_maxima>tmax)tmax=x.temp_maxima;
+                if(x.temp_minima!=null&&!isNaN(x.temp_minima)&&x.temp_minima<tmin)tmin=x.temp_minima;
+                if(x.pluja!=null&&!isNaN(x.pluja))pluja+=x.pluja;
+                if(x.humitat!=null&&!isNaN(x.humitat)){if(x.humitat>hmax)hmax=x.humitat;if(x.humitat<hmin)hmin=x.humitat}
+                if(x.temp_maxima!=null)tc++;
+            });
+            return{
+                tmax:tmax!==-Infinity?tmax:null,
+                tmin:tmin!==Infinity?tmin:null,
+                pluja:tc>=300?pluja:null,
+                hmax:hmax!==-Infinity?hmax:null,
+                hmin:hmin!==-Infinity?hmin:null,
+                dies:tc
+            };
+        }
+
+        function onChange(){
+            var z=getZona();if(!z){document.getElementById('dashboard').style.display='none';document.getElementById('emptyPanel').style.display='block';return}
+            document.getElementById('dashboard').style.display='block';document.getElementById('emptyPanel').style.display='none';
+            actualizarDiario();actualizarExtrems();
+        }
+
+        function actualizarDiario(){
+            var z=getZona(),a=getAny();if(!z||!a)return;
+            var dades=getDadesAny(z,a);if(!dades)return;
+            dades=filtrarMes(dades);if(!dades.length)return;
+            if(cDiario){cDiario.destroy();cDiario=null}
+            var v=document.getElementById('variableSelect').value,m=getMes();
+            document.getElementById('diarioTitle').textContent=DADES_METEO_CATALUNYA.estacions_noms[z].nom;
+            document.getElementById('diarioSubtitle').textContent=(m!=='tots'?MESOS[parseInt(m)-1]:'Any complet')+' | '+a;
+
+            var ctx=document.getElementById('diarioChart').getContext('2d');
+            var labels=dades.map(function(x){var f=new Date(x.data);return f.getDate()+'/'+(f.getMonth()+1)});
+            var bo={responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(18,18,40,0.94)',bodyFont:{size:9},padding:8,cornerRadius:5,displayColors:false}},scales:{y:{grid:{color:'rgba(0,0,0,0.04)',drawBorder:false},border:{display:false},ticks:{font:{size:8}}},x:{grid:{display:false},border:{display:false},ticks:{font:{size:7},maxRotation:0,autoSkip:true,maxTicksLimit:10}}}};
+
+            if(v==='temperatura'){
+                var op=JSON.parse(JSON.stringify(bo));
+                op.plugins.legend={position:'top',labels:{usePointStyle:true,padding:10,font:{size:9},pointStyleWidth:10,generateLabels:function(c){return c.data.datasets.map(function(ds,i){return{text:ds.label,fillStyle:'transparent',strokeStyle:ds.borderColor,lineWidth:ds.borderWidth,index:i,pointStyle:'line',rotation:0}})}}};
+                op.scales.y.min=-5;op.scales.y.max=42;op.scales.y.title={display:true,text:'°C',font:{size:8,weight:'600'}};op.scales.y.ticks.stepSize=5;
+                var gMx=ctx.createLinearGradient(0,0,0,220);gMx.addColorStop(0,'rgba(220,53,69,0.08)');gMx.addColorStop(1,'rgba(220,53,69,0)');
+                var gAv=ctx.createLinearGradient(0,0,0,220);gAv.addColorStop(0,'rgba(26,26,46,0.06)');gAv.addColorStop(1,'rgba(26,26,46,0)');
+                var gMn=ctx.createLinearGradient(0,0,0,220);gMn.addColorStop(0,'rgba(37,99,235,0.06)');gMn.addColorStop(1,'rgba(37,99,235,0)');
+                cDiario=new Chart(ctx,{type:'line',data:{labels:labels,datasets:[
+                    {label:'Max',data:dades.map(function(x){return x.temp_maxima}),borderColor:'#dc3545',backgroundColor:gMx,borderWidth:1,tension:0.35,fill:true,pointRadius:0,pointHoverRadius:4},
+                    {label:'Mitj',data:dades.map(function(x){return x.temp_mitjana}),borderColor:'#1a1a2e',backgroundColor:gAv,borderWidth:1.6,tension:0.35,fill:true,pointRadius:0,pointHoverRadius:4},
+                    {label:'Min',data:dades.map(function(x){return x.temp_minima}),borderColor:'#2563eb',backgroundColor:gMn,borderWidth:0.8,borderDash:[3,2],tension:0.35,fill:true,pointRadius:0,pointHoverRadius:4}
+                ]},options:op});
+            }else if(v==='pluja'){
+                var cols=dades.map(function(x){var vv=x.pluja||0;if(vv===0)return'rgba(30,58,95,0.04)';if(vv<2)return'rgba(30,58,95,0.18)';if(vv<5)return'rgba(30,58,95,0.38)';if(vv<15)return'rgba(30,58,95,0.6)';return'rgba(30,58,95,0.85)'});
+                var op=JSON.parse(JSON.stringify(bo));op.scales.y.min=0;op.scales.y.title={display:true,text:'mm',font:{size:8,weight:'600'}};op.plugins.tooltip.callbacks={label:function(c){return c.parsed.y.toFixed(1)+' mm'}};
+                cDiario=new Chart(ctx,{type:'bar',data:{labels:labels,datasets:[{data:dades.map(function(x){return x.pluja}),backgroundColor:cols,borderColor:'transparent',borderRadius:1.5,borderSkipped:false}]},options:op});
+            }else if(v==='vent'){
+                var op=JSON.parse(JSON.stringify(bo));
+                op.plugins.legend={position:'top',labels:{usePointStyle:true,padding:10,font:{size:9},pointStyleWidth:10,generateLabels:function(c){return c.data.datasets.map(function(ds,i){return{text:ds.label,fillStyle:'transparent',strokeStyle:ds.borderColor,lineWidth:ds.borderWidth,index:i,pointStyle:'line',rotation:0}})}}};
+                op.scales.y.min=0;op.scales.y.title={display:true,text:'km/h',font:{size:8,weight:'600'}};
+                cDiario=new Chart(ctx,{type:'line',data:{labels:labels,datasets:[
+                    {label:'Vel',data:dades.map(function(x){return x.vent_velocitat}),borderColor:'#d97706',borderWidth:1,tension:0.3,fill:false,pointRadius:0,pointHoverRadius:4},
+                    {label:'Ratxa',data:dades.map(function(x){return x.vent_ratxa}),borderColor:'#dc3545',borderWidth:0.7,borderDash:[3,2],tension:0.3,fill:false,pointRadius:0,pointHoverRadius:4}
+                ]},options:op});
+            }else if(v==='humitat'){
+                var op=JSON.parse(JSON.stringify(bo));op.scales.y.min=0;op.scales.y.max=100;op.scales.y.title={display:true,text:'%',font:{size:8,weight:'600'}};op.scales.y.ticks.stepSize=20;op.plugins.tooltip.callbacks={label:function(c){return c.parsed.y+'%'}};
+                cDiario=new Chart(ctx,{type:'line',data:{labels:labels,datasets:[{data:dades.map(function(x){return x.humitat}),borderColor:'#0ea5e9',borderWidth:1.3,tension:0.35,fill:false,pointRadius:0,pointHoverRadius:4}]},options:op});
+            }else if(v==='pressio'){
+                var op=JSON.parse(JSON.stringify(bo));op.scales.y.title={display:true,text:'hPa',font:{size:8,weight:'600'}};op.plugins.tooltip.callbacks={label:function(c){return c.parsed.y.toFixed(1)+' hPa'}};
+                cDiario=new Chart(ctx,{type:'line',data:{labels:labels,datasets:[{data:dades.map(function(x){return x.pressio}),borderColor:'#8b5cf6',borderWidth:1.3,tension:0.3,fill:false,pointRadius:0,pointHoverRadius:4}]},options:op});
+            }else if(v==='nuvolositat'){
+                var op=JSON.parse(JSON.stringify(bo));op.scales.y.min=0;op.scales.y.max=8;op.scales.y.title={display:true,text:'Octes',font:{size:8,weight:'600'}};op.scales.y.ticks.stepSize=2;op.plugins.tooltip.callbacks={label:function(c){return c.parsed.y+'/8 octes'}};
+                cDiario=new Chart(ctx,{type:'line',data:{labels:labels,datasets:[{data:dades.map(function(x){return x.nuvolositat}),borderColor:'#64748b',borderWidth:1.3,tension:0.3,fill:false,pointRadius:0,pointHoverRadius:4}]},options:op});
+            }
+        }
+
+        function actualizarExtrems(){
+            var z=getZona();if(!z)return;
+            if(cTemp){cTemp.destroy();cTemp=null}
+            if(cPluja){cPluja.destroy();cPluja=null}
+            if(cHumitat){cHumitat.destroy();cHumitat=null}
+
+            var anysV=[],tmaxs=[],tmins=[],pluges=[],hmaxs=[],hmins=[];
+
+            DADES_METEO_CATALUNYA.anys_disponibles.forEach(function(a){
+                var d=getDadesAny(z,a);
+                if(!d){anysV.push(parseInt(a));tmaxs.push(null);tmins.push(null);pluges.push(null);hmaxs.push(null);hmins.push(null);return}
+                var e=calcExtremsAny(d);
+                anysV.push(parseInt(a));
+                tmaxs.push(e.tmax);tmins.push(e.tmin);pluges.push(e.pluja);hmaxs.push(e.hmax);hmins.push(e.hmin);
+            });
+
+            var primerAnyTemp = -1, primerAnyPluja = -1, primerAnyHum = -1;
+            for(var i=0;i<anysV.length;i++){
+                if(primerAnyTemp === -1 && tmaxs[i] !== null && tmins[i] !== null) primerAnyTemp = i;
+                if(primerAnyPluja === -1 && pluges[i] !== null) primerAnyPluja = i;
+                if(primerAnyHum === -1 && hmaxs[i] !== null && hmins[i] !== null) primerAnyHum = i;
+            }
+
+            var anysTemp = anysV.slice(primerAnyTemp);
+            var tmaxsF = tmaxs.slice(primerAnyTemp);
+            var tminsF = tmins.slice(primerAnyTemp);
+
+            var anysPluja = anysV.slice(primerAnyPluja);
+            var plugesF = pluges.slice(primerAnyPluja);
+
+            var anysHum = anysV.slice(primerAnyHum);
+            var hmaxsF = hmaxs.slice(primerAnyHum);
+            var hminsF = hmins.slice(primerAnyHum);
+
+            var validosT=[], validosP=[], validosH=[];
+            for(var i=0;i<tmaxsF.length;i++){
+                if(tmaxsF[i]!==null && tminsF[i]!==null) validosT.push(i);
+            }
+            for(var i=0;i<plugesF.length;i++){
+                if(plugesF[i]!==null) validosP.push(i);
+            }
+            for(var i=0;i<hmaxsF.length;i++){
+                if(hmaxsF[i]!==null && hminsF[i]!==null) validosH.push(i);
+            }
+
+            var ob={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(18,18,40,0.94)',bodyFont:{size:9},padding:8,cornerRadius:5,displayColors:false}},scales:{y:{grid:{color:'rgba(0,0,0,0.04)',drawBorder:false},border:{display:false},ticks:{font:{size:8}}},x:{grid:{display:false},border:{display:false},ticks:{font:{size:7},maxRotation:45,autoSkip:true,maxTicksLimit:12}}}};
+
+            // --- TEMPERATURES ---
+            if(anysTemp.length > 0 && validosT.length > 0){
+                var ctxT=document.getElementById('chartTemp').getContext('2d');
+                var optT=JSON.parse(JSON.stringify(ob));
+                optT.scales.y.title={display:true,text:'°C',font:{size:8,weight:'600'}};
+                optT.plugins.legend={position:'top',labels:{usePointStyle:true,padding:10,font:{size:9},pointStyleWidth:10,generateLabels:function(c){return c.data.datasets.map(function(ds,i){return{text:ds.label,fillStyle:'transparent',strokeStyle:ds.borderColor,lineWidth:ds.borderWidth,index:i,pointStyle:'line',rotation:0}})}}};
+                
+                var mitjanaTmax=tmaxsF.filter(function(v){return v!==null}).reduce(function(a,b){return a+b},0)/validosT.length;
+                var mitjanaTmin=tminsF.filter(function(v){return v!==null}).reduce(function(a,b){return a+b},0)/validosT.length;
+                
+                cTemp=new Chart(ctxT,{type:'line',data:{labels:anysTemp,datasets:[
+                    {label:'T. Maxima',data:tmaxsF,borderColor:'#dc3545',backgroundColor:'transparent',borderWidth:1.4,tension:0.2,fill:false,pointRadius:0,pointHoverRadius:4,spanGaps:true},
+                    {label:'T. Minima',data:tminsF,borderColor:'#2563eb',backgroundColor:'transparent',borderWidth:1.4,tension:0.2,fill:false,pointRadius:0,pointHoverRadius:4,spanGaps:true},
+                    {label:'Mitjana max',data:anysTemp.map(function(){return mitjanaTmax}),borderColor:'rgba(220,53,69,0.3)',backgroundColor:'transparent',borderWidth:0.8,borderDash:[6,4],tension:0,fill:false,pointRadius:0,spanGaps:false},
+                    {label:'Mitjana min',data:anysTemp.map(function(){return mitjanaTmin}),borderColor:'rgba(37,99,235,0.3)',backgroundColor:'transparent',borderWidth:0.8,borderDash:[6,4],tension:0,fill:false,pointRadius:0,spanGaps:false}
+                ]},options:optT});
+            }
+
+            // --- PLUJA (línia) ---
+            if(anysPluja.length > 0 && validosP.length > 0){
+                var ctxP=document.getElementById('chartPluja').getContext('2d');
+                var optP=JSON.parse(JSON.stringify(ob));
+                optP.scales.y.min=0;optP.scales.y.title={display:true,text:'mm',font:{size:8,weight:'600'}};
+                optP.plugins.legend={position:'top',labels:{usePointStyle:true,padding:10,font:{size:9},pointStyleWidth:10,generateLabels:function(c){return c.data.datasets.map(function(ds,i){return{text:ds.label,fillStyle:'transparent',strokeStyle:ds.borderColor,lineWidth:ds.borderWidth,index:i,pointStyle:'line',rotation:0}})}}};
+                
+                var mitjanaP=plugesF.filter(function(v){return v!==null}).reduce(function(a,b){return a+b},0)/validosP.length;
+                
+                cPluja=new Chart(ctxP,{type:'line',data:{labels:anysPluja,datasets:[
+                    {label:'Pluja total',data:plugesF,borderColor:'#059669',backgroundColor:'rgba(5,150,105,0.08)',borderWidth:2,tension:0.2,fill:true,pointRadius:3,pointHoverRadius:5,pointBackgroundColor:'#059669',spanGaps:true},
+                    {label:'Mitjana',data:anysPluja.map(function(){return mitjanaP}),borderColor:'rgba(0,0,0,0.15)',backgroundColor:'transparent',borderWidth:0.8,borderDash:[6,4],tension:0,fill:false,pointRadius:0,spanGaps:false}
+                ]},options:optP});
+            }
+
+            // --- HUMITAT ---
+            if(anysHum.length > 0 && validosH.length > 0){
+                var ctxH=document.getElementById('chartHumitat').getContext('2d');
+                var optH=JSON.parse(JSON.stringify(ob));
+                optH.scales.y.min=0;optH.scales.y.max=100;optH.scales.y.title={display:true,text:'%',font:{size:8,weight:'600'}};
+                optH.plugins.legend={position:'top',labels:{usePointStyle:true,padding:10,font:{size:9},pointStyleWidth:10,generateLabels:function(c){return c.data.datasets.map(function(ds,i){return{text:ds.label,fillStyle:'transparent',strokeStyle:ds.borderColor,lineWidth:ds.borderWidth,index:i,pointStyle:'line',rotation:0}})}}};
+                cHumitat=new Chart(ctxH,{type:'line',data:{labels:anysHum,datasets:[
+                    {label:'H. Maxima',data:hmaxsF,borderColor:'#0ea5e9',backgroundColor:'transparent',borderWidth:1.4,tension:0.2,fill:false,pointRadius:0,pointHoverRadius:4,spanGaps:true},
+                    {label:'H. Minima',data:hminsF,borderColor:'#ca8a04',backgroundColor:'transparent',borderWidth:1.4,tension:0.2,fill:false,pointRadius:0,pointHoverRadius:4,spanGaps:true}
+                ]},options:optH});
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded',init);
+    </script>
+    <script src="js/rangs.js"></script>
+</body>
+</html>

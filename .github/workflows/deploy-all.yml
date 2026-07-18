@@ -1,0 +1,156 @@
+name: AROME PI
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  deployments: write
+
+jobs:
+  arome-rapid:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.PRIVATE_REPO_TOKEN }}
+    
+    - name: Checkout private submodule
+      run: |
+        git config --global url."https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/".insteadOf "https://github.com/"
+        git submodule update --init --recursive
+    
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Instal·lar dependències
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libgeos-dev libproj-dev proj-data proj-bin
+        python3 -m pip install --upgrade pip
+        python3 -m pip install numpy requests tifffile scipy python-dotenv lxml
+      continue-on-error: true
+
+    # ==================== SINCRONITZAR I BACKUP ====================
+    - name: Sincronitzar i fer backup
+      run: |
+        cd meu-mapa
+        git pull --rebase origin main 2>/dev/null || git pull --rebase origin master 2>/dev/null || true
+        
+        # Backup de TOTES les carpetes EXCEPTE web_data2
+        mkdir -p /tmp/backup_public
+        for dir in public/*/; do
+          dirname=$(basename "$dir")
+          if [ "$dirname" != "web_data2" ]; then
+            cp -r "$dir" /tmp/backup_public/ 2>/dev/null || true
+            echo "  Backup preservat: $dirname"
+          fi
+        done
+        echo "Backup completat"
+
+    # ==================== NETEJAR NOMÉS web_data2 ====================
+    - name: Netejar web_data2
+      run: |
+        rm -rf meu-mapa/public/web_data2/*
+        echo "web_data2 netejat"
+
+    # ==================== EXECUTAR all2.py ====================
+    - name: Executar all2.py
+      run: |
+        cd private-scripts
+        sed -i 's/"api_key": "[^"]*"/"api_key": "${{ secrets.AROMEPI_API_KEY }}"/' config2.json
+        sed -i 's|"output_dir": "[^"]*"|"output_dir": "../meu-mapa/public/web_data2"|' config2.json
+        
+        MAX_INTENTS=3
+        INTENT=0
+        EXIT_CODE=1
+        
+        while [ $INTENT -lt $MAX_INTENTS ]; do
+          INTENT=$((INTENT+1))
+          echo "============================================"
+          echo "Intento $INTENT de $MAX_INTENTS"
+          echo "============================================"
+          
+          python3 all2.py
+          EXIT_CODE=$?
+          
+          if [ $EXIT_CODE -eq 0 ]; then
+            echo "✅ Èxit a l'intent $INTENT!"
+            break
+          else
+            echo "❌ Intento $INTENT ha fallat (codi $EXIT_CODE)."
+            if [ $INTENT -lt $MAX_INTENTS ]; then
+              echo "Esperant 30 segons..."
+              sleep 30
+            fi
+          fi
+        done
+        
+        if [ $EXIT_CODE -ne 0 ]; then
+          echo "❌ Tots els intents han fallat."
+          exit $EXIT_CODE
+        fi
+      timeout-minutes: 200
+
+    # ==================== RESTAURAR ====================
+    - name: Restaurar carpetes preservades
+      run: |
+        echo "Restaurant carpetes que no són web_data2..."
+        if [ -d "/tmp/backup_public" ]; then
+          for dir in /tmp/backup_public/*/; do
+            dirname=$(basename "$dir")
+            if [ "$dirname" != "web_data2" ]; then
+              rm -rf "meu-mapa/public/$dirname"
+              cp -r "$dir" "meu-mapa/public/$dirname"
+              echo "  Restaurat: $dirname"
+            fi
+          done
+        fi
+
+    # ==================== RESUM ====================
+    - name: Resum
+      run: |
+        echo "============================================"
+        echo "  RESUM DESPRÉS D'EXECUTAR all2.py"
+        echo "============================================"
+        echo "web_data (preservat):   $(find meu-mapa/public/web_data -type f 2>/dev/null | wc -l) fitxers"
+        echo "web_data2 (ACTUALITZAT): $(find meu-mapa/public/web_data2 -type f 2>/dev/null | wc -l) fitxers"
+        echo "webdataEU (preservat):  $(find meu-mapa/public/webdataEU -type f 2>/dev/null | wc -l) fitxers"
+
+    # ==================== GUARDAR NOMÉS web_data2 ====================
+    - name: Guardar web_data2 al repositori
+      run: |
+        cd meu-mapa
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        
+        git add public/web_data2/
+        
+        if [[ -n $(git status --porcelain) ]]; then
+          git commit -m "AROME Ràpid (all2) - $(date -u +'%Y-%m-%d %H:%M UTC')"
+          git pull --rebase origin main 2>/dev/null || git pull --rebase origin master 2>/dev/null || true
+          git push origin HEAD:main || git push origin HEAD:master
+          echo "✅ web_data2 guardat"
+        else
+          echo "ℹ️ Sense canvis a web_data2"
+        fi
+
+    # ==================== DEPLOY ====================
+    - name: Deploy a Cloudflare
+      run: |
+        cd meu-mapa
+        npm install -g wrangler
+        wrangler pages deploy public --project-name=tempestes-cat --branch=production --commit-dirty=true
+      env:
+        CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      continue-on-error: true
+
+    - name: Completat
+      run: |
+        echo "============================================"
+        echo "  ALL2.PY COMPLETAT - web_data2 actualitzat"
+        echo "============================================"

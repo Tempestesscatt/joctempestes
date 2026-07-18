@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AROME-PI · Caça Tempestes · Catalunya</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link rel="icon" type="image/png" href="img/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QDWCZ0Z9XF"></script>
+    <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-QDWCZ0Z9XF');</script>
+    <style>
+        :root{--bg:#0a0f18;--bg2:#111927;--bg3:#182233;--bg4:#1d2a3f;--border:#1e2d42;--border2:#263548;--text:#dde4ee;--text2:#8899b4;--text3:#556680;--accent:#4a90d9;--accent2:#5da0e9;--danger:#e05555;--success:#45b070;--warning:#d9a040;--radius:6px;--radius2:10px;--font:'Segoe UI',system-ui,sans-serif;--mono:'SF Mono','Consolas',monospace}
+        *{margin:0;padding:0;box-sizing:border-box}html,body{height:100%;width:100%;background:var(--bg);color:var(--text);font-family:var(--font);font-size:12px;overflow:hidden}
+        ::-webkit-scrollbar{width:3px;height:3px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+        #pi-loader-overlay{position:fixed;inset:0;z-index:99999;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;transition:opacity .5s}
+        #pi-loader-overlay.fade-out{opacity:0;pointer-events:none}.pi-loader-logo{font-family:var(--mono);font-size:28px;font-weight:700;letter-spacing:3px;color:var(--text)}.pi-loader-logo span{color:var(--accent)}.pi-loader-sub{font-size:10px;letter-spacing:1.5px;color:var(--text3);text-transform:uppercase}.pi-spinner{width:30px;height:30px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+        #pi-app{display:flex;flex-direction:column;height:100%;width:100%;opacity:0;transition:opacity .5s}
+        #pi-header{height:36px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 10px;gap:8px;flex-shrink:0;z-index:1000}
+        .pi-logo{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:1.2px;color:var(--text)}.pi-logo span{color:var(--accent)}.pi-logo-sub{font-size:6px;color:var(--text3)}
+        #pi-run-info{display:flex;align-items:center;gap:6px;margin-left:auto;font-family:var(--mono);font-size:7px;color:var(--text2);background:var(--bg3);padding:2px 8px;border-radius:var(--radius);border:1px solid var(--border)}
+        .pi-header-right{display:flex;align-items:center;gap:6px;margin-left:8px}#pi-btn-login{padding:3px 10px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius);font-size:9px;font-weight:600;cursor:pointer}#pi-btn-login:hover{background:var(--accent2)}
+        #pi-user-pill{display:none;align-items:center;gap:5px;padding:2px 8px;background:var(--bg3);border:1px solid var(--border);border-radius:20px;cursor:pointer}.pi-avatar{width:20px;height:20px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;overflow:hidden}.pi-avatar img{width:100%;height:100%;object-fit:cover}.pi-username{font-size:9px;font-weight:600;color:var(--text)}
+        #pi-cacera-bar{height:24px;background:linear-gradient(90deg,#0d1a0d,#1a2a1a,#0d1a0d);border-bottom:1px solid #1a3a1a;display:none;align-items:center;padding:0 8px;gap:6px;flex-shrink:0}.pi-cacera-dot{width:7px;height:7px;border-radius:50%;background:#0f0;box-shadow:0 0 6px #0f0;animation:radarPing 1.5s ease-in-out infinite}@keyframes radarPing{0%,100%{opacity:1}50%{opacity:.3}}.pi-cacera-text{font-family:var(--mono);font-size:9px;color:#0f0}.pi-cacera-coords{font-family:var(--mono);font-size:8px;color:#0a0;margin-left:auto}.pi-cacera-status{font-size:8px;color:#0f0;font-weight:700}.pi-cacera-range{font-size:7px;color:#0a0;margin-left:3px}
+        #pi-body{flex:1;display:flex;flex-direction:column;overflow:hidden}
+        #pi-sidebar{width:100%;max-height:105px;background:var(--bg2);border-bottom:2px solid var(--border);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;z-index:900}
+        #pi-rang-panel{padding:4px 8px;border-bottom:1px solid var(--border);background:rgba(74,144,217,.05);display:flex;align-items:center;gap:6px;flex-shrink:0;min-height:28px}#pi-rang-icon{font-size:15px;width:20px;text-align:center}#pi-rang-info{flex:1;display:flex;align-items:center;gap:8px}#pi-rang-nom{font-size:10px;font-weight:700;color:var(--accent2)}#pi-rang-punts{font-size:8px;color:var(--text3)}#pi-rang-punts strong{color:var(--accent2)}#pi-rang-bar{width:50px;height:3px;background:var(--bg3);border-radius:2px;overflow:hidden}#pi-rang-bar-fill{height:100%;border-radius:2px;transition:width .8s;width:0%;background:var(--accent)}
+        #pi-varpanel{flex:1;overflow-x:auto;overflow-y:hidden;padding:4px 6px;white-space:nowrap;display:flex;align-items:center;gap:3px}
+        .pi-var-btn{display:inline-flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:4px 8px;background:var(--bg3);border:1px solid var(--border);color:var(--text2);font-size:8px;cursor:pointer;border-radius:var(--radius);transition:all .12s;white-space:nowrap;flex-shrink:0;gap:1px;max-width:120px;overflow:hidden;text-overflow:ellipsis}.pi-var-btn:hover{background:var(--bg4);color:var(--text)}.pi-var-btn.active{background:linear-gradient(135deg,#1a3052,#1d3a5f);color:var(--accent2);font-weight:600;border:2px solid var(--accent);box-shadow:0 0 8px rgba(74,144,217,.2)}.pi-var-btn.locked{opacity:.4;cursor:pointer;border-style:dashed}.pi-var-btn.locked::after{content:' 🔒';font-size:7px;color:var(--warning)}.pi-var-desc{display:none}.pi-var-btn.active .pi-var-desc{display:block;font-size:6px;color:var(--accent2);opacity:.8;margin-top:1px}
+        #pi-mapzone{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0}
+        #pi-animbar{height:24px;background:var(--bg);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 6px;gap:3px;flex-shrink:0}.pi-anim-btn{background:var(--bg3);border:1px solid var(--border);color:var(--text2);font-size:7px;padding:2px 6px;cursor:pointer;border-radius:var(--radius);transition:all .12s;font-weight:500;white-space:nowrap}.pi-anim-btn:hover{background:var(--bg4);color:var(--text)}.pi-anim-btn.vent-active{background:#1a3052;border-color:var(--accent);color:var(--accent2);font-weight:700}.pi-anim-btn.cacera-active{background:#1a3a1a;border-color:#0f0;color:#0f0;font-weight:700}#pi-anim-info{margin-left:4px;font-family:var(--mono);font-size:7px;color:var(--text2)}#pi-vent-altura{background:var(--bg3);border:1px solid var(--border);color:var(--text2);font-size:7px;padding:2px 4px;cursor:pointer;border-radius:var(--radius);outline:none}#pi-btnInfo,#pi-btnChat{background:var(--accent);border:none;color:#fff;font-size:8px;font-weight:700;padding:2px 8px;cursor:pointer;border-radius:var(--radius);margin-left:auto;white-space:nowrap}#pi-btnChat{background:#d4a843;color:#000;margin-left:3px}
+        #pi-inner{flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative}
+        #pi-hourbar{width:100%;height:34px;background:var(--bg);border-bottom:1px solid var(--border);display:flex;overflow:hidden;flex-shrink:0}.pi-hour-column-title{padding:2px 6px;display:flex;align-items:center;font-size:7px;font-weight:700;color:var(--text3);border-right:1px solid var(--border);white-space:nowrap}#pi-llista-hores{flex:1;display:flex;overflow-x:auto}.pi-hour-link{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2px 5px;cursor:pointer;border-right:1px solid var(--border);min-width:36px;transition:all .12s;gap:1px;flex-shrink:0}.pi-hour-link:hover{background:var(--bg3)}.pi-hour-link.active{background:#1a3052;border-bottom:2px solid var(--accent)}.pi-hour-main{font-family:var(--mono);font-size:8px;font-weight:600;color:var(--text2)}.pi-hour-utc{font-size:6px;color:var(--text3)}
+        #pi-canvas-wrap{flex:1;position:relative;overflow:hidden}#map{width:100%;height:100%;background:#080d16}.leaflet-control-zoom,.leaflet-control-attribution{display:none!important}
+        #pi-overlay{position:absolute;top:5px;left:5px;z-index:800;pointer-events:none;background:rgba(11,17,29,.9);border:1px solid var(--border2);border-radius:var(--radius);padding:3px 7px}#pi-overlay-date{font-family:var(--mono);font-size:7px;font-weight:600;color:var(--text2)}#pi-overlay-local{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--text)}#pi-overlay-utc{font-size:6px;color:var(--text3)}#pi-overlay-delta{display:inline-block;margin-top:2px;background:rgba(224,85,85,.12);border:1px solid var(--danger);border-radius:var(--radius);color:#f07070;font-size:6px;font-weight:700;padding:0 4px;font-family:var(--mono)}
+        #pi-legend{position:absolute;bottom:10px;left:5px;z-index:800;background:rgba(11,17,29,.9);border:1px solid var(--border2);border-radius:var(--radius);padding:4px 6px;min-width:100px}.pi-leg-title{font-size:6px;font-weight:700;color:var(--text2);text-transform:uppercase}#pi-leg-bar{height:5px;border:1px solid var(--border);border-radius:2px;margin-bottom:2px;overflow:hidden}#pi-leg-ticks{display:flex;justify-content:space-between;font-size:5px;color:var(--text3);font-family:var(--mono)}
+        .leaflet-popup-content-wrapper{background:var(--bg2)!important;border:1px solid var(--border2)!important;border-radius:var(--radius2)!important;color:var(--text)!important;box-shadow:0 8px 32px rgba(0,0,0,.55)!important;font-size:9px!important}.leaflet-popup-tip{background:var(--bg2)!important}.leaflet-popup-close-button{color:var(--text3)!important}
+        #pi-chat-panel{position:fixed;bottom:10px;right:10px;z-index:9000;width:280px;max-width:90vw;height:320px;max-height:55vh;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius2);display:none;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,.6)}#pi-chat-panel.open{display:flex}.pi-chat-titlebar{background:var(--bg3);padding:6px 10px;display:flex;align-items:center;gap:6px;border-bottom:1px solid var(--border);font-size:10px;font-weight:600;color:var(--text)}.pi-chat-close{margin-left:auto;background:none;border:none;color:var(--text3);cursor:pointer;font-size:14px}.pi-chat-close:hover{color:var(--danger)}.pi-chat-msgs{flex:1;overflow-y:auto;padding:6px;display:flex;flex-direction:column;gap:5px;font-size:9px}.pi-chat-msg{display:flex;flex-direction:column}.pi-chat-msg-header{display:flex;align-items:center;gap:4px;margin-bottom:2px}.pi-chat-msg-avatar{width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden}.pi-chat-msg-avatar img{width:100%;height:100%;object-fit:cover}.pi-chat-msg-name{font-weight:700;font-size:8px;color:var(--accent2)}.pi-chat-msg-time{font-size:7px;color:var(--text3);margin-left:auto}.pi-chat-msg-bubble{background:var(--bg3);padding:3px 8px;border-radius:8px;max-width:85%;word-break:break-word;color:var(--text);line-height:1.3}#pi-chat-typing{font-size:7px;color:var(--text3);padding:2px 6px;font-style:italic;min-height:14px}.pi-chat-input-area{display:flex;gap:3px;padding:5px 6px;border-top:1px solid var(--border)}.pi-chat-input{flex:1;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:4px 6px;border-radius:var(--radius);font-size:9px;font-family:var(--font);outline:none}.pi-chat-input:focus{border-color:var(--accent)}.pi-chat-send{background:var(--accent);border:none;color:#fff;padding:4px 10px;border-radius:var(--radius);cursor:pointer;font-size:9px;font-weight:700}
+        .chat-msg-react-btn{background:transparent;border:1px solid rgba(255,255,255,.15);color:#ffd700;cursor:pointer;font-size:10px;padding:1px 4px;border-radius:8px;margin-left:3px;display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px}.chat-msg-react-btn:hover{background:rgba(255,255,255,.1)}.react-picker{position:absolute;bottom:25px;left:0;background:#1a1a2e;border:1px solid #263548;border-radius:8px;padding:4px;display:flex;gap:3px;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,.6)}.react-picker-item{width:28px;height:28px;border-radius:4px;cursor:pointer;object-fit:contain;padding:3px;border:2px solid transparent;background:rgba(255,255,255,.03);flex-shrink:0}.react-picker-item:hover{background:rgba(255,255,255,.1);border-color:#4a90d9;transform:scale(1.1)}.chat-msg-reacts{display:flex;flex-wrap:wrap;gap:3px;margin-top:3px}.react-pill{display:inline-flex;align-items:center;gap:1px;background:rgba(255,255,255,.05);border:1px solid #263548;border-radius:10px;padding:1px 4px 1px 2px;cursor:pointer;font-size:9px;color:#8899b4}.react-pill:hover{background:rgba(74,144,217,.15);border-color:#4a90d9}.react-pill.mine{background:rgba(74,144,217,.2);border-color:#4a90d9;color:#5da0e9}.react-pill-img{width:16px;height:16px;object-fit:contain}.react-pill-count{font-weight:600;font-size:9px;margin-left:1px}
+        #pi-faq-overlay{display:none;position:fixed;inset:0;z-index:99999;background:rgba(4,8,16,.8);justify-content:center;align-items:center}#pi-faq-overlay.active{display:flex}#pi-faq-box{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius2);width:95vw;max-width:720px;max-height:85vh;overflow-y:auto;font-size:10px;color:var(--text);box-shadow:0 8px 32px rgba(0,0,0,.55)}#pi-faq-box h2{background:linear-gradient(135deg,#1a3052,#0d1a2a);color:var(--accent2);font-size:12px;padding:8px 12px;margin:0;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;border-bottom:1px solid var(--border)}#pi-faq-box h3{font-size:11px;color:var(--accent2);margin:14px 16px 6px;padding-bottom:3px;border-bottom:1px solid var(--border)}#pi-faq-box p{margin:5px 16px 8px;line-height:1.5;font-size:10px;color:var(--text2)}#pi-faq-close{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);color:var(--text2);font-weight:700;font-size:11px;cursor:pointer;padding:3px 8px}#pi-faq-close:hover{background:var(--danger);color:#fff;border-color:var(--danger)}
+        #pi-login-overlay{display:none;position:fixed;inset:0;z-index:99998;background:rgba(0,0,0,.7);justify-content:center;align-items:center}#pi-login-overlay.active{display:flex}.pi-login-box{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius2);padding:20px;width:90vw;max-width:320px;text-align:center}.pi-login-box h3{font-size:14px;color:var(--text);margin-bottom:6px}.pi-login-box p{font-size:9px;color:var(--text3);margin-bottom:14px}.pi-login-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:8px;background:#fff;color:#333;border:1px solid #ddd;border-radius:var(--radius);font-size:11px;font-weight:600;cursor:pointer}.pi-login-close{margin-top:10px;background:none;border:none;color:var(--text3);cursor:pointer;font-size:9px}
+    </style>
+</head>
+<body>
+
+<div id="pi-loader-overlay"><div class="pi-loader-logo">AROME<span>-</span>PI</div><div class="pi-loader-sub">Caça Tempestes · Catalunya</div><div class="pi-spinner"></div></div>
+
+<div id="pi-app">
+    <div id="pi-header">
+        <div><div class="pi-logo">AROME<span>-</span>PI</div><div class="pi-logo-sub">caça tempestes</div></div>
+        <div id="pi-run-info"><span class="run-label">RUN</span><span class="run-value" id="pi-run-datetime">--:--Z</span><span class="run-age" id="pi-run-age">(carregant...)</span></div>
+        <div class="pi-header-right">
+            <button id="pi-btn-login" onclick="openPILogin()">Iniciar sessió</button>
+            <div id="pi-user-pill" onclick="logoutPI()"><div class="pi-avatar" id="pi-avatar">U</div><span class="pi-username" id="pi-username">Usuari</span></div>
+        </div>
+    </div>
+
+    <div id="pi-cacera-bar"><div class="pi-cacera-dot"></div><span class="pi-cacera-text">MODE CAÇA ACTIU</span><span class="pi-cacera-status">ESCOLTANT</span><span class="pi-cacera-range">RANG 50km</span><span class="pi-cacera-coords" id="piCaceraCoords">--.----°N --.----°E</span></div>
+
+    <div id="pi-body">
+        <div id="pi-sidebar">
+            <div id="pi-rang-panel"><div id="pi-rang-icon"><i class="fa-solid fa-seedling" style="color:var(--accent2);"></i></div><div id="pi-rang-info"><div id="pi-rang-nom">Nouvingut</div><div id="pi-rang-punts"><strong>0</strong> pts</div><div id="pi-rang-bar"><div id="pi-rang-bar-fill"></div></div></div></div>
+            <div id="pi-varpanel">
+                <button class="pi-var-btn active" data-var="reflectivity">Reflectivitat<span class="pi-var-desc">dBZ</span></button>
+                <button class="pi-var-btn locked" data-var="stp" data-pro="1">Tornado STP<span class="pi-var-desc">index</span></button>
+                <button class="pi-var-btn locked" data-var="ica" data-pro="1">Conveccio ICA<span class="pi-var-desc">index</span></button>
+                <button class="pi-var-btn locked" data-var="ehi" data-pro="1">Helicoidal EHI<span class="pi-var-desc">index</span></button>
+                <button class="pi-var-btn locked" data-var="diag_grele" data-pro="1">Diagnostic granis<span class="pi-var-desc">index</span></button>
+                <button class="pi-var-btn" data-var="diag_fog">Boira<span class="pi-var-desc">index</span></button>
+                <button class="pi-var-btn" data-var="total_precip_rate">Ritme precip.<span class="pi-var-desc">mm/h</span></button>
+                <button class="pi-var-btn" data-var="total_precip">Precip. total<span class="pi-var-desc">kg/m²</span></button>
+                <button class="pi-var-btn locked" data-var="total_snow" data-pro="1">Neu total<span class="pi-var-desc">kg/m²</span></button>
+                <button class="pi-var-btn locked" data-var="graupel" data-pro="1">Graneu<span class="pi-var-desc">kg/m²</span></button>
+                <button class="pi-var-btn" data-var="precip_fzn">Pluja gelada<span class="pi-var-desc">index</span></button>
+                <button class="pi-var-btn" data-var="severe_precip_type">Tipus precip.</button>
+                <button class="pi-var-btn" data-var="t_2m">Temp. 2m<span class="pi-var-desc">°C</span></button>
+                <button class="pi-var-btn locked" data-var="t_10m" data-pro="1">Temp. 10m<span class="pi-var-desc">°C</span></button>
+                <button class="pi-var-btn locked" data-var="t_20m" data-pro="1">Temp. 20m<span class="pi-var-desc">°C</span></button>
+                <button class="pi-var-btn locked" data-var="t_50m" data-pro="1">Temp. 50m<span class="pi-var-desc">°C</span></button>
+                <button class="pi-var-btn locked" data-var="t_100m" data-pro="1">Temp. 100m<span class="pi-var-desc">°C</span></button>
+                <button class="pi-var-btn locked" data-var="t_250m" data-pro="1">Temp. 250m<span class="pi-var-desc">°C</span></button>
+                <button class="pi-var-btn locked" data-var="t_500m" data-pro="1">Temp. 500m<span class="pi-var-desc">°C</span></button>
+                <button class="pi-var-btn" data-var="rh_10m">Humitat 10m<span class="pi-var-desc">%</span></button>
+                <button class="pi-var-btn locked" data-var="rh_20m" data-pro="1">Humitat 20m<span class="pi-var-desc">%</span></button>
+                <button class="pi-var-btn locked" data-var="rh_50m" data-pro="1">Humitat 50m<span class="pi-var-desc">%</span></button>
+                <button class="pi-var-btn locked" data-var="rh_100m" data-pro="1">Humitat 100m<span class="pi-var-desc">%</span></button>
+                <button class="pi-var-btn locked" data-var="rh_250m" data-pro="1">Humitat 250m<span class="pi-var-desc">%</span></button>
+                <button class="pi-var-btn locked" data-var="rh_500m" data-pro="1">Humitat 500m<span class="pi-var-desc">%</span></button>
+                <button class="pi-var-btn locked" data-var="rh_1000m" data-pro="1">Humitat 1000m<span class="pi-var-desc">%</span></button>
+                <button class="pi-var-btn locked" data-var="rh_2000m" data-pro="1">Humitat 2000m<span class="pi-var-desc">%</span></button>
+                <button class="pi-var-btn locked" data-var="rh_3000m" data-pro="1">Humitat 3000m<span class="pi-var-desc">%</span></button>
+                <button class="pi-var-btn locked" data-var="dp_10m" data-pro="1">Punt ros. 10m<span class="pi-var-desc">°C</span></button>
+                <button class="pi-var-btn locked" data-var="dp_100m" data-pro="1">Punt ros. 100m<span class="pi-var-desc">°C</span></button>
+                <button class="pi-var-btn locked" data-var="dp_500m" data-pro="1">Punt ros. 500m<span class="pi-var-desc">°C</span></button>
+                <button class="pi-var-btn locked" data-var="pr_10m" data-pro="1">Pressio 10m<span class="pi-var-desc">hPa</span></button>
+                <button class="pi-var-btn" data-var="high_cloud">Nuvols alts<span class="pi-var-desc">%</span></button>
+                <button class="pi-var-btn" data-var="medium_cloud">Nuvols mitjans<span class="pi-var-desc">%</span></button>
+                <button class="pi-var-btn locked" data-var="cb_top_pressure" data-pro="1">Cim CB<span class="pi-var-desc">hPa</span></button>
+                <button class="pi-var-btn locked" data-var="cloud_top_pressure" data-pro="1">Cim nuvols<span class="pi-var-desc">hPa</span></button>
+                <button class="pi-var-btn" data-var="wind_speed_10m">Vel. vent 10m<span class="pi-var-desc">km/h</span></button>
+                <button class="pi-var-btn locked" data-var="wind_speed_20m" data-pro="1">Vel. vent 20m<span class="pi-var-desc">km/h</span></button>
+                <button class="pi-var-btn locked" data-var="wind_speed_100m" data-pro="1">Vel. vent 100m<span class="pi-var-desc">km/h</span></button>
+                <button class="pi-var-btn locked" data-var="wind_speed_250m" data-pro="1">Vel. vent 250m<span class="pi-var-desc">km/h</span></button>
+                <button class="pi-var-btn locked" data-var="wind_speed_500m" data-pro="1">Vel. vent 500m<span class="pi-var-desc">km/h</span></button>
+                <button class="pi-var-btn locked" data-var="wind_gust_15min" data-pro="1">Ratxa 15min<span class="pi-var-desc">km/h</span></button>
+                <button class="pi-var-btn locked" data-var="pressure_msl" data-pro="1">Pressio MSL<span class="pi-var-desc">hPa</span></button>
+                <button class="pi-var-btn locked" data-var="tpw_0c" data-pro="1">Alçada 0°C<span class="pi-var-desc">m</span></button>
+                <button class="pi-var-btn locked" data-var="tpw_1c" data-pro="1">Alçada 1°C<span class="pi-var-desc">m</span></button>
+                <button class="pi-var-btn locked" data-var="tpw_1_5c" data-pro="1">Alçada 1.5°C<span class="pi-var-desc">m</span></button>
+                <button class="pi-var-btn locked" data-var="sw_radiation" data-pro="1">Radiacio SW<span class="pi-var-desc">J/m²</span></button>
+                <button class="pi-var-btn locked" data-var="tke" data-pro="1">Turbulencia TKE<span class="pi-var-desc">J/kg</span></button>
+                <button class="pi-var-btn" data-var="visibility_mini">Visibilitat min.<span class="pi-var-desc">m</span></button>
+                <button class="pi-var-btn" data-var="visibility_precip">Visib. pluja<span class="pi-var-desc">m</span></button>
+                <button class="pi-var-btn" data-var="snow_sc">Neu estratoc.<span class="pi-var-desc">index</span></button>
+            </div>
+        </div>
+
+        <div id="pi-mapzone">
+            <div id="pi-animbar">
+                <span id="pi-anim-info">Pas 0/25</span><span style="margin-left:6px;color:#888;font-size:7px;">|</span>
+                <button class="pi-anim-btn vent-active" id="pi-btnVent">Vent</button>
+                <select id="pi-vent-altura"><option value="10">10m</option><option value="20">20m</option><option value="100">100m</option><option value="250">250m</option><option value="500">500m</option></select>
+                <button class="pi-anim-btn" id="pi-btnCacera" onclick="toggleCacera()">Caçar</button>
+                <button class="pi-anim-btn" id="pi-btnChat" onclick="togglePIChat()">Xat</button>
+                <button class="pi-anim-btn" id="pi-btnInfo" title="Guia de variables">Guia</button>
+            </div>
+            <div id="pi-inner">
+                <div id="pi-hourbar"><div class="pi-hour-column-title">T+min</div><div id="pi-llista-hores"></div></div>
+                <div id="pi-canvas-wrap">
+                    <div id="map"></div>
+                    <div id="pi-overlay"><div id="pi-overlay-date">---</div><div><span id="pi-overlay-local">--:--</span> <span id="pi-overlay-utc">--:--Z</span></div><div id="pi-overlay-delta">+0min</div></div>
+                    <div id="pi-legend"><span class="pi-leg-title">Variable</span><div class="pi-leg-desc"></div><div id="pi-leg-bar"></div><div id="pi-leg-ticks"></div><span class="pi-leg-unit"></span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="pi-faq-overlay"><div id="pi-faq-box"><h2>Guia completa de variables AROME-PI <button id="pi-faq-close">X</button></h2><p>AROME-PI es un model d'alta resolucio amb sortides cada 15 minuts fins a 6 hores. Assimilacio de radar, satel·lit i estacions.</p><h3>Mode Caça</h3><p>Activa el mode caça perque el mapa et segueixi automaticament amb la teva ubicacio GPS.</p><h3>Diagnostics severs</h3><p><strong>Reflectivitat (dBZ):</strong> Simula el radar. 20-35 dBZ pluja moderada, 45-55 dBZ tempesta forta, >65 dBZ calamarsa gran.</p><p><strong>STP:</strong> Potencial de tornado significatiu. >1 risc, >3 alt, >5 extrem.</p><p><strong>ICA:</strong> Index de capacitat convectiva. >4 conveccio forta, >8 extrema.</p><p><strong>EHI:</strong> Energia helicoidal. >2 supercel·la probable.</p><p><strong>Diagnostic granis:</strong> 4-8 moderat, 12-16 sever, >18 catastrophic.</p><p><strong>Boira:</strong> 0.3-0.6 moderada, >0.8 molt densa.</p></div></div>
+<div id="pi-login-overlay"><div class="pi-login-box"><h3>Inicia sessio</h3><p>Per accedir a les variables avançades i al xat.</p><button class="pi-login-btn" onclick="loginPIGoogle()"><svg viewBox="0 0 48 48" width="16" height="16"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.29-8.16 2.29-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Continuar amb Google</button><button class="pi-login-close" onclick="closePILogin()">Cancel·lar</button></div></div>
+<div id="pi-chat-panel"><div class="pi-chat-titlebar">Xat en directe<button class="pi-chat-close" onclick="togglePIChat()">✕</button></div><div class="pi-chat-msgs" id="piChatMsgs"><div style="text-align:center;color:var(--text3);padding:20px;">Carregant...</div></div><div id="pi-chat-typing"></div><div class="pi-chat-input-area" id="piChatInputArea"><input type="text" class="pi-chat-input" id="piChatInput" placeholder="Escriu un missatge..." maxlength="300" onkeydown="if(event.key==='Enter')enviarPIChat()"><button class="pi-chat-send" onclick="enviarPIChat()">Enviar</button></div></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="js/rangs.js"></script>
+<script src="js/mapaPI.js?v=44"></script>
+
+<!-- PUSHER XAT + REACCIONS -->
+<script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+<script src="chat/react-pusher.js"></script>
+<script>
+(function(){
+const K='54b645506c85aed5b62e',C='eu',AS='https://tempestes-cat.pages.dev/api/send-message',AM='https://tempestes-cat.pages.dev/api/get-messages';
+let p,ch,nick=localStorage.getItem('chatNick')||'',photo=localStorage.getItem('chatPhoto')||'',uid=localStorage.getItem('chatUserId')||'u_'+Math.random().toString(36).substr(2,9),lastKey=null,tt=null;
+localStorage.setItem('chatUserId',uid);
+function badge(d){if(!window.TempestescatRangs)return'';try{const pt=typeof d.rangNivell==='number'?d.rangNivell:0,rangs=window.TempestescatRangs.obtenirTotsRangs(),cl=Object.keys(rangs).map(Number).sort((a,b)=>a-b);let r={nom:'Nouvingut',color:'#556680'};for(let i=cl.length-1;i>=0;i--){if(pt>=cl[i]){r=rangs[cl[i]];break;}}return'<span style="display:inline-block;background:'+r.color+';color:#fff;font-size:7px;font-weight:700;padding:1px 4px;border-radius:6px;margin-left:3px;vertical-align:middle;">'+r.nom+'</span>';}catch(e){return'';}}
+function col(s){const c=['#4080c0','#c04040','#40a060','#c08020','#8040c0','#20a0a0','#c04080','#608020','#204080','#806020'];let h=0;for(let i=0;i<(s||'').length;i++)h=(h*31+s.charCodeAt(i))&0xffff;return c[h%c.length];}
+function esc(t){return(t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function ft(ts){if(!ts)return'';const d=new Date(ts);return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0');}
+let piChatOpen=false;
+window.togglePIChat=function(){
+    piChatOpen=!piChatOpen;document.getElementById('pi-chat-panel').classList.toggle('open',piChatOpen);
+    if(piChatOpen&&!p)initP();
+};
+function initP(){if(p)return;p=new Pusher(K,{cluster:C});ch=p.subscribe('chat-channel');
+ch.bind('new-message',function(d){if(d.key===lastKey){lastKey=null;return;}mostrarPI(d);});
+ch.bind('client-typing',function(d){if(d.nick===nick)return;document.getElementById('pi-chat-typing').textContent='✍️ '+d.nick+' escrivint...';});
+ch.bind('client-stop-typing',function(){document.getElementById('pi-chat-typing').textContent='';});
+fetch(AM).then(r=>r.json()).then(ms=>{if(ms&&ms.length){document.getElementById('piChatMsgs').innerHTML='';ms.slice(-30).forEach(m=>mostrarPI(m,true));}}).catch(()=>{});}
+async function enviarPI(text,gif){
+    if(!text&&!gif)return;
+    if(!nick){
+        var nouNick=prompt('Posa un nick per xatejar:');
+        if(!nouNick)return;
+        nick=nouNick;localStorage.setItem('chatNick',nick);
+    }
+    let rn=0;try{if(window.TempestescatRangs)rn=window.TempestescatRangs.obtenirPunts();}catch(e){}
+    try{
+        const r=await fetch(AS,{
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({
+                uid,nick,
+                text:text||'',
+                gifUrl:gif||'',
+                photo:photo||'',  // ← Enviar foto (ja està comprimida a 64x64)
+                type:gif?'gif':'msg',
+                rangNivell:rn
+            })
+        });
+        const d=await r.json();
+        if(!d.ok)throw new Error('Error');
+        lastKey=d.key;
+        document.getElementById('piChatInput').value='';
+    }catch(e){}
+}
+window.enviarPIChat=function(){const t=document.getElementById('piChatInput')?.value?.trim();if(t)enviarPI(t,null);};
+function mostrarPI(d,sil){
+    const msgs=document.getElementById('piChatMsgs');if(!msgs)return;
+    if(!sil&&document.getElementById('pimsg-'+d.key))return;
+    const own=d.uid===uid,sys=d.type==='system',gif=d.type==='gif';
+    const div=document.createElement('div');div.id='pimsg-'+d.key;div.className='pi-chat-msg'+(sys?' system':'');
+    if(sys){div.innerHTML='<div class="pi-chat-msg-bubble">'+esc(d.text)+'</div>';}
+    else{
+        const cl=col(d.nick||'X');
+        let av;if(d.uid===uid&&photo)av='<img src="'+photo+'" alt="">';else if(d.photo&&d.photo.length<5000)av='<img src="'+esc(d.photo)+'" alt="">';else av='<span>'+((d.nick||'?')[0].toUpperCase())+'</span>';
+        let mc=gif&&d.gifUrl?'<img src="'+esc(d.gifUrl)+'" alt="GIF" style="max-width:100px;max-height:80px;border-radius:4px;">':esc(d.text||'');
+        const nom=own?'Tu':esc(d.nick||'Anonim');
+        const chk=own?'<span style="margin-left:2px;font-size:7px;color:#4a90d9;">✓✓</span>':'';
+        div.innerHTML='<div class="pi-chat-msg-header"><div class="pi-chat-msg-avatar" style="background:'+cl+'">'+av+'</div><span class="pi-chat-msg-name">'+nom+badge(d)+'</span>'+chk+'<span class="pi-chat-msg-time">'+ft(d.ts)+'</span>'+(own?'':'<button class="chat-msg-react-btn" onclick="event.stopPropagation();toggleReactPicker(\''+d.key+'\',this)" title="Reaccionar">+</button>')+'</div><div class="pi-chat-msg-bubble">'+mc+'</div>';
+    }
+    msgs.appendChild(div);while(msgs.children.length>50)msgs.removeChild(msgs.firstChild);msgs.scrollTop=msgs.scrollHeight;
+    if(d.reactions&&typeof window.pintarReaccionsMsg==='function'){setTimeout(function(){window.pintarReaccionsMsg(d.key,d.reactions);},100);}
+}
+document.getElementById('piChatInput')?.addEventListener('input',function(){if(ch&&nick)ch.trigger('client-typing',{nick});clearTimeout(tt);tt=setTimeout(()=>{if(ch&&nick)ch.trigger('client-stop-typing',{nick});},2000);});
+})();
+</script>
+
+<!-- Firebase Auth -->
+<script type="module">
+import{initializeApp}from'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';import{getAuth,GoogleAuthProvider,signInWithPopup,onAuthStateChanged,signOut}from'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+const fc={apiKey:"AIzaSyBGcGUk2gsoDaHkg9Yv-nqMJ5_x-QPTMS8",authDomain:"tempestescat.firebaseapp.com",projectId:"tempestescat",storageBucket:"tempestescat.firebasestorage.app",messagingSenderId:"683240351775",appId:"1:683240351775:web:bc65d73249537b9cc28d2a"};
+const app=initializeApp(fc),auth=getAuth(app);
+window.loginWithGoogle=async()=>{try{await signInWithPopup(auth,new GoogleAuthProvider())}catch(e){alert('Error: '+e.message)}};
+window.visorLogout=async()=>{try{await signOut(auth)}catch(e){}};
+onAuthStateChanged(auth,user=>{window._firebaseUser=user;const btnLogin=document.getElementById('pi-btn-login'),userPill=document.getElementById('pi-user-pill');
+if(user){btnLogin.style.display='none';userPill.style.display='flex';document.getElementById('pi-username').textContent=user.displayName||'Usuari';document.getElementById('pi-avatar').textContent=(user.displayName||'U')[0].toUpperCase();document.querySelectorAll('.pi-var-btn.locked[data-pro="1"]').forEach(b=>b.classList.remove('locked'));window.dispatchEvent(new CustomEvent('tc:login',{detail:user}));}
+else{btnLogin.style.display='flex';userPill.style.display='none';document.querySelectorAll('.pi-var-btn[data-pro="1"]').forEach(b=>b.classList.add('locked'));window.dispatchEvent(new CustomEvent('tc:logout'));}});
+</script>
+
+<script>
+// Funció per amagar el loader (es cridarà des de mapaPI.js)
+window._amagarLoader = function() {
+    document.getElementById('pi-loader-overlay').classList.add('fade-out');
+    document.getElementById('pi-app').style.opacity = '1';
+    setTimeout(() => document.getElementById('pi-loader-overlay').style.display = 'none', 500);
+};
+
+setTimeout(() => {
+    if (typeof window._amagarLoader === 'function') {
+        window._amagarLoader();
+    }
+}, 500);
+function openPILogin(){document.getElementById('pi-login-overlay').classList.add('active')}function closePILogin(){document.getElementById('pi-login-overlay').classList.remove('active')}
+window.loginPIGoogle=function(){if(typeof window.loginWithGoogle==='function')window.loginWithGoogle()};
+window.logoutPI=function(){if(typeof window.visorLogout==='function')window.visorLogout()};
+function actualitzarRunInfo(){const runEl=document.getElementById('pi-run-datetime'),ageEl=document.getElementById('pi-run-age');if(!runEl||!ageEl)return;fetch('web_data2/status.json').then(r=>r.json()).then(data=>{let dataReferencia=null;if(data.ultima_execucio?.madrid)dataReferencia=new Date(data.ultima_execucio.madrid);else if(data.run_descargat?.madrid)dataReferencia=new Date(data.run_descargat.madrid);if(dataReferencia&&!isNaN(dataReferencia.getTime())){const diffMin=Math.floor((new Date()-dataReferencia)/60000);const diffHores=Math.floor(diffMin/60);let text='';if(diffHores>0)text=`fa ${diffHores}h ${diffMin%60}min`;else text=`fa ${diffMin}min`;ageEl.innerHTML='<span>'+text+'</span>';runEl.textContent=dataReferencia.toLocaleString('es-ES',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false})}else{runEl.textContent='--:--Z';ageEl.innerHTML='<span class="run-error">(sense dades)</span>'}}).catch(()=>{runEl.textContent='--:--Z';ageEl.innerHTML='<span class="run-error">(no carregat)</span>'})}
+setTimeout(actualitzarRunInfo,500);setInterval(actualitzarRunInfo,30000);
+let caceraActivat=false,caceraMarker=null,caceraCircle50=null,caceraCircle25=null,caceraCircle10=null,userLat=null,userLon=null,caceraHoraInterval=null;
+const caceraIcon=L.divIcon({html:'<div style="background:#000;width:16px;height:16px;border-radius:50%;border:3px solid rgba(255,255,255,.9);box-shadow:0 0 20px rgba(0,0,0,.8),0 0 45px rgba(255,255,255,.3);animation:piRadarPing 1.4s ease-in-out infinite;"></div>',className:'',iconSize:[16,16],iconAnchor:[8,8]});
+function crearRadarGeografic(lat,lon){if(!window._mapInstance)return;eliminarRadarGeografic();caceraCircle50=L.circle([lat,lon],{radius:50000,color:'#000',fillColor:'#000',fillOpacity:.08,weight:3,dashArray:'10,8',interactive:false}).addTo(window._mapInstance);caceraCircle25=L.circle([lat,lon],{radius:25000,color:'#000',fill:false,weight:2,opacity:.6,dashArray:'6,5',interactive:false}).addTo(window._mapInstance);caceraCircle10=L.circle([lat,lon],{radius:10000,color:'#000',fillColor:'#000',fillOpacity:.12,weight:2,opacity:.8,dashArray:'3,4',interactive:false}).addTo(window._mapInstance);caceraMarker=L.marker([lat,lon],{icon:caceraIcon,zIndexOffset:9999,interactive:false}).addTo(window._mapInstance)}
+function eliminarRadarGeografic(){if(caceraMarker){window._mapInstance.removeLayer(caceraMarker);caceraMarker=null}if(caceraCircle50){window._mapInstance.removeLayer(caceraCircle50);caceraCircle50=null}if(caceraCircle25){window._mapInstance.removeLayer(caceraCircle25);caceraCircle25=null}if(caceraCircle10){window._mapInstance.removeLayer(caceraCircle10);caceraCircle10=null}}
+function sincronitzarHoraAra(){if(!caceraActivat||!window._mapInstance||typeof window.pintarPas!=='function')return;const ara=new Date(),horesRef=[0,6,12,18];let horaRef=horesRef[0];for(let i=horesRef.length-1;i>=0;i--){const refDate=new Date(ara);refDate.setUTCHours(horesRef[i],0,0,0);if(ara>=refDate){horaRef=horesRef[i];break}}const refTime=new Date(ara);refTime.setUTCHours(horaRef,0,0,0);const minutsDesDeRef=(ara-refTime)/60000;if(minutsDesDeRef>=0&&minutsDesDeRef<=360){const pasIndex=Math.round(minutsDesDeRef/15);if(pasIndex>=0&&pasIndex<=24)window.pintarPas(pasIndex)}}
+window.toggleCacera=function(){caceraActivat=!caceraActivat;const btn=document.getElementById('pi-btnCacera'),bar=document.getElementById('pi-cacera-bar');if(caceraActivat){btn.classList.add('cacera-active');btn.textContent='Caçant...';bar.style.display='flex';if(userLat&&userLon){crearRadarGeografic(userLat,userLon);if(window._mapInstance)window._mapInstance.setView([userLat,userLon],11,{animate:true})}sincronitzarHoraAra();caceraHoraInterval=setInterval(sincronitzarHoraAra,60000)}else{btn.classList.remove('cacera-active');btn.textContent='Caçar';bar.style.display='none';eliminarRadarGeografic();if(caceraHoraInterval){clearInterval(caceraHoraInterval);caceraHoraInterval=null}}};
+if(navigator.geolocation){navigator.geolocation.watchPosition(pos=>{userLat=pos.coords.latitude;userLon=pos.coords.longitude;document.getElementById('piCaceraCoords').textContent=userLat.toFixed(4)+'°N '+userLon.toFixed(4)+'°E';if(caceraActivat&&!caceraMarker){crearRadarGeografic(userLat,userLon);if(window._mapInstance)window._mapInstance.setView([userLat,userLon],11,{animate:true})}else if(caceraActivat&&caceraMarker){caceraMarker.setLatLng([userLat,userLon]);caceraCircle50.setLatLng([userLat,userLon]);caceraCircle25.setLatLng([userLat,userLon]);caceraCircle10.setLatLng([userLat,userLon])}},()=>{document.getElementById('piCaceraCoords').textContent='⚠ SENSE GPS'},{enableHighAccuracy:true,maximumAge:10000,timeout:15000})}
+document.getElementById('pi-btnInfo').addEventListener('click',()=>document.getElementById('pi-faq-overlay').classList.add('active'));
+document.getElementById('pi-faq-close').addEventListener('click',()=>document.getElementById('pi-faq-overlay').classList.remove('active'));
+document.getElementById('pi-faq-overlay').addEventListener('click',function(e){if(e.target===this)this.classList.remove('active')});
+document.addEventListener('click',function(e){const btn=e.target.closest('.pi-var-btn.locked');if(btn&&!window._firebaseUser){e.preventDefault();e.stopPropagation();openPILogin()}},true);
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){closePILogin();document.getElementById('pi-faq-overlay').classList.remove('active');if(piChatOpen)togglePIChat()}});
+setInterval(function(){if(window.TempestescatRangs){const rang=window.TempestescatRangs.obtenirRang(),punts=window.TempestescatRangs.obtenirPunts(),progress=window.TempestescatRangs.obtenirProgress();document.getElementById('pi-rang-nom').textContent=rang.nom;document.getElementById('pi-rang-punts').innerHTML='<strong>'+punts+'</strong> pts';document.getElementById('pi-rang-bar-fill').style.width=progress+'%'}},10000);
+setTimeout(function(){if(window.TempestescatRangs){const rang=window.TempestescatRangs.obtenirRang();if(rang.icon)document.getElementById('pi-rang-icon').innerHTML='<i class="'+rang.icon+'" style="color:'+rang.color+';"></i>'}},1500);
+</script>
+</body>
+</html>

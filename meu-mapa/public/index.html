@@ -1,0 +1,1895 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>TEMPESTES.CAT · Previsió Meteorològica Professional</title>
+    <meta name="description" content="Previsió meteorològica d'alta resolució amb AROME-PI 1.3km i GFS 0.25º per a Catalunya." />
+    <link rel="icon" type="image/png" href="/img/favicon.png">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <script src="js/rangs.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QDWCZ0Z9XF"></script>
+    <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-QDWCZ0Z9XF');</script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1675456750465139" crossorigin="anonymous"></script>
+    <style>
+        /* RESET I ESTILS GENERALS */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', 'Tahoma', 'Microsoft Sans Serif', sans-serif;
+            font-size: 14px;
+            background: #f4f4f4;
+            color: #1a1a1a;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            line-height: 1.6;
+        }
+
+        /* TOPBAR (estil Pivotal Weather) */
+        .topbar {
+            background: #1a2a40;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            height: 60px;
+            border-bottom: 2px solid #FFD700;
+            flex-shrink: 0;
+            gap: 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 9000;
+        }
+        .topbar .logo-text {
+            font-size: 20px;
+            font-weight: 800;
+            color: #FFF;
+            letter-spacing: 1px;
+            white-space: nowrap;
+        }
+        .topbar .logo-text span {
+            color: #FFD700;
+        }
+        .topbar .logo-sub {
+            font-size: 12px;
+            color: #aab;
+            white-space: nowrap;
+            margin-left: -5px;
+        }
+        .topbar-links {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .topbar-icon {
+            color: #aab;
+            text-decoration: none;
+            transition: all .2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 6px 10px;
+            border-radius: 4px;
+        }
+        .topbar-icon:hover {
+            color: #FFF;
+            background: rgba(255,255,255,0.1);
+        }
+        .topbar-icon i {
+            font-size: 16px;
+        }
+
+        /* BOTO GOOGLE (estil Pivotal Weather) */
+        .btn-google {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 16px;
+            background: #FFF;
+            border: none;
+            color: #3c4043;
+            font-family: 'Segoe UI', 'Tahoma', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all .2s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            height: 36px;
+            white-space: nowrap;
+        }
+        .btn-google:hover {
+            background: #f0f0f0;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+        .btn-google svg {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+        }
+
+        .user-pill {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 30px;
+            padding: 4px 12px 4px 4px;
+            cursor: pointer;
+            height: 36px;
+            transition: background 0.2s;
+        }
+        .user-pill:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        .user-avatar-fallback {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            color: #1a2a40;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .user-avatar-fallback img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .user-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: white;
+            max-width: 100px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* CONTINGUT PRINCIPAL */
+        .content {
+            flex: 1;
+            background: #f4f4f4;
+            margin-top: 60px;
+        }
+
+        /* HERO (estil Pivotal Weather) */
+        .hero {
+            background: linear-gradient(135deg, #0d1f35 0%, #1a3a5c 100%);
+            padding: 60px 20px 70px;
+            text-align: center;
+            border-bottom: 4px solid #FFD700;
+            position: relative;
+        }
+        .hero h1 {
+            font-size: clamp(32px, 6vw, 56px);
+            font-weight: 900;
+            letter-spacing: 2px;
+            color: #FFF;
+            text-shadow: 2px 2px 12px rgba(0,0,0,0.5);
+            margin-bottom: 20px;
+        }
+        .hero h1 span {
+            color: #FFD700;
+        }
+        .hero p {
+            color: #aac;
+            font-size: 16px;
+            max-width: 700px;
+            margin: 0 auto 30px;
+        }
+
+        .models-grid {
+            max-width: 800px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            padding: 0 4px;
+        }
+        .model-card {
+            background: rgba(255,255,255,0.08);
+            border: 2px solid rgba(255,255,255,0.15);
+            border-radius: 12px;
+            padding: 24px 16px;
+            text-align: center;
+            text-decoration: none;
+            color: #FFF;
+            transition: all .25s;
+            backdrop-filter: blur(4px);
+        }
+        .model-card:hover {
+            background: rgba(255,255,255,0.18);
+            border-color: #FFD700;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+        }
+        .model-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0058EE, #003399);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+            font-size: 24px;
+            color: #FFD700;
+            border: 2px solid rgba(255,255,255,0.2);
+            transition: all .25s;
+        }
+        .model-card:hover .model-icon {
+            box-shadow: 0 0 30px rgba(255,215,0,0.3);
+            border-color: #FFD700;
+        }
+        .model-card:nth-child(2) .model-icon {
+            background: linear-gradient(135deg, #1a5c3a, #0d351f);
+            color: #87FFC0;
+        }
+        .model-card:nth-child(3) .model-icon {
+            background: linear-gradient(135deg, #003399, #001a66);
+            color: #b8d4f0;
+        }
+        .model-name {
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+        .model-desc {
+            font-size: 12px;
+            color: #8899bb;
+        }
+
+        @media (max-width: 768px) {
+            .model-card.desktop-only {
+                display: none;
+            }
+            .models-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* SECCIÓ RANG I XAT (estil Pivotal Weather) */
+        .rang-xat-wrapper {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+        .rang-panel, .xat-panel {
+            background: #FFF;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+        .rang-panel {
+            padding: 24px;
+        }
+        .rang-panel-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 16px;
+        }
+        .rang-panel-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: #FFF;
+            flex-shrink: 0;
+        }
+        .rang-panel-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1a2a40;
+        }
+        .rang-panel-title small {
+            display: block;
+            font-size: 12px;
+            color: #888;
+            font-weight: 400;
+        }
+        .rang-login {
+            text-align: center;
+            padding: 20px 0;
+            color: #888;
+            font-size: 14px;
+        }
+        .rang-login a {
+            color: #0058EE;
+            cursor: pointer;
+            text-decoration: underline;
+            font-weight: 600;
+        }
+        .rang-badge {
+            display: inline-block;
+            padding: 4px 18px;
+            border-radius: 30px;
+            color: #FFF;
+            font-size: 14px;
+            font-weight: 700;
+            margin: 8px 0 12px;
+            letter-spacing: 0.5px;
+            background: #556680;
+        }
+        .rang-punts {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 10px;
+        }
+        .rang-punts strong {
+            color: #1a2a40;
+            font-size: 18px;
+        }
+        .rang-bar {
+            width: 100%;
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 6px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .rang-bar-fill {
+            height: 100%;
+            border-radius: 6px;
+            transition: width .8s ease;
+            width: 0%;
+            background: #4a90d9;
+        }
+        .rang-next {
+            font-size: 13px;
+            color: #888;
+            margin-top: 6px;
+        }
+        .rang-next strong {
+            color: #0058EE;
+        }
+        .rang-msg {
+            font-size: 13px;
+            color: #666;
+            margin-top: 12px;
+            font-style: italic;
+            line-height: 1.5;
+        }
+
+        /* XAT (estil Pivotal Weather) */
+        .xat-panel {
+            display: flex;
+            flex-direction: column;
+            max-height: 400px;
+        }
+        .xat-titlebar {
+            background: #1a2a40;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+        .xat-title-text {
+            font-size: 15px;
+            font-weight: 700;
+            color: #FFF;
+            flex: 1;
+        }
+        .xat-online {
+            font-size: 12px;
+            color: #FFD700;
+        }
+        .xat-msgs {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-height: 200px;
+            max-height: 250px;
+            font-size: 13px;
+            background: #fafafa;
+        }
+        .xat-msg {
+            display: flex;
+            flex-direction: column;
+        }
+        .xat-msg-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 2px;
+        }
+        .xat-msg-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+            color: #FFF;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+        .xat-msg-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .xat-msg-name {
+            font-weight: 700;
+            font-size: 13px;
+            color: #1a2a40;
+        }
+        .xat-msg-time {
+            font-size: 11px;
+            color: #AAA;
+            margin-left: auto;
+        }
+        .xat-msg-bubble {
+            background: #f0f0f0;
+            padding: 6px 14px;
+            border-radius: 14px;
+            max-width: 90%;
+            word-break: break-word;
+            font-size: 13px;
+            line-height: 1.5;
+            color: #333;
+        }
+        .xat-msg.system .xat-msg-bubble {
+            background: transparent;
+            color: #888;
+            font-style: italic;
+            text-align: center;
+            padding: 4px 0;
+        }
+        .xat-footer {
+            padding: 12px 16px;
+            border-top: 1px solid #e0e0e0;
+            text-align: center;
+            flex-shrink: 0;
+            background: #fff;
+        }
+        .xat-footer-text {
+            font-size: 12px;
+            color: #888;
+        }
+
+        @media (max-width: 768px) {
+            .rang-xat-wrapper {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* BANNER LOGIN (estil Pivotal Weather) */
+        .login-banner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        .login-card {
+            display: inline-block;
+            background: #FFF;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            padding: 30px 28px;
+            max-width: 480px;
+            text-align: center;
+        }
+        .login-card h3 {
+            font-size: 20px;
+            color: #1a2a40;
+            margin-bottom: 8px;
+        }
+        .login-card p {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+        .login-icon-wrap {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+        .login-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0058EE, #003399);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid #FFF;
+            box-shadow: 0 0 0 2px #0058EE, 0 4px 15px rgba(0,0,0,0.2);
+            color: #FFD700;
+            font-size: 28px;
+        }
+        .btn-google-large {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 28px;
+            background: #FFF;
+            border: none;
+            color: #3c4043;
+            font-family: 'Segoe UI', 'Tahoma', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 6px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+            transition: all .2s;
+        }
+        .btn-google-large:hover {
+            background: #f0f0f0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        .btn-google-large svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* SHOWCASES (estil Pivotal Weather) */
+        .showcase {
+            padding: 50px 0;
+            border-top: 2px solid #e0e0e0;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        .showcase-alt {
+            background: #fafafa;
+        }
+        .showcase-dark {
+            background: linear-gradient(135deg, #0d1f35, #1a3a5c);
+            border-top-color: #FFD700;
+            border-bottom-color: #FFD700;
+        }
+        .showcase-dark h2 {
+            color: #FFF !important;
+        }
+        .showcase-dark p {
+            color: #aac !important;
+        }
+        .showcase-dark .features li {
+            color: #ccd !important;
+        }
+        .showcase-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: center;
+        }
+        .showcase-text h2 {
+            font-size: clamp(22px, 3vw, 28px);
+            font-weight: 800;
+            color: #1a2a40;
+            margin-bottom: 12px;
+        }
+        .showcase-text h2 i {
+            margin-right: 10px;
+        }
+        .showcase-text p {
+            font-size: 15px;
+            color: #555;
+            line-height: 1.7;
+            margin-bottom: 16px;
+        }
+        .showcase-text .features {
+            list-style: none;
+            padding: 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            margin-bottom: 20px;
+        }
+        .showcase-text .features li {
+            font-size: 14px;
+            color: #444;
+            padding: 6px 0 6px 24px;
+            position: relative;
+        }
+        .showcase-text .features li::before {
+            content: '\25B8';
+            position: absolute;
+            left: 0;
+            color: #28a745;
+            font-size: 16px;
+            top: 6px;
+        }
+        .showcase-img {
+            background: #FFF;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+        .showcase-img img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: #FFF;
+            border: 2px solid #1a2a40;
+            color: #1a2a40;
+            font-family: 'Segoe UI', 'Tahoma', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: all .2s;
+        }
+        .btn:hover {
+            background: #1a2a40;
+            color: #FFF;
+        }
+        .btn-gold {
+            background: #FFD700;
+            border-color: #FFD700;
+            color: #1a2a40;
+        }
+        .btn-gold:hover {
+            background: #e6c200;
+            border-color: #e6c200;
+        }
+        .btn-pi {
+            background: #1a5c3a;
+            border-color: #1a5c3a;
+            color: #FFF;
+        }
+        .btn-pi:hover {
+            background: #0d351f;
+            border-color: #0d351f;
+        }
+
+        @media (max-width: 768px) {
+            .showcase-grid {
+                grid-template-columns: 1fr;
+            }
+            .showcase-text .features {
+                grid-template-columns: 1fr;
+            }
+            .desktop-only-showcase {
+                display: none !important;
+            }
+        }
+
+        /* RESSENYES (estil Pivotal Weather) */
+        .reviews-section {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 50px 20px;
+        }
+        .section-title {
+            font-size: clamp(24px, 4vw, 32px);
+            font-weight: 800;
+            color: #1a2a40;
+            text-align: center;
+            margin-bottom: 4px;
+        }
+        .section-subtitle {
+            font-size: 15px;
+            color: #777;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .reviews-avg {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        .reviews-avg-stars {
+            font-size: 28px;
+            color: #FFD700;
+            letter-spacing: 4px;
+        }
+        .reviews-avg-text {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a2a40;
+        }
+        .reviews-avg-count {
+            font-size: 14px;
+            color: #888;
+        }
+        .reviews-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            max-height: 500px;
+            overflow-y: auto;
+            padding: 4px;
+            margin-bottom: 30px;
+        }
+        .review-card {
+            background: #FFF;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .review-card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .review-card-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 700;
+            color: #FFF;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+        .review-card-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .review-card-name {
+            font-weight: 700;
+            font-size: 14px;
+            color: #1a2a40;
+        }
+        .review-card-stars {
+            color: #FFD700;
+            font-size: 14px;
+            letter-spacing: 1px;
+            margin-left: auto;
+        }
+        .review-card-text {
+            font-size: 13px;
+            color: #555;
+            line-height: 1.6;
+            font-style: italic;
+        }
+        .review-card-time {
+            font-size: 11px;
+            color: #AAA;
+            text-align: right;
+        }
+        .reviews-empty {
+            text-align: center;
+            padding: 40px;
+            color: #AAA;
+            font-size: 14px;
+            grid-column: 1 / -1;
+        }
+        .review-form-box {
+            background: #FFF;
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 600px;
+            margin: 0 auto;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .review-form-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1a2a40;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+        .review-stars-input {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+        .review-star-btn {
+            background: none;
+            border: none;
+            color: #d0d0d0;
+            cursor: pointer;
+            font-size: 28px;
+            padding: 0 4px;
+            transition: all .2s;
+            background: #FFF;
+        }
+        .review-star-btn.active {
+            color: #FFD700;
+        }
+        .review-star-btn:hover {
+            color: #FFD700;
+            transform: scale(1.1);
+        }
+        .review-text-input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-family: 'Segoe UI', 'Tahoma', sans-serif;
+            font-size: 14px;
+            background: #FFF;
+            resize: vertical;
+            min-height: 70px;
+            max-height: 140px;
+            margin-bottom: 16px;
+        }
+        .review-text-input:focus {
+            outline: none;
+            border-color: #1a2a40;
+        }
+        .review-submit-btn {
+            width: 100%;
+            padding: 12px;
+            background: #1a2a40;
+            border: none;
+            color: #FFF;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+        .review-submit-btn:hover {
+            background: #0d1f35;
+        }
+        .review-login-msg {
+            text-align: center;
+            font-size: 13px;
+            color: #888;
+            margin-top: 10px;
+        }
+        .review-login-msg a {
+            color: #0058EE;
+            cursor: pointer;
+            text-decoration: underline;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .reviews-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        @media (max-width: 480px) {
+            .reviews-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* SECCIÓ AJUDA (estil Pivotal Weather) */
+        .ajuda-section-wrap {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 50px 20px;
+        }
+        .ajuda-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 24px;
+        }
+        .ajuda-card {
+            background: #FFF;
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            transition: all .2s;
+        }
+        .ajuda-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+        }
+        .ajuda-card-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #FFF;
+        }
+        .ajuda-card-icon.email {
+            background: linear-gradient(135deg, #DB4437, #C5221F);
+        }
+        .ajuda-card-icon.twitter {
+            background: linear-gradient(135deg, #1DA1F2, #0d8bd9);
+        }
+        .ajuda-card-icon.instagram {
+            background: linear-gradient(135deg, #E1306C, #C13584);
+        }
+        .ajuda-card h4 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1a2a40;
+        }
+        .ajuda-card p {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.5;
+        }
+        .ajuda-card .ajuda-contact {
+            font-size: 13px;
+            font-weight: 600;
+            color: #0058EE;
+            word-break: break-all;
+        }
+        .ajuda-resposta {
+            text-align: center;
+            font-size: 13px;
+            color: #888;
+            margin-top: 24px;
+        }
+
+        @media (max-width: 768px) {
+            .ajuda-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        @media (max-width: 480px) {
+            .ajuda-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        /* FOOTER (estil Pivotal Weather) */
+        .termes-box {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px 20px;
+            font-size: 12px;
+            color: #888;
+            line-height: 1.6;
+            text-align: center;
+            border-top: 1px solid #e0e0e0;
+        }
+        .footer-bar {
+            background: #1a2a40;
+            color: #aab;
+            font-size: 13px;
+            text-align: center;
+            padding: 20px;
+            border-top: 2px solid #FFD700;
+            line-height: 1.7;
+        }
+        .footer-bar strong {
+            color: #FFD700;
+        }
+        .footer-bar a {
+            color: #aab;
+            text-decoration: none;
+            margin: 0 6px;
+        }
+        .footer-bar a:hover {
+            color: #FFD700;
+        }
+
+        /* MODAL PERFIL */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 9500;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .profile-box {
+            background: #FFF;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+        }
+        .profile-header {
+            background: #1a2a40;
+            color: #FFF;
+            padding: 14px 20px;
+            font-size: 16px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-radius: 12px 12px 0 0;
+        }
+        .profile-close {
+            background: none;
+            border: none;
+            color: #FFF;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0 6px;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+        .profile-close:hover {
+            opacity: 1;
+        }
+        .profile-body {
+            padding: 24px;
+        }
+        .field-win {
+            margin-bottom: 16px;
+        }
+        .field-win label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            color: #1a2a40;
+            margin-bottom: 4px;
+        }
+        .field-win input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-family: 'Segoe UI', 'Tahoma', sans-serif;
+            font-size: 14px;
+            background: #FFF;
+        }
+        .field-win input:focus {
+            outline: none;
+            border-color: #1a2a40;
+        }
+        .field-win input:disabled {
+            background: #f4f4f4;
+            color: #888;
+        }
+        .profile-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+        .profile-actions .btn {
+            flex: 1;
+            justify-content: center;
+            font-size: 13px;
+            padding: 10px;
+        }
+        .profile-actions .btn:last-child {
+            border-color: #cc0000;
+            color: #cc0000;
+        }
+        .profile-actions .btn:last-child:hover {
+            background: #cc0000;
+            color: #FFF;
+        }
+
+        /* EFECTE BLUR */
+        .blur-section {
+            transition: filter .6s ease, opacity .6s ease;
+            filter: blur(6px);
+            opacity: 0.6;
+        }
+        .blur-section.in-focus {
+            filter: blur(0px);
+            opacity: 1;
+        }
+
+        /* RESPONSIVE TOPBAR */
+        @media (max-width: 768px) {
+            .topbar .logo-sub {
+                display: none;
+            }
+            .topbar-icon span {
+                display: none;
+            }
+            .topbar {
+                padding: 0 12px;
+                gap: 12px;
+            }
+            .topbar .logo-text {
+                font-size: 16px;
+            }
+            .btn-google {
+                font-size: 11px;
+                padding: 4px 10px;
+                height: 30px;
+            }
+            .btn-google svg {
+                width: 14px;
+                height: 14px;
+            }
+            .user-name {
+                max-width: 60px;
+                font-size: 11px;
+            }
+            .user-avatar-fallback {
+                width: 22px;
+                height: 22px;
+                font-size: 10px;
+            }
+        }
+        @media (max-width: 480px) {
+            .topbar .logo-text {
+                font-size: 14px;
+            }
+            .topbar-icon {
+                font-size: 11px;
+                padding: 4px 6px;
+            }
+            .topbar-icon i {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="topbar">
+    <span class="logo-text">TEMPESTES<span>.CAT</span></span>
+    <span class="logo-sub">previsió meteorològica</span>
+    <div class="topbar-links">
+        <a href="https://x.com/tempestes_cat" target="_blank" class="topbar-icon"><i class="fa-brands fa-x-twitter"></i><span>X</span></a>
+        <a href="https://www.instagram.com/tempestes.cat/" target="_blank" class="topbar-icon"><i class="fa-brands fa-instagram"></i><span>Instagram</span></a>
+        <a href="https://mail.google.com/mail/?view=cm&fs=1&to=meteomaresme@gmail.com&su=Meteo.Maresme%20Meteorologia%20catalana" target="_blank" class="topbar-icon"><i class="fa-solid fa-envelope"></i><span>Gmail</span></a>
+        <button class="btn-google" id="btnGoogleLogin" onclick="loginWithGoogle()">
+            <svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.29-8.16 2.29-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+            <span>Iniciar sessió</span>
+        </button>
+        <div class="user-pill" id="userPill" onclick="openProfile()">
+            <div class="user-avatar-fallback" id="userAvatarFallback">U</div>
+            <span class="user-name" id="userDisplayName">Usuari</span>
+        </div>
+    </div>
+</div>
+
+<div class="content">
+    <!-- HERO -->
+    <section class="hero blur-section" data-blur>
+        <h1>TEMPESTES<span>.CAT</span></h1>
+        <p>Previsió meteorològica d'alta resolució per a Catalunya. Models AROME 1.3km, AROME-PI i GFS 0.25º.</p>
+        <div class="models-grid">
+            <a href="visor.html" class="model-card desktop-only">
+                <div class="model-icon"><i class="fa-solid fa-map-location-dot"></i></div>
+                <div class="model-name">Catalunya</div>
+                <div class="model-desc">AROME 1.3km</div>
+            </a>
+            <a href="visorPI.html" class="model-card">
+                <div class="model-icon"><i class="fa-solid fa-cloud-bolt"></i></div>
+                <div class="model-name">AROME-PI</div>
+                <div class="model-desc">6h · 15min</div>
+            </a>
+            <a href="europa.html" class="model-card">
+                <div class="model-icon"><i class="fa-solid fa-globe"></i></div>
+                <div class="model-name">Europa</div>
+                <div class="model-desc">GFS 0.25º</div>
+            </a>
+        </div>
+    </section>
+
+    <!-- RANG I XAT -->
+    <div class="rang-xat-wrapper blur-section" data-blur>
+        <div class="rang-panel" id="rangPanel">
+            <div class="rang-panel-header">
+                <div class="rang-panel-icon"><i class="fa-solid fa-star"></i></div>
+                <div class="rang-panel-title">El teu perfil meteorològic<small>Guanya punts explorant la web</small></div>
+            </div>
+            <div id="rangNoUser" class="rang-login"><a onclick="loginWithGoogle()">Inicia sessió</a> per veure el teu progrés</div>
+            <div id="rangUserContent" style="display:none;">
+                <div class="rang-badge" id="rangBadge">Nouvingut</div>
+                <div class="rang-punts"><strong id="rangPunts">0</strong> punts acumulats</div>
+                <div class="rang-bar"><div class="rang-bar-fill" id="rangBarFill"></div></div>
+                <div class="rang-next" id="rangNext"></div>
+                <div class="rang-msg" id="rangMsg"><i class="fa-solid fa-cloud-sun"></i> <span id="rangMsgText">Aconsegueix rangs especials com més participis i observis el temps!</span></div>
+            </div>
+        </div>
+
+        <div class="xat-panel" id="xatPanel">
+            <div class="xat-titlebar">
+                <span class="xat-title-text">Xat en directe</span>
+                <span class="xat-online" id="xatOnlineCount"></span>
+            </div>
+            <div class="xat-msgs" id="xatMsgs"><div style="text-align:center;color:#888;padding:20px;font-size:14px;">Carregant missatges...</div></div>
+            <div class="xat-footer">
+                <div class="xat-footer-text">Per parlar al xat, obre el Visor</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BANNER LOGIN -->
+    <div class="login-banner blur-section" id="loginBanner" data-blur>
+        <div class="login-card">
+            <div class="login-icon-wrap">
+                <div class="login-icon"><i class="fa-solid fa-shield-halved"></i></div>
+            </div>
+            <h3>Suport gratuït</h3>
+            <p>Aquesta web és <strong>totalment gratuïta i sense ànim de lucre</strong>.</p>
+            <p style="font-size:14px;color:#555;margin-bottom:12px;">Per parlar al xat, publicar ressenyes i accedir a eines avançades,<br>necessitem saber quants usuaris feu servir el servei.</p>
+            <p style="font-size:13px;color:#888;margin-bottom:16px;"><strong>No recollim dades personals</strong> ni compartim res amb tercers.<br>Només un correu per verificar que no ets un robot.</p>
+            <button class="btn-google-large" onclick="loginWithGoogle()">
+                <svg viewBox="0 0 48 48" width="20" height="20"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.29-8.16 2.29-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+                Iniciar sessió amb Google
+            </button>
+            <p style="font-size:12px;color:#aaa;margin-top:10px;">També pots <a href="javascript:void(0)" onclick="document.getElementById('loginBanner').style.display='none'" style="color:#0058EE;cursor:pointer;">continuar sense iniciar sessió</a></p>
+        </div>
+    </div>
+
+    <!-- SHOWCASES -->
+    <div class="showcase desktop-only-showcase blur-section" data-blur>
+        <div class="showcase-grid">
+            <div class="showcase-text">
+                <h2><i class="fa-solid fa-desktop" style="color:#0058EE;"></i> Visor per a dispositius d'ordinador</h2>
+                <p>Model <strong>AROME 1.3km</strong> amb més de <strong>30 variables</strong>.</p>
+                <ul class="features">
+                    <li>Reflectivitat, temperatura</li>
+                    <li>CAPE, LI, LFC i molt més</li>
+                    <li>Precipitació, neu</li>
+                    <li>Visibilitat, pressió</li>
+                </ul>
+                <a href="visor.html" class="btn btn-gold"><i class="fa-solid fa-arrow-right"></i> Entrar</a>
+            </div>
+            <div class="showcase-img">
+                <img src="img/visor-catalunya.jpg" alt="Visor Catalunya" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                <div style="display:none;width:100%;height:200px;background:linear-gradient(135deg,#1a3a5c,#0d1f35);color:#FFD700;align-items:center;justify-content:center;font-size:40px;"><i class="fa-solid fa-map-location-dot"></i></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="showcase showcase-alt blur-section" data-blur>
+        <div class="showcase-grid" style="direction:rtl;">
+            <div class="showcase-text" style="direction:ltr;">
+                <h2><i class="fa-solid fa-mobile-screen-button" style="color:#28a745;"></i> Visor per a dispositius mòbils</h2>
+                <p>Model <strong>AROME-PI</strong> Previsió per a les pròximes 6 hores. Actualitzem cada 2-3 hores!</p>
+                <ul class="features">
+                    <li>Radar simulat</li>
+                    <li>Diagnòstic granís</li>
+                    <li>Tornado STP</li>
+                    <li>Convecció ICA</li>
+                </ul>
+                <a href="visorPI.html" class="btn btn-pi"><i class="fa-solid fa-arrow-right"></i> Entrar</a>
+            </div>
+            <div class="showcase-img" style="direction:ltr;">
+                <img src="img/visor-aromepi.jpg" alt="Visor AROME-PI" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                <div style="display:none;width:100%;height:200px;background:linear-gradient(135deg,#0d351f,#1a5c3a);color:#87FFC0;align-items:center;justify-content:center;font-size:40px;"><i class="fa-solid fa-cloud-bolt"></i></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="showcase blur-section" data-blur>
+        <div class="showcase-grid">
+            <div class="showcase-text">
+                <h2><i class="fa-solid fa-water" style="color:#0058EE;"></i> Visor d'onades i onatge</h2>
+                <p><strong>Previsió d'onatge per a la costa catalana</strong>.</p>
+                <ul class="features">
+                    <li>Fins 2 dies de previsió</li>
+                    <li>Metres d'onada etc</li>
+                    <li>Animacions d'onades</li>
+                    <li>Comparativa runs</li>
+                </ul>
+                <a href="" class="btn btn-gold"><i class="fa-solid fa-arrow-right"></i> Proximament</a>
+            </div>
+            <div class="showcase-img">
+                <img src="img/visormar.png" alt="Visor Europa" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                <div style="display:none;width:100%;height:200px;background:linear-gradient(135deg,#003399,#001a66);color:#FFD700;align-items:center;justify-content:center;font-size:40px;"><i class="fa-solid fa-globe"></i></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="showcase showcase-dark blur-section" data-blur>
+        <div class="showcase-grid" style="direction:rtl;">
+            <div class="showcase-text" style="direction:ltr;">
+                <h2><i class="fa-solid fa-cloud-bolt" style="color:#FFB347;"></i> Fòrum d'episodis meteorològics</h2>
+                <p>Base de dades dels <strong>episodis meteorològics més importants</strong> de Catalunya.</p>
+                <ul class="features">
+                    <li>Pluges torrencials</li>
+                    <li>Nevades i fred</li>
+                    <li>Onades de calor</li>
+                    <li>Vents forts</li>
+                </ul>
+                <a href="episodis_catalunya.html" class="btn btn-gold"><i class="fa-solid fa-arrow-right"></i> Explorar</a>
+            </div>
+            <div class="showcase-img" style="direction:ltr;min-height:200px;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+                <img src="https://blog.adobe.com/en/publish/2019/08/07/media_1c264fe35ee09e2424bb121f1c8fd24706a9f2bb1.png?width=750&format=png&optimize=medium" alt="Episodis" style="width:100%;height:100%;object-fit:cover;">
+            </div>
+        </div>
+    </div>
+
+    <div class="showcase showcase-dark blur-section" data-blur>
+        <div class="showcase-grid" style="direction:rtl;">
+            <div class="showcase-text" style="direction:ltr;">
+                <h2><i class="fa-solid fa-chart-line" style="color:#00CED1;"></i> Previsions</h2>
+                <p>Models d'<strong>ensembles</strong> per a Catalunya.</p>
+                <ul class="features">
+                    <li>Previsions a curt termini</li>
+                    <li>Models de reforç</li>
+                    <li>Escenaris</li>
+                    <li>Dades fiables</li>
+                </ul>
+                <a href="previsions.html" class="btn btn-gold"><i class="fa-solid fa-arrow-right"></i> Veure</a>
+            </div>
+            <div class="showcase-img" style="direction:ltr;min-height:200px;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+                <img src="img/previ.png" alt="Previsions" style="width:100%;height:100%;object-fit:cover;">
+            </div>
+        </div>
+    </div>
+
+    <div class="showcase showcase-dark blur-section" data-blur>
+        <div class="showcase-grid" style="direction:rtl;">
+            <div class="showcase-text" style="direction:ltr;">
+                <h2><i class="fa-solid fa-cloud" style="color:#FF6B35;"></i> BT 6.2µm</h2>
+                <p>Previsió de <strong>temperatura de brillantor</strong> del canal de vapor d'aigua.</p>
+                <ul class="features">
+                    <li>Canal 6.2µm</li>
+                    <li>+51h</li>
+                    <li>400px</li>
+                    <li>Madrid-Alacant</li>
+                </ul>
+                <a href="satelit.html" class="btn btn-gold"><i class="fa-solid fa-cloud-sun-rain"></i> Veure</a>
+            </div>
+            <div class="showcase-img" style="direction:ltr;min-height:200px;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+                <img src="https://www.ephotozine.com/resize/2009/09/xlrg/29255_1236175104.jpg?RTUdGk5cXyJFAggJSEc4eghnfAYYGkVUGwBdOh80SxgRBAAhdSMKY1dhB2osTU0LIjUVDw==" alt="BT 6.2µm" style="width:100%;height:100%;object-fit:cover;">
+            </div>
+        </div>
+    </div>
+
+    <!-- RESSENYES -->
+    <div class="reviews-section blur-section" id="reviewsSection" data-blur>
+        <h2 class="section-title">Què diuen els usuaris</h2>
+        <p class="section-subtitle">Opinions reals dels meteoròlegs que fan servir la web</p>
+        <div class="reviews-avg">
+            <span class="reviews-avg-stars" id="reviewsAvgStars">★★★★★</span>
+            <span class="reviews-avg-text" id="reviewsAvgText">5.0</span>
+            <span class="reviews-avg-count" id="reviewsAvgCount">(0)</span>
+        </div>
+        <div class="reviews-grid" id="reviewsGrid">
+            <div class="reviews-empty"><i class="fa-solid fa-star"></i> Carregant ressenyes...</div>
+        </div>
+        <div class="review-form-box">
+            <div class="review-form-title">Deixa la teva ressenya</div>
+            <div class="review-stars-input" id="reviewStarsInput">
+                <button class="review-star-btn active" data-star="1">★</button>
+                <button class="review-star-btn active" data-star="2">★</button>
+                <button class="review-star-btn active" data-star="3">★</button>
+                <button class="review-star-btn active" data-star="4">★</button>
+                <button class="review-star-btn active" data-star="5">★</button>
+            </div>
+            <textarea class="review-text-input" id="reviewTextInput" placeholder="Què t'ha semblat la web de TEMPESTES.CAT?" maxlength="500"></textarea>
+            <button class="review-submit-btn" id="reviewSubmitBtn" onclick="submitReview()">Publicar ressenya</button>
+            <div class="review-login-msg" id="reviewLoginMsg">Cal <a onclick="loginWithGoogle()">iniciar sessió</a> per publicar</div>
+        </div>
+    </div>
+
+    <!-- AJUDA -->
+    <div class="ajuda-section-wrap blur-section" data-blur>
+        <h2 class="section-title">Necessites ajuda?</h2>
+        <p class="section-subtitle">Contacta amb nosaltres per qualsevol dubte o suggeriment</p>
+        <div class="ajuda-grid">
+            <a href="https://mail.google.com/mail/?view=cm&fs=1&to=meteomaresme@gmail.com&su=Meteo.Maresme%20Meteorologia%20catalana" target="_blank" class="ajuda-card">
+                <div class="ajuda-card-icon email"><i class="fa-solid fa-envelope"></i></div>
+                <h4>Correu electrònic</h4>
+                <p>Responem en menys de 24 hores</p>
+                <span class="ajuda-contact"><span class="__cf_email__" data-cfemail="1b767e6f7e74767a697e68767e5b7c767a727735787476">[email&#160;protected]</span></span>
+            </a>
+            <a href="https://x.com/tempestes_cat" target="_blank" class="ajuda-card">
+                <div class="ajuda-card-icon twitter"><i class="fa-brands fa-x-twitter"></i></div>
+                <h4>X / Twitter</h4>
+                <p>Actualitzacions i avisos en temps real</p>
+                <span class="ajuda-contact">@tempestes_cat</span>
+            </a>
+            <a href="https://www.instagram.com/tempestes.cat/" target="_blank" class="ajuda-card">
+                <div class="ajuda-card-icon instagram"><i class="fa-brands fa-instagram"></i></div>
+                <h4>Instagram</h4>
+                <p>Fotografies, stories i comunitat</p>
+                <span class="ajuda-contact">@tempestes_cat</span>
+            </a>
+        </div>
+        <div class="ajuda-resposta"><i class="fa-solid fa-clock"></i> Horari d'atenció: 9:00 - 21:00 · Responem en menys de 24 hores</div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="termes-box blur-section" data-blur>
+        <p><strong>Avís legal</strong> · Dades de Météo-France, NOAA i ECMWF. Mapes i dades elaborats per <strong>TEMPESTES.CAT</strong>.</p>
+    </div>
+    <div class="footer-bar">
+        <strong>TEMPESTES.CAT</strong> · AROME 1.3km · AROME-PI · GFS 0.25º
+    </div>
+</div>
+
+<!-- MODAL PERFIL -->
+<div class="modal-overlay" id="profileModal">
+    <div class="profile-box">
+        <div class="profile-header">
+            <span>El meu perfil</span>
+            <button class="profile-close" onclick="closeProfile()">✕</button>
+        </div>
+        <div class="profile-body">
+            <div class="field-win"><label>Nom</label><input type="text" id="profileName"></div>
+            <div class="field-win"><label>Email</label><input type="email" id="profileEmail" disabled></div>
+            <div class="profile-actions">
+                <button class="btn" onclick="saveProfile()">Desar</button>
+                <button class="btn" onclick="logoutUser()">Sortir</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- PUSHER XAT -->
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+<script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+<script>
+(function() {
+    const K = '54b645506c85aed5b62e';
+    const C = 'eu';
+    const AM = 'https://tempestes-cat.pages.dev/api/get-messages';
+
+    function col(s) {
+        const c = ['#4080c0','#c04040','#40a060','#c08020','#8040c0','#20a0a0','#c04080','#608020','#204080','#806020'];
+        let h = 0;
+        for (let i = 0; i < (s || '').length; i++) h = (h * 31 + s.charCodeAt(i)) & 0xffff;
+        return c[h % c.length];
+    }
+
+    function esc(t) {
+        return (t || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function ft(ts) {
+        if (!ts) return '';
+        const d = new Date(ts);
+        return d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
+    }
+
+    function mostrar(d) {
+        const msgs = document.getElementById('xatMsgs');
+        if (!msgs) return;
+        const isSys = d.type === 'system';
+        const isGif = d.type === 'gif';
+        const cl = col(d.nick || 'X');
+        const av = d.photo && d.photo.length < 5000 ? '<img src="' + esc(d.photo) + '" alt="">' : (d.nick || '?')[0].toUpperCase();
+        let mc = isGif && d.gifUrl ? '<img src="' + esc(d.gifUrl) + '" alt="GIF" style="max-width:120px;max-height:100px;border-radius:4px;">' : esc(d.text || '');
+        const div = document.createElement('div');
+        div.className = 'xat-msg' + (isSys ? ' system' : '');
+        div.innerHTML = isSys ?
+            '<div class="xat-msg-bubble">' + esc(d.text) + '</div>' :
+            '<div class="xat-msg-header"><div class="xat-msg-avatar" style="background:' + cl + '">' + av + '</div><span class="xat-msg-name">' + esc(d.nick || 'Anonim') + '</span><span class="xat-msg-time">' + ft(d.ts) + '</span></div><div class="xat-msg-bubble">' + mc + '</div>';
+        msgs.appendChild(div);
+        while (msgs.children.length > 50) msgs.removeChild(msgs.firstChild);
+        msgs.scrollTop = msgs.scrollHeight;
+    }
+
+    function init() {
+        const msgs = document.getElementById('xatMsgs');
+        if (!msgs) return;
+        fetch(AM)
+            .then(r => r.json())
+            .then(ms => {
+                msgs.innerHTML = '';
+                if (ms && ms.length) ms.slice(-30).forEach(m => mostrar(m));
+                else msgs.innerHTML = '<div style="text-align:center;color:#888;padding:20px;">Encara no hi ha missatges</div>';
+            })
+            .catch(() => {
+                msgs.innerHTML = '<div style="text-align:center;color:#888;padding:20px;">Xat no disponible</div>';
+            });
+
+        const p = new Pusher(K, { cluster: C });
+        p.subscribe('chat-channel').bind('new-message', mostrar);
+    }
+
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+    else init();
+})();
+</script>
+
+<!-- FIREBASE AUTH -->
+<script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+    import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+
+    const fc = {
+        apiKey: "AIzaSyBGcGUk2gsoDaHkg9Yv-nqMJ5_x-QPTMS8",
+        authDomain: "tempestescat.firebaseapp.com",
+        projectId: "tempestescat",
+        storageBucket: "tempestescat.firebasestorage.app",
+        messagingSenderId: "683240351775",
+        appId: "1:683240351775:web:bc65d73249537b9cc28d2a"
+    };
+
+    const app = initializeApp(fc);
+    const auth = getAuth(app);
+
+    window.loginWithGoogle = async () => {
+        try {
+            await signInWithPopup(auth, new GoogleAuthProvider());
+        } catch (e) {
+            console.error(e);
+        }
+    };
+
+    window.visorLogout = async () => {
+        try {
+            await signOut(auth);
+        } catch (e) {
+            console.error(e);
+        }
+    };
+
+    onAuthStateChanged(auth, user => {
+        window._firebaseUser = user;
+        if (user) window.dispatchEvent(new CustomEvent('tc:login', { detail: user }));
+        else window.dispatchEvent(new CustomEvent('tc:logout'));
+    });
+</script>
+
+<!-- RANGS I INTERFÍCIE -->
+<script src="js/rangs.js"></script>
+<script>
+    // RESSENYES API
+    const API_REVIEWS = 'https://tempestes-cat.pages.dev/api/reviews';
+    let reviewRating = 5;
+
+    document.querySelectorAll('.review-star-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            reviewRating = parseInt(this.getAttribute('data-star'));
+            updateStarDisplay();
+        });
+        btn.addEventListener('mouseenter', function() {
+            const v = parseInt(this.getAttribute('data-star'));
+            document.querySelectorAll('.review-star-btn').forEach((s, i) => {
+                s.classList.toggle('active', i < v);
+            });
+        });
+    });
+
+    document.getElementById('reviewStarsInput')?.addEventListener('mouseleave', updateStarDisplay);
+
+    function updateStarDisplay() {
+        document.querySelectorAll('.review-star-btn').forEach((s, i) => {
+            s.classList.toggle('active', i < reviewRating);
+        });
+    }
+
+    function updateReviewFormVisibility() {
+        document.getElementById('reviewLoginMsg').style.display = 'none';
+        document.getElementById('reviewSubmitBtn').style.display = 'block';
+        document.getElementById('reviewTextInput').disabled = false;
+        updateStarDisplay();
+    }
+
+    window.submitReview = async function() {
+        const textInput = document.getElementById('reviewTextInput');
+        const text = textInput?.value?.trim();
+        if (!text || text.length < 5) {
+            alert('Mínim 5 caràcters.');
+            return;
+        }
+
+        var nickAnterior = localStorage.getItem('chatNick') || 'Anonim';
+        var nick = prompt('Quin nom vols que surti a la ressenya?\n\n(Deixa buit per "' + nickAnterior + '" o escriu "anonim" per ser Anonim)', nickAnterior);
+        if (nick === null) return;
+        nick = nick.trim();
+        if (!nick || nick.toLowerCase() === 'anonim') {
+            nick = 'Anonim';
+        } else {
+            localStorage.setItem('chatNick', nick);
+        }
+
+        const photo = localStorage.getItem('chatPhoto') || '';
+        const uid = localStorage.getItem('chatUserId') || 'anon';
+
+        try {
+            const r = await fetch(API_REVIEWS, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nick, photo, uid, rating: reviewRating, text })
+            });
+            const d = await r.json();
+            if (!d.ok) throw new Error('Error');
+            const secrets = JSON.parse(localStorage.getItem('reviewSecrets') || '{}');
+            secrets[d.key] = d.secret;
+            localStorage.setItem('reviewSecrets', JSON.stringify(secrets));
+            if (textInput) textInput.value = '';
+            reviewRating = 5;
+            updateStarDisplay();
+            loadReviewsIndex();
+        } catch (e) {
+            console.error(e);
+            alert('Error al publicar');
+        }
+    };
+
+    async function loadReviewsIndex() {
+        const grid = document.getElementById('reviewsGrid');
+        if (!grid) return;
+        try {
+            const r = await fetch(API_REVIEWS);
+            const reviews = await r.json();
+            const avgStars = document.getElementById('reviewsAvgStars');
+            const avgCount = document.getElementById('reviewsAvgCount');
+            let avgRating = 0;
+            if (reviews.length > 0) {
+                const sum = reviews.reduce((a, r) => a + (r.rating || 5), 0);
+                avgRating = Math.round(sum / reviews.length);
+            }
+            if (avgStars) avgStars.innerHTML = '★'.repeat(avgRating || 5) + '☆'.repeat(5 - (avgRating || 5));
+            if (avgCount) avgCount.textContent = '(' + reviews.length + ')';
+
+            if (!reviews.length) {
+                grid.innerHTML = '<div class="reviews-empty"><i class="fa-solid fa-star"></i>Encara no hi ha ressenyes.</div>';
+                return;
+            }
+
+            const secrets = JSON.parse(localStorage.getItem('reviewSecrets') || '{}');
+            grid.innerHTML = '';
+            reviews.slice(0, 9).forEach(r => {
+                const col = (function(s) {
+                    const c = ['#4080c0','#c04040','#40a060','#c08020','#8040c0','#20a0a0','#c04080','#608020','#204080','#806020'];
+                    let h = 0;
+                    for (let i = 0; i < (s || '').length; i++) h = (h * 31 + s.charCodeAt(i)) & 0xffff;
+                    return c[h % c.length];
+                })(r.nick || 'X');
+                const esc = (t) => (t || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+                const av = r.photo && r.photo.length < 5000 ? '<img src="' + esc(r.photo) + '" alt="" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">' : '<span>' + (r.nick || '?')[0].toUpperCase() + '</span>';
+                const stars = '★'.repeat(r.rating || 5) + '☆'.repeat(5 - (r.rating || 5));
+                const time = formatTimeAgo(r.ts);
+                const isOwner = (secrets[r.key] !== undefined);
+                const card = document.createElement('div');
+                card.className = 'review-card';
+                card.innerHTML = '<div class="review-card-header"><div class="review-card-avatar" style="background:' + col + '">' + av + '</div><span class="review-card-name">' + esc(r.nick || 'Anonim') + '</span><span class="review-card-stars">' + stars + '</span>' + (isOwner ? '<button onclick="deleteReviewIndex(\'' + r.key + '\')" style="background:transparent;border:none;color:#e05555;cursor:pointer;font-size:16px;margin-left:auto;">✕</button>' : '') + '</div><div class="review-card-text">' + esc(r.text) + '</div><div class="review-card-time">' + time + '</div>';
+                grid.appendChild(card);
+            });
+        } catch (e) {
+            grid.innerHTML = '<div class="reviews-empty">Error</div>';
+        }
+    }
+
+    async function deleteReviewIndex(key) {
+        if (!confirm('Esborrar?')) return;
+        const secrets = JSON.parse(localStorage.getItem('reviewSecrets') || '{}');
+        const secret = secrets[key];
+        if (!secret) {
+            alert('No pots esborrar aquesta ressenya');
+            return;
+        }
+        try {
+            const r = await fetch(API_REVIEWS, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'delete', key, secret })
+            });
+            const d = await r.json();
+            if (d.ok) {
+                delete secrets[key];
+                localStorage.setItem('reviewSecrets', JSON.stringify(secrets));
+                loadReviewsIndex();
+            }
+        } catch (e) {}
+    }
+
+    function formatTimeAgo(ts) {
+        if (!ts) return '';
+        const m = Math.floor((Date.now() - ts) / 60000);
+        if (m < 1) return 'Ara';
+        if (m < 60) return 'Fa ' + m + ' min';
+        const h = Math.floor(m / 60);
+        if (h < 24) return 'Fa ' + h + ' h';
+        const d = Math.floor(h / 24);
+        if (d < 30) return 'Fa ' + d + ' d';
+        return 'Fa ' + Math.floor(d / 30) + ' mesos';
+    }
+
+    // INTERFÍCIE D'USUARI
+    function openProfile() {
+        const u = window._firebaseUser;
+        if (!u) {
+            if (typeof loginWithGoogle === 'function') loginWithGoogle();
+            return;
+        }
+        document.getElementById('profileName').value = u.displayName || '';
+        document.getElementById('profileEmail').value = u.email || '';
+        document.getElementById('profileModal').classList.add('active');
+    }
+
+    function closeProfile() {
+        document.getElementById('profileModal').classList.remove('active');
+    }
+
+    function saveProfile() {
+        const u = window._firebaseUser;
+        if (!u) return;
+        const n = document.getElementById('profileName').value.trim();
+        if (n) {
+            document.getElementById('userDisplayName').textContent = n;
+            document.getElementById('userAvatarFallback').textContent = n.charAt(0).toUpperCase();
+        }
+        closeProfile();
+    }
+
+    function logoutUser() {
+        if (typeof visorLogout === 'function') visorLogout();
+        closeProfile();
+    }
+
+    function restoreUserUI(u) {
+        if (!u) {
+            document.getElementById('userPill').style.display = 'none';
+            document.getElementById('btnGoogleLogin').style.display = '';
+            const banner = document.getElementById('loginBanner');
+            if (banner) banner.style.display = '';
+            return;
+        }
+        document.getElementById('userPill').style.display = 'flex';
+        document.getElementById('btnGoogleLogin').style.display = 'none';
+        const banner = document.getElementById('loginBanner');
+        if (banner) banner.style.display = 'none';
+        const n = u.displayName || (u.email ? u.email.split('@')[0] : 'Usuari');
+        document.getElementById('userDisplayName').textContent = n;
+        const av = document.getElementById('userAvatarFallback');
+        if (u.photoURL) {
+            av.innerHTML = '<img src="' + u.photoURL + '" alt="" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">';
+        } else {
+            av.textContent = n.charAt(0).toUpperCase();
+        }
+    }
+
+    window.addEventListener('tc:login', e => restoreUserUI(e.detail));
+    window.addEventListener('tc:logout', () => restoreUserUI(null));
+
+    document.getElementById('profileModal')?.addEventListener('click', function(e) {
+        if (e.target === this) closeProfile();
+    });
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeProfile();
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+            if (window._firebaseUser) restoreUserUI(window._firebaseUser);
+        }, 800);
+
+        // Carregar ressenyes
+        setTimeout(() => {
+            updateReviewFormVisibility();
+            loadReviewsIndex();
+        }, 1000);
+    });
+
+    // EFECTE BLUR
+    (function() {
+        const bs = document.querySelectorAll('[data-blur]');
+        function cv() {
+            const wh = window.innerHeight;
+            const cy = wh / 2;
+            bs.forEach(s => {
+                const r = s.getBoundingClientRect();
+                const sc = r.top + r.height / 2;
+                s.classList.toggle('in-focus', Math.abs(sc - cy) < wh * 0.6);
+            });
+        }
+        cv();
+        let t = false;
+        window.addEventListener('scroll', () => {
+            if (!t) {
+                window.requestAnimationFrame(() => { cv(); t = false; });
+                t = true;
+            }
+        });
+        window.addEventListener('resize', cv);
+    })();
+
+    // PANELL RANG
+    function actualitzarPanelRang() {
+        var uc = document.getElementById('rangUserContent');
+        var nu = document.getElementById('rangNoUser');
+        var ok = !!(window._firebaseUser);
+        if (ok) {
+            if (uc) uc.style.display = 'block';
+            if (nu) nu.style.display = 'none';
+        } else {
+            if (uc) uc.style.display = 'none';
+            if (nu) nu.style.display = 'block';
+            return;
+        }
+        if (!window.TempestescatRangs) return;
+        var r = window.TempestescatRangs.obtenirRang();
+        var p = window.TempestescatRangs.obtenirPunts();
+        var pr = window.TempestescatRangs.obtenirProgress();
+        var badge = document.getElementById('rangBadge');
+        if (badge) {
+            badge.textContent = r.nom;
+            badge.style.background = r.color;
+        }
+        var punts = document.getElementById('rangPunts');
+        if (punts) punts.textContent = p.toFixed(1).replace('.', ',');
+        var barFill = document.getElementById('rangBarFill');
+        if (barFill) {
+            barFill.style.width = Math.min(pr, 100) + '%';
+            barFill.style.background = r.color;
+        }
+        var rangs = window.TempestescatRangs.obtenirTotsRangs();
+        var claus = Object.keys(rangs).map(Number).sort(function(a, b) { return a - b; });
+        var seguentRang = { nom: 'Rang màxim' };
+        for (var j = 0; j < claus.length; j++) {
+            if (p < claus[j]) {
+                seguentRang = rangs[claus[j]];
+                break;
+            }
+        }
+        var next = document.getElementById('rangNext');
+        if (next) {
+            if (p < 100000) next.innerHTML = 'Pròxim rang: <strong>' + seguentRang.nom + '</strong>';
+            else next.innerHTML = '<strong>Rang màxim!</strong>';
+        }
+        var desc = '';
+        if (p < 500) desc = 'Tot just comences en el món de la meteorologia.';
+        else if (p < 1000) desc = 'Ja saps distingir núvols i fenòmens bàsics.';
+        else if (p < 2000) desc = 'Comences a entendre mapes de precipitació i fronts.';
+        else if (p < 3500) desc = 'Coneixes els ingredients de les tempestes.';
+        else if (p < 5000) desc = 'Ja domines conceptes de convecció severa.';
+        else if (p < 7000) desc = 'Entens la dinàmica atmosfèrica.';
+        else if (p < 9000) desc = 'Interpretes models meteorològics amb facilitat.';
+        else if (p < 11000) desc = 'Domines fenòmens costaners i marítims.';
+        else if (p < 13000) desc = 'Coneixes els secrets de les nevades i el fred.';
+        else if (p < 16000) desc = 'Predius tempestes amb precisió.';
+        else if (p < 19000) desc = 'Ets un meteoròleg complet.';
+        else if (p < 22000) desc = 'La teva visió és global.';
+        else if (p < 26000) desc = 'Mestre de la meteorologia catalana.';
+        else if (p < 30000) desc = 'Expert reconegut.';
+        else if (p < 35000) desc = 'Savi del temps.';
+        else if (p < 40000) desc = 'Diamant meteorològic.';
+        else if (p < 46000) desc = 'La teva intuïció meteorològica és llegendària.';
+        else if (p < 52000) desc = 'Tens un radar intern.';
+        else if (p < 59000) desc = 'Has vist de tot.';
+        else if (p < 66000) desc = 'A punt del cim suprem.';
+        else if (p < 74000) desc = 'Has conquerit els cims meteorològics.';
+        else if (p < 83000) desc = 'Guerrer del clima.';
+        else if (p < 92000) desc = 'Ets una estrella de la meteorologia.';
+        else if (p < 97000) desc = 'Tità atmosfèric.';
+        else if (p < 100000) desc = 'A les portes de la immortalitat meteorològica.';
+        else desc = 'DEU DE LES TEMPESTES!';
+        var msgText = document.getElementById('rangMsgText');
+        if (msgText) msgText.textContent = desc;
+    }
+
+    setInterval(actualitzarPanelRang, 30000);
+    setTimeout(actualitzarPanelRang, 1000);
+    window.addEventListener('tc:login', function() { setTimeout(actualitzarPanelRang, 500); });
+    window.addEventListener('tc:logout', function() { setTimeout(actualitzarPanelRang, 500); });
+</script>
+
+</body>
+</html>

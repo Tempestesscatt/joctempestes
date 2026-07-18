@@ -1,0 +1,1545 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Previsions Meteorològiques</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-QDWCZ0Z9XF"></script>
+ <link rel="icon" type="image/png" href="img/favicon.png">
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-QDWCZ0Z9XF');
+</script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',Roboto,sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#1a1a2e;padding:12px;min-height:100vh}
+.container{max-width:1400px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+
+.header{background:rgba(255,255,255,.97);border-radius:16px;padding:24px;box-shadow:0 8px 32px rgba(0,0,0,.15);text-align:center;border-top:4px solid #667eea}
+.header h1{font-size:32px;margin-bottom:4px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:700}
+.header p{color:#666;font-size:13px;margin-top:6px}
+
+.search-section{background:rgba(255,255,255,.97);border-radius:14px;padding:18px;box-shadow:0 4px 16px rgba(0,0,0,.1)}
+.search-container{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.search-wrap{flex:1;position:relative;min-width:250px}
+.search-wrap input{width:100%;padding:12px 16px;border:2px solid #e0e0e0;border-radius:10px;font-size:14px;transition:.3s;outline:none;font-weight:500}
+.search-wrap input:focus{border-color:#667eea;box-shadow:0 0 0 3px rgba(102,126,234,.1)}
+.search-wrap .sugg{position:absolute;top:calc(100% + 6px);left:0;right:0;background:#fff;border:2px solid #e0e0e0;border-radius:10px;max-height:240px;overflow-y:auto;display:none;z-index:300;box-shadow:0 8px 24px rgba(0,0,0,.15)}
+.search-wrap .sugg.on{display:block}
+.search-wrap .sugg div{padding:12px 16px;cursor:pointer;transition:background .15s;border-bottom:1px solid #f0f0f0;font-size:13px;font-weight:500}
+.search-wrap .sugg div:hover{background:#f8f8ff}
+.search-wrap .sugg div:last-child{border-bottom:none}
+.btn-search{padding:12px 28px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;transition:.3s;white-space:nowrap;box-shadow:0 4px 12px rgba(102,126,234,.2)}
+.btn-search:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(102,126,234,.4)}
+.btn-search:active{transform:translateY(0)}
+
+.sel-info{background:linear-gradient(135deg,rgba(102,126,234,.1) 0%,rgba(118,75,162,.1) 100%);border-left:4px solid #667eea;padding:12px 16px;border-radius:8px;margin-top:12px;font-size:13px;display:none;font-weight:500;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.sel-info.on{display:flex}
+.sel-info strong{color:#333}
+.sel-info-text{flex:1;min-width:200px}
+
+.action-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+
+.btn-download{padding:10px 20px;background:linear-gradient(135deg,#16a34a 0%,#15803d 100%);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;transition:.3s;white-space:nowrap;box-shadow:0 4px 12px rgba(22,163,74,.25);display:flex;align-items:center;gap:8px}
+.btn-download:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(22,163,74,.4)}
+.btn-download:active{transform:translateY(0)}
+.btn-download:disabled{opacity:.6;cursor:wait;transform:none}
+.btn-download svg{width:16px;height:16px}
+
+.mode-toggle{display:flex;background:#f0f0f5;border-radius:10px;padding:3px;gap:2px}
+.mode-toggle button{border:none;background:transparent;padding:8px 16px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;color:#888;transition:.2s}
+.mode-toggle button.active{background:#fff;color:#667eea;box-shadow:0 2px 6px rgba(0,0,0,.1)}
+
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-top:14px}
+.stat-card{background:rgba(255,255,255,.97);border-radius:12px;padding:14px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.08);border-left:3px solid #667eea;font-weight:500}
+.stat-card .label{font-size:10px;color:#999;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;font-weight:600}
+.stat-card .value{font-size:22px;font-weight:700;color:#333;margin-bottom:2px}
+.stat-card .sub{font-size:10px;color:#bbb;font-weight:400}
+.stat-card.extra{border-left-color:#764ba2}
+.stat-card.extra .label{color:#a78bda}
+
+.alerts-container{background:rgba(255,255,255,.97);border-radius:14px;padding:16px;box-shadow:0 4px 16px rgba(0,0,0,.1);display:none;margin-bottom:14px}
+.alerts-container.on{display:block}
+.alerts-title{font-size:14px;font-weight:700;margin-bottom:12px;color:#333;display:flex;align-items:center;gap:8px}
+.alerts-title img{width:20px;height:20px}
+.alerts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+.alert-card{padding:12px;border-radius:10px;border-left:4px solid;font-size:11px;line-height:1.5;font-weight:500}
+.alert-danger{background:#fff5f5;border-left-color:#ef4444;color:#7f1d1d}
+.alert-warning{background:#fffbeb;border-left-color:#f59e0b;color:#92400e}
+.alert-info{background:#f0f9ff;border-left-color:#3b82f6;color:#0c2340}
+
+.icons-timeline{background:rgba(255,255,255,.97);border-radius:14px;padding:14px;box-shadow:0 4px 16px rgba(0,0,0,.1);overflow-x:auto;margin-bottom:14px}
+.icons-timeline-header{font-size:11px;font-weight:700;color:#666;margin-bottom:10px;text-transform:uppercase;letter-spacing:.4px;display:flex;align-items:center;gap:6px}
+.icons-timeline-header img{width:16px;height:16px}
+.icons-scroll{display:flex;gap:0;overflow-x:auto}
+.icon-cell{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:40px;padding:3px 2px;border-right:1px solid #f0f0f0;flex-shrink:0}
+.icon-cell:last-child{border-right:none}
+.icon-cell img{width:28px;height:28px;object-fit:contain}
+.icon-cell .time{font-size:9px;font-weight:700;color:#333;margin-top:1px}
+.icon-cell .temp{font-size:8px;color:#667eea;font-weight:700}
+
+.main-card{background:rgba(255,255,255,.97);border-radius:14px;padding:20px;box-shadow:0 4px 16px rgba(0,0,0,.1)}
+.card-header{display:flex;align-items:center;gap:12px;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid #f0f0f0}
+.card-header img{width:24px;height:24px}
+.card-header h2{font-size:16px;font-weight:700;color:#333}
+.card-header .sub{font-size:11px;color:#999;margin-left:auto;font-weight:500}
+
+.charts-container{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.chart-section{padding:16px;border:1px solid #f0f0f0;border-radius:10px;background:#fafbfc}
+.chart-section h3{font-size:12px;font-weight:700;color:#333;margin-bottom:12px;display:flex;align-items:center;gap:6px;text-transform:uppercase;letter-spacing:.3px;color:#666}
+.chart-section h3 img{width:16px;height:16px}
+.chart-wrap{position:relative;width:100%;height:220px;margin-bottom:10px}
+.chart-wrap canvas{width:100%!important;height:100%!important}
+.legend-row{display:flex;flex-wrap:wrap;gap:12px;font-size:10px;color:#666;margin-top:8px;font-weight:500}
+.legend-item{display:flex;align-items:center;gap:5px}
+.legend-box{width:12px;height:2px;border-radius:1px}
+.legend-box-square{width:8px;height:8px;border-radius:2px}
+
+.chart-section.complex-only{display:none}
+body.mode-complex .chart-section.complex-only{display:block}
+.stat-card.complex-only{display:none}
+body.mode-complex .stat-card.complex-only{display:block}
+
+.footer{text-align:center;padding:20px;color:#fff;font-weight:700;font-size:14px;text-shadow:0 2px 4px rgba(0,0,0,.2)}
+
+.placeholder{padding:80px 20px;text-align:center;color:#bbb;background:rgba(255,255,255,.97);border-radius:14px;border-top:4px solid #f0f0f0}
+.placeholder img{opacity:.3;margin-bottom:16px;width:48px;height:48px}
+.loading{padding:40px;text-align:center;background:rgba(255,255,255,.97);border-radius:14px}
+.spinner{display:inline-block;width:30px;height:30px;border:3px solid rgba(102,126,234,.2);border-top-color:#667eea;border-radius:50%;animation:spin .8s linear infinite;margin-bottom:12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.t-heat5{color:#991b1b}.t-heat4{color:#b91c1c}.t-heat3{color:#f97316}.t-heat2{color:#ca8a04}.t-heat1{color:#16a34a}
+.t-cold1{color:#0891b2}.t-cold2{color:#2563eb}.t-cold3{color:#4f46e5}.t-snow{color:#7c3aed}
+
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:#f0f0f0;border-radius:3px}
+::-webkit-scrollbar-thumb{background:#ccc;border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:#999}
+
+.capture-toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#1a1a2e;color:#fff;padding:12px 22px;border-radius:10px;font-size:13px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.3);z-index:9999;opacity:0;pointer-events:none;transition:opacity .3s}
+.capture-toast.on{opacity:1}
+
+@media(max-width:1024px){.charts-container{grid-template-columns:1fr}}
+@media(max-width:768px){
+  .header h1{font-size:24px}
+  .search-container{flex-direction:column}
+  .search-wrap{min-width:100%}
+  .btn-search{width:100%}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .alerts-grid{grid-template-columns:1fr}
+  .chart-wrap{height:200px}
+  .sel-info{flex-direction:column;align-items:stretch}
+  .action-row{justify-content:space-between}
+}
+
+/* ============ SELECTOR MÈTODE DE CERCA ============ */
+.method-choice{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.method-card{background:#fafbfc;border:2px solid #eee;border-radius:14px;padding:24px 18px;text-align:center;cursor:pointer;transition:.25s;display:flex;flex-direction:column;align-items:center;gap:10px}
+.method-card:hover{border-color:#667eea;background:#f5f6ff;transform:translateY(-3px);box-shadow:0 8px 20px rgba(102,126,234,.15)}
+.method-card .icon-circle{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);display:flex;align-items:center;justify-content:center;color:#fff}
+.method-card .icon-circle svg{width:28px;height:28px}
+.method-card h4{font-size:15px;font-weight:700;color:#333}
+.method-card p{font-size:12px;color:#999;line-height:1.4}
+.method-back{background:none;border:none;color:#667eea;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:4px;margin-bottom:12px;padding:4px 0}
+.method-back:hover{text-decoration:underline}
+@media(max-width:600px){.method-choice{grid-template-columns:1fr}}
+
+/* ============ MAPA ============ */
+.map-wrap{position:relative}
+#mapContainer{width:100%;height:460px;border-radius:12px;overflow:hidden;border:2px solid #e0e0e0}
+.map-hint{background:linear-gradient(135deg,rgba(102,126,234,.08) 0%,rgba(118,75,162,.08) 100%);border-radius:8px;padding:10px 14px;font-size:12px;color:#555;margin-bottom:10px;display:flex;align-items:center;gap:8px;font-weight:500}
+.map-hint svg{width:16px;height:16px;flex-shrink:0;color:#667eea}
+.map-toast{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);background:rgba(26,26,46,.95);color:#fff;padding:10px 20px;border-radius:10px;font-size:12px;font-weight:600;box-shadow:0 6px 18px rgba(0,0,0,.3);z-index:1000;opacity:0;pointer-events:none;transition:opacity .3s;white-space:nowrap}
+.map-toast.on{opacity:1}
+.map-toast.err{background:#dc2626}
+.map-toast.ok{background:#16a34a}
+.leaflet-popup-content{font-family:'Segoe UI',Roboto,sans-serif;font-size:13px;font-weight:600}
+
+/* ============ ALERTES MILLORADES ============ */
+.alerts-grid{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.alert-card{position:relative;padding:13px 14px 13px 16px;display:flex;align-items:flex-start;gap:10px;overflow:hidden}
+.alert-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px}
+.alert-danger::before{background:#ef4444}
+.alert-warning::before{background:#f59e0b}
+.alert-info::before{background:#3b82f6}
+.alert-icon{font-size:16px;line-height:1;flex-shrink:0;margin-top:1px}
+.alert-body{flex:1}
+.alert-title{font-weight:700;font-size:12px;margin-bottom:2px}
+.alert-detail{font-size:10.5px;font-weight:500;opacity:.85}
+
+/* ============ GRÀFICS: look més professional ============ */
+.chart-section{background:linear-gradient(180deg,#ffffff 0%,#fafbfd 100%);border:1px solid #ececf3;border-radius:14px;padding:18px 18px 14px;box-shadow:0 1px 3px rgba(0,0,0,.03);transition:box-shadow .2s}
+.chart-section:hover{box-shadow:0 6px 18px rgba(0,0,0,.06)}
+.chart-section h3{font-size:12.5px;font-weight:800;letter-spacing:.4px;padding-bottom:10px;margin-bottom:14px;border-bottom:1px solid #f0f0f4}
+.chart-wrap{height:230px}
+.legend-row{padding-top:10px;border-top:1px dashed #eee}
+.legend-item{background:#f7f7fb;padding:3px 9px;border-radius:20px}
+</style>
+</head>
+<body>
+
+<div class="capture-toast" id="captureToast">Generant imatge...</div>
+
+<div class="container" id="captureRoot">
+
+<div class="header">
+  <h1>Previsions Meteorològiques</h1>
+  <p>48 hores · Previsió detallada per Catalunya</p>
+</div>
+
+<div class="search-section" data-html2canvas-ignore="true">
+
+  <!-- PAS 1: Tria de mètode de cerca -->
+  <div id="methodChoice">
+    <div class="method-choice">
+      <div class="method-card" id="chooseByName">
+        <div class="icon-circle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></div>
+        <h4>Cercar per nom</h4>
+        <p>Escriu el nom del poble o ciutat que vulguis consultar</p>
+      </div>
+      <div class="method-card" id="chooseByMap">
+        <div class="icon-circle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6v16l7-4 8 4 7-4V2l-7 4-8-4-7 4z"></path><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg></div>
+        <h4>Cercar amb mapa</h4>
+        <p>Clica directament sobre el mapa de Catalunya</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAS 2a: Cerca per nom -->
+  <div id="searchByNameBlock" style="display:none">
+    <button class="method-back" id="backFromName"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>Canviar mètode</button>
+    <div class="search-container">
+      <div class="search-wrap" style="flex:1">
+        <input type="text" id="searchInput" placeholder="Escriu el nom del poble o ciutat..." autocomplete="off">
+        <div class="sugg" id="sugg"></div>
+      </div>
+      <button class="btn-search" id="btnSearch">Cercar Previsions</button>
+    </div>
+  </div>
+
+  <!-- PAS 2b: Cerca amb mapa -->
+  <div id="searchByMapBlock" style="display:none">
+    <button class="method-back" id="backFromMap"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>Canviar mètode</button>
+    <div class="map-hint">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+      Clica sobre qualsevol punt del mapa per veure la previsió del poble més proper
+    </div>
+    <div class="map-wrap">
+      <div id="mapContainer"></div>
+      <div class="map-toast" id="mapToast"></div>
+    </div>
+  </div>
+
+  <div class="sel-info" id="selInfo">
+    <div class="sel-info-text"></div>
+    <div class="action-row">
+      <div class="mode-toggle" id="modeToggle">
+        <button data-mode="simple" class="active">Senzill</button>
+        <button data-mode="complex">Complet</button>
+      </div>
+      <button class="btn-download" id="btnDownload" style="display:none">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+        Descarregar previsió
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="stats-grid" id="statsGrid" style="display:none">
+  <div class="stat-card"><div class="label">T Màxima</div><div class="value" id="stTmax">--</div><div class="sub">a 2 m</div></div>
+  <div class="stat-card"><div class="label">T Mínima</div><div class="value" id="stTmin">--</div><div class="sub">a 2 m</div></div>
+  <div class="stat-card"><div class="label">Precipitació</div><div class="value" id="stRain">--</div><div class="sub">acumulada</div></div>
+  <div class="stat-card"><div class="label">Vent Màxim</div><div class="value" id="stWmax">--</div><div class="sub">ratxa</div></div>
+  <div class="stat-card"><div class="label">Direcció Vent</div><div class="value" id="stWindDir" style="font-size:18px">--</div><div class="sub" id="stWindDirSub">dominant</div></div>
+  <div class="stat-card"><div class="label">Humitat</div><div class="value" id="stRhAvg">--</div><div class="sub">mitjana</div></div>
+  <div class="stat-card"><div class="label">Granís</div><div class="value" id="stHailRisk" style="font-size:14px">--</div><div class="sub">risc</div></div>
+  <div class="stat-card"><div class="label">CAPE</div><div class="value" id="stCAPE">--</div><div class="sub">J/kg</div></div>
+  <div class="stat-card"><div class="label">Isoterma 0°C</div><div class="value" id="stIso0">--</div><div class="sub">metres</div></div>
+
+  <div class="stat-card extra complex-only"><div class="label">Sensació Tèrmica</div><div class="value" id="stHeatIdx">--</div><div class="sub">màxima</div></div>
+  <div class="stat-card extra complex-only"><div class="label">Punt de Rosada</div><div class="value" id="stDewMax">--</div><div class="sub">màxim</div></div>
+  <div class="stat-card extra complex-only"><div class="label">Neu Total</div><div class="value" id="stSnowTot">--</div><div class="sub">acumulada</div></div>
+  <div class="stat-card extra complex-only"><div class="label">Ratxa Màxima</div><div class="value" id="stGustMax">--</div><div class="sub">pic instantani</div></div>
+  <div class="stat-card extra complex-only"><div class="label">Visibilitat Mín.</div><div class="value" id="stVisMin">--</div><div class="sub">pitjor moment</div></div>
+  <div class="stat-card extra complex-only"><div class="label">Pressió</div><div class="value" id="stPress">--</div><div class="sub" id="stPressSub">tendència</div></div>
+  <div class="stat-card extra complex-only"><div class="label">CIN</div><div class="value" id="stCIN">--</div><div class="sub">inhibició</div></div>
+  <div class="stat-card extra complex-only"><div class="label">Oscil·lació Tèrmica</div><div class="value" id="stTDiff">--</div><div class="sub">màx − mín</div></div>
+</div>
+
+<div class="alerts-container" id="alertsContainer">
+  <div class="alerts-title">
+    <img src="https://cdn.meteocons.com/3.0.0-next.10/svg/line/code-black.svg" alt="alerta">
+    <span>Avisos i Alertes</span>
+  </div>
+  <div class="alerts-grid" id="alertsGrid"></div>
+</div>
+
+<div class="icons-timeline" id="iconsTimeline" style="display:none">
+  <div class="icons-timeline-header">
+    <img src="https://cdn.meteocons.com/3.0.0-next.10/svg/fill/clock.svg" alt="hora" onerror="this.style.display='none'">
+    <span>Condicions Hora a Hora</span>
+  </div>
+  <div class="icons-scroll" id="iconsScroll"></div>
+</div>
+
+<div id="content">
+  <div class="placeholder">
+    <img src="https://cdn.meteocons.com/3.0.0-next.10/svg/fill/cloudy.svg" alt="nuvol" onerror="this.style.display='none'">
+    <div style="font-size:16px;color:#999;margin-bottom:8px">Selecciona una ubicació per veure la previsió completa</div>
+    <div style="font-size:12px;color:#bbb">48 hores de previsió detallada amb gràfics interactius</div>
+  </div>
+</div>
+
+</div>
+
+<div class="footer">
+  <strong>@tempestes.cat</strong>
+</div>
+
+<script src="js/towns_cat.js"></script>
+<script>
+
+// ============================================
+// ICONES METEOCONS - LLISTA COMPLETA
+// ============================================
+const METEOCONS = {
+  clearDay:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/clear-day.svg',
+  clearNight:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/clear-night.svg',
+  partlyCloudyDay:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/partly-cloudy-day.svg',
+  partlyCloudyNight:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/partly-cloudy-night.svg',
+  overcastDay:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/overcast-day.svg',
+  overcastNight:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/overcast-night.svg',
+  cloudy:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/cloudy.svg',
+  overcast:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/overcast.svg',
+  fogDay:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/fog-day.svg',
+  fogNight:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/fog-night.svg',
+  fog:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/fog.svg',
+  mist:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/mist.svg',
+  haze:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/haze.svg',
+  hazeDay:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/haze-day.svg',
+  hazeNight:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/haze-night.svg',
+  drizzle:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/drizzle.svg',
+  rain:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/rain.svg',
+  heavyRain:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/extreme-rain.svg',
+  partlyCloudyDayRain:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/partly-cloudy-day-rain.svg',
+  partlyCloudyNightRain:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/partly-cloudy-night-rain.svg',
+  overcastDayRain:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/overcast-day-rain.svg',
+  overcastNightRain:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/overcast-night-rain.svg',
+  extremeDayRain:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/extreme-day-rain.svg',
+  extremeNightRain:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/extreme-night-rain.svg',
+  sleet:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/sleet.svg',
+  partlyCloudyDaySleet:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/partly-cloudy-day-sleet.svg',
+  partlyCloudyNightSleet:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/partly-cloudy-night-sleet.svg',
+  snow:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/snow.svg',
+  heavySnow:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/extreme-snow.svg',
+  partlyCloudyDaySnow:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/partly-cloudy-day-snow.svg',
+  partlyCloudyNightSnow:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/partly-cloudy-night-snow.svg',
+  overcastDaySnow:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/overcast-day-snow.svg',
+  overcastNightSnow:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/overcast-night-snow.svg',
+  extremeDaySnow:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/extreme-day-snow.svg',
+  extremeNightSnow:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/extreme-night-snow.svg',
+  thunderstormsDay:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/thunderstorms-day.svg',
+  thunderstormsNight:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/thunderstorms-night.svg',
+  thunderstorms:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/thunderstorms.svg',
+  thunderstormsDayRain:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/thunderstorms-day-rain.svg',
+  thunderstormsNightRain:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/thunderstorms-night-rain.svg',
+  thunderstormsRain:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/thunderstorms-rain.svg',
+  thunderstormsExtremeRain:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/thunderstorms-extreme-rain.svg',
+  thunderstormsExtreme:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/thunderstorms-extreme.svg',
+  thunderstormsSnow:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/thunderstorms-extreme-snow.svg',
+  thunderstormsDaySnow:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/thunderstorms-day-snow.svg',
+  thunderstormsNightSnow:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/thunderstorms-night-snow.svg',
+  thunderstormsSleet:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/thunderstorms-sleet.svg',
+  hail:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/hail.svg',
+  thunderstormsHail:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/thunderstorms-hail.svg',
+  wind:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/wind.svg',
+  tornado:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/tornado.svg',
+  hurricane:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/hurricane.svg',
+  dust:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/dust.svg',
+  dustWind:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/dust-wind.svg',
+  smoke:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/smoke.svg',
+  volcano:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/volcano.svg',
+  thermometer:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/thermometer.svg',
+  barometer:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/barometer.svg',
+  humidity:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/humidity.svg',
+  droplets:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/droplets.svg',
+  snowflake:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/snowflake.svg',
+  sunrise:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/sunrise.svg',
+  sunset:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/sunset.svg',
+  uvIndex:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/uv-index.svg',
+  compass:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/compass.svg',
+  clock:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/clock.svg',
+  lightningBolt:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/lightning-bolt.svg',
+  rainbow:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/rainbow.svg',
+  notAvailable:'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/not-available.svg',
+  code:'https://cdn.meteocons.com/3.0.0-next.10/svg/line/code-black.svg',
+};
+
+function selectWeatherIcon(p) {
+  const { rain=0, snow=0, grp=0, hail=0, ltng=0, cloudLow=0, cloudMed=0, cloudHi=0, cbTop=0, dbz=-10, vis=10000, t2m=15, rh=50, isNight=false, ica=0, stp=0, nebul=0, windSpeed=0, gust=0 } = p;
+  const totalCloud = Math.max(cloudLow, cloudMed, cloudHi, nebul);
+  const anyCloud = (cloudLow > 20 || cloudMed > 20 || cloudHi > 20 || nebul > 20);
+
+  if ((stp > 3 || ica > 8) && ltng > 2 && hail > 0.5) return { url: METEOCONS.thunderstormsHail, label: 'Tempesta severa amb granís' };
+  if ((stp > 3 || ica > 8) && ltng > 2 && rain > 10) return { url: METEOCONS.thunderstormsExtremeRain, label: 'Tempesta molt severa' };
+  if ((stp > 3 || ica > 8) && ltng > 0) return { url: METEOCONS.thunderstormsExtreme, label: 'Tempesta severa' };
+  if (hail > 0.5 && ltng > 0) return { url: METEOCONS.thunderstormsHail, label: 'Tempesta amb granís intens' };
+  if (hail > 0.1 && ltng > 0) return { url: METEOCONS.thunderstormsHail, label: 'Tempesta amb granís' };
+  if (hail > 0.1) return { url: METEOCONS.hail, label: 'Granís probable' };
+
+  if (snow > 2 && ltng > 0) return { url: METEOCONS.thunderstormsSnow, label: 'Tempesta de neu intensa' };
+  if (snow > 0.5 && ltng > 0) return { url: METEOCONS.thunderstormsDaySnow, label: 'Tempesta de neu' };
+  if (snow > 5) return { url: METEOCONS.heavySnow, label: 'Nevada abundant' };
+  if (snow > 2) return { url: isNight ? METEOCONS.overcastNightSnow : METEOCONS.overcastDaySnow, label: 'Nevada moderada' };
+  if (snow > 0.5) return { url: isNight ? METEOCONS.partlyCloudyNightSnow : METEOCONS.partlyCloudyDaySnow, label: 'Nevada lleu' };
+  if (snow > 0.1) return { url: METEOCONS.snow, label: 'Neu feble' };
+
+  if (grp > 0.5 || (snow > 0.1 && rain > 0.2 && t2m < 3)) {
+    if (ltng > 0) return { url: METEOCONS.thunderstormsSleet, label: 'Tempesta amb aiguaneu' };
+    return { url: isNight ? METEOCONS.partlyCloudyNightSleet : METEOCONS.partlyCloudyDaySleet, label: 'Aiguaneu' };
+  }
+
+  if (ltng > 2 && rain > 15) return { url: METEOCONS.thunderstormsExtremeRain, label: 'Tempesta molt intensa' };
+  if (ltng > 2 && rain > 5) return { url: METEOCONS.thunderstormsRain, label: 'Tempesta forta' };
+  if (ltng > 0 && rain > 3) return { url: isNight ? METEOCONS.thunderstormsNightRain : METEOCONS.thunderstormsDayRain, label: 'Tempesta amb pluja' };
+  if (ltng > 0 && rain > 0.5) return { url: isNight ? METEOCONS.thunderstormsNightRain : METEOCONS.thunderstormsDayRain, label: 'Tempesta amb pluja feble' };
+  if (ltng > 0) return { url: isNight ? METEOCONS.thunderstormsNight : METEOCONS.thunderstormsDay, label: 'Tempesta' };
+  if (cbTop > 5000 && rain > 1) return { url: METEOCONS.thunderstormsRain, label: 'Cumulonimbus amb pluja' };
+  if (cbTop > 3000) return { url: METEOCONS.thunderstorms, label: 'Cumulonimbus' };
+
+  if (rain > 20 || dbz >= 50) return { url: isNight ? METEOCONS.extremeNightRain : METEOCONS.extremeDayRain, label: 'Pluja torrencial' };
+  if (rain > 10 || dbz >= 40) return { url: isNight ? METEOCONS.overcastNightRain : METEOCONS.overcastDayRain, label: 'Pluja molt forta' };
+  if (rain > 5) return { url: isNight ? METEOCONS.overcastNightRain : METEOCONS.overcastDayRain, label: 'Pluja forta' };
+  if (rain > 2) return { url: isNight ? METEOCONS.partlyCloudyNightRain : METEOCONS.partlyCloudyDayRain, label: 'Pluja moderada' };
+  if (rain > 0.5) return { url: isNight ? METEOCONS.partlyCloudyNightRain : METEOCONS.partlyCloudyDayRain, label: 'Pluja feble' };
+  if (rain > 0.1) return { url: METEOCONS.drizzle, label: 'Plugim' };
+
+  if (gust >= 100 || windSpeed >= 80) return { url: METEOCONS.hurricane, label: 'Vent huracanat' };
+  if (gust >= 70 || windSpeed >= 55) return { url: METEOCONS.tornado, label: 'Vent molt fort' };
+  if ((gust >= 50 || windSpeed >= 35) && !anyCloud && vis > 5000) return { url: METEOCONS.wind, label: 'Vent fort' };
+
+  if (vis < 100) return { url: METEOCONS.fog, label: 'Boira molt densa' };
+  if (vis < 300) return { url: isNight ? METEOCONS.fogNight : METEOCONS.fogDay, label: 'Boira densa' };
+  if (vis < 800) return { url: isNight ? METEOCONS.fogNight : METEOCONS.fogDay, label: 'Boira' };
+  if (vis < 2000) return { url: METEOCONS.mist, label: 'Boira baixa' };
+  if (vis < 4000 && rh > 80) return { url: METEOCONS.haze, label: 'Bruma' };
+  if (vis < 5000 && rh < 50) return { url: METEOCONS.haze, label: 'Calitja' };
+
+  if (vis < 3000 && rh < 30 && windSpeed > 25) return { url: METEOCONS.dustWind, label: 'Tempesta de pols' };
+  if (vis < 5000 && rh < 25) return { url: METEOCONS.dust, label: 'Pols en suspensió' };
+  if (vis < 5000 && rh < 40 && !anyCloud) return { url: METEOCONS.smoke, label: 'Fum' };
+
+  if (totalCloud > 90) return { url: METEOCONS.overcast, label: 'Cel cobert' };
+  if (totalCloud > 75 || cloudLow > 75) return { url: isNight ? METEOCONS.overcastNight : METEOCONS.overcastDay, label: 'Molt ennuvolat' };
+  if (totalCloud > 55 || cloudMed > 60) return { url: isNight ? METEOCONS.partlyCloudyNight : METEOCONS.partlyCloudyDay, label: 'Ennuvolat' };
+  if (totalCloud > 30 || cloudHi > 40) return { url: isNight ? METEOCONS.partlyCloudyNight : METEOCONS.partlyCloudyDay, label: 'Parcialment ennuvolat' };
+  if (totalCloud > 10) return { url: isNight ? METEOCONS.partlyCloudyNight : METEOCONS.partlyCloudyDay, label: 'Alguns núvols' };
+
+  return isNight ? { url: METEOCONS.clearNight, label: 'Cel clar' } : { url: METEOCONS.clearDay, label: 'Cel clar' };
+}
+
+function generateAdvancedAlerts(data) {
+  const alerts = [];
+  const push = (type, icon, title, detail) => alerts.push({type, icon, title, detail});
+
+  const t2mF = data.t2m.filter(v=>v!=null);
+  const tMax = Math.max(...t2mF), tMin = Math.min(...t2mF), tDiff = tMax - tMin;
+  const rainMax = Math.max(...data.rain.filter(v=>v!=null));
+  const rainTotal = data.rain.reduce((a,b)=>a+(b??0),0);
+  const windF = data.wind ? data.wind.filter(v=>v!=null) : [];
+  const windAvg = windF.length ? windF.reduce((a,b)=>a+b,0)/windF.length : 0;
+  const windSustainedHigh = windF.filter(v=>v>=40).length;
+  const gustF = data.gust.filter(v=>v!=null);
+  const gustMax = Math.max(...gustF);
+  const snowTotal = data.snow.reduce((a,b)=>a+(b??0),0);
+  const visF = data.vis60.filter(v=>v!=null);
+  const visMin = Math.min(...visF);
+  const rhF = data.rh.filter(v=>v!=null);
+  const rhMax = Math.max(...rhF), rhMin = Math.min(...rhF);
+  const ltngMax = Math.max(...data.ltng.filter(v=>v!=null));
+  const hailAny = data.hail.some(v=>v>0.1);
+  const capeF = data.cape.filter(v=>v!=null);
+  const capeMax = Math.max(...capeF);
+  const dewF = data.dewPoint ? data.dewPoint.filter(v=>v!=null) : [];
+  const dewMax = dewF.length ? Math.max(...dewF) : null;
+  const pressF = data.press ? data.press.filter(v=>v!=null) : [];
+  const pressTendF = data.pressTend ? data.pressTend.filter(v=>v!=null) : [];
+  const pressDropMax = pressTendF.length ? Math.min(...pressTendF) : null;
+  const pressRiseMax = pressTendF.length ? Math.max(...pressTendF) : null;
+
+  // --- CALOR ---
+  if (tMax >= 42) push('danger','🔥','Calor extrema', tMax.toFixed(1)+'°C — risc molt alt per a la salut');
+  else if (tMax >= 38) push('danger','🔥','Calor molt forta', tMax.toFixed(1)+'°C màxima prevista');
+  else if (tMax >= 32) push('warning','🌡️','Calor intensa', tMax.toFixed(1)+'°C màxima prevista');
+  else if (tMax >= 28) push('info','🌡️','Calor notable', tMax.toFixed(1)+'°C màxima prevista');
+
+  // --- SENSACIÓ / BOCHORNO ---
+  if (dewMax != null && dewMax >= 22 && tMax >= 26) push('warning','💦','Bochorn / xafogor', 'Punt de rosada '+dewMax.toFixed(1)+'°C — sensació molt humida i pesada');
+  else if (dewMax != null && dewMax >= 18 && tMax >= 24) push('info','💧','Ambient humit', 'Punt de rosada '+dewMax.toFixed(1)+'°C');
+
+  // --- FRED ---
+  if (tMin <= -15) push('danger','❄️','Fred extrem', tMin.toFixed(1)+'°C mínima — risc de congelació');
+  else if (tMin <= -8) push('danger','❄️','Fred intens', tMin.toFixed(1)+'°C mínima prevista');
+  else if (tMin <= -2) push('warning','🧊','Gelada forta', tMin.toFixed(1)+'°C — possible formació de gel');
+  else if (tMin <= 2) push('info','🧊','Risc de gelada', tMin.toFixed(1)+'°C mínima prevista');
+
+  // --- OSCIL·LACIÓ TÈRMICA ---
+  if (tDiff >= 20) push('warning','📉','Oscil·lació tèrmica extrema', 'Diferència de '+tDiff.toFixed(0)+'°C entre màxima i mínima');
+  else if (tDiff >= 15) push('info','📉','Oscil·lació tèrmica alta', 'Diferència de '+tDiff.toFixed(0)+'°C entre màxima i mínima');
+
+  // --- CANVI SOBTAT DE TEMPERATURA (entre hores consecutives) ---
+  let maxJump = 0;
+  for (let i=1;i<data.t2m.length;i++){ if(data.t2m[i]!=null && data.t2m[i-1]!=null){ const d=Math.abs(data.t2m[i]-data.t2m[i-1]); if(d>maxJump) maxJump=d; } }
+  if (maxJump >= 6) push('warning','⚡','Canvi brusc de temperatura', 'Variació de fins a '+maxJump.toFixed(1)+'°C en només 1 hora');
+
+  // --- PLUJA ---
+  if (rainTotal >= 100) push('danger','🌊','Pluja torrencial acumulada', rainTotal.toFixed(1)+' mm en 48h — risc d\'inundacions');
+  else if (rainTotal >= 60) push('danger','🌧️','Pluja molt abundant', rainTotal.toFixed(1)+' mm acumulats en 48h');
+  else if (rainTotal >= 40) push('warning','🌧️','Pluja abundant', rainTotal.toFixed(1)+' mm acumulats en 48h');
+  else if (rainTotal >= 20) push('info','🌦️','Pluja moderada acumulada', rainTotal.toFixed(1)+' mm en 48h');
+
+  if (rainMax >= 30) push('danger','⛈️','Pluja molt intensa puntual', rainMax.toFixed(1)+' mm/h — possible xàfec fort');
+  else if (rainMax >= 15) push('warning','🌧️','Pluja intensa puntual', rainMax.toFixed(1)+' mm/h en algun moment');
+
+  // --- VENT ---
+  if (gustMax >= 120) push('danger','🌪️','Vent huracanat', 'Ratxes de fins a '+gustMax.toFixed(0)+' km/h');
+  else if (gustMax >= 90) push('danger','🌬️','Vent extrem', 'Ratxes de fins a '+gustMax.toFixed(0)+' km/h');
+  else if (gustMax >= 70) push('warning','🌬️','Vent molt fort', 'Ratxes de fins a '+gustMax.toFixed(0)+' km/h');
+  else if (gustMax >= 50) push('info','💨','Vent fort', 'Ratxes de fins a '+gustMax.toFixed(0)+' km/h');
+
+  if (windSustainedHigh >= 6) push('warning','🍃','Vent sostingut fort', 'Vent mitjà per sobre de 40 km/h durant '+windSustainedHigh+' hores');
+
+  // --- NEU ---
+  if (snowTotal > 10) push('danger','🌨️','Nevada molt abundant', snowTotal.toFixed(1)+' cm acumulats')
+  else if (snowTotal > 5) push('danger','🌨️','Nevada abundant', snowTotal.toFixed(1)+' cm acumulats');
+  else if (snowTotal > 1) push('warning','❄️','Nevada', snowTotal.toFixed(1)+' cm acumulats');
+  else if (snowTotal > 0) push('info','❄️','Neu feble possible', snowTotal.toFixed(1)+' cm acumulats');
+
+  // --- BOIRA / VISIBILITAT ---
+  if (visMin < 100) push('danger','🌫️','Boira molt densa', 'Visibilitat inferior a 100 m');
+  else if (visMin < 300) push('danger','🌫️','Boira densa', 'Visibilitat inferior a 300 m');
+  else if (visMin < 800) push('warning','🌫️','Boira', 'Visibilitat inferior a 800 m');
+  else if (visMin < 2000) push('info','🌫️','Boira baixa', 'Visibilitat inferior a 2 km');
+
+  // --- HUMITAT ---
+  if (rhMax >= 98) push('info','💧','Humitat saturada', rhMax.toFixed(0)+'% en algun moment');
+  else if (rhMax >= 90) push('info','💧','Humitat molt alta', rhMax.toFixed(0)+'% en algun moment');
+  if (rhMin <= 20) push('info','🏜️','Ambient molt sec', rhMin.toFixed(0)+'% d\'humitat mínima');
+
+  // --- TEMPESTA / ELECTRICITAT ---
+  if (ltngMax > 5) push('danger','⚡','Tempesta elèctrica intensa', 'Activitat elèctrica notable prevista');
+  else if (ltngMax > 0) push('warning','⚡','Tempesta elèctrica', 'Possibilitat de llamps');
+
+  if (hailAny) push('danger','🧊','Risc de calamarsa', 'Possibilitat de granís durant algun episodi de tempesta');
+
+  // --- INESTABILITAT (CAPE) ---
+  if (capeMax >= 3000) push('danger','⛈️','Inestabilitat extrema (CAPE)', capeMax.toFixed(0)+' J/kg — risc de tempestes severes');
+  else if (capeMax >= 1500) push('danger','⛈️','Inestabilitat molt alta (CAPE)', capeMax.toFixed(0)+' J/kg');
+  else if (capeMax >= 800) push('warning','⛈️','Inestabilitat moderada (CAPE)', capeMax.toFixed(0)+' J/kg — possibles xàfecs o tempestes');
+
+  // --- TEMPESTA IMMINENT (combinat CAPE + llamps) ---
+  if (capeMax >= 1000 && ltngMax > 0) push('danger','⚠️','Risc combinat de tempesta forta', 'Inestabilitat alta i activitat elèctrica simultànies');
+
+  // --- PRESSIÓ ---
+  if (pressDropMax != null && pressDropMax <= -4) push('warning','📉','Caiguda ràpida de pressió', pressDropMax.toFixed(1)+' hPa en 3h — possible pas de front');
+  if (pressRiseMax != null && pressRiseMax >= 4) push('info','📈','Pujada ràpida de pressió', '+'+pressRiseMax.toFixed(1)+' hPa en 3h — millora probable');
+
+  const order = {danger:0,warning:1,info:2};
+  return alerts.sort((a,b) => order[a.type] - order[b.type]);
+}
+
+function displayAlerts(alerts) {
+  const container = document.getElementById('alertsContainer');
+  const grid = document.getElementById('alertsGrid');
+  if (!alerts || alerts.length === 0) { container.classList.remove('on'); return; }
+  container.classList.add('on');
+  grid.innerHTML = alerts.map(a => `
+    <div class="alert-card alert-${a.type}">
+      <div class="alert-icon">${a.icon || '•'}</div>
+      <div class="alert-body">
+        <div class="alert-title">${a.title}</div>
+        <div class="alert-detail">${a.detail || ''}</div>
+      </div>
+    </div>`).join('');
+}
+
+let towns = [], sfcData = null, tdData = null;
+let selectedTown = null, charts = {}, loading = false, currentHourIndex = 0;
+let currentMode = 'simple';
+
+function initTowns() {
+  if (typeof TOWNS_CAT !== 'undefined' && TOWNS_CAT.towns) {
+    towns = TOWNS_CAT.towns.filter(t => t.t === 'poble' || t.t === 'vila');
+  }
+}
+
+// ============================================
+// SELECTOR DE MÈTODE DE CERCA (nom vs mapa)
+// ============================================
+const methodChoice = document.getElementById('methodChoice');
+const searchByNameBlock = document.getElementById('searchByNameBlock');
+const searchByMapBlock = document.getElementById('searchByMapBlock');
+const chooseByName = document.getElementById('chooseByName');
+const chooseByMap = document.getElementById('chooseByMap');
+const backFromName = document.getElementById('backFromName');
+const backFromMap = document.getElementById('backFromMap');
+const mapToast = document.getElementById('mapToast');
+
+let leafletMap = null, leafletMarker = null;
+
+function showMethodChoice() {
+  methodChoice.style.display = 'block';
+  searchByNameBlock.style.display = 'none';
+  searchByMapBlock.style.display = 'none';
+}
+function showSearchByName() {
+  methodChoice.style.display = 'none';
+  searchByNameBlock.style.display = 'block';
+  searchByMapBlock.style.display = 'none';
+  searchInput.focus();
+}
+function showSearchByMap() {
+  methodChoice.style.display = 'none';
+  searchByNameBlock.style.display = 'none';
+  searchByMapBlock.style.display = 'block';
+  initLeafletMap();
+}
+
+chooseByName.addEventListener('click', showSearchByName);
+chooseByMap.addEventListener('click', showSearchByMap);
+backFromName.addEventListener('click', showMethodChoice);
+backFromMap.addEventListener('click', showMethodChoice);
+
+function showMapToast(msg, kind) {
+  mapToast.textContent = msg;
+  mapToast.className = 'map-toast on' + (kind ? ' ' + kind : '');
+  clearTimeout(showMapToast._t);
+  showMapToast._t = setTimeout(() => mapToast.classList.remove('on'), 2600);
+}
+
+// Límits aproximats de Catalunya per acotar el mapa
+const CAT_BOUNDS = [[40.45, 0.05], [42.95, 3.35]];
+const CAT_CENTER = [41.72, 1.7];
+const MAX_PICK_DISTANCE_KM = 15;
+
+function haversineKm(la1, lo1, la2, lo2) {
+  const R = 6371;
+  const dLa = (la2-la1) * Math.PI/180;
+  const dLo = (lo2-lo1) * Math.PI/180;
+  const a = Math.sin(dLa/2)**2 + Math.cos(la1*Math.PI/180)*Math.cos(la2*Math.PI/180)*Math.sin(dLo/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+function findNearestTown(la, lo) {
+  if (!towns.length) return null;
+  let best = null, bestD = Infinity;
+  for (const t of towns) {
+    const d = haversineKm(la, lo, t.la, t.lo);
+    if (d < bestD) { bestD = d; best = t; }
+  }
+  return best ? { town: best, distKm: bestD } : null;
+}
+
+function initLeafletMap() {
+  if (leafletMap) { setTimeout(() => leafletMap.invalidateSize(), 50); return; }
+  leafletMap = L.map('mapContainer', {
+    center: CAT_CENTER,
+    zoom: 8,
+    minZoom: 7,
+    maxZoom: 13,
+    maxBounds: CAT_BOUNDS,
+    maxBoundsViscosity: 1.0,
+  });
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors',
+    noWrap: true,
+  }).addTo(leafletMap);
+  leafletMap.fitBounds(CAT_BOUNDS);
+
+  leafletMap.on('click', (e) => {
+    const { lat, lng } = e.latlng;
+    const result = findNearestTown(lat, lng);
+    if (!result || result.distKm > MAX_PICK_DISTANCE_KM) {
+      showMapToast('Punt no disponible, prova un altre lloc', 'err');
+      if (leafletMarker) { leafletMap.removeLayer(leafletMarker); leafletMarker = null; }
+      return;
+    }
+    if (leafletMarker) leafletMap.removeLayer(leafletMarker);
+    leafletMarker = L.marker([result.town.la, result.town.lo]).addTo(leafletMap);
+    leafletMarker.bindPopup(`<strong>${result.town.n}</strong>`).openPopup();
+    showMapToast(`Carregant previsió de ${result.town.n}...`, 'ok');
+    pick(result.town.n, result.town.la, result.town.lo);
+  });
+
+  setTimeout(() => leafletMap.invalidateSize(), 100);
+}
+
+const searchInput = document.getElementById('searchInput');
+const sugg = document.getElementById('sugg');
+const selInfo = document.getElementById('selInfo');
+const selInfoText = selInfo.querySelector('.sel-info-text');
+const btnDownload = document.getElementById('btnDownload');
+const modeToggle = document.getElementById('modeToggle');
+const captureToast = document.getElementById('captureToast');
+
+modeToggle.addEventListener('click', (e) => {
+  const btn = e.target.closest('button[data-mode]');
+  if (!btn) return;
+  currentMode = btn.dataset.mode;
+  modeToggle.querySelectorAll('button').forEach(b => b.classList.toggle('active', b === btn));
+  document.body.classList.toggle('mode-complex', currentMode === 'complex');
+});
+
+searchInput.addEventListener('input', function() {
+  const q = this.value.toLowerCase().trim();
+  if (q.length < 2) { sugg.classList.remove('on'); return; }
+  const m = towns.filter(t => t.n.toLowerCase().includes(q)).slice(0, 12);
+  sugg.innerHTML = m.length
+    ? m.map(t => `<div data-n="${t.n}" data-la="${t.la}" data-lo="${t.lo}"><strong>${t.n}</strong> <small>${t.la.toFixed(3)}°N, ${t.lo.toFixed(3)}°E</small></div>`).join('')
+    : '<div style="padding:12px;color:#999">No s\'ha trobat</div>';
+  sugg.classList.add('on');
+});
+
+searchInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    const f = sugg.querySelector('div[data-n]');
+    if (f) { pick(f.dataset.n, +f.dataset.la, +f.dataset.lo); sugg.classList.remove('on'); }
+  }
+});
+
+sugg.addEventListener('click', e => {
+  const d = e.target.closest('div[data-n]');
+  if (!d) return;
+  pick(d.dataset.n, +d.dataset.la, +d.dataset.lo);
+  sugg.classList.remove('on');
+});
+
+document.addEventListener('click', e => { if (!e.target.closest('.search-wrap')) sugg.classList.remove('on'); });
+
+document.getElementById('btnSearch').addEventListener('click', () => {
+  const q = searchInput.value.trim();
+  const m = towns.find(t => t.n.toLowerCase() === q.toLowerCase());
+  if (m) pick(m.n, m.la, m.lo);
+});
+
+function pick(name, la, lo) {
+  if (loading) return;
+  selectedTown = {name, la, lo};
+  selInfoText.innerHTML = `<strong>${name}</strong> · ${la.toFixed(4)}°N, ${lo.toFixed(4)}°E`;
+  selInfo.classList.add('on');
+  btnDownload.style.display = 'flex';
+  loadAllData();
+}
+
+async function loadJSFile(path) {
+  try {
+    const r = await fetch(path);
+    if (!r.ok) return null;
+    const text = await r.text();
+    const m = text.match(/=\s*(\{[\s\S]*\})\s*;?\s*$/);
+    if (m) { try { return JSON.parse(m[1]); } catch { return null; } }
+    return null;
+  } catch { return null; }
+}
+
+async function loadAllData() {
+  if (loading) return;
+  loading = true;
+  document.getElementById('content').innerHTML = `<div class="loading"><div class="spinner"></div>Carregant previsions...</div>`;
+  const sfcFiles = [
+    'web_data/dades_avui_mati_sfc.js', 'web_data/dades_avui_tarda_sfc.js',
+    'web_data/dades_dema_mati_sfc.js', 'web_data/dades_dema_tarda_sfc.js',
+  ];
+  const tdFiles = [
+    'web_data/dades_avui_mati_3d.js', 'web_data/dades_avui_tarda_3d.js',
+    'web_data/dades_dema_mati_3d.js', 'web_data/dades_dema_tarda_3d.js',
+  ];
+  const [sfcParts, tdParts] = await Promise.all([
+    Promise.all(sfcFiles.map(loadJSFile)),
+    Promise.all(tdFiles.map(loadJSFile)),
+  ]);
+  sfcData = mergeSFC(sfcParts.filter(Boolean));
+  tdData = merge3D(tdParts.filter(Boolean));
+  if (sfcData && sfcData.meta?.hours_utc?.length > 0) renderAll();
+  else document.getElementById('content').innerHTML = `<div class="placeholder">No s'han pogut carregar les dades</div>`;
+  loading = false;
+}
+
+function mergeSFC(parts) {
+  if (!parts.length) return null;
+  parts.sort((a,b) => (a.meta?.h_start_utc||0)-(b.meta?.h_start_utc||0));
+  const base = JSON.parse(JSON.stringify(parts[0]));
+  for (let i=1; i<parts.length; i++) {
+    const p = parts[i];
+    if (!p?.hourly?.surface) continue;
+    base.meta.hours_utc = [...base.meta.hours_utc, ...p.meta.hours_utc];
+    for (const key of Object.keys(p.hourly.surface)) {
+      if (base.hourly.surface[key]) {
+        const ba=base.hourly.surface[key], na=p.hourly.surface[key];
+        for (let pt=0; pt<ba.length && pt<na.length; pt++) {
+          if (Array.isArray(ba[pt]) && Array.isArray(na[pt])) ba[pt] = [...ba[pt], ...na[pt]];
+        }
+      } else base.hourly.surface[key] = p.hourly.surface[key];
+    }
+  }
+  return base;
+}
+
+function merge3D(parts) {
+  if (!parts.length) return null;
+  parts.sort((a,b) => (a.meta?.h_start_utc||0)-(b.meta?.h_start_utc||0));
+  const base = JSON.parse(JSON.stringify(parts[0]));
+  for (let i=1; i<parts.length; i++) {
+    const p = parts[i];
+    if (!p?.hourly) continue;
+    base.meta.hours_utc = [...base.meta.hours_utc, ...p.meta.hours_utc];
+    for (const plev of Object.keys(p.hourly)) {
+      if (!base.hourly[plev]) { base.hourly[plev]=p.hourly[plev]; continue; }
+      for (const vari of Object.keys(p.hourly[plev])) {
+        if (!base.hourly[plev][vari]) { base.hourly[plev][vari]=p.hourly[plev][vari]; continue; }
+        const ba=base.hourly[plev][vari], na=p.hourly[plev][vari];
+        for (let pt=0; pt<ba.length && pt<na.length; pt++) {
+          if (Array.isArray(ba[pt]) && Array.isArray(na[pt])) ba[pt]=[...ba[pt], ...na[pt]];
+        }
+      }
+    }
+  }
+  return base;
+}
+
+function findIdx(data, la, lo) {
+  if (!data?.lats?.length) return -1;
+  let minD=Infinity, idx=-1;
+  for (let i=0; i<data.lats.length; i++) {
+    const d=(data.lats[i]-la)**2+(data.lons[i]-lo)**2;
+    if (d<minD){minD=d;idx=i;}
+  }
+  return idx;
+}
+
+function val(arr, idx, h) {
+  if (!arr || idx<0 || idx>=arr.length) return null;
+  const v = arr[idx]?.[h];
+  return (v===null||v===undefined) ? null : v;
+}
+
+function tempClass(t) {
+  if (t == null) return '';
+  if (t >= 35) return 't-heat5';
+  if (t >= 28) return 't-heat4';
+  if (t >= 22) return 't-heat3';
+  if (t >= 16) return 't-heat2';
+  if (t >= 10) return 't-heat1';
+  if (t >= 4) return 't-cold1';
+  if (t >= 0) return 't-cold2';
+  if (t >= -5) return 't-cold3';
+  return 't-snow';
+}
+
+function destroyCharts() { 
+  Object.values(charts).forEach(c=>c&&c.destroy()); 
+  charts={}; 
+}
+
+function calculateBollingerBands(prices, period, stdDevs) {
+  const sma = [], upper = [], lower = [];
+  for (let i = 0; i < prices.length; i++) {
+    if (i < period - 1) { sma.push(null); upper.push(null); lower.push(null); continue; }
+    const slice = prices.slice(i - period + 1, i + 1).filter(v => v != null);
+    if (slice.length === 0) { sma.push(null); upper.push(null); lower.push(null); continue; }
+    const avg = slice.reduce((a, b) => a + b) / slice.length;
+    const variance = slice.reduce((a, b) => a + (b - avg) ** 2) / slice.length;
+    const stdDev = Math.sqrt(variance);
+    sma.push(+avg.toFixed(1));
+    upper.push(+(avg + stdDevs * stdDev).toFixed(1));
+    lower.push(+(avg - stdDevs * stdDev).toFixed(1));
+  }
+  return { sma, upper, lower };
+}
+
+// Calcular punt de rosada (aproximació de Magnus)
+function calcDewPoint(T, RH) {
+  if (T == null || RH == null) return null;
+  const a = 17.27, b = 237.7;
+  const gamma = Math.log(RH/100) + (a * T) / (b + T);
+  return +( (b * gamma) / (a - gamma) ).toFixed(1);
+}
+
+// Calcular isoterma 0°C (altitud on T=0, interpolant entre nivells)
+function calcIso0(t850, t500, t2m) {
+  if (t850 == null || t500 == null) return null;
+  const h850 = 1500, h500 = 5500;
+  if (t850 <= 0 && t2m != null) {
+    if (t2m <= 0) return 0;
+    return +((0 - t850) / (t2m - t850) * h850).toFixed(0);
+  }
+  if (t850 > 0 && t500 <= 0) {
+    return +(h850 + (h500 - h850) * (0 - t850) / (t500 - t850)).toFixed(0);
+  }
+  if (t500 > 0) return 9999;
+  return null;
+}
+
+// Calcular Heat Index (sensació tèrmica per calor)
+function calcHeatIndex(T, RH) {
+  if (T == null || RH == null || T < 27) return T;
+  const Tf = T * 9/5 + 32;
+  const HI = -42.379 + 2.04901523*Tf + 10.14333127*RH - 0.22475541*Tf*RH 
+    - 6.83783e-3*Tf*Tf - 5.481717e-2*RH*RH + 1.22874e-3*Tf*Tf*RH 
+    + 8.5282e-4*Tf*RH*RH - 1.99e-6*Tf*Tf*RH*RH;
+  return +((HI - 32) * 5/9).toFixed(1);
+}
+
+// Direcció de vent dominant a partir d'un vector mitjà circular (ponderat per velocitat)
+const COMPASS_LABELS = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSO','SO','OSO','O','ONO','NO','NNO'];
+function degToCompass(deg) {
+  if (deg == null) return '--';
+  const idx = Math.round(((deg % 360) + 360) % 360 / 22.5) % 16;
+  return COMPASS_LABELS[idx];
+}
+function calcDominantWindDir(dirs, speeds) {
+  let sx = 0, sy = 0, wsum = 0;
+  for (let i = 0; i < dirs.length; i++) {
+    const d = dirs[i], s = speeds[i] ?? 1;
+    if (d == null) continue;
+    const rad = d * Math.PI / 180;
+    sx += Math.sin(rad) * s;
+    sy += Math.cos(rad) * s;
+    wsum += s;
+  }
+  if (wsum === 0) return null;
+  let deg = Math.atan2(sx, sy) * 180 / Math.PI;
+  if (deg < 0) deg += 360;
+  return deg;
+}
+
+function renderAll() {
+  destroyCharts();
+  if (!selectedTown || !sfcData) return;
+
+  const sfcIdx = findIdx(sfcData, selectedTown.la, selectedTown.lo);
+  const tdIdx = tdData ? findIdx(tdData, selectedTown.la, selectedTown.lo) : -1;
+
+  if (sfcIdx < 0) {
+    document.getElementById('content').innerHTML = `<div class="placeholder">Ubicació fora de cobertura</div>`;
+    return;
+  }
+
+  const s = sfcData.hourly.surface;
+  const maxH = Math.min(sfcData.meta.hours_utc.length, 48);
+
+  const now = new Date();
+  let nearestIdx = 0, nearestDiff = Infinity;
+  for (let h = 0; h < maxH; h++) {
+    const dt = new Date(sfcData.meta.hours_utc[h]);
+    const diff = Math.abs(dt - now);
+    if (diff < nearestDiff) { nearestDiff = diff; nearestIdx = h; }
+  }
+  currentHourIndex = nearestIdx;
+
+  const labels=[], labelsShort=[], hours=[];
+  const t2m=[], t850=[], t500=[];
+  const rain=[], snow=[], grp=[], hail=[];
+  const wind=[], gust=[], windDir=[];
+  const cloudLow=[], cloudMed=[], cloudHi=[];
+  const ltng=[], press=[], rh=[], dbzArome=[], vis60=[];
+  const cape=[], cin=[];
+  let acc=0;
+
+  for (let h=0; h<maxH; h++) {
+    const dt=new Date(sfcData.meta.hours_utc[h]);
+    const day=['Dg','Dl','Dt','Dc','Dj','Dv','Ds'][dt.getDay()];
+    const hr=dt.getHours().toString().padStart(2,'0');
+    labels.push(day+' '+hr+'h');
+    labelsShort.push(hr+'h');
+    hours.push(dt.getHours());
+
+    t2m.push(val(s.temperature, sfcIdx, h));
+    t850.push(val(tdData?.hourly?.['850hPa']?.temperature, tdIdx, h));
+    t500.push(val(tdData?.hourly?.['500hPa']?.temperature, tdIdx, h));
+
+    const r1=val(s.rain_1h, sfcIdx, h)??0;
+    acc+=r1; rain.push(r1);
+    snow.push(val(s.snowfall_1h, sfcIdx, h)??0);
+    grp.push(val(s.graupel_1h, sfcIdx, h)??0);
+    hail.push(val(s.hail_1h, sfcIdx, h)??0);
+    wind.push(val(s.wind_speed, sfcIdx, h));
+    gust.push(val(s.wind_gust, sfcIdx, h));
+    windDir.push(val(s.wind_direction, sfcIdx, h));
+    cloudLow.push(val(s.low_cloud_cover, sfcIdx, h)??0);
+    cloudMed.push(val(s.medium_cloud_cover, sfcIdx, h)??0);
+    cloudHi.push(val(s.high_cloud_cover, sfcIdx, h)??0);
+    ltng.push(val(s.lightning_1h, sfcIdx, h)??0);
+    press.push(val(s.pressure_msl, sfcIdx, h));
+    rh.push(val(s.relative_humidity, sfcIdx, h)??0);
+    dbzArome.push(val(s.reflectivity_dbz, sfcIdx, h)??-10);
+    vis60.push(val(s.visibility_min60, sfcIdx, h)??10000);
+    cape.push(val(s.cape, sfcIdx, h)??0);
+    cin.push(val(s.cin, sfcIdx, h)??0);
+  }
+
+  // Variables derivades
+  const dewPoint = t2m.map((t,i) => calcDewPoint(t, rh[i]));
+  const heatIndex = t2m.map((t,i) => calcHeatIndex(t, rh[i]));
+  const iso0 = t850.map((t,i) => calcIso0(t, t500[i], t2m[i]));
+  const totalCloud = cloudLow.map((v,i) => Math.max(v, cloudMed[i]||0, cloudHi[i]||0));
+  const snowAcc = []; let sa=0; snow.forEach(v=>{sa+=v; snowAcc.push(+sa.toFixed(1));});
+  const pressTend = press.map((v,i) => i<3 ? null : v != null && press[i-3] != null ? +(v - press[i-3]).toFixed(1) : null);
+
+  const alerts = generateAdvancedAlerts({ t2m, rain, snow, wind, gust, vis60, ltng, rh, hail, cape, dewPoint, press, pressTend });
+  displayAlerts(alerts);
+
+  const t2mV=t2m.filter(v=>v!=null), wV=wind.filter(v=>v!=null), rhV=rh.filter(v=>v!=null);
+  const capeV=cape.filter(v=>v!=null), iso0V=iso0.filter(v=>v!=null && v<9999);
+  const gustV=gust.filter(v=>v!=null), heatV=heatIndex.filter(v=>v!=null), dewV=dewPoint.filter(v=>v!=null);
+  const visV=vis60.filter(v=>v!=null), pressV=press.filter(v=>v!=null), cinV=cin.filter(v=>v!=null);
+  const snowTotal = snow.reduce((a,b)=>a+(b??0),0);
+  const dominantDeg = calcDominantWindDir(windDir, wind);
+  const lastPressTendVal = pressTend.filter(v=>v!=null).slice(-1)[0];
+
+  document.getElementById('statsGrid').style.display = 'grid';
+  document.getElementById('stTmax').textContent = t2mV.length ? Math.max(...t2mV).toFixed(1)+'°' : '--';
+  document.getElementById('stTmin').textContent = t2mV.length ? Math.min(...t2mV).toFixed(1)+'°' : '--';
+  document.getElementById('stRain').textContent = acc.toFixed(1)+'mm';
+  document.getElementById('stWmax').textContent = wV.length ? Math.max(...wV).toFixed(0)+' km/h' : '--';
+  document.getElementById('stWindDir').textContent = dominantDeg != null ? degToCompass(dominantDeg) : '--';
+  document.getElementById('stWindDirSub').textContent = dominantDeg != null ? dominantDeg.toFixed(0)+'° dominant' : 'dominant';
+  document.getElementById('stRhAvg').textContent = rhV.length ? (rhV.reduce((a,b)=>a+b,0)/rhV.length).toFixed(0)+'%' : '--';
+  document.getElementById('stHailRisk').textContent = hail.some(v=>v>0) ? 'Alt' : 'Baix';
+  document.getElementById('stCAPE').textContent = capeV.length ? Math.max(...capeV).toFixed(0)+' J/kg' : '--';
+  document.getElementById('stIso0').textContent = iso0V.length ? Math.min(...iso0V).toFixed(0)+' m' : '--';
+
+  document.getElementById('stHeatIdx').textContent = heatV.length ? Math.max(...heatV).toFixed(1)+'°' : '--';
+  document.getElementById('stDewMax').textContent = dewV.length ? Math.max(...dewV).toFixed(1)+'°' : '--';
+  document.getElementById('stSnowTot').textContent = snowTotal.toFixed(1)+' cm';
+  document.getElementById('stGustMax').textContent = gustV.length ? Math.max(...gustV).toFixed(0)+' km/h' : '--';
+  document.getElementById('stVisMin').textContent = visV.length ? (Math.min(...visV)/1000).toFixed(1)+' km' : '--';
+  document.getElementById('stPress').textContent = pressV.length ? pressV[0].toFixed(0)+' hPa' : '--';
+  document.getElementById('stPressSub').textContent = lastPressTendVal != null ? (lastPressTendVal>0?'+':'')+lastPressTendVal.toFixed(1)+' hPa/3h' : 'tendència';
+  document.getElementById('stCIN').textContent = cinV.length ? Math.min(...cinV).toFixed(0)+' J/kg' : '--';
+  document.getElementById('stTDiff').textContent = t2mV.length ? (Math.max(...t2mV)-Math.min(...t2mV)).toFixed(1)+'°' : '--';
+
+  // TIMELINE
+  let iconsHtml = '';
+  for (let h=0; h<maxH; h++) {
+    const isNight = hours[h]<6 || hours[h]>=21;
+    const icoResult = selectWeatherIcon({
+      rain: rain[h]??0, snow: snow[h]??0, grp: grp[h]??0, hail: hail[h]??0,
+      ltng: ltng[h]??0, cloudLow: cloudLow[h]??0, cloudMed: cloudMed[h]??0,
+      cloudHi: cloudHi[h]??0, dbz: dbzArome[h]??-10, vis: vis60[h]??10000,
+      t2m: t2m[h], rh: rh[h]??0, isNight, windSpeed: wind[h]??0, gust: gust[h]??0,
+    });
+    const t = t2m[h] != null ? Math.round(t2m[h])+'°' : '';
+    const tc = tempClass(t2m[h]);
+    iconsHtml += `<div class="icon-cell">
+      <img src="${icoResult.url}" alt="${icoResult.label}" loading="lazy" width="28" height="28" onerror="this.src='${METEOCONS.clearDay}'">
+      <div class="time">${labelsShort[h]}</div>
+      <div class="temp ${tc}">${t}</div>
+    </div>`;
+  }
+  document.getElementById('iconsTimeline').style.display = 'block';
+  document.getElementById('iconsScroll').innerHTML = iconsHtml;
+
+  const bb = calculateBollingerBands(t2m, 3, 2);
+
+  document.getElementById('content').innerHTML = `
+    <div class="main-card">
+      <div class="card-header">
+        <img src="https://cdn.meteocons.com/3.0.0-next.10/svg/fill/thermometer.svg" alt="temperatura" onerror="this.src='https://cdn.meteocons.com/3.0.0-next.10/svg/fill/clear-day.svg'">
+        <h2>Previsió Detallada · ${selectedTown.name}</h2>
+        <div class="sub">48 hores</div>
+      </div>
+      <div class="charts-container">
+        <div class="chart-section"><h3><img src="${METEOCONS.thermometer}" alt="T" onerror="this.style.display='none'">Temperatura Superficial</h3><div class="chart-wrap"><canvas id="cTemp"></canvas></div><div class="legend-row"><div class="legend-item"><div class="legend-box" style="background:#dc2626"></div>T 2m</div><div class="legend-item"><div class="legend-box" style="background:#2563eb;height:2px"></div>Mitjana 3h</div><div class="legend-item"><div class="legend-box-square" style="background:rgba(34,197,94,.25)"></div>Banda Bollinger</div></div></div>
+
+        <div class="chart-section"><h3><img src="${METEOCONS.humidity}" alt="rosada" onerror="this.style.display='none'">Punt de Rosada</h3><div class="chart-wrap"><canvas id="cDewPoint"></canvas></div><div class="legend-row"><div class="legend-item"><div class="legend-box" style="background:#dc2626"></div>Temperatura</div><div class="legend-item"><div class="legend-box" style="background:#0891b2"></div>Punt de Rosada</div></div></div>
+
+        <div class="chart-section"><h3><img src="${METEOCONS.droplets}" alt="pluja" onerror="this.style.display='none'">Precipitació i Humitat</h3><div class="chart-wrap"><canvas id="cRainHum"></canvas></div><div class="legend-row"><div class="legend-item"><div class="legend-box-square" style="background:rgba(59,130,246,.45)"></div>Pluja (mm)</div><div class="legend-item"><div class="legend-box" style="background:#0891b2"></div>Humitat (%)</div></div></div>
+
+        <div class="chart-section"><h3><img src="${METEOCONS.wind}" alt="vent">Vent i Ratxes</h3><div class="chart-wrap"><canvas id="cWind"></canvas></div><div class="legend-row"><div class="legend-item"><div class="legend-box-square" style="background:rgba(34,197,94,.6)"></div>Vent</div><div class="legend-item"><div class="legend-box" style="background:#b91c1c;height:2px"></div>Ratxa</div></div></div>
+
+        <div class="chart-section"><h3><img src="${METEOCONS.compass}" alt="direcció" onerror="this.style.display='none'">Direcció del Vent</h3><div class="chart-wrap"><canvas id="cWindDir"></canvas></div><div class="legend-row"><div class="legend-item"><div class="legend-box" style="background:#8b5cf6"></div>Direcció (°)</div></div></div>
+
+        <div class="chart-section"><h3><img src="${METEOCONS.cloudy}" alt="nuvols">Cobertura Total de Núvols</h3><div class="chart-wrap"><canvas id="cCloudTotal"></canvas></div><div class="legend-row"><div class="legend-item"><div class="legend-box-square" style="background:rgba(100,116,139,.5)"></div>Cobertura total (%)</div></div></div>
+
+        <!-- COMPLET: temperatura en alçada, sensació, neu, núvols per capes, CAPE/CIN, pressió, tendència, radar -->
+        <div class="chart-section complex-only"><h3><img src="${METEOCONS.thermometer}" alt="T alçada" onerror="this.style.display='none'">Temperatura en Alçada</h3><div class="chart-wrap"><canvas id="cTempAlcada"></canvas></div><div class="legend-row"><div class="legend-item"><div class="legend-box" style="background:#2563eb"></div>T 850 hPa (~1500m)</div><div class="legend-item"><div class="legend-box" style="background:#06b6d4;height:2px"></div>T 500 hPa (~5500m)</div></div></div>
+
+        <div class="chart-section complex-only"><h3><img src="${METEOCONS.thermometer}" alt="sensació" onerror="this.style.display='none'">Sensació Tèrmica (Heat Index)</h3><div class="chart-wrap"><canvas id="cHeatIdx"></canvas></div><div class="legend-row"><div class="legend-item"><div class="legend-box" style="background:#dc2626"></div>T Real</div><div class="legend-item"><div class="legend-box" style="background:#f97316"></div>Sensació Tèrmica</div></div></div>
+
+        <div class="chart-section complex-only"><h3><img src="${METEOCONS.snowflake}" alt="neu" onerror="this.style.display='none'">Neu Acumulada</h3><div class="chart-wrap"><canvas id="cSnowAcc"></canvas></div><div class="legend-row"><div class="legend-item"><div class="legend-box" style="background:#7c3aed"></div>Neu acumulada (cm)</div></div></div>
+
+        <div class="chart-section complex-only"><h3><img src="${METEOCONS.cloudy}" alt="nuvols">Núvols per Capes</h3><div class="chart-wrap"><canvas id="cClouds"></canvas></div><div class="legend-row"><div class="legend-item"><div class="legend-box-square" style="background:rgba(34,197,94,.5)"></div>Baixos</div><div class="legend-item"><div class="legend-box-square" style="background:rgba(168,85,247,.5)"></div>Mitjans</div><div class="legend-item"><div class="legend-box-square" style="background:rgba(100,116,139,.5)"></div>Alts</div></div></div>
+
+        <div class="chart-section complex-only"><h3><img src="${METEOCONS.lightningBolt}" alt="CAPE" onerror="this.style.display='none'">CAPE i CIN (Inestabilitat)</h3><div class="chart-wrap"><canvas id="cCAPE"></canvas></div><div class="legend-row"><div class="legend-item"><div class="legend-box-square" style="background:rgba(239,68,68,.5)"></div>CAPE (J/kg)</div><div class="legend-item"><div class="legend-box" style="background:#f59e0b"></div>CIN (J/kg)</div></div></div>
+
+        <div class="chart-section complex-only"><h3><img src="${METEOCONS.barometer}" alt="pressio" onerror="this.style.display='none'">Pressió i Isoterma 0°C</h3><div class="chart-wrap"><canvas id="cPressIso0"></canvas></div><div class="legend-row"><div class="legend-item"><div class="legend-box" style="background:#7c3aed"></div>Pressió (hPa)</div><div class="legend-item"><div class="legend-box" style="background:#06b6d4;height:2px"></div>Isoterma 0°C (m)</div></div></div>
+
+        <div class="chart-section complex-only"><h3><img src="${METEOCONS.barometer}" alt="tendencia" onerror="this.style.display='none'">Tendència de Pressió (3h)</h3><div class="chart-wrap"><canvas id="cPressTend"></canvas></div><div class="legend-row"><div class="legend-item"><div class="legend-box-square" style="background:rgba(59,130,246,.6)"></div>Δ Pressió 3h (hPa)</div></div></div>
+
+        <div class="chart-section complex-only"><h3><img src="${METEOCONS.hail}" alt="radar">Reflexió Radar i Visibilitat</h3><div class="chart-wrap"><canvas id="cRadarVis"></canvas></div><div class="legend-row"><div class="legend-item"><div class="legend-box-square" style="background:rgba(71,85,105,.55)"></div>DBZ (radar)</div><div class="legend-item"><div class="legend-box" style="background:#0891b2"></div>Visibilitat (km)</div></div></div>
+      </div>
+    </div>
+  `;
+
+  const TICK={font:{size:9.5,family:"'Segoe UI',Roboto,sans-serif"},color:'#8a8a99',maxRotation:45,padding:6};
+  const GRID={color:'rgba(20,20,50,.045)',drawBorder:false};
+  const TIP={backgroundColor:'rgba(26,26,46,.92)',titleColor:'#fff',titleFont:{weight:700,size:11.5},bodyColor:'#e5e5f0',bodyFont:{size:11},borderColor:'rgba(255,255,255,.08)',borderWidth:1,padding:12,cornerRadius:10,mode:'index',intersect:false,displayColors:true,boxPadding:4,caretSize:6};
+  Chart.defaults.font.family = "'Segoe UI',Roboto,sans-serif";
+  Chart.defaults.elements.line.capBezierPoints = true;
+  Chart.defaults.elements.bar.borderRadius = 4;
+  Chart.defaults.elements.bar.borderSkipped = false;
+
+  function mkGradient(ctx, chartArea, colorStops) {
+    if (!chartArea) return colorStops[colorStops.length-1][1];
+    const g = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+    colorStops.forEach(([stop, color]) => g.addColorStop(stop, color));
+    return g;
+  }
+
+  const plugin = {
+    id: 'verticalLinePlugin',
+    afterDatasetsDraw(chart) {
+      if (currentHourIndex >= 0 && currentHourIndex < chart.data.labels.length) {
+        const x = chart.scales.x.getPixelForValue(currentHourIndex);
+        const ctx = chart.ctx;
+        ctx.strokeStyle = '#667eea';
+        ctx.lineWidth = 2.5;
+        ctx.setLineDash([5,5]);
+        ctx.beginPath();
+        ctx.moveTo(x, chart.chartArea.top);
+        ctx.lineTo(x, chart.chartArea.bottom);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+    }
+  };
+
+  charts.temp = new Chart(document.getElementById('cTemp'), {
+    plugins: [plugin],
+    data: { labels, datasets: [
+      { label:'Upper Band', type:'line', data:bb.upper, borderWidth:0, pointRadius:0, fill:'+1', backgroundColor:'rgba(34,197,94,.12)', tension:.4, yAxisID:'y', order:3 },
+      { label:'Lower Band', type:'line', data:bb.lower, borderWidth:0, pointRadius:0, fill:false, tension:.4, yAxisID:'y', order:3 },
+      { label:'T Superficial', type:'line', data:t2m, borderColor:'#dc2626',
+        backgroundColor:(c)=>mkGradient(c.chart.ctx, c.chart.chartArea, [[0,'rgba(220,38,38,.25)'],[1,'rgba(220,38,38,0)']]),
+        borderWidth:3, pointRadius:0, pointHoverRadius:5, pointHoverBackgroundColor:'#dc2626', pointHoverBorderColor:'#fff', pointHoverBorderWidth:2,
+        tension:.4, yAxisID:'y', fill:'origin', order:1 },
+      { label:'Mitjana 3h', type:'line', data:bb.sma, borderColor:'#2563eb', borderWidth:1.5, pointRadius:0, tension:.4, borderDash:[4,3], yAxisID:'y', fill:false, order:2 },
+    ]},
+    options: { responsive:true, maintainAspectRatio:false, animation:{duration:400,easing:'easeOutQuart'}, interaction:{mode:'index',intersect:false}, plugins:{legend:{display:false},tooltip:TIP}, scales:{ x:{ticks:TICK,grid:GRID}, y:{position:'left',title:{display:true,text:'°C',font:{size:10.5,weight:700},color:'#dc2626'},ticks:{callback:v=>v+'°',...TICK},grid:GRID} } }
+  });
+
+  charts.tempAlcada = new Chart(document.getElementById('cTempAlcada'), {
+    plugins: [plugin],
+    data: { labels, datasets: [
+      { label:'T 850 hPa', type:'line', data:t850, borderColor:'#2563eb', borderWidth:2.5, pointRadius:0, tension:.4, yAxisID:'y', fill:false },
+      { label:'T 500 hPa', type:'line', data:t500, borderColor:'#06b6d4', borderWidth:2.5, pointRadius:0, tension:.4, borderDash:[4,4], yAxisID:'y', fill:false },
+    ]},
+    options: { responsive:true, maintainAspectRatio:false, animation:{duration:0}, interaction:{mode:'index',intersect:false}, plugins:{legend:{display:false},tooltip:TIP}, scales:{ x:{ticks:TICK,grid:GRID}, y:{position:'left',title:{display:true,text:'°C',font:{size:10,weight:600}},ticks:{callback:v=>v+'°'},grid:GRID} } }
+  });
+
+  charts.heatIdx = new Chart(document.getElementById('cHeatIdx'), {
+    plugins: [plugin],
+    data: { labels, datasets: [
+      { label:'T Real', type:'line', data:t2m, borderColor:'#dc2626', borderWidth:2, pointRadius:0, tension:.4, yAxisID:'y', fill:false },
+      { label:'Sensació Tèrmica', type:'line', data:heatIndex, borderColor:'#f97316', borderWidth:2.5, pointRadius:0, tension:.4, borderDash:[3,3], yAxisID:'y', fill:false },
+    ]},
+    options: { responsive:true, maintainAspectRatio:false, animation:{duration:0}, interaction:{mode:'index',intersect:false}, plugins:{legend:{display:false},tooltip:TIP}, scales:{ x:{ticks:TICK,grid:GRID}, y:{position:'left',title:{display:true,text:'°C',font:{size:10,weight:600}},ticks:{callback:v=>v+'°'},grid:GRID} } }
+  });
+
+  charts.dewPoint = new Chart(document.getElementById('cDewPoint'), {
+    plugins: [plugin],
+    data: { labels, datasets: [
+      { label:'Temperatura', type:'line', data:t2m, borderColor:'#dc2626', borderWidth:1.5, pointRadius:0, tension:.4, yAxisID:'y', fill:false, borderDash:[2,2] },
+      { label:'Punt de Rosada', type:'line', data:dewPoint, borderColor:'#0891b2',
+        backgroundColor:(c)=>mkGradient(c.chart.ctx, c.chart.chartArea, [[0,'rgba(8,145,178,.22)'],[1,'rgba(8,145,178,0)']]),
+        borderWidth:2.5, pointRadius:0, pointHoverRadius:5, pointHoverBackgroundColor:'#0891b2', pointHoverBorderColor:'#fff', pointHoverBorderWidth:2,
+        tension:.4, yAxisID:'y', fill:'origin' },
+    ]},
+    options: { responsive:true, maintainAspectRatio:false, animation:{duration:400,easing:'easeOutQuart'}, interaction:{mode:'index',intersect:false}, plugins:{legend:{display:false},tooltip:TIP}, scales:{ x:{ticks:TICK,grid:GRID}, y:{position:'left',title:{display:true,text:'°C',font:{size:10.5,weight:700},color:'#0891b2'},ticks:{callback:v=>v+'°'},grid:GRID} } }
+  });
+
+  charts.rainHum = new Chart(document.getElementById('cRainHum'), {
+    plugins: [plugin],
+    data:{labels,datasets:[
+      {label:'Pluja (mm)',type:'bar',data:rain,backgroundColor:'rgba(59,130,246,.45)',borderWidth:0,yAxisID:'yR',barPercentage:.8},
+      {label:'Humitat (%)',type:'line',data:rh,borderColor:'#0891b2',borderWidth:2,pointRadius:0,tension:.4,yAxisID:'yH'},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,animation:{duration:0},interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:TIP},scales:{x:{ticks:TICK,grid:GRID},yR:{position:'left',beginAtZero:true,title:{display:true,text:'mm',font:{size:10,weight:600},color:'#3b82f6'},ticks:{callback:v=>v.toFixed(1)},grid:GRID},yH:{position:'right',beginAtZero:true,max:100,title:{display:true,text:'%',font:{size:10,weight:600},color:'#0891b2'},ticks:{callback:v=>v+'%'},grid:{display:false}}}}
+  });
+
+  charts.snowAcc = new Chart(document.getElementById('cSnowAcc'), {
+    plugins: [plugin],
+    data:{labels,datasets:[
+      {label:'Neu acumulada',type:'line',data:snowAcc,borderColor:'#7c3aed',borderWidth:2.5,pointRadius:0,tension:.4,fill:true,backgroundColor:'rgba(124,58,237,.1)',yAxisID:'y'},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,animation:{duration:0},interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:TIP},scales:{x:{ticks:TICK,grid:GRID},y:{position:'left',beginAtZero:true,title:{display:true,text:'cm',font:{size:10,weight:600},color:'#7c3aed'},ticks:{callback:v=>v.toFixed(1)},grid:GRID}}}
+  });
+
+  charts.wind = new Chart(document.getElementById('cWind'), {
+    plugins: [plugin],
+    data:{labels,datasets:[
+      {label:'Vent',type:'bar',data:wind,backgroundColor:wind.map(v=>v==null?'#f0f0f0':v<15?'rgba(34,197,94,.6)':v<30?'rgba(234,179,8,.65)':v<60?'rgba(249,115,22,.7)':'rgba(239,68,68,.8)'),borderWidth:0,barPercentage:.75,yAxisID:'yW'},
+      {label:'Ratxa',type:'line',data:gust,borderColor:'#b91c1c',borderWidth:2,pointRadius:0,tension:.3,yAxisID:'yW'},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,animation:{duration:0},interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:TIP},scales:{x:{ticks:TICK,grid:GRID},yW:{beginAtZero:true,title:{display:true,text:'km/h',font:{size:10,weight:600}},ticks:{callback:v=>v+' km/h'},grid:GRID}}}
+  });
+
+  charts.windDir = new Chart(document.getElementById('cWindDir'), {
+    plugins: [plugin],
+    data:{labels,datasets:[
+      {label:'Direcció',type:'line',data:windDir,borderColor:'#8b5cf6',borderWidth:2,pointRadius:0,tension:.3,yAxisID:'y',fill:false},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,animation:{duration:0},interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:TIP},scales:{x:{ticks:TICK,grid:GRID},y:{position:'left',min:0,max:360,title:{display:true,text:'graus',font:{size:10,weight:600},color:'#8b5cf6'},ticks:{stepSize:45,callback:v=>{const dirs=['N','NE','E','SE','S','SO','O','NO','N'];return dirs[Math.round(v/45)]||v+'°'}},grid:GRID}}}
+  });
+
+  charts.cloudTotal = new Chart(document.getElementById('cCloudTotal'), {
+    plugins: [plugin],
+    data:{labels,datasets:[
+      {label:'Cobertura total',type:'line',data:totalCloud,borderColor:'#64748b',borderWidth:2,pointRadius:0,tension:.4,fill:true,backgroundColor:'rgba(100,116,139,.15)',yAxisID:'y'},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,animation:{duration:0},interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:TIP},scales:{x:{ticks:TICK,grid:GRID},y:{position:'left',beginAtZero:true,max:100,title:{display:true,text:'%',font:{size:10,weight:600}},ticks:{callback:v=>v+'%'},grid:GRID}}}
+  });
+
+  charts.clouds = new Chart(document.getElementById('cClouds'), {
+    plugins: [plugin],
+    data:{labels,datasets:[
+      {label:'Baixos',type:'bar',data:cloudLow,backgroundColor:'rgba(34,197,94,.5)',borderWidth:0,stack:'clouds',yAxisID:'yC'},
+      {label:'Mitjans',type:'bar',data:cloudMed,backgroundColor:'rgba(168,85,247,.5)',borderWidth:0,stack:'clouds',yAxisID:'yC'},
+      {label:'Alts',type:'bar',data:cloudHi,backgroundColor:'rgba(100,116,139,.5)',borderWidth:0,stack:'clouds',yAxisID:'yC'},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,animation:{duration:0},interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:TIP},scales:{x:{ticks:TICK,grid:GRID},yC:{position:'left',beginAtZero:true,max:100,title:{display:true,text:'%',font:{size:10,weight:600}},ticks:{callback:v=>v+'%'},grid:GRID}}}
+  });
+
+  charts.cape = new Chart(document.getElementById('cCAPE'), {
+    plugins: [plugin],
+    data:{labels,datasets:[
+      {label:'CAPE',type:'bar',data:cape,backgroundColor:cape.map(v=>v<500?'rgba(34,197,94,.3)':v<1500?'rgba(234,179,8,.5)':v<3000?'rgba(249,115,22,.6)':'rgba(239,68,68,.7)'),borderWidth:0,barPercentage:.8,yAxisID:'yC'},
+      {label:'CIN',type:'line',data:cin,borderColor:'#f59e0b',borderWidth:2,pointRadius:0,tension:.4,yAxisID:'yI'},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,animation:{duration:0},interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:TIP},scales:{x:{ticks:TICK,grid:GRID},yC:{position:'left',beginAtZero:true,title:{display:true,text:'J/kg',font:{size:10,weight:600},color:'#ef4444'},ticks:{callback:v=>v.toFixed(0)},grid:GRID},yI:{position:'right',title:{display:true,text:'J/kg',font:{size:10,weight:600},color:'#f59e0b'},ticks:{callback:v=>v.toFixed(0)},grid:{display:false}}}}
+  });
+
+  charts.pressIso0 = new Chart(document.getElementById('cPressIso0'), {
+    plugins: [plugin],
+    data:{labels,datasets:[
+      {label:'Pressió',type:'line',data:press,borderColor:'#7c3aed',borderWidth:2.5,pointRadius:0,tension:.4,yAxisID:'yP',fill:false},
+      {label:'Isoterma 0°C',type:'line',data:iso0,borderColor:'#06b6d4',borderWidth:2,pointRadius:0,tension:.4,borderDash:[4,4],yAxisID:'yI',fill:false},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,animation:{duration:0},interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:TIP},scales:{x:{ticks:TICK,grid:GRID},yP:{position:'left',title:{display:true,text:'hPa',font:{size:10,weight:600},color:'#7c3aed'},ticks:{callback:v=>v.toFixed(0)},grid:GRID},yI:{position:'right',title:{display:true,text:'metres',font:{size:10,weight:600},color:'#06b6d4'},ticks:{callback:v=>v>=9999?'>5500':v+' m'},grid:{display:false}}}}
+  });
+
+  charts.pressTend = new Chart(document.getElementById('cPressTend'), {
+    plugins: [plugin],
+    data:{labels,datasets:[
+      {label:'Δ Pressió 3h',type:'bar',data:pressTend,backgroundColor:pressTend.map(v=>v==null?'#e0e0e0':v>0?'rgba(34,197,94,.6)':v<0?'rgba(239,68,68,.6)':'rgba(148,163,184,.4)'),borderWidth:0,barPercentage:.7,yAxisID:'y'},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,animation:{duration:0},interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:TIP},scales:{x:{ticks:TICK,grid:GRID},y:{position:'left',title:{display:true,text:'hPa/3h',font:{size:10,weight:600}},ticks:{callback:v=>(v>0?'+':'')+v.toFixed(1)},grid:GRID}}}
+  });
+
+  charts.radarVis = new Chart(document.getElementById('cRadarVis'), {
+    plugins: [plugin],
+    data:{labels,datasets:[
+      {label:'DBZ',type:'bar',data:dbzArome.map(v=>Math.min(100,Math.max(0,(v+10)*2.2))),backgroundColor:dbzArome.map(v=>v<15?'rgba(148,163,184,.2)':v<35?'rgba(100,116,139,.38)':v<60?'rgba(71,85,105,.55)':'rgba(30,41,59,.7)'),borderWidth:0,barPercentage:.8,yAxisID:'yD'},
+      {label:'Visibilitat',type:'line',data:vis60.map(v=>v/1000),borderColor:'#0891b2',borderWidth:2,pointRadius:0,tension:.4,yAxisID:'yV',fill:false},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,animation:{duration:0},interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:TIP},scales:{x:{ticks:TICK,grid:GRID},yD:{position:'left',beginAtZero:true,max:100,title:{display:true,text:'DBZ',font:{size:10,weight:600}},ticks:{callback:v=>v.toFixed(0)},grid:GRID},yV:{position:'right',beginAtZero:true,title:{display:true,text:'km',font:{size:10,weight:600},color:'#0891b2'},ticks:{callback:v=>v.toFixed(1)},grid:{display:false}}}}
+  });
+}
+
+// ============================================
+// DESCÀRREGA DE TOT EL PANELL COM UNA SOLA IMATGE
+// Es dibuixa manualment un canvas gran, component:
+//  - Capçalera + nom població
+//  - Targetes d'estadístiques (les visibles segons mode)
+//  - Avisos i alertes
+//  - Timeline d'icones hora a hora
+//  - TOTS els gràfics Chart.js actius (agafant el seu propi canvas.toDataURL)
+// Això evita dependre del layout/scroll del DOM: sempre surt tot, sencer.
+// ============================================
+
+function loadImg(src) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => resolve(img);
+    img.onerror = () => resolve(null);
+    img.src = src;
+  });
+}
+
+function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+  const words = text.split(' ');
+  let line = '', lines = [];
+  for (const w of words) {
+    const test = line ? line + ' ' + w : w;
+    if (ctx.measureText(test).width > maxWidth && line) { lines.push(line); line = w; }
+    else line = test;
+  }
+  if (line) lines.push(line);
+  lines.forEach((l, i) => ctx.fillText(l, x, y + i * lineHeight));
+  return lines.length * lineHeight;
+}
+
+async function buildCompositeImage() {
+  const W = 1400;
+  const PAD = 28;
+  const purple1 = '#667eea', purple2 = '#764ba2';
+
+  // Recollim quines stat-cards estan visibles (respecta el mode senzill/complet)
+  const statCards = Array.from(document.querySelectorAll('#statsGrid .stat-card')).filter(c => {
+    return currentMode === 'complex' || !c.classList.contains('complex-only');
+  });
+
+  // Recollim quins chart-sections estan visibles i el seu canvas Chart.js corresponent
+  const chartSections = Array.from(document.querySelectorAll('#content .chart-section')).filter(sec => {
+    return currentMode === 'complex' || !sec.classList.contains('complex-only');
+  });
+
+  const chartEntries = chartSections.map(sec => {
+    const title = sec.querySelector('h3') ? sec.querySelector('h3').textContent.trim() : '';
+    const legendText = sec.querySelector('.legend-row') ? Array.from(sec.querySelectorAll('.legend-item')).map(li => li.textContent.trim()) : [];
+    const canvas = sec.querySelector('canvas');
+    return { title, legendText, dataUrl: canvas ? canvas.toDataURL('image/png', 1.0) : null };
+  }).filter(e => e.dataUrl);
+
+  // Mides de blocs
+  const headerH = 110;
+  const statCardW = 158, statCardH = 100, statGap = 10;
+  const statsPerRow = Math.max(1, Math.floor((W - PAD*2 + statGap) / (statCardW + statGap)));
+  const statRows = Math.ceil(statCards.length / statsPerRow);
+  const statsBlockH = statRows * (statCardH + statGap) + 40;
+
+  const alerts = Array.from(document.querySelectorAll('#alertsGrid .alert-card')).map(a => ({
+    text: a.textContent.trim(),
+    danger: a.classList.contains('alert-danger'),
+    warning: a.classList.contains('alert-warning'),
+  }));
+  const alertsBlockH = alerts.length ? (50 + Math.ceil(alerts.length/2) * 46 + 20) : 0;
+
+  const iconCells = Array.from(document.querySelectorAll('#iconsScroll .icon-cell'));
+  const timelineBlockH = iconCells.length ? 150 : 0;
+
+  const chartW = (W - PAD*2 - 20) / 2;
+  const chartImgH = 230;
+  const chartTitleH = 30;
+  const chartLegendH = 26;
+  const chartCellH = chartTitleH + chartImgH + chartLegendH + 24;
+  const chartRows = Math.ceil(chartEntries.length / 2);
+  const chartsBlockH = chartRows * (chartCellH + 16) + 60;
+
+  const footerH = 60;
+
+  const totalH = headerH + statsBlockH + alertsBlockH + timelineBlockH + chartsBlockH + footerH + PAD*2;
+
+  const canvas = document.createElement('canvas');
+  const scale = 2; // resolució alta
+  canvas.width = W * scale;
+  canvas.height = totalH * scale;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(scale, scale);
+
+  // Fons general (gradient)
+  const bgGrad = ctx.createLinearGradient(0, 0, W, totalH);
+  bgGrad.addColorStop(0, purple1);
+  bgGrad.addColorStop(1, purple2);
+  ctx.fillStyle = bgGrad;
+  ctx.fillRect(0, 0, W, totalH);
+
+  let y = PAD;
+
+  // --- Capçalera ---
+  ctx.fillStyle = 'rgba(255,255,255,0.97)';
+  roundRect(ctx, PAD, y, W - PAD*2, headerH - 14, 16);
+  ctx.fill();
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#333';
+  ctx.font = '700 30px Segoe UI, Roboto, sans-serif';
+  ctx.fillText('Previsions Meteorològiques', W/2, y + 42);
+  ctx.font = '600 15px Segoe UI, Roboto, sans-serif';
+  ctx.fillStyle = '#667eea';
+  ctx.fillText(`${selectedTown.name} · 48 hores`, W/2, y + 70);
+  ctx.font = '400 12px Segoe UI, Roboto, sans-serif';
+  ctx.fillStyle = '#999';
+  ctx.fillText(new Date().toLocaleString('ca-ES'), W/2, y + 90);
+  ctx.textAlign = 'left';
+  y += headerH;
+
+  // --- Stat cards ---
+  let sx = PAD, sy = y + 10, col = 0;
+  for (const card of statCards) {
+    const label = card.querySelector('.label')?.textContent.trim() || '';
+    const value = card.querySelector('.value')?.textContent.trim() || '';
+    const sub = card.querySelector('.sub')?.textContent.trim() || '';
+    ctx.fillStyle = 'rgba(255,255,255,0.97)';
+    roundRect(ctx, sx, sy, statCardW, statCardH, 12);
+    ctx.fill();
+    ctx.fillStyle = card.classList.contains('extra') ? '#764ba2' : '#667eea';
+    ctx.fillRect(sx, sy, 3, statCardH);
+    ctx.textAlign = 'center';
+    ctx.font = '700 9px Segoe UI, Roboto, sans-serif';
+    ctx.fillStyle = '#999';
+    ctx.fillText(label.toUpperCase(), sx + statCardW/2, sy + 22);
+    ctx.font = '700 20px Segoe UI, Roboto, sans-serif';
+    ctx.fillStyle = '#333';
+    ctx.fillText(value, sx + statCardW/2, sy + 52);
+    ctx.font = '400 9px Segoe UI, Roboto, sans-serif';
+    ctx.fillStyle = '#bbb';
+    ctx.fillText(sub, sx + statCardW/2, sy + 72);
+    ctx.textAlign = 'left';
+
+    col++;
+    if (col >= statsPerRow) { col = 0; sx = PAD; sy += statCardH + statGap; }
+    else { sx += statCardW + statGap; }
+  }
+  y = sy + (col > 0 ? statCardH + statGap : 0) + 10;
+
+  // --- Alertes ---
+  if (alerts.length) {
+    ctx.fillStyle = 'rgba(255,255,255,0.97)';
+    roundRect(ctx, PAD, y, W - PAD*2, alertsBlockH - 10, 14);
+    ctx.fill();
+    ctx.font = '700 14px Segoe UI, Roboto, sans-serif';
+    ctx.fillStyle = '#333';
+    ctx.fillText('⚠ Avisos i Alertes', PAD + 16, y + 26);
+    let ax = PAD + 16, ay = y + 42, aw = (W - PAD*2 - 48) / 2;
+    alerts.forEach((al, i) => {
+      const color = al.danger ? '#ef4444' : al.warning ? '#f59e0b' : '#3b82f6';
+      const bg = al.danger ? '#fff5f5' : al.warning ? '#fffbeb' : '#f0f9ff';
+      ctx.fillStyle = bg;
+      roundRect(ctx, ax, ay, aw, 38, 8);
+      ctx.fill();
+      ctx.fillStyle = color;
+      ctx.fillRect(ax, ay, 4, 38);
+      ctx.font = '600 11px Segoe UI, Roboto, sans-serif';
+      ctx.fillStyle = '#333';
+      ctx.fillText(al.text, ax + 14, ay + 23, aw - 28);
+      if (i % 2 === 0) ax += aw + 16;
+      else { ax = PAD + 16; ay += 46; }
+    });
+    y += alertsBlockH;
+  }
+
+  // --- Timeline icones ---
+  if (iconCells.length) {
+    ctx.fillStyle = 'rgba(255,255,255,0.97)';
+    roundRect(ctx, PAD, y, W - PAD*2, timelineBlockH - 10, 14);
+    ctx.fill();
+    ctx.font = '700 11px Segoe UI, Roboto, sans-serif';
+    ctx.fillStyle = '#666';
+    ctx.fillText('CONDICIONS HORA A HORA', PAD + 16, y + 24);
+    const cellW = (W - PAD*2 - 32) / iconCells.length;
+    let ix = PAD + 16;
+    const iconImgs = await Promise.all(iconCells.map(c => {
+      const img = c.querySelector('img');
+      return loadImg(img ? img.src : '');
+    }));
+    iconCells.forEach((c, i) => {
+      const time = c.querySelector('.time')?.textContent.trim() || '';
+      const temp = c.querySelector('.temp')?.textContent.trim() || '';
+      const img = iconImgs[i];
+      const cx = ix + Math.min(cellW, 30)/2;
+      if (img) ctx.drawImage(img, cx - 12, y + 34, 24, 24);
+      ctx.textAlign = 'center';
+      ctx.font = '700 8px Segoe UI, Roboto, sans-serif';
+      ctx.fillStyle = '#333';
+      ctx.fillText(time, cx, y + 68);
+      ctx.font = '700 8px Segoe UI, Roboto, sans-serif';
+      ctx.fillStyle = '#667eea';
+      ctx.fillText(temp, cx, y + 80);
+      ctx.textAlign = 'left';
+      ix += cellW;
+    });
+    y += timelineBlockH;
+  }
+
+  // --- Gràfics ---
+  ctx.fillStyle = 'rgba(255,255,255,0.97)';
+  roundRect(ctx, PAD, y, W - PAD*2, chartsBlockH - 10, 14);
+  ctx.fill();
+  ctx.font = '700 16px Segoe UI, Roboto, sans-serif';
+  ctx.fillStyle = '#333';
+  ctx.fillText(`Previsió Detallada · ${selectedTown.name}`, PAD + 16, y + 30);
+
+  let gy = y + 50;
+  const chartImgs = await Promise.all(chartEntries.map(e => loadImg(e.dataUrl)));
+  for (let i = 0; i < chartEntries.length; i += 2) {
+    let gx = PAD + 16;
+    for (let j = i; j < Math.min(i + 2, chartEntries.length); j++) {
+      const entry = chartEntries[j];
+      const img = chartImgs[j];
+      ctx.font = '700 11px Segoe UI, Roboto, sans-serif';
+      ctx.fillStyle = '#666';
+      ctx.fillText(entry.title.toUpperCase(), gx, gy + 14);
+      if (img) {
+        // Encaixem mantenint proporció dins la caixa
+        const boxW = chartW, boxH = chartImgH;
+        const ratio = Math.min(boxW / img.width, boxH / img.height);
+        const dw = img.width * ratio, dh = img.height * ratio;
+        ctx.drawImage(img, gx + (boxW-dw)/2, gy + chartTitleH + (boxH-dh)/2, dw, dh);
+      }
+      ctx.font = '500 9px Segoe UI, Roboto, sans-serif';
+      ctx.fillStyle = '#666';
+      ctx.fillText(entry.legendText.join('   ·   '), gx, gy + chartTitleH + chartImgH + 16);
+      gx += chartW + 20;
+    }
+    gy += chartCellH + 16;
+  }
+  y += chartsBlockH;
+
+  // --- Footer ---
+  ctx.textAlign = 'center';
+  ctx.font = '700 14px Segoe UI, Roboto, sans-serif';
+  ctx.fillStyle = '#fff';
+  ctx.fillText('@tempestes.cat', W/2, y + 30);
+  ctx.textAlign = 'left';
+
+  return canvas;
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+
+btnDownload.addEventListener('click', async () => {
+  if (!selectedTown) return;
+  btnDownload.disabled = true;
+  captureToast.classList.add('on');
+  captureToast.textContent = 'Generant imatge amb tots els gràfics...';
+  try {
+    await new Promise(r => setTimeout(r, 100));
+    const canvas = await buildCompositeImage();
+    const link = document.createElement('a');
+    const safeName = selectedTown.name.toLowerCase().replace(/[^a-z0-9]+/g,'_');
+    const dateStr = new Date().toISOString().slice(0,10);
+    link.download = `previsio_${safeName}_${dateStr}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    captureToast.textContent = 'Imatge descarregada!';
+    setTimeout(() => captureToast.classList.remove('on'), 1500);
+  } catch (err) {
+    console.error('Error generant la imatge:', err);
+    captureToast.textContent = 'Error generant la imatge';
+    setTimeout(() => captureToast.classList.remove('on'), 2000);
+  } finally {
+    btnDownload.disabled = false;
+  }
+});
+
+initTowns();
+</script>
+
+<script src="js/rangs.js"></script>
+</body>
+</html>

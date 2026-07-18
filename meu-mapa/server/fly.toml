@@ -1,0 +1,29 @@
+app = "arome-skewt"
+primary_region = "cdg"
+
+[build]
+
+[env]
+  PORT = "8080"
+  WEB_CONCURRENCY = "1"
+
+[mounts]
+  source = "web_data"
+  destination = "/public/web_data"
+
+[[services]]
+  internal_port = 8080
+  protocol = "tcp"
+
+  [[services.ports]]
+    port = 80
+    handlers = ["http"]
+  [[services.ports]]
+    port = 443
+    handlers = ["tls", "http"]
+
+  [[services.http_checks]]
+    path = "/api/health"
+    interval = "15s"
+    timeout = "5s"
+    grace_period = "10s"
