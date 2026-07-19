@@ -13,14 +13,14 @@ const REGION = {
 const MAX_STEPS = 52;
 const DADES_PATH = './dades';
 
-// ─── Variables on NO dibuixem vent ─────────────────────────────────
 const VARS_SENSE_VENT = [
     'rain', 'rain_1h', 'snow', 'graupel', 
     'tp', 'tgrp', 'tsnowp', 'precip_water',
     'low_cloud_cover', 'medium_cloud_cover', 'high_cloud_cover',
-    'spbl', 'cin','geopotencial_500', 'temperatura_500', 'srh_01', 'srh_03', 'shear_03', 'shear_06',
+    'spbl', 'cin',
     'pressure_msl', 'sp',
-    'el_m', 'reflectivity_dbz', 'lightning'
+    'el_m', 'reflectivity_dbz', 'lightning','lcl_m','lfc_m',
+    'geopotencial_500', 'temperatura_500','cape'
 ];
 
 // ─── Configuració streamlines ──────────────────────────────────────

@@ -22,15 +22,15 @@
             <!-- BOTONS VISORS -->
             <div class="topnav-visors">
                 <a href="visorarago.html" class="topnav-visor-btn" title="Aragó">
-                    <i class="fas fa-location-dot"></i> Aragó
+                    <i class="fas fa-location-dot"></i> Aragó - (51 hores)
                 </a>
                 <span class="topnav-visor-separator">|</span>
                 <a href="visor.html" class="topnav-visor-btn" title="catalunya">
-                    <i class="fas fa-location-dot"></i> Catalunya
+                    <i class="fas fa-location-dot"></i> Catalunya - (51 hores)
                 </a>
                 <span class="topnav-visor-separator">|</span>
                 <span class="topnav-visor-btn active" title="Visor actual">
-                    <i class="fas fa-location-dot"></i> Europa
+                    <i class="fas fa-location-dot"></i> Europa - (6 hores)
                 </span>
             </div>
 
@@ -234,6 +234,7 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script src="js/skewt-engine.js"></script>
+<script src="js/memory-manager.js"></script>
 <script src="js/mapaarome.js"></script>
 <script src="js/skewt.js"></script>
 
@@ -501,67 +502,74 @@ div.innerHTML = `
             btn.disabled = !(this.value.trim() && user);
         });
 
-        // ════════════════════════════════════════════════════════════════
-        //  CLIC DRET → MENÚ CONTEXTUAL → SKEW-T
-        // ════════════════════════════════════════════════════════════════
-
-        function configurarClicDret() {
-            if (typeof map === 'undefined') return;
-            map.off('contextmenu');
-
-            map.on('contextmenu', function(e) {
-                if (e.originalEvent) e.originalEvent.preventDefault();
-
-                const lat = e.latlng.lat;
-                const lng = e.latlng.lng;
-
-                console.log('[Mapa] Clic dret a:', lat.toFixed(3), lng.toFixed(3));
-
-                window.lastRightClickPos = { lat: lat, lng: lng };
-                window._skewtSurfacePressure = null;
-
-                const hourIdx = (typeof window.skewtHourIndex === 'number') ?
-                    window.skewtHourIndex :
-                    (typeof window.curIdx === 'number' ? window.curIdx : 0);
-
-                try {
-                    if (window.totesLesHores && window.totesLesHores[hourIdx]) {
-                        const data = window.totesLesHores[hourIdx].data;
-                        const varSp = data.variables['sp'] || data.variables['pressure_msl'];
-                        if (varSp && varSp.datos) {
-                            const lats = data.coordenadas.lat;
-                            const lons = data.coordenadas.lon;
-                            let iBest = 0, jBest = 0;
-                            let bestDist = Infinity;
-                            for (let i = 0; i < lats.length; i++) {
-                                for (let j = 0; j < lons.length; j++) {
-                                    const d = Math.hypot(lats[i] - lat, lons[j] - lng);
-                                    if (d < bestDist) {
-                                        bestDist = d;
-                                        iBest = i;
-                                        jBest = j;
-                                    }
-                                }
-                            }
-                            const Nlat = lats.length;
-                            const filaReal = Nlat - 1 - iBest;
-                            const idx = filaReal * lons.length + jBest;
-                            const sp = varSp.datos[idx];
-                            if (sp != null && !isNaN(sp)) {
-                                window._skewtSurfacePressure = sp;
-                                console.log('[Mapa] Pressió SFC:', sp.toFixed(1), 'hPa');
+      function configurarClicDret() {
+    // Esperar que map existeixi
+    if (typeof map === 'undefined' || !map) {
+        console.warn('[Mapa] map no disponible, reintentant...');
+        setTimeout(configurarClicDret, 1000);
+        return;
+    }
+    
+    // Eliminar listener anterior si existeix
+    if (map._contextMenuHandler) {
+        map.off('contextmenu', map._contextMenuHandler);
+    }
+    
+    // Crear nou handler
+    map._contextMenuHandler = function(e) {
+        if (e.originalEvent) e.originalEvent.preventDefault();
+        
+        const lat = e.latlng.lat;
+        const lng = e.latlng.lng;
+        
+        console.log('[Mapa] Clic dret a:', lat.toFixed(3), lng.toFixed(3));
+        
+        window.lastRightClickPos = { lat: lat, lng: lng };
+        window._skewtSurfacePressure = null;
+        
+        const hourIdx = (typeof window.skewtHourIndex === 'number') ?
+            window.skewtHourIndex :
+            (typeof window.curIdx === 'number' ? window.curIdx : 0);
+        
+        try {
+            if (window.totesLesHores && window.totesLesHores[hourIdx]) {
+                const data = window.totesLesHores[hourIdx].data;
+                const varSp = data.variables['sp'] || data.variables['pressure_msl'];
+                if (varSp && varSp.datos) {
+                    const lats = data.coordenadas.lat;
+                    const lons = data.coordenadas.lon;
+                    let iBest = 0, jBest = 0;
+                    let bestDist = Infinity;
+                    for (let i = 0; i < lats.length; i++) {
+                        for (let j = 0; j < lons.length; j++) {
+                            const d = Math.hypot(lats[i] - lat, lons[j] - lng);
+                            if (d < bestDist) {
+                                bestDist = d;
+                                iBest = i;
+                                jBest = j;
                             }
                         }
                     }
-                } catch (err) {
-                    console.warn('[Mapa] Error obtenint pressió:', err);
+                    const Nlat = lats.length;
+                    const filaReal = Nlat - 1 - iBest;
+                    const idx = filaReal * lons.length + jBest;
+                    const sp = varSp.datos[idx];
+                    if (sp != null && !isNaN(sp)) {
+                        window._skewtSurfacePressure = sp;
+                        console.log('[Mapa] Pressió SFC:', sp.toFixed(1), 'hPa');
+                    }
                 }
-
-                mostrarMenuContextual(e.containerPoint.x, e.containerPoint.y);
-            });
-
-            console.log('[Mapa] Clic dret configurat');
+            }
+        } catch (err) {
+            console.warn('[Mapa] Error obtenint pressió:', err);
         }
+        
+        mostrarMenuContextual(e.containerPoint.x, e.containerPoint.y);
+    };
+    
+    map.on('contextmenu', map._contextMenuHandler);
+    console.log('[Mapa] Clic dret configurat');
+}
 
         // ─── MENÚ CONTEXTUAL FLOTANT ────────────────────────────────────────
         let menuContextual = null;
