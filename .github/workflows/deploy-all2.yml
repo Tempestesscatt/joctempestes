@@ -47,10 +47,15 @@ jobs:
     - name: Executar cat.py
       run: |
         cd private-scripts
-        # Substitueix la clau al config.json (Catalunya)
         python3 -c 'import json; cfg = json.load(open("config.json", "r", encoding="utf-8-sig")); cfg["api_key"] = "${{ secrets.AROME_API_KEY }}"; json.dump(cfg, open("config.json", "w", encoding="utf-8"), indent=2)'
         for i in 1 2 3; do echo "--- cat.py: intent $i/3 ---" && python3 cat.py && echo "✅ cat.py: èxit a l'intent $i" && exit 0 || echo "❌ cat.py: ha fallat (codi $?) a l'intent $i/3" && sleep 30; done; echo "❌ cat.py: tots els 3 intents han fallat." && exit 1
       timeout-minutes: 200
+
+    - name: Mostrar log de cat.py si falla
+      if: failure()
+      run: |
+        echo "=== LOG DE CAT.PY ==="
+        find . -name "*.log" -type f -exec cat {} \; 2>/dev/null || echo "No s'ha trobat cap log"
 
     - name: Pujar web_data com a artifact
       uses: actions/upload-artifact@v4
@@ -96,11 +101,16 @@ jobs:
     - name: Executar val.py
       run: |
         cd private-scripts
-        # Substitueix la clau al configval.json i copia a config.json
         python3 -c 'import json; cfg = json.load(open("configval.json", "r", encoding="utf-8-sig")); cfg["api_key"] = "${{ secrets.AROME_API_KEY }}"; json.dump(cfg, open("configval.json", "w", encoding="utf-8"), indent=2)'
         cp configval.json config.json
         for i in 1 2 3; do echo "--- val.py: intent $i/3 ---" && python3 val.py && echo "✅ val.py: èxit a l'intent $i" && exit 0 || echo "❌ val.py: ha fallat (codi $?) a l'intent $i/3" && sleep 30; done; echo "❌ val.py: tots els 3 intents han fallat." && exit 1
       timeout-minutes: 200
+
+    - name: Mostrar log de val.py si falla
+      if: failure()
+      run: |
+        echo "=== LOG DE VAL.PY ==="
+        find . -name "*.log" -type f -exec cat {} \; 2>/dev/null || echo "No s'ha trobat cap log"
 
     - name: Pujar webdata_val com a artifact
       uses: actions/upload-artifact@v4
@@ -146,11 +156,15 @@ jobs:
     - name: Executar arago.py
       run: |
         cd private-scripts
-        # Substitueix la clau al configarago.json i copia a config.json
         python3 -c 'import json; cfg = json.load(open("configarago.json", "r", encoding="utf-8-sig")); cfg["api_key"] = "${{ secrets.AROME_API_KEY }}"; json.dump(cfg, open("configarago.json", "w", encoding="utf-8"), indent=2)'
-        cp configarago.json config.json
         for i in 1 2 3; do echo "--- arago.py: intent $i/3 ---" && python3 arago.py && echo "✅ arago.py: èxit a l'intent $i" && exit 0 || echo "❌ arago.py: ha fallat (codi $?) a l'intent $i/3" && sleep 30; done; echo "❌ arago.py: tots els 3 intents han fallat." && exit 1
       timeout-minutes: 200
+
+    - name: Mostrar log de arago.py si falla
+      if: failure()
+      run: |
+        echo "=== LOG DE ARAGO.PY ==="
+        find . -name "*.log" -type f -exec cat {} \; 2>/dev/null || echo "No s'ha trobat cap log"
 
     - name: Pujar webdata_arago com a artifact
       uses: actions/upload-artifact@v4
@@ -196,11 +210,16 @@ jobs:
     - name: Executar arome.py
       run: |
         cd private-scripts
-        # Substitueix la clau al configarome.json i copia a config.json
         python3 -c 'import json; cfg = json.load(open("configarome.json", "r", encoding="utf-8-sig")); cfg["api_key"] = "${{ secrets.AROME_API_KEY }}"; json.dump(cfg, open("configarome.json", "w", encoding="utf-8"), indent=2)'
-        cp configarome.json config.json
+        cp configarome.json configarago.json
         for i in 1 2 3; do echo "--- arome.py: intent $i/3 ---" && python3 arome.py && echo "✅ arome.py: èxit a l'intent $i" && exit 0 || echo "❌ arome.py: ha fallat (codi $?) a l'intent $i/3" && sleep 30; done; echo "❌ arome.py: tots els 3 intents han fallat." && exit 1
       timeout-minutes: 200
+
+    - name: Mostrar log de arome.py si falla
+      if: failure()
+      run: |
+        echo "=== LOG DE AROME.PY ==="
+        find . -name "*.log" -type f -exec cat {} \; 2>/dev/null || echo "No s'ha trobat cap log"
 
     - name: Pujar web_data_arome com a artifact
       uses: actions/upload-artifact@v4
