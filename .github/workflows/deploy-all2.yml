@@ -44,33 +44,12 @@ jobs:
         rm -rf meu-mapa/public/web_data/*
         echo "web_data netejat"
 
-    - name: Executar cat.py (3 reintents)
+    - name: Executar cat.py
       run: |
         cd private-scripts
-        sed -i 's/"api_key": "[^"]*"/"api_key": "${{ secrets.AROME_API_KEY }}"/' config.json || true
-        MAX_INTENTS=3
-        INTENT=0
-        EXIT_CODE=1
-        while [ $INTENT -lt $MAX_INTENTS ]; do
-          INTENT=$((INTENT+1))
-          echo "--- cat.py: intent $INTENT/$MAX_INTENTS ---"
-          python3 cat.py
-          EXIT_CODE=$?
-          if [ $EXIT_CODE -eq 0 ]; then
-            echo "✅ cat.py: èxit a l'intent $INTENT"
-            break
-          else
-            echo "❌ cat.py: ha fallat (codi $EXIT_CODE) a l'intent $INTENT/$MAX_INTENTS"
-            if [ $INTENT -lt $MAX_INTENTS ]; then
-              echo "Esperant 30 segons abans del pròxim intent..."
-              sleep 30
-            fi
-          fi
-        done
-        if [ $EXIT_CODE -ne 0 ]; then
-          echo "❌ cat.py: tots els $MAX_INTENTS intents han fallat."
-          exit $EXIT_CODE
-        fi
+        # Substitueix la clau al config.json (Catalunya)
+        python3 -c 'import json; cfg = json.load(open("config.json", "r", encoding="utf-8-sig")); cfg["api_key"] = "${{ secrets.AROME_API_KEY }}"; json.dump(cfg, open("config.json", "w", encoding="utf-8"), indent=2)'
+        for i in 1 2 3; do echo "--- cat.py: intent $i/3 ---" && python3 cat.py && echo "✅ cat.py: èxit a l'intent $i" && exit 0 || echo "❌ cat.py: ha fallat (codi $?) a l'intent $i/3" && sleep 30; done; echo "❌ cat.py: tots els 3 intents han fallat." && exit 1
       timeout-minutes: 200
 
     - name: Pujar web_data com a artifact
@@ -114,33 +93,13 @@ jobs:
         rm -rf meu-mapa/public/webdata_val/*
         echo "webdata_val netejat"
 
-    - name: Executar val.py (3 reintents)
+    - name: Executar val.py
       run: |
         cd private-scripts
-        sed -i 's/"api_key": "[^"]*"/"api_key": "${{ secrets.AROME_API_KEY }}"/' configval.json || true
-        MAX_INTENTS=3
-        INTENT=0
-        EXIT_CODE=1
-        while [ $INTENT -lt $MAX_INTENTS ]; do
-          INTENT=$((INTENT+1))
-          echo "--- val.py: intent $INTENT/$MAX_INTENTS ---"
-          python3 val.py
-          EXIT_CODE=$?
-          if [ $EXIT_CODE -eq 0 ]; then
-            echo "✅ val.py: èxit a l'intent $INTENT"
-            break
-          else
-            echo "❌ val.py: ha fallat (codi $EXIT_CODE) a l'intent $INTENT/$MAX_INTENTS"
-            if [ $INTENT -lt $MAX_INTENTS ]; then
-              echo "Esperant 30 segons abans del pròxim intent..."
-              sleep 30
-            fi
-          fi
-        done
-        if [ $EXIT_CODE -ne 0 ]; then
-          echo "❌ val.py: tots els $MAX_INTENTS intents han fallat."
-          exit $EXIT_CODE
-        fi
+        # Substitueix la clau al configval.json i copia a config.json
+        python3 -c 'import json; cfg = json.load(open("configval.json", "r", encoding="utf-8-sig")); cfg["api_key"] = "${{ secrets.AROME_API_KEY }}"; json.dump(cfg, open("configval.json", "w", encoding="utf-8"), indent=2)'
+        cp configval.json config.json
+        for i in 1 2 3; do echo "--- val.py: intent $i/3 ---" && python3 val.py && echo "✅ val.py: èxit a l'intent $i" && exit 0 || echo "❌ val.py: ha fallat (codi $?) a l'intent $i/3" && sleep 30; done; echo "❌ val.py: tots els 3 intents han fallat." && exit 1
       timeout-minutes: 200
 
     - name: Pujar webdata_val com a artifact
@@ -184,33 +143,13 @@ jobs:
         rm -rf meu-mapa/public/webdata_arago/*
         echo "webdata_arago netejat"
 
-    - name: Executar arago.py (3 reintents)
+    - name: Executar arago.py
       run: |
         cd private-scripts
-        sed -i 's/"api_key": "[^"]*"/"api_key": "${{ secrets.AROME_API_KEY }}"/' configarago.json || true
-        MAX_INTENTS=3
-        INTENT=0
-        EXIT_CODE=1
-        while [ $INTENT -lt $MAX_INTENTS ]; do
-          INTENT=$((INTENT+1))
-          echo "--- arago.py: intent $INTENT/$MAX_INTENTS ---"
-          python3 arago.py
-          EXIT_CODE=$?
-          if [ $EXIT_CODE -eq 0 ]; then
-            echo "✅ arago.py: èxit a l'intent $INTENT"
-            break
-          else
-            echo "❌ arago.py: ha fallat (codi $EXIT_CODE) a l'intent $INTENT/$MAX_INTENTS"
-            if [ $INTENT -lt $MAX_INTENTS ]; then
-              echo "Esperant 30 segons abans del pròxim intent..."
-              sleep 30
-            fi
-          fi
-        done
-        if [ $EXIT_CODE -ne 0 ]; then
-          echo "❌ arago.py: tots els $MAX_INTENTS intents han fallat."
-          exit $EXIT_CODE
-        fi
+        # Substitueix la clau al configarago.json i copia a config.json
+        python3 -c 'import json; cfg = json.load(open("configarago.json", "r", encoding="utf-8-sig")); cfg["api_key"] = "${{ secrets.AROME_API_KEY }}"; json.dump(cfg, open("configarago.json", "w", encoding="utf-8"), indent=2)'
+        cp configarago.json config.json
+        for i in 1 2 3; do echo "--- arago.py: intent $i/3 ---" && python3 arago.py && echo "✅ arago.py: èxit a l'intent $i" && exit 0 || echo "❌ arago.py: ha fallat (codi $?) a l'intent $i/3" && sleep 30; done; echo "❌ arago.py: tots els 3 intents han fallat." && exit 1
       timeout-minutes: 200
 
     - name: Pujar webdata_arago com a artifact
@@ -221,7 +160,7 @@ jobs:
         retention-days: 1
 
   # ════════════════════════════════════════════════════════════════
-  #  JOB 4: EUROPA (arome.py) - NOU!
+  #  JOB 4: EUROPA (arome.py)
   # ════════════════════════════════════════════════════════════════
   europa:
     runs-on: ubuntu-latest
@@ -254,33 +193,13 @@ jobs:
         rm -rf meu-mapa/public/web_data_arome/*
         echo "web_data_arome netejat"
 
-    - name: Executar arome.py (3 reintents)
+    - name: Executar arome.py
       run: |
         cd private-scripts
-        sed -i 's/"api_key": "[^"]*"/"api_key": "${{ secrets.AROME_API_KEY }}"/' configarome.json || true
-        MAX_INTENTS=3
-        INTENT=0
-        EXIT_CODE=1
-        while [ $INTENT -lt $MAX_INTENTS ]; do
-          INTENT=$((INTENT+1))
-          echo "--- arome.py: intent $INTENT/$MAX_INTENTS ---"
-          python3 arome.py
-          EXIT_CODE=$?
-          if [ $EXIT_CODE -eq 0 ]; then
-            echo "✅ arome.py: èxit a l'intent $INTENT"
-            break
-          else
-            echo "❌ arome.py: ha fallat (codi $EXIT_CODE) a l'intent $INTENT/$MAX_INTENTS"
-            if [ $INTENT -lt $MAX_INTENTS ]; then
-              echo "Esperant 30 segons abans del pròxim intent..."
-              sleep 30
-            fi
-          fi
-        done
-        if [ $EXIT_CODE -ne 0 ]; then
-          echo "❌ arome.py: tots els $MAX_INTENTS intents han fallat."
-          exit $EXIT_CODE
-        fi
+        # Substitueix la clau al configarome.json i copia a config.json
+        python3 -c 'import json; cfg = json.load(open("configarome.json", "r", encoding="utf-8-sig")); cfg["api_key"] = "${{ secrets.AROME_API_KEY }}"; json.dump(cfg, open("configarome.json", "w", encoding="utf-8"), indent=2)'
+        cp configarome.json config.json
+        for i in 1 2 3; do echo "--- arome.py: intent $i/3 ---" && python3 arome.py && echo "✅ arome.py: èxit a l'intent $i" && exit 0 || echo "❌ arome.py: ha fallat (codi $?) a l'intent $i/3" && sleep 30; done; echo "❌ arome.py: tots els 3 intents han fallat." && exit 1
       timeout-minutes: 200
 
     - name: Pujar web_data_arome com a artifact
