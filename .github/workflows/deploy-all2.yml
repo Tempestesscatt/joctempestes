@@ -1,7 +1,9 @@
-name: Arome normal
+name: Arome Europa (paral·lel)
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '0 */6 * * *'  # Cada 6 hores
 
 permissions:
   contents: write
@@ -9,11 +11,8 @@ permissions:
 
 jobs:
   # ════════════════════════════════════════════════════════════════
-  #  3 JOBS EN PARAL·LEL: cadascun descarrega la seva zona i genera
-  #  els seus JSON a la seva pròpia carpeta. NO fan git commit/push
-  #  ni deploy — això es fa tot junt al final, un cop els 3 han acabat.
+  #  JOB 1: Catalunya (cat.py)
   # ════════════════════════════════════════════════════════════════
-
   cat:
     runs-on: ubuntu-latest
     timeout-minutes: 250
@@ -49,11 +48,9 @@ jobs:
       run: |
         cd private-scripts
         sed -i 's/"api_key": "[^"]*"/"api_key": "${{ secrets.AROME_API_KEY }}"/' config.json || true
-
         MAX_INTENTS=3
         INTENT=0
         EXIT_CODE=1
-
         while [ $INTENT -lt $MAX_INTENTS ]; do
           INTENT=$((INTENT+1))
           echo "--- cat.py: intent $INTENT/$MAX_INTENTS ---"
@@ -70,18 +67,12 @@ jobs:
             fi
           fi
         done
-
         if [ $EXIT_CODE -ne 0 ]; then
           echo "❌ cat.py: tots els $MAX_INTENTS intents han fallat."
           exit $EXIT_CODE
         fi
       timeout-minutes: 200
 
-    - name: Resum cat
-      run: |
-        echo "web_data (CAT): $(find meu-mapa/public/web_data -type f 2>/dev/null | wc -l) fitxers"
-
-    # Pugem els JSON generats com a artifact perquè el job final els reculli
     - name: Pujar web_data com a artifact
       uses: actions/upload-artifact@v4
       with:
@@ -89,6 +80,9 @@ jobs:
         path: meu-mapa/public/web_data/
         retention-days: 1
 
+  # ════════════════════════════════════════════════════════════════
+  #  JOB 2: València (val.py)
+  # ════════════════════════════════════════════════════════════════
   val:
     runs-on: ubuntu-latest
     timeout-minutes: 250
@@ -124,11 +118,9 @@ jobs:
       run: |
         cd private-scripts
         sed -i 's/"api_key": "[^"]*"/"api_key": "${{ secrets.AROME_API_KEY }}"/' configval.json || true
-
         MAX_INTENTS=3
         INTENT=0
         EXIT_CODE=1
-
         while [ $INTENT -lt $MAX_INTENTS ]; do
           INTENT=$((INTENT+1))
           echo "--- val.py: intent $INTENT/$MAX_INTENTS ---"
@@ -145,16 +137,11 @@ jobs:
             fi
           fi
         done
-
         if [ $EXIT_CODE -ne 0 ]; then
           echo "❌ val.py: tots els $MAX_INTENTS intents han fallat."
           exit $EXIT_CODE
         fi
       timeout-minutes: 200
-
-    - name: Resum val
-      run: |
-        echo "webdata_val (VAL): $(find meu-mapa/public/webdata_val -type f 2>/dev/null | wc -l) fitxers"
 
     - name: Pujar webdata_val com a artifact
       uses: actions/upload-artifact@v4
@@ -163,6 +150,9 @@ jobs:
         path: meu-mapa/public/webdata_val/
         retention-days: 1
 
+  # ════════════════════════════════════════════════════════════════
+  #  JOB 3: Aragó (arago.py)
+  # ════════════════════════════════════════════════════════════════
   arago:
     runs-on: ubuntu-latest
     timeout-minutes: 250
@@ -198,11 +188,9 @@ jobs:
       run: |
         cd private-scripts
         sed -i 's/"api_key": "[^"]*"/"api_key": "${{ secrets.AROME_API_KEY }}"/' configarago.json || true
-
         MAX_INTENTS=3
         INTENT=0
         EXIT_CODE=1
-
         while [ $INTENT -lt $MAX_INTENTS ]; do
           INTENT=$((INTENT+1))
           echo "--- arago.py: intent $INTENT/$MAX_INTENTS ---"
@@ -219,16 +207,11 @@ jobs:
             fi
           fi
         done
-
         if [ $EXIT_CODE -ne 0 ]; then
           echo "❌ arago.py: tots els $MAX_INTENTS intents han fallat."
           exit $EXIT_CODE
         fi
       timeout-minutes: 200
-
-    - name: Resum arago
-      run: |
-        echo "webdata_arago (ARA): $(find meu-mapa/public/webdata_arago -type f 2>/dev/null | wc -l) fitxers"
 
     - name: Pujar webdata_arago com a artifact
       uses: actions/upload-artifact@v4
@@ -238,13 +221,80 @@ jobs:
         retention-days: 1
 
   # ════════════════════════════════════════════════════════════════
-  #  JOB FINAL: espera als 3 (needs), recull els artifacts, fa
-  #  commit+push de les 3 carpetes juntes i desplega a Cloudflare.
-  #  if: always() -> es dispara encara que algun dels 3 hagi fallat,
-  #  així es publica igualment el que sí que s'ha aconseguit generar.
+  #  JOB 4: EUROPA (arome.py) - NOU!
+  # ════════════════════════════════════════════════════════════════
+  europa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 250
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.PRIVATE_REPO_TOKEN }}
+
+    - name: Checkout private submodule
+      run: |
+        git config --global url."https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/".insteadOf "https://github.com/"
+        git submodule update --init --recursive
+
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Instal·lar dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libgeos-dev libproj-dev proj-data proj-bin
+        python3 -m pip install --upgrade pip
+        python3 -m pip install numpy requests tifffile scipy python-dotenv lxml xarray cfgrib meteofetch
+      continue-on-error: true
+
+    - name: Netejar web_data_arome
+      run: |
+        mkdir -p meu-mapa/public/web_data_arome
+        rm -rf meu-mapa/public/web_data_arome/*
+        echo "web_data_arome netejat"
+
+    - name: Executar arome.py (3 reintents)
+      run: |
+        cd private-scripts
+        sed -i 's/"api_key": "[^"]*"/"api_key": "${{ secrets.AROME_API_KEY }}"/' configarome.json || true
+        MAX_INTENTS=3
+        INTENT=0
+        EXIT_CODE=1
+        while [ $INTENT -lt $MAX_INTENTS ]; do
+          INTENT=$((INTENT+1))
+          echo "--- arome.py: intent $INTENT/$MAX_INTENTS ---"
+          python3 arome.py
+          EXIT_CODE=$?
+          if [ $EXIT_CODE -eq 0 ]; then
+            echo "✅ arome.py: èxit a l'intent $INTENT"
+            break
+          else
+            echo "❌ arome.py: ha fallat (codi $EXIT_CODE) a l'intent $INTENT/$MAX_INTENTS"
+            if [ $INTENT -lt $MAX_INTENTS ]; then
+              echo "Esperant 30 segons abans del pròxim intent..."
+              sleep 30
+            fi
+          fi
+        done
+        if [ $EXIT_CODE -ne 0 ]; then
+          echo "❌ arome.py: tots els $MAX_INTENTS intents han fallat."
+          exit $EXIT_CODE
+        fi
+      timeout-minutes: 200
+
+    - name: Pujar web_data_arome com a artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: dades-europa
+        path: meu-mapa/public/web_data_arome/
+        retention-days: 1
+
+  # ════════════════════════════════════════════════════════════════
+  #  JOB FINAL: deploy
   # ════════════════════════════════════════════════════════════════
   deploy:
-    needs: [cat, val, arago]
+    needs: [cat, val, arago, europa]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -262,11 +312,12 @@ jobs:
         if [ "${{ needs.cat.result }}" != "success" ]; then FALLITS="$FALLITS cat"; fi
         if [ "${{ needs.val.result }}" != "success" ]; then FALLITS="$FALLITS val"; fi
         if [ "${{ needs.arago.result }}" != "success" ]; then FALLITS="$FALLITS arago"; fi
+        if [ "${{ needs.europa.result }}" != "success" ]; then FALLITS="$FALLITS europa"; fi
         if [ -n "$FALLITS" ]; then
-          echo "⚠️  Jobs que NO han acabat en èxit:$FALLITS (es continua igualment amb el que hi hagi)"
+          echo "⚠️  Jobs que NO han acabat en èxit:$FALLITS (es continua igualment)"
           echo "SCRIPTS_FALLITS=$FALLITS" >> "$GITHUB_ENV"
         else
-          echo "✅ Els 3 jobs (cat, val, arago) han acabat en èxit"
+          echo "✅ Els 4 jobs han acabat en èxit"
         fi
 
     - name: Sincronitzar amb el remot
@@ -295,56 +346,39 @@ jobs:
         name: dades-arago
         path: meu-mapa/public/webdata_arago/
 
-    - name: Resum final
-      run: |
-        echo "============================================"
-        echo "  RESUM ABANS DE COMMIT+DEPLOY"
-        echo "============================================"
-        echo "web_data (CAT):       $(find meu-mapa/public/web_data -type f 2>/dev/null | wc -l) fitxers"
-        echo "webdata_val (VAL):    $(find meu-mapa/public/webdata_val -type f 2>/dev/null | wc -l) fitxers"
-        echo "webdata_arago (ARA):  $(find meu-mapa/public/webdata_arago -type f 2>/dev/null | wc -l) fitxers"
-        if [ -n "$SCRIPTS_FALLITS" ]; then
-          echo "⚠️  Jobs fallits:$SCRIPTS_FALLITS"
-        fi
+    - name: Descarregar artifact - europa
+      if: needs.europa.result == 'success'
+      uses: actions/download-artifact@v4
+      with:
+        name: dades-europa
+        path: meu-mapa/public/web_data_arome/
 
-    # ==================== GUARDAR web_data + webdata_val + webdata_arago ====================
     - name: Guardar dades al repositori
       run: |
         cd meu-mapa
         git config user.name "github-actions[bot]"
         git config user.email "github-actions[bot]@users.noreply.github.com"
         echo ".wrangler/" >> .gitignore 2>/dev/null
-
-        git add public/web_data/ public/webdata_val/ public/webdata_arago/ .gitignore
-
+        git add public/web_data/ public/webdata_val/ public/webdata_arago/ public/web_data_arome/ .gitignore
         if [[ -n $(git status --porcelain) ]]; then
-          git commit -m "Actualitzat cat.py/val.py/arago.py (paral·lel) - $(date -u +'%Y-%m-%d %H:%M UTC')"
-
+          git commit -m "Actualitzat (paral·lel 4 zones) - $(date -u +'%Y-%m-%d %H:%M UTC')"
           PUSH_OK=false
           for intent in 1 2 3 4 5; do
             echo "--- Intent de push $intent/5 ---"
             git fetch origin main 2>/dev/null || git fetch origin master 2>/dev/null || true
-
-            # En cas de conflicte, guanya SEMPRE la versió acabada de generar en aquest job
-            git merge -X ours origin/main --no-edit 2>/dev/null || \
-            git merge -X ours origin/master --no-edit 2>/dev/null || true
-
+            git merge -X ours origin/main --no-edit 2>/dev/null || git merge -X ours origin/master --no-edit 2>/dev/null || true
             if git push origin HEAD:main 2>/dev/null || git push origin HEAD:master 2>/dev/null; then
               echo "✅ Push OK a l'intent $intent"
               PUSH_OK=true
               break
             fi
-
-            echo "⚠️ Push rebutjat (el remot ha canviat mentre aquest job corria). Reintentant en 10s..."
+            echo "⚠️ Push rebutjat. Reintentant en 10s..."
             sleep 10
           done
-
           if [ "$PUSH_OK" = false ]; then
-            echo "⚠️ Tots els intents de push normal han fallat. Forçant push..."
+            echo "⚠️ Forçant push..."
             git push origin HEAD:main --force || git push origin HEAD:master --force
-            echo "✅ Push forçat completat"
           fi
-
           echo "✅ Dades guardades"
         else
           echo "ℹ️ Sense canvis"
@@ -363,11 +397,11 @@ jobs:
     - name: Comprovar si algun job ha fallat
       if: ${{ env.SCRIPTS_FALLITS != '' }}
       run: |
-        echo "❌ Un o més jobs han fallat després de tots els reintents:${{ env.SCRIPTS_FALLITS }}"
+        echo "❌ Jobs fallits:${{ env.SCRIPTS_FALLITS }}"
         exit 1
 
     - name: Completat
       run: |
         echo "============================================"
-        echo "  TOT COMPLETAT (execució en paral·lel)!"
+        echo "  TOT COMPLETAT (4 zones en paral·lel)!"
         echo "============================================"
