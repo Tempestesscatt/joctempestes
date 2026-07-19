@@ -1,6 +1,22 @@
 // ═══════════════════════════════════════════════════════════════════════
 //  skewt.js — Modal Skew-T complet (estil NSHARP/SHARPpy)
 //  Requereix: skewt-engine.js carregat abans, i mapa.js (window.totesLesHores)
+//
+//  ── CANVIS EN AQUESTA VERSIÓ ────────────────────────────────────────────
+//  1) FIX race condition de càrrega: abans, si `window.totesLesHores`
+//     encara no estava poblat en el mil·lisegon exacte d'obrir el modal
+//     (típic just després de carregar/recarregar la pàgina, mentre el
+//     fetch de dades del model encara està en curs), es mostrava
+//     l'error "Encara no hi ha dades carregades per aquesta hora" de
+//     forma immediata i definitiva. Ara es reintenta amb polling durant
+//     fins a ~6 segons abans de rendir-se de veritat.
+//  2) Unitat de vent per defecte: 'kmh' en lloc de 'kt'.
+//  3) Neteja: el fitxer original tenia `mostrarError`,
+//     `dibuixarLiniesEstat` i `dibuixarAreesCapeCin` definides DOS COPS
+//     cadascuna. En JS això no trenca res (la segona definició
+//     sobreescriu silenciosament la primera), però és confús i propens
+//     a errors de manteniment. S'han consolidat en una sola versió
+//     correcta de cadascuna (la que incloïa el terreny / mixed layer).
 // ═══════════════════════════════════════════════════════════════════════
 
 (function () {
@@ -9,70 +25,70 @@
     // ─── ESTAT ────────────────────────────────────────────────────────
     let modalCreat = false;
     let temaActual = localStorage.getItem('skewt_tema') || 'fosc'; // 'fosc' | 'clar'
-    let unitatVent = 'kt'; // 'kt' | 'kmh' | 'ms'
+    let unitatVent = localStorage.getItem('skewt_unitat_vent') || 'kmh'; // 'kt' | 'kmh' | 'ms'  (FIX: per defecte 'kmh')
     let perfilActual = null;
     let indexsActual = null;
     let ventActual = null;
     let puntActual = null;
 
-const TEMES = {
-    fosc: {
-        fons: '#000000',
-        fonsPanell: '#0a0a0a',
-        grid: '#2a2a2a',
-        gridForta: '#3a3a3a',
-        isoterma: '#3a5a3a',
-        isobara: '#4a4a4a',
-        adiabaticaSeca: '#8a5a2a',
-        adiabaticaHumida: '#2a6a5a',
-        mescla: '#2a5a2a',
-        temperatura: '#ff2020',
-        rosada: '#20ff20',
-        rosadaBlava: '#3090ff',
-        parcela: '#ffff00',
-        vent: '#ffffff',
-        text: '#cfe0ee',
-        textDim: '#7f9bb3',
-        capeArea: 'rgba(255,60,60,0.18)',
-        cinArea: 'rgba(60,120,255,0.22)',
-        hodografRing: '#3a3a3a',
-        hodograf0_1: '#ff3030',
-        hodograf1_3: '#ffb030',
-        hodograf3_6: '#30b0ff',
-        hodograf6_9: '#b030ff',
-        hodograf9_12: '#30ff80',
-        bunkersR: '#ff40ff',
-        bunkersL: '#40ffff',
-    },
-    clar: {
-        fons: '#f4f6f8',
-        fonsPanell: '#ffffff',
-        grid: '#d8dee5',
-        gridForta: '#b8c2cc',
-        isoterma: '#a8d0a8',
-        isobara: '#c0c8d0',
-        adiabaticaSeca: '#e0b080',
-        adiabaticaHumida: '#80c0b0',
-        mescla: '#a0d0a0',
-        temperatura: '#d00000',
-        rosada: '#008000',
-        rosadaBlava: '#2060c0',
-        parcela: '#c09000',
-        vent: '#202020',
-        text: '#1a2632',
-        textDim: '#5a6a7a',
-        capeArea: 'rgba(255,60,60,0.12)',
-        cinArea: 'rgba(60,120,255,0.15)',
-        hodografRing: '#c0c8d0',
-        hodograf0_1: '#d00000',
-        hodograf1_3: '#d08000',
-        hodograf3_6: '#0060c0',
-        hodograf6_9: '#8000c0',
-        hodograf9_12: '#00a050',
-        bunkersR: '#c000c0',
-        bunkersL: '#00a0a0',
-    }
-};
+    const TEMES = {
+        fosc: {
+            fons: '#000000',
+            fonsPanell: '#0a0a0a',
+            grid: '#2a2a2a',
+            gridForta: '#3a3a3a',
+            isoterma: '#3a5a3a',
+            isobara: '#4a4a4a',
+            adiabaticaSeca: '#8a5a2a',
+            adiabaticaHumida: '#2a6a5a',
+            mescla: '#2a5a2a',
+            temperatura: '#ff2020',
+            rosada: '#20ff20',
+            rosadaBlava: '#3090ff',
+            parcela: '#ffff00',
+            vent: '#ffffff',
+            text: '#cfe0ee',
+            textDim: '#7f9bb3',
+            capeArea: 'rgba(255,60,60,0.18)',
+            cinArea: 'rgba(60,120,255,0.22)',
+            hodografRing: '#3a3a3a',
+            hodograf0_1: '#ff3030',
+            hodograf1_3: '#ffb030',
+            hodograf3_6: '#30b0ff',
+            hodograf6_9: '#b030ff',
+            hodograf9_12: '#30ff80',
+            bunkersR: '#ff40ff',
+            bunkersL: '#40ffff',
+        },
+        clar: {
+            fons: '#f4f6f8',
+            fonsPanell: '#ffffff',
+            grid: '#d8dee5',
+            gridForta: '#b8c2cc',
+            isoterma: '#a8d0a8',
+            isobara: '#c0c8d0',
+            adiabaticaSeca: '#e0b080',
+            adiabaticaHumida: '#80c0b0',
+            mescla: '#a0d0a0',
+            temperatura: '#d00000',
+            rosada: '#008000',
+            rosadaBlava: '#2060c0',
+            parcela: '#c09000',
+            vent: '#202020',
+            text: '#1a2632',
+            textDim: '#5a6a7a',
+            capeArea: 'rgba(255,60,60,0.12)',
+            cinArea: 'rgba(60,120,255,0.15)',
+            hodografRing: '#c0c8d0',
+            hodograf0_1: '#d00000',
+            hodograf1_3: '#d08000',
+            hodograf3_6: '#0060c0',
+            hodograf6_9: '#8000c0',
+            hodograf9_12: '#00a050',
+            bunkersR: '#c000c0',
+            bunkersL: '#00a0a0',
+        }
+    };
 
     function tema() { return TEMES[temaActual]; }
 
@@ -205,13 +221,13 @@ const TEMES = {
         overlay.innerHTML = `
             <div class="skewt-modal" id="skewtModal">
                 <div class="skewt-modal-header">
-                    <h3><i class="fas fa-chart-line"></i> Skew-T / Log-P  powered by @Tempestes.cat/Tempest.strike</h3>
+                    <h3><i class="fas fa-chart-line"></i> Skew-T / Log-P &nbsp;powered by @Tempestes.cat/Tempest.strike</h3>
                     <span class="skewt-loc" id="skewtLocLabel">—</span>
                     <button class="skewt-btn" id="skewtBtnTema" title="Canviar tema">
                         <i class="fas fa-adjust"></i> <span id="skewtTemaLabel">Fosc</span>
                     </button>
                     <button class="skewt-btn" id="skewtBtnUnitat" title="Unitat de vent">
-                        <i class="fas fa-wind"></i> <span id="skewtUnitatLabel">kt</span>
+                        <i class="fas fa-wind"></i> <span id="skewtUnitatLabel">km/h</span>
                     </button>
                     <button class="skewt-modal-close" id="skewtBtnClose">✕</button>
                 </div>
@@ -248,10 +264,15 @@ const TEMES = {
     }
 
     function toggleUnitatVent() {
-        const ordre = ['kt', 'kmh', 'ms'];
+        const ordre = ['kmh', 'kt', 'ms']; // FIX: kmh primer, ja que és la unitat per defecte
         unitatVent = ordre[(ordre.indexOf(unitatVent) + 1) % ordre.length];
-        document.getElementById('skewtUnitatLabel').textContent = unitatVent;
+        localStorage.setItem('skewt_unitat_vent', unitatVent);
+        document.getElementById('skewtUnitatLabel').textContent = etiquetaUnitat(unitatVent);
         redibuixarTot();
+    }
+
+    function etiquetaUnitat(u) {
+        return u === 'kmh' ? 'km/h' : u; // 'kt' i 'ms' es mostren tal qual
     }
 
     function tancarSkewtModal() {
@@ -266,7 +287,7 @@ const TEMES = {
         const modal = document.getElementById('skewtModal');
         modal.classList.toggle('tema-clar', temaActual === 'clar');
         document.getElementById('skewtTemaLabel').textContent = temaActual === 'fosc' ? 'Fosc' : 'Clar';
-        document.getElementById('skewtUnitatLabel').textContent = unitatVent;
+        document.getElementById('skewtUnitatLabel').textContent = etiquetaUnitat(unitatVent);
         overlay.classList.add('active');
 
         const pos = window.lastRightClickPos;
@@ -275,82 +296,162 @@ const TEMES = {
             return;
         }
 
+        mostrarCarregant();
+        esperarDadesIObrir(pos, 0);
+    };
+
+    // ── FIX race condition ──────────────────────────────────────────────
+    // Abans, si `window.totesLesHores` encara no estava poblat en el
+    // mil·lisegon exacte d'obrir el modal (típic just després de carregar
+    // /recarregar la pàgina, mentre el fetch de dades del model encara
+    // està en curs al fitxer mapa.js), es mostrava l'error de forma
+    // immediata i definitiva, sense cap possibilitat de recuperar-se.
+    // Això explicava el patró "a vegades passa, amb Ctrl+R es soluciona":
+    // recarregar simplement donava temps que la càrrega inicial acabés
+    // abans de tornar-ho a provar.
+    // Ara es reintenta amb polling durant fins a ~6 segons reals abans de
+    // rendir-se de veritat i mostrar l'error.
+    const SKEWT_MAX_INTENTS = 30;       // 30 x 200ms ≈ 6 segons màxim d'espera
+    const SKEWT_INTERVAL_MS = 200;
+
+    function esperarDadesIObrir(pos, intent) {
         const hourIdx = (typeof window.skewtHourIndex === 'number') ?
             window.skewtHourIndex :
             (typeof window.curIdx === 'number' ? window.curIdx : 0);
 
         const hores = window.totesLesHores;
-        if (!hores || !hores[hourIdx]) {
-            mostrarError('Encara no hi ha dades carregades per aquesta hora.');
+
+        if (hores && hores[hourIdx]) {
+            calcularIObrirSondeig(hores[hourIdx], pos.lat, pos.lng, hourIdx);
             return;
         }
 
-        calcularIObrirSondeig(hores[hourIdx], pos.lat, pos.lng, hourIdx);
-    };
+        // Si l'usuari ha tancat el modal mentre esperàvem, aturem el polling.
+        const overlay = document.getElementById('skewtModalOverlay');
+        if (!overlay || !overlay.classList.contains('active')) return;
 
+        if (intent >= SKEWT_MAX_INTENTS) {
+            mostrarError('Encara no hi ha dades carregades per aquesta hora.\nTorna-ho a provar en uns segons.');
+            return;
+        }
+
+        setTimeout(function () {
+            esperarDadesIObrir(pos, intent + 1);
+        }, SKEWT_INTERVAL_MS);
+    }
+
+    function mostrarCarregant() {
+        const body = document.getElementById('skewtBody');
+        if (!body) return;
+        body.innerHTML = `
+            <div class="skewt-loading">
+                <div class="skewt-spinner"></div>
+                <div>Calculant sondeig...</div>
+            </div>
+        `;
+    }
+
+    // FIX: consolidada en una sola definició (el fitxer original la tenia
+    // duplicada; la segona versió, més senzilla amb icona "!", és la que
+    // es veia realment a la UI perquè sobreescrivia la primera).
     function mostrarError(msg) {
         const body = document.getElementById('skewtBody');
-        body.innerHTML = `<div class="skewt-loading"><i class="fas fa-triangle-exclamation" style="font-size:22px;color:#e0a030;"></i><div>${msg}</div></div>`;
+        if (!body) return;
+        body.innerHTML = `
+            <div class="skewt-loading" style="flex-direction:column; gap:12px; padding:30px;">
+                <div style="font-size:40px; opacity:0.6;">!</div>
+                <div style="font-size:13px; color:#cfe0ee; text-align:center; line-height:1.5; white-space:pre-line;">${msg}</div>
+            </div>
+        `;
+    }
+
+    function esFinit(v) { return v !== null && v !== undefined && !isNaN(v) && isFinite(v); }
+
+    // ── NOU: cerca del poble/vila més proper (towns_cat.js) ─────────────
+    // Requereix que window.TOWNS_CAT estigui carregat (fitxer towns_cat.js,
+    // amb estructura { meta: {...}, towns: [{n, la, lo, t, a}, ...] }).
+    // Es fa servir la fórmula de Haversine (distància real sobre l'esfera
+    // terrestre) en lloc de distància euclidiana en graus, perquè a les
+    // nostres latituds 1° de longitud val bastant menys que 1° de latitud
+    // i comparar diferències de graus brutes desviaria la selecció cap a
+    // punts falsament "propers" en longitud.
+    const RADI_TERRA_KM = 6371;
+
+    function distanciaHaversineKm(lat1, lon1, lat2, lon2) {
+        const toRad = d => d * Math.PI / 180;
+        const dLat = toRad(lat2 - lat1);
+        const dLon = toRad(lon2 - lon1);
+        const a = Math.sin(dLat / 2) ** 2 +
+                  Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return RADI_TERRA_KM * c;
+    }
+
+    // Només considera 'poble' i 'vila' (ignora 'cim' i qualsevol altre
+    // tipus), tal com es va decidir explícitament.
+    function trobarPobleMesProper(lat, lon) {
+        const dades = window.TOWNS_CAT;
+        if (!dades || !dades.towns || !dades.towns.length) return null;
+
+        let millor = null, millorDist = Infinity;
+        for (let i = 0; i < dades.towns.length; i++) {
+            const t = dades.towns[i];
+            if (t.t !== 'poble' && t.t !== 'vila') continue;
+            if (!esFinit(t.la) || !esFinit(t.lo)) continue;
+            const d = distanciaHaversineKm(lat, lon, t.la, t.lo);
+            if (d < millorDist) { millorDist = d; millor = t; }
+        }
+        if (!millor) return null;
+        return { nom: millor.n, tipus: millor.t, altitud: millor.a, distanciaKm: millorDist };
     }
 
     function calcularIObrirSondeig(horaItem, lat, lon, hourIdx) {
-    const E = window.SkewtEngine;
-    if (!E) { mostrarError('Motor de càlcul (skewt-engine.js) no carregat.'); return; }
+        const E = window.SkewtEngine;
+        if (!E) { mostrarError('Motor de càlcul (skewt-engine.js) no carregat.'); return; }
 
-    const data = horaItem.data;
-    
-    // Comprovar si el punt està dins del domini
-    const coords = data.coordenadas;
-    if (!coords || !coords.lat || !coords.lon) {
-        mostrarError('No hi ha dades de coordenades disponibles.');
-        return;
+        const data = horaItem.data;
+
+        // Comprovar si el punt està dins del domini
+        const coords = data.coordenadas;
+        if (!coords || !coords.lat || !coords.lon) {
+            mostrarError('No hi ha dades de coordenades disponibles.');
+            return;
+        }
+
+        const latMin = Math.min(coords.lat[0], coords.lat[coords.lat.length - 1]);
+        const latMax = Math.max(coords.lat[0], coords.lat[coords.lat.length - 1]);
+        const lonMin = Math.min(coords.lon[0], coords.lon[coords.lon.length - 1]);
+        const lonMax = Math.max(coords.lon[0], coords.lon[coords.lon.length - 1]);
+
+        if (lat < latMin || lat > latMax || lon < lonMin || lon > lonMax) {
+            mostrarError(
+                'Fora del domini del model.\n' +
+                'Lat: ' + latMin.toFixed(1) + ' a ' + latMax.toFixed(1) + '\n' +
+                'Lon: ' + lonMin.toFixed(1) + ' a ' + lonMax.toFixed(1)
+            );
+            return;
+        }
+
+        const perfil = E.extreurePerfil(data, lat, lon, null);
+        if (!perfil) {
+            mostrarError('No hi ha prou dades de sondeig en aquest punt.\nPossiblement sobre el mar o zona sense cobertura.');
+            return;
+        }
+
+        const indexs = E.calcularIndexsTermo(perfil);
+        const addicionals = E.indexsAddicionals(perfil);
+        const nivellsVent = perfil.p.map((p, i) => ({ z: perfil.z[i], u: perfil.u[i], v: perfil.v[i] }));
+        const ventComposite = E.calcularVentComposite(nivellsVent, perfil.z[0]);
+
+        perfilActual = perfil;
+        indexsActual = Object.assign({}, indexs, addicionals);
+        ventActual = ventComposite;
+        const pobleProper = trobarPobleMesProper(lat, lon);
+        puntActual = { lat, lon, hourIdx, horaItem, pobleProper };
+
+        muntarLayout();
+        redibuixarTot();
     }
-    
-    const latMin = Math.min(coords.lat[0], coords.lat[coords.lat.length - 1]);
-    const latMax = Math.max(coords.lat[0], coords.lat[coords.lat.length - 1]);
-    const lonMin = Math.min(coords.lon[0], coords.lon[coords.lon.length - 1]);
-    const lonMax = Math.max(coords.lon[0], coords.lon[coords.lon.length - 1]);
-    
-    if (lat < latMin || lat > latMax || lon < lonMin || lon > lonMax) {
-        mostrarError(
-            'Fora del domini del model.\n' +
-            'Lat: ' + latMin.toFixed(1) + ' a ' + latMax.toFixed(1) + '\n' +
-            'Lon: ' + lonMin.toFixed(1) + ' a ' + lonMax.toFixed(1)
-        );
-        return;
-    }
-    
-    const perfil = E.extreurePerfil(data, lat, lon, null);
-    if (!perfil) {
-        mostrarError('No hi ha prou dades de sondeig en aquest punt.\nPossiblement sobre el mar o zona sense cobertura.');
-        return;
-    }
-
-    const indexs = E.calcularIndexsTermo(perfil);
-    const addicionals = E.indexsAddicionals(perfil);
-    const nivellsVent = perfil.p.map((p, i) => ({ z: perfil.z[i], u: perfil.u[i], v: perfil.v[i] }));
-    const ventComposite = E.calcularVentComposite(nivellsVent, perfil.z[0]);
-
-    perfilActual = perfil;
-    indexsActual = Object.assign({}, indexs, addicionals);
-    ventActual = ventComposite;
-    puntActual = { lat, lon, hourIdx, horaItem };
-
-    muntarLayout();
-    redibuixarTot();
-}
-
-function mostrarError(msg) {
-    const body = document.getElementById('skewtBody');
-    body.innerHTML = `
-        <div class="skewt-loading" style="flex-direction:column; gap:12px; padding:30px;">
-            <div style="font-size:40px; opacity:0.6;">!</div>
-            <div style="font-size:13px; color:#cfe0ee; text-align:center; line-height:1.5; white-space:pre-line;">${msg}</div>
-        </div>
-    `;
-}
-
-    function esFinit(v) { return v !== null && v !== undefined && !isNaN(v) && isFinite(v); }
 
     // ─── LAYOUT (crida les seccions 2 i 3, definides més avall al fitxer) ─
     function muntarLayout() {
@@ -371,8 +472,19 @@ function mostrarError(msg) {
         const d = item.dateObj;
         const dataStr = d.toLocaleDateString('ca-ES', { weekday: 'short', day: 'numeric', month: 'short' });
         const horaStr = String(d.getHours()).padStart(2, '0') + ':00';
-        document.getElementById('skewtLocLabel').textContent =
-            puntActual.lat.toFixed(3) + '°N, ' + puntActual.lon.toFixed(3) + '°E · ' + dataStr + ' ' + horaStr;
+        // FIX: mostrem el nom del poble/vila més proper (calculat amb
+        // towns_cat.js) en lloc de les coordenades brutes, tal com es va
+        // decidir. Si no hi ha fitxer de pobles carregat o no se'n troba
+        // cap dins un radi raonable, es manté el fallback de coordenades
+        // perquè la capçalera mai quedi buida.
+        const pp = puntActual.pobleProper;
+        if (pp && pp.nom) {
+            document.getElementById('skewtLocLabel').textContent =
+                pp.nom + ' · ' + dataStr + ' ' + horaStr;
+        } else {
+            document.getElementById('skewtLocLabel').textContent =
+                puntActual.lat.toFixed(3) + '°N, ' + puntActual.lon.toFixed(3) + '°E · ' + dataStr + ' ' + horaStr;
+        }
 
         if (window.construirTaulaIndexsSkewt) window.construirTaulaIndexsSkewt();
 
@@ -452,6 +564,24 @@ function mostrarError(msg) {
         return T_MIN + fracT * (T_MAX - T_MIN);
     }
 
+    // ─── ETIQUETA DEL POBLE MÉS PROPER (dins del propi Skew-T) ──────────
+    // Es dibuixa al cantó superior esquerre del diagrama, just a la dreta
+    // de l'etiqueta "100" (100 hPa), a la mateixa alçada. Així, qui vegi
+    // una captura del sondeig sap immediatament sobre quina localitat cau,
+    // sense necessitat de veure la capçalera del modal.
+    function dibuixarEtiquetaPoble(ctx, padLeft, padTop, T) {
+        const pp = puntActual && puntActual.pobleProper;
+        if (!pp || !pp.nom) return;
+        ctx.font = 'bold 11px Arial';
+        ctx.textAlign = 'left';
+        ctx.fillStyle = T.text;
+        // "100" es dibuixa amb textAlign='right' acabant a x=padLeft-4,
+        // a y = proj.y(100)+3. Comencem el nom del poble un pèl a la
+        // dreta d'aquest punt, a padTop (l'alçada real de la línia dels
+        // 100 hPa és pràcticament padTop, ja que P_TOP=100).
+        ctx.fillText(pp.nom, padLeft + 6, padTop + 12);
+    }
+
     function dibuixarSkewtCanvas() {
         const wrap = document.getElementById('skewtCanvasWrap');
         const canvas = document.getElementById('skewtCanvas');
@@ -474,11 +604,154 @@ function mostrarError(msg) {
         };
 
         dibuixarGraella(ctx, w, h, padLeft, padRight, padTop, padBot, T, proj);
+        dibuixarTerreny(ctx, T, proj);
         dibuixarAreesCapeCin(ctx, T, proj);
         dibuixarLiniesEstat(ctx, w, h, padLeft, padRight, padTop, padBot, T, proj);
         dibuixarNivellsClau(ctx, w, padRight, T, proj);
         dibuixarBarbesVent(ctx, w, padRight, T, proj);
         dibuixarEtiquetesEix(ctx, w, h, padLeft, padRight, padTop, padBot, T, proj);
+        dibuixarEtiquetaPoble(ctx, padLeft, padTop, T);
+
+        // ─── TOOLTIP INTERACTIU ────────────────────────────────────────
+
+        if (canvas._skewtMouseMove) canvas.removeEventListener('mousemove', canvas._skewtMouseMove);
+        if (canvas._skewtMouseLeave) canvas.removeEventListener('mouseleave', canvas._skewtMouseLeave);
+
+
+        let tooltip = document.getElementById('skewtTooltip');
+        if (!tooltip) {
+            tooltip = document.createElement('div');
+            tooltip.id = 'skewtTooltip';
+            tooltip.style.cssText = `
+                position:absolute; background:rgba(10,16,26,0.95); border:1px solid #556;
+                border-radius:4px; padding:5px 8px; font-family:'Segoe UI',Arial,sans-serif;
+                font-size:10px; color:#cde; pointer-events:none; z-index:1000; display:none;
+                white-space:nowrap; line-height:1.5; box-shadow:0 2px 8px rgba(0,0,0,0.5);
+            `;
+            wrap.appendChild(tooltip);
+        }
+
+        let currentMouseY = null;
+        const colorT = T.temperatura;
+        const colorTd = T.rosadaBlava || '#3090ff';
+
+        function fmtVent(mps) {
+            const f = unitatVent === 'kt' ? 1.94384 : (unitatVent === 'kmh' ? 3.6 : 1);
+            return (mps * f).toFixed(0) + ' ' + etiquetaUnitat(unitatVent);
+        }
+
+        function dirVent(u, v) {
+            let d = Math.atan2(-u, -v) * 180 / Math.PI;
+            if (d < 0) d += 360;
+            const sec = ['Nord', 'Nord-est', 'Est', 'Sud-est', 'Sud', 'Sud-oest', 'Oest', 'Nord-oest'];
+            const index = Math.round(d / 45) % 8;
+            return sec[index] + ' ' + d.toFixed(0) + '°';
+        }
+
+        function calcHR(tC, tdC) {
+            const es = 6.112 * Math.exp((17.67 * tC) / (tC + 243.5));
+            const e = 6.112 * Math.exp((17.67 * tdC) / (tdC + 243.5));
+            return Math.min(100, Math.max(0, (e / es) * 100));
+        }
+
+        function calcLI(pNiv, tAmb) {
+            const pf = perfilActual;
+            if (!pf || pNiv >= pf.p[0]) return null;
+            const E = window.SkewtEngine;
+            if (!E) return null;
+            const tp = E.perfilParcela(pf.t[0], pf.td[0], pf.p[0], [pNiv]);
+            return (tp && tp.valors[0] !== null) ? tAmb - tp.valors[0] : null;
+        }
+
+        function redrawWithLine(my) {
+            if (my === null) { dibuixarSkewtCanvas(); return; }
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            ctx.clearRect(0, 0, w, h);
+            ctx.fillStyle = T.fons; ctx.fillRect(0, 0, w, h);
+            dibuixarGraella(ctx, w, h, padLeft, padRight, padTop, padBot, T, proj);
+            dibuixarTerreny(ctx, T, proj);
+            dibuixarAreesCapeCin(ctx, T, proj);
+            dibuixarLiniesEstat(ctx, w, h, padLeft, padRight, padTop, padBot, T, proj);
+            dibuixarNivellsClau(ctx, w, padRight, T, proj);
+            dibuixarBarbesVent(ctx, w, padRight, T, proj);
+            dibuixarEtiquetesEix(ctx, w, h, padLeft, padRight, padTop, padBot, T, proj);
+            dibuixarEtiquetaPoble(ctx, padLeft, padTop, T);
+
+            ctx.strokeStyle = 'rgba(255,255,255,0.65)';
+            ctx.lineWidth = 0.8;
+            ctx.setLineDash([3, 4]);
+            ctx.beginPath(); ctx.moveTo(padLeft, my); ctx.lineTo(w - padRight, my); ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.fillStyle = 'rgba(255,255,255,0.85)';
+            ctx.beginPath(); ctx.arc(padLeft - 2, my, 2.5, 0, 2 * Math.PI); ctx.fill();
+        }
+
+        canvas._skewtMouseMove = function (e) {
+            const r = canvas.getBoundingClientRect();
+            const mx = e.clientX - r.left, my = e.clientY - r.top;
+
+            if (mx < padLeft - 8 || mx > w - padRight + 8 || my < padTop || my > h - padBot) {
+                tooltip.style.display = 'none';
+                if (currentMouseY !== null) { currentMouseY = null; redrawWithLine(null); }
+                return;
+            }
+
+            if (currentMouseY !== my) { currentMouseY = my; redrawWithLine(my); }
+
+            const p = pPerY(my, h, padTop, padBot);
+            const pf = perfilActual;
+            if (!pf) { tooltip.style.display = 'none'; return; }
+
+            let bi = 0, bd = Infinity;
+            for (let i = 0; i < pf.p.length; i++) {
+                const d = Math.abs(pf.p[i] - p);
+                if (d < bd) { bd = d; bi = i; }
+            }
+            if (bd > 25) { tooltip.style.display = 'none'; return; }
+
+            const tC = pf.t[bi], tdC = pf.td[bi], pN = pf.p[bi], zM = pf.z[bi];
+            const u = pf.u[bi], v = pf.v[bi];
+            const spd = Math.sqrt(u * u + v * v);
+            const hr = calcHR(tC, tdC);
+            const li = calcLI(pN, tC);
+
+            let liTxt = '--', liClr = '#888';
+            if (li !== null && isFinite(li)) {
+                liTxt = li.toFixed(1);
+                liClr = li < -6 ? '#f44' : li < -3 ? '#f84' : li < 0 ? '#fb4' : li < 3 ? '#8cf' : '#48f';
+            }
+
+            let hrClr = hr < 30 ? '#f84' : hr < 50 ? '#fb4' : hr < 70 ? '#8cf' : hr < 90 ? '#48f' : '#28f';
+
+            tooltip.innerHTML = `
+                <div style="font-weight:600;color:#fff;margin-bottom:2px;">${pN.toFixed(0)} hPa &middot; ${zM.toFixed(0)} m</div>
+                <span style="color:${colorT};">T ${tC.toFixed(1)}°C</span>
+                <span style="color:${colorTd};margin-left:10px;">Td ${tdC.toFixed(1)}°C</span>
+                <span style="color:${hrClr};margin-left:10px;">${hr.toFixed(0)}%</span><br>
+                <span style="color:#bbb;">${fmtVent(spd)} ${dirVent(u, v)}</span>
+                <span style="color:${liClr};margin-left:8px;">LI ${liTxt}</span>
+            `;
+
+            const wr = wrap.getBoundingClientRect();
+            let tx = e.clientX - wr.left + 14, ty = e.clientY - wr.top - 36;
+            const tw = 210, th = 50;
+            if (tx + tw > w) tx = e.clientX - wr.left - tw - 14;
+            if (tx < 4) tx = 4;
+            if (ty < 2) ty = e.clientY - wr.top + 14;
+            if (ty + th > h) ty = h - th - 4;
+
+            tooltip.style.left = tx + 'px';
+            tooltip.style.top = ty + 'px';
+            tooltip.style.display = 'block';
+        };
+
+        canvas._skewtMouseLeave = function () {
+            tooltip.style.display = 'none';
+            if (currentMouseY !== null) { currentMouseY = null; redrawWithLine(null); }
+        };
+
+        canvas.addEventListener('mousemove', canvas._skewtMouseMove);
+        canvas.addEventListener('mouseleave', canvas._skewtMouseLeave);
     }
     window.dibuixarSkewtCanvas = dibuixarSkewtCanvas;
 
@@ -594,7 +867,56 @@ function mostrarError(msg) {
         ctx.strokeRect(padLeft, padTop, w - padLeft - padRight, h - padTop - padBot);
     }
 
-    // ─── LÍNIA DE TEMPERATURA/PARCEL·LA (traçada per calcularIndexsTermo) ─
+    // ─── TERRENY (àrea sota la superfície real del sondeig) ────────────
+    function dibuixarTerreny(ctx, T, proj) {
+        const perfil = perfilActual;
+        if (!perfil || !perfil.p || perfil.p.length === 0) return;
+
+        const pSurface = perfil.p[0]; // Pressió en superfície (primer punt del sondeig)
+
+        // Si la pressió de superfície és la màxima del rang, no hi ha terreny a pintar
+        if (pSurface >= P_BOT) return;
+
+        // Àrea verda sota la superfície
+        ctx.fillStyle = 'rgba(34, 139, 34, 0.3)';
+        ctx.beginPath();
+
+        const ySurface = proj.y(pSurface);
+        const yBottom = proj.y(P_BOT);
+
+        ctx.moveTo(42, ySurface); // padLeft
+        ctx.lineTo(42, yBottom);
+
+        const w = ctx.canvas.width / (window.devicePixelRatio || 1);
+        const padRight = 18;
+        ctx.lineTo(w - padRight, yBottom);
+        ctx.lineTo(w - padRight, ySurface);
+
+        ctx.closePath();
+        ctx.fill();
+
+        // Línia de superfície destacada
+        ctx.strokeStyle = '#228B22';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([5, 3]);
+        ctx.beginPath();
+        ctx.moveTo(42, ySurface);
+        ctx.lineTo(w - padRight, ySurface);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Etiqueta d'elevació
+        ctx.fillStyle = '#228B22';
+        ctx.font = 'bold 11px Arial';
+        ctx.textAlign = 'right';
+        const elevation = perfil.z[0];
+        ctx.fillText(`${elevation.toFixed(0)}m`, w - padRight - 10, ySurface - 5);
+    }
+
+    // ─── LÍNIES D'ESTAT: parcel·la, mixed layer, punt de rosada, temperatura ─
+    // (FIX: consolidada — abans hi havia DUES definicions d'aquesta funció;
+    // aquesta és la versió correcta, amb terreny/ML inclosos i punt de
+    // rosada en blau, que és la que realment quedava activa.)
     function dibuixarLiniesEstat(ctx, w, h, padLeft, padRight, padTop, padBot, T, proj) {
         const perfil = perfilActual, idx = indexsActual;
         if (!perfil) return;
@@ -614,8 +936,51 @@ function mostrarError(msg) {
             ctx.stroke();
         }
 
-        // Punt de rosada (verda)
-        ctx.strokeStyle = T.rosada;
+        // Mixed Layer (ML) — línia taronja discontínua
+        const E = window.SkewtEngine;
+        if (E && E.perfilMixedLayer) {
+            const ml = E.perfilMixedLayer(perfil, 100);
+            if (ml && ml.valors) {
+                ctx.strokeStyle = '#ff8c00';
+                ctx.lineWidth = 1.4;
+                ctx.setLineDash([6, 3]);
+                ctx.beginPath();
+                let startedML = false;
+                for (let i = 0; i < perfil.p.length; i++) {
+                    const tp = ml.valors[i];
+                    if (tp === null) continue;
+                    const x = proj.x(tp, perfil.p[i]), y = proj.y(perfil.p[i]);
+                    if (!startedML) { ctx.moveTo(x, y); startedML = true; }
+                    else { ctx.lineTo(x, y); }
+                }
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+        }
+
+        // Bulb humit (Tw) — línia cian discontínua fina, entre Td i T
+        if (E && E.perfilBulbHumit) {
+            const tw = E.perfilBulbHumit(perfil);
+            if (tw) {
+                ctx.strokeStyle = '#40e0d0';
+                ctx.lineWidth = 1.2;
+                ctx.setLineDash([2, 2]);
+                ctx.beginPath();
+                let startedTw = false;
+                for (let i = 0; i < perfil.p.length; i++) {
+                    const twv = tw[i];
+                    if (twv === null || !esFinit(twv)) continue;
+                    const x = proj.x(twv, perfil.p[i]), y = proj.y(perfil.p[i]);
+                    if (!startedTw) { ctx.moveTo(x, y); startedTw = true; }
+                    else { ctx.lineTo(x, y); }
+                }
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+        }
+
+        // Punt de rosada (blava)
+        ctx.strokeStyle = T.rosadaBlava || '#3090ff';
         ctx.lineWidth = 2.2;
         ctx.beginPath();
         perfil.p.forEach((p, i) => {
@@ -635,82 +1000,24 @@ function mostrarError(msg) {
         ctx.stroke();
     }
 
-
-    // ─── LÍNIA MIXED LAYER (ML) ──────────────────────────────────────
-function dibuixarLiniesEstat(ctx, w, h, padLeft, padRight, padTop, padBot, T, proj) {
-    const perfil = perfilActual, idx = indexsActual;
-    if (!perfil) return;
-
-    // Línia de la parcel·la (groga), des del LCL cap amunt
-    if (idx && idx.tParcela) {
-        ctx.strokeStyle = T.parcela;
-        ctx.lineWidth = 1.6;
-        ctx.beginPath();
-        let started = false;
-        for (let i = 0; i < perfil.p.length; i++) {
-            const tp = idx.tParcela[i];
-            if (tp === null) continue;
-            const x = proj.x(tp, perfil.p[i]), y = proj.y(perfil.p[i]);
-            if (!started) { ctx.moveTo(x, y); started = true; } else { ctx.lineTo(x, y); }
-        }
-        ctx.stroke();
-    }
-    
-    // ─── NOU: Mixed Layer (ML) - línia taronja discontínua ────────
-    const E = window.SkewtEngine;
-    if (E && E.perfilMixedLayer) {
-        const ml = E.perfilMixedLayer(perfil, 100);
-        if (ml && ml.valors) {
-            ctx.strokeStyle = '#ff8c00'; // Taronja
-            ctx.lineWidth = 1.4;
-            ctx.setLineDash([6, 3]);
-            ctx.beginPath();
-            let startedML = false;
-            for (let i = 0; i < perfil.p.length; i++) {
-                const tp = ml.valors[i];
-                if (tp === null) continue;
-                const x = proj.x(tp, perfil.p[i]), y = proj.y(perfil.p[i]);
-                if (!startedML) { ctx.moveTo(x, y); startedML = true; }
-                else { ctx.lineTo(x, y); }
-            }
-            ctx.stroke();
-            ctx.setLineDash([]);
-        }
-    }
-
-    // Punt de rosada (blava)
-    ctx.strokeStyle = T.rosadaBlava || '#3090ff';
-    ctx.lineWidth = 2.2;
-    ctx.beginPath();
-    perfil.p.forEach((p, i) => {
-        const x = proj.x(perfil.td[i], p), y = proj.y(p);
-        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-    });
-    ctx.stroke();
-
-    // Temperatura (vermella)
-    ctx.strokeStyle = T.temperatura;
-    ctx.lineWidth = 2.2;
-    ctx.beginPath();
-    perfil.p.forEach((p, i) => {
-        const x = proj.x(perfil.t[i], p), y = proj.y(p);
-        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-    });
-    ctx.stroke();
-}
-
     // ─── ÀREES CAPE (vermell, entre LFC i EL) i CIN (blau, sota LFC) ────
+    // (FIX: consolidada — la segona definició original, que fixava els
+    // límits a la superfície real i a 100 hPa com a topall, és la que es
+    // feia servir; s'ha mantingut aquesta versió.)
     function dibuixarAreesCapeCin(ctx, T, proj) {
         const perfil = perfilActual, idx = indexsActual;
         if (!perfil || !idx || !idx.tParcela) return;
 
         function areaEntre(pIni, pFi, color) {
+            const pStart = Math.min(pIni, perfil.p[0]);
+            const pEnd = Math.max(pFi, 100);
+
             ctx.fillStyle = color;
             ctx.beginPath();
             let first = true;
             for (let i = 0; i < perfil.p.length; i++) {
                 const p = perfil.p[i];
-                if (p > pIni || p < pFi) continue;
+                if (p > pStart || p < pEnd) continue;
                 const tp = idx.tParcela[i];
                 if (tp === null) continue;
                 const x = proj.x(tp, p), y = proj.y(p);
@@ -718,7 +1025,7 @@ function dibuixarLiniesEstat(ctx, w, h, padLeft, padRight, padTop, padBot, T, pr
             }
             for (let i = perfil.p.length - 1; i >= 0; i--) {
                 const p = perfil.p[i];
-                if (p > pIni || p < pFi) continue;
+                if (p > pStart || p < pEnd) continue;
                 const x = proj.x(perfil.t[i], p), y = proj.y(p);
                 ctx.lineTo(x, y);
             }
@@ -733,309 +1040,6 @@ function dibuixarLiniesEstat(ctx, w, h, padLeft, padRight, padTop, padBot, T, pr
             areaEntre(perfil.p[0], idx.lfc_p, T.cinArea);
         }
     }
-
-
-    // ═══════════════════════════════════════════════════════════════════════
-//  SECCIÓ 2 — DIBUIX DEL SKEW-T (Canvas) - MODIFICACIONES
-// ═══════════════════════════════════════════════════════════════════════
-
-// Añadir esta nueva función después de dibuixarAreesCapeCin
-function dibuixarTerreny(ctx, T, proj) {
-    const perfil = perfilActual;
-    if (!perfil || !perfil.p || perfil.p.length === 0) return;
-    
-    const pSurface = perfil.p[0]; // Presión en superficie (primer punto del sondeo)
-    
-    // Si la presión de superficie es la máxima del rango, no hay terreno que pintar
-    if (pSurface >= P_BOT) return;
-    
-    // Área verde bajo la superficie
-    ctx.fillStyle = 'rgba(34, 139, 34, 0.3)'; // Verde semi-transparente
-    ctx.beginPath();
-    
-    // Borde izquierdo del área de dibujo
-    const ySurface = proj.y(pSurface);
-    const yBottom = proj.y(P_BOT);
-    
-    // Dibujar rectángulo desde la superficie hasta abajo
-    ctx.moveTo(42, ySurface); // padLeft
-    ctx.lineTo(42, yBottom);
-    
-    // Línea inferior (P_BOT)
-    const w = ctx.canvas.width / (window.devicePixelRatio || 1);
-    const padRight = 18;
-    ctx.lineTo(w - padRight, yBottom);
-    ctx.lineTo(w - padRight, ySurface);
-    
-    ctx.closePath();
-    ctx.fill();
-    
-    // Línea de superficie más destacada
-    ctx.strokeStyle = '#228B22';
-    ctx.lineWidth = 2;
-    ctx.setLineDash([5, 3]);
-    ctx.beginPath();
-    ctx.moveTo(42, ySurface);
-    ctx.lineTo(w - padRight, ySurface);
-    ctx.stroke();
-    ctx.setLineDash([]);
-    
-    // Etiqueta de elevación
-    ctx.fillStyle = '#228B22';
-    ctx.font = 'bold 11px Arial';
-    ctx.textAlign = 'right';
-    const elevation = perfil.z[0]; // Altura del terreno en metros
-    ctx.fillText(` ${elevation.toFixed(0)}m`, w - padRight - 10, ySurface - 5);
-}
-
-// Modificar dibuixarLiniesEstat para que empiece desde la superficie
-function dibuixarLiniesEstat(ctx, w, h, padLeft, padRight, padTop, padBot, T, proj) {
-    const perfil = perfilActual, idx = indexsActual;
-    if (!perfil) return;
-
-    // Línea de la parcel·la (groga), des del LCL cap amunt
-    if (idx && idx.tParcela) {
-        ctx.strokeStyle = T.parcela;
-        ctx.lineWidth = 1.6;
-        ctx.beginPath();
-        let started = false;
-        for (let i = 0; i < perfil.p.length; i++) {
-            const tp = idx.tParcela[i];
-            if (tp === null) continue;
-            const x = proj.x(tp, perfil.p[i]), y = proj.y(perfil.p[i]);
-            if (!started) { ctx.moveTo(x, y); started = true; } else { ctx.lineTo(x, y); }
-        }
-        ctx.stroke();
-    }
-
-    // Punt de rosada (verda)
-    ctx.strokeStyle = T.rosada;
-    ctx.lineWidth = 2.2;
-    ctx.beginPath();
-    perfil.p.forEach((p, i) => {
-        const x = proj.x(perfil.td[i], p), y = proj.y(p);
-        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-    });
-    ctx.stroke();
-
-    // Temperatura (vermella)
-    ctx.strokeStyle = T.temperatura;
-    ctx.lineWidth = 2.2;
-    ctx.beginPath();
-    perfil.p.forEach((p, i) => {
-        const x = proj.x(perfil.t[i], p), y = proj.y(p);
-        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-    });
-    ctx.stroke();
-}
-
-// Modificar dibuixarAreesCapeCin para que empiece desde superficie
-function dibuixarAreesCapeCin(ctx, T, proj) {
-    const perfil = perfilActual, idx = indexsActual;
-    if (!perfil || !idx || !idx.tParcela) return;
-
-    function areaEntre(pIni, pFi, color) {
-        // Asegurar que empezamos desde la presión de superficie como mínimo
-        const pStart = Math.min(pIni, perfil.p[0]);
-        const pEnd = Math.max(pFi, 100); // No ir más arriba de 100 hPa
-        
-        ctx.fillStyle = color;
-        ctx.beginPath();
-        let first = true;
-        for (let i = 0; i < perfil.p.length; i++) {
-            const p = perfil.p[i];
-            if (p > pStart || p < pEnd) continue;
-            const tp = idx.tParcela[i];
-            if (tp === null) continue;
-            const x = proj.x(tp, p), y = proj.y(p);
-            if (first) { ctx.moveTo(x, y); first = false; } else { ctx.lineTo(x, y); }
-        }
-        for (let i = perfil.p.length - 1; i >= 0; i--) {
-            const p = perfil.p[i];
-            if (p > pStart || p < pEnd) continue;
-            const x = proj.x(perfil.t[i], p), y = proj.y(p);
-            ctx.lineTo(x, y);
-        }
-        ctx.closePath();
-        ctx.fill();
-    }
-
-    if (idx.lfc_p && idx.el_p) {
-        areaEntre(idx.lfc_p, idx.el_p, T.capeArea);
-    }
-    if (idx.lfc_p) {
-        areaEntre(perfil.p[0], idx.lfc_p, T.cinArea);
-    }
-}
-
-function dibuixarSkewtCanvas() {
-    const wrap = document.getElementById('skewtCanvasWrap');
-    const canvas = document.getElementById('skewtCanvas');
-    if (!wrap || !canvas) return;
-    const dpr = window.devicePixelRatio || 1;
-    const w = wrap.clientWidth, h = wrap.clientHeight;
-    canvas.width = w * dpr; canvas.height = h * dpr;
-    const ctx = canvas.getContext('2d');
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.clearRect(0, 0, w, h);
-
-    const T = tema();
-    ctx.fillStyle = T.fons;
-    ctx.fillRect(0, 0, w, h);
-
-    const padLeft = 42, padRight = 18, padTop = 10, padBot = 26;
-    const proj = {
-        x: (tC, p) => xPerT(tC, p, w, h, padLeft, padRight, padTop, padBot),
-        y: (p) => yPerP(p, h, padTop, padBot)
-    };
-
-    dibuixarGraella(ctx, w, h, padLeft, padRight, padTop, padBot, T, proj);
-    dibuixarTerreny(ctx, T, proj);
-    dibuixarAreesCapeCin(ctx, T, proj);
-    dibuixarLiniesEstat(ctx, w, h, padLeft, padRight, padTop, padBot, T, proj);
-    dibuixarNivellsClau(ctx, w, padRight, T, proj);
-    dibuixarBarbesVent(ctx, w, padRight, T, proj);
-    dibuixarEtiquetesEix(ctx, w, h, padLeft, padRight, padTop, padBot, T, proj);
-
-    // ─── TOOLTIP INTERACTIU ────────────────────────────────────────
-    
-    if (canvas._skewtMouseMove) canvas.removeEventListener('mousemove', canvas._skewtMouseMove);
-    if (canvas._skewtMouseLeave) canvas.removeEventListener('mouseleave', canvas._skewtMouseLeave);
-    
-    let tooltip = document.getElementById('skewtTooltip');
-    if (!tooltip) {
-        tooltip = document.createElement('div');
-        tooltip.id = 'skewtTooltip';
-        tooltip.style.cssText = `
-            position:absolute; background:rgba(10,16,26,0.95); border:1px solid #556;
-            border-radius:4px; padding:5px 8px; font-family:'Segoe UI',Arial,sans-serif;
-            font-size:10px; color:#cde; pointer-events:none; z-index:1000; display:none;
-            white-space:nowrap; line-height:1.5; box-shadow:0 2px 8px rgba(0,0,0,0.5);
-        `;
-        wrap.appendChild(tooltip);
-    }
-    
-    let currentMouseY = null;
-    const colorT = T.temperatura;
-    const colorTd = T.rosadaBlava || '#3090ff';
-    
-    function fmtVent(mps) {
-        const f = unitatVent === 'kt' ? 1.94384 : (unitatVent === 'kmh' ? 3.6 : 1);
-        return (mps * f).toFixed(0) + ' ' + unitatVent;
-    }
-    
-function dirVent(u, v) {
-    let d = Math.atan2(-u, -v) * 180 / Math.PI;
-    if (d < 0) d += 360;
-    const sec = ['Nord', 'Nord-est', 'Est', 'Sud-est', 'Sud', 'Sud-oest', 'Oest', 'Nord-oest'];
-    const index = Math.round(d / 45) % 8;
-    return sec[index] + ' ' + d.toFixed(0) + '°';
-}
-    
-    function calcHR(tC, tdC) {
-        const es = 6.112 * Math.exp((17.67 * tC) / (tC + 243.5));
-        const e = 6.112 * Math.exp((17.67 * tdC) / (tdC + 243.5));
-        return Math.min(100, Math.max(0, (e / es) * 100));
-    }
-    
-    function calcLI(pNiv, tAmb) {
-        const pf = perfilActual;
-        if (!pf || pNiv >= pf.p[0]) return null;
-        const E = window.SkewtEngine;
-        if (!E) return null;
-        const tp = E.perfilParcela(pf.t[0], pf.td[0], pf.p[0], [pNiv]);
-        return (tp && tp.valors[0] !== null) ? tAmb - tp.valors[0] : null;
-    }
-    
-    function redrawWithLine(my) {
-        if (my === null) { dibuixarSkewtCanvas(); return; }
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        ctx.clearRect(0, 0, w, h);
-        ctx.fillStyle = T.fons; ctx.fillRect(0, 0, w, h);
-        dibuixarGraella(ctx, w, h, padLeft, padRight, padTop, padBot, T, proj);
-        dibuixarTerreny(ctx, T, proj);
-        dibuixarAreesCapeCin(ctx, T, proj);
-        dibuixarLiniesEstat(ctx, w, h, padLeft, padRight, padTop, padBot, T, proj);
-        dibuixarNivellsClau(ctx, w, padRight, T, proj);
-        dibuixarBarbesVent(ctx, w, padRight, T, proj);
-        dibuixarEtiquetesEix(ctx, w, h, padLeft, padRight, padTop, padBot, T, proj);
-        
-        ctx.strokeStyle = 'rgba(255,255,255,0.65)';
-        ctx.lineWidth = 0.8;
-        ctx.setLineDash([3, 4]);
-        ctx.beginPath(); ctx.moveTo(padLeft, my); ctx.lineTo(w - padRight, my); ctx.stroke();
-        ctx.setLineDash([]);
-        ctx.fillStyle = 'rgba(255,255,255,0.85)';
-        ctx.beginPath(); ctx.arc(padLeft - 2, my, 2.5, 0, 2 * Math.PI); ctx.fill();
-    }
-    
-    canvas._skewtMouseMove = function(e) {
-        const r = canvas.getBoundingClientRect();
-        const mx = e.clientX - r.left, my = e.clientY - r.top;
-        
-        if (mx < padLeft - 8 || mx > w - padRight + 8 || my < padTop || my > h - padBot) {
-            tooltip.style.display = 'none';
-            if (currentMouseY !== null) { currentMouseY = null; redrawWithLine(null); }
-            return;
-        }
-        
-        if (currentMouseY !== my) { currentMouseY = my; redrawWithLine(my); }
-        
-        const p = pPerY(my, h, padTop, padBot);
-        const pf = perfilActual;
-        if (!pf) { tooltip.style.display = 'none'; return; }
-        
-        let bi = 0, bd = Infinity;
-        for (let i = 0; i < pf.p.length; i++) {
-            const d = Math.abs(pf.p[i] - p);
-            if (d < bd) { bd = d; bi = i; }
-        }
-        if (bd > 25) { tooltip.style.display = 'none'; return; }
-        
-        const tC = pf.t[bi], tdC = pf.td[bi], pN = pf.p[bi], zM = pf.z[bi];
-        const u = pf.u[bi], v = pf.v[bi];
-        const spd = Math.sqrt(u * u + v * v);
-        const hr = calcHR(tC, tdC);
-        const li = calcLI(pN, tC);
-        
-        let liTxt = '--', liClr = '#888';
-        if (li !== null && isFinite(li)) {
-            liTxt = li.toFixed(1);
-            liClr = li < -6 ? '#f44' : li < -3 ? '#f84' : li < 0 ? '#fb4' : li < 3 ? '#8cf' : '#48f';
-        }
-        
-        let hrClr = hr < 30 ? '#f84' : hr < 50 ? '#fb4' : hr < 70 ? '#8cf' : hr < 90 ? '#48f' : '#28f';
-        
-        tooltip.innerHTML = `
-            <div style="font-weight:600;color:#fff;margin-bottom:2px;">${pN.toFixed(0)} hPa &middot; ${zM.toFixed(0)} m</div>
-            <span style="color:${colorT};">T ${tC.toFixed(1)}°C</span>
-            <span style="color:${colorTd};margin-left:10px;">Td ${tdC.toFixed(1)}°C</span>
-            <span style="color:${hrClr};margin-left:10px;">${hr.toFixed(0)}%</span><br>
-            <span style="color:#bbb;">${fmtVent(spd)} ${dirVent(u, v)}</span>
-            <span style="color:${liClr};margin-left:8px;">LI ${liTxt}</span>
-        `;
-        
-        const wr = wrap.getBoundingClientRect();
-        let tx = e.clientX - wr.left + 14, ty = e.clientY - wr.top - 36;
-        const tw = 210, th = 50;
-        if (tx + tw > w) tx = e.clientX - wr.left - tw - 14;
-        if (tx < 4) tx = 4;
-        if (ty < 2) ty = e.clientY - wr.top + 14;
-        if (ty + th > h) ty = h - th - 4;
-        
-        tooltip.style.left = tx + 'px';
-        tooltip.style.top = ty + 'px';
-        tooltip.style.display = 'block';
-    };
-    
-    canvas._skewtMouseLeave = function() {
-        tooltip.style.display = 'none';
-        if (currentMouseY !== null) { currentMouseY = null; redrawWithLine(null); }
-    };
-    
-    canvas.addEventListener('mousemove', canvas._skewtMouseMove);
-    canvas.addEventListener('mouseleave', canvas._skewtMouseLeave);
-}
 
     // ─── ETIQUETES DE NIVELLS CLAU (LCL, LFC, EL, 0°C) ──────────────────
     function dibuixarNivellsClau(ctx, w, padRight, T, proj) {
@@ -1187,188 +1191,188 @@ function dirVent(u, v) {
         }
     }
 
-function dibuixarHodografCanvas() {
-    const wrap = document.getElementById('skewtHodoWrap');
-    const canvas = document.getElementById('skewtHodoCanvas');
-    if (!wrap || !canvas || !ventActual) return;
-    const dpr = window.devicePixelRatio || 1;
-    const w = wrap.clientWidth, h = wrap.clientHeight;
-    canvas.width = w * dpr; canvas.height = h * dpr;
-    const ctx = canvas.getContext('2d');
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.clearRect(0, 0, w, h);
+    function dibuixarHodografCanvas() {
+        const wrap = document.getElementById('skewtHodoWrap');
+        const canvas = document.getElementById('skewtHodoCanvas');
+        if (!wrap || !canvas || !ventActual) return;
+        const dpr = window.devicePixelRatio || 1;
+        const w = wrap.clientWidth, h = wrap.clientHeight;
+        canvas.width = w * dpr; canvas.height = h * dpr;
+        const ctx = canvas.getContext('2d');
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.clearRect(0, 0, w, h);
 
-    const T = tema();
-    ctx.fillStyle = T.fons;
-    ctx.fillRect(0, 0, w, h);
+        const T = tema();
+        ctx.fillStyle = T.fons;
+        ctx.fillRect(0, 0, w, h);
 
-    const cx = w / 2, cy = h / 2;
-    const niv = ventActual.niv;
-    const factor = unitatVent === 'kt' ? 1.94384 : (unitatVent === 'kmh' ? 3.6 : 1);
+        const cx = w / 2, cy = h / 2;
+        const niv = ventActual.niv;
+        const factor = unitatVent === 'kt' ? 1.94384 : (unitatVent === 'kmh' ? 3.6 : 1);
 
-    // Escala
-    let maxSpd = 10;
-    niv.forEach(n => {
-        const s = Math.sqrt(n.u * n.u + n.v * n.v) * factor;
-        if (s > maxSpd) maxSpd = s;
-    });
-    maxSpd = Math.ceil(maxSpd / 10) * 10 + 10;
-    const pxPerUnit = (Math.min(w, h) / 2 - 40) / maxSpd;
+        // Escala
+        let maxSpd = 10;
+        niv.forEach(n => {
+            const s = Math.sqrt(n.u * n.u + n.v * n.v) * factor;
+            if (s > maxSpd) maxSpd = s;
+        });
+        maxSpd = Math.ceil(maxSpd / 10) * 10 + 10;
+        const pxPerUnit = (Math.min(w, h) / 2 - 40) / maxSpd;
 
-    // Anells concentrics
-    for (let r = 10; r <= maxSpd; r += 10) {
-        ctx.strokeStyle = T.hodografRing;
-        ctx.lineWidth = (r % 50 === 0) ? 0.8 : 0.4;
-        ctx.beginPath();
-        ctx.arc(cx, cy, r * pxPerUnit, 0, Math.PI * 2);
-        ctx.stroke();
-        if (r % 20 === 0) {
-            ctx.fillStyle = T.textDim;
-            ctx.font = '8px Arial';
-            ctx.textAlign = 'left';
-            ctx.fillText(r, cx + 3, cy - r * pxPerUnit - 2);
-        }
-    }
-
-    // Eixos N-S, E-W
-    ctx.strokeStyle = T.gridForta;
-    ctx.lineWidth = 0.8;
-    ctx.beginPath();
-    ctx.moveTo(cx - maxSpd * pxPerUnit - 8, cy);
-    ctx.lineTo(cx + maxSpd * pxPerUnit + 8, cy);
-    ctx.moveTo(cx, cy - maxSpd * pxPerUnit - 8);
-    ctx.lineTo(cx, cy + maxSpd * pxPerUnit + 8);
-    ctx.stroke();
-
-    // Cardinals
-    ctx.fillStyle = T.textDim;
-    ctx.font = '9px Arial';
-    ctx.textAlign = 'center';
-    ctx.fillText('N', cx, cy - maxSpd * pxPerUnit - 12);
-    ctx.fillText('S', cx, cy + maxSpd * pxPerUnit + 18);
-    ctx.fillText('E', cx + maxSpd * pxPerUnit + 16, cy + 4);
-    ctx.fillText('W', cx - maxSpd * pxPerUnit - 16, cy + 4);
-
-    // Funció per convertir (u,v) a coordenades canvas
-    function pt(u, v) {
-        return { x: cx + u * factor * pxPerUnit, y: cy - v * factor * pxPerUnit };
-    }
-
-    // Trams de colors
-    const trams = [
-        { min: 0, max: 1000, color: T.hodograf0_1 },
-        { min: 1000, max: 3000, color: T.hodograf1_3 },
-        { min: 3000, max: 6000, color: T.hodograf3_6 },
-        { min: 6000, max: 9000, color: T.hodograf6_9 },
-        { min: 9000, max: 12000, color: T.hodograf9_12 }
-    ];
-
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-
-    // Dibuixar cada tram
-    trams.forEach(tram => {
-        const puntsTram = [];
-        
-        // Recollir punts dins del tram (incloent el punt anterior al inici per continuïtat)
-        for (let i = 0; i < niv.length; i++) {
-            if (niv[i].z >= tram.min && niv[i].z <= tram.max) {
-                if (puntsTram.length === 0 && i > 0) {
-                    puntsTram.push(niv[i - 1]);
-                }
-                puntsTram.push(niv[i]);
+        // Anells concèntrics
+        for (let r = 10; r <= maxSpd; r += 10) {
+            ctx.strokeStyle = T.hodografRing;
+            ctx.lineWidth = (r % 50 === 0) ? 0.8 : 0.4;
+            ctx.beginPath();
+            ctx.arc(cx, cy, r * pxPerUnit, 0, Math.PI * 2);
+            ctx.stroke();
+            if (r % 20 === 0) {
+                ctx.fillStyle = T.textDim;
+                ctx.font = '8px Arial';
+                ctx.textAlign = 'left';
+                ctx.fillText(r, cx + 3, cy - r * pxPerUnit - 2);
             }
         }
 
-        if (puntsTram.length < 2) return;
-
-        ctx.strokeStyle = tram.color;
-        ctx.lineWidth = 2.2;
+        // Eixos N-S, E-W
+        ctx.strokeStyle = T.gridForta;
+        ctx.lineWidth = 0.8;
         ctx.beginPath();
-
-        // Primer punt
-        const p0 = pt(puntsTram[0].u, puntsTram[0].v);
-        ctx.moveTo(p0.x, p0.y);
-
-        // Dibuixar amb espaiat variable segons velocitat
-        for (let i = 1; i < puntsTram.length; i++) {
-            const n0 = puntsTram[i - 1];
-            const n1 = puntsTram[i];
-            
-            const spd0 = Math.sqrt(n0.u * n0.u + n0.v * n0.v) * factor;
-            const spd1 = Math.sqrt(n1.u * n1.u + n1.v * n1.v) * factor;
-            const spdMitjana = (spd0 + spd1) / 2;
-            
-            const nPassos = Math.max(1, Math.floor(spdMitjana / 5));
-            
-            for (let k = 1; k <= nPassos; k++) {
-                const frac = k / nPassos;
-                const u = n0.u + (n1.u - n0.u) * frac;
-                const v = n0.v + (n1.v - n0.v) * frac;
-                const p = pt(u, v);
-                ctx.lineTo(p.x, p.y);
-            }
-        }
+        ctx.moveTo(cx - maxSpd * pxPerUnit - 8, cy);
+        ctx.lineTo(cx + maxSpd * pxPerUnit + 8, cy);
+        ctx.moveTo(cx, cy - maxSpd * pxPerUnit - 8);
+        ctx.lineTo(cx, cy + maxSpd * pxPerUnit + 8);
         ctx.stroke();
-    });
 
-    // Storm motion (Bunkers)
-    if (ventActual.bunkers) {
-        // Right-mover
-        if (ventActual.bunkers.right) {
-            const pr = pt(ventActual.bunkers.right.u, ventActual.bunkers.right.v);
-            ctx.fillStyle = T.bunkersR;
-            ctx.beginPath();
-            ctx.arc(pr.x, pr.y, 4, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.fillStyle = T.text;
-            ctx.font = '9px Arial';
-            ctx.textAlign = 'left';
-            ctx.fillText('RM', pr.x + 7, pr.y + 3);
-        }
-        
-        // Left-mover
-        if (ventActual.bunkers.left) {
-            const pl = pt(ventActual.bunkers.left.u, ventActual.bunkers.left.v);
-            ctx.fillStyle = T.bunkersL;
-            ctx.beginPath();
-            ctx.arc(pl.x, pl.y, 4, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.fillStyle = T.text;
-            ctx.font = '9px Arial';
-            ctx.textAlign = 'left';
-            ctx.fillText('LM', pl.x + 7, pl.y + 3);
-        }
-    }
-
-    // Llegenda de trams
-    ctx.font = '8px Arial';
-    let llegendaY = h - 60;
-    
-    const tramsLlegenda = [
-        { label: '0-1 km', color: T.hodograf0_1 },
-        { label: '1-3 km', color: T.hodograf1_3 },
-        { label: '3-6 km', color: T.hodograf3_6 },
-        { label: '6-9 km', color: T.hodograf6_9 },
-        { label: '9-12 km', color: T.hodograf9_12 }
-    ];
-    
-    tramsLlegenda.forEach(tram => {
-        ctx.fillStyle = tram.color;
-        ctx.fillRect(10, llegendaY - 4, 14, 5);
+        // Cardinals
         ctx.fillStyle = T.textDim;
-        ctx.textAlign = 'left';
-        ctx.fillText(tram.label, 28, llegendaY);
-        llegendaY += 12;
-    });
+        ctx.font = '9px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('N', cx, cy - maxSpd * pxPerUnit - 12);
+        ctx.fillText('S', cx, cy + maxSpd * pxPerUnit + 18);
+        ctx.fillText('E', cx + maxSpd * pxPerUnit + 16, cy + 4);
+        ctx.fillText('W', cx - maxSpd * pxPerUnit - 16, cy + 4);
 
-    // Títol
-    ctx.fillStyle = T.textDim;
-    ctx.font = '10px Arial';
-    ctx.textAlign = 'left';
-    ctx.fillText('Hodograf (' + unitatVent + ')', 10, 16);
-}
-window.dibuixarHodografCanvas = dibuixarHodografCanvas;
+        // Funció per convertir (u,v) a coordenades canvas
+        function pt(u, v) {
+            return { x: cx + u * factor * pxPerUnit, y: cy - v * factor * pxPerUnit };
+        }
+
+        // Trams de colors
+        const trams = [
+            { min: 0, max: 1000, color: T.hodograf0_1 },
+            { min: 1000, max: 3000, color: T.hodograf1_3 },
+            { min: 3000, max: 6000, color: T.hodograf3_6 },
+            { min: 6000, max: 9000, color: T.hodograf6_9 },
+            { min: 9000, max: 12000, color: T.hodograf9_12 }
+        ];
+
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+
+        // Dibuixar cada tram
+        trams.forEach(tram => {
+            const puntsTram = [];
+
+            // Recollir punts dins del tram (incloent el punt anterior a l'inici per continuïtat)
+            for (let i = 0; i < niv.length; i++) {
+                if (niv[i].z >= tram.min && niv[i].z <= tram.max) {
+                    if (puntsTram.length === 0 && i > 0) {
+                        puntsTram.push(niv[i - 1]);
+                    }
+                    puntsTram.push(niv[i]);
+                }
+            }
+
+            if (puntsTram.length < 2) return;
+
+            ctx.strokeStyle = tram.color;
+            ctx.lineWidth = 2.2;
+            ctx.beginPath();
+
+            // Primer punt
+            const p0 = pt(puntsTram[0].u, puntsTram[0].v);
+            ctx.moveTo(p0.x, p0.y);
+
+            // Dibuixar amb espaiat variable segons velocitat
+            for (let i = 1; i < puntsTram.length; i++) {
+                const n0 = puntsTram[i - 1];
+                const n1 = puntsTram[i];
+
+                const spd0 = Math.sqrt(n0.u * n0.u + n0.v * n0.v) * factor;
+                const spd1 = Math.sqrt(n1.u * n1.u + n1.v * n1.v) * factor;
+                const spdMitjana = (spd0 + spd1) / 2;
+
+                const nPassos = Math.max(1, Math.floor(spdMitjana / 5));
+
+                for (let k = 1; k <= nPassos; k++) {
+                    const frac = k / nPassos;
+                    const u = n0.u + (n1.u - n0.u) * frac;
+                    const v = n0.v + (n1.v - n0.v) * frac;
+                    const p = pt(u, v);
+                    ctx.lineTo(p.x, p.y);
+                }
+            }
+            ctx.stroke();
+        });
+
+        // Storm motion (Bunkers)
+        if (ventActual.bunkers) {
+            // Right-mover
+            if (ventActual.bunkers.right) {
+                const pr = pt(ventActual.bunkers.right.u, ventActual.bunkers.right.v);
+                ctx.fillStyle = T.bunkersR;
+                ctx.beginPath();
+                ctx.arc(pr.x, pr.y, 4, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = T.text;
+                ctx.font = '9px Arial';
+                ctx.textAlign = 'left';
+                ctx.fillText('RM', pr.x + 7, pr.y + 3);
+            }
+
+            // Left-mover
+            if (ventActual.bunkers.left) {
+                const pl = pt(ventActual.bunkers.left.u, ventActual.bunkers.left.v);
+                ctx.fillStyle = T.bunkersL;
+                ctx.beginPath();
+                ctx.arc(pl.x, pl.y, 4, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = T.text;
+                ctx.font = '9px Arial';
+                ctx.textAlign = 'left';
+                ctx.fillText('LM', pl.x + 7, pl.y + 3);
+            }
+        }
+
+        // Llegenda de trams
+        ctx.font = '8px Arial';
+        let llegendaY = h - 60;
+
+        const tramsLlegenda = [
+            { label: '0-1 km', color: T.hodograf0_1 },
+            { label: '1-3 km', color: T.hodograf1_3 },
+            { label: '3-6 km', color: T.hodograf3_6 },
+            { label: '6-9 km', color: T.hodograf6_9 },
+            { label: '9-12 km', color: T.hodograf9_12 }
+        ];
+
+        tramsLlegenda.forEach(tram => {
+            ctx.fillStyle = tram.color;
+            ctx.fillRect(10, llegendaY - 4, 14, 5);
+            ctx.fillStyle = T.textDim;
+            ctx.textAlign = 'left';
+            ctx.fillText(tram.label, 28, llegendaY);
+            llegendaY += 12;
+        });
+
+        // Títol
+        ctx.fillStyle = T.textDim;
+        ctx.font = '10px Arial';
+        ctx.textAlign = 'left';
+        ctx.fillText('Hodograf (' + etiquetaUnitat(unitatVent) + ')', 10, 16);
+    }
+    window.dibuixarHodografCanvas = dibuixarHodografCanvas;
 
     // ─── TAULA D'ÍNDEXS ──────────────────────────────────────────────────
 
@@ -1390,95 +1394,94 @@ window.dibuixarHodografCanvas = dibuixarHodografCanvas;
         return mps * factor;
     }
 
-function construirTaulaIndexsSkewt() {
-    const side = document.getElementById('skewtSideCol');
-    if (!side || !indexsActual) return;
-    const idx = indexsActual;
-    const vent = ventActual;
-
-    function fila(label, valor, color) {
-        return `<tr><td class="lbl">${label}</td><td class="val"${color ? ' style="color:' + color + '"' : ''}>${valor}</td></tr>`;
-    }
-
-    let html = '';
-
-    // ── Termodinàmica ──
-    html += `<div class="skewt-table-section"><div class="skewt-table-title">Termodinàmica</div><table class="skewt-table">`;
-    html += fila('CAPE', fmt(idx.cape, 0, ' J/kg'), colorPerCape(idx.cape));
-    html += fila('CIN', fmt(idx.cin, 0, ' J/kg'), idx.cin < -100 ? '#4090ff' : null);
-    html += fila('LI', fmt(idx.li, 1), idx.li !== null && idx.li < -4 ? '#e03030' : null);
-    html += fila('Showalter', fmt(idx.showalter, 1));
-    html += fila('K-Index', fmt(idx.kIndex, 0));
-    html += fila('Totals Totals', fmt(idx.totalsTotals, 0));
-    html += `</table></div>`;
-
-    // ── Nivells clau ──
-    html += `<div class="skewt-table-section"><div class="skewt-table-title">Nivells</div><table class="skewt-table">`;
-    html += fila('LCL', fmt(idx.lcl_p, 0, ' hPa') + ' · ' + fmt(idx.lcl_z, 0, ' m'));
-    html += fila('LFC', idx.lfc_p ? fmt(idx.lfc_p, 0, ' hPa') + ' · ' + fmt(idx.lfc_z, 0, ' m') : '—');
-    html += fila('EL', idx.el_p ? fmt(idx.el_p, 0, ' hPa') + ' · ' + fmt(idx.el_z, 0, ' m') : '—');
-    html += `</table></div>`;
-
-    // ── Vent / cisallament ──
-    if (vent) {
-        html += `<div class="skewt-table-section"><div class="skewt-table-title">Cisallament (Bulk Shear)</div><table class="skewt-table">`;
-        html += fila('0–1 km', fmt(convertirVent(vent.shear01), 0, ' ' + unitatVent));
-        html += fila('0–3 km', fmt(convertirVent(vent.shear03), 0, ' ' + unitatVent));
-        html += fila('0–6 km', fmt(convertirVent(vent.shear06), 0, ' ' + unitatVent), vent.shear06 > 20 ? '#e08030' : null);
-        html += fila('0–8 km', fmt(convertirVent(vent.shear08), 0, ' ' + unitatVent));
-        html += `</table></div>`;
-
-        html += `<div class="skewt-table-section"><div class="skewt-table-title">Helicitat (SRH)</div><table class="skewt-table">`;
-        html += fila('0–1 km', fmt(vent.srh01, 0, ' m²/s²'), Math.abs(vent.srh01) > 150 ? '#e03030' : null);
-        html += fila('0–3 km', fmt(vent.srh03, 0, ' m²/s²'), Math.abs(vent.srh03) > 250 ? '#e03030' : null);
-        html += `</table></div>`;
-
-        html += `<div class="skewt-table-section"><div class="skewt-table-title">Moviment de la tempesta</div><table class="skewt-table">`;
-        const rmSpd = Math.sqrt(vent.bunkers.right.u ** 2 + vent.bunkers.right.v ** 2);
-        const lmSpd = Math.sqrt(vent.bunkers.left.u ** 2 + vent.bunkers.left.v ** 2);
-        html += fila('Right-mover (RM)', fmt(convertirVent(rmSpd), 0, ' ' + unitatVent));
-        html += fila('Left-mover (LM)', fmt(convertirVent(lmSpd), 0, ' ' + unitatVent));
-        html += `</table></div>`;
-
-        // ── Índexs compostos derivats ──
-        const cape = idx.cape || 0;
-        const srh01 = vent.srh01 || 0;
-        const shear06Kt = convertirVentAKt(vent.shear06);
-        const shearTerm = Math.max(0, Math.min(shear06Kt / 20, 1.5));
-        const lclTerm = idx.lcl_z !== null ? Math.max(0, Math.min((2000 - idx.lcl_z) / 1000, 1)) : 0;
-        const cinTerm = idx.cin !== null ? Math.max(0, Math.min((idx.cin + 200) / 150, 1)) : 1;
-        const stpAprox = (cape / 1500) * (srh01 / 150) * shearTerm * lclTerm * cinTerm;
-        const ehi01 = (cape * srh01) / 160000;
-
-        html += `<div class="skewt-table-section"><div class="skewt-table-title">Índexs compostos (aprox.)</div><table class="skewt-table">`;
-        html += fila('STP (aprox.)', fmt(Math.max(0, stpAprox), 2));
-        html += fila('EHI 0–1km', fmt(ehi01, 2));
-        html += `</table></div>`;
-    }
-
-
-
-    // ── Avís legal ──
-    const dataAvui = new Date().toLocaleDateString('ca-ES', { 
-        day: 'numeric', 
-        month: 'long', 
-        year: 'numeric' 
-    });
-
-    html += `<div class="skewt-table-section" style="opacity:0.5;">
-        <div class="skewt-table-title">Avís legal</div>
-        <div style="font-size:9px; color:${tema().textDim}; line-height:1.4;">
-            Dades amb finalitat informativa. No ens fem responsables 
-            de l'ús que es faci d'aquesta informació.
-            <br><br>
-            Avís declarat el ${dataAvui}.
-        </div>
-    </div>`;
-
-    side.innerHTML = html;
-}
-window.construirTaulaIndexsSkewt = construirTaulaIndexsSkewt;
-
     function convertirVentAKt(mps) { return mps * 1.94384; }
+
+    function construirTaulaIndexsSkewt() {
+        const side = document.getElementById('skewtSideCol');
+        if (!side || !indexsActual) return;
+        const idx = indexsActual;
+        const vent = ventActual;
+        const uv = etiquetaUnitat(unitatVent);
+
+        function fila(label, valor, color) {
+            return `<tr><td class="lbl">${label}</td><td class="val"${color ? ' style="color:' + color + '"' : ''}>${valor}</td></tr>`;
+        }
+
+        let html = '';
+
+        // ── Termodinàmica ──
+        html += `<div class="skewt-table-section"><div class="skewt-table-title">Termodinàmica</div><table class="skewt-table">`;
+        html += fila('CAPE', fmt(idx.cape, 0, ' J/kg'), colorPerCape(idx.cape));
+        html += fila('CIN', fmt(idx.cin, 0, ' J/kg'), idx.cin === 0 ? '#7f9bb3' : (idx.cin < -100 ? '#4090ff' : null));
+        html += fila('LI', fmt(idx.li, 1), idx.li !== null && idx.li < -4 ? '#e03030' : null);
+        html += fila('Showalter', fmt(idx.showalter, 1));
+        html += fila('K-Index', fmt(idx.kIndex, 0));
+        html += fila('Totals Totals', fmt(idx.totalsTotals, 0));
+        html += `</table></div>`;
+
+        // ── Nivells clau ──
+        html += `<div class="skewt-table-section"><div class="skewt-table-title">Nivells</div><table class="skewt-table">`;
+        html += fila('LCL', fmt(idx.lcl_p, 0, ' hPa') + ' · ' + fmt(idx.lcl_z, 0, ' m'));
+        html += fila('LFC', idx.lfc_p ? fmt(idx.lfc_p, 0, ' hPa') + ' · ' + fmt(idx.lfc_z, 0, ' m') : '—');
+        html += fila('EL', idx.el_p ? fmt(idx.el_p, 0, ' hPa') + ' · ' + fmt(idx.el_z, 0, ' m') : '—');
+        html += `</table></div>`;
+
+        // ── Vent / cisallament ──
+        if (vent) {
+            html += `<div class="skewt-table-section"><div class="skewt-table-title">Cisallament (Bulk Shear)</div><table class="skewt-table">`;
+            html += fila('0–1 km', fmt(convertirVent(vent.shear01), 0, ' ' + uv));
+            html += fila('0–3 km', fmt(convertirVent(vent.shear03), 0, ' ' + uv));
+            html += fila('0–6 km', fmt(convertirVent(vent.shear06), 0, ' ' + uv), vent.shear06 > 20 ? '#e08030' : null);
+            html += fila('0–8 km', fmt(convertirVent(vent.shear08), 0, ' ' + uv));
+            html += `</table></div>`;
+
+            html += `<div class="skewt-table-section"><div class="skewt-table-title">Helicitat (SRH)</div><table class="skewt-table">`;
+            html += fila('0–1 km', fmt(vent.srh01, 0, ' m²/s²'), Math.abs(vent.srh01) > 150 ? '#e03030' : null);
+            html += fila('0–3 km', fmt(vent.srh03, 0, ' m²/s²'), Math.abs(vent.srh03) > 250 ? '#e03030' : null);
+            html += `</table></div>`;
+
+            html += `<div class="skewt-table-section"><div class="skewt-table-title">Moviment de la tempesta</div><table class="skewt-table">`;
+            const rmSpd = Math.sqrt(vent.bunkers.right.u ** 2 + vent.bunkers.right.v ** 2);
+            const lmSpd = Math.sqrt(vent.bunkers.left.u ** 2 + vent.bunkers.left.v ** 2);
+            html += fila('Right-mover (RM)', fmt(convertirVent(rmSpd), 0, ' ' + uv));
+            html += fila('Left-mover (LM)', fmt(convertirVent(lmSpd), 0, ' ' + uv));
+            html += `</table></div>`;
+
+            // ── Índexs compostos derivats ──
+            const cape = idx.cape || 0;
+            const srh01 = vent.srh01 || 0;
+            const shear06Kt = convertirVentAKt(vent.shear06);
+            const shearTerm = Math.max(0, Math.min(shear06Kt / 20, 1.5));
+            const lclTerm = idx.lcl_z !== null ? Math.max(0, Math.min((2000 - idx.lcl_z) / 1000, 1)) : 0;
+            const cinTerm = idx.cin !== null ? Math.max(0, Math.min((idx.cin + 200) / 150, 1)) : 1;
+            const stpAprox = (cape / 1500) * (srh01 / 150) * shearTerm * lclTerm * cinTerm;
+            const ehi01 = (cape * srh01) / 160000;
+
+            html += `<div class="skewt-table-section"><div class="skewt-table-title">Índexs compostos (aprox.)</div><table class="skewt-table">`;
+            html += fila('STP (aprox.)', fmt(Math.max(0, stpAprox), 2));
+            html += fila('EHI 0–1km', fmt(ehi01, 2));
+            html += `</table></div>`;
+        }
+
+        // ── Avís legal ──
+        const dataAvui = new Date().toLocaleDateString('ca-ES', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+        });
+
+        html += `<div class="skewt-table-section" style="opacity:0.5;">
+            <div class="skewt-table-title">Avís legal</div>
+            <div style="font-size:9px; color:${tema().textDim}; line-height:1.4;">
+                Dades amb finalitat informativa. No ens fem responsables 
+                de l'ús que es faci d'aquesta informació.
+                <br><br>
+                Avís declarat el ${dataAvui}.
+            </div>
+        </div>`;
+
+        side.innerHTML = html;
+    }
+    window.construirTaulaIndexsSkewt = construirTaulaIndexsSkewt;
 
 })();

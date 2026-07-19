@@ -105,6 +105,88 @@
     }
 
     // ══════════════════════════════════════════════════════════════════
+    //  TEMPERATURA DE BULB HUMIT (Tw)
+    //  ------------------------------------------------------------------
+    //  Mètode estàndard (Millersville Univ. / procediment equivalent al
+    //  de SHARPpy `thermo.wetbulb`): a cada nivell de pressió,
+    //    1) des del punt de rosada, es puja seguint una línia de ràtio
+    //       de mescla constant (w = wsat(Td, p)) fins trobar el punt on
+    //       aquesta creua la dry adiabat que passa per la temperatura
+    //       ambient en aquell nivell — això dona el "LCL local".
+    //    2) des d'aquesta intersecció, es baixa pseudoadiabàticament
+    //       (igual que `perfilParcela` fa per sobre del LCL) fins tornar
+    //       al nivell de pressió original.
+    //    3) la temperatura resultant en aquest punt és Tw.
+    //  Es resol el pas (1) amb bisecció sobre la pressió del LCL local,
+    //  ja que no hi ha una fórmula tancada senzilla (com Bolton per LCL
+    //  normal) quan es parteix del punt de rosada en lloc de T i Td junts.
+    function temperaturaBulbHumit(tC, tdC, pHpa) {
+        if (!esFinit(tC) || !esFinit(tdC) || !esFinit(pHpa)) return null;
+        if (tdC >= tC) return tC; // aire ja saturat: Tw = T = Td
+
+        const wObjectiu = wsat(tdC, pHpa); // ràtio de mescla del punt de rosada real
+        const RD_CP_LOCAL = RD_CP;
+        const tK = tC + 273.15;
+
+        // Funció: donada una pressió p1 <= pHpa, la temperatura sobre la
+        // dry adiabat que surt de (tC, pHpa) en arribar a p1.
+        function tDryAdiabat(p1) {
+            return tK * Math.pow(p1 / pHpa, RD_CP_LOCAL) - 273.15;
+        }
+
+        // Cerquem, per bisecció, la pressió p1 on w_sat(tDryAdiabat(p1), p1)
+        // == wObjectiu. A mesura que puja (p1 baixa), la dry adiabat es
+        // refreda i wsat baixa; wObjectiu és constant. Busquem el creuament.
+        let pLo = 50, pHi = pHpa;
+        // Comprovació de signe als extrems abans de bisectar
+        const fHi = wsat(tDryAdiabat(pHi), pHi) - wObjectiu; // ~ (wsat(tC,pHpa) - wObjectiu), >=0 normalment
+        const fLo = wsat(tDryAdiabat(pLo), pLo) - wObjectiu;
+        if (fHi < 0) {
+            // Cas ja saturat pràcticament en superfície
+            return tC;
+        }
+        let pLcl = pHpa;
+        if (fLo > 0) {
+            // No hem trobat creuament fins a 50 hPa (extremadament rar);
+            // fem servir el LCL de Bolton com a aproximació de seguretat.
+            pLcl = lclBolton(tC, tdC, pHpa).p;
+        } else {
+            for (let iter = 0; iter < 40; iter++) {
+                const pMig = (pLo + pHi) / 2;
+                const fMig = wsat(tDryAdiabat(pMig), pMig) - wObjectiu;
+                if (fMig > 0) pHi = pMig; else pLo = pMig;
+            }
+            pLcl = (pLo + pHi) / 2;
+        }
+        const tLcl = tDryAdiabat(pLcl);
+
+        // Baixem pseudoadiabàticament de pLcl a pHpa (procés invers al de
+        // perfilParcela, que hi puja; aquí el gradient és positiu en
+        // baixar, per tant sumem en lloc de restar).
+        let p = pLcl, t = tLcl;
+        const nPassos = Math.max(1, Math.ceil((pHpa - pLcl) / 5));
+        const dp = (pHpa - pLcl) / nPassos;
+        for (let k = 0; k < nPassos; k++) {
+            const g1 = gradientHumit(t, p);
+            const tMig = t + g1 * (dp / 2);
+            const g2 = gradientHumit(tMig, p + dp / 2);
+            t = t + g2 * dp; p += dp;
+        }
+        return t;
+    }
+
+    // Calcula Tw a tot un perfil (mateix format d'entrada/sortida que
+    // `perfilParcela`: array paral·lel als nivells de pressió del sondeig).
+    function perfilBulbHumit(perfil) {
+        if (!perfil || !perfil.p) return null;
+        const out = new Array(perfil.p.length);
+        for (let i = 0; i < perfil.p.length; i++) {
+            out[i] = temperaturaBulbHumit(perfil.t[i], perfil.td[i], perfil.p[i]);
+        }
+        return out;
+    }
+
+    // ══════════════════════════════════════════════════════════════════
     //  FIX #1 (ÚNIC CANVI FUNCIONAL DE TOTA LA REVISIÓ)
     //  ------------------------------------------------------------------
     //  Bug original: en tancar un tram de flotabilitat positiva
@@ -181,11 +263,25 @@
             const tp500 = perfilParcela(tSfc, tdSfc, pSfc, [500]).valors[0];
             if (tp500 !== null) li = t[idx500] - tp500;
         }
+        // FIX CIN: la definició estàndard (AMS Glossary, Stull) diu que el
+        // CIN és l'energia necessària per portar la parcel·la des de la
+        // superfície/LCL fins al LFC. Si el sondeig no arriba MAI a tenir
+        // un LFC vàlid (flotabilitat positiva prou gruixuda), `lfcZ` es
+        // manté `null` durant tot el bucle, i la condició `if (lfcZ ===
+        // null) cin += ...` era certa a CADA capa negativa del sondeig
+        // sencer — no només "fins al LFC", perquè no n'hi ha cap. Això
+        // acumulava la inhibició de desenes de capes de dalt a baix del
+        // perfil, donant valors físicament absurds (p. ex. -10000 J/kg).
+        // Igual que CAPE només té sentit si hi ha LFC (per tant es posa a
+        // 0 si no n'hi ha), el CIN tampoc té sentit acumulat sense LFC:
+        // es reporta 0 en aquest cas, en lloc de la suma bruta.
+        const cinFinal = (lfcZ !== null) ? Math.min(0, -Math.abs(cin)) : 0;
+
         // FIX SARS: s'exposa tSfc (abans es calculava però mai sortia de
         // la funció), necessari perquè trobarAnàlegsSARS pugui descartar
         // tipus de tempesta físicament incompatibles amb la temperatura
         // real de superfície (p. ex. "Tempesta hivernal" amb 30°C).
-        return { cape: Math.max(0, cape), cin: Math.min(0, -Math.abs(cin)), tSfc: tSfc, lcl_p: lcl.p, lcl_t: lcl.t, lcl_z: pressioAAlcada(lcl.p), lfc_p: lfc, lfc_z: lfcZ, el_p: el, el_z: elZ, li: li, tParcela: tParcela, z: z };
+        return { cape: Math.max(0, cape), cin: cinFinal, tSfc: tSfc, lcl_p: lcl.p, lcl_t: lcl.t, lcl_z: pressioAAlcada(lcl.p), lfc_p: lfc, lfc_z: lfcZ, el_p: el, el_z: elZ, li: li, tParcela: tParcela, z: z };
     }
 
     function indexsAddicionals(perfil) {
@@ -469,6 +565,7 @@
         esFinit, pressioAAlcada, alcadaAPressio, esatBolton, wsat, tdFromRH,
         lclBolton, gradientHumit, perfilParcela, calcularIndexsTermo, indexsAddicionals,
         perfilMixedLayer,
+        temperaturaBulbHumit, perfilBulbHumit,
         bulkShear, stormMotionBunkers, calcularSRH, ventMitja, ventAAlcada,
         calcularVentComposite,
         indexGraellaMesProper, filaRealPerIndex, extreurePerfil,
