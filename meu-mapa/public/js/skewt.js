@@ -1390,105 +1390,94 @@ window.dibuixarHodografCanvas = dibuixarHodografCanvas;
         return mps * factor;
     }
 
-    function construirTaulaIndexsSkewt() {
-        const side = document.getElementById('skewtSideCol');
-        if (!side || !indexsActual) return;
-        const idx = indexsActual;
-        const vent = ventActual;
+function construirTaulaIndexsSkewt() {
+    const side = document.getElementById('skewtSideCol');
+    if (!side || !indexsActual) return;
+    const idx = indexsActual;
+    const vent = ventActual;
 
-        function fila(label, valor, color) {
-            return `<tr><td class="lbl">${label}</td><td class="val"${color ? ' style="color:' + color + '"' : ''}>${valor}</td></tr>`;
-        }
-
-        let html = '';
-
-        // ── Termodinàmica ──
-        html += `<div class="skewt-table-section"><div class="skewt-table-title">Termodinàmica</div><table class="skewt-table">`;
-        html += fila('CAPE', fmt(idx.cape, 0, ' J/kg'), colorPerCape(idx.cape));
-        html += fila('CIN', fmt(idx.cin, 0, ' J/kg'), idx.cin < -100 ? '#4090ff' : null);
-        html += fila('LI', fmt(idx.li, 1), idx.li !== null && idx.li < -4 ? '#e03030' : null);
-        html += fila('Showalter', fmt(idx.showalter, 1));
-        html += fila('K-Index', fmt(idx.kIndex, 0));
-        html += fila('Totals Totals', fmt(idx.totalsTotals, 0));
-        html += `</table></div>`;
-
-        // ── Nivells clau ──
-        html += `<div class="skewt-table-section"><div class="skewt-table-title">Nivells</div><table class="skewt-table">`;
-        html += fila('LCL', fmt(idx.lcl_p, 0, ' hPa') + ' · ' + fmt(idx.lcl_z, 0, ' m'));
-        html += fila('LFC', idx.lfc_p ? fmt(idx.lfc_p, 0, ' hPa') + ' · ' + fmt(idx.lfc_z, 0, ' m') : '—');
-        html += fila('EL', idx.el_p ? fmt(idx.el_p, 0, ' hPa') + ' · ' + fmt(idx.el_z, 0, ' m') : '—');
-        html += `</table></div>`;
-
-        // ── Vent / cisallament ──
-        if (vent) {
-            html += `<div class="skewt-table-section"><div class="skewt-table-title">Cisallament (Bulk Shear)</div><table class="skewt-table">`;
-            html += fila('0–1 km', fmt(convertirVent(vent.shear01), 0, ' ' + unitatVent));
-            html += fila('0–3 km', fmt(convertirVent(vent.shear03), 0, ' ' + unitatVent));
-            html += fila('0–6 km', fmt(convertirVent(vent.shear06), 0, ' ' + unitatVent), vent.shear06 > 20 ? '#e08030' : null);
-            html += fila('0–8 km', fmt(convertirVent(vent.shear08), 0, ' ' + unitatVent));
-            html += `</table></div>`;
-
-            html += `<div class="skewt-table-section"><div class="skewt-table-title">Helicitat (SRH)</div><table class="skewt-table">`;
-            html += fila('0–1 km', fmt(vent.srh01, 0, ' m²/s²'), Math.abs(vent.srh01) > 150 ? '#e03030' : null);
-            html += fila('0–3 km', fmt(vent.srh03, 0, ' m²/s²'), Math.abs(vent.srh03) > 250 ? '#e03030' : null);
-            html += `</table></div>`;
-
-            html += `<div class="skewt-table-section"><div class="skewt-table-title">Moviment de la tempesta</div><table class="skewt-table">`;
-            const rmSpd = Math.sqrt(vent.bunkers.right.u ** 2 + vent.bunkers.right.v ** 2);
-            const lmSpd = Math.sqrt(vent.bunkers.left.u ** 2 + vent.bunkers.left.v ** 2);
-            html += fila('Right-mover (RM)', fmt(convertirVent(rmSpd), 0, ' ' + unitatVent));
-            html += fila('Left-mover (LM)', fmt(convertirVent(lmSpd), 0, ' ' + unitatVent));
-            html += `</table></div>`;
-
-            // ── Índexs compostos derivats (STP simplificat, EHI) ──
-            const cape = idx.cape || 0;
-            const srh01 = vent.srh01 || 0;
-            const shear06Kt = convertirVentAKt(vent.shear06);
-            const shearTerm = Math.max(0, Math.min(shear06Kt / 20, 1.5));
-            const lclTerm = idx.lcl_z !== null ? Math.max(0, Math.min((2000 - idx.lcl_z) / 1000, 1)) : 0;
-            const cinTerm = idx.cin !== null ? Math.max(0, Math.min((idx.cin + 200) / 150, 1)) : 1;
-            const stpAprox = (cape / 1500) * (srh01 / 150) * shearTerm * lclTerm * cinTerm;
-            const ehi01 = (cape * srh01) / 160000;
-
-            html += `<div class="skewt-table-section"><div class="skewt-table-title">Índexs compostos (aprox.)</div><table class="skewt-table">`;
-            html += fila('STP (aprox.)', fmt(Math.max(0, stpAprox), 2));
-            html += fila('EHI 0–1km', fmt(ehi01, 2));
-            html += `</table></div>`;
-        }
-
-        // ── Superfície ──
-        const perfil = perfilActual;
-        if (perfil) {
-            html += `<div class="skewt-table-section"><div class="skewt-table-title">Superfície</div><table class="skewt-table">`;
-            html += fila('Temperatura', fmt(perfil.t[0], 1, ' °C'));
-            html += fila('Punt de rosada', fmt(perfil.td[0], 1, ' °C'));
-            html += fila('Pressió', fmt(perfil.p[0], 1, ' hPa'));
-            if (vent) {
-                const spdSfc = Math.sqrt(perfil.u[0] ** 2 + perfil.v[0] ** 2);
-                html += fila('Vent', fmt(convertirVent(spdSfc), 0, ' ' + unitatVent));
-            }
-            html += `</table></div>`;
-        }
-
-const dataAvui = new Date().toLocaleDateString('ca-ES', { 
-    day: 'numeric', 
-    month: 'long', 
-    year: 'numeric' 
-});
-
-html += `<div class="skewt-table-section" style="opacity:0.5;">
-    <div class="skewt-table-title">Avís legal</div>
-    <div style="font-size:9px; color:${tema().textDim}; line-height:1.4;">
-        Dades amb finalitat informativa. No ens fem responsables 
-        de l'ús que es faci d'aquesta informació.
-        <br><br>
-        Avís declarat el ${dataAvui}.
-    </div>
-</div>`;
-
-        side.innerHTML = html;
+    function fila(label, valor, color) {
+        return `<tr><td class="lbl">${label}</td><td class="val"${color ? ' style="color:' + color + '"' : ''}>${valor}</td></tr>`;
     }
-    window.construirTaulaIndexsSkewt = construirTaulaIndexsSkewt;
+
+    let html = '';
+
+    // ── Termodinàmica ──
+    html += `<div class="skewt-table-section"><div class="skewt-table-title">Termodinàmica</div><table class="skewt-table">`;
+    html += fila('CAPE', fmt(idx.cape, 0, ' J/kg'), colorPerCape(idx.cape));
+    html += fila('CIN', fmt(idx.cin, 0, ' J/kg'), idx.cin < -100 ? '#4090ff' : null);
+    html += fila('LI', fmt(idx.li, 1), idx.li !== null && idx.li < -4 ? '#e03030' : null);
+    html += fila('Showalter', fmt(idx.showalter, 1));
+    html += fila('K-Index', fmt(idx.kIndex, 0));
+    html += fila('Totals Totals', fmt(idx.totalsTotals, 0));
+    html += `</table></div>`;
+
+    // ── Nivells clau ──
+    html += `<div class="skewt-table-section"><div class="skewt-table-title">Nivells</div><table class="skewt-table">`;
+    html += fila('LCL', fmt(idx.lcl_p, 0, ' hPa') + ' · ' + fmt(idx.lcl_z, 0, ' m'));
+    html += fila('LFC', idx.lfc_p ? fmt(idx.lfc_p, 0, ' hPa') + ' · ' + fmt(idx.lfc_z, 0, ' m') : '—');
+    html += fila('EL', idx.el_p ? fmt(idx.el_p, 0, ' hPa') + ' · ' + fmt(idx.el_z, 0, ' m') : '—');
+    html += `</table></div>`;
+
+    // ── Vent / cisallament ──
+    if (vent) {
+        html += `<div class="skewt-table-section"><div class="skewt-table-title">Cisallament (Bulk Shear)</div><table class="skewt-table">`;
+        html += fila('0–1 km', fmt(convertirVent(vent.shear01), 0, ' ' + unitatVent));
+        html += fila('0–3 km', fmt(convertirVent(vent.shear03), 0, ' ' + unitatVent));
+        html += fila('0–6 km', fmt(convertirVent(vent.shear06), 0, ' ' + unitatVent), vent.shear06 > 20 ? '#e08030' : null);
+        html += fila('0–8 km', fmt(convertirVent(vent.shear08), 0, ' ' + unitatVent));
+        html += `</table></div>`;
+
+        html += `<div class="skewt-table-section"><div class="skewt-table-title">Helicitat (SRH)</div><table class="skewt-table">`;
+        html += fila('0–1 km', fmt(vent.srh01, 0, ' m²/s²'), Math.abs(vent.srh01) > 150 ? '#e03030' : null);
+        html += fila('0–3 km', fmt(vent.srh03, 0, ' m²/s²'), Math.abs(vent.srh03) > 250 ? '#e03030' : null);
+        html += `</table></div>`;
+
+        html += `<div class="skewt-table-section"><div class="skewt-table-title">Moviment de la tempesta</div><table class="skewt-table">`;
+        const rmSpd = Math.sqrt(vent.bunkers.right.u ** 2 + vent.bunkers.right.v ** 2);
+        const lmSpd = Math.sqrt(vent.bunkers.left.u ** 2 + vent.bunkers.left.v ** 2);
+        html += fila('Right-mover (RM)', fmt(convertirVent(rmSpd), 0, ' ' + unitatVent));
+        html += fila('Left-mover (LM)', fmt(convertirVent(lmSpd), 0, ' ' + unitatVent));
+        html += `</table></div>`;
+
+        // ── Índexs compostos derivats ──
+        const cape = idx.cape || 0;
+        const srh01 = vent.srh01 || 0;
+        const shear06Kt = convertirVentAKt(vent.shear06);
+        const shearTerm = Math.max(0, Math.min(shear06Kt / 20, 1.5));
+        const lclTerm = idx.lcl_z !== null ? Math.max(0, Math.min((2000 - idx.lcl_z) / 1000, 1)) : 0;
+        const cinTerm = idx.cin !== null ? Math.max(0, Math.min((idx.cin + 200) / 150, 1)) : 1;
+        const stpAprox = (cape / 1500) * (srh01 / 150) * shearTerm * lclTerm * cinTerm;
+        const ehi01 = (cape * srh01) / 160000;
+
+        html += `<div class="skewt-table-section"><div class="skewt-table-title">Índexs compostos (aprox.)</div><table class="skewt-table">`;
+        html += fila('STP (aprox.)', fmt(Math.max(0, stpAprox), 2));
+        html += fila('EHI 0–1km', fmt(ehi01, 2));
+        html += `</table></div>`;
+    }
+
+
+
+    // ── Avís legal ──
+    const dataAvui = new Date().toLocaleDateString('ca-ES', { 
+        day: 'numeric', 
+        month: 'long', 
+        year: 'numeric' 
+    });
+
+    html += `<div class="skewt-table-section" style="opacity:0.5;">
+        <div class="skewt-table-title">Avís legal</div>
+        <div style="font-size:9px; color:${tema().textDim}; line-height:1.4;">
+            Dades amb finalitat informativa. No ens fem responsables 
+            de l'ús que es faci d'aquesta informació.
+            <br><br>
+            Avís declarat el ${dataAvui}.
+        </div>
+    </div>`;
+
+    side.innerHTML = html;
+}
+window.construirTaulaIndexsSkewt = construirTaulaIndexsSkewt;
 
     function convertirVentAKt(mps) { return mps * 1.94384; }
 

@@ -18,7 +18,7 @@ const VARS_SENSE_VENT = [
     'rain', 'rain_1h', 'snow', 'graupel', 
     'tp', 'tgrp', 'tsnowp', 'precip_water',
     'low_cloud_cover', 'medium_cloud_cover', 'high_cloud_cover',
-    'spbl', 'cin',
+    'spbl', 'cin','geopotencial_500', 'temperatura_500', 'srh_01', 'srh_03', 'shear_03', 'shear_06',
     'pressure_msl', 'sp',
     'el_m', 'reflectivity_dbz', 'lightning'
 ];
@@ -231,6 +231,102 @@ const STOPS_LI = [
     {v:10,r:0,g:0,b:180}
 ];
 
+const STOPS_GEO500 = [
+    {v:470,r:0,g:0,b:200},{v:490,r:0,g:100,b:255},{v:510,r:0,g:200,b:255},
+    {v:530,r:0,g:255,b:200},{v:540,r:0,g:255,b:0},{v:550,r:100,g:255,b:0},
+    {v:560,r:220,g:255,b:0},{v:570,r:255,g:255,b:0},{v:580,r:255,g:200,b:0},
+    {v:590,r:255,g:120,b:0},{v:600,r:255,g:60,b:0},{v:610,r:255,g:0,b:0},
+    {v:630,r:200,g:0,b:100},{v:650,r:150,g:0,b:150}
+];
+
+const STOPS_T500 = [
+    {v:-50,r:0,g:0,b:150},{v:-40,r:0,g:50,b:200},{v:-35,r:0,g:100,b:255},
+    {v:-30,r:0,g:160,b:255},{v:-25,r:0,g:210,b:255},{v:-20,r:0,g:255,b:255},
+    {v:-15,r:0,g:255,b:200},{v:-10,r:0,g:255,b:100},{v:-5,r:100,g:255,b:0},
+    {v:0,r:220,g:255,b:0},{v:5,r:255,g:255,b:0},{v:10,r:255,g:220,b:0},
+    {v:15,r:255,g:180,b:0},{v:20,r:255,g:120,b:0},{v:25,r:255,g:60,b:0},
+    {v:30,r:255,g:0,b:0},{v:35,r:200,g:0,b:0},{v:40,r:150,g:0,b:50}
+];
+
+// SRH (Storm Relative Helicity): Efecte MIRALL simètric
+const STOPS_SRH = [
+    // ── NEGATIUS: Mirall dels positius (blaus freds) ──
+    {v:-1500, r:0,   g:0,   b:40},     // 🔵 Blau quasi negre
+    {v:-1000, r:0,   g:0,   b:120},    // 🔵 Blau molt fosc
+    {v:-800,  r:20,  g:0,   b:180},    // 🔵 Blau fosc
+    {v:-600,  r:60,  g:0,   b:200},    // 💜 Violeta blavós
+    {v:-500,  r:100, g:0,   b:140},    // 🟣 Porpra blavós
+    {v:-400,  r:140, g:0,   b:80},     // 🟣 Magenta blavós
+    {v:-350,  r:170, g:0,   b:30},     // 🔴 Carmesí blavós
+    {v:-300,  r:200, g:0,   b:0},      // 🔴 Vermell fosc blavós
+    {v:-275,  r:230, g:0,   b:0},      // 🔴 Vermell intens blavós
+    {v:-250,  r:255, g:30,  b:0},      // 🔴 Vermell blavós
+    {v:-225,  r:255, g:80,  b:0},      // 🟠 Taronja fosc blavós
+    {v:-200,  r:255, g:130, b:0},      // 🟠 Taronja blavós
+    {v:-175,  r:255, g:180, b:0},      // 🟠 Taronja clar blavós
+    {v:-150,  r:255, g:220, b:0},      // 🟠 Groc-taronja blavós
+    {v:-125,  r:255, g:255, b:0},      // 🟡 Groc blavós
+    {v:-100,  r:200, g:255, b:0},      // 💚 Verd groguenc blavós
+    {v:-75,   r:0,   g:255, b:0},      // 🟢 Verd blavós
+    {v:-50,   r:100, g:255, b:100},    // 🟢 Verd clar blavós
+    {v:-25,   r:180, g:255, b:180},    // 🟢 Verd menta blavós
+    
+    // ── ZERO: Punt neutre ──
+    {v:0,    r:255, g:255, b:255},     // ⬜ Blanc pur
+    
+    // ── POSITIUS: Colors càlids ──
+    {v:25,   r:180, g:255, b:180},     // 🟢 Verd menta
+    {v:50,   r:100, g:255, b:100},     // 🟢 Verd clar
+    {v:75,   r:0,   g:255, b:0},       // 🟢 Verd pur
+    {v:100,  r:200, g:255, b:0},       // 💚 Verd groguenc
+    {v:125,  r:255, g:255, b:0},       // 🟡 Groc pur
+    {v:150,  r:255, g:220, b:0},       // 🟠 Groc-taronja
+    {v:175,  r:255, g:180, b:0},       // 🟠 Taronja clar
+    {v:200,  r:255, g:130, b:0},       // 🟠 Taronja
+    {v:225,  r:255, g:80,  b:0},       // 🟠 Taronja fosc
+    {v:250,  r:255, g:30,  b:0},       // 🔴 Vermell
+    {v:275,  r:230, g:0,   b:0},       // 🔴 Vermell intens
+    {v:300,  r:200, g:0,   b:0},       // 🔴 Vermell fosc
+    {v:350,  r:170, g:0,   b:30},      // 🔴 Carmesí
+    {v:400,  r:140, g:0,   b:80},      // 🟣 Magenta
+    {v:500,  r:100, g:0,   b:140},     // 🟣 Porpra
+    {v:600,  r:60,  g:0,   b:200},     // 💜 Violeta
+    {v:800,  r:20,  g:0,   b:180},     // 🔵 Blau fosc
+    {v:1000, r:0,   g:0,   b:120},     // 🔵 Blau molt fosc
+    {v:1500, r:0,   g:0,   b:40},      // 🔵 Blau quasi negre
+];
+
+// SHEAR: Un color DIFERENT cada 2 m/s - Contrast MÀXIM
+const STOPS_SHEAR = [
+    {v:0,   r:0,   g:0,   b:255},    // 🔵 Blau pur
+    {v:2,   r:0,   g:200, b:255},    // 🩵 Cian clar
+    {v:4,   r:0,   g:255, b:200},    // 🩵 Turquesa
+    {v:6,   r:0,   g:255, b:100},    // 💚 Verd menta
+    {v:8,   r:0,   g:255, b:0},      // 🟢 Verd pur
+    {v:10,  r:150, g:255, b:0},      // 💚 Verd groguenc
+    {v:12,  r:220, g:255, b:0},      // 💛 Groc verdós
+    {v:14,  r:255, g:255, b:0},      // 🟡 Groc pur
+    {v:16,  r:255, g:220, b:0},      // 🟠 Groc intens
+    {v:18,  r:255, g:180, b:0},      // 🟠 Taronja clar
+    {v:20,  r:255, g:140, b:0},      // 🟠 Taronja
+    {v:22,  r:255, g:90,  b:0},      // 🟠 Taronja fosc
+    {v:24,  r:255, g:40,  b:0},      // 🔴 Vermell ataronjat
+    {v:26,  r:255, g:0,   b:0},      // 🔴 Vermell pur
+    {v:28,  r:230, g:0,   b:30},     // 🔴 Carmesí
+    {v:30,  r:210, g:0,   b:80},     
+    {v:32,  r:180, g:0,   b:140},    
+    {v:34,  r:150, g:0,   b:200},   
+    {v:36,  r:120, g:0,   b:240},  
+    {v:38,  r:80,  g:0,   b:255},   
+    {v:40,  r:40,  g:0,   b:255},    
+    {v:44,  r:0,   g:0,   b:220},    
+    {v:48,  r:0,   g:0,   b:180},    
+    {v:52,  r:20,  g:0,   b:130},    
+    {v:56,  r:40,  g:0,   b:80},     
+    {v:60,  r:60,  g:0,   b:0},      
+    {v:70,  r:0,   g:0,   b:0},      
+];
+
 // ═══════════════════════════════════════════════════════════════════════
 //  PALETES MAP
 // ═══════════════════════════════════════════════════════════════════════
@@ -275,6 +371,12 @@ const PALETES = {
     lfc_m:          {titol:'LFC (alçada)',             unitat:'m',         stops:STOPS_ALTURA_CL},
     lifted_index:   {titol:'Lifted Index',             unitat:'°C',        stops:STOPS_LI},
     el_m:           {titol:'Equilibrium Level',        unitat:'m',         stops:STOPS_ALTURA_CL},
+    geopotencial_500: {titol:'Geopotencial 500hPa',    unitat:'dam',      stops:STOPS_GEO500},
+    temperatura_500:  {titol:'Temperatura 500hPa',     unitat:'°C',       stops:STOPS_T500},
+    srh_01:           {titol:'SRH 0-1km',              unitat:'m²/s²',    stops:STOPS_SRH},
+    srh_03:           {titol:'SRH 0-3km',              unitat:'m²/s²',    stops:STOPS_SRH},
+    shear_03:         {titol:'Shear 0-3km',            unitat:'m/s',      stops:STOPS_SHEAR},
+    shear_06:         {titol:'Shear 0-6km',            unitat:'m/s',      stops:STOPS_SHEAR},
 };
 
 // GRUP PRINCIPAL (apareix primer, sense títol, destacat) — TOTES LLIURES SENSE LOGIN
@@ -287,7 +389,8 @@ const GRUPS_SIMPLES = {
     'Núvols': ['low_cloud_cover', 'medium_cloud_cover', 'high_cloud_cover'],
     'Inestabilitat': ['cape', 'spbl', 'lcl_m', 'lfc_m', 'lifted_index', 'el_m'],
     'Reflectivitat i llamps': ['reflectivity_dbz', 'lightning'],
-    'Humitat': ['precip_water'],
+    'Humitat': ['precip_water'],'500 hPa': ['geopotencial_500', 'temperatura_500'],
+'Severitat': ['srh_01', 'srh_03', 'shear_03', 'shear_06'],
 };
 
 const GRUPS_ACORDIO = {
@@ -326,7 +429,7 @@ let variableActiva = 'st';
 window._currentParameter = 'st';
 
 function clauBase(c) {
-    if (PALETES[c]) return c;
+    if (PALETES[c]) return c;  // ← Ja funciona perquè srh_01 és a PALETES!
     const m = c.match(/^(.+)_(-?\d+)$/);
     return (m && PALETES[m[1]]) ? m[1] : 'st';
 }

@@ -2,11 +2,64 @@
 <html lang="ca">
 <head>
     <meta charset="utf-8">
-    <title>AROME Catalunya · Model Meteorològic</title>
+    <title>AROME Europa · Model Meteorològic</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="css/estilcat.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <style>
+        /* ─── INDICADOR "PRÒXIMAMENT" ─── */
+        .proximament-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, #1a3a5c, #0d2a4a);
+            border: 1px solid #2a5a8a;
+            color: #FFD700;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            animation: proximament-pulse 2s ease-in-out infinite;
+        }
+        .proximament-badge i {
+            font-size: 9px;
+            animation: proximament-spin 3s linear infinite;
+        }
+        @keyframes proximament-pulse {
+            0%, 100% { opacity: 0.85; }
+            50% { opacity: 1; }
+        }
+        @keyframes proximament-spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .proximament-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 500;
+            pointer-events: none;
+            text-align: center;
+        }
+        .proximament-overlay .proximament-titol {
+            font-size: 28px;
+            font-weight: 700;
+            color: #FFD700;
+            text-shadow: 0 2px 12px rgba(0,0,0,0.6);
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+        .proximament-overlay .proximament-sub {
+            font-size: 13px;
+            color: #aac8e0;
+            text-shadow: 0 1px 6px rgba(0,0,0,0.5);
+            letter-spacing: 0.5px;
+        }
+    </style>
 </head>
 <body>
     <div id="app">
@@ -16,8 +69,8 @@
             <div class="brand">TEMPESTES<span>·CAT</span></div>
 
             <a href="index.html" class="topnav-visor-btn" title="Inici" style="margin-right:12px;">
-    <i class="fas fa-home"></i> Inici
-</a>
+                <i class="fas fa-home"></i> Inici
+            </a>
 
             <!-- BOTONS VISORS -->
             <div class="topnav-visors">
@@ -25,12 +78,17 @@
                     <i class="fas fa-location-dot"></i> Aragó
                 </a>
                 <span class="topnav-visor-separator">|</span>
-                <a href="visorval.html" class="topnav-visor-btn" title="valència">
-                    <i class="fas fa-location-dot"></i> València
+                <a href="visor.html" class="topnav-visor-btn" title="Catalunya">
+                    <i class="fas fa-location-dot"></i> Catalunya
                 </a>
                 <span class="topnav-visor-separator">|</span>
                 <span class="topnav-visor-btn active" title="Visor actual">
-                    <i class="fas fa-location-dot"></i> Catalunya
+                    <i class="fas fa-globe-europe"></i> Europa
+                </span>
+                <span class="topnav-visor-separator">|</span>
+                <!-- ═══ INDICADOR PRÒXIMAMENT ═══ -->
+                <span class="proximament-badge" title="Més visors disponibles aviat">
+                    <i class="fas fa-cog"></i> Pròximament
                 </span>
             </div>
 
@@ -75,7 +133,15 @@
                 </div>
 
                 <div id="map-wrapper">
-                    <div id="map"></div>
+                    <div id="map">
+                        <!-- ═══ OVERLAY "PRÒXIMAMENT" SOBRE EL MAPA ═══ -->
+                        <div class="proximament-overlay" id="proximamentOverlay">
+                            <div class="proximament-titol">
+                                <i class="fas fa-satellite" style="margin-right:10px;"></i>Pròximament
+                            </div>
+                            <div class="proximament-sub">L'estem construint... ✨</div>
+                        </div>
+                    </div>
 
                     <!-- ═══ LOADING OVERLAY ═══ -->
                     <div id="loading_overlay" class="visible">
@@ -88,12 +154,12 @@
                         </div>
                         <div class="loading-content">
                             <div class="spinner"></div>
-                            <div class="txt" id="loading_text">Inicialitzant...</div>
+                            <div class="txt" id="loading_text">En construcció...</div>
                             <div class="loading-progress" id="loading_progress">
                                 <div class="progress-bar" id="progress_bar"></div>
                                 <div class="progress-text" id="progress_text">0%</div>
                             </div>
-                            <div class="loading-sub" id="loading_sub">Connectant amb el servidor...</div>
+                            <div class="loading-sub" id="loading_sub">Europa s'està dissenyant encara...</div>
                             <div class="loading-dots" id="loading_dots"></div>
                         </div>
                     </div>
@@ -233,9 +299,9 @@
     <!-- LEAFLET -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-<script src="js/skewt-engine.js"></script>
-<script src="js/mapa.js"></script>
-<script src="js/skewt.js"></script>
+    <script src="js/skewt-engine.js"></script>
+    <script src="js/mapaarome.js"></script>
+    <script src="js/skewt.js"></script>
 
     <script>
         // ════════════════════════════════════════════════════════════════
@@ -406,15 +472,15 @@
             if (isSys) {
                 div.innerHTML = '<div class="xat-modal-msg-bubble">' + escHtml(msg.text) + '</div>';
             } else {
-div.innerHTML = `
-    <div class="xat-modal-msg-header">
-        <div class="xat-modal-msg-avatar" style="background:${cl}">${avatarContent}</div>
-        <span class="xat-modal-msg-name">${escHtml(msg.nick || 'Anonim')}</span>
-        <span data-rang-tag="${escHtml(msg.uid || '')}" style="display:none;font-size:7px;font-weight:700;color:#fff;background:#556680;padding:0px 5px;border-radius:6px;margin-left:4px;align-items:center;letter-spacing:0.3px;white-space:nowrap;"></span>
-        <span class="xat-modal-msg-time">${formatTime(msg.ts)}</span>
-    </div>
-    <div class="xat-modal-msg-bubble">${content}</div>
-`;
+                div.innerHTML = `
+                    <div class="xat-modal-msg-header">
+                        <div class="xat-modal-msg-avatar" style="background:${cl}">${avatarContent}</div>
+                        <span class="xat-modal-msg-name">${escHtml(msg.nick || 'Anonim')}</span>
+                        <span data-rang-tag="${escHtml(msg.uid || '')}" style="display:none;font-size:7px;font-weight:700;color:#fff;background:#556680;padding:0px 5px;border-radius:6px;margin-left:4px;align-items:center;letter-spacing:0.3px;white-space:nowrap;"></span>
+                        <span class="xat-modal-msg-time">${formatTime(msg.ts)}</span>
+                    </div>
+                    <div class="xat-modal-msg-bubble">${content}</div>
+                `;
             }
 
             container.appendChild(div);
@@ -563,12 +629,10 @@ div.innerHTML = `
             console.log('[Mapa] Clic dret configurat');
         }
 
-        // ─── MENÚ CONTEXTUAL FLOTANT ────────────────────────────────────────
         let menuContextual = null;
 
         function crearMenuContextual() {
             if (menuContextual) return menuContextual;
-
             const menu = document.createElement('div');
             menu.id = 'mapContextMenu';
             menu.className = 'map-context-menu';
@@ -578,16 +642,12 @@ div.innerHTML = `
                 </div>
             `;
             document.body.appendChild(menu);
-
             menu.querySelector('#ctxSkewt').addEventListener('click', function() {
                 amagarMenuContextual();
                 if (typeof window.openSkewtModal === 'function') {
                     window.openSkewtModal();
-                } else {
-                    console.error('[Mapa] openSkewtModal no disponible encara');
                 }
             });
-
             menuContextual = menu;
             return menu;
         }
@@ -596,35 +656,22 @@ div.innerHTML = `
             const menu = crearMenuContextual();
             const mapWrapper = document.getElementById('map-wrapper');
             const rect = mapWrapper.getBoundingClientRect();
-
             let left = rect.left + x;
             let top = rect.top + y;
-
             menu.style.display = 'block';
-
-            // evitar que surti fora de la finestra
             const menuRect = menu.getBoundingClientRect();
-            if (left + menuRect.width > window.innerWidth) {
-                left = window.innerWidth - menuRect.width - 8;
-            }
-            if (top + menuRect.height > window.innerHeight) {
-                top = window.innerHeight - menuRect.height - 8;
-            }
-
+            if (left + menuRect.width > window.innerWidth) left = window.innerWidth - menuRect.width - 8;
+            if (top + menuRect.height > window.innerHeight) top = window.innerHeight - menuRect.height - 8;
             menu.style.left = left + 'px';
             menu.style.top = top + 'px';
         }
 
         function amagarMenuContextual() {
-            if (menuContextual) {
-                menuContextual.style.display = 'none';
-            }
+            if (menuContextual) menuContextual.style.display = 'none';
         }
 
         document.addEventListener('click', function(e) {
-            if (menuContextual && !menuContextual.contains(e.target)) {
-                amagarMenuContextual();
-            }
+            if (menuContextual && !menuContextual.contains(e.target)) amagarMenuContextual();
         });
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') amagarMenuContextual();
@@ -640,16 +687,11 @@ div.innerHTML = `
             setTimeout(initPusherXat, 500);
 
             setTimeout(() => {
-                if (window._firebaseUser) {
-                    actualitzarUIUsuari(window._firebaseUser);
-                }
+                if (window._firebaseUser) actualitzarUIUsuari(window._firebaseUser);
             }, 800);
 
-            // El mapa (variable `map`) ja existeix perquè mapa.js es carrega
-            // abans que aquest bloc s'executi (script normal, no diferit).
             configurarClicDret();
 
-            // Si el mapa fa moviment/zoom, tanquem el menú contextual si estava obert
             if (typeof map !== 'undefined') {
                 map.on('movestart zoomstart', amagarMenuContextual);
             }
@@ -658,7 +700,6 @@ div.innerHTML = `
         });
     </script>
     <script src="js/statuscheck.js"></script>
-
     <script src="js/cap.js"></script>
 </body>
 </html>
