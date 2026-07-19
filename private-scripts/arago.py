@@ -6,6 +6,7 @@ t_final_blindado.py — VERSIÓ FINAL COMPLETA · 51 HORES · WCS INTERPOLAT · 
  WCS: 4 vars (reflectivity_dbz, rain PT1H, lightning PT1H, precip_water)
       → interpolades a la graella de meteofetch
  Convectiu: LCL, LFC, LI, EL (calculat en local)
+ SRH + SHEAR: SRH 0-1km, SRH 0-3km, Shear 0-3km, Shear 0-6km (NOU)
 
  RUN INTEL·LIGENT: millor run per cada font
  STATUS.JSON: metadades dels runs utilitzats + informe d'integritat
@@ -25,8 +26,6 @@ t_final_blindado.py — VERSIÓ FINAL COMPLETA · 51 HORES · WCS INTERPOLAT · 
   • Informe d'integritat final: quines hores/variables falten, explícit.
   • Neteja garantida de fitxers temporals (atexit + finally), també si
     l'execució anterior va petar a mitges.
-  • Bug corregit: graella 3D podia quedar indefinida si no es baixava cap
-    dada (NameError silenciós a l'informe final).
 ═══════════════════════════════════════════════════════════════════════════════
 """
 
@@ -112,8 +111,8 @@ def carregar_config():
 
 CFG = carregar_config()
 TOTAL_HORES = 51
-PAUSA_WCS = 0.15            # pausa entre peticions
-PAUSA_CADA_10 = 5.0         # pausa cada 10 peticions (segons)
+PAUSA_WCS = 0.15
+PAUSA_CADA_10 = 5.0
 MAX_REINTENTS_WCS = 5
 MAX_REINTENTS_GRIB = 5
 OUTPUT_DIR = Path(CFG.out)
@@ -157,8 +156,6 @@ atexit.register(netejar_tmp)
 # ═══════════════════ LOG A FITXER + CONSOLA ═══════════════════
 
 class Tee:
-    """Duplica l'escriptura cap a diversos streams (consola + fitxer log)."""
-
     def __init__(self, *streams):
         self.streams = streams
 
@@ -217,7 +214,6 @@ SFC_METEOFETCH = {
     "sp":           ("SP2", "sp",       0.01,   "Pressió superf.", "hPa"),
 }
 
-# Variables SFC considerades imprescindibles per donar una hora per "completa"
 SFC_VARS_CRITIQUES = ["st", "srh", "su", "sv", "pressure_msl", "cape"]
 
 SFC_WCS = {
@@ -242,6 +238,139 @@ VARS_3D = {
     "dpt": (NIVELLS_PRESSIO, lambda v: v - 273.15, "Punt rosada", "°C"),
     "pv":  (NIVELLS_PV, lambda v: v * 1e6, "Vorticitat potencial", "PVU"),
 }
+
+# ═══════════════════ SRH + SHEAR (NOU) ═══════════════════
+
+G0_SHEAR = 9.80665
+
+def pressio_a_alcada_shear(p_hpa):
+    """Converteix pressió (hPa) a alçada aproximada (m) - atmosfera estàndard ISA."""
+    T0 = 288.15      # K
+    p0 = 1013.25     # hPa
+    lapse = 0.0065   # K/m
+    R = 287.05       # J/(kg·K)
+    g = 9.80665      # m/s²
+    return (T0 / lapse) * (1.0 - (p_hpa / p0) ** (R * lapse / g))
+def calcular_srh_i_shear(steps_bloc, td_data, lats_3d, lons_3d):
+    print(f"\n  ╔══════════════════════════════════════╗")
+    print("  ║  🌪️  SRH + SHEAR (0-1km, 0-3km, 0-6km) ║")
+    print("  ╚══════════════════════════════════════╝")
+
+    shear_data_per_hora = {}
+
+    if not lats_3d or not lons_3d:
+        print("  ❌ No hi ha graella 3D disponible")
+        return shear_data_per_hora
+
+    nlat, nlon = len(lats_3d), len(lons_3d)
+    n_esperat = nlat * nlon
+    pressions_disponibles = sorted(NIVELLS_PRESSIO, reverse=True)
+    alcades = {p: pressio_a_alcada_shear(p) for p in pressions_disponibles}
+    
+    t0 = time.time()
+
+    for step in steps_bloc:
+        if SHUTDOWN_REQUESTED: break
+
+        dades_step = td_data.get(step, {})
+        if not dades_step:
+            continue
+
+        srh_01 = np.full(n_esperat, np.nan)
+        srh_03 = np.full(n_esperat, np.nan)
+        shear_03 = np.full(n_esperat, np.nan)
+        shear_06 = np.full(n_esperat, np.nan)
+
+        for idx in range(n_esperat):
+            nivells_vent = []
+            for p in pressions_disponibles:
+                ku, kv = f"u_{p}", f"v_{p}"
+                if ku in dades_step and kv in dades_step:
+                    u_val = dades_step[ku]["datos"][idx]
+                    v_val = dades_step[kv]["datos"][idx]
+                    if u_val is not None and v_val is not None and not np.isnan(u_val) and not np.isnan(v_val):
+                        nivells_vent.append({"z": alcades[p], "u": u_val, "v": v_val, "p": p})
+
+            if len(nivells_vent) < 3:
+                continue
+            
+            nivells_vent.sort(key=lambda n: n["z"])
+            sfc = nivells_vent[0]
+
+            def vent_a_z(z_target):
+                for i in range(len(nivells_vent) - 1):
+                    a, b = nivells_vent[i], nivells_vent[i + 1]
+                    if a["z"] <= z_target <= b["z"]:
+                        f = (z_target - a["z"]) / (b["z"] - a["z"]) if b["z"] != a["z"] else 0
+                        return {"u": a["u"] + f * (b["u"] - a["u"]), "v": a["v"] + f * (b["v"] - a["v"])}
+                return nivells_vent[-1]
+
+            v0 = sfc
+            v3km = vent_a_z(3000)
+            v6km = vent_a_z(6000)
+
+            def bulk_shear(va, vb):
+                du = vb["u"] - va["u"]
+                dv = vb["v"] - va["v"]
+                return np.sqrt(du * du + dv * dv)
+
+            shear_03[idx] = round(bulk_shear(v0, v3km), 1)
+            shear_06[idx] = round(bulk_shear(v0, v6km), 1)
+
+            def vent_mitja(z_bot, z_top):
+                su, sv, sw = 0, 0, 0
+                for i in range(len(nivells_vent) - 1):
+                    a, b = nivells_vent[i], nivells_vent[i + 1]
+                    z0, z1 = max(a["z"], z_bot), min(b["z"], z_top)
+                    if z1 <= z0: continue
+                    f0 = (z0 - a["z"]) / (b["z"] - a["z"]) if b["z"] != a["z"] else 0
+                    f1 = (z1 - a["z"]) / (b["z"] - a["z"]) if b["z"] != a["z"] else 0
+                    u0, v0 = a["u"] + f0 * (b["u"] - a["u"]), a["v"] + f0 * (b["v"] - a["v"])
+                    u1, v1 = a["u"] + f1 * (b["u"] - a["u"]), a["v"] + f1 * (b["v"] - a["v"])
+                    w = z1 - z0
+                    su += 0.5 * (u0 + u1) * w
+                    sv += 0.5 * (v0 + v1) * w
+                    sw += w
+                return v0 if sw == 0 else {"u": su / sw, "v": sv / sw}
+
+            vm06 = vent_mitja(0, 6000)
+            du06, dv06 = v6km["u"] - v0["u"], v6km["v"] - v0["v"]
+            shear_mag = np.sqrt(du06 * du06 + dv06 * dv06)
+            D = 7.5
+            
+            if shear_mag > 0.1:
+                storm_u = vm06["u"] + D * (dv06 / shear_mag)
+                storm_v = vm06["v"] + D * (-du06 / shear_mag)
+            else:
+                storm_u = vm06["u"]
+                storm_v = vm06["v"]
+
+            def calc_srh(z_top, su, sv):
+                srh = 0
+                for i in range(len(nivells_vent) - 1):
+                    a, b = nivells_vent[i], nivells_vent[i + 1]
+                    z0, z1 = max(a["z"], 0), min(b["z"], z_top)
+                    if z1 <= z0: continue
+                    f0 = (z0 - a["z"]) / (b["z"] - a["z"]) if b["z"] != a["z"] else 0
+                    f1 = (z1 - a["z"]) / (b["z"] - a["z"]) if b["z"] != a["z"] else 0
+                    u0, v0 = a["u"] + f0 * (b["u"] - a["u"]), a["v"] + f0 * (b["v"] - a["v"])
+                    u1, v1 = a["u"] + f1 * (b["u"] - a["u"]), a["v"] + f1 * (b["v"] - a["v"])
+                    srh += (u0 - su) * (v1 - sv) - (u1 - su) * (v0 - sv)
+                return srh
+
+            srh_01[idx] = round(calc_srh(1000, storm_u, storm_v), 1)
+            srh_03[idx] = round(calc_srh(3000, storm_u, storm_v), 1)
+
+        shear_data_per_hora[step] = {
+            "srh_01": srh_01,
+            "srh_03": srh_03,
+            "shear_03": shear_03,
+            "shear_06": shear_06,
+        }
+
+    print(f"  ✅ SRH + Shear calculats en {format_time(time.time() - t0)}")
+    return shear_data_per_hora
+
 
 # ═══════════════════ UTILITATS ═══════════════════
 
@@ -274,7 +403,6 @@ def calcular_steps(run_utc, total_hores):
     ara = datetime.now(ZoneInfo("Europe/Madrid")).astimezone(ZoneInfo("UTC")).replace(tzinfo=None)
     run_naive = run_utc.replace(tzinfo=None) if run_utc.tzinfo else run_utc
     inici = max(0, int((ara - run_naive).total_seconds() / 3600))
-    # El model només té 52 hores (índexs 0 a 51)
     fi = min(inici + total_hores, 52)
     return list(range(inici, fi))
 
@@ -296,7 +424,6 @@ def borrar_antics():
 
 
 def comprovar_connexio():
-    """Comprova que hi ha connexió a l'API abans de començar res."""
     print("  Comprovant connexió...", end=" ", flush=True)
     try:
         requests.head(CFG.base, timeout=15)
@@ -305,17 +432,14 @@ def comprovar_connexio():
     except requests.exceptions.RequestException as e:
         print("❌")
         print(f"  No es pot connectar a {CFG.base}: {e}")
-        print("  Comprova la connexió a internet i que l'adreça de l'API sigui correcta.")
         return False
 
 
 def _backoff(intent, base=2.0, cap=30.0):
-    """Backoff exponencial amb jitter perquè els reintents no col·lisionin."""
     return min(cap, base * (2 ** (intent - 1))) + random.uniform(0, 1)
 
 
 def escriure_json_atomic(path: Path, data):
-    """Escriu JSON de forma atòmica: mai deixa un fitxer a mitges si es talla el procés."""
     tmp = path.with_name(path.name + ".tmp")
     with open(tmp, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False)
@@ -327,15 +451,6 @@ def escriure_json_atomic(path: Path, data):
 def descarregar_fitxer_robust(session, url, desti: Path, timeout=(15, 180),
                                max_intents=MAX_REINTENTS_GRIB, min_bytes=1000,
                                magic_bytes=None, acceptar_404=True):
-    """
-    Descàrrega robusta a fitxer:
-      - backoff exponencial + jitter en cada reintent
-      - verifica que els bytes escrits coincideixen amb Content-Length
-      - verifica la capçalera binària (magic bytes) del fitxer resultant
-      - escriu sempre a un .part i només el "publica" si tot quadra
-    Retorna: True (ok), False (ha fallat després de tots els intents),
-             None (404 i s'ha marcat com a acceptable)
-    """
     tmp_path = desti.with_name(desti.name + ".part")
     for intent in range(1, max_intents + 1):
         if SHUTDOWN_REQUESTED:
@@ -1133,6 +1248,7 @@ def generar_status_json(run_mf, run_wcs, steps_bloc, sfc_data, td_data, t_inici,
     vars_wcs = [k for k in vars_sfc if k in SFC_WCS]
     vars_mf = [k for k in vars_sfc if k in SFC_METEOFETCH]
     vars_conv = [k for k in vars_sfc if k in ["lcl_m", "lfc_m", "lifted_index", "el_m"]]
+    vars_shear = [k for k in vars_sfc if k in ["srh_01", "srh_03", "shear_03", "shear_06"]]
 
     status = {
         "generat": datetime.now(ZoneInfo("UTC")).strftime("%Y-%m-%dT%H:%M:%SZ"),
@@ -1152,6 +1268,7 @@ def generar_status_json(run_mf, run_wcs, steps_bloc, sfc_data, td_data, t_inici,
         "variables_meteofetch": len(vars_mf),
         "variables_wcs": len(vars_wcs),
         "variables_convectives": len(vars_conv),
+        "variables_shear": len(vars_shear),
         "integritat": {
             "hores_sfc_amb_variables_critiques_absents": hores_sfc_incompletes or [],
             "hores_3d_absents": hores_3d_faltants or [],
@@ -1161,6 +1278,7 @@ def generar_status_json(run_mf, run_wcs, steps_bloc, sfc_data, td_data, t_inici,
             "3d": "meteofetch",
             "wcs_vars": list(SFC_WCS.keys()),
             "convectiu": "calculat_local",
+            "shear": "calculat_local",
         },
     }
 
@@ -1179,7 +1297,6 @@ def main():
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     log_path, fitxer_log = configurar_log()
 
-    # Neteja de restes d'una execució anterior que hagi petat a mitges
     netejar_tmp()
     TMP_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -1190,7 +1307,7 @@ def main():
 
     try:
         print("=" * 65)
-        print("  AROME 51h: meteofetch SFC + meteofetch 3D + WCS (blindat)")
+        print("  AROME 51h: meteofetch SFC + meteofetch 3D + WCS + SRH/SHEAR (blindat)")
         print(f"  Pausa cada 10 req: {PAUSA_CADA_10}s")
         print("=" * 65)
 
@@ -1270,12 +1387,30 @@ def main():
             descarregar_3d(steps_bloc, run_dt_mf)
         td_data.update(td_data_tmp)
 
+        # ── NOU: Calcular SRH i Shear ──
+        shear_data_per_hora = calcular_srh_i_shear(steps_bloc, td_data, lats_3d, lons_3d)
+
         for step in steps_bloc:
             sfc_data[step] = {}
             if step in sfc_mf:
                 sfc_data[step].update(sfc_mf[step])
             if step in sfc_wcs:
                 sfc_data[step].update(sfc_wcs[step])
+            # ── NOU: Afegir SRH i Shear a les dades SFC ──
+            if step in shear_data_per_hora:
+                shear = shear_data_per_hora[step]
+                if shear.get("srh_01") is not None and np.sum(~np.isnan(shear["srh_01"])) > 100:
+                    dades = [round(float(v), 1) if not np.isnan(v) else None for v in shear["srh_01"]]
+                    sfc_data[step]["srh_01"] = {"nombre": "SRH 0-1km", "unidades": "m²/s²", "datos": dades}
+                if shear.get("srh_03") is not None and np.sum(~np.isnan(shear["srh_03"])) > 100:
+                    dades = [round(float(v), 1) if not np.isnan(v) else None for v in shear["srh_03"]]
+                    sfc_data[step]["srh_03"] = {"nombre": "SRH 0-3km", "unidades": "m²/s²", "datos": dades}
+                if shear.get("shear_03") is not None and np.sum(~np.isnan(shear["shear_03"])) > 100:
+                    dades = [round(float(v), 1) if not np.isnan(v) else None for v in shear["shear_03"]]
+                    sfc_data[step]["shear_03"] = {"nombre": "Shear 0-3km", "unidades": "m/s", "datos": dades}
+                if shear.get("shear_06") is not None and np.sum(~np.isnan(shear["shear_06"])) > 100:
+                    dades = [round(float(v), 1) if not np.isnan(v) else None for v in shear["shear_06"]]
+                    sfc_data[step]["shear_06"] = {"nombre": "Shear 0-6km", "unidades": "m/s", "datos": dades}
 
         lats_sfc = lats_mf
         lons_sfc = lons_mf
@@ -1345,6 +1480,7 @@ def main():
             "temp_min2m", "temp_max2m", "sp",
             "reflectivity_dbz", "rain", "lightning", "precip_water",
             "lcl_m", "lfc_m", "lifted_index", "el_m",
+            "srh_01", "srh_03", "shear_03", "shear_06",
         ]
 
         ts = len(steps_bloc)
@@ -1386,7 +1522,7 @@ def main():
         if SHUTDOWN_REQUESTED:
             exit_code = 130
         elif hores_sfc_incompletes or hores_3d_faltants:
-            exit_code = 2  # dades parcials: avisem però no és un "error" dur
+            exit_code = 2
 
     except SystemExit as e:
         exit_code = e.code if isinstance(e.code, int) else 1

@@ -1,20 +1,33 @@
 """
-t_final_blindado.py — VERSIÓ FINAL · FRACCIONAT OPTIMITZAT · SUPORT PARAL·LEL
+t_final_blindado.py — VERSIÓ FINAL · FRACCIONAT OPTIMITZAT + GEO500 + T500 + SRH + SHEAR
 ═══════════════════════════════════════════════════════════════════════════════
  SFC: meteofetch SP1+SP2 (19 vars)
- 3D: meteofetch IP1+IP3 (obert UNA SOLA VEGADA per GRIB)
+ 3D: meteofetch IP1+IP3 (pressió, vent, humitat, etc.)
  WCS: 4 vars interpolades a la graella de meteofetch
- Convectiu: LCL, LFC, LI, EL (calculat des de 1000 hPa)
+ Convectiu: LCL, LFC, LI, EL (calculat en local, des de 1000 hPa)
  GEO500 + T500: extrets de dades 3D (z_500, t_500)
- SRH 0-1km, SRH 0-3km, Shear 0-3km, Shear 0-6km
+ SRH 0-1km, SRH 0-3km, Shear 0-3km, Shear 0-6km: calculats
 
- MODE PARAL·LEL:
-   Per defecte: TOTAL_HORES = 51 (descàrrega completa)
-   Amb variable d'entorn AROME_HORA_INICI=X: descarrega 1 hora concreta
-   (per ser cridat per lancar_parallel.py)
+ ESTRUCTURA FRACCIONADA OPTIMITZADA:
+   - Variables individuals: ~3-4 MB/fitxer
+   - Nivells 3D agrupats: nivell_1000.js ~17 MB (5-7 vars)
+   - GEO500: geopotencial_500.js (~3.5 MB)
+   - T500: temperatura_500.js (~3.5 MB)
+   - SRH/Shear: srh_01.js, srh_03.js, shear_03.js, shear_06.js (~3.5 MB)
 
  BLINDATGE: descàrregues verificades, backoff, escriptura atòmica,
  Ctrl+C, log, neteja tmp.
+
+ CORRECCIÓ LFC/EL (aquesta versió):
+   - La parcel·la SEMPRE es calcula des de la superfície real (sfc_p).
+   - Però el perfil de buoyancy s'avalua des de 1000 hPa fins a 100 hPa
+     per no perdre cap part de la CAPE/CIN que quedaria per sota de la
+     superfície del model en zones elevades.
+   - Si la superfície està per sobre de 1000 hPa (ex: 950 hPa a Madrid),
+     els nivells per sota de la superfície s'ignoren al càlcul de CAPE/CIN
+     perquè la parcel·la no pot existir sota terra.
+   - Si la superfície està per sota de 1000 hPa (ex: 1015 hPa al mar),
+     es fan servir tots els nivells disponibles.
 ═══════════════════════════════════════════════════════════════════════════════
 """
 
@@ -84,26 +97,13 @@ def carregar_config():
 
 
 CFG = carregar_config()
-
-# ═══════════════════ MODE PARAL·LEL ═══════════════════
-HORA_INICI_ENV = os.environ.get("AROME_HORA_INICI")
-TOTAL_HORES_ENV = os.environ.get("AROME_TOTAL_HORES")
-
-if HORA_INICI_ENV is not None:
-    TOTAL_HORES = 1
-    HORA_FORCADA = int(HORA_INICI_ENV)
-    MODE_PARALLEL = True
-else:
-    TOTAL_HORES = 6
-    HORA_FORCADA = None
-    MODE_PARALLEL = False
-
+TOTAL_HORES = 24
 PAUSA_WCS = 0.15
 PAUSA_CADA_10 = 5.0
 MAX_REINTENTS_WCS = 5
 MAX_REINTENTS_GRIB = 5
 OUTPUT_DIR = Path(CFG.out)
-TMP_DIR = Path(os.environ.get("TEMP", "/tmp")) / f"arome_final_{os.getpid()}"
+TMP_DIR = Path(os.environ.get("TEMP", "/tmp")) / "arome_final"
 
 URL_GRIB = "{b}/{d}:00:00Z/arome/0025/{p}/arome__0025__{p}__{g}__{d}:00:00Z.grib2"
 
@@ -158,8 +158,7 @@ def configurar_log():
     log_dir = OUTPUT_DIR / "logs"
     log_dir.mkdir(parents=True, exist_ok=True)
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
-    pid = os.getpid()
-    log_path = log_dir / f"run_{ts}_pid{pid}.log"
+    log_path = log_dir / f"run_{ts}.log"
     fitxer_log = open(log_path, "a", encoding="utf-8")
     sys.stdout = Tee(sys.__stdout__, fitxer_log)
     sys.stderr = Tee(sys.__stderr__, fitxer_log)
@@ -254,8 +253,6 @@ def barra(pct, ample=20):
     return f"[{'█'*fet}{'░'*(ample-fet)}] {pct:5.1f}%"
 
 def calcular_steps(run_utc, total_hores):
-    if MODE_PARALLEL and HORA_FORCADA is not None:
-        return [HORA_FORCADA]
     ara = datetime.now(ZoneInfo("Europe/Madrid")).astimezone(ZoneInfo("UTC")).replace(tzinfo=None)
     run_naive = run_utc.replace(tzinfo=None) if run_utc.tzinfo else run_utc
     inici = max(0, int((ara - run_naive).total_seconds() / 3600))
@@ -263,26 +260,7 @@ def calcular_steps(run_utc, total_hores):
     return list(range(inici, fi))
 
 def borrar_antics():
-    """En mode paral·lel, només esborrem la carpeta de l'hora que estem descarregant."""
     if not OUTPUT_DIR.exists(): return
-    
-    if MODE_PARALLEL and HORA_FORCADA is not None:
-        # Només esborrar la carpeta d'aquesta hora concreta
-        carpeta = OUTPUT_DIR / f"{HORA_FORCADA:02d}"
-        if carpeta.exists():
-            for f in carpeta.glob("*"):
-                try:
-                    f.unlink()
-                except Exception:
-                    pass
-            try:
-                carpeta.rmdir()
-            except Exception:
-                pass
-            print(f"  ✓ Netejada carpeta {HORA_FORCADA:02d}/")
-        return
-    
-    # Mode normal: esborrar totes les carpetes antigues
     nf, nc, pes = 0, 0, 0
     for carpeta in OUTPUT_DIR.iterdir():
         if carpeta.is_dir() and re.match(r'^\d{2}$', carpeta.name):
@@ -562,7 +540,7 @@ def descarregar_sfc_wcs(steps_bloc, run_dt, run_str, cov_ids):
     print(f"  ✅ WCS: {ok_req} vars OK en {format_time(time.time()-t0)}")
     return resultats, lats_wcs, lons_wcs
 
-# ═══════════════════ 3D OPTIMITZAT (un sol open per GRIB) ═══════════════════
+# ═══════════════════ 3D ═══════════════════
 
 def descarregar_3d(steps_bloc, run_dt):
     from meteofetch import Arome0025
@@ -577,7 +555,6 @@ def descarregar_3d(steps_bloc, run_dt):
     resultats, lats, lons = {}, None, None
     total_vars, pes_grib = 0, 0
     t0 = time.time()
-    fallits = []
     
     for paquet in ["IP1", "IP3"]:
         if SHUTDOWN_REQUESTED: break
@@ -587,133 +564,77 @@ def descarregar_3d(steps_bloc, run_dt):
             desti = TMP_DIR / f"3d_{paquet}_{grup}.grib2"
             ok = descarregar_fitxer_robust(session, url, desti, timeout=(15,180), magic_bytes=MAGIC_GRIB)
             if ok is None: continue
-            if not ok:
-                fallits.append(f"{paquet}/{grup}")
-                continue
+            if not ok: continue
             
             mb = desti.stat().st_size / (1024*1024)
             pes_grib += desti.stat().st_size
             print(f"  [{paquet}][{grup}] {mb:.0f}MB", end=" ", flush=True)
             
-            try:
-                ds = xr.open_dataset(desti, engine="cfgrib")
-            except Exception as e:
-                avisar(f"GRIB no llegible ({paquet}/{grup}): {e}")
-                desti.unlink(missing_ok=True)
-                print("❌")
-                continue
-            
-            lat_dim = None
-            lon_dim = None
-            time_dim = None
-            dim_niv = None
-            
-            for var_name in ds.data_vars:
-                da = ds[var_name]
-                if lat_dim is None:
-                    lat_dim = next((d for d in da.dims if 'lat' in d.lower()), None)
-                    lon_dim = next((d for d in da.dims if 'lon' in d.lower()), None)
-                    time_dim = next((d for d in da.dims if d.lower() in ("time","step","valid_time")), None)
-                    dims_extra = [d for d in da.dims if d not in (lat_dim, lon_dim, time_dim or '')]
-                    dim_niv = next((d for d in dims_extra if 'isobaric' in d.lower() or 'pressure' in d.lower()), None)
-                    if dim_niv is None and dims_extra:
-                        dim_niv = dims_extra[0]
-                    
-                    if lats is None:
-                        lats_raw = da[lat_dim].values
-                        lons_raw = da[lon_dim].values
-                        lat_mask = (lats_raw >= CFG.la0) & (lats_raw <= CFG.la1)
-                        lon_mask = (lons_raw >= CFG.lo0) & (lons_raw <= CFG.lo1)
-                        lats = lats_raw[lat_mask][::-1]
-                        lons = lons_raw[lon_mask]
-                    
-                    nl, nlo = len(lats), len(lons)
-            
-            if lat_dim is None:
-                ds.close()
-                desti.unlink(missing_ok=True)
-                print("❌ (sense dims)")
-                continue
-            
             vars_en_grib = 0
-            
-            for var_name in list(ds.data_vars.keys()):
-                da = ds[var_name]
-                sn = da.attrs.get("GRIB_shortName", var_name)
-                
-                var_info = VARS_3D.get(sn)
-                if var_info is None:
-                    continue
-                
-                nivells_set, conv, nom, unitat = var_info
-                
-                if lat_dim not in da.dims or lon_dim not in da.dims:
-                    continue
-                
-                if dim_niv and dim_niv not in da.dims:
-                    continue
-                
+            for var_name, (nivells_set, conv, nom, unitat) in VARS_3D.items():
                 try:
-                    da_regio = da.where(
-                        (da[lat_dim] >= CFG.la0) & (da[lat_dim] <= CFG.la1) &
-                        (da[lon_dim] >= CFG.lo0) & (da[lon_dim] <= CFG.lo1), drop=True
-                    )
+                    ds = xr.open_dataset(desti, engine="cfgrib", backend_kwargs={"filter_by_keys": {"shortName": var_name}})
+                except: continue
+                if var_name not in ds.data_vars: ds.close(); continue
+                da = ds[var_name]
+                lat_dim = next((d for d in da.dims if 'lat' in d.lower()), None)
+                lon_dim = next((d for d in da.dims if 'lon' in d.lower()), None)
+                time_dim = next((d for d in da.dims if d.lower() in ("time","step","valid_time")), None)
+                if not lat_dim or not lon_dim: ds.close(); continue
+                
+                dims_extra = [d for d in da.dims if d not in (lat_dim, lon_dim, time_dim or '')]
+                dim_niv = next((d for d in dims_extra if 'isobaric' in d.lower() or 'pressure' in d.lower()), None)
+                if dim_niv is None and dims_extra: dim_niv = dims_extra[0]
+                if dim_niv is None: ds.close(); continue
+                
+                if lats is None:
+                    lats_raw, lons_raw = da[lat_dim].values, da[lon_dim].values
+                    lat_mask = (lats_raw >= CFG.la0) & (lats_raw <= CFG.la1)
+                    lon_mask = (lons_raw >= CFG.lo0) & (lons_raw <= CFG.lo1)
+                    lats = lats_raw[lat_mask][::-1]
+                    lons = lons_raw[lon_mask]
+                
+                nl, nlo = len(lats), len(lons)
+                
+                for so in range(da.sizes.get(time_dim, 1) if time_dim else 1):
+                    da_step = da.isel({time_dim: so}) if (time_dim and time_dim in da.dims) else da
+                    try: sr = int(da_step.get('step', so))
+                    except: sr = so
+                    sa = int(grup.split("H")[0]) + sr
+                    if sa not in steps_bloc: continue
+                    resultats.setdefault(sa, {})
                     
-                    ntemps = da_regio.sizes.get(time_dim, 1) if time_dim else 1
+                    da_step = da_step.where((da_step[lat_dim] >= CFG.la0) & (da_step[lat_dim] <= CFG.la1) & (da_step[lon_dim] >= CFG.lo0) & (da_step[lon_dim] <= CFG.lo1), drop=True)
                     
-                    for so in range(ntemps):
-                        da_step = da_regio.isel({time_dim: so}) if (time_dim and time_dim in da_regio.dims) else da_regio
+                    for nivell in da_step[dim_niv].values:
+                        ni = int(round(float(nivell)))
+                        if ni not in nivells_set: continue
                         try:
-                            sr = int(da_step.get('step', so))
-                        except:
-                            sr = so
-                        sa = int(grup.split("H")[0]) + sr
-                        
-                        if sa not in steps_bloc:
-                            continue
-                        
-                        resultats.setdefault(sa, {})
-                        
-                        if dim_niv and dim_niv in da_step.dims:
-                            for nivell_raw in da_step[dim_niv].values:
-                                ni = int(round(float(nivell_raw)))
-                                if ni not in nivells_set:
-                                    continue
-                                try:
-                                    da_niv = da_step.sel({dim_niv: nivell_raw})
-                                    vals = np.flipud(da_niv.values)
-                                    if vals.shape != (nl, nlo):
-                                        continue
-                                    dades = [round(float(conv(v)), 1) if not np.isnan(v) else None for v in vals.flatten()]
-                                    resultats[sa][f"{sn}_{ni}"] = {"nombre": f"{nom} @ {ni}hPa", "unidades": unitat, "datos": dades}
-                                    total_vars += 1
-                                    vars_en_grib += 1
-                                except:
-                                    pass
-                except:
-                    pass
-            
-            ds.close()
-            del ds
+                            da_niv = da_step.sel({dim_niv: nivell})
+                            vals = np.flipud(da_niv.values)
+                            if vals.shape != (nl, nlo): continue
+                            dades = [round(float(conv(v)),1) if not np.isnan(v) else None for v in vals.flatten()]
+                            resultats[sa][f"{var_name}_{ni}"] = {"nombre": f"{nom} @ {ni}hPa", "unidades": unitat, "datos": dades}
+                            total_vars += 1; vars_en_grib += 1
+                        except: pass
+                ds.close()
             desti.unlink(missing_ok=True)
-            
             print(f"✓ ({vars_en_grib} vars)", flush=True)
     
     print(f"  ✅ 3D: {total_vars} vars | Temps: {format_time(time.time()-t0)}")
-    print(f"     Pes GRIB: {format_size(pes_grib)}")
     if lats is not None and len(lats) > 0:
-        lats = [round(float(x), 4) for x in lats]
-        lons = [round(float(x), 4) for x in lons]
-        print(f"     Graella: {len(lats)}×{len(lons)} = {len(lats)*len(lons)} punts")
-    if fallits:
-        avisar(f"grups fallits: {', '.join(fallits)}")
+        lats = [round(float(x),4) for x in lats]
+        lons = [round(float(x),4) for x in lons]
     return resultats, lats, lons
 
-# ═══════════════════ CONVECTIU (1000→100 hPa) ═══════════════════
+# ═══════════════════ CONVECTIU (CORREGIT: 1000 hPa → 100 hPa) ═══════════════════
 
 RD, CP, G0_CONV, EPS = 287.05, 1004.6, 9.80665, 0.6219707
 RD_CP = RD / CP
-PLEVS_PERFIL = sorted(NIVELLS_PRESSIO, reverse=True)
+PLEVS_PERFIL = sorted(NIVELLS_PRESSIO, reverse=True)  # 1000, 950, ..., 100
+
+P_MIN_CONV = 100   # hPa - top del perfil
+P_MAX_CONV = 1000  # hPa - base del perfil (sempre 1000, independentment de la superfície)
 
 def _pressio_a_alcada_estandard(p_hpa):
     T0, p0, lapse = 288.15, 1013.25, 0.0065
@@ -748,29 +669,44 @@ def interpolar_graelles(arr, n_origen, n_desti):
     return arr[idx]
 
 def calcular_convectiu(step, td_data, sfc_step, n_punts_sfc):
-    if step not in td_data: return {}
+    """
+    Calcula LCL, LFC, LI, EL.
+    CORREGIT: El perfil de buoyancy s'avalua des de 1000 hPa fins a 100 hPa,
+    independentment de la pressió de superfície. Si la superfície està per
+    sota de 1000 hPa (mar), es fan servir tots els nivells. Si està per sobre
+    (muntanya), els nivells per sota de la superfície s'ignoren perquè la
+    parcel·la no pot existir sota terra.
+    """
+    if step not in td_data:
+        return {}
     d = td_data[step]
-    if not all(k in sfc_step for k in ["st","sd","sp"]): return {}
-    
+    if not all(k in sfc_step for k in ["st","sd","sp"]):
+        return {}
+
     t_sfc = np.where(np.isfinite(np.array(sfc_step["st"]["datos"], dtype=np.float64)), np.array(sfc_step["st"]["datos"], dtype=np.float64), np.nan)
     td_sfc = np.where(np.isfinite(np.array(sfc_step["sd"]["datos"], dtype=np.float64)), np.array(sfc_step["sd"]["datos"], dtype=np.float64), np.nan)
     p_sfc = np.where(np.isfinite(np.array(sfc_step["sp"]["datos"], dtype=np.float64)), np.array(sfc_step["sp"]["datos"], dtype=np.float64), np.nan)
     mask = ~(np.isnan(t_sfc)|np.isnan(td_sfc)|np.isnan(p_sfc))
-    if not np.any(mask): return {}
-    
+    if not np.any(mask):
+        return {}
+
+    # Construir perfil des de P_MAX_CONV (1000) fins a P_MIN_CONV (100)
     pt, ptd, pl = [], [], []
     for n in PLEVS_PERFIL:
-        if n > 1000 or n < 100: continue
+        if n > P_MAX_CONV or n < P_MIN_CONV:
+            continue
         kt, kd = f"t_{n}", f"dpt_{n}"
         if kt in d and kd in d:
             pt.append(np.array(d[kt]["datos"], dtype=np.float64))
             ptd.append(np.array(d[kd]["datos"], dtype=np.float64))
             pl.append(n)
-    if len(pl) < 3: return {}
-    
-    T, TD = np.array(pt), np.array(ptd)
+    if len(pl) < 3:
+        return {}
+
+    T = np.array(pt)
+    TD = np.array(ptd)
     n3 = T.shape[1]
-    
+
     if n_punts_sfc != n3:
         t_sfc = interpolar_graelles(t_sfc, n_punts_sfc, n3)
         td_sfc = interpolar_graelles(td_sfc, n_punts_sfc, n3)
@@ -779,49 +715,58 @@ def calcular_convectiu(step, td_data, sfc_step, n_punts_sfc):
         n_punts = n3
     else:
         n_punts = n_punts_sfc
-    
+
     P = np.array(pl, dtype=np.float64)[:,None]*np.ones((1, n_punts))
-    T = np.where(P >= p_sfc[None,:], np.nan, T)
     
+    # Màscara: només avaluar nivells que estan PER SOTA de la superfície
+    # (és a dir, pressió més alta que la superfície = més avall)
+    T = np.where(P >= p_sfc[None,:], np.nan, T)
+
     p_lcl, _ = _lcl_bolton(t_sfc, td_sfc, p_sfc)
     p_lcl = np.where(mask, p_lcl, np.nan)
     lcl_m = _pressio_a_alcada_estandard(p_lcl)
-    
+
     li = np.full(n_punts, np.nan)
     if 500 in pl:
         i500 = pl.index(500)
         tp, _, _ = _perfil_parcela_a_nivell(t_sfc, td_sfc, p_sfc, np.full(n_punts, 500.0))
         li = np.where(mask & ~np.isnan(T[i500]), T[i500]-tp, np.nan)
-    
+
     tpn = np.full((len(pl), n_punts), np.nan)
     for k, n in enumerate(pl):
         tpn[k], _, _ = _perfil_parcela_a_nivell(t_sfc, td_sfc, p_sfc, np.full(n_punts, float(n)))
-    
+
     psl = P < p_lcl[None,:]
     dv = np.where(psl & ~np.isnan(T), tpn-T, np.nan)
     an = _pressio_a_alcada_estandard(P[:,0])
     lfc_m, el_m = np.full(n_punts, np.nan), np.full(n_punts, np.nan)
-    
+
     for i in range(n_punts):
-        if not mask[i]: continue
+        if not mask[i]:
+            continue
         ix = np.where(psl[:,i] & ~np.isnan(dv[:,i]))[0]
-        if len(ix) < 2: continue
+        if len(ix) < 2:
+            continue
         ds, al = dv[ix,i], an[ix]
         ps = np.where(ds > 0)[0]
-        if len(ps) == 0: continue
+        if len(ps) == 0:
+            continue
         tr = []
         for j in range(ps[0], len(ds)):
-            if ds[j] > 0: tr.append(al[j])
-            else: break
-        if len(tr) < 2 or tr[-1]-tr[0] < 1000: continue
+            if ds[j] > 0:
+                tr.append(al[j])
+            else:
+                break
+        if len(tr) < 2 or tr[-1]-tr[0] < 1000:
+            continue
         lfc_m[i], el_m[i] = tr[0], tr[-1]
-    
+
     if n_punts_sfc != n3:
         lcl_m = interpolar_graelles(lcl_m, n3, n_punts_sfc)
         lfc_m = interpolar_graelles(lfc_m, n3, n_punts_sfc)
         li = interpolar_graelles(li, n3, n_punts_sfc)
         el_m = interpolar_graelles(el_m, n3, n_punts_sfc)
-    
+
     r = {}
     for clau, arr, ndec, nom, unitat in [
         ("lcl_m", lcl_m, 0, "LCL (alçada)", "m"),
@@ -841,6 +786,7 @@ def extreure_geo500_de_3d(steps_bloc, td_data, lats_3d, lons_3d):
     print("  ╚══════════════════════════════════════╝")
 
     geo_data_per_hora = {}
+
     if not lats_3d or not lons_3d:
         print("  ❌ No hi ha graella 3D disponible")
         return geo_data_per_hora
@@ -885,17 +831,24 @@ def pressio_a_alcada_shear(p_hpa):
     return (T0/lapse) * (1.0 - (p_hpa/p0)**(RD*lapse/G0_SHEAR))
 
 def calcular_srh_i_shear(steps_bloc, td_data, lats_3d, lons_3d):
+    """
+    Calcula SRH 0-1km, SRH 0-3km, Shear 0-3km, Shear 0-6km
+    a partir de les dades 3D de vent (u, v).
+    """
     print(f"\n  ╔══════════════════════════════════════╗")
     print("  ║  🌪️  SRH + SHEAR (0-1km, 0-3km, 0-6km) ║")
     print("  ╚══════════════════════════════════════╝")
 
     shear_data_per_hora = {}
+
     if not lats_3d or not lons_3d:
         print("  ❌ No hi ha graella 3D disponible")
         return shear_data_per_hora
 
     nlat, nlon = len(lats_3d), len(lons_3d)
     n_esperat = nlat * nlon
+
+    # Pressions disponibles i les seves alçades aproximades
     pressions_disponibles = sorted(NIVELLS_PRESSIO, reverse=True)
     alcades = {p: pressio_a_alcada_shear(p) for p in pressions_disponibles}
 
@@ -904,12 +857,16 @@ def calcular_srh_i_shear(steps_bloc, td_data, lats_3d, lons_3d):
         print(f"    +{step:02d}h...", end=" ", flush=True)
 
         dades_step = td_data.get(step, {})
-        srh_01 = np.full(n_esperat, np.nan)
-        srh_03 = np.full(n_esperat, np.nan)
-        shear_03 = np.full(n_esperat, np.nan)
-        shear_06 = np.full(n_esperat, np.nan)
 
+        # Extreure perfils de vent per a cada punt de graella
+        srh_01 = np.full(nlat * nlon, np.nan)
+        srh_03 = np.full(nlat * nlon, np.nan)
+        shear_03 = np.full(nlat * nlon, np.nan)
+        shear_06 = np.full(nlat * nlon, np.nan)
+
+        # Per a cada punt de graella
         for idx in range(n_esperat):
+            # Construir perfil de vent (u, v) per aquest punt
             nivells_vent = []
             for p in pressions_disponibles:
                 ku, kv = f"u_{p}", f"v_{p}"
@@ -919,16 +876,22 @@ def calcular_srh_i_shear(steps_bloc, td_data, lats_3d, lons_3d):
                     if u_val is not None and v_val is not None and not np.isnan(u_val) and not np.isnan(v_val):
                         nivells_vent.append({"z": alcades[p], "u": u_val, "v": v_val, "p": p})
 
-            if len(nivells_vent) < 3: continue
+            if len(nivells_vent) < 3:
+                continue
+
+            # Ordenar per alçada creixent
             nivells_vent.sort(key=lambda n: n["z"])
+
+            # Vent a superfície (primer nivell disponible)
             sfc = nivells_vent[0]
 
+            # Interpolar vent a alçades específiques
             def vent_a_z(z_target):
-                for i in range(len(nivells_vent)-1):
+                for i in range(len(nivells_vent) - 1):
                     a, b = nivells_vent[i], nivells_vent[i+1]
                     if a["z"] <= z_target <= b["z"]:
-                        f = (z_target-a["z"])/(b["z"]-a["z"]) if b["z"]!=a["z"] else 0
-                        return {"u": a["u"]+f*(b["u"]-a["u"]), "v": a["v"]+f*(b["v"]-a["v"])}
+                        f = (z_target - a["z"]) / (b["z"] - a["z"]) if b["z"] != a["z"] else 0
+                        return {"u": a["u"] + f*(b["u"]-a["u"]), "v": a["v"] + f*(b["v"]-a["v"])}
                 return nivells_vent[-1]
 
             v0 = sfc
@@ -936,51 +899,78 @@ def calcular_srh_i_shear(steps_bloc, td_data, lats_3d, lons_3d):
             v3km = vent_a_z(3000)
             v6km = vent_a_z(6000)
 
+            # Bulk shear
             def bulk_shear(va, vb):
-                du, dv = vb["u"]-va["u"], vb["v"]-va["v"]
+                du = vb["u"] - va["u"]
+                dv = vb["v"] - va["v"]
                 return np.sqrt(du*du + dv*dv)
 
             shear_03[idx] = round(bulk_shear(v0, v3km), 1)
             shear_06[idx] = round(bulk_shear(v0, v6km), 1)
 
+            # Vent mitjà 0-6km (per SRH)
             def vent_mitja(z_bot, z_top):
                 su, sv, sw = 0, 0, 0
                 for i in range(len(nivells_vent)-1):
                     a, b = nivells_vent[i], nivells_vent[i+1]
-                    z0, z1 = max(a["z"], z_bot), min(b["z"], z_top)
+                    z0 = max(a["z"], z_bot)
+                    z1 = min(b["z"], z_top)
                     if z1 <= z0: continue
-                    f0 = (z0-a["z"])/(b["z"]-a["z"]) if b["z"]!=a["z"] else 0
-                    f1 = (z1-a["z"])/(b["z"]-a["z"]) if b["z"]!=a["z"] else 0
-                    u0, v0 = a["u"]+f0*(b["u"]-a["u"]), a["v"]+f0*(b["v"]-a["v"])
-                    u1, v1 = a["u"]+f1*(b["u"]-a["u"]), a["v"]+f1*(b["v"]-a["v"])
-                    w = z1-z0
-                    su += 0.5*(u0+u1)*w; sv += 0.5*(v0+v1)*w; sw += w
-                return v0 if sw==0 else {"u": su/sw, "v": sv/sw}
+                    f0 = (z0 - a["z"])/(b["z"]-a["z"]) if b["z"]!=a["z"] else 0
+                    f1 = (z1 - a["z"])/(b["z"]-a["z"]) if b["z"]!=a["z"] else 0
+                    u0 = a["u"] + f0*(b["u"]-a["u"])
+                    v0 = a["v"] + f0*(b["v"]-a["v"])
+                    u1 = a["u"] + f1*(b["u"]-a["u"])
+                    v1 = a["v"] + f1*(b["v"]-a["v"])
+                    w = z1 - z0
+                    su += 0.5*(u0+u1)*w
+                    sv += 0.5*(v0+v1)*w
+                    sw += w
+                if sw == 0: return v0
+                return {"u": su/sw, "v": sv/sw}
 
             vm06 = vent_mitja(0, 6000)
-            du06, dv06 = v6km["u"]-v0["u"], v6km["v"]-v0["v"]
-            shear_mag = np.sqrt(du06*du06 + dv06*dv06)
-            D = 7.5
-            storm_u = vm06["u"] + D*(dv06/shear_mag) if shear_mag>0.1 else vm06["u"]
-            storm_v = vm06["v"] + D*(-du06/shear_mag) if shear_mag>0.1 else vm06["v"]
 
+            # Storm motion (Bunkers simplificat)
+            du06 = v6km["u"] - v0["u"]
+            dv06 = v6km["v"] - v0["v"]
+            shear_mag = np.sqrt(du06*du06 + dv06*dv06)
+            if shear_mag > 0.1:
+                D = 7.5  # m/s
+                storm_u = vm06["u"] + D * (dv06 / shear_mag)
+                storm_v = vm06["v"] + D * (-du06 / shear_mag)
+            else:
+                storm_u = vm06["u"]
+                storm_v = vm06["v"]
+
+            # SRH
             def calc_srh(z_top, su, sv):
                 srh = 0
                 for i in range(len(nivells_vent)-1):
                     a, b = nivells_vent[i], nivells_vent[i+1]
-                    z0, z1 = max(a["z"],0), min(b["z"],z_top)
+                    z0 = max(a["z"], 0)
+                    z1 = min(b["z"], z_top)
                     if z1 <= z0: continue
                     f0 = (z0-a["z"])/(b["z"]-a["z"]) if b["z"]!=a["z"] else 0
                     f1 = (z1-a["z"])/(b["z"]-a["z"]) if b["z"]!=a["z"] else 0
-                    u0, v0 = a["u"]+f0*(b["u"]-a["u"]), a["v"]+f0*(b["v"]-a["v"])
-                    u1, v1 = a["u"]+f1*(b["u"]-a["u"]), a["v"]+f1*(b["v"]-a["v"])
+                    u0 = a["u"] + f0*(b["u"]-a["u"])
+                    v0 = a["v"] + f0*(b["v"]-a["v"])
+                    u1 = a["u"] + f1*(b["u"]-a["u"])
+                    v1 = a["v"] + f1*(b["v"]-a["v"])
                     srh += (u0-su)*(v1-sv) - (u1-su)*(v0-sv)
                 return srh
 
             srh_01[idx] = round(calc_srh(1000, storm_u, storm_v), 1)
             srh_03[idx] = round(calc_srh(3000, storm_u, storm_v), 1)
 
-        shear_data_per_hora[step] = {"srh_01": srh_01, "srh_03": srh_03, "shear_03": shear_03, "shear_06": shear_06}
+        # Guardar resultats
+        shear_data_per_hora[step] = {
+            "srh_01": srh_01,
+            "srh_03": srh_03,
+            "shear_03": shear_03,
+            "shear_06": shear_06,
+        }
+
         ok = sum(1 for x in [srh_01, srh_03, shear_03, shear_06] if np.sum(~np.isnan(x)) > 100)
         print(f"{ok}/4 calculats ✓")
 
@@ -1151,18 +1141,15 @@ def main():
     shear_data_per_hora = {}
 
     try:
-        mode_str = f"PARAL·LEL (hora {HORA_FORCADA})" if MODE_PARALLEL else f"{TOTAL_HORES}h COMPLET"
         print("=" * 65)
-        print(f"  AROME {mode_str}: FRACCIONAT + GEO500 + T500 + SRH + SHEAR")
+        print(f"  AROME {TOTAL_HORES}h: FRACCIONAT + GEO500 + T500 + SRH + SHEAR")
         print("=" * 65)
 
         try: import meteofetch
         except ImportError: sys.exit("❌ Falta 'meteofetch'")
 
         if not comprovar_connexio(): sys.exit(1)
-        
-        if not MODE_PARALLEL:
-            borrar_antics()
+        borrar_antics()
 
         session = requests.Session()
         session.headers.update({"apikey": CFG.key})
@@ -1266,16 +1253,15 @@ def main():
 
         print(f"\n  ✅ Fitxers: {len(fitxers)} | Pes: {format_size(pes_total)}")
 
-        if not MODE_PARALLEL:
-            status_general = {
-                "generat": datetime.now(ZoneInfo("UTC")).strftime("%Y-%m-%dT%H:%M:%SZ"),
-                "run_meteofetch": run_mf, "run_wcs": run_wcs,
-                "total_hores": len(steps_bloc), "hores": steps_bloc,
-                "fitxers": len(fitxers), "pes_total_mb": round(pes_total/(1024*1024), 1),
-                "temps_total_segons": round(time.time()-t0),
-                "estructura": "fraccionat_optimitzat_complet",
-            }
-            escriure_json_atomic(OUTPUT_DIR / "status.json", status_general)
+        status_general = {
+            "generat": datetime.now(ZoneInfo("UTC")).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "run_meteofetch": run_mf, "run_wcs": run_wcs,
+            "total_hores": len(steps_bloc), "hores": steps_bloc,
+            "fitxers": len(fitxers), "pes_total_mb": round(pes_total/(1024*1024), 1),
+            "temps_total_segons": round(time.time()-t0),
+            "estructura": "fraccionat_optimitzat_complet",
+        }
+        escriure_json_atomic(OUTPUT_DIR / "status.json", status_general)
 
         print(f"\n  {'⚠️  INTERROMPUT' if SHUTDOWN_REQUESTED else '✅ FINALITZAT'}")
         print(f"  Fitxers: {len(fitxers)} | Pes: {format_size(pes_total)} | Temps: {format_time(time.time()-t0)}")
