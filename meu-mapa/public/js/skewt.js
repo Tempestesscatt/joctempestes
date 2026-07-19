@@ -30,6 +30,10 @@
     let indexsActual = null;
     let ventActual = null;
     let puntActual = null;
+    // NOU: alçada (m) sota el cursor quan es passa el ratolí pel Skew-T o
+    // per l'hodògraf. Permet sincronitzar el marcador entre tots dos
+    // gràfics. `null` quan el ratolí no és sobre cap dels dos.
+    let alcadaHoverActual = null;
 
     const TEMES = {
         fosc: {
@@ -58,6 +62,7 @@
             hodograf6_9: '#b030ff',
             hodograf9_12: '#30ff80',
             bunkersR: '#ff40ff',
+            hodograf12_15: '#ffd700',
             bunkersL: '#40ffff',
         },
         clar: {
@@ -87,6 +92,7 @@
             hodograf9_12: '#00a050',
             bunkersR: '#c000c0',
             bunkersL: '#00a0a0',
+            hodograf12_15: '#c0a000',
         }
     };
 
@@ -693,6 +699,7 @@
             if (mx < padLeft - 8 || mx > w - padRight + 8 || my < padTop || my > h - padBot) {
                 tooltip.style.display = 'none';
                 if (currentMouseY !== null) { currentMouseY = null; redrawWithLine(null); }
+                if (alcadaHoverActual !== null) { alcadaHoverActual = null; if (window.dibuixarHodografCanvas) window.dibuixarHodografCanvas(); }
                 return;
             }
 
@@ -708,6 +715,10 @@
                 if (d < bd) { bd = d; bi = i; }
             }
             if (bd > 25) { tooltip.style.display = 'none'; return; }
+
+            // NOU: sincronitza l'hodògraf amb l'alçada sota el cursor.
+            alcadaHoverActual = pf.z[bi];
+            if (window.dibuixarHodografCanvas) window.dibuixarHodografCanvas();
 
             const tC = pf.t[bi], tdC = pf.td[bi], pN = pf.p[bi], zM = pf.z[bi];
             const u = pf.u[bi], v = pf.v[bi];
@@ -748,6 +759,7 @@
         canvas._skewtMouseLeave = function () {
             tooltip.style.display = 'none';
             if (currentMouseY !== null) { currentMouseY = null; redrawWithLine(null); }
+            if (alcadaHoverActual !== null) { alcadaHoverActual = null; if (window.dibuixarHodografCanvas) window.dibuixarHodografCanvas(); }
         };
 
         canvas.addEventListener('mousemove', canvas._skewtMouseMove);
@@ -1191,6 +1203,24 @@
         }
     }
 
+    // Interpola el vector de vent (u,v) del hodògraf a una alçada z donada
+    // (m). Reaprofiteix `ventAAlcada` del motor si està disponible.
+    function ventInterpolatAAlcada(z) {
+        if (!ventActual || !ventActual.niv || ventActual.niv.length < 2) return null;
+        const E = window.SkewtEngine;
+        if (E && E.ventAAlcada) return E.ventAAlcada(ventActual.niv, z);
+        // Fallback local si el motor no exposa la funció per algun motiu.
+        const niv = ventActual.niv;
+        for (let i = 0; i < niv.length - 1; i++) {
+            const a = niv[i], b = niv[i + 1];
+            if (z >= a.z && z <= b.z) {
+                const f = (z - a.z) / ((b.z - a.z) || 1);
+                return { u: a.u + f * (b.u - a.u), v: a.v + f * (b.v - a.v) };
+            }
+        }
+        return null;
+    }
+
     function dibuixarHodografCanvas() {
         const wrap = document.getElementById('skewtHodoWrap');
         const canvas = document.getElementById('skewtHodoCanvas');
@@ -1206,7 +1236,15 @@
         ctx.fillStyle = T.fons;
         ctx.fillRect(0, 0, w, h);
 
-        const cx = w / 2, cy = h / 2;
+        // FIX visual: es reserva més marge (padTitol a dalt, padLlegenda a
+        // baix) perquè el cercle del hodògraf mai quedi tallat ni es
+        // superposi amb el títol o la llegenda — abans el centre era
+        // sempre w/2,h/2 sense tenir en compte aquest espai reservat.
+        const padTitol = 22, padLlegenda = 78;
+        const cx = w / 2;
+        const cy = padTitol + (h - padTitol - padLlegenda) / 2;
+        const radiDisponible = Math.min((w - 24) / 2, (h - padTitol - padLlegenda) / 2 - 6);
+
         const niv = ventActual.niv;
         const factor = unitatVent === 'kt' ? 1.94384 : (unitatVent === 'kmh' ? 3.6 : 1);
 
@@ -1217,58 +1255,76 @@
             if (s > maxSpd) maxSpd = s;
         });
         maxSpd = Math.ceil(maxSpd / 10) * 10 + 10;
-        const pxPerUnit = (Math.min(w, h) / 2 - 40) / maxSpd;
+        const pxPerUnit = radiDisponible / maxSpd;
 
-        // Anells concèntrics
-        for (let r = 10; r <= maxSpd; r += 10) {
+        // Anells concèntrics (graella més neta: etiquetes només cada 2
+        // anells amb fons subtil perquè es llegeixin sobre les línies)
+        const pasAnell = maxSpd > 80 ? 20 : 10;
+        for (let rv = pasAnell; rv <= maxSpd; rv += pasAnell) {
             ctx.strokeStyle = T.hodografRing;
-            ctx.lineWidth = (r % 50 === 0) ? 0.8 : 0.4;
+            ctx.lineWidth = (rv % (pasAnell * 2) === 0) ? 0.9 : 0.5;
             ctx.beginPath();
-            ctx.arc(cx, cy, r * pxPerUnit, 0, Math.PI * 2);
+            ctx.arc(cx, cy, rv * pxPerUnit, 0, Math.PI * 2);
             ctx.stroke();
-            if (r % 20 === 0) {
-                ctx.fillStyle = T.textDim;
-                ctx.font = '8px Arial';
-                ctx.textAlign = 'left';
-                ctx.fillText(r, cx + 3, cy - r * pxPerUnit - 2);
-            }
+        }
+        // Etiquetes de velocitat, amb petit fons perquè no es confonguin
+        // amb les línies del hodògraf que hi puguin passar per sobre.
+        ctx.font = '8px Arial';
+        ctx.textAlign = 'left';
+        for (let rv = pasAnell * 2; rv <= maxSpd; rv += pasAnell * 2) {
+            const ly = cy - rv * pxPerUnit;
+            const label = String(rv);
+            const tw2 = ctx.measureText(label).width;
+            ctx.fillStyle = T.fons;
+            ctx.fillRect(cx + 2, ly - 8, tw2 + 4, 10);
+            ctx.fillStyle = T.textDim;
+            ctx.fillText(label, cx + 4, ly);
         }
 
         // Eixos N-S, E-W
         ctx.strokeStyle = T.gridForta;
         ctx.lineWidth = 0.8;
         ctx.beginPath();
-        ctx.moveTo(cx - maxSpd * pxPerUnit - 8, cy);
-        ctx.lineTo(cx + maxSpd * pxPerUnit + 8, cy);
-        ctx.moveTo(cx, cy - maxSpd * pxPerUnit - 8);
-        ctx.lineTo(cx, cy + maxSpd * pxPerUnit + 8);
+        ctx.moveTo(cx - maxSpd * pxPerUnit - 6, cy);
+        ctx.lineTo(cx + maxSpd * pxPerUnit + 6, cy);
+        ctx.moveTo(cx, cy - maxSpd * pxPerUnit - 6);
+        ctx.lineTo(cx, cy + maxSpd * pxPerUnit + 6);
         ctx.stroke();
 
         // Cardinals
         ctx.fillStyle = T.textDim;
         ctx.font = '9px Arial';
         ctx.textAlign = 'center';
-        ctx.fillText('N', cx, cy - maxSpd * pxPerUnit - 12);
-        ctx.fillText('S', cx, cy + maxSpd * pxPerUnit + 18);
-        ctx.fillText('E', cx + maxSpd * pxPerUnit + 16, cy + 4);
-        ctx.fillText('W', cx - maxSpd * pxPerUnit - 16, cy + 4);
+        ctx.fillText('N', cx, cy - maxSpd * pxPerUnit - 10);
+        ctx.fillText('S', cx, cy + maxSpd * pxPerUnit + 16);
+        ctx.textAlign = 'left';
+        ctx.fillText('E', cx + maxSpd * pxPerUnit + 10, cy + 4);
+        ctx.textAlign = 'right';
+        ctx.fillText('W', cx - maxSpd * pxPerUnit - 10, cy + 4);
+        ctx.textAlign = 'left';
 
         // Funció per convertir (u,v) a coordenades canvas
         function pt(u, v) {
             return { x: cx + u * factor * pxPerUnit, y: cy - v * factor * pxPerUnit };
         }
 
-        // Trams de colors
-        const trams = [
-            { min: 0, max: 1000, color: T.hodograf0_1 },
-            { min: 1000, max: 3000, color: T.hodograf1_3 },
-            { min: 3000, max: 6000, color: T.hodograf3_6 },
-            { min: 6000, max: 9000, color: T.hodograf6_9 },
-            { min: 9000, max: 12000, color: T.hodograf9_12 }
-        ];
+const trams = [
+    { min: 0, max: 1000, color: T.hodograf0_1 },
+    { min: 1000, max: 3000, color: T.hodograf1_3 },
+    { min: 3000, max: 6000, color: T.hodograf3_6 },
+    { min: 6000, max: 9000, color: T.hodograf6_9 },
+    { min: 9000, max: 12000, color: T.hodograf9_12 },
+    { min: 12000, max: 15000, color: T.hodograf12_15 }
+];
 
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
+
+        // Ombra subtil sota la línia del hodògraf per donar-li relleu
+        // professional sense distreure (millora visual demanada).
+        ctx.save();
+        ctx.shadowColor = 'rgba(0,0,0,0.35)';
+        ctx.shadowBlur = 3;
 
         // Dibuixar cada tram
         trams.forEach(tram => {
@@ -1287,7 +1343,7 @@
             if (puntsTram.length < 2) return;
 
             ctx.strokeStyle = tram.color;
-            ctx.lineWidth = 2.2;
+            ctx.lineWidth = 2.4;
             ctx.beginPath();
 
             // Primer punt
@@ -1315,6 +1371,7 @@
             }
             ctx.stroke();
         });
+        ctx.restore();
 
         // Storm motion (Bunkers)
         if (ventActual.bunkers) {
@@ -1325,6 +1382,9 @@
                 ctx.beginPath();
                 ctx.arc(pr.x, pr.y, 4, 0, Math.PI * 2);
                 ctx.fill();
+                ctx.strokeStyle = T.fons;
+                ctx.lineWidth = 1;
+                ctx.stroke();
                 ctx.fillStyle = T.text;
                 ctx.font = '9px Arial';
                 ctx.textAlign = 'left';
@@ -1338,6 +1398,9 @@
                 ctx.beginPath();
                 ctx.arc(pl.x, pl.y, 4, 0, Math.PI * 2);
                 ctx.fill();
+                ctx.strokeStyle = T.fons;
+                ctx.lineWidth = 1;
+                ctx.stroke();
                 ctx.fillStyle = T.text;
                 ctx.font = '9px Arial';
                 ctx.textAlign = 'left';
@@ -1345,17 +1408,37 @@
             }
         }
 
-        // Llegenda de trams
-        ctx.font = '8px Arial';
-        let llegendaY = h - 60;
+        // NOU: marcador sincronitzat amb el hover del Skew-T. Es dibuixa
+        // un cercle blanc destacat a la posició de vent corresponent a
+        // l'alçada actualment assenyalada al sondeig.
+        if (alcadaHoverActual !== null) {
+            const vInterp = ventInterpolatAAlcada(alcadaHoverActual);
+            if (vInterp) {
+                const pm = pt(vInterp.u, vInterp.v);
+                ctx.beginPath();
+                ctx.arc(pm.x, pm.y, 6, 0, Math.PI * 2);
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.arc(pm.x, pm.y, 2.2, 0, Math.PI * 2);
+                ctx.fillStyle = '#ffffff';
+                ctx.fill();
+            }
+        }
 
-        const tramsLlegenda = [
-            { label: '0-1 km', color: T.hodograf0_1 },
-            { label: '1-3 km', color: T.hodograf1_3 },
-            { label: '3-6 km', color: T.hodograf3_6 },
-            { label: '6-9 km', color: T.hodograf6_9 },
-            { label: '9-12 km', color: T.hodograf9_12 }
-        ];
+        // Llegenda de trams (a baix, dins el marge reservat padLlegenda)
+        ctx.font = '8px Arial';
+        let llegendaY = h - padLlegenda + 14;
+
+const tramsLlegenda = [
+    { label: '0-1 km', color: T.hodograf0_1 },
+    { label: '1-3 km', color: T.hodograf1_3 },
+    { label: '3-6 km', color: T.hodograf3_6 },
+    { label: '6-9 km', color: T.hodograf6_9 },
+    { label: '9-12 km', color: T.hodograf9_12 },
+    { label: '12-15 km', color: T.hodograf12_15 }
+];
 
         tramsLlegenda.forEach(tram => {
             ctx.fillStyle = tram.color;
@@ -1370,7 +1453,96 @@
         ctx.fillStyle = T.textDim;
         ctx.font = '10px Arial';
         ctx.textAlign = 'left';
-        ctx.fillText('Hodograf (' + etiquetaUnitat(unitatVent) + ')', 10, 16);
+        ctx.fillText('Hodògraf (' + etiquetaUnitat(unitatVent) + ')', 10, 16);
+
+        // ─── HOVER PROPI DE L'HODÒGRAF (sincronitza cap al Skew-T) ─────
+        // FIX: listener reassignat cada redibuix (igual que el Skew-T) per
+        // mantenir les variables locals (cx, cy, pxPerUnit...) actualitzades.
+        if (canvas._hodoMouseMove) canvas.removeEventListener('mousemove', canvas._hodoMouseMove);
+        if (canvas._hodoMouseLeave) canvas.removeEventListener('mouseleave', canvas._hodoMouseLeave);
+
+        let hodoTooltip = document.getElementById('hodoTooltip');
+        if (!hodoTooltip) {
+            hodoTooltip = document.createElement('div');
+            hodoTooltip.id = 'hodoTooltip';
+            hodoTooltip.style.cssText = `
+                position:absolute; background:rgba(10,16,26,0.95); border:1px solid #556;
+                border-radius:4px; padding:5px 8px; font-family:'Segoe UI',Arial,sans-serif;
+                font-size:10px; color:#cde; pointer-events:none; z-index:1000; display:none;
+                white-space:nowrap; line-height:1.5; box-shadow:0 2px 8px rgba(0,0,0,0.5);
+            `;
+            wrap.appendChild(hodoTooltip);
+        }
+
+        function fmtVentHodo(mps) {
+            return (mps * factor).toFixed(0) + ' ' + etiquetaUnitat(unitatVent);
+        }
+        function dirVentHodo(u, v) {
+            let d = Math.atan2(-u, -v) * 180 / Math.PI;
+            if (d < 0) d += 360;
+            return d.toFixed(0) + '°';
+        }
+
+        canvas._hodoMouseMove = function (e) {
+            const r = canvas.getBoundingClientRect();
+            const mx = e.clientX - r.left, my = e.clientY - r.top;
+
+            // Trobem el punt del hodògraf més proper al cursor (en espai
+            // u,v de pantalla), no per alçada directa, ja que el ratolí
+            // es mou en 2D sobre el propi hodògraf.
+            let millorI = -1, millorD = Infinity;
+            for (let i = 0; i < niv.length; i++) {
+                const p = pt(niv[i].u, niv[i].v);
+                const d = (p.x - mx) ** 2 + (p.y - my) ** 2;
+                if (d < millorD) { millorD = d; millorI = i; }
+            }
+            // Llindar de proximitat en píxels (radi 22px) perquè el hover
+            // no "s'enganxi" quan el cursor és lluny de la corba.
+            if (millorI === -1 || millorD > 22 * 22) {
+                hodoTooltip.style.display = 'none';
+                if (alcadaHoverActual !== null) { alcadaHoverActual = null; dibuixarHodografCanvas(); if (window.dibuixarSkewtCanvas) window.dibuixarSkewtCanvas(); }
+                return;
+            }
+
+            const nPunt = niv[millorI];
+            if (alcadaHoverActual !== nPunt.z) {
+                alcadaHoverActual = nPunt.z;
+                dibuixarHodografCanvas();
+                if (window.dibuixarSkewtCanvas) window.dibuixarSkewtCanvas();
+                return; // el propi redibuix reassigna aquest listener
+            }
+
+            const spd = Math.sqrt(nPunt.u * nPunt.u + nPunt.v * nPunt.v);
+            hodoTooltip.innerHTML = `
+                <div style="font-weight:600;color:#fff;margin-bottom:2px;">${nPunt.z.toFixed(0)} m</div>
+                <span style="color:#bbb;">${fmtVentHodo(spd)} · ${dirVentHodo(nPunt.u, nPunt.v)}</span>
+            `;
+
+            // FIX anti-solapament: el tooltip mai es dibuixa sobre la zona
+            // del punt marcat; es desplaça al quadrant lliure més proper
+            // (dreta/esquerra i dalt/baix) segons on cau el punt dins del
+            // canvas, exactament com ja fa el tooltip del Skew-T.
+            const wr = wrap.getBoundingClientRect();
+            const pMark = pt(nPunt.u, nPunt.v);
+            const twPx = 130, thPx = 34;
+            let tx = pMark.x + 12, ty = pMark.y - thPx - 8;
+            if (tx + twPx > w) tx = pMark.x - twPx - 12;
+            if (tx < 2) tx = 2;
+            if (ty < 2) ty = pMark.y + 12;
+            if (ty + thPx > h) ty = h - thPx - 2;
+
+            hodoTooltip.style.left = tx + 'px';
+            hodoTooltip.style.top = ty + 'px';
+            hodoTooltip.style.display = 'block';
+        };
+
+        canvas._hodoMouseLeave = function () {
+            hodoTooltip.style.display = 'none';
+            if (alcadaHoverActual !== null) { alcadaHoverActual = null; dibuixarHodografCanvas(); if (window.dibuixarSkewtCanvas) window.dibuixarSkewtCanvas(); }
+        };
+
+        canvas.addEventListener('mousemove', canvas._hodoMouseMove);
+        canvas.addEventListener('mouseleave', canvas._hodoMouseLeave);
     }
     window.dibuixarHodografCanvas = dibuixarHodografCanvas;
 

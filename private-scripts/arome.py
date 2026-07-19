@@ -94,7 +94,7 @@ if HORA_INICI_ENV is not None:
     HORA_FORCADA = int(HORA_INICI_ENV)
     MODE_PARALLEL = True
 else:
-    TOTAL_HORES = 6
+    TOTAL_HORES = 5
     HORA_FORCADA = None
     MODE_PARALLEL = False
 
