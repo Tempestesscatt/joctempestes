@@ -936,7 +936,6 @@ map.on('click', function(e) {
 
 let totesLesHores = [];
 let curIdx = 0;
-
 async function carregarUnStep(i) {
     const base = `${DADES_PATH}/${String(i).padStart(2,'0')}/`;
     try {
@@ -945,24 +944,42 @@ async function carregarUnStep(i) {
         const status = await statusRes.json();
         const fitxers = status.variables_disponibles;
         if (!fitxers || fitxers.length === 0) return null;
-        const promeses = fitxers.map(f => fetch(`${base}${f}.js`).then(r => r.ok ? r.json() : null).catch(() => null));
-        const resultats = await Promise.all(promeses);
+        
+        // ⚡ ULTRA-FRACCIONAT: Carregar fins a 15 fitxers en paral·lel
+        const resultats = [];
+        for (let j = 0; j < fitxers.length; j += 15) {
+            const lot = fitxers.slice(j, j + 15);
+            const promeses = lot.map(f => 
+                fetch(`${base}${f}.js`)
+                    .then(r => r.ok ? r.json() : null)
+                    .catch(() => null)
+            );
+            const res = await Promise.all(promeses);
+            resultats.push(...res);
+        }
+        
         const variables = {};
         let coordenadas = null, coordenadas_3d = null;
+        
         for (const data of resultats) {
             if (!data || !data.variables) continue;
             if (!coordenadas && data.coordenadas) coordenadas = data.coordenadas;
             if (!coordenadas_3d && data.tipo === '3d' && data.coordenadas) coordenadas_3d = data.coordenadas;
             Object.assign(variables, data.variables);
         }
+        
         if (Object.keys(variables).length === 0) return null;
         calcularVelocitatVent(variables);
+        
         return {
             step: status.step,
             dateObj: new Date(status.hora_utc + 'Z'),
             data: { step: status.step, hora_utc: status.hora_utc, variables, coordenadas, coordenadas_3d }
         };
-    } catch (e) { console.error(`Error carregant hora ${i}:`, e); return null; }
+    } catch (e) { 
+        console.error(`Error carregant hora ${i}:`, e); 
+        return null; 
+    }
 }
 
 function afegirHoraCarregada(item) {
@@ -978,46 +995,76 @@ function afegirHoraCarregada(item) {
 
 async function carregarTotsJSONs() {
     const TIEMPO_INICIO = Date.now();
-    const TIEMPO_MINIMO = 5000;
+    const TIEMPO_MINIMO = 3000; // Reduït a 3 segons
+    
     let carregats = 0;
     actualitzarBarraProgress(0, 1);
+    
     const esperaMinima = new Promise(resolve => setTimeout(resolve, TIEMPO_MINIMO));
+    
+    // Escanejar hores disponibles
+    console.log('[Loading] Escanejant hores...');
     const horesExistents = [];
+    
+    // Paral·lelitzar l'escaneig
+    const promesesScan = [];
     for (let i = 0; i < MAX_STEPS; i++) {
         const horaStr = String(i).padStart(2, '0');
-        try {
-            const resp = await fetch(`${DADES_PATH}/${horaStr}/status.json`);
-            if (resp.ok) {
-                const status = await resp.json();
-                horesExistents.push({ index: i, status });
-            }
-        } catch(e) {}
+        promesesScan.push(
+            fetch(`${DADES_PATH}/${horaStr}/status.json`)
+                .then(resp => resp.ok ? resp.json().then(status => ({ i, status })) : null)
+                .catch(() => null)
+        );
     }
+    
+    const resultatsScan = await Promise.all(promesesScan);
+    for (const res of resultatsScan) {
+        if (res) {
+            horesExistents.push({ index: res.i, status: res.status });
+        }
+    }
+    
     if (horesExistents.length === 0) {
         console.error('[Loading] No s\'ha trobat cap hora');
         return;
     }
+    
+    console.log('[Loading] ' + horesExistents.length + ' hores trobades');
+    
     const total = horesExistents.length;
     actualitzarBarraProgress(0, total);
-    for (const { index } of horesExistents) {
-        const item = await carregarUnStep(index);
-        if (item) {
-            afegirHoraCarregada(item);
-            carregats++;
-            actualitzarBarraProgress(carregats, total);
+    
+    // Carregar hores en lots de 2 per no saturar
+    for (let i = 0; i < horesExistents.length; i += 2) {
+        const lot = horesExistents.slice(i, i + 2);
+        const promeses = lot.map(h => carregarUnStep(h.index));
+        const resultats = await Promise.all(promeses);
+        
+        for (const item of resultats) {
+            if (item) {
+                afegirHoraCarregada(item);
+                carregats++;
+                actualitzarBarraProgress(carregats, total);
+            }
         }
     }
+    
     if (totesLesHores.length === 0) {
         console.error('[Loading] No s\'ha pogut carregar cap hora');
         return;
     }
+    
     await esperaMinima;
     construirPanellParametres();
     if (totesLesHores.length > 0) mostrarHora(0);
+    
     await new Promise(resolve => setTimeout(resolve, 400));
+    
     const loadingOverlay = document.getElementById('loading_overlay');
     if (loadingOverlay) loadingOverlay.classList.add('hidden');
-    console.log('[Loading] Temps total: ' + ((Date.now() - TIEMPO_INICIO) / 1000).toFixed(1) + 's | Hores carregades: ' + totesLesHores.length);
+    
+    console.log('[Loading] Temps: ' + ((Date.now() - TIEMPO_INICIO) / 1000).toFixed(1) + 's | Hores: ' + totesLesHores.length);
+    
     setTimeout(() => {
         if (totesLesHores && totesLesHores.length > 0) {
             window.totesLesHores = totesLesHores;
@@ -1110,12 +1157,19 @@ const estatAcordio = {};
 
 function construirPanellParametres() {
     const cont = document.getElementById('parameter_selection');
-    if (!cont || !totesLesHores[0]) return;
+    if (!cont || !totesLesHores[0] || !totesLesHores[0].data) return; // ← AFEGEIX comprovació .data
     cont.innerHTML = '';
+    
     const totesVariables = new Set(), infoVariables = {};
     totesLesHores.forEach(hora => {
-        if (hora.data && hora.data.variables) Object.keys(hora.data.variables).forEach(clau => { totesVariables.add(clau); if (!infoVariables[clau]) infoVariables[clau] = hora.data.variables[clau]; });
+        if (hora.data && hora.data.variables) {  // ← AFEGEIX comprovació
+            Object.keys(hora.data.variables).forEach(clau => { 
+                totesVariables.add(clau); 
+                if (!infoVariables[clau]) infoVariables[clau] = hora.data.variables[clau]; 
+            });
+        }
     });
+
     const clausUsades = new Set();
     GRUP_PRINCIPAL.forEach(clauB => { if (totesVariables.has(clauB) && !esVariableAmagada(clauB)) { clausUsades.add(clauB); const info = infoVariables[clauB]; if (info) { const row = document.createElement('div'); row.className = 'param-row param-row-principal'; row.dataset.clau = clauB; row.innerHTML = `<div class="param-link">${info.nombre} <span class="param-unit">(${info.unidades})</span></div>`; row.onclick = () => seleccionarVariable(clauB); cont.appendChild(row); } } });
     if (clausUsades.size > 0) { const sep = document.createElement('div'); sep.className = 'param-separador'; sep.style.cssText = 'border-top:1px solid rgba(255,255,255,0.08);margin:6px 12px;'; cont.appendChild(sep); }
