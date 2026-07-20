@@ -175,6 +175,13 @@ jobs:
 
   # ════════════════════════════════════════════════════════════════
   #  JOB 4: EUROPA (arome.py)
+  #  FIX: aquest job feia servir "configarome.json", però el fitxer es
+  #  va renombrar localment a "configeurope.json" (i arome.py ja es va
+  #  actualitzar per buscar-lo amb aquest nom nou). El workflow encara
+  #  no s'havia actualitzat, per això fallava amb:
+  #    FileNotFoundError: [Errno 2] No such file or directory: 'configarome.json'
+  #  Únic canvi respecte a la versió anterior: les dues ocurrències de
+  #  "configarome.json" dins d'aquest job passen a "configeurope.json".
   # ════════════════════════════════════════════════════════════════
   europa:
     runs-on: ubuntu-latest
@@ -210,8 +217,7 @@ jobs:
     - name: Executar arome.py
       run: |
         cd private-scripts
-        python3 -c 'import json; cfg = json.load(open("configarome.json", "r", encoding="utf-8-sig")); cfg["api_key"] = "${{ secrets.AROME_API_KEY }}"; json.dump(cfg, open("configarome.json", "w", encoding="utf-8"), indent=2)'
-        cp configarome.json configarago.json
+        python3 -c 'import json; cfg = json.load(open("configeurope.json", "r", encoding="utf-8-sig")); cfg["api_key"] = "${{ secrets.AROME_API_KEY }}"; json.dump(cfg, open("configeurope.json", "w", encoding="utf-8"), indent=2)'
         for i in 1 2 3; do echo "--- arome.py: intent $i/3 ---" && python3 arome.py && echo "✅ arome.py: èxit a l'intent $i" && exit 0 || echo "❌ arome.py: ha fallat (codi $?) a l'intent $i/3" && sleep 30; done; echo "❌ arome.py: tots els 3 intents han fallat." && exit 1
       timeout-minutes: 200
 
