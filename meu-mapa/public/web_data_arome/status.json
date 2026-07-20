@@ -1,1 +1,1 @@
-{"generat": "2026-07-19T15:58:33Z", "run_meteofetch": "2026-07-19T09", "run_wcs": "2026-07-19T09", "total_hores": 5, "hores": [6, 7, 8, 9, 10], "fitxers": 211, "pes_total_mb": 1511.4, "temps_total_segons": 842, "estructura": "fraccionat_optimitzat_complet"}
+{"generat": "2026-07-20T13:00:33Z", "run_meteofetch": "2026-07-20T06", "run_wcs": "2026-07-20T06", "total_hores": 4, "hores": [6, 7, 8, 9], "fitxers": 546, "pes_total_mb": 2524.0, "temps_total_segons": 1210, "estructura": "ultra_fraccionat"}
