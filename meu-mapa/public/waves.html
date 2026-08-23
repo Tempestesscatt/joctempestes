@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="icon" type="image/png" href="img/favicon.png">
+  <title>Tempestes.cat</title>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    body {
+      background: #080b12;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      display: flex;
+      flex-direction: column;
+      color: #dde3ee;
+      -webkit-font-smoothing: antialiased;
+      font-size: 16px;
+    }
+
+    /* ============ LOADING SCREEN ============ */
+    .loading-screen {
+      position: fixed;
+      inset: 0;
+      background: #080b12;
+      z-index: 5000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      transition: opacity 0.4s ease;
+    }
+    .loading-screen.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .loading-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #f2f5fa;
+      letter-spacing: -0.01em;
+    }
+    .loading-brand .brand-mark {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #3b82c4;
+      box-shadow: 0 0 12px rgba(59,130,196,0.8);
+    }
+    .loading-bar-wrap {
+      width: 240px;
+      height: 6px;
+      background: #151a28;
+      border-radius: 4px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .loading-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #2d4f85, #3b82c4);
+      border-radius: 4px;
+      transition: width 0.25s ease;
+    }
+    .loading-pct {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.85rem;
+      color: #7d8fae;
+      letter-spacing: 0.02em;
+    }
+    .loading-status {
+      font-size: 0.7rem;
+      color: #4a5578;
+      letter-spacing: 0.01em;
+    }
+
+    /* ============ TOOLBAR ============ */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      background: linear-gradient(180deg, rgba(10,13,20,0.98) 0%, rgba(10,13,20,0.94) 100%);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      flex-shrink: 0;
+      z-index: 1000;
+      position: relative;
+      box-shadow: 0 1px 0 rgba(255,255,255,0.02), 0 4px 16px rgba(0,0,0,0.3);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: #7d8fae;
+      white-space: nowrap;
+      letter-spacing: -0.01em;
+    }
+    .brand-mark {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #3b82c4;
+      box-shadow: 0 0 8px rgba(59,130,196,0.7);
+      flex-shrink: 0;
+    }
+    .brand strong { color: #f2f5fa; font-weight: 700; letter-spacing: -0.01em; }
+    .brand-sub { color: #55618a; font-weight: 500; }
+
+    .hamburger {
+      background: transparent;
+      border: none;
+      color: #aab6d1;
+      padding: 6px 8px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      align-items: center;
+      justify-content: center;
+      min-width: 40px;
+      min-height: 40px;
+      border-radius: 10px;
+      transition: 0.2s;
+      -webkit-tap-highlight-color: rgba(255,255,255,0.1);
+      flex-shrink: 0;
+    }
+    .hamburger span {
+      display: block;
+      width: 20px;
+      height: 2px;
+      background: #aab6d1;
+      border-radius: 2px;
+      transition: 0.3s;
+    }
+    .hamburger:active { background: rgba(255,255,255,0.08); }
+
+    .var-selector-horizontal {
+      display: none;
+    }
+
+    .time-box {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+      margin-left: auto;
+    }
+    #currentTimeDisplay {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.85rem;
+      font-weight: 500;
+      background: #10141f;
+      padding: 8px 12px;
+      border-radius: 18px;
+      color: #eef1f8;
+      min-width: 80px;
+      text-align: center;
+      white-space: nowrap;
+      border: 1px solid rgba(255,255,255,0.05);
+      letter-spacing: 0.01em;
+    }
+    .nav-btn {
+      background: #151a28;
+      border: 1px solid rgba(255,255,255,0.05);
+      color: #aab6d1;
+      font-size: 0;
+      width: 36px;
+      height: 36px;
+      min-width: 36px;
+      min-height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: 0.2s;
+      -webkit-tap-highlight-color: rgba(255,255,255,0.1);
+      flex-shrink: 0;
+    }
+    .nav-btn svg { width: 16px; height: 16px; }
+    .nav-btn:active { background: #232a3d; transform: scale(0.94); }
+    .nav-btn:disabled { opacity: 0.35; pointer-events: none; }
+    .nav-btn.play-btn { background: linear-gradient(135deg, #1c7a4d, #145c39); border-color: transparent; color: #fff; }
+    .nav-btn.play-btn.playing { background: linear-gradient(135deg, #a32626, #7d1c1c); }
+    .nav-btn.wave-btn { background: #151a28; color: #aab6d1; }
+    .nav-btn.wave-btn.active { background: linear-gradient(135deg, #2179b0, #175f8c); border-color: transparent; color: #fff; }
+
+    /* ============ SIDE MENU ============ */
+    .side-menu {
+      position: fixed;
+      top: 0;
+      left: -320px;
+      width: 300px;
+      height: 100%;
+      background: rgba(9, 12, 19, 0.99);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      z-index: 2000;
+      transition: left 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+      padding: 20px 16px;
+      border-right: 1px solid rgba(255,255,255,0.06);
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      box-shadow: 12px 0 40px rgba(0,0,0,0.4);
+    }
+    .side-menu.open { left: 0; }
+    .side-menu-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.65);
+      backdrop-filter: blur(2px);
+      z-index: 1999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .side-menu-overlay.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .side-menu-title {
+      color: #6c7aa0;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      margin-bottom: 16px;
+    }
+    .side-menu .var-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: #8794b3;
+      font-size: 0.9rem;
+      font-weight: 500;
+      padding: 14px 16px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: normal;
+      text-align: left;
+      width: 100%;
+      display: block;
+      margin-bottom: 4px;
+      letter-spacing: -0.01em;
+      -webkit-tap-highlight-color: rgba(255,255,255,0.1);
+      min-height: 60px;
+    }
+    .side-menu .var-btn:active { background: rgba(255,255,255,0.06); }
+    .side-menu .var-btn.active {
+      background: linear-gradient(135deg, rgba(59,107,173,0.22), rgba(45,79,133,0.22));
+      border-color: rgba(90,140,200,0.3);
+      color: #fff;
+      font-weight: 600;
+    }
+    .side-menu .var-btn .var-desc {
+      font-size: 0.75rem;
+      font-weight: 400;
+      color: #66738f;
+      display: block;
+      margin-top: 4px;
+      letter-spacing: 0;
+    }
+    .side-menu .var-btn.active .var-desc { color: #a3bbe0; }
+
+    /* ============ MAP ============ */
+    .map-wrapper {
+      flex: 1;
+      position: relative;
+      background: #06090f;
+      overflow: hidden;
+    }
+    #mapa {
+      width: 100%;
+      height: 100%;
+      background: #06090f;
+    }
+
+    .legend-panel {
+      position: absolute;
+      bottom: 90px;
+      right: 10px;
+      background: rgba(9, 12, 19, 0.95);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      padding: 10px 12px;
+      border-radius: 12px;
+      font-size: 0.65rem;
+      color: #b0bcd8;
+      border: 1px solid rgba(255,255,255,0.07);
+      min-width: 130px;
+      z-index: 500;
+      pointer-events: none;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+    }
+    .legend-title {
+      font-weight: 600;
+      font-size: 0.68rem;
+      color: #d3daed;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .gradient-bar {
+      width: 100%;
+      height: 8px;
+      border-radius: 4px;
+      margin: 3px 0;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
+    }
+    .legend-labels {
+      display: flex;
+      justify-content: space-between;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.6rem;
+      opacity: 0.75;
+      margin-top: 4px;
+    }
+
+    .slider-container {
+      position: absolute;
+      bottom: 14px;
+      left: 10px;
+      right: 10px;
+      background: rgba(9, 12, 19, 0.95);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      padding: 10px 14px;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.07);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 500;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+    }
+    .slider-container input[type="range"] {
+      flex: 1;
+      accent-color: #3b6bad;
+      height: 6px;
+      -webkit-appearance: none;
+      appearance: none;
+      background: #232a3d;
+      border-radius: 3px;
+      outline: none;
+      min-height: 30px;
+    }
+    .slider-container input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: #fff;
+      cursor: pointer;
+      border: 3px solid #3b6bad;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+      margin-top: -10px;
+    }
+    .slider-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.65rem;
+      color: #6c7aa0;
+      min-width: 35px;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .error-msg {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(140, 30, 30, 0.94);
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      display: none;
+      z-index: 1000;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+    }
+
+    .leaflet-control-attribution {
+      background: rgba(0,0,0,0.5) !important;
+      color: #556 !important;
+      font-size: 0.5rem !important;
+      padding: 2px 4px !important;
+    }
+    .leaflet-control-zoom a {
+      background: rgba(9,12,19,0.95) !important;
+      color: #b0bcd8 !important;
+      border-color: rgba(255,255,255,0.07) !important;
+      width: 36px !important;
+      height: 36px !important;
+      line-height: 36px !important;
+      font-size: 18px !important;
+    }
+
+    .leaflet-popup.dark-popup .leaflet-popup-content-wrapper {
+      background: rgba(11, 15, 24, 0.98);
+      color: #e6ecf7;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.1);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.55);
+    }
+    .leaflet-popup.dark-popup .leaflet-popup-content {
+      margin: 12px 14px;
+      font-size: 0.8rem;
+      line-height: 1.5;
+    }
+    .leaflet-popup.dark-popup .leaflet-popup-tip {
+      background: rgba(11, 15, 24, 0.98);
+    }
+    .leaflet-popup.dark-popup .leaflet-popup-close-button {
+      color: #6c7aa0 !important;
+      font-size: 1.2rem !important;
+      padding: 4px 8px !important;
+      top: 2px !important;
+      right: 2px !important;
+    }
+    .value-popup { min-width: 150px; }
+    .value-popup .vp-title {
+      font-size: 0.65rem;
+      font-weight: 600;
+      color: #7d8fae;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 4px;
+    }
+    .value-popup .vp-value {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #fff;
+      letter-spacing: -0.01em;
+    }
+    .value-popup .vp-unit {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: #8a9ac0;
+    }
+    .value-popup .vp-info {
+      font-size: 0.7rem;
+      color: #b7c4de;
+      margin-top: 8px;
+      line-height: 1.5;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      padding-top: 8px;
+    }
+    .value-popup .vp-extra {
+      font-size: 0.7rem;
+      color: #94a3c4;
+      margin-top: 4px;
+    }
+    .value-popup .vp-coords {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.6rem;
+      color: #55618a;
+      margin-top: 8px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      padding-top: 6px;
+    }
+    .value-popup .vp-chart-link {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 10px 12px;
+      background: linear-gradient(135deg, #2d4f85, #23407a);
+      color: #fff;
+      border-radius: 10px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      width: 100%;
+      text-align: center;
+      transition: background 0.2s, transform 0.15s;
+      letter-spacing: 0.01em;
+      min-height: 44px;
+      -webkit-tap-highlight-color: rgba(255,255,255,0.2);
+    }
+    .value-popup .vp-chart-link:active { background: #3c5a8c; transform: scale(0.98); }
+
+    /* ============ CHART MODAL ============ */
+    .chart-modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.78);
+      backdrop-filter: blur(4px);
+      z-index: 3000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .chart-modal-overlay.visible { display: flex; }
+    .chart-modal {
+      background: rgba(9, 12, 20, 0.995);
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.08);
+      padding: 20px;
+      width: 100%;
+      max-width: 95vw;
+      max-height: 85vh;
+      overflow-y: auto;
+      color: #e0e4ec;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+    }
+    .chart-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .chart-modal h3 {
+      font-size: 1rem;
+      color: #eef1f8;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+    .chart-modal-close-btn {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.06);
+      color: #8794b3;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: 0.2s;
+      -webkit-tap-highlight-color: rgba(255,255,255,0.1);
+    }
+    .chart-modal-close-btn svg { width: 16px; height: 16px; }
+    .chart-modal-close-btn:active { background: rgba(255,255,255,0.15); }
+    .chart-modal .chart-subtitle {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.7rem;
+      color: #5a6690;
+      margin-bottom: 14px;
+    }
+    .chart-tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      padding-bottom: 4px;
+    }
+    .chart-tabs::-webkit-scrollbar { display: none; }
+    .chart-tab {
+      padding: 8px 12px;
+      background: #131826;
+      border: 1px solid rgba(255,255,255,0.05);
+      color: #7b88a8;
+      border-radius: 16px;
+      font-size: 0.7rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: 0.2s;
+      white-space: nowrap;
+      letter-spacing: -0.01em;
+      -webkit-tap-highlight-color: rgba(255,255,255,0.1);
+      min-height: 36px;
+    }
+    .chart-tab.active {
+      background: linear-gradient(135deg, #3b6bad, #2d4f85);
+      color: #fff;
+      border-color: transparent;
+      font-weight: 600;
+    }
+    .chart-tab:active { background: #232a3d; }
+    .chart-modal canvas {
+      margin-bottom: 16px;
+      max-height: 250px;
+      width: 100% !important;
+    }
+    .chart-modal-close {
+      display: block;
+      margin: 0 auto;
+      background: #151a28;
+      border: 1px solid rgba(255,255,255,0.08);
+      color: #dde3ee;
+      padding: 12px 20px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+      width: 100%;
+      letter-spacing: -0.01em;
+      min-height: 48px;
+      -webkit-tap-highlight-color: rgba(255,255,255,0.1);
+    }
+    .chart-modal-close:active { background: #232a3d; }
+
+    /* ============ INFO TOOLTIP ============ */
+    .info-tooltip {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(11, 15, 24, 0.99);
+      color: #e6ecf7;
+      padding: 20px;
+      border-radius: 16px;
+      font-size: 0.85rem;
+      line-height: 1.6;
+      width: 90vw;
+      max-width: 340px;
+      text-align: left;
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: 0 16px 48px rgba(0,0,0,0.75);
+      z-index: 2000;
+      display: none;
+    }
+    .info-tooltip.visible { display: block; }
+    .info-tooltip strong { color: #fff; font-weight: 700; letter-spacing: -0.01em; font-size: 0.95rem; }
+    .info-tooltip-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.65);
+      backdrop-filter: blur(2px);
+      z-index: 1999;
+      display: none;
+    }
+    .info-tooltip-overlay.visible { display: block; }
+    .info-tooltip-close {
+      display: block;
+      margin-top: 16px;
+      background: linear-gradient(135deg, #3b6bad, #2d4f85);
+      color: #fff;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      text-align: center;
+      letter-spacing: -0.01em;
+      min-height: 48px;
+      -webkit-tap-highlight-color: rgba(255,255,255,0.1);
+    }
+    .info-tooltip-close:active { opacity: 0.9; }
+
+    /* ============ RESPONSIVE ============ */
+    @media (min-width: 769px) {
+      .leaflet-control-zoom { display: block; }
+      .var-selector-horizontal {
+        display: flex;
+        gap: 3px;
+        flex-wrap: wrap;
+        background: #10141f;
+        padding: 4px;
+        border-radius: 24px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        flex: 1;
+        min-width: 0;
+        border: 1px solid rgba(255,255,255,0.04);
+      }
+      .var-selector-horizontal::-webkit-scrollbar { display: none; }
+      .var-selector-horizontal .var-btn {
+        background: transparent;
+        border: none;
+        color: #7b88a8;
+        font-size: 0.72rem;
+        font-weight: 500;
+        padding: 7px 12px;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
+        white-space: nowrap;
+        flex-shrink: 0;
+        min-height: 32px;
+        letter-spacing: -0.01em;
+        -webkit-tap-highlight-color: rgba(255,255,255,0.1);
+      }
+      .var-selector-horizontal .var-btn:active { background: rgba(255,255,255,0.08); }
+      .var-selector-horizontal .var-btn.active {
+        background: linear-gradient(135deg, #3b6bad, #2d4f85);
+        color: #fff;
+        font-weight: 600;
+        box-shadow: 0 2px 8px rgba(45,79,133,0.5);
+      }
+      .hamburger { display: none; }
+      .side-menu { display: none; }
+      .side-menu-overlay { display: none; }
+      .legend-panel { bottom: 18px; right: 18px; padding: 14px 18px; min-width: 160px; }
+      .gradient-bar { height: 10px; }
+      .slider-container { bottom: 18px; left: 50%; right: auto; transform: translateX(-50%); width: auto; }
+      .slider-container input[type="range"] { width: 200px; }
+      #currentTimeDisplay { font-size: 1.2rem; padding: 8px 16px; min-width: 110px; }
+      .nav-btn { width: 40px; height: 40px; min-width: 40px; min-height: 40px; }
+      .nav-btn svg { width: 18px; height: 18px; }
+      .chart-modal { max-width: 600px; }
+    }
+
+    @media (max-width: 768px) {
+      .var-selector-horizontal { display: none; }
+      .hamburger { display: flex; }
+      .brand-sub { display: none; }
+      .toolbar {
+        gap: 6px;
+        padding: 8px 10px;
+      }
+      .brand { font-size: 0.8rem; }
+      #currentTimeDisplay {
+        font-size: 0.8rem;
+        padding: 7px 10px;
+        min-width: 75px;
+        border-radius: 16px;
+      }
+      .nav-btn {
+        width: 34px;
+        height: 34px;
+        min-width: 34px;
+        min-height: 34px;
+      }
+      .nav-btn svg { width: 14px; height: 14px; }
+      .slider-container {
+        bottom: 8px;
+        left: 6px;
+        right: 6px;
+        padding: 8px 12px;
+        border-radius: 18px;
+      }
+      .slider-container input[type="range"]::-webkit-slider-thumb {
+        width: 24px;
+        height: 24px;
+      }
+      .legend-panel {
+        bottom: 80px;
+        right: 6px;
+        padding: 8px 10px;
+        min-width: 110px;
+        border-radius: 10px;
+      }
+      .legend-title { font-size: 0.62rem; }
+      .gradient-bar { height: 7px; }
+      .chart-modal {
+        padding: 16px;
+        border-radius: 16px;
+        max-height: 80vh;
+        max-width: 92vw;
+      }
+      .chart-modal h3 { font-size: 0.9rem; }
+      .chart-tab {
+        font-size: 0.65rem;
+        padding: 6px 10px;
+        border-radius: 14px;
+        min-height: 32px;
+      }
+      .chart-modal canvas { max-height: 200px; }
+      .value-popup .vp-value { font-size: 1.3rem; }
+      .value-popup .vp-chart-link {
+        font-size: 0.7rem;
+        padding: 10px 8px;
+        min-height: 40px;
+      }
+    }
+
+    @media (max-width: 380px) {
+      .brand { font-size: 0.75rem; }
+      .toolbar { padding: 6px 6px; gap: 3px; }
+      #currentTimeDisplay { font-size: 0.75rem; padding: 6px 8px; min-width: 65px; }
+      .nav-btn { width: 30px; height: 30px; min-width: 30px; min-height: 30px; }
+      .nav-btn svg { width: 12px; height: 12px; }
+      .slider-label { font-size: 0.6rem; min-width: 28px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Pantalla de càrrega amb percentatge -->
+  <div class="loading-screen" id="loadingScreen">
+    <div class="loading-brand"><span class="brand-mark"></span><strong>Tempestes.cat</strong></div>
+    <div class="loading-bar-wrap">
+      <div class="loading-bar-fill" id="loadingBarFill"></div>
+    </div>
+    <div class="loading-pct" id="loadingPct">0%</div>
+    <div class="loading-status" id="loadingStatus">Carregant mapa base...</div>
+  </div>
+
+  <div class="toolbar">
+    <button class="hamburger" id="hamburgerBtn" aria-label="Menú">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <div class="var-selector-horizontal" id="varSelectorHorizontal"></div>
+
+    <div class="brand"><span class="brand-mark"></span><strong>Tempestes</strong><span class="brand-sub">.cat</span></div>
+    
+    <div class="time-box">
+      <button class="nav-btn wave-btn active" id="waveAnimBtn" title="Direcció de les onades">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 12c2-2.5 4-2.5 6 0s4 2.5 6 0 4-2.5 6 0"/>
+          <path d="M2 18c2-2.5 4-2.5 6 0s4 2.5 6 0 4-2.5 6 0"/>
+        </svg>
+      </button>
+      <button class="nav-btn" id="prevHourBtn" title="Hora anterior">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <span id="currentTimeDisplay">--:--</span>
+      <button class="nav-btn" id="nextHourBtn" title="Hora següent">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+      <button class="nav-btn play-btn" id="playBtn" title="Reproduir">
+        <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="side-menu-overlay" id="sideMenuOverlay"></div>
+  <div class="side-menu" id="sideMenu">
+    <div class="side-menu-title">Selecciona variable</div>
+    <div id="sideMenuVariables"></div>
+  </div>
+
+  <div class="chart-modal-overlay" id="chartModalOverlay">
+    <div class="chart-modal" id="chartModal">
+      <div class="chart-modal-header">
+        <h3 id="chartModalTitle">Previsió</h3>
+        <button class="chart-modal-close-btn" id="chartModalCloseBtn" aria-label="Tancar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="chart-subtitle" id="chartModalSubtitle"></div>
+      <div class="chart-tabs" id="chartTabs">
+        <button class="chart-tab active" data-tab="swh">Ones totals</button>
+        <button class="chart-tab" data-tab="shww">Ones vent</button>
+        <button class="chart-tab" data-tab="shts">Mar fons</button>
+        <button class="chart-tab" data-tab="si10">Vent</button>
+        <button class="chart-tab" data-tab="pp1d">Període pic</button>
+        <button class="chart-tab" data-tab="mwp">Període mitjà</button>
+        <button class="chart-tab" data-tab="mwd">Dir. ones</button>
+        <button class="chart-tab" data-tab="wdir10">Dir. vent</button>
+      </div>
+      <canvas id="chartCanvas" width="400" height="220"></canvas>
+      <button class="chart-modal-close" id="chartModalClose">Tancar</button>
+    </div>
+  </div>
+
+  <div class="map-wrapper">
+    <div id="mapa"></div>
+
+    <div class="info-tooltip-overlay" id="infoTooltipOverlay"></div>
+    <div class="info-tooltip" id="infoTooltip">
+      <div id="infoTooltipContent"></div>
+      <button class="info-tooltip-close" id="infoTooltipClose">Entesos</button>
+    </div>
+
+    <div class="legend-panel">
+      <div class="legend-title" id="legendVarName">Ones totals</div>
+      <div class="gradient-bar" id="legendGradient"></div>
+      <div class="legend-labels">
+        <span id="legendMin">0.0</span>
+        <span id="legendMax">6.0</span>
+      </div>
+    </div>
+
+    <div class="slider-container">
+      <span class="slider-label" id="sliderStartLabel">+00h</span>
+      <input type="range" id="timeSlider" min="0" max="47" value="0" step="1">
+      <span class="slider-label" id="sliderEndLabel">+47h</span>
+    </div>
+
+    <div class="error-msg" id="errorMsg">No s'han pogut carregar les dades</div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="js/mapa_onades.js"></script>
+
+  <script>
+    const VAR_CONFIGS = [
+      { id: "swh", name: "Alçada total (m)", desc: "Alçada total (m)", gradient: "linear-gradient(90deg, #0d3b66, #1a659e, #4a9ec8, #f4d35e, #f8961e, #d62828, #780000)", min: "0.0", max: "6.0", info: "Alçada mitjana de les ones més grans. Per sobre de 3 m ja és perillós per banyar-se o navegar amb barques petites.", chartLabel: "Alçada (m)", chartColor: "#4a9ec8" },
+      { id: "shww", name: "Ones provocades per vent (m)", desc: "Ones de vent (m)", gradient: "linear-gradient(90deg, #bc8a3a, #c17a2a, #b05e1a, #a84d18, #7a2e0a, #4a1502)", min: "0.0", max: "4.0", info: "Ones que genera el vent que bufa ara mateix. Són curtes, picades i desordenades. Típiques de dies de tramuntana o mestral.", chartLabel: "Ones vent (m)", chartColor: "#c17a2a" },
+      { id: "shts", name: "Mar fons (m)", desc: "Ones de fons (m)", gradient: "linear-gradient(90deg, #1b4332, #2d6a4f, #40916c, #74c69d, #b7b7e8, #7b2d8b)", min: "0.0", max: "5.0", info: "Ones que venen de molt lluny. Són llargues, suaus i ordenades. Pot haver-hi mar de fons sense vent. Perilloses en trencar a la platja.", chartLabel: "Mar fons (m)", chartColor: "#40916c" },
+      { id: "si10", name: "Vent (>25kt antenció)", desc: "Velocitat vent (m/s)", gradient: "linear-gradient(90deg, #6c757d, #495057, #343a40, #212529, #1a1a2e, #0f0f23)", min: "0.0", max: "20.0", info: "Velocitat del vent. 5 m/s equival a brisa. 10 m/s costa caminar. 15 m/s és vendaval que aixeca sorra.", chartLabel: "Vent (nusos)", chartColor: "#6c757d", convertToKnots: true },
+      { id: "pp1d", name: "Període pic de les ones més grans (s)", desc: "Període ones grans (s)", gradient: "linear-gradient(90deg, #2d6a4f, #40916c, #52b788, #ffe066, #f77f00, #d62828)", min: "2.0", max: "14.0", info: "Temps entre ona gran i la següent. 4 s és mar picat. 12 s és mar de fons potent. Com més alt, més perillós.", chartLabel: "Període (s)", chartColor: "#f77f00" },
+      { id: "mwp", name: "Període mitjà (s)", desc: "Període mitjà (s)", gradient: "linear-gradient(90deg, #007f5f, #2b9348, #55a630, #aacc00, #eeef20, #ff9f1c)", min: "2.0", max: "12.0", info: "Mitjana del temps entre totes les ones. Si difereix del període pic, indica mar creuada, incòmode per navegar.", chartLabel: "Període mitjà (s)", chartColor: "#55a630" },
+      { id: "mwd", name: "Dir. ones", desc: "Direcció ones", gradient: "linear-gradient(90deg, #4a9ec8, #f4d35e, #f8961e, #d62828, #780000)", min: "0.0", max: "360.0", info: "Direcció d'on venen les ones. 0 graus o 360 és Nord, 90 és Est, 180 és Sud, 270 és Oest.", chartLabel: "Direcció (°)", chartColor: "#f4d35e", isDirection: true },
+      { id: "wdir10", name: "Dir. vent", desc: "Direcció vent", gradient: "linear-gradient(90deg, #6c757d, #495057, #343a40, #212529)", min: "0.0", max: "360.0", info: "Direcció del vent: 0 graus Tramuntana, 90 Llevant, 180 Migjorn, 270 Ponent.", chartLabel: "Direcció vent (°)", chartColor: "#495057", isDirection: true }
+    ];
+
+    const varMap = {};
+    VAR_CONFIGS.forEach(v => varMap[v.id] = v);
+
+    let ultimaLat = null, ultimaLon = null;
+
+    // ============ PANTALLA DE CÀRREGA ============
+    const loadingScreen = document.getElementById('loadingScreen');
+    const loadingBarFill = document.getElementById('loadingBarFill');
+    const loadingPct = document.getElementById('loadingPct');
+    const loadingStatus = document.getElementById('loadingStatus');
+
+    function actualitzarProgres(pct, text) {
+      const p = Math.max(0, Math.min(100, Math.round(pct)));
+      loadingBarFill.style.width = p + '%';
+      loadingPct.textContent = p + '%';
+      if (text) loadingStatus.textContent = text;
+    }
+    function amagarPantallaCarrega() {
+      loadingScreen.classList.add('hidden');
+      setTimeout(() => { loadingScreen.style.display = 'none'; }, 450);
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      actualitzarProgres(5, 'Preparant mapa...');
+
+      const mapaOnades = new MapaOnades('mapa');
+      window.mapaOnades = mapaOnades;
+
+      const chartModalOverlay = document.getElementById('chartModalOverlay');
+      const chartModalClose = document.getElementById('chartModalClose');
+      const chartModalCloseBtn = document.getElementById('chartModalCloseBtn');
+      const chartCanvas = document.getElementById('chartCanvas');
+      const chartTabs = document.querySelectorAll('.chart-tab');
+      let chartInstance = null;
+      let chartTabActiva = 'swh';
+
+      function tancarModalGrafic() {
+        chartModalOverlay.classList.remove('visible');
+        if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+      }
+      chartModalClose.onclick = tancarModalGrafic;
+      chartModalCloseBtn.onclick = tancarModalGrafic;
+      chartModalOverlay.onclick = (e) => { if (e.target === chartModalOverlay) tancarModalGrafic(); };
+
+      chartTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          chartTabs.forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+          chartTabActiva = tab.dataset.tab;
+          if (ultimaLat != null && ultimaLon != null) mostrarGrafic(chartTabActiva, ultimaLat, ultimaLon);
+        });
+      });
+
+      async function mostrarGrafic(varId, lat, lon) {
+        const varCfg = varMap[varId];
+        if (!varCfg) return;
+        document.getElementById('chartModalTitle').textContent = varCfg.name;
+        document.getElementById('chartModalSubtitle').textContent = lat.toFixed(3) + ' N, ' + lon.toFixed(3) + ' E';
+        chartModalOverlay.classList.add('visible');
+
+        const labels = [], valors = [];
+        // Les dades de totes les hores ja estan precarregades a cacheDades,
+        // aixi que aixo nomes llegeix memoria, no fa peticions nnoves.
+        for (let h = 0; h < mapaOnades.totalHores; h++) {
+          const dades = mapaOnades.cacheDades[h];
+          if (!dades?.variables?.[varId]) continue;
+          const varData = dades.variables[varId].datos;
+          if (!varData) continue;
+          const valor = mapaOnades.interpolarValor(lat, lon, varData);
+          const d = new Date(new Date().toLocaleString("en-US",{timeZone:"Europe/Madrid"}));
+          d.setMinutes(0,0,0);
+          d.setTime(d.getTime() + h*3600000);
+          labels.push(String(d.getHours()).padStart(2,'0') + 'h ' + String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0'));
+          let vf = valor;
+          if (varCfg.convertToKnots && valor != null) vf = valor * 1.94384;
+          valors.push(vf);
+        }
+
+        if (chartInstance) chartInstance.destroy();
+        const ctx = chartCanvas.getContext('2d');
+        chartInstance = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: varCfg.chartLabel || varCfg.name,
+              data: valors,
+              borderColor: varCfg.chartColor || '#4a9ec8',
+              backgroundColor: 'transparent',
+              borderWidth: 2.5,
+              tension: 0.4,
+              pointRadius: 0,
+              pointHoverRadius: 5,
+              pointHoverBackgroundColor: '#fff',
+              pointHoverBorderColor: varCfg.chartColor || '#4a9ec8',
+              pointHoverBorderWidth: 3
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            animation: { duration: 300 },
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                backgroundColor: 'rgba(10, 14, 24, 0.98)',
+                titleColor: '#8899bb',
+                bodyColor: '#fff',
+                borderColor: 'rgba(255,255,255,0.15)',
+                borderWidth: 1,
+                cornerRadius: 8,
+                padding: 10,
+                titleFont: { size: 11 },
+                bodyFont: { size: 13, weight: '600' },
+                displayColors: false,
+                callbacks: {
+                  label: ctx => {
+                    let v = ctx.parsed.y;
+                    if (v == null) return 'Sense dades';
+                    if (varCfg.convertToKnots) return v.toFixed(1) + ' nusos';
+                    if (varCfg.isDirection) return v.toFixed(0) + '°';
+                    return v.toFixed(1);
+                  }
+                }
+              }
+            },
+            scales: {
+              x: {
+                ticks: { color: '#556', font: { size: 10 }, maxRotation: 45, autoSkip: true, maxTicksLimit: 6 },
+                grid: { color: 'rgba(255,255,255,0.04)', drawBorder: false }
+              },
+              y: {
+                min: varCfg.isDirection ? 0 : undefined,
+                max: varCfg.isDirection ? 360 : undefined,
+                ticks: { color: '#556', font: { size: 10 }, padding: 6, callback: v => varCfg.isDirection ? v+'°' : varCfg.convertToKnots ? v.toFixed(0) : v },
+                grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false }
+              }
+            },
+            interaction: { intersect: false, mode: 'index' }
+          }
+        });
+      }
+
+      const tooltip = document.getElementById('infoTooltip');
+      const tooltipContent = document.getElementById('infoTooltipContent');
+      const tooltipOverlay = document.getElementById('infoTooltipOverlay');
+      const tooltipClose = document.getElementById('infoTooltipClose');
+      function tancarInfo() { tooltip.classList.remove('visible'); tooltipOverlay.classList.remove('visible'); }
+      tooltipClose.onclick = tancarInfo;
+      tooltipOverlay.onclick = tancarInfo;
+      function mostrarInfo(v) {
+        tooltipContent.innerHTML = '<strong>' + v.name + '</strong><br><br>' + v.info;
+        tooltipOverlay.classList.add('visible');
+        tooltip.classList.add('visible');
+      }
+
+      function seleccionarVariable(id) {
+        document.querySelectorAll('.var-selector-horizontal .var-btn').forEach(b => b.classList.toggle('active', b.dataset.var === id));
+        document.querySelectorAll('.side-menu .var-btn').forEach(b => b.classList.toggle('active', b.dataset.var === id));
+        mapaOnades.varActiva = id;
+        mapaOnades.actualitzarVisualitzacio();
+        actLlegenda(id);
+        tancarInfo();
+      }
+
+      // Solo para escritorio - selector horizontal
+      const horSelector = document.getElementById('varSelectorHorizontal');
+      if (window.innerWidth >= 769) {
+        VAR_CONFIGS.forEach(v => {
+          const btn = document.createElement('button');
+          btn.className = 'var-btn' + (v.id === 'swh' ? ' active' : '');
+          btn.dataset.var = v.id;
+          btn.textContent = v.name;
+          btn.title = v.name + ': clic llarg per més informació';
+          btn.addEventListener('click', () => seleccionarVariable(v.id));
+          btn.addEventListener('contextmenu', e => { e.preventDefault(); mostrarInfo(v); });
+          horSelector.appendChild(btn);
+        });
+      }
+
+      const hamburgerBtn = document.getElementById('hamburgerBtn');
+      const sideMenu = document.getElementById('sideMenu');
+      const sideMenuOverlay = document.getElementById('sideMenuOverlay');
+      const sideMenuVars = document.getElementById('sideMenuVariables');
+      function toggleMenu() { sideMenu.classList.toggle('open'); sideMenuOverlay.classList.toggle('visible'); }
+      function closeMenu() { sideMenu.classList.remove('open'); sideMenuOverlay.classList.remove('visible'); }
+      hamburgerBtn.addEventListener('click', toggleMenu);
+      sideMenuOverlay.addEventListener('click', closeMenu);
+
+      // Menú lateral para móvil
+      VAR_CONFIGS.forEach(v => {
+        const btn = document.createElement('button');
+        btn.className = 'var-btn' + (v.id === 'swh' ? ' active' : '');
+        btn.dataset.var = v.id;
+        btn.innerHTML = v.name + '<span class="var-desc">' + v.desc + '</span>';
+        btn.addEventListener('click', () => { seleccionarVariable(v.id); closeMenu(); });
+        
+        let longPressTimer;
+        btn.addEventListener('touchstart', e => { 
+          longPressTimer = setTimeout(() => { e.preventDefault(); mostrarInfo(v); }, 500); 
+        }, { passive: false });
+        btn.addEventListener('touchend', () => clearTimeout(longPressTimer));
+        btn.addEventListener('touchmove', () => clearTimeout(longPressTimer));
+        btn.addEventListener('contextmenu', e => { e.preventDefault(); mostrarInfo(v); });
+        sideMenuVars.appendChild(btn);
+      });
+
+      // Clic dret (o long-press desktop) obre gràfic sobre la variable activa
+      mapaOnades.gestionarClicDret = function(e) {
+        const { lat, lng } = e.latlng;
+        if (!this.dadesActuals?.variables || !this.dataBounds) return;
+        if (lat < this.dataBounds.south || lat > this.dataBounds.north || lng < this.dataBounds.west || lng > this.dataBounds.east) return;
+        ultimaLat = lat; ultimaLon = lng; chartTabActiva = this.varActiva;
+        document.querySelectorAll('.chart-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === this.varActiva));
+        mostrarGrafic(this.varActiva, lat, lng);
+      };
+
+      // Clic normal afegeix boto de grafic al popup
+      const origClic = mapaOnades.gestionarClic.bind(mapaOnades);
+      mapaOnades.gestionarClic = function(e) {
+        origClic(e);
+        const { lat, lng } = e.latlng;
+        if (!this.dataBounds || lat < this.dataBounds.south || lat > this.dataBounds.north || lng < this.dataBounds.west || lng > this.dataBounds.east) return;
+        ultimaLat = lat; ultimaLon = lng;
+        setTimeout(() => {
+          const pc = document.querySelector('.leaflet-popup.dark-popup .value-popup');
+          if (pc && !pc.querySelector('.vp-chart-link')) {
+            const b = document.createElement('button');
+            b.className = 'vp-chart-link';
+            b.textContent = 'Veure gràfic';
+            b.onclick = ev => {
+              ev.stopPropagation();
+              chartTabActiva = this.varActiva;
+              document.querySelectorAll('.chart-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === this.varActiva));
+              mostrarGrafic(this.varActiva, lat, lng);
+            };
+            pc.appendChild(b);
+          }
+        }, 100);
+      };
+
+      function actLlegenda(id) {
+        const c = varMap[id] || { name: id, gradient: '#333', min: '0', max: '10' };
+        document.getElementById('legendVarName').textContent = c.name;
+        document.getElementById('legendGradient').style.background = c.gradient;
+        document.getElementById('legendMin').textContent = c.min;
+        document.getElementById('legendMax').textContent = c.max;
+      }
+
+      const slider = document.getElementById('timeSlider');
+      const display = document.getElementById('currentTimeDisplay');
+      const err = document.getElementById('errorMsg');
+      const prevBtn = document.getElementById('prevHourBtn');
+      const nextBtn = document.getElementById('nextHourBtn');
+      let playing = false, interval = null;
+
+      const iconPlay = '<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20"/></svg>';
+      const iconPause = '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>';
+
+      function fmtHora(h) {
+        try {
+          const d = new Date(new Date().toLocaleString("en-US",{timeZone:"Europe/Madrid"}));
+          d.setMinutes(0,0,0);
+          d.setTime(d.getTime() + h*3600000);
+          return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+' '+String(d.getHours()).padStart(2,'0')+':00';
+        } catch(e) { return '+' + h + 'h'; }
+      }
+
+      // Bandera anti-carrera: mentre una hora s'esta carregant/mostrant,
+      // no deixem que una altra crida (p.ex. doble clic, tecla repetida)
+      // la interrompi a mig camí i deixi la UI en un estat incoherent.
+      let carregantHora = false;
+
+      async function carregaHora(h) {
+        if (carregantHora) return;
+        carregantHora = true;
+        err.style.display = 'none';
+        prevBtn.disabled = true; nextBtn.disabled = true;
+        try {
+          const ok = await mapaOnades.carregarHora(h);
+          if (ok) {
+            display.textContent = fmtHora(h);
+            slider.value = h;
+            actLlegenda(mapaOnades.varActiva);
+          } else {
+            err.style.display = 'block';
+            setTimeout(() => { err.style.display = 'none'; }, 2500);
+          }
+        } finally {
+          carregantHora = false;
+          prevBtn.disabled = false; nextBtn.disabled = false;
+        }
+      }
+
+      // El mapa NOMÉS repinta en moure's / fer zoom; mai canvia la hora.
+      // (Aquesta és responsabilitat exclusiva de carregaHora, cridada
+      // només des dels controls de temps: fletxes, slider, play, teclat, swipe.)
+
+      slider.oninput = e => carregaHora(parseInt(e.target.value));
+      prevBtn.onclick = async () => { let h = mapaOnades.horaActual - 1; if (h < 0) h = mapaOnades.totalHores - 1; await carregaHora(h); };
+      nextBtn.onclick = async () => { let h = mapaOnades.horaActual + 1; if (h >= mapaOnades.totalHores) h = 0; await carregaHora(h); };
+
+      const playBtn = document.getElementById('playBtn');
+      playBtn.innerHTML = iconPlay;
+      playBtn.onclick = () => {
+        if (playing) {
+          clearInterval(interval); playing = false;
+          playBtn.innerHTML = iconPlay; playBtn.classList.remove('playing');
+        } else {
+          playing = true;
+          playBtn.innerHTML = iconPause; playBtn.classList.add('playing');
+          interval = setInterval(async () => { let h = mapaOnades.horaActual + 1; if (h >= mapaOnades.totalHores) h = 0; await carregaHora(h); }, 600);
+        }
+      };
+
+      const waveBtn = document.getElementById('waveAnimBtn');
+      waveBtn.onclick = () => { const a = mapaOnades.toggleAnimacioParticules(); waveBtn.classList.toggle('active', a); };
+
+      document.onkeydown = async e => {
+        if (e.key === 'ArrowLeft') { e.preventDefault(); let h = mapaOnades.horaActual - 1; if (h < 0) h = mapaOnades.totalHores - 1; await carregaHora(h); }
+        else if (e.key === 'ArrowRight') { e.preventDefault(); let h = mapaOnades.horaActual + 1; if (h >= mapaOnades.totalHores) h = 0; await carregaHora(h); }
+        else if (e.key === ' ') { e.preventDefault(); playBtn.click(); }
+      };
+
+      // Swipe horitzontal NOMÉS sobre la toolbar de temps (no sobre el mapa),
+      // perquè arrossegar el mapa mai ha de canviar l'hora.
+      let touchStartX = 0, touchStartY = 0;
+      const timeBox = document.querySelector('.time-box');
+      timeBox.addEventListener('touchstart', e => {
+        if (e.touches.length === 1) { touchStartX = e.touches[0].clientX; touchStartY = e.touches[0].clientY; }
+      }, { passive: true });
+      timeBox.addEventListener('touchend', async e => {
+        if (e.changedTouches.length !== 1) return;
+        const dx = e.changedTouches[0].clientX - touchStartX;
+        const dy = e.changedTouches[0].clientY - touchStartY;
+        if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+          if (dx > 0) { let h = mapaOnades.horaActual - 1; if (h < 0) h = mapaOnades.totalHores - 1; await carregaHora(h); }
+          else { let h = mapaOnades.horaActual + 1; if (h >= mapaOnades.totalHores) h = 0; await carregaHora(h); }
+        }
+      });
+
+      // ============ INICIALITZACIÓ AMB PROGRÉS REAL ============
+      actualitzarProgres(10, 'Carregant mapa base...');
+
+      await mapaOnades.inicialitzar((fet, total, fase) => {
+        // Callback de progrés: 'fet' i 'total' són el nombre d'hores
+        // carregades fins ara sobre el total (p.ex. 12/48).
+        if (fase === 'hores') {
+          const pctHores = total > 0 ? (fet / total) * 85 : 0;
+          actualitzarProgres(10 + pctHores, 'Carregant previsió... (' + fet + '/' + total + 'h)');
+        }
+      });
+
+      actualitzarProgres(96, 'Preparant visualització...');
+
+      slider.max = mapaOnades.totalHores - 1;
+      document.getElementById('sliderEndLabel').textContent = '+' + String(mapaOnades.totalHores - 1).padStart(2, '0') + 'h';
+
+      // Sempre obrim a l'hora actual real (mai una hora aleatòria ni la 0
+      // per defecte, tret que falli totalment la detecció horària).
+      let horaInicial = 0;
+      try {
+        const araMadrid = new Date(new Date().toLocaleString("en-US",{timeZone:"Europe/Madrid"}));
+        horaInicial = Math.max(0, Math.min(araMadrid.getHours(), mapaOnades.totalHores - 1));
+      } catch (e) {
+        horaInicial = 0;
+      }
+      await carregaHora(horaInicial);
+      actLlegenda('swh');
+
+      actualitzarProgres(100, 'Fet!');
+      setTimeout(amagarPantallaCarrega, 300);
+    });
+  </script>
+</body>
+</html>

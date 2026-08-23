@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Radar AEMET · España</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
+<style>
+  :root{
+    --bg:#0f1722;
+    --panel:#16212f;
+    --panel-2:#1c2a3a;
+    --border:#2a3a4d;
+    --text:#e8eef5;
+    --muted:#8ea2b8;
+    --accent:#3da9fc;
+    --accent-2:#f2b134;
+    --danger:#e0556f;
+    --ok:#4fbf83;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+  }
+  .wrap{
+    display:flex;
+    flex-direction:column;
+    height:100vh;
+    min-height:560px;
+  }
+  header{
+    background:var(--panel);
+    border-bottom:1px solid var(--border);
+    padding:12px 16px;
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:10px;
+  }
+  header h1{
+    font-size:15px;
+    font-weight:700;
+    margin:0;
+    margin-right:8px;
+    white-space:nowrap;
+    letter-spacing:.2px;
+  }
+  header h1 span{color:var(--accent);}
+  .key-row{display:flex;gap:6px;align-items:center;flex:1;min-width:220px;}
+  input[type="password"], input[type="text"]{
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    color:var(--text);
+    border-radius:6px;
+    padding:7px 10px;
+    font-size:13px;
+    flex:1;
+    min-width:120px;
+  }
+  button{
+    background:var(--accent);
+    color:#04131f;
+    border:none;
+    border-radius:6px;
+    padding:7px 12px;
+    font-size:13px;
+    font-weight:600;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  button.secondary{
+    background:var(--panel-2);
+    color:var(--text);
+    border:1px solid var(--border);
+  }
+  button.danger{background:var(--danger);color:#fff;}
+  button:disabled{opacity:.45;cursor:not-allowed;}
+  #status{
+    font-size:12px;
+    color:var(--muted);
+    margin-left:auto;
+    text-align:right;
+    max-width:260px;
+  }
+  #map{flex:1;background:#0a1019;}
+  .leaflet-container{background:#0a1019;}
+  footer{
+    background:var(--panel);
+    border-top:1px solid var(--border);
+    padding:10px 16px 14px;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  .controls-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  input[type="range"]{flex:1;min-width:140px;}
+  .timeLabel{
+    font-size:13px;
+    font-weight:600;
+    min-width:140px;
+    text-align:center;
+    background:var(--panel-2);
+    border-radius:6px;
+    padding:6px 10px;
+    border:1px solid var(--border);
+  }
+  .opacityWrap{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);}
+  .opacityWrap input{width:90px;}
+  .note{font-size:11.5px;color:var(--muted);line-height:1.5;}
+  .note b{color:var(--text);}
+  .dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;}
+  .dot.ok{background:var(--ok);}
+  .dot.bad{background:var(--danger);}
+  .dot.warn{background:var(--accent-2);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Radar <span>AEMET</span> · España</h1>
+    <div class="key-row" id="keyRow">
+      <input type="password" id="apiKeyInput" placeholder="Pega tu API Key de AEMET OpenData" autocomplete="off" />
+      <button id="saveKeyBtn">Guardar y conectar</button>
+    </div>
+    <button class="secondary" id="refreshBtn" style="display:none;">Actualizar ahora</button>
+    <button class="danger" id="clearBtn" style="display:none;" title="Borra el histórico guardado">Borrar histórico</button>
+    <div id="status">Esperando API Key…</div>
+  </header>
+
+  <div id="map"></div>
+
+  <footer>
+    <div class="controls-row">
+      <button class="secondary" id="playBtn" disabled>▶ Reproducir</button>
+      <input type="range" id="slider" min="0" max="0" value="0" disabled />
+      <div class="timeLabel" id="timeLabel">— sin datos —</div>
+      <div class="opacityWrap">
+        Opacidad
+        <input type="range" id="opacity" min="10" max="100" value="75" />
+      </div>
+    </div>
+    <div class="note">
+      <span class="dot warn"></span><b>Cobertura:</b> Península y Baleares (composición nacional AEMET, no incluye Canarias). Imagen se actualiza ~cada 30 min.
+      El histórico de hasta 15h se construye <b>a partir de ahora</b> (AEMET no entrega históricos retroactivos por esta vía) y se guarda en tu navegador para futuras visitas.
+      Si tu navegador bloquea la conexión directa por CORS, se usará automáticamente un proxy público (allorigins.win) — tu clave pasará por ese servicio en ese caso.
+    </div>
+  </footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script>
+(function(){
+  "use strict";
+
+  // ---------- CONFIG ----------
+  const RADAR_BOUNDS = [[35.05, -9.9], [43.9, 4.65]]; // aproximación Península+Baleares (puede no ser pixel-perfect)
+  const MAX_HISTORY_MS = 15 * 60 * 60 * 1000;
+  const POLL_MS = 5 * 60 * 1000; // comprobamos cada 5 min aunque AEMET publique cada ~30
+  const META_URL = "https://opendata.aemet.es/opendata/api/red/radar/nacional";
+  const PROXY = "https://api.allorigins.win/raw?url=";
+
+  // ---------- STORAGE WRAPPER (con fallback en memoria si window.storage no existe) ----------
+  const memStore = new Map();
+  const hasRealStorage = typeof window.storage !== "undefined";
+  async function sGet(key){
+    if(!hasRealStorage){ return memStore.has(key) ? {value: memStore.get(key)} : null; }
+    try { return await window.storage.get(key, false); } catch(e){ return null; }
+  }
+  async function sSet(key, value){
+    if(!hasRealStorage){ memStore.set(key, value); return; }
+    try { await window.storage.set(key, value, false); } catch(e){ /* ignore */ }
+  }
+  async function sDelete(key){
+    if(!hasRealStorage){ memStore.delete(key); return; }
+    try { await window.storage.delete(key, false); } catch(e){ /* ignore */ }
+  }
+
+  // ---------- STATE ----------
+  let apiKey = "";
+  let lastImageUrl = "";
+  let frames = []; // {ts, dataUrl}
+  let currentIndex = 0;
+  let playing = false;
+  let playTimer = null;
+  let pollTimer = null;
+
+  // ---------- DOM ----------
+  const $ = (id) => document.getElementById(id);
+  const apiKeyInput = $("apiKeyInput");
+  const saveKeyBtn = $("saveKeyBtn");
+  const keyRow = $("keyRow");
+  const refreshBtn = $("refreshBtn");
+  const clearBtn = $("clearBtn");
+  const statusEl = $("status");
+  const playBtn = $("playBtn");
+  const slider = $("slider");
+  const timeLabel = $("timeLabel");
+  const opacityInput = $("opacity");
+
+  function setStatus(html, dotClass){
+    statusEl.innerHTML = (dotClass ? `<span class="dot ${dotClass}"></span>` : "") + html;
+  }
+
+  // ---------- MAP ----------
+  const map = L.map("map", {
+    minZoom: 5,
+    maxZoom: 9,
+    maxBoundsViscosity: 1.0
+  });
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: '&copy; OpenStreetMap contributors · Radar: AEMET OpenData'
+  }).addTo(map);
+
+  const padded = L.latLngBounds(RADAR_BOUNDS).pad(0.35);
+  map.fitBounds(RADAR_BOUNDS);
+  map.setMaxBounds(padded);
+
+  let overlay = L.imageOverlay("", RADAR_BOUNDS, { opacity: 0.75 }).addTo(map);
+
+  opacityInput.addEventListener("input", () => {
+    overlay.setOpacity(opacityInput.value / 100);
+  });
+
+  // ---------- HELPERS ----------
+  function blobToDataUrl(blob){
+    return new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => resolve(r.result);
+      r.onerror = reject;
+      r.readAsDataURL(blob);
+    });
+  }
+
+  async function fetchJsonSmart(url){
+    try {
+      const r = await fetch(url);
+      if(!r.ok) throw new Error("HTTP " + r.status);
+      return { data: await r.json(), viaProxy: false };
+    } catch(e){
+      const r2 = await fetch(PROXY + encodeURIComponent(url));
+      if(!r2.ok) throw new Error("Proxy HTTP " + r2.status);
+      return { data: await r2.json(), viaProxy: true };
+    }
+  }
+
+  async function fetchImageSmart(url){
+    try {
+      const r = await fetch(url);
+      if(!r.ok) throw new Error("HTTP " + r.status);
+      const blob = await r.blob();
+      return { dataUrl: await blobToDataUrl(blob), viaProxy: false };
+    } catch(e){
+      const r2 = await fetch(PROXY + encodeURIComponent(url));
+      if(!r2.ok) throw new Error("Proxy HTTP " + r2.status);
+      const blob = await r2.blob();
+      return { dataUrl: await blobToDataUrl(blob), viaProxy: true };
+    }
+  }
+
+  function fmtTime(ts){
+    const d = new Date(ts);
+    return d.toLocaleString("es-ES", { weekday:"short", hour:"2-digit", minute:"2-digit" });
+  }
+
+  // ---------- FRAME INDEX (persistente) ----------
+  async function getIndex(){
+    const r = await sGet("aemet_frame_index");
+    if(!r || !r.value) return [];
+    try { return JSON.parse(r.value); } catch(e){ return []; }
+  }
+  async function setIndex(arr){
+    await sSet("aemet_frame_index", JSON.stringify(arr));
+  }
+
+  async function storeFrame(ts, dataUrl){
+    await sSet("aemet_frame:" + ts, dataUrl);
+    let idx = await getIndex();
+    idx.push(ts);
+    const cutoff = Date.now() - MAX_HISTORY_MS;
+    const keep = [];
+    for(const t of idx){
+      if(t < cutoff){
+        await sDelete("aemet_frame:" + t);
+      } else {
+        keep.push(t);
+      }
+    }
+    keep.sort((a,b) => a-b);
+    await setIndex(keep);
+  }
+
+  async function loadFrames(){
+    const idx = await getIndex();
+    const out = [];
+    for(const ts of idx){
+      const r = await sGet("aemet_frame:" + ts);
+      if(r && r.value) out.push({ ts, dataUrl: r.value });
+    }
+    frames = out;
+    slider.max = Math.max(0, frames.length - 1);
+    if(frames.length){
+      slider.disabled = false;
+      playBtn.disabled = false;
+      currentIndex = frames.length - 1;
+      slider.value = currentIndex;
+      renderFrame(currentIndex);
+    }
+    const hours = frames.length ? ((frames[frames.length-1].ts - frames[0].ts) / 3600000) : 0;
+    return hours;
+  }
+
+  function renderFrame(i){
+    if(!frames.length) return;
+    i = Math.max(0, Math.min(frames.length - 1, i));
+    currentIndex = i;
+    slider.value = i;
+    overlay.setUrl(frames[i].dataUrl);
+    timeLabel.textContent = fmtTime(frames[i].ts) + `  (${i+1}/${frames.length})`;
+  }
+
+  slider.addEventListener("input", () => {
+    stopPlaying();
+    renderFrame(parseInt(slider.value, 10));
+  });
+
+  function stopPlaying(){
+    playing = false;
+    playBtn.textContent = "▶ Reproducir";
+    if(playTimer){ clearInterval(playTimer); playTimer = null; }
+  }
+  function startPlaying(){
+    if(frames.length < 2) return;
+    playing = true;
+    playBtn.textContent = "⏸ Pausar";
+    playTimer = setInterval(() => {
+      let next = currentIndex + 1;
+      if(next >= frames.length) next = 0;
+      renderFrame(next);
+    }, 700);
+  }
+  playBtn.addEventListener("click", () => playing ? stopPlaying() : startPlaying());
+
+  // ---------- REFRESH (llama a AEMET) ----------
+  let retryTimer = null;
+
+  async function refreshRadar(manual){
+    if(!apiKey){ return; }
+    if(retryTimer){ clearTimeout(retryTimer); retryTimer = null; }
+    setStatus("Consultando AEMET…", "warn");
+    try {
+      const metaFull = META_URL + "?api_key=" + encodeURIComponent(apiKey);
+      let meta, metaProxy;
+      try {
+        const r = await fetchJsonSmart(metaFull);
+        meta = r.data; metaProxy = r.viaProxy;
+      } catch(netErr){
+        throw new Error("No se pudo conectar a AEMET (red/CORS): " + netErr.message);
+      }
+
+      if(meta && typeof meta.estado === "number" && meta.estado !== 200){
+        const code = meta.estado;
+        const desc = meta.descripcion || "sin descripción";
+        let extra = "";
+        if(code === 401) extra = " → revisa que la API Key esté completa y activa";
+        if(code === 429) extra = " → límite de peticiones superado, reintento en 60s";
+        if(code === 404 && /expirad/i.test(desc)) extra = " → el enlace temporal caducó, reintentando…";
+        setStatus(`AEMET respondió ${code}: ${desc}${extra} ${metaProxy ? "(vía proxy)" : "(directo)"}`, "bad");
+        if(code === 429 || (code === 404 && /expirad/i.test(desc))){
+          retryTimer = setTimeout(() => refreshRadar(manual), 60000);
+        }
+        return;
+      }
+      const imgUrl = meta && meta.datos;
+      if(!imgUrl) throw new Error("Respuesta de AEMET sin campo 'datos' (estado " + (meta ? meta.estado : "?") + ")");
+
+      if(imgUrl === lastImageUrl && !manual){
+        setStatus("Sin novedades · última comprobación " + fmtTime(Date.now()), "ok");
+        return;
+      }
+
+      let dataUrl, imgProxy;
+      try {
+        const r2 = await fetchImageSmart(imgUrl);
+        dataUrl = r2.dataUrl; imgProxy = r2.viaProxy;
+      } catch(imgErr){
+        throw new Error("Fallo al descargar la imagen del radar: " + imgErr.message);
+      }
+
+      lastImageUrl = imgUrl;
+      const now = Date.now();
+      await storeFrame(now, dataUrl);
+      const hours = await loadFrames();
+
+      const proxyUsed = metaProxy || imgProxy;
+      setStatus(
+        (proxyUsed ? "Actualizado vía proxy CORS" : "Actualizado · conexión directa") +
+        ` · histórico: ${hours.toFixed(1)} h`,
+        proxyUsed ? "warn" : "ok"
+      );
+    } catch(err){
+      setStatus("Error: " + err.message, "bad");
+    }
+  }
+
+  // ---------- ARRANQUE / KEY ----------
+  async function connectWithKey(key){
+    apiKey = key.trim();
+    if(!apiKey) return;
+    keyRow.style.display = "none";
+    refreshBtn.style.display = "inline-block";
+    clearBtn.style.display = "inline-block";
+    await sSet("aemet_api_key", apiKey);
+    await loadFrames();
+    await refreshRadar(true);
+    if(pollTimer) clearInterval(pollTimer);
+    pollTimer = setInterval(() => refreshRadar(false), POLL_MS);
+  }
+
+  saveKeyBtn.addEventListener("click", () => connectWithKey(apiKeyInput.value));
+  apiKeyInput.addEventListener("keydown", (e) => { if(e.key === "Enter") connectWithKey(apiKeyInput.value); });
+  refreshBtn.addEventListener("click", () => refreshRadar(true));
+
+  clearBtn.addEventListener("click", async () => {
+    const idx = await getIndex();
+    for(const ts of idx) await sDelete("aemet_frame:" + ts);
+    await setIndex([]);
+    frames = [];
+    slider.max = 0; slider.value = 0; slider.disabled = true;
+    playBtn.disabled = true;
+    timeLabel.textContent = "— sin datos —";
+    setStatus("Histórico borrado", "warn");
+  });
+
+  // Auto-cargar clave guardada
+  (async function init(){
+    const stored = await sGet("aemet_api_key");
+    if(stored && stored.value){
+      apiKeyInput.value = stored.value;
+      await connectWithKey(stored.value);
+    } else {
+      const hrs = await loadFrames(); // por si hay histórico de una key anterior
+    }
+  })();
+
+})();
+</script>
+</body>
+</html>

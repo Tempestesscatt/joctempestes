@@ -1,0 +1,68 @@
+name: PI
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  deployments: write
+
+jobs:
+  radar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.PRIVATE_REPO_TOKEN }}
+
+    - name: Checkout private submodule
+      run: |
+        git config --global url."https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/".insteadOf "https://github.com/"
+        git submodule update --init --recursive
+
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Instal·lar dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libgeos-dev libproj-dev proj-data proj-bin
+        python3 -m pip install --upgrade pip
+        python3 -m pip install numpy requests h5py pyproj
+
+    - name: Executar radar.py
+      run: |
+        cd private-scripts
+        for i in 1 2 3; do
+          echo "--- radar.py: intent $i/3 ---"
+          python3 radar.py && echo "✅ radar.py: èxit a l'intent $i" && exit 0
+          echo "❌ radar.py: ha fallat (codi $?) a l'intent $i/3"
+          sleep 10
+        done
+        echo "❌ radar.py: tots els 3 intents han fallat." && exit 1
+      timeout-minutes: 20
+
+    - name: Mostrar log de radar.py si falla
+      if: failure()
+      run: |
+        echo "=== LOG DE RADAR.PY ==="
+        find . -name "*.log" -type f -exec cat {} \; 2>/dev/null || echo "No s'ha trobat cap log"
+
+    - name: Deploy a Cloudflare
+      run: |
+        cd meu-mapa
+        npm install -g wrangler
+        wrangler pages deploy public --project-name=tempestes-cat --branch=main --commit-dirty=true
+      env:
+        CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      continue-on-error: true
+
+    - name: Completat
+      run: |
+        echo "============================================"
+        echo "  RADAR OPERA ACTUALITZAT!"
+        echo "  $(date -u +'%Y-%m-%d %H:%M UTC')"
+        echo "============================================"

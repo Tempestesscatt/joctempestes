@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Previsions Meteorològiques · Catalunya</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="icon" type="image/png" href="img/favicon.png">
+<style>
+:root{--bg:#0b1120;--card:#ffffff;--accent:#4f46e5;--accent2:#7c3aed;--text:#0f172a;--text2:#64748b;--border:#e2e8f0;--radius:16px;--shadow:0 4px 24px rgba(0,0,0,0.04)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);padding:12px;min-height:100vh}
+.container{max-width:960px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.header{background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:var(--radius);padding:28px 24px;text-align:center;color:#fff;box-shadow:0 8px 32px rgba(79,70,229,0.2)}
+.header h1{font-size:26px;font-weight:800;letter-spacing:-0.5px;margin-bottom:4px}
+.header p{font-size:13px;opacity:0.9;font-weight:500}
+.card{background:var(--card);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);border:1px solid var(--border)}
+.card-header{font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.resum-card{background:linear-gradient(135deg,#f8fafc,#f1f5f9);border-radius:var(--radius);padding:20px 24px;border-left:4px solid var(--accent);margin-top:4px}
+.resum-titol{font-size:14px;font-weight:800;color:var(--accent);margin-bottom:10px}
+.resum-text{font-size:13px;line-height:1.7;color:var(--text);font-weight:500}
+.resum-text strong{color:var(--accent2)}
+.resum-detalls{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:10px;margin-top:14px}
+.resum-detall{text-align:center;padding:10px;background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.04)}
+.resum-detall .val{font-size:22px;font-weight:800;color:var(--text)}
+.resum-detall .lbl{font-size:10px;color:var(--text2);text-transform:uppercase;font-weight:700;letter-spacing:0.5px;margin-top:2px}
+.map-selector{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.map-selector button{flex:1;min-width:65px;padding:8px 6px;border:2px solid var(--border);border-radius:10px;background:#fff;font-size:10px;font-weight:700;color:var(--text2);cursor:pointer;transition:all 0.2s;white-space:nowrap}
+.map-selector button.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.map-legend{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:10px;color:var(--text2);font-weight:600}
+.map-legend-bar{flex:1;height:8px;border-radius:4px}
+.search-wrap{position:relative;margin-bottom:10px}
+.search-wrap input{width:100%;padding:14px 16px;border:2px solid var(--border);border-radius:12px;font-size:15px;outline:none;font-weight:500;background:#f8fafc;transition:all 0.2s}
+.search-wrap input:focus{border-color:var(--accent);background:#fff;box-shadow:0 0 0 4px rgba(79,70,229,0.08)}
+.sugg{position:absolute;top:100%;left:0;right:0;background:#fff;border:2px solid var(--border);border-radius:12px;max-height:220px;overflow-y:auto;display:none;z-index:300;box-shadow:0 8px 32px rgba(0,0,0,0.1);margin-top:4px}
+.sugg.on{display:block}
+.sugg div{padding:13px 16px;cursor:pointer;border-bottom:1px solid #f1f5f9;font-size:14px;font-weight:500}
+.sugg div:hover{background:#f8fafc;color:var(--accent)}
+.btn{width:100%;padding:14px;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;transition:all 0.2s;box-shadow:0 4px 12px rgba(79,70,229,0.25)}
+.btn:hover{transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+#mapContainer{width:100%;height:360px;border-radius:var(--radius);overflow:hidden;border:2px solid var(--border);background:#e8edf2}
+.sel-info{display:none;align-items:center;justify-content:space-between;padding:12px 16px;background:#f8fafc;border-radius:10px;font-size:13px;font-weight:600;margin-top:10px;border-left:4px solid var(--accent)}
+.sel-info.on{display:flex}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;display:none}
+.stats-grid.on{display:grid}
+.stat-card{background:var(--card);border-radius:12px;padding:16px;text-align:center;box-shadow:var(--shadow);border-top:3px solid var(--accent)}
+.stat-card .label{font-size:10px;color:var(--text2);text-transform:uppercase;font-weight:700;letter-spacing:0.5px;margin-bottom:6px}
+.stat-card .value{font-size:26px;font-weight:800;color:var(--text)}
+.stat-card .unit{font-size:11px;color:var(--text2);font-weight:500;margin-top:2px}
+.alerts-container{display:none}
+.alerts-container.on{display:block}
+.alerts-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.alerts-title::before{content:'';width:4px;height:18px;background:#ef4444;border-radius:2px}
+.alert-card{padding:12px 14px;border-radius:10px;margin-bottom:6px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:10px;animation:slideIn 0.3s ease}
+@keyframes slideIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
+.alert-danger{background:#fef2f2;border-left:4px solid #ef4444;color:#991b1b}
+.alert-warning{background:#fffbeb;border-left:4px solid #f59e0b;color:#92400e}
+.alert-info{background:#eff6ff;border-left:4px solid #3b82f6;color:#1e40af}
+.icons-timeline{display:none;overflow-x:auto}
+.icons-timeline.on{display:block}
+.icons-scroll{display:flex;gap:1px;overflow-x:auto;padding:4px 0}
+.icon-cell{display:flex;flex-direction:column;align-items:center;min-width:42px;padding:6px 4px;flex-shrink:0;border-right:1px solid #f1f5f9}
+.icon-cell img{width:28px;height:28px}
+
+.comarca-tooltip {
+  background: rgba(15, 23, 42, 0.9) !important;
+  border: 1px solid rgba(79, 70, 229, 0.5) !important;
+  border-radius: 8px !important;
+  color: white !important;
+  font-family: 'Inter', system-ui, sans-serif !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  padding: 6px 12px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
+.leaflet-tooltip {
+  background: rgba(15, 23, 42, 0.9) !important;
+  border: 1px solid rgba(79, 70, 229, 0.5) !important;
+  border-radius: 8px !important;
+  color: white !important;
+  font-family: 'Inter', system-ui, sans-serif !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  padding: 6px 12px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
+.leaflet-tooltip::before {
+  border-top-color: rgba(15, 23, 42, 0.9) !important;
+}
+.icon-cell .time{font-size:9px;font-weight:700;color:var(--text);margin-top:2px}
+.icon-cell .temp{font-size:10px;font-weight:800;color:var(--accent);margin-top:1px}
+.chart-card{background:var(--card);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);border:1px solid var(--border)}
+.chart-card h3{font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.chart-card h3::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.chart-wrap{height:230px;position:relative}
+.chart-wrap canvas{width:100%!important;height:100%!important}
+.loading-card{background:var(--card);border-radius:var(--radius);padding:48px 24px;text-align:center;box-shadow:var(--shadow)}
+.spinner{display:inline-block;width:36px;height:36px;border:3px solid #e2e8f0;border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;margin-bottom:16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-title{font-size:16px;font-weight:700;color:var(--text);margin-bottom:8px}
+.progress-wrap{width:100%;height:8px;background:#f1f5f9;border-radius:4px;margin:12px 0;overflow:hidden}
+.progress-bar{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:4px;transition:width 0.3s ease;width:0%}
+.progress-text{font-size:12px;color:var(--text2);font-weight:500}
+.mode-toggle{display:flex;gap:6px;margin-top:10px}
+.mode-toggle button{flex:1;padding:10px;border:2px solid var(--border);border-radius:10px;background:#fff;font-size:12px;font-weight:700;color:var(--text2);cursor:pointer;transition:all 0.2s}
+.mode-toggle button.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn-download{padding:10px 18px;background:#10b981;color:#fff;border:none;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;display:none;transition:all 0.2s;box-shadow:0 4px 12px rgba(16,185,129,0.25)}
+.btn-download.on{display:inline-flex;align-items:center;gap:6px}
+.method-choice{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px}
+.method-card{background:#fff;border:2px solid var(--border);border-radius:14px;padding:24px 16px;text-align:center;cursor:pointer;transition:all 0.25s}
+.method-card:hover{border-color:var(--accent);background:#f8fafc;transform:translateY(-3px);box-shadow:0 12px 32px rgba(0,0,0,0.06)}
+.method-icon{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;color:#fff;font-size:22px;margin:0 auto 12px}
+.method-card h4{font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px}
+.method-card p{font-size:11px;color:var(--text2);font-weight:500}
+.method-back{background:none;border:none;color:var(--accent);font-size:12px;font-weight:700;cursor:pointer;padding:6px 0;margin-bottom:8px}
+.footer{text-align:center;color:rgba(255,255,255,0.4);font-size:11px;font-weight:600;padding:20px}
+@media(max-width:600px){.stats-grid{grid-template-columns:repeat(2,1fr)}.chart-wrap{height:180px}}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<div class="header">
+  <h1>Previsions Meteorològiques</h1>
+  <p>51 hores · Model AROME · Catalunya</p>
+</div>
+
+<div class="card">
+  <div id="methodChoice">
+    <div class="method-choice">
+      <div class="method-card" id="chooseByName">
+        <div class="method-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div>
+        <h4>Cercar per nom</h4>
+        <p>Escriu el nom del municipi</p>
+      </div>
+      <div class="method-card" id="chooseByMap">
+        <div class="method-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3z"/><path d="M9 3v15"/><path d="M15 6v15"/></svg></div>
+        <h4>Cercar amb mapa</h4>
+        <p>Explora variables al mapa</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="searchByNameBlock" style="display:none">
+    <button class="method-back" id="backFromName">← Tornar</button>
+    <div class="search-wrap">
+      <input type="text" id="searchInput" placeholder="Escriu el nom del municipi..." autocomplete="off">
+      <div class="sugg" id="sugg"></div>
+    </div>
+    <button class="btn" id="btnSearch">Cercar previsions</button>
+  </div>
+
+  <div id="searchByMapBlock" style="display:none">
+    <button class="method-back" id="backFromMap">← Tornar</button>
+    <div class="map-selector" id="mapVariableSelector">
+      <button data-var="t2m" class="active">Temperatura mitjana</button>
+      <button data-var="rain">Pluja total</button>
+      <button data-var="humidity">Humitat mitjana</button>
+      <button data-var="wind">Vent mitjà</button>
+    </div>
+    <div class="map-legend" id="mapLegend">
+      <span id="mapLegendMin">-5°</span>
+      <div class="map-legend-bar" id="mapLegendBar"></div>
+      <span id="mapLegendMax">40°</span>
+    </div>
+    <div id="mapContainer"></div>
+  </div>
+
+  <div class="sel-info" id="selInfo">
+    <span id="selInfoText"></span>
+    <button class="btn-download" id="btnDownload">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Descarregar
+    </button>
+  </div>
+
+  <div class="mode-toggle" id="modeToggle" style="display:none">
+    <button data-mode="simple" class="active">Vista bàsica</button>
+    <button data-mode="complex">Vista completa</button>
+  </div>
+</div>
+
+<div id="resumContainer"></div>
+
+<div class="stats-grid" id="statsGrid">
+  <div class="stat-card"><div class="label">Temperatura màxima</div><div class="value" id="stTmax">--</div><div class="unit">°C</div></div>
+  <div class="stat-card"><div class="label">Temperatura mínima</div><div class="value" id="stTmin">--</div><div class="unit">°C</div></div>
+  <div class="stat-card"><div class="label">Precipitació total</div><div class="value" id="stRain">--</div><div class="unit">mm</div></div>
+  <div class="stat-card"><div class="label">Vent màxim</div><div class="value" id="stWmax">--</div><div class="unit">km/h</div></div>
+  <div class="stat-card complex-only"><div class="label">Neu acumulada</div><div class="value" id="stSnow">--</div><div class="unit">cm</div></div>
+  <div class="stat-card complex-only"><div class="label">CAPE màxim</div><div class="value" id="stCAPE">--</div><div class="unit">J/kg</div></div>
+</div>
+
+<div class="alerts-container card" id="alertsContainer">
+  <div class="alerts-title">Avisos meteorològics</div>
+  <div id="alertsGrid"></div>
+</div>
+
+<div class="icons-timeline card" id="iconsTimeline">
+  <div class="card-header">Evolució horària</div>
+  <div class="icons-scroll" id="iconsScroll"></div>
+</div>
+
+<div id="chartsContainer"></div>
+
+<div class="footer">tempestes.cat · Dades del model AROME</div>
+
+</div>
+
+<script src="js/towns_cat.js"></script>
+<script src="js/previsions.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="utf-8">
+    <title>Risc Supercèl·lules i Calamarsa — tempestes.cat</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+    <!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+<!-- Leaflet JS (abans de mapaPNG.js) -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        :root {
+            --bg-dark: #0a0f16;
+            --bg-panel: #0d1826;
+            --border: #1a2a3d;
+            --text: #e6edf3;
+            --text-dim: #9fb0c3;
+            --text-faint: #556680;
+            --gold: #FFD700;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* ═══ HEADER ═══ */
+        #mapapng-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 15px;
+            background: var(--bg-panel);
+            border-bottom: 1px solid var(--border);
+            height: 44px;
+            flex-shrink: 0;
+            z-index: 1000;
+            gap: 10px;
+        }
+        
+        .header-brand {
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+        
+        .header-brand span { color: var(--gold); }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .header-link {
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 12px;
+            padding: 5px 10px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            white-space: nowrap;
+        }
+        
+        .header-link:hover {
+            background: rgba(255,255,255,0.08);
+            color: var(--text);
+        }
+        
+        /* ═══ CERCADOR ═══ */
+        #townSearchWrapper {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        #townSearchBox {
+            display: flex;
+            align-items: center;
+            background: #142338;
+            border: 1px solid #2a4361;
+            border-radius: 6px;
+            padding: 0 10px;
+            height: 32px;
+            width: 180px;
+        }
+        
+        #townSearchInput {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #e6edf3;
+            font-size: 13px;
+            font-family: inherit;
+            min-width: 0;
+        }
+        
+        #townSearchResults {
+            display: none;
+            position: fixed;
+            width: 260px;
+            max-height: 320px;
+            overflow-y: auto;
+            background: #0b1420;
+            border: 1px solid #223247;
+            border-radius: 8px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+            z-index: 2147483647;
+        }
+        
+        .town-search-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 14px;
+            cursor: pointer;
+            border-bottom: 1px solid #16202f;
+            font-size: 13px;
+            color: #e6edf3;
+            transition: background 0.1s ease;
+        }
+        
+        .town-search-item:hover {
+            background: #142338;
+        }
+        
+        /* ═══ ESCALA DE COLORS ═══ */
+        #mapapng-legend {
+            position: absolute;
+            top: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+            background: rgba(255, 255, 255, 0.92);
+            border-radius: 8px;
+            padding: 8px 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            pointer-events: none;
+            max-width: 90%;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(0,0,0,0.08);
+        }
+        
+        /* ═══ CONTINGUT ═══ */
+        #mapapng-main {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            min-height: 0;
+        }
+        
+        #mapapng-sidebar {
+            width: 200px;
+            background: var(--bg-panel);
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+            flex-shrink: 0;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .sidebar-title {
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-faint);
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+        
+        #mapapng-zones {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+        
+        .mapapng-zone-btn {
+            padding: 7px 9px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid transparent;
+            border-radius: 5px;
+            color: var(--text-dim);
+            cursor: pointer;
+            font-size: 11px;
+            transition: all 0.15s;
+            text-align: left;
+        }
+        
+        .mapapng-zone-btn:hover { background: rgba(255,255,255,0.08); }
+        
+        .mapapng-zone-btn.active {
+            background: rgba(255,215,0,0.12);
+            border-color: rgba(255,215,0,0.3);
+            color: var(--gold);
+        }
+        
+        .mapapng-var-group-title {
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-faint);
+            margin: 8px 0 3px;
+            font-weight: 600;
+            padding-left: 2px;
+        }
+        
+        #mapapng-variables {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        
+        .mapapng-var-btn {
+            padding: 6px 9px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid transparent;
+            border-radius: 5px;
+            color: var(--text-dim);
+            cursor: pointer;
+            font-size: 10.5px;
+            transition: all 0.15s;
+            text-align: left;
+        }
+        
+        .mapapng-var-btn:hover { background: rgba(255,255,255,0.08); }
+        
+        .mapapng-var-btn.active {
+            background: rgba(255,215,0,0.12);
+            border-color: rgba(255,215,0,0.3);
+            color: var(--gold);
+        }
+        
+        /* ═══ VISOR ═══ */
+        #mapapng-viewer {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #000;
+            overflow: hidden;
+            min-width: 0;
+            min-height: 0;
+            position: relative;
+        }
+        
+        #mapapng-image-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: #FFFFFF;
+            min-height: 0;
+            min-width: 0;
+            position: relative;
+        }
+        
+        .mapapng-image-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            min-width: 0;
+            min-height: 0;
+        }
+        
+        .mapapng-image {
+            width: 100%;
+            height: 100%;
+            object-fit: fill;
+            display: block;
+        }
+        
+        .mapapng-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+        
+        .mapapng-loading { color: var(--text-faint); font-size: 13px; }
+        .mapapng-error { color: #ff6b6b; font-size: 12px; text-align: center; padding: 15px; }
+        
+        /* ═══ TIMELINE ═══ */
+        #mapapng-timeline-bar {
+            background: var(--bg-panel);
+            border-top: 1px solid var(--border);
+            padding: 6px 8px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex-shrink: 0;
+            overflow-x: auto;
+        }
+        
+        #mapapng-timeline {
+            display: flex;
+            gap: 3px;
+            flex: 1;
+            overflow-x: auto;
+            scrollbar-width: thin;
+        }
+        
+        .mapapng-hora-btn {
+            padding: 4px 7px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid transparent;
+            border-radius: 4px;
+            color: var(--text-dim);
+            cursor: pointer;
+            font-size: 9px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        
+        .mapapng-hora-btn.active {
+            background: rgba(255,215,0,0.15);
+            border-color: rgba(255,215,0,0.3);
+            color: var(--gold);
+        }
+        
+        .mapapng-control-btn {
+            padding: 4px 8px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text);
+            cursor: pointer;
+            font-size: 10px;
+            white-space: nowrap;
+        }
+        
+        /* ═══ RESPONSIVE ═══ */
+        @media (max-width: 768px) {
+            #mapapng-main { flex-direction: column; }
+            #mapapng-sidebar {
+                width: 100%;
+                flex-direction: row;
+                flex-wrap: wrap;
+                gap: 5px;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+                padding: 5px 8px;
+                overflow-x: auto;
+                max-height: 100px;
+            }
+            #townSearchBox { width: 120px; }
+            #mapapng-zones, #mapapng-variables {
+                flex-direction: row;
+                flex-wrap: nowrap;
+                gap: 3px;
+                overflow-x: auto;
+            }
+            .mapapng-zone-btn, .mapapng-var-btn {
+                padding: 5px 8px;
+                font-size: 10px;
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+            .mapapng-var-group-title { display: none; }
+            #mapapng-legend {
+                top: 4px;
+                padding: 3px 6px;
+                font-size: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ═══ HEADER ═══ -->
+    <div id="mapapng-header">
+        <div class="header-brand">TEMPESTES<span>·CAT</span></div>
+        
+        <div class="header-right">
+            <!-- CERCADOR -->
+            <div id="townSearchWrapper">
+                <div id="townSearchBox">
+                    <i class="fas fa-magnifying-glass" style="color:#6fc3ff;font-size:12px;margin-right:7px;"></i>
+                    <input type="text" id="townSearchInput" placeholder="Cercar..." autocomplete="off">
+                </div>
+            </div>
+            
+            <a href="index.html" class="header-link">
+                <i class="fas fa-home"></i> Inici
+            </a>
+        </div>
+    </div>
+
+    <!-- ═══ CONTINGUT ═══ -->
+    <div id="mapapng-main">
+        <div id="mapapng-sidebar">
+            <div>
+                <div class="sidebar-title">Zona</div>
+                <div id="mapapng-zones"></div>
+            </div>
+            <div>
+                <div class="sidebar-title">Variable</div>
+                <div id="mapapng-variables"></div>
+            </div>
+        </div>
+        
+        <div id="mapapng-viewer">
+            <!-- ESCALA DE COLORS -->
+            <div id="mapapng-legend"></div>
+            
+            <!-- IMATGE -->
+            <div id="mapapng-image-container">
+                <div class="mapapng-loading">Carregant...</div>
+            </div>
+            
+            <!-- TIMELINE -->
+            <div id="mapapng-timeline-bar">
+                <button class="mapapng-control-btn" id="mapapng-prev" title="Anterior (←)">◀</button>
+                <button class="mapapng-control-btn" id="mapapng-play" title="Animació (espai)">Play</button>
+                <button class="mapapng-control-btn" id="mapapng-next" title="Següent (→)">▶</button>
+                <div id="mapapng-timeline"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/mapaPNG.js"></script>
+    <script src="js/towns_cat.js"></script>
+    
+    <!-- CERCADOR DE POBLACIONS -->
+    <script>
+    (function() {
+        if (typeof TOWNS_CAT === 'undefined' || !TOWNS_CAT.towns) {
+            console.warn('[Cercador] TOWNS_CAT no disponible');
+            return;
+        }
+        
+        function normalitzar(s) {
+            return (s || '').toString().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+        }
+        
+        const townsIndex = TOWNS_CAT.towns.map(t => ({...t, _nn: normalitzar(t.n)}));
+        
+        function cercarPoblacions(query, max) {
+            const q = normalitzar(query);
+            if (!q) return [];
+            const resultats = [];
+            for (let i = 0; i < townsIndex.length && resultats.length < max * 6; i++) {
+                if (townsIndex[i]._nn.includes(q)) resultats.push(townsIndex[i]);
+            }
+            resultats.sort((a, b) => {
+                const aS = a._nn.startsWith(q) ? 0 : 1;
+                const bS = b._nn.startsWith(q) ? 0 : 1;
+                if (aS !== bS) return aS - bS;
+                return a.n.length - b.n.length;
+            });
+            return resultats.slice(0, max);
+        }
+        
+        function iconaPerTipus(t) {
+            switch(t) {
+                case 'cim': return 'fa-mountain';
+                case 'ciutat': return 'fa-city';
+                case 'vila': return 'fa-building';
+                default: return 'fa-map-pin';
+            }
+        }
+        
+        const input = document.getElementById('townSearchInput');
+        const box = document.getElementById('townSearchBox');
+        const wrapper = document.getElementById('townSearchWrapper');
+        
+        const results = document.createElement('div');
+        results.id = 'townSearchResults';
+        document.body.appendChild(results);
+        
+        function posicionarResultats() {
+            const rect = box.getBoundingClientRect();
+            results.style.top = (rect.bottom + 4) + 'px';
+            results.style.left = rect.left + 'px';
+        }
+        
+        function seleccionarPoblacio(town) {
+            const zona = window.obtenirZonaDePunt(town.la, town.lo);
+            
+            if (zona && window.canviarZona) {
+                window.canviarZona(zona).then(() => {
+                    if (window.posarMarcadorPoblacio) {
+                        window.posarMarcadorPoblacio(town.la, town.lo, town.n);
+                    }
+                });
+            }
+            
+            results.style.display = 'none';
+            input.value = town.n;
+            input.blur();
+        }
+        
+        function renderResultats(resultats) {
+            if (resultats.length === 0) {
+                results.innerHTML = '<div style="padding:14px;color:#556680;font-size:12px;text-align:center;">Sense resultats</div>';
+                results.style.display = 'block';
+                return;
+            }
+            results.innerHTML = resultats.map((t, idx) => `
+                <div class="town-search-item" data-idx="${idx}">
+                    <i class="fas ${iconaPerTipus(t.t)}" style="color:#6fc3ff;font-size:12px;width:14px;"></i>
+                    <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${t.n}</span>
+                    ${t.a ? `<span style="color:#556680;font-size:11px;">${t.a}m</span>` : ''}
+                </div>
+            `).join('');
+            
+            results.querySelectorAll('.town-search-item').forEach((el) => {
+                el.addEventListener('click', () => {
+                    seleccionarPoblacio(resultats[parseInt(el.dataset.idx)]);
+                });
+            });
+            results.style.display = 'block';
+        }
+        
+        input.addEventListener('input', function() {
+            const q = this.value;
+            if (!q || q.length < 2) {
+                results.style.display = 'none';
+                return;
+            }
+            const resultats = cercarPoblacions(q, 15);
+            posicionarResultats();
+            renderResultats(resultats);
+        });
+        
+        input.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const q = this.value;
+                if (q.length < 2) return;
+                const resultats = cercarPoblacions(q, 1);
+                if (resultats.length > 0) seleccionarPoblacio(resultats[0]);
+            }
+            if (e.key === 'Escape') {
+                results.style.display = 'none';
+                input.blur();
+            }
+        });
+        
+        document.addEventListener('click', function(e) {
+            if (!wrapper.contains(e.target) && !results.contains(e.target)) {
+                results.style.display = 'none';
+            }
+        });
+        
+        console.log('[Cercador] Inicialitzat amb ' + townsIndex.length + ' poblacions');
+    })();
+    </script>
+<script src="js/skewt.js"></script>
+<script src="js/skewt-engine.js"></script>
+    
+    
+</body>
+</html>

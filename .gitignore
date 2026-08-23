@@ -1,0 +1,14 @@
+node_modules/
+.wrangler/
+serviceAccountKey.json
+.env
+dist/
+build/
+*.log
+meu-mapa/public/web_data/*.json
+meu-mapa/service-accountKey.json
+meu-mapa/serviceAccountKey.json
+meu-mapa/public/web_data*
+meu-mapa/public/webdata*
+private-scripts/config*.json
+private-scripts/*.log
