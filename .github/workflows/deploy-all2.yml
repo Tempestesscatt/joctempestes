@@ -1,4 +1,4 @@
-name: CAT + ONES + X
+name: CAT + ONES
 
 on:
   workflow_dispatch:
@@ -9,9 +9,9 @@ permissions:
 
 jobs:
   # ════════════════════════════════════════════════════════════════
-  #  JOB 1: CATALUNYA (cat.py)
+  #  JOB 1: SFC (arome_sfc.py)
   # ════════════════════════════════════════════════════════════════
-  cat:
+  arome_sfc:
     runs-on: ubuntu-latest
     timeout-minutes: 250
     steps:
@@ -42,33 +42,91 @@ jobs:
         rm -rf meu-mapa/public/web_data_NE/*
         echo "web_data_NE netejat"
 
-    - name: Executar cat.py
+    - name: Executar arome_sfc.py
       run: |
         cd private-scripts-new
-        python3 -c 'import json; cfg = json.load(open("config.json", "r", encoding="utf-8-sig")); cfg["api_key"] = "${{ secrets.AROME_API_KEY }}"; json.dump(cfg, open("config.json", "w", encoding="utf-8"), indent=2)'
+        python3 -c 'import json; cfg = json.load(open("configNE.json", "r", encoding="utf-8-sig")); cfg["api_key"] = "${{ secrets.AROME_API_KEY }}"; json.dump(cfg, open("configNE.json", "w", encoding="utf-8"), indent=2)'
         for i in 1 2 3; do
-          echo "--- cat.py: intent $i/3 ---"
-          python3 cat.py --total-hores 44 && echo "OK cat.py: exit a l'intent $i" && exit 0 || echo "ERROR cat.py: ha fallat (codi $?) a l'intent $i/3"
+          echo "--- arome_sfc.py: intent $i/3 ---"
+          python3 arome_sfc.py && echo "OK arome_sfc.py: exit a l'intent $i" && exit 0 || echo "ERROR arome_sfc.py: ha fallat (codi $?) a l'intent $i/3"
           sleep 30
         done
-        echo "ERROR cat.py: tots els 3 intents han fallat." && exit 1
+        echo "ERROR arome_sfc.py: tots els 3 intents han fallat." && exit 1
       timeout-minutes: 200
 
-    - name: Mostrar log de cat.py si falla
+    - name: Mostrar log de arome_sfc.py si falla
       if: failure()
       run: |
-        echo "=== LOG DE CAT.PY ==="
+        echo "=== LOG DE AROME_SFC.PY ==="
         find . -name "*.log" -type f -exec cat {} \; 2>/dev/null || echo "No s'ha trobat cap log"
 
-    - name: Pujar web_data_NE com a artifact
+    - name: Pujar SFC com a artifact
       uses: actions/upload-artifact@v4
       with:
-        name: dades-cat
+        name: dades-sfc
         path: meu-mapa/public/web_data_NE/
         retention-days: 1
 
   # ════════════════════════════════════════════════════════════════
-  #  JOB 2: ONES (ones.py)
+  #  JOB 2: 3D (arome_3d.py)
+  # ════════════════════════════════════════════════════════════════
+  arome_3d:
+    runs-on: ubuntu-latest
+    timeout-minutes: 250
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.PRIVATE_REPO_TOKEN }}
+
+    - name: Clonar private-scripts
+      run: |
+        rm -rf private-scripts-new
+        git clone https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/Tempestesscatt/Scripts.git private-scripts-new
+
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Instal·lar dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libgeos-dev libproj-dev proj-data proj-bin
+        python3 -m pip install --upgrade pip
+        python3 -m pip install numpy requests tifffile scipy python-dotenv lxml xarray cfgrib meteofetch matplotlib
+      continue-on-error: true
+
+    - name: Netejar web_data_NE (3d)
+      run: |
+        mkdir -p meu-mapa/public/web_data_NE
+        echo "preparat"
+
+    - name: Executar arome_3d.py
+      run: |
+        cd private-scripts-new
+        python3 -c 'import json; cfg = json.load(open("configNE.json", "r", encoding="utf-8-sig")); cfg["api_key"] = "${{ secrets.AROME_API_KEY }}"; json.dump(cfg, open("configNE.json", "w", encoding="utf-8"), indent=2)'
+        for i in 1 2 3; do
+          echo "--- arome_3d.py: intent $i/3 ---"
+          python3 arome_3d.py && echo "OK arome_3d.py: exit a l'intent $i" && exit 0 || echo "ERROR arome_3d.py: ha fallat (codi $?) a l'intent $i/3"
+          sleep 30
+        done
+        echo "ERROR arome_3d.py: tots els 3 intents han fallat." && exit 1
+      timeout-minutes: 200
+
+    - name: Mostrar log de arome_3d.py si falla
+      if: failure()
+      run: |
+        echo "=== LOG DE AROME_3D.PY ==="
+        find . -name "*.log" -type f -exec cat {} \; 2>/dev/null || echo "No s'ha trobat cap log"
+
+    - name: Pujar 3D com a artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: dades-3d
+        path: meu-mapa/public/web_data_NE/
+        retention-days: 1
+
+  # ════════════════════════════════════════════════════════════════
+  #  JOB 3: ONES (ones.py)
   # ════════════════════════════════════════════════════════════════
   ones:
     runs-on: ubuntu-latest
@@ -124,69 +182,13 @@ jobs:
         retention-days: 1
 
   # ════════════════════════════════════════════════════════════════
-  #  JOB 3: X (X.py) - NOU SCRIPT
-  # ════════════════════════════════════════════════════════════════
-  x:
-    runs-on: ubuntu-latest
-    timeout-minutes: 120
-    steps:
-    - uses: actions/checkout@v4
-      with:
-        token: ${{ secrets.PRIVATE_REPO_TOKEN }}
-
-    - name: Clonar private-scripts
-      run: |
-        rm -rf private-scripts-new
-        git clone https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/Tempestesscatt/Scripts.git private-scripts-new
-
-    - uses: actions/setup-python@v5
-      with:
-        python-version: '3.11'
-
-    - name: Instal·lar dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y libgeos-dev libproj-dev proj-data proj-bin
-        python3 -m pip install --upgrade pip
-        python3 -m pip install numpy requests scipy python-dotenv lxml xarray cfgrib meteofetch matplotlib
-      continue-on-error: true
-
-    - name: Netejar sortida X
-      run: |
-        mkdir -p meu-mapa/public/web_data_x
-        echo "preparat"
-
-    - name: Executar X.py
-      run: |
-        cd private-scripts-new
-        for i in 1 2 3; do
-          echo "--- X.py: intent $i/3 ---"
-          python3 X.py --total-hores 44 && echo "OK exit a l'intent $i" && exit 0 || echo "ERROR ha fallat (codi $?) a l'intent $i/3"
-          sleep 30
-        done
-        echo "ERROR tots els 3 intents han fallat." && exit 1
-      timeout-minutes: 110
-
-    - name: Mostrar log si falla
-      if: failure()
-      run: |
-        find . -name "*X*.log" -type f -exec cat {} \; 2>/dev/null || echo "No s'ha trobat cap log"
-
-    - name: Pujar X com a artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: dades-x
-        path: meu-mapa/public/web_data_x/
-        retention-days: 1
-
-  # ════════════════════════════════════════════════════════════════
   #  JOB 4: STATUS (status.py) - GENERA status.js
   # ════════════════════════════════════════════════════════════════
   status:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [cat, ones, x]
-    if: always()  # S'executa sempre, fins i tot si cat, ones o X fallen
+    needs: [arome_sfc, arome_3d, ones]
+    if: always()  # S'executa sempre, fins i tot si algun job anterior falla
     steps:
     - uses: actions/checkout@v4
       with:
@@ -206,11 +208,19 @@ jobs:
         python3 -m pip install --upgrade pip
         # status.py només necessita Python estàndard
 
-    - name: Descarregar artifact - CAT (per si cal)
-      if: needs.cat.result == 'success'
+    - name: Descarregar artifact - SFC (per si cal)
+      if: needs.arome_sfc.result == 'success'
       uses: actions/download-artifact@v4
       with:
-        name: dades-cat
+        name: dades-sfc
+        path: meu-mapa/public/web_data_NE/
+      continue-on-error: true
+
+    - name: Descarregar artifact - 3D (per si cal)
+      if: needs.arome_3d.result == 'success'
+      uses: actions/download-artifact@v4
+      with:
+        name: dades-3d
         path: meu-mapa/public/web_data_NE/
       continue-on-error: true
 
@@ -220,14 +230,6 @@ jobs:
       with:
         name: dades-ones
         path: meu-mapa/public/web_data_ones/
-      continue-on-error: true
-
-    - name: Descarregar artifact - X (per si cal)
-      if: needs.x.result == 'success'
-      uses: actions/download-artifact@v4
-      with:
-        name: dades-x
-        path: meu-mapa/public/web_data_x/
       continue-on-error: true
 
     - name: Executar status.py
@@ -252,7 +254,7 @@ jobs:
   #  JOB FINAL: deploy
   # ════════════════════════════════════════════════════════════════
   deploy:
-    needs: [cat, ones, x, status]
+    needs: [arome_sfc, arome_3d, ones, status]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -267,9 +269,9 @@ jobs:
     - name: Comprovar resultat dels jobs anteriors
       run: |
         FALLITS=""
-        if [ "${{ needs.cat.result }}" != "success" ]; then FALLITS="$FALLITS cat"; fi
+        if [ "${{ needs.arome_sfc.result }}" != "success" ]; then FALLITS="$FALLITS sfc"; fi
+        if [ "${{ needs.arome_3d.result }}" != "success" ]; then FALLITS="$FALLITS 3d"; fi
         if [ "${{ needs.ones.result }}" != "success" ]; then FALLITS="$FALLITS ones"; fi
-        if [ "${{ needs.x.result }}" != "success" ]; then FALLITS="$FALLITS x"; fi
         if [ "${{ needs.status.result }}" != "success" ]; then FALLITS="$FALLITS status"; fi
         if [ -n "$FALLITS" ]; then
           echo "ATTENCIO: Jobs que NO han acabat en exit:$FALLITS (es continua igualment)"
@@ -278,11 +280,19 @@ jobs:
           echo "OK Tots els jobs han acabat en exit"
         fi
 
-    - name: Descarregar artifact - CAT
-      if: needs.cat.result == 'success'
+    - name: Descarregar artifact - SFC
+      if: needs.arome_sfc.result == 'success'
       uses: actions/download-artifact@v4
       with:
-        name: dades-cat
+        name: dades-sfc
+        path: meu-mapa/public/web_data_NE/
+      continue-on-error: true
+
+    - name: Descarregar artifact - 3D
+      if: needs.arome_3d.result == 'success'
+      uses: actions/download-artifact@v4
+      with:
+        name: dades-3d
         path: meu-mapa/public/web_data_NE/
       continue-on-error: true
 
@@ -292,14 +302,6 @@ jobs:
       with:
         name: dades-ones
         path: meu-mapa/public/web_data_ones/
-      continue-on-error: true
-
-    - name: Descarregar artifact - X
-      if: needs.x.result == 'success'
-      uses: actions/download-artifact@v4
-      with:
-        name: dades-x
-        path: meu-mapa/public/web_data_x/
       continue-on-error: true
 
     - name: Descarregar artifact - STATUS
@@ -319,12 +321,10 @@ jobs:
       run: |
         cd meu-mapa
         echo "Dades meteorologiques generades correctament."
-        echo "--- web_data_NE (cat) ---"
+        echo "--- web_data_NE (sfc + 3d) ---"
         ls public/web_data_NE/ 2>/dev/null | wc -l || echo "buit"
         echo "--- web_data_ones ---"
         ls public/web_data_ones/ 2>/dev/null | wc -l || echo "buit"
-        echo "--- web_data_x ---"
-        ls public/web_data_x/ 2>/dev/null | wc -l || echo "buit"
         echo "--- status.js ---"
         ls -la public/js/status.js 2>/dev/null || echo "No existeix"
         echo "Pes total: $(du -sh public 2>/dev/null | cut -f1)"
@@ -341,7 +341,7 @@ jobs:
     - name: Comprovar si algun job ha fallat
       run: |
         FALLITS="${{ env.SCRIPTS_FALLITS }}"
-        if [ "$FALLITS" = " cat ones x status" ] || [ "$FALLITS" = " ones cat x status" ] || [ "$FALLITS" = " x cat ones status" ]; then
+        if [ "$FALLITS" = " sfc 3d ones status" ] || [ "$FALLITS" = " 3d sfc ones status" ] || [ "$FALLITS" = " ones sfc 3d status" ]; then
           echo "ERROR: Tots els jobs han fallat ($FALLITS)"
           exit 1
         elif [ -n "$FALLITS" ]; then
@@ -353,7 +353,7 @@ jobs:
     - name: Completat
       run: |
         echo "============================================"
-        echo "  OK TOT COMPLETAT (cat + ones + x + status)!"
+        echo "  OK TOT COMPLETAT (sfc + 3d + ones + status)!"
         echo "  Dades desplegades a Cloudflare Pages"
         echo "  status.js generat correctament"
         echo "============================================"
