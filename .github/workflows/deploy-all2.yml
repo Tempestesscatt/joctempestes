@@ -36,11 +36,11 @@ jobs:
         python3 -m pip install numpy requests tifffile scipy python-dotenv lxml xarray cfgrib meteofetch matplotlib
       continue-on-error: true
 
-    - name: Netejar web_data
+    - name: Netejar web_data_NE
       run: |
-        mkdir -p meu-mapa/public/web_data
-        rm -rf meu-mapa/public/web_data/*
-        echo "web_data netejat"
+        mkdir -p meu-mapa/public/web_data_NE
+        rm -rf meu-mapa/public/web_data_NE/*
+        echo "web_data_NE netejat"
 
     - name: Executar cat.py
       run: |
@@ -60,11 +60,11 @@ jobs:
         echo "=== LOG DE CAT.PY ==="
         find . -name "*.log" -type f -exec cat {} \; 2>/dev/null || echo "No s'ha trobat cap log"
 
-    - name: Pujar web_data com a artifact
+    - name: Pujar web_data_NE com a artifact
       uses: actions/upload-artifact@v4
       with:
         name: dades-cat
-        path: meu-mapa/public/web_data/
+        path: meu-mapa/public/web_data_NE/
         retention-days: 1
 
   # ════════════════════════════════════════════════════════════════
@@ -211,7 +211,7 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: dades-cat
-        path: meu-mapa/public/web_data/
+        path: meu-mapa/public/web_data_NE/
       continue-on-error: true
 
     - name: Descarregar artifact - ONES (per si cal)
@@ -283,7 +283,7 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: dades-cat
-        path: meu-mapa/public/web_data/
+        path: meu-mapa/public/web_data_NE/
       continue-on-error: true
 
     - name: Descarregar artifact - ONES
@@ -319,8 +319,8 @@ jobs:
       run: |
         cd meu-mapa
         echo "Dades meteorologiques generades correctament."
-        echo "--- web_data (cat) ---"
-        ls public/web_data/ 2>/dev/null | wc -l || echo "buit"
+        echo "--- web_data_NE (cat) ---"
+        ls public/web_data_NE/ 2>/dev/null | wc -l || echo "buit"
         echo "--- web_data_ones ---"
         ls public/web_data_ones/ 2>/dev/null | wc -l || echo "buit"
         echo "--- web_data_x ---"

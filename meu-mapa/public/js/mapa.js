@@ -2613,7 +2613,7 @@ async function carregarFitxerAmbReintents(url, maxIntents = 3) {
 }
 
 async function carregarUnStep(i, ambDades3d) {
-    const base = 'web_dataNE/';
+    const base = 'web_data_NE/';
     const p = String(i).padStart(2, '0');
 
     let td = null;
