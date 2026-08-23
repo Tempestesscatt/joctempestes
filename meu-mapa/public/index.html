@@ -14,12 +14,23 @@
     <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-QDWCZ0Z9XF');</script>
 
     <style>
+        :root {
+            --navy: #0d1f35;
+            --navy-2: #1a2a40;
+            --navy-3: #24405f;
+            --gold: #FFD700;
+            --gold-dim: #e0bd00;
+            --ink: #1a1a1a;
+            --paper: #fbfaf7;
+            --line: #e4e1d8;
+            --muted: #6b7280;
+        }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', 'Tahoma', 'Microsoft Sans Serif', sans-serif;
             font-size: 14px;
-            background: #f4f4f4;
-            color: #1a1a1a;
+            background: var(--paper);
+            color: var(--ink);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -27,14 +38,14 @@
         }
         a { text-decoration: none; color: inherit; }
 
-        /* TOPBAR */
+        /* ============ TOPBAR ============ */
         .topbar {
-            background: #1a2a40;
+            background: var(--navy-2);
             padding: 0 16px;
             display: flex;
             align-items: center;
             height: 60px;
-            border-bottom: 2px solid #FFD700;
+            border-bottom: 2px solid var(--gold);
             flex-shrink: 0;
             gap: 16px;
             position: fixed;
@@ -60,18 +71,20 @@
         }
         .hamburger-btn:hover { background: rgba(255,255,255,0.1); }
         .topbar .logo-text {
-            font-size: 20px;
+            font-size: 19px;
             font-weight: 800;
             color: #FFF;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
             white-space: nowrap;
+            text-transform: uppercase;
         }
-        .topbar .logo-text span { color: #FFD700; }
+        .topbar .logo-text span { color: var(--gold); }
         .topbar .logo-sub {
-            font-size: 12px;
-            color: #aab;
+            font-size: 11px;
+            color: #93a4bd;
             white-space: nowrap;
             margin-left: -5px;
+            letter-spacing: .3px;
         }
         .topbar-links {
             margin-left: auto;
@@ -80,7 +93,7 @@
             gap: 12px;
         }
         .topbar-icon {
-            color: #aab;
+            color: #93a4bd;
             text-decoration: none;
             transition: all .2s;
             display: flex;
@@ -131,13 +144,13 @@
             width: 28px;
             height: 28px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #FFD700, #FFA500);
+            background: linear-gradient(135deg, var(--gold), #FFA500);
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 12px;
             font-weight: 700;
-            color: #1a2a40;
+            color: var(--navy-2);
             overflow: hidden;
             flex-shrink: 0;
         }
@@ -152,7 +165,7 @@
             white-space: nowrap;
         }
 
-        /* SIDE PANEL */
+        /* ============ SIDE PANEL ============ */
         .side-overlay {
             display: none;
             position: fixed;
@@ -168,7 +181,7 @@
             bottom: 0;
             width: 320px;
             max-width: 86vw;
-            background: #0d1f35;
+            background: var(--navy);
             z-index: 9450;
             transform: translateX(-100%);
             transition: transform .28s ease;
@@ -191,11 +204,11 @@
             font-weight: 800;
             letter-spacing: .5px;
         }
-        .side-panel-title span { color: #FFD700; }
+        .side-panel-title span { color: var(--gold); }
         .side-panel-close {
             background: none;
             border: none;
-            color: #aab;
+            color: #93a4bd;
             font-size: 20px;
             cursor: pointer;
             width: 34px;
@@ -221,7 +234,7 @@
             text-decoration: none;
             transition: all .2s;
         }
-        .side-model-card:hover { background: rgba(255,255,255,0.12); border-color: #FFD700; }
+        .side-model-card:hover { background: rgba(255,255,255,0.12); border-color: var(--gold); }
         .side-model-thumb {
             width: 72px;
             height: 72px;
@@ -232,7 +245,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #FFD700;
+            color: var(--gold);
             font-size: 22px;
         }
         .side-model-thumb img { width: 100%; height: 100%; object-fit: cover; }
@@ -254,65 +267,121 @@
             overflow: hidden;
         }
 
-        /* CONTENT */
+        /* ============ CONTENT SHELL ============ */
         .content {
             flex: 1;
-            background: #f4f4f4;
-            margin-top: 60px;
-            padding: 20px;
-            max-width: 1200px;
-            margin-left: auto;
-            margin-right: auto;
             width: 100%;
+            margin-top: 60px;
+        }
+        .wrap {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 0 24px;
         }
 
-        /* HERO */
-        .hero {
-            background: linear-gradient(135deg, #0d1f35 0%, #1a3a5c 100%);
-            padding: 40px 20px 50px;
+        /* ============ HERO (banner style, com Pivotal) ============ */
+        .hero-banner {
+            position: relative;
+            height: 340px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: linear-gradient(160deg, var(--navy) 0%, var(--navy-3) 55%, #2f5580 100%);
+        }
+        .hero-banner::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                radial-gradient(circle at 20% 30%, rgba(255,255,255,0.08) 0, transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(255,215,0,0.10) 0, transparent 45%);
+        }
+        .hero-banner::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(0deg, var(--paper) 0%, transparent 22%);
+        }
+        .hero-inner {
+            position: relative;
+            z-index: 2;
             text-align: center;
-            border-radius: 12px;
-            border-bottom: 4px solid #FFD700;
-            margin-bottom: 30px;
+            padding: 0 20px;
         }
-        .hero h1 {
-            font-size: clamp(28px, 5vw, 48px);
-            font-weight: 900;
+        .hero-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--gold);
+            font-size: 12px;
+            font-weight: 700;
             letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 14px;
+        }
+        .hero-eyebrow::before, .hero-eyebrow::after {
+            content: '';
+            width: 28px;
+            height: 1px;
+            background: var(--gold);
+            opacity: .6;
+        }
+        .hero-banner h1 {
+            font-size: clamp(30px, 5vw, 50px);
+            font-weight: 900;
+            letter-spacing: 1px;
             color: #FFF;
-            text-shadow: 2px 2px 12px rgba(0,0,0,0.5);
-            margin-bottom: 15px;
+            text-shadow: 2px 2px 16px rgba(0,0,0,0.4);
+            margin-bottom: 14px;
         }
-        .hero h1 span { color: #FFD700; }
-        .hero p {
-            color: #aac;
-            font-size: 16px;
-            max-width: 700px;
-            margin: 0 auto 20px;
+        .hero-banner h1 span { color: var(--gold); }
+        .hero-banner p {
+            color: #cdd8e8;
+            font-size: 15px;
+            max-width: 620px;
+            margin: 0 auto 8px;
         }
-        .hero .keywords {
-            color: #6fc3ff;
-            font-size: 13px;
+        .hero-banner .keywords {
+            color: #7fc2ff;
+            font-size: 12px;
             font-weight: 600;
         }
 
-        /* AVISOS */
-        .avisos-section { margin-bottom: 30px; }
-        .avisos-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 16px;
+        /* ============ SECTION HEADERS ============ */
+        .sec {
+            padding: 44px 0;
+            border-bottom: 1px solid var(--line);
         }
-        .avisos-header h2 {
-            font-size: 22px;
+        .sec:last-of-type { border-bottom: none; }
+        .sec-head {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 22px;
+        }
+        .sec-head h2 {
+            font-size: clamp(20px, 3vw, 25px);
             font-weight: 800;
-            color: #1a2a40;
+            color: var(--navy-2);
             display: flex;
             align-items: center;
             gap: 10px;
         }
-        .avisos-header h2 i { color: #ff4444; }
+        .sec-head h2 i { color: var(--gold-dim); font-size: 18px; }
+        .sec-head .sec-link {
+            font-size: 13px;
+            font-weight: 700;
+            color: #0058EE;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .sec-head .sec-link:hover { text-decoration: underline; }
+
+        /* ============ AVISOS ============ */
         .avisos-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -320,15 +389,15 @@
         }
         .aviso-card {
             background: #FFF;
-            border-radius: 16px;
+            border-radius: 14px;
             overflow: hidden;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 20px rgba(13,31,53,0.07);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
-            border: 1px solid rgba(0,0,0,0.04);
+            border: 1px solid var(--line);
         }
         .aviso-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+            transform: translateY(-5px);
+            box-shadow: 0 14px 34px rgba(13,31,53,0.12);
         }
         .aviso-card .aviso-img-wrap {
             width: 100%;
@@ -363,7 +432,7 @@
         .aviso-card .aviso-titol {
             font-size: 16px;
             font-weight: 700;
-            color: #1a2a40;
+            color: var(--navy-2);
             margin-bottom: 4px;
         }
         .aviso-card .aviso-desc {
@@ -377,40 +446,97 @@
             gap: 12px;
             margin-top: 10px;
             font-size: 12px;
-            color: #888;
+            color: #999;
         }
-        .aviso-card .aviso-meta i { color: #aaa; }
+        .aviso-card .aviso-meta i { color: #bbb; }
         @media (max-width: 480px) { .avisos-grid { grid-template-columns: 1fr; } }
 
-        /* NOTÍCIES */
-        .news-section { margin-bottom: 30px; }
-        .news-header {
-            display: flex;
-            align-items: baseline;
-            justify-content: space-between;
-            margin-bottom: 16px;
-            gap: 12px;
-            flex-wrap: wrap;
+        /* ============ FEATURED PANELS (estil Pivotal: bloc gran + sidebar) ============ */
+        .featured-layout {
+            display: grid;
+            grid-template-columns: 1.6fr 1fr;
+            gap: 26px;
+            align-items: start;
         }
-        .news-header h2 {
-            font-size: clamp(20px, 3vw, 26px);
-            font-weight: 800;
-            color: #1a2a40;
+        .feature-main {
+            background: #FFF;
+            border-radius: 16px;
+            border: 1px solid var(--line);
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(13,31,53,0.06);
+        }
+        .feature-main .fm-img {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: linear-gradient(135deg, #dfe7ee, #cdd9e4);
             display: flex;
             align-items: center;
-            gap: 10px;
+            justify-content: center;
+            color: var(--navy-3);
+            font-size: 46px;
+            overflow: hidden;
         }
-        .news-header h2 i { color: #E1306C; }
-        .news-header a {
+        .feature-main .fm-img img { width: 100%; height: 100%; object-fit: cover; }
+        .feature-main .fm-body { padding: 22px 24px 26px; }
+        .feature-main .fm-title {
+            font-size: 19px;
+            font-weight: 800;
+            color: var(--navy-2);
+            margin-bottom: 6px;
+        }
+        .feature-main .fm-desc { font-size: 13.5px; color: #555; margin-bottom: 16px; }
+
+        .feature-side {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .feature-side-card {
+            background: #FFF;
+            border-radius: 14px;
+            border: 1px solid var(--line);
+            padding: 16px;
+            box-shadow: 0 3px 14px rgba(13,31,53,0.05);
+        }
+        .feature-side-card .fs-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+        .feature-side-card .fs-img {
+            width: 100%;
+            aspect-ratio: 16/10;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #eef1f4, #dde3ea);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--navy-3);
+            font-size: 26px;
+            overflow: hidden;
+        }
+        .feature-side-card .fs-img img { width: 100%; height: 100%; object-fit: cover; }
+        .feature-side-card .fs-title { font-size: 14px; font-weight: 700; color: var(--navy-2); }
+
+        .btn-outline-nav {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 18px;
+            border: 2px solid var(--navy-2);
+            color: var(--navy-2);
             font-size: 13px;
             font-weight: 700;
-            color: #0058EE;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 6px;
+            border-radius: 8px;
+            transition: all .2s;
         }
-        .news-header a:hover { text-decoration: underline; }
+        .btn-outline-nav:hover { background: var(--navy-2); color: #FFF; }
+
+        /* ============ NOTÍCIES ============ */
         .news-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
@@ -420,16 +546,17 @@
             background: #FFF;
             border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+            box-shadow: 0 2px 10px rgba(13,31,53,0.06);
             text-decoration: none;
             color: inherit;
             display: flex;
             flex-direction: column;
             transition: transform .2s, box-shadow .2s;
+            border: 1px solid var(--line);
         }
         .news-card:hover {
             transform: translateY(-3px);
-            box-shadow: 0 8px 22px rgba(0,0,0,0.13);
+            box-shadow: 0 8px 22px rgba(13,31,53,0.12);
         }
         .news-card-img {
             width: 100%;
@@ -482,38 +609,21 @@
             font-size: 14px;
             background: #FFF;
             border-radius: 12px;
+            border: 1px solid var(--line);
         }
         @media (max-width: 1024px) { .news-grid { grid-template-columns: repeat(3, 1fr); } }
         @media (max-width: 640px) { .news-grid { grid-template-columns: repeat(2, 1fr); } }
 
-        /* TUTORIAL */
-        .info-section {
-            background: #FFF;
-            border-radius: 12px;
-            padding: 24px;
-            margin-bottom: 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.07);
-        }
-        .info-section h2 {
-            font-size: 20px;
-            font-weight: 800;
-            color: #1a2a40;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .info-section h2 i { color: #FFD700; }
+        /* ============ TUTORIAL ============ */
         #tutorialGrid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
             gap: 16px;
         }
 
-        /* BOTO ENTRAR AL VISOR */
         .btn-visor-wrapper {
             text-align: center;
-            margin: 20px 0 10px;
+            margin-top: 26px;
         }
         .btn-visor {
             display: inline-flex;
@@ -529,7 +639,6 @@
             cursor: pointer;
             transition: all 0.3s ease;
             box-shadow: 0 4px 20px rgba(0, 88, 238, 0.35);
-            text-decoration: none;
         }
         .btn-visor:hover {
             transform: translateY(-3px);
@@ -537,13 +646,33 @@
         }
         .btn-visor i { font-size: 18px; }
 
-        /* XAT NOMÉS VISUALITZACIÓ */
+        /* ============ SECTORS (estil "indústries que confien", adaptat a meteo) ============ */
+        .sectors-strip {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 14px;
+        }
+        .sector-item {
+            background: #FFF;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 18px 10px;
+            text-align: center;
+            transition: all .2s;
+        }
+        .sector-item:hover { border-color: var(--gold-dim); transform: translateY(-3px); box-shadow: 0 8px 20px rgba(13,31,53,0.08); }
+        .sector-item i { font-size: 22px; color: var(--navy-3); margin-bottom: 8px; display: block; }
+        .sector-item span { font-size: 12px; font-weight: 700; color: var(--navy-2); }
+        @media (max-width: 900px) { .sectors-strip { grid-template-columns: repeat(3, 1fr); } }
+        @media (max-width: 480px) { .sectors-strip { grid-template-columns: repeat(2, 1fr); } }
+
+        /* ============ XAT ============ */
         .xat-home-wrapper {
             background: #FFF;
-            border-radius: 12px;
+            border-radius: 14px;
+            border: 1px solid var(--line);
             padding: 20px;
-            margin-bottom: 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+            box-shadow: 0 3px 14px rgba(13,31,53,0.05);
         }
         .xat-home-header {
             display: flex;
@@ -552,9 +681,9 @@
             margin-bottom: 12px;
         }
         .xat-home-header h3 {
-            font-size: 18px;
+            font-size: 17px;
             font-weight: 700;
-            color: #1a2a40;
+            color: var(--navy-2);
             display: flex;
             align-items: center;
             gap: 8px;
@@ -573,7 +702,7 @@
             display: flex;
             flex-direction: column;
             gap: 6px;
-            background: #fafafa;
+            background: #fafaf7;
             border-radius: 8px;
             min-height: 80px;
         }
@@ -613,7 +742,7 @@
         .xat-home-msg-name {
             font-weight: 600;
             font-size: 12px;
-            color: #1a2a40;
+            color: var(--navy-2);
         }
         .xat-home-msg-name .rang-tag {
             font-size: 7px;
@@ -632,7 +761,7 @@
             margin-left: auto;
         }
         .xat-home-msg-bubble {
-            background: #f0f0f0;
+            background: #f0f0ec;
             padding: 4px 12px;
             border-radius: 12px;
             max-width: 90%;
@@ -649,16 +778,15 @@
         .xat-home-footer input {
             flex: 1;
             padding: 10px 14px;
-            border: 1px solid #ddd;
+            border: 1px solid var(--line);
             border-radius: 20px;
             font-family: inherit;
             font-size: 13px;
-            background: #f5f5f5;
+            background: #f5f5f2;
             outline: none;
             cursor: not-allowed;
             opacity: 0.7;
         }
-        .xat-home-footer input:focus { border-color: #ddd; }
         .xat-home-footer button {
             padding: 10px 20px;
             border: none;
@@ -677,12 +805,11 @@
             padding: 6px 0;
         }
 
-        /* RESSENYES */
-        .reviews-section { margin-bottom: 30px; }
+        /* ============ RESSENYES ============ */
         .section-title {
             font-size: clamp(24px, 4vw, 32px);
             font-weight: 800;
-            color: #1a2a40;
+            color: var(--navy-2);
             text-align: center;
             margin-bottom: 4px;
         }
@@ -690,7 +817,7 @@
             font-size: 15px;
             color: #777;
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 28px;
         }
         .reviews-avg {
             display: flex;
@@ -701,13 +828,13 @@
         }
         .reviews-avg-stars {
             font-size: 28px;
-            color: #FFD700;
+            color: var(--gold);
             letter-spacing: 4px;
         }
         .reviews-avg-text {
             font-size: 18px;
             font-weight: 700;
-            color: #1a2a40;
+            color: var(--navy-2);
         }
         .reviews-avg-count {
             font-size: 14px;
@@ -723,11 +850,11 @@
             background: #FFF;
             border-radius: 12px;
             padding: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            box-shadow: 0 2px 8px rgba(13,31,53,0.05);
             display: flex;
             flex-direction: column;
             gap: 10px;
-            border: 1px solid rgba(0,0,0,0.04);
+            border: 1px solid var(--line);
         }
         .review-card-header {
             display: flex;
@@ -751,10 +878,10 @@
         .review-card-name {
             font-weight: 700;
             font-size: 14px;
-            color: #1a2a40;
+            color: var(--navy-2);
         }
         .review-card-stars {
-            color: #FFD700;
+            color: var(--gold);
             font-size: 14px;
             letter-spacing: 1px;
             margin-left: auto;
@@ -779,16 +906,17 @@
         }
         .review-form-box {
             background: #FFF;
-            border-radius: 12px;
+            border-radius: 14px;
+            border: 1px solid var(--line);
             padding: 24px;
             max-width: 600px;
             margin: 0 auto;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            box-shadow: 0 2px 8px rgba(13,31,53,0.05);
         }
         .review-form-title {
             font-size: 16px;
             font-weight: 700;
-            color: #1a2a40;
+            color: var(--navy-2);
             text-align: center;
             margin-bottom: 16px;
         }
@@ -807,12 +935,12 @@
             padding: 0 4px;
             transition: all .2s;
         }
-        .review-star-btn.active { color: #FFD700; }
-        .review-star-btn:hover { color: #FFD700; transform: scale(1.1); }
+        .review-star-btn.active { color: var(--gold); }
+        .review-star-btn:hover { color: var(--gold); transform: scale(1.1); }
         .review-text-input {
             width: 100%;
             padding: 10px 14px;
-            border: 1px solid #ddd;
+            border: 1px solid var(--line);
             border-radius: 6px;
             font-family: 'Segoe UI', 'Tahoma', sans-serif;
             font-size: 14px;
@@ -821,11 +949,11 @@
             max-height: 140px;
             margin-bottom: 16px;
         }
-        .review-text-input:focus { outline: none; border-color: #1a2a40; }
+        .review-text-input:focus { outline: none; border-color: var(--navy-2); }
         .review-submit-btn {
             width: 100%;
             padding: 12px;
-            background: #1a2a40;
+            background: var(--navy-2);
             border: none;
             color: #FFF;
             font-weight: 700;
@@ -834,7 +962,7 @@
             border-radius: 6px;
             transition: background 0.2s;
         }
-        .review-submit-btn:hover { background: #0d1f35; }
+        .review-submit-btn:hover { background: var(--navy); }
         .review-login-msg {
             text-align: center;
             font-size: 13px;
@@ -849,28 +977,29 @@
         }
         @media (max-width: 768px) { .reviews-grid { grid-template-columns: repeat(2, 1fr); } }
         @media (max-width: 480px) { .reviews-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 900px) { .featured-layout { grid-template-columns: 1fr; } }
 
-        /* FOOTER */
+        /* ============ FOOTER ============ */
         .termes-box {
-            padding: 20px 0;
+            padding: 22px 0;
             font-size: 12px;
             color: #888;
             line-height: 1.6;
             text-align: center;
-            border-top: 1px solid #e0e0e0;
+            border-top: 1px solid var(--line);
         }
         .footer-bar {
-            background: #1a2a40;
-            color: #aab;
+            background: var(--navy-2);
+            color: #93a4bd;
             font-size: 13px;
             text-align: center;
             padding: 20px;
-            border-top: 2px solid #FFD700;
+            border-top: 2px solid var(--gold);
             line-height: 1.7;
         }
-        .footer-bar strong { color: #FFD700; }
+        .footer-bar strong { color: var(--gold); }
 
-        /* MODAL PERFIL */
+        /* ============ MODAL PERFIL ============ */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -890,7 +1019,7 @@
             box-shadow: 0 8px 30px rgba(0,0,0,0.2);
         }
         .profile-header {
-            background: #1a2a40;
+            background: var(--navy-2);
             color: #FFF;
             padding: 14px 20px;
             font-size: 16px;
@@ -917,18 +1046,18 @@
             display: block;
             font-size: 13px;
             font-weight: 700;
-            color: #1a2a40;
+            color: var(--navy-2);
             margin-bottom: 4px;
         }
         .field-win input {
             width: 100%;
             padding: 8px 12px;
-            border: 1px solid #ddd;
+            border: 1px solid var(--line);
             border-radius: 6px;
             font-family: 'Segoe UI', 'Tahoma', sans-serif;
             font-size: 14px;
         }
-        .field-win input:focus { outline: none; border-color: #1a2a40; }
+        .field-win input:focus { outline: none; border-color: var(--navy-2); }
         .field-win input:disabled { background: #f4f4f4; color: #888; }
         .profile-actions {
             display: flex;
@@ -940,15 +1069,15 @@
             justify-content: center;
             font-size: 13px;
             padding: 10px;
-            border: 2px solid #1a2a40;
+            border: 2px solid var(--navy-2);
             background: transparent;
-            color: #1a2a40;
+            color: var(--navy-2);
             border-radius: 6px;
             font-weight: 700;
             cursor: pointer;
             transition: all .2s;
         }
-        .profile-actions .btn:hover { background: #1a2a40; color: #FFF; }
+        .profile-actions .btn:hover { background: var(--navy-2); color: #FFF; }
         .profile-actions .btn:last-child {
             border-color: #cc0000;
             color: #cc0000;
@@ -964,8 +1093,9 @@
             .btn-google svg { width: 14px; height: 14px; }
             .user-name { max-width: 60px; font-size: 11px; }
             .user-avatar-fallback { width: 22px; height: 22px; font-size: 10px; }
-            .content { padding: 12px; }
+            .wrap { padding: 0 14px; }
             #tutorialGrid { grid-template-columns: 1fr; }
+            .hero-banner { height: 280px; }
         }
         @media (max-width: 480px) {
             .topbar .logo-text { font-size: 14px; }
@@ -1020,14 +1150,13 @@
             </div>
         </a>
 
-                <a href="visorNE.html" class="side-model-card">
+        <a href="visorNE.html" class="side-model-card">
             <div class="side-model-thumb"><img src="img/previ.png" alt="Previsions" onerror="this.remove()"></div>
             <div class="side-model-info">
                 <span class="side-model-name">AROME-NE</span>
                 <span class="side-model-desc">No nomès a Catalunya sinó també la meitat peninsular EST.</span>
             </div>
         </a>
-
 
         <a href="waves.html" class="side-model-card">
             <div class="side-model-thumb"><img src="img/visormar.png" alt="Onatge" onerror="this.remove()"></div>
@@ -1055,137 +1184,190 @@
 
 <div class="content">
 
-    <!-- HERO -->
-    <div class="hero">
-        <h1>TEMPESTES<span>.CAT</span></h1>
-        <p>Benvingut al portal de referencia per a la previsio meteorologica professional a Catalunya. Informacio actualitzada sobre tempestes i fenomens extrems.</p>
-        <p class="keywords">#TempestesCat #Meteorologia #AROME #PrevisioCatalunya</p>
-    </div>
-<!-- AVISOS AMB PNG DE public/avis/ -->
-<div class="avisos-section">
-    <div class="avisos-header">
-        <h2><i class="fa-solid fa-triangle-exclamation"></i> Avisos actius</h2>
-    </div>
-    <div class="avisos-grid">
-        <div class="aviso-card">
-            <div class="aviso-img-wrap">
-                <img src="avis/tempestes.png" alt="Avís de tempestes" onerror="this.parentElement.innerHTML='<div style=\'display:flex;align-items:center;justify-content:center;height:100%;color:#999;font-size:14px;\'>Properament</div>'">
-                <span class="aviso-badge">Actiu</span>
-            </div>
-            <div class="aviso-body">
-                <div class="aviso-titol">Alerta per tempestes</div>
-                <div class="aviso-desc">Possibles tempestes fortes amb calamarsa.</div>
-                <div class="aviso-meta"><i class="fa-regular fa-clock"></i> Actualitzat: avui</div>
-            </div>
-        </div>
-        <div class="aviso-card">
-            <div class="aviso-img-wrap">
-                <img src="avis/vent.png" alt="Avís de vent" onerror="this.parentElement.innerHTML='<div style=\'display:flex;align-items:center;justify-content:center;height:100%;color:#999;font-size:14px;\'>Properament</div>'">
-                <span class="aviso-badge">Precaució</span>
-            </div>
-            <div class="aviso-body">
-                <div class="aviso-titol">Vent fort</div>
-                <div class="aviso-desc">Ratxes de vent superiors a 80 km/h .</div>
-                <div class="aviso-meta"><i class="fa-regular fa-clock"></i> Actualitzat: avui</div>
-            </div>
-        </div>
-        <div class="aviso-card">
-            <div class="aviso-img-wrap">
-                <img src="avis/neu.png" alt="Avís de neu" onerror="this.parentElement.innerHTML='<div style=\'display:flex;align-items:center;justify-content:center;height:100%;color:#999;font-size:14px;\'>Properament</div>'">
-                <span class="aviso-badge">Vigilància</span>
-            </div>
-            <div class="aviso-body">
-                <div class="aviso-titol">Risc de neu</div>
-                <div class="aviso-desc">Cota de neu prevista per sota dels 600 metres i acumulacions.</div>
-                <div class="aviso-meta"><i class="fa-regular fa-clock"></i> Actualitzat: avui</div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- NOTÍCIES -->
-<div class="news-section">
-    <div class="news-header">
-        <h2>
-            <i class="fa-brands fa-twitter"></i> 
-            Notícies i Previsions
-            <span class="badge-twitter">@tempestes_cat</span>
-        </h2>
-        <a href="https://x.com/tempestes_cat" target="_blank">
-            Veure el nostre  X <i class="fa-solid fa-arrow-up-right-from-square"></i>
-        </a>
-    </div>
-    <!-- Contenidor on es renderitzaran les notícies -->
-    <div id="newsContainer">
-        <div class="news-loading">
-            <i class="fa-solid fa-spinner fa-spin"></i>
-            Carregant les últimes notícies...
-        </div>
-    </div>
-</div>
-
-    <!-- TUTORIAL -->
-    <div class="info-section">
-        <h2><i class="fa-solid fa-circle-question"></i> Com funciona TEMPESTES.CAT?</h2>
-        <div id="tutorialGrid"></div>
-        <!-- BOTO ENTRAR AL VISOR -->
-        <div class="btn-visor-wrapper">
-            <a href="visor.html" class="btn-visor">
-                <i class="fa-solid fa-arrow-right"></i> Entrar al visor
-              
-            </a>
+    <!-- ============ HERO BANNER ============ -->
+    <div class="hero-banner">
+        <div class="hero-inner">
+            <span class="hero-eyebrow">Catalunya · Temps real</span>
+            <h1>TEMPESTES<span>.CAT</span></h1>
+            <p>El portal de referència per a la previsió meteorològica professional a Catalunya. Informació actualitzada sobre tempestes i fenòmens extrems.</p>
+            <p class="keywords">#TempestesCat #Meteorologia #AROME #PrevisioCatalunya</p>
         </div>
     </div>
 
-    <!-- XAT NOMÉS VISUALITZACIÓ -->
-    <div class="xat-home-wrapper">
-        <div class="xat-home-header">
-            <h3><i class="fa-solid fa-comment"></i> Xat en directe</h3>
-            <span class="xat-online"><i class="fa-solid fa-circle" style="color:#28a745;font-size:10px;"></i> En directe</span>
-        </div>
-        <div class="xat-home-msgs" id="xatHomeMsgs">
-            <div style="text-align:center;color:#888;padding:12px;font-size:13px;">Carregant missatges...</div>
-        </div>
-        <div class="xat-home-footer">
-            <input type="text" id="xatHomeInput" placeholder="El xat es nomes de lectura" disabled>
-            <button disabled>Enviar</button>
-        </div>
-        <div class="xat-home-login-msg">
-            <i class="fa-solid fa-info-circle"></i> El xat es nomes de lectura. Per participar, obre el visor.
-        </div>
-    </div>
+    <div class="wrap">
 
-    <!-- RESSENYES -->
-    <div class="reviews-section" id="reviewsSection">
-        <h2 class="section-title">Que diuen els usuaris</h2>
-        <p class="section-subtitle">Opinions reals dels meteorolegs que fan servir la web</p>
-        <div class="reviews-avg">
-            <span class="reviews-avg-stars" id="reviewsAvgStars">★★★★★</span>
-            <span class="reviews-avg-text" id="reviewsAvgText">5.0</span>
-            <span class="reviews-avg-count" id="reviewsAvgCount">(0)</span>
-        </div>
-        <div class="reviews-grid" id="reviewsGrid">
-            <div class="reviews-empty"><i class="fa-solid fa-star"></i> Carregant ressenyes...</div>
-        </div>
-        <div class="review-form-box">
-            <div class="review-form-title">Deixa la teva ressenya</div>
-            <div class="review-stars-input" id="reviewStarsInput">
-                <button class="review-star-btn active" data-star="1">★</button>
-                <button class="review-star-btn active" data-star="2">★</button>
-                <button class="review-star-btn active" data-star="3">★</button>
-                <button class="review-star-btn active" data-star="4">★</button>
-                <button class="review-star-btn active" data-star="5">★</button>
+        <!-- ============ AVISOS ============ -->
+        <div class="sec">
+            <div class="sec-head">
+                <h2><i class="fa-solid fa-triangle-exclamation"></i> Avisos actius</h2>
             </div>
-            <textarea class="review-text-input" id="reviewTextInput" placeholder="Que t'ha semblat la web de TEMPESTES.CAT?" maxlength="500"></textarea>
-            <button class="review-submit-btn" id="reviewSubmitBtn" onclick="submitReview()">Publicar ressenya</button>
-            <div class="review-login-msg" id="reviewLoginMsg">Cal <a onclick="loginWithGoogle()">iniciar sessio</a> per publicar</div>
+            <div class="avisos-grid">
+                <div class="aviso-card">
+                    <div class="aviso-img-wrap">
+                        <img src="avis/tempestes.png" alt="Avís de tempestes" onerror="this.parentElement.innerHTML='<div style=\'display:flex;align-items:center;justify-content:center;height:100%;color:#999;font-size:14px;\'>Properament</div>'">
+                        <span class="aviso-badge">Actiu</span>
+                    </div>
+                    <div class="aviso-body">
+                        <div class="aviso-titol">Alerta per tempestes</div>
+                        <div class="aviso-desc">Possibles tempestes fortes amb calamarsa.</div>
+                        <div class="aviso-meta"><i class="fa-regular fa-clock"></i> Actualitzat: avui</div>
+                    </div>
+                </div>
+                <div class="aviso-card">
+                    <div class="aviso-img-wrap">
+                        <img src="avis/vent.png" alt="Avís de vent" onerror="this.parentElement.innerHTML='<div style=\'display:flex;align-items:center;justify-content:center;height:100%;color:#999;font-size:14px;\'>Properament</div>'">
+                        <span class="aviso-badge">Precaució</span>
+                    </div>
+                    <div class="aviso-body">
+                        <div class="aviso-titol">Vent fort</div>
+                        <div class="aviso-desc">Ratxes de vent superiors a 80 km/h.</div>
+                        <div class="aviso-meta"><i class="fa-regular fa-clock"></i> Actualitzat: avui</div>
+                    </div>
+                </div>
+                <div class="aviso-card">
+                    <div class="aviso-img-wrap">
+                        <img src="avis/neu.png" alt="Avís de neu" onerror="this.parentElement.innerHTML='<div style=\'display:flex;align-items:center;justify-content:center;height:100%;color:#999;font-size:14px;\'>Properament</div>'">
+                        <span class="aviso-badge">Vigilància</span>
+                    </div>
+                    <div class="aviso-body">
+                        <div class="aviso-titol">Risc de neu</div>
+                        <div class="aviso-desc">Cota de neu prevista per sota dels 600 metres i acumulacions.</div>
+                        <div class="aviso-meta"><i class="fa-regular fa-clock"></i> Actualitzat: avui</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ MODELS DESTACATS (estil Pivotal: bloc gran + sidebar) ============ -->
+        <div class="sec">
+            <div class="sec-head">
+                <h2><i class="fa-solid fa-satellite-dish"></i> Models i visors destacats</h2>
+                <a href="visor.html" class="sec-link">Veure el visor complet <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+            </div>
+            <div class="featured-layout">
+                <div class="feature-main">
+                    <div class="fm-img"><img src="img/visor-aromepi2.jpg" alt="AROME-CAT" onerror="this.parentElement.innerHTML='<i class=\'fa-solid fa-cloud-bolt\'></i>'"></div>
+                    <div class="fm-body">
+                        <div class="fm-title">AROME-CAT · Alta resolució 1.3 km</div>
+                        <div class="fm-desc">Nivells d'altura, skew-T i convecció amb el millor detall disponible per a Catalunya.</div>
+                        <a href="visor.html" class="btn-outline-nav"><i class="fa-solid fa-arrow-right"></i> Entrar al visor</a>
+                    </div>
+                </div>
+                <div class="feature-side">
+                    <a href="previsions.html" class="feature-side-card" style="text-decoration:none;">
+                        <div class="fs-label">Ensembles</div>
+                        <div class="fs-img"><img src="img/previ.png" alt="Previsions" onerror="this.parentElement.innerHTML='<i class=\'fa-solid fa-chart-line\'></i>'"></div>
+                        <div class="fs-title">Previsions i escenaris a curt termini</div>
+                    </a>
+                    <a href="waves.html" class="feature-side-card" style="text-decoration:none;">
+                        <div class="fs-label">Onatge</div>
+                        <div class="fs-img"><img src="img/visormar.png" alt="Onatge" onerror="this.parentElement.innerHTML='<i class=\'fa-solid fa-water\'></i>'"></div>
+                        <div class="fs-title">Alçada, període i direcció d'onada</div>
+                    </a>
+                    <a href="https://radar.tempestes.cat/" class="feature-side-card" style="text-decoration:none;">
+                        <div class="fs-label">Radar</div>
+                        <div class="fs-img"><img src="img/radar.png" alt="Radar" onerror="this.parentElement.innerHTML='<i class=\'fa-solid fa-radar\'></i>'"></div>
+                        <div class="fs-title">Reflectivitat en temps real cada 10 min</div>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ NOTÍCIES ============ -->
+        <div class="sec">
+            <div class="sec-head">
+                <h2><i class="fa-brands fa-twitter"></i> Notícies i previsions</h2>
+                <a href="https://x.com/tempestes_cat" target="_blank" class="sec-link">Veure el nostre X <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+            </div>
+            <div id="newsContainer">
+                <div class="news-loading">
+                    <i class="fa-solid fa-spinner fa-spin"></i>
+                    Carregant les últimes notícies...
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ TUTORIAL ============ -->
+        <div class="sec">
+            <div class="sec-head">
+                <h2><i class="fa-solid fa-circle-question"></i> Com funciona TEMPESTES.CAT?</h2>
+            </div>
+            <div id="tutorialGrid"></div>
+            <div class="btn-visor-wrapper">
+                <a href="visor.html" class="btn-visor">
+                    <i class="fa-solid fa-arrow-right"></i> Entrar al visor
+                </a>
+            </div>
+        </div>
+
+        <!-- ============ SECTORS QUE FAN SERVIR TEMPESTES.CAT ============ -->
+        <div class="sec">
+            <div class="sec-head">
+                <h2><i class="fa-solid fa-users"></i> Qui fa servir TEMPESTES.CAT?</h2>
+            </div>
+            <div class="sectors-strip">
+                <div class="sector-item"><i class="fa-solid fa-tractor"></i><span>Agricultura</span></div>
+                <div class="sector-item"><i class="fa-solid fa-person-hiking"></i><span>Muntanya</span></div>
+                <div class="sector-item"><i class="fa-solid fa-sailboat"></i><span>Nàutica</span></div>
+                <div class="sector-item"><i class="fa-solid fa-truck"></i><span>Transport</span></div>
+                <div class="sector-item"><i class="fa-solid fa-building-shield"></i><span>Protecció Civil</span></div>
+                <div class="sector-item"><i class="fa-solid fa-camera-retro"></i><span>Caçatempestes</span></div>
+            </div>
+        </div>
+
+        <!-- ============ XAT NOMÉS VISUALITZACIÓ ============ -->
+        <div class="sec">
+            <div class="xat-home-wrapper">
+                <div class="xat-home-header">
+                    <h3><i class="fa-solid fa-comment"></i> Xat en directe</h3>
+                    <span class="xat-online"><i class="fa-solid fa-circle" style="color:#28a745;font-size:10px;"></i> En directe</span>
+                </div>
+                <div class="xat-home-msgs" id="xatHomeMsgs">
+                    <div style="text-align:center;color:#888;padding:12px;font-size:13px;">Carregant missatges...</div>
+                </div>
+                <div class="xat-home-footer">
+                    <input type="text" id="xatHomeInput" placeholder="El xat es nomes de lectura" disabled>
+                    <button disabled>Enviar</button>
+                </div>
+                <div class="xat-home-login-msg">
+                    <i class="fa-solid fa-info-circle"></i> El xat es nomes de lectura. Per participar, obre el visor.
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ RESSENYES ============ -->
+        <div class="sec" id="reviewsSection">
+            <h2 class="section-title">Que diuen els usuaris</h2>
+            <p class="section-subtitle">Opinions reals dels meteorolegs que fan servir la web</p>
+            <div class="reviews-avg">
+                <span class="reviews-avg-stars" id="reviewsAvgStars">★★★★★</span>
+                <span class="reviews-avg-text" id="reviewsAvgText">5.0</span>
+                <span class="reviews-avg-count" id="reviewsAvgCount">(0)</span>
+            </div>
+            <div class="reviews-grid" id="reviewsGrid">
+                <div class="reviews-empty"><i class="fa-solid fa-star"></i> Carregant ressenyes...</div>
+            </div>
+            <div class="review-form-box">
+                <div class="review-form-title">Deixa la teva ressenya</div>
+                <div class="review-stars-input" id="reviewStarsInput">
+                    <button class="review-star-btn active" data-star="1">★</button>
+                    <button class="review-star-btn active" data-star="2">★</button>
+                    <button class="review-star-btn active" data-star="3">★</button>
+                    <button class="review-star-btn active" data-star="4">★</button>
+                    <button class="review-star-btn active" data-star="5">★</button>
+                </div>
+                <textarea class="review-text-input" id="reviewTextInput" placeholder="Que t'ha semblat la web de TEMPESTES.CAT?" maxlength="500"></textarea>
+                <button class="review-submit-btn" id="reviewSubmitBtn" onclick="submitReview()">Publicar ressenya</button>
+                <div class="review-login-msg" id="reviewLoginMsg">Cal <a onclick="loginWithGoogle()">iniciar sessio</a> per publicar</div>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="termes-box">
+            <p><strong>Avís legal</strong> · Dades de Meteo-France, NOAA i ECMWF. Mapes i dades elaborats per <strong>TEMPESTES.CAT</strong>.</p>
         </div>
     </div>
 
-    <!-- FOOTER -->
-    <div class="termes-box">
-        <p><strong>Avís legal</strong> · Dades de Meteo-France, NOAA i ECMWF. Mapes i dades elaborats per <strong>TEMPESTES.CAT</strong>.</p>
-    </div>
     <div class="footer-bar">
         <strong>TEMPESTES.CAT</strong> · AROME 1.3km · AROME-PI · GFS 0.25º
     </div>

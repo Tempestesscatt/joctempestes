@@ -21,22 +21,116 @@ const MAX_STEPS = 52;
 const DADES_PATH = './dades';
 
 const VARS_SENSE_VENT = [
+    // ═══════════════════════════════════════════════════════════════
+    // 1. PRECIPITACIÓ I NEU
+    // ═══════════════════════════════════════════════════════════════
     'rain', 'rain_1h', 'snow', 'graupel',
     'tp', 'tgrp', 'tsnowp', 'precip_water',
+    'PRECIP__GROUND',
+    'NEIGE__GROUND',
+    'SNOW_DEPTH__GROUND_OR_WATER_SURFACE',
+    'WATER_EQUIVALENT_ACCUMULATED_SNOW__GROUND_OR_WATER_SURFACE',
+    'HTEURNEIGE__GROUND',
+    'NEIGE_SC__GROUND',
+    'RESR_NEIGE__GROUND',
+    'RR_SOL_GELE__GROUND',
+    'PRECIPITATION_TYPE_60_MIN__GROUND_OR_WATER_SURFACE',
+    'SEVERE_PRECIPITATION_TYPE_60_MIN__GROUND_OR_WATER_SURFACE',
+    'PRECIPITATION_TYPE_15_MIN__GROUND_OR_WATER_SURFACE',
+    'SEVERE_PRECIPITATION_TYPE_15_MIN__GROUND_OR_WATER_SURFACE',
+    'TOTAL_PRECIPITATION_RATE__GROUND_OR_WATER_SURFACE',
+    
+    // ═══════════════════════════════════════════════════════════════
+    // 2. NÚVOLS
+    // ═══════════════════════════════════════════════════════════════
     'low_cloud_cover', 'medium_cloud_cover', 'high_cloud_cover',
-    'spbl', 'cin',
-    'pressure_msl', 'sp', 'shear_06_eff',
-    'el_m', 'reflectivity_dbz', 'lightning', 'lcl_m', 'lfc_m',
-    'geopotencial_500', 'temperatura_500', 'bt108', 'lightning_1h', 'radar_dbz',
-    'scp', 'hail_cm', 'scp_wcs', 'stp', 'altitud',
-    'ciwc_500', 'cld_rain_850', 'tpw_700', 'tpw_850', 'ehi', 'bt62',
-
-    // WCS 3D MITJANA
+    'TOTAL_CLOUD_COVER__GROUND_OR_WATER_SURFACE',
+    'BASE_NUAGE__GROUND',
+    'PLAFOND__GROUND',
+    'P__BASE_CB',
+    'P__TOP_CB',
+    
+    // ═══════════════════════════════════════════════════════════════
+    // 3. PRESSIÓ I TEMPERATURA
+    // ═══════════════════════════════════════════════════════════════
+    'pressure_msl', 'sp',
+    'T__GROUND',
+    'TEMPERATURE__GROUND_OR_WATER_SURFACE',
+    'temp_min2m', 'temp_max2m',
+    
+    // ═══════════════════════════════════════════════════════════════
+    // 4. INESTABILITAT I CONVECCIÓ
+    // ═══════════════════════════════════════════════════════════════
+    'cape', 'cin',
+    'MEAN_LAYER_CAPE__GROUND_OR_WATER_SURFACE',
+    'CONVECTIVE_INHIBITION__GROUND_OR_WATER_SURFACE',
+    'el_m', 'lcl_m', 'lfc_m', 'lifted_index',
+    'thetav_850',
+    
+    // ═══════════════════════════════════════════════════════════════
+    // 5. TORNADOS I SUPERCELLES
+    // ═══════════════════════════════════════════════════════════════
+    'scp', 'scp_wcs', 'stp', 'ehi', 'hail_cm',
+    'DIAG_GRELE__GROUND_OR_WATER_SURFACE',
+    'DIAG_GRELE__GROUND',
+    'HELICITE__GROUND',
+    
+    // ═══════════════════════════════════════════════════════════════
+    // 6. SHEAR I SRH (NO VENT, SÓN ÍNDEXS)
+    // ═══════════════════════════════════════════════════════════════
+    'shear_03', 'shear_06', 'shear_06_eff',
+    'srh_01', 'srh_03', 'srh',
+    
+    // ═══════════════════════════════════════════════════════════════
+    // 7. SATÈL·LIT
+    // ═══════════════════════════════════════════════════════════════
+    'bt108', 'bt62',
+    'BT__CHANNELS_108',
+    'BT__CHANNELS_62',
+    
+    // ═══════════════════════════════════════════════════════════════
+    // 8. RADAR I LLAMPS
+    // ═══════════════════════════════════════════════════════════════
+    'radar_dbz', 'reflectivity_dbz', 'lightning', 'lightning_1h',
+    'REFLECTIVITY_MAX__GROUND_OR_WATER_SURFACE',
+    'REFLECTIVITY_MAX_DBZ__GROUND_OR_WATER_SURFACE',
+    
+    // ═══════════════════════════════════════════════════════════════
+    // 9. ALTITUD I GEOPOTENCIAL
+    // ═══════════════════════════════════════════════════════════════
+    'altitud', 'spbl',
+    'geopotencial_500',
+    'GEOMETRIC_HEIGHT__GROUND_OR_WATER_SURFACE',
+    'PLANETARY_BOUNDARY_LAYER_HEIGHT__GROUND_OR_WATER_SURFACE',
+    
+    // ═══════════════════════════════════════════════════════════════
+    // 10. ISOTERMES (ALTITUD PUNT DE ROSADA)
+    // ═══════════════════════════════════════════════════════════════
+    'ALTITUDE_ISOTERMA_0C',
+    'ALTITUDE_ISOTERMA_M10C',
+    'ALTITUDE__ISO_T_27315',
+    'ALTITUDE__ISO_TPW_27315',
+    'ALTITUDE__ISO_TPW_27415',
+    'ALTITUDE__ISO_TPW_27465',
+    
+    // ═══════════════════════════════════════════════════════════════
+    // 11. AIGUA PRECIPITABLE (TPW)
+    // ═══════════════════════════════════════════════════════════════
+    'tpw_700', 'tpw_850',
+    'PRECIPITABLE_WATER__GROUND_OR_WATER_SURFACE',
+    'TPW_MITJANA',
+    
+    // ═══════════════════════════════════════════════════════════════
+    // 12. GEL I PLUJA NÚVOLS (WCS 3D)
+    // ═══════════════════════════════════════════════════════════════
+    'ciwc_500',
+    'cld_rain_850',
     'CIWC_MITJANA',
     'CLD_RAIN_MITJANA',
-    'TPW_MITJANA',
-
-    // WCS 3D PV SURFACES
+    
+    // ═══════════════════════════════════════════════════════════════
+    // 13. PV SURFACES (GEOPOTENCIAL, THETA, VENT PV)
+    // ═══════════════════════════════════════════════════════════════
     'GEOPOTENTIAL_PV1500',
     'GEOPOTENTIAL_PV2000',
     'THETA_PV1500',
@@ -47,29 +141,21 @@ const VARS_SENSE_VENT = [
     'V_PV2000',
     'WIND_PV1500',
     'WIND_PV2000',
-
-    // WCS 3D ISOTERMES
-    'ALTITUDE_ISOTERMA_0C',
-    'ALTITUDE_ISOTERMA_M10C',
-
-    'SNOW_DEPTH__GROUND_OR_WATER_SURFACE',
-    'WATER_EQUIVALENT_ACCUMULATED_SNOW__GROUND_OR_WATER_SURFACE',
-    'PRECIPITATION_TYPE_60_MIN__GROUND_OR_WATER_SURFACE',
-    'SEVERE_PRECIPITATION_TYPE_60_MIN__GROUND_OR_WATER_SURFACE',
-    'REFLECTIVITY_MAX__GROUND_OR_WATER_SURFACE',
-    'REFLECTIVITY_MAX_DBZ__GROUND_OR_WATER_SURFACE',
+    'FF__ISO_TP_1500',
+    'FF__ISO_TP_2000',
+    
+    // ═══════════════════════════════════════════════════════════════
+    // 14. VISIBILITAT
+    // ═══════════════════════════════════════════════════════════════
     'VISIBILITY_MINI_60MIN__GROUND_OR_WATER_SURFACE',
     'VISIBILITY_MINI_PRECIP_60MIN__GROUND_OR_WATER_SURFACE',
-    'PRECIPITABLE_WATER__GROUND_OR_WATER_SURFACE',
-    'TEMPERATURE__GROUND_OR_WATER_SURFACE',
-    'TOTAL_CLOUD_COVER__GROUND_OR_WATER_SURFACE',
-    'MEAN_LAYER_CAPE__GROUND_OR_WATER_SURFACE',
-    'DIAG_GRELE__GROUND_OR_WATER_SURFACE',
-    'PRECIPITATION_TYPE_15_MIN__GROUND_OR_WATER_SURFACE',
-    'SEVERE_PRECIPITATION_TYPE_15_MIN__GROUND_OR_WATER_SURFACE',
-    'TOTAL_PRECIPITATION_RATE__GROUND_OR_WATER_SURFACE',
     'VISIBILITY_MINI_15MIN__GROUND_OR_WATER_SURFACE',
     'VISIBILITY_MINI_PRECIP_15MIN__GROUND_OR_WATER_SURFACE',
+    
+    // ═══════════════════════════════════════════════════════════════
+    // 15. TEMPERATURA 500hPa
+    // ═══════════════════════════════════════════════════════════════
+    'temperatura_500',
 ];
 
 // ─── Configuració streamlines ──────────────────────────────────────
@@ -170,11 +256,78 @@ const STOPS_VENT_UV = [
     {v:20,r:200,g:0,b:100},{v:40,r:200,g:0,b:0},{v:60,r:100,g:0,b:0}
 ];
 
+
+// ─── HUMITAT 2m - VERD SEC → BLAU-LILA FOSC ───────────────────────────
+//    LÒGICA: SEC (verd clar/ocre) → MODERADA (verd) → HUMIT (blau-lila)
+//    Rang: 0 a 100%
+// ────────────────────────────────────────────────────────────────────────
+
 const STOPS_HUMITAT = [
-    {v:0,r:210,g:180,b:140},{v:10,r:200,g:160,b:100},{v:20,r:180,g:140,b:80},
-    {v:30,r:160,g:200,b:80},{v:40,r:120,g:220,b:60},{v:50,r:80,g:240,b:40},
-    {v:60,r:40,g:220,b:20},{v:70,r:0,g:200,b:0},{v:80,r:0,g:150,b:200},
-    {v:90,r:0,g:80,b:240},{v:100,r:0,g:0,b:200}
+    // ========== MOLT SEC (0 - 15%) ==========
+    // Verd-ocre clar → Verd-ocre
+    {v:0,    r:200, g:190, b:150, a:255},
+    {v:3,    r:195, g:190, b:145, a:255},
+    {v:5,    r:190, g:190, b:140, a:255},
+    {v:8,    r:185, g:192, b:135, a:255},
+    {v:10,   r:180, g:195, b:130, a:255},
+    {v:12,   r:175, g:198, b:128, a:255},
+    {v:15,   r:170, g:200, b:125, a:255},
+    
+    // ========== SEC (15 - 30%) ==========
+    // Verd-ocre → Verd
+    {v:18,   r:165, g:203, b:122, a:255},
+    {v:20,   r:158, g:208, b:118, a:255},
+    {v:23,   r:150, g:212, b:115, a:255},
+    {v:25,   r:142, g:216, b:112, a:255},
+    {v:28,   r:134, g:220, b:110, a:255},
+    {v:30,   r:126, g:224, b:108, a:255},
+    
+    // ========== SEC-MODERAT (30 - 45%) ==========
+    // Verd → Verd intens
+    {v:33,   r:118, g:228, b:110, a:255},
+    {v:35,   r:110, g:230, b:115, a:255},
+    {v:38,   r:102, g:232, b:122, a:255},
+    {v:40,   r:94,  g:234, b:130, a:255},
+    {v:42,   r:86,  g:234, b:140, a:255},
+    {v:45,   r:78,  g:234, b:150, a:255},
+    
+    // ========== MODERAT (45 - 60%) ==========
+    // Verd → Verd-blau
+    {v:48,   r:70,  g:234, b:162, a:255},
+    {v:50,   r:64,  g:232, b:174, a:255},
+    {v:52,   r:58,  g:230, b:186, a:255},
+    {v:55,   r:52,  g:226, b:196, a:255},
+    {v:57,   r:48,  g:220, b:206, a:255},
+    {v:60,   r:44,  g:214, b:216, a:255},
+    
+    // ========== HUMIT (60 - 75%) ==========
+    // Verd-blau → Blau
+    {v:62,   r:42,  g:206, b:224, a:255},
+    {v:65,   r:40,  g:196, b:230, a:255},
+    {v:68,   r:38,  g:184, b:236, a:255},
+    {v:70,   r:36,  g:172, b:240, a:255},
+    {v:72,   r:36,  g:158, b:244, a:255},
+    {v:75,   r:38,  g:144, b:248, a:255},
+    
+    // ========== MOLT HUMIT (75 - 90%) ==========
+    // Blau → Blau-lila
+    {v:78,   r:40,  g:130, b:248, a:255},
+    {v:80,   r:44,  g:116, b:248, a:255},
+    {v:83,   r:50,  g:102, b:248, a:255},
+    {v:85,   r:58,  g:88,  b:246, a:255},
+    {v:88,   r:66,  g:74,  b:244, a:255},
+    {v:90,   r:76,  g:62,  b:240, a:255},
+    
+    // ========== EXTREMADAMENT HUMIT (90 - 100%) ==========
+    // Blau-lila → Lila fosc
+    {v:92,   r:88,  g:52,  b:236, a:255},
+    {v:94,   r:100, g:44,  b:230, a:255},
+    {v:95,   r:112, g:38,  b:224, a:255},
+    {v:96,   r:124, g:34,  b:218, a:255},
+    {v:97,   r:136, g:30,  b:210, a:255},
+    {v:98,   r:148, g:28,  b:200, a:255},
+    {v:99,   r:158, g:28,  b:190, a:255},
+    {v:100,  r:168, g:30,  b:178, a:255},
 ];
 
 const STOPS_PRESSIO = [
@@ -443,87 +596,13 @@ const STOPS_TPW = [
 
 // ─── THETA VIRTUAL (θv) - PALETA PSICODÈLICA EXTREMA ────────────────
 const STOPS_THETAV = [
-    {v:-40, r:0,   g:0,   b:0},
-    {v:-39, r:255, g:0,   b:255},
-    {v:-38, r:0,   g:255, b:255},
-    {v:-37, r:255, g:255, b:0},
-    {v:-36, r:0,   g:255, b:0},
-    {v:-35, r:255, g:0,   b:0},
-    {v:-34, r:0,   g:0,   b:255},
-    {v:-33, r:255, g:128, b:0},
-    {v:-32, r:128, g:0,   b:255},
-    {v:-31, r:0,   g:255, b:128},
-    {v:-30, r:255, g:0,   b:128},
-    {v:-29, r:0,   g:128, b:255},
-    {v:-28, r:128, g:255, b:0},
-    {v:-27, r:255, g:128, b:255},
-    {v:-26, r:0,   g:255, b:255},
-    {v:-25, r:255, g:255, b:128},
-    {v:-24, r:128, g:0,   b:255},
-    {v:-23, r:255, g:0,   b:255},
-    {v:-22, r:0,   g:255, b:0},
-    {v:-21, r:255, g:255, b:0},
-    {v:-20, r:0,   g:0,   b:255},
-    {v:-19, r:255, g:0,   b:0},
-    {v:-18, r:0,   g:255, b:255},
-    {v:-17, r:255, g:0,   b:255},
-    {v:-16, r:255, g:255, b:0},
-    {v:-15, r:0,   g:0,   b:0},
-    {v:-14, r:255, g:255, b:255},
-    {v:-13, r:255, g:128, b:0},
-    {v:-12, r:0,   g:255, b:128},
-    {v:-11, r:128, g:0,   b:255},
-    {v:-10, r:255, g:0,   b:128},
-    {v:-9,  r:0,   g:128, b:255},
-    {v:-8,  r:128, g:255, b:0},
-    {v:-7,  r:255, g:128, b:255},
-    {v:-6,  r:0,   g:255, b:255},
-    {v:-5,  r:255, g:255, b:128},
-    {v:-4,  r:128, g:0,   b:0},
-    {v:-3,  r:0,   g:128, b:0},
-    {v:-2,  r:0,   g:0,   b:128},
-    {v:-1,  r:255, g:165, b:0},
-    {v:0,   r:255, g:20,  b:147},
-    {v:1,   r:0,   g:255, b:255},
-    {v:2,   r:255, g:255, b:0},
-    {v:3,   r:255, g:0,   b:255},
-    {v:4,   r:0,   g:255, b:0},
-    {v:5,   r:255, g:0,   b:0},
-    {v:6,   r:0,   g:0,   b:255},
-    {v:7,   r:255, g:128, b:0},
-    {v:8,   r:128, g:0,   b:255},
-    {v:9,   r:0,   g:255, b:128},
-    {v:10,  r:255, g:0,   b:128},
-    {v:11,  r:255, g:255, b:255},
-    {v:12,  r:0,   g:0,   b:0},
-    {v:13,  r:255, g:215, b:0},
-    {v:14,  r:192, g:192, b:192},
-    {v:15,  r:255, g:69,  b:0},
-    {v:16,  r:0,   g:255, b:255},
-    {v:17,  r:255, g:0,   b:255},
-    {v:18,  r:50,  g:205, b:50},
-    {v:19,  r:255, g:105, b:180},
-    {v:20,  r:0,   g:191, b:255},
-    {v:21,  r:255, g:255, b:0},
-    {v:22,  r:255, g:0,   b:0},
-    {v:23,  r:0,   g:255, b:0},
-    {v:24,  r:0,   g:0,   b:255},
-    {v:25,  r:255, g:0,   b:255},
-    {v:26,  r:0,   g:255, b:255},
-    {v:27,  r:255, g:255, b:255},
-    {v:28,  r:0,   g:0,   b:0},
-    {v:29,  r:255, g:128, b:0},
-    {v:30,  r:128, g:0,   b:255},
-    {v:31,  r:0,   g:255, b:128},
-    {v:32,  r:255, g:0,   b:128},
-    {v:33,  r:0,   g:128, b:255},
-    {v:34,  r:255, g:128, b:255},
-    {v:35,  r:128, g:255, b:0},
-    {v:36,  r:255, g:255, b:128},
-    {v:37,  r:128, g:255, b:255},
-    {v:38,  r:255, g:128, b:128},
-    {v:39,  r:128, g:128, b:255},
-    {v:40,  r:255, g:255, b:255},
+    {v:-24,r:45,g:0,b:75},{v:-20,r:130,g:0,b:160},{v:-15,r:65,g:0,b:115},
+    {v:-10,r:0,g:0,b:255},{v:-5,r:0,g:135,b:255},{v:0,r:0,g:235,b:255},
+    {v:2,r:0,g:255,b:150},{v:5,r:0,g:200,b:0},{v:8,r:120,g:255,b:0},
+    {v:11,r:255,g:255,b:0},{v:14,r:255,g:255,b:170},{v:17,r:255,g:235,b:100},
+    {v:20,r:255,g:200,b:0},{v:23,r:255,g:140,b:0},{v:26,r:255,g:70,b:0},
+    {v:29,r:255,g:0,b:0},{v:32,r:180,g:0,b:0},{v:35,r:90,g:0,b:0},
+    {v:38,r:150,g:0,b:150},{v:42,r:255,g:0,b:255},{v:46,r:255,g:185,b:255}
 ];
 
 // ─── PLUJA NÚVOLS (CLD_RAIN) ──────────────────────────────────────
@@ -620,11 +699,78 @@ const STOPS_NUVOLS_BAIXOS = [
     {v:100,r:160, g:0,   b:0,   a:240},
 ];
 
+// ─── SOSTRE NÚVOLS (PLAFOND) - BLAUS A BAIX, VERMELL TORRAT A ALT ─────
+//    LÒGICA: BAIX = BLAUS (fred/boira) → ALT = VERMELL TORRAT (calor)
+//    Rang: 0 a 12000 m
+// ────────────────────────────────────────────────────────────────────────
+
 const STOPS_ALTURA_CL = [
-    {v:0,r:0,g:0,b:0,a:0},{v:100,r:200,g:200,b:255},{v:200,r:150,g:200,b:255},
-    {v:500,r:100,g:180,b:255},{v:1000,r:0,g:200,b:200},{v:1500,r:0,g:255,b:100},
-    {v:2000,r:100,g:255,b:0},{v:3000,r:255,g:255,b:0},{v:4000,r:255,g:150,b:0},
-    {v:5000,r:255,g:0,b:0},{v:8000,r:200,g:0,b:200},{v:12000,r:150,g:100,b:255}
+    // ========== MOLT BAIX (0 - 200 m) ==========
+    // Blau molt fosc → Blau fosc (boira/núvols molt baixos)
+    {v:0,    r:10,  g:10,  b:40,  a:255},
+    {v:50,   r:15,  g:20,  b:60,  a:255},
+    {v:100,  r:20,  g:35,  b:90,  a:255},
+    {v:150,  r:25,  g:55,  b:120, a:255},
+    {v:200,  r:30,  g:75,  b:150, a:255},
+    
+    // ========== BAIX (200 - 500 m) ==========
+    // Blau fosc → Blau (núvols baixos)
+    {v:250,  r:40,  g:95,  b:180, a:255},
+    {v:300,  r:55,  g:115, b:200, a:255},
+    {v:350,  r:70,  g:135, b:215, a:255},
+    {v:400,  r:85,  g:155, b:230, a:255},
+    {v:500,  r:100, g:175, b:240, a:255},
+    
+    // ========== MITJÀ-BAIX (500 - 1000 m) ==========
+    // Blau → Blau clar (núvols mitjans-baixos)
+    {v:600,  r:115, g:190, b:245, a:255},
+    {v:700,  r:130, g:205, b:248, a:255},
+    {v:800,  r:145, g:215, b:250, a:255},
+    {v:900,  r:160, g:225, b:250, a:255},
+    {v:1000, r:175, g:232, b:248, a:255},
+    
+    // ========== MITJÀ (1000 - 2000 m) ==========
+    // Blau clar → Cian (núvols mitjans)
+    {v:1200, r:190, g:238, b:245, a:255},
+    {v:1400, r:200, g:242, b:240, a:255},
+    {v:1600, r:210, g:245, b:235, a:255},
+    {v:1800, r:220, g:248, b:225, a:255},
+    {v:2000, r:230, g:250, b:210, a:255},
+    
+    // ========== MITJÀ-ALT (2000 - 3500 m) ==========
+    // Cian → Verd clar (núvols mitjans-alts)
+    {v:2200, r:235, g:248, b:190, a:255},
+    {v:2400, r:240, g:245, b:165, a:255},
+    {v:2600, r:245, g:242, b:140, a:255},
+    {v:2800, r:248, g:238, b:115, a:255},
+    {v:3000, r:250, g:232, b:90,  a:255},
+    {v:3500, r:252, g:225, b:65,  a:255},
+    
+    // ========== ALT (3500 - 6000 m) ==========
+    // Groc → Taronja (núvols alts)
+    {v:4000, r:255, g:215, b:40,  a:255},
+    {v:4500, r:255, g:200, b:20,  a:255},
+    {v:5000, r:255, g:185, b:10,  a:255},
+    {v:5500, r:255, g:165, b:0,   a:255},
+    {v:6000, r:255, g:145, b:0,   a:255},
+    
+    // ========== MOLT ALT (6000 - 9000 m) ==========
+    // Taronja → Vermell torrat (núvols molt alts)
+    {v:6500, r:255, g:125, b:0,   a:255},
+    {v:7000, r:255, g:105, b:0,   a:255},
+    {v:7500, r:255, g:85,  b:0,   a:255},
+    {v:8000, r:255, g:65,  b:0,   a:255},
+    {v:8500, r:240, g:50,  b:0,   a:255},
+    {v:9000, r:220, g:35,  b:0,   a:255},
+    
+    // ========== EXTREM ALT (9000 - 12000 m) ==========
+    // Vermell torrat → Vermell fosc torrat → Blanc (tops)
+    {v:9500,  r:200, g:25,  b:0,   a:255},
+    {v:10000, r:180, g:15,  b:0,   a:255},
+    {v:10500, r:155, g:10,  b:5,   a:255},
+    {v:11000, r:130, g:5,   b:15,  a:255},
+    {v:11500, r:100, g:0,   b:30,  a:255},
+    {v:12000, r:255, g:255, b:255, a:255},  // Blanc = màxima altitud
 ];
 
 const STOPS_RATXA = [
@@ -663,24 +809,76 @@ const STOPS_VORT_POT = [
     {v:-10,r:0,g:0,b:200},{v:-3,r:0,g:150,b:255},{v:0,r:220,g:220,b:220},
     {v:3,r:255,g:180,b:0},{v:10,r:200,g:0,b:0}
 ];
+// ─── dBZ (REFLECTIVITAT RADAR) - GRADIENT SUAU ─────────────────────────
+//    LÒGICA: SENSE PLUJA (transparent) → PLUJA DÈBIL (blau) → 
+//    PLUJA MODERADA (verd) → PLUJA FORTA (groc/taronja) → 
+//    TEMPESTA SEVERA (vermell) → TEMPESTA EXTREMA (morat/blanc)
+//    Rang: 0 a 75 dBZ
+// ────────────────────────────────────────────────────────────────────────
 
 const STOPS_DBZ = [
-    {v:0,  r:0,   g:0,   b:0,   a:0},
-    {v:5,  r:0,   g:236, b:236, a:150},
-    {v:10, r:1,   g:160, b:246, a:200},
-    {v:15, r:0,   g:0,   b:246, a:210},
-    {v:20, r:0,   g:236, b:0,   a:220},
-    {v:25, r:0,   g:180, b:0,   a:220},
-    {v:30, r:0,   g:100, b:0,   a:220},
-    {v:35, r:255, g:144, b:0,   a:230},
-    {v:40, r:255, g:0,   b:0,   a:240},
-    {v:45, r:192, g:0,   b:0,   a:240},
-    {v:50, r:120, g:0,   b:0,   a:240},
-    {v:55, r:255, g:0,   b:255, a:250},
-    {v:60, r:160, g:32,  b:240, a:250},
-    {v:65, r:80,  g:0,   b:130, a:255},
-    {v:70, r:200, g:200, b:200, a:255},
-    {v:75, r:255, g:255, b:255, a:255},
+    // ========== SENSE PLUJA / PLUJA MOLT DÈBIL (0 - 10) ==========
+    // Transparent → Blau molt clar
+    {v:0,    r:255, g:255, b:255, a:0},
+    {v:2,    r:245, g:248, b:255, a:30},
+    {v:4,    r:235, g:242, b:255, a:60},
+    {v:6,    r:220, g:235, b:255, a:90},
+    {v:8,    r:205, g:228, b:255, a:120},
+    {v:10,   r:190, g:220, b:255, a:150},
+    
+    // ========== PLUJA DÈBIL (10 - 20) ==========
+    // Blau → Cian
+    {v:12,   r:170, g:215, b:255, a:170},
+    {v:14,   r:150, g:210, b:255, a:185},
+    {v:16,   r:130, g:205, b:255, a:195},
+    {v:18,   r:110, g:205, b:248, a:205},
+    {v:20,   r:95,  g:210, b:240, a:212},
+    
+    // ========== PLUJA MODERADA (20 - 30) ==========
+    // Cian → Verd
+    {v:22,   r:85,  g:218, b:228, a:218},
+    {v:24,   r:80,  g:226, b:215, a:222},
+    {v:26,   r:85,  g:234, b:198, a:226},
+    {v:28,   r:95,  g:240, b:178, a:230},
+    {v:30,   r:110, g:245, b:158, a:234},
+    
+    // ========== PLUJA FORTA (30 - 40) ==========
+    // Verd → Groc
+    {v:32,   r:130, g:248, b:138, a:238},
+    {v:34,   r:155, g:250, b:118, a:240},
+    {v:36,   r:180, g:250, b:98,  a:242},
+    {v:38,   r:205, g:248, b:78,  a:244},
+    {v:40,   r:225, g:245, b:58,  a:246},
+    
+    // ========== PLUJA MOLT FORTA (40 - 50) ==========
+    // Groc → Taronja → Vermell
+    {v:42,   r:240, g:240, b:40,  a:248},
+    {v:44,   r:250, g:232, b:25,  a:250},
+    {v:46,   r:255, g:220, b:10,  a:252},
+    {v:48,   r:255, g:205, b:0,   a:253},
+    {v:50,   r:255, g:185, b:0,   a:254},
+    
+    // ========== TEMPESTA SEVERA (50 - 60) ==========
+    // Vermell → Vermell fosc
+    {v:52,   r:255, g:160, b:0,   a:255},
+    {v:54,   r:255, g:135, b:0,   a:255},
+    {v:56,   r:255, g:110, b:0,   a:255},
+    {v:58,   r:255, g:85,  b:0,   a:255},
+    {v:60,   r:255, g:60,  b:0,   a:255},
+    
+    // ========== TEMPESTA EXTREMA (60 - 70) ==========
+    // Vermell → Morat
+    {v:62,   r:255, g:40,  b:20,  a:255},
+    {v:64,   r:240, g:25,  b:50,  a:255},
+    {v:66,   r:220, g:15,  b:80,  a:255},
+    {v:68,   r:200, g:10,  b:110, a:255},
+    {v:70,   r:180, g:10,  b:140, a:255},
+    
+    // ========== TEMPESTA CATASTRÒFICA (70 - 75+) ==========
+    // Morat → Blanc
+    {v:72,   r:155, g:20,  b:170, a:255},
+    {v:74,   r:130, g:40,  b:195, a:255},
+    {v:75,   r:255, g:255, b:255, a:255},
 ];
 
 const STOPS_LLAMPS = [
@@ -1150,110 +1348,135 @@ const STOPS_ISOTERMA = [
     {v:8000, r:150, g:0, b:100, a:255},
     {v:12000, r:100, g:0, b:150, a:255},
 ];
-
-// SCP (Supercell Composite Parameter) - BLANC SEMITRANSPARENT
 const STOPS_SCP = [
-    {v:0,    r:255, g:255, b:255, a:30},
-    {v:0.1,  r:255, g:250, b:255, a:50},
-    {v:0.2,  r:255, g:240, b:255, a:70},
-    {v:0.3,  r:255, g:230, b:255, a:90},
-    {v:0.5,  r:255, g:210, b:255, a:120},
-    {v:0.7,  r:255, g:180, b:255, a:150},
-    {v:1.0,  r:255, g:150, b:255, a:175},
-    {v:1.3,  r:255, g:120, b:255, a:190},
-    {v:1.5,  r:255, g:100, b:255, a:200},
-    {v:1.8,  r:255, g:70,  b:255, a:210},
-    {v:2.0,  r:255, g:40,  b:255, a:220},
-    {v:2.3,  r:255, g:20,  b:220, a:225},
-    {v:2.5,  r:255, g:0,   b:190, a:230},
-    {v:3.0,  r:240, g:0,   b:160, a:235},
-    {v:3.5,  r:220, g:0,   b:130, a:240},
-    {v:4.0,  r:200, g:0,   b:100, a:245},
-    {v:4.5,  r:180, g:0,   b:80,  a:248},
-    {v:5.0,  r:160, g:0,   b:60,  a:250},
-    {v:6.0,  r:140, g:0,   b:40,  a:252},
-    {v:7.0,  r:120, g:0,   b:20,  a:254},
-    {v:8.0,  r:100, g:0,   b:0,   a:255},
-    {v:9.0,  r:80,  g:0,   b:0,   a:255},
-    {v:10,   r:60,  g:0,   b:0,   a:255},
-    {v:12,   r:40,  g:0,   b:0,   a:255},
-    {v:15,   r:20,  g:0,   b:0,   a:255},
-    {v:20,   r:0,   g:0,   b:0,   a:255},
+    // ========== RISC MOLT BAIX (0 - 0.5) ==========
+    {v:0,    r:220, g:220, b:220, a:20},
+    {v:0.1,  r:200, g:210, b:220, a:50},
+    {v:0.2,  r:180, g:200, b:220, a:80},
+    {v:0.3,  r:160, g:190, b:220, a:110},
+    {v:0.4,  r:140, g:180, b:220, a:140},
+    {v:0.5,  r:120, g:170, b:220, a:160},
+    
+    // ========== RISC BAIX (0.5 - 2) ==========
+    {v:0.7,  r:100, g:180, b:220, a:175},
+    {v:0.9,  r:80,  g:195, b:220, a:190},
+    {v:1.1,  r:60,  g:210, b:215, a:200},
+    {v:1.3,  r:60,  g:220, b:200, a:210},
+    {v:1.5,  r:80,  g:230, b:180, a:215},
+    {v:1.8,  r:110, g:235, b:155, a:225},
+    {v:2.0,  r:150, g:240, b:130, a:230},
+    
+    // ========== RISC MITJÀ (2 - 5) ==========
+    {v:2.3,  r:185, g:245, b:105, a:235},
+    {v:2.6,  r:215, g:248, b:80,  a:240},
+    {v:2.9,  r:235, g:248, b:55,  a:242},
+    {v:3.2,  r:248, g:245, b:35,  a:245},
+    {v:3.5,  r:255, g:240, b:20,  a:248},
+    {v:4.0,  r:255, g:235, b:10,  a:250},
+    {v:4.5,  r:255, g:225, b:0,   a:252},
+    {v:5.0,  r:255, g:215, b:0,   a:253},
+    
+    // ========== RISC ALT (5 - 10) - COLORS CÀLIDS INTENSOS ==========
+    {v:5.5,  r:255, g:200, b:0,   a:254},
+    {v:6.0,  r:255, g:180, b:0,   a:255},
+    {v:6.5,  r:255, g:160, b:0,   a:255},
+    {v:7.0,  r:255, g:140, b:0,   a:255},
+    {v:7.5,  r:255, g:120, b:0,   a:255},
+    {v:8.0,  r:255, g:100, b:0,   a:255},
+    {v:8.5,  r:255, g:80,  b:0,   a:255},
+    {v:9.0,  r:255, g:60,  b:0,   a:255},
+    {v:9.5,  r:255, g:40,  b:0,   a:255},
+    {v:10.0, r:255, g:20,  b:0,   a:255},
+    
+    // ========== RISC MOLT ALT (10 - 15) ==========
+    {v:10.5, r:255, g:10,  b:10,  a:255},
+    {v:11.0, r:240, g:0,   b:30,  a:255},
+    {v:11.5, r:220, g:0,   b:60,  a:255},
+    {v:12.0, r:200, g:0,   b:90,  a:255},
+    {v:12.5, r:180, g:0,   b:120, a:255},
+    {v:13.0, r:160, g:0,   b:150, a:255},
+    {v:13.5, r:140, g:20,  b:175, a:255},
+    {v:14.0, r:120, g:40,  b:195, a:255},
+    {v:14.5, r:100, g:60,  b:215, a:255},
+    {v:15.0, r:80,  g:80,  b:235, a:255},
+    
+    // ========== RISC EXTREM (15 - 20+) ==========
+    {v:16.0, r:60,  g:100, b:245, a:255},
+    {v:17.0, r:80,  g:130, b:248, a:255},
+    {v:18.0, r:120, g:170, b:248, a:255},
+    {v:19.0, r:180, g:210, b:250, a:255},
+    {v:20.0, r:255, g:255, b:255, a:255},
 ];
 
-// CALAMARSA (mida cm)
 const STOPS_HAIL = [
-    {v:0,    r:255, g:255, b:255, a:0},
-    {v:0.1,  r:250, g:252, b:255, a:60},
-    {v:0.2,  r:240, g:248, b:255, a:100},
-    {v:0.3,  r:225, g:240, b:255, a:130},
-    {v:0.4,  r:210, g:232, b:255, a:155},
-    {v:0.5,  r:190, g:220, b:255, a:175},
-    {v:0.6,  r:170, g:210, b:255, a:190},
-    {v:0.7,  r:145, g:195, b:255, a:200},
-    {v:0.8,  r:120, g:180, b:255, a:210},
-    {v:0.9,  r:95,  g:165, b:255, a:218},
-    {v:1.0,  r:70,  g:150, b:255, a:225},
-    {v:1.1,  r:45,  g:135, b:255, a:230},
-    {v:1.2,  r:20,  g:120, b:255, a:235},
-    {v:1.3,  r:0,   g:105, b:255, a:240},
-    {v:1.4,  r:0,   g:90,  b:245, a:242},
-    {v:1.5,  r:0,   g:75,  b:235, a:245},
-    {v:1.6,  r:0,   g:60,  b:225, a:248},
-    {v:1.7,  r:0,   g:45,  b:215, a:250},
-    {v:1.8,  r:0,   g:30,  b:205, a:252},
-    {v:1.9,  r:0,   g:15,  b:195, a:254},
-    {v:2.0,  r:0,   g:0,   b:185, a:255},
-    {v:2.1,  r:20,  g:20,  b:170, a:255},
-    {v:2.2,  r:40,  g:40,  b:155, a:255},
-    {v:2.3,  r:60,  g:60,  b:140, a:255},
-    {v:2.4,  r:80,  g:80,  b:125, a:255},
-    {v:2.5,  r:100, g:100, b:110, a:255},
-    {v:2.6,  r:120, g:120, b:95,  a:255},
-    {v:2.7,  r:140, g:140, b:80,  a:255},
-    {v:2.8,  r:160, g:160, b:65,  a:255},
-    {v:2.9,  r:180, g:180, b:50,  a:255},
-    {v:3.0,  r:200, g:200, b:35,  a:255},
-    {v:3.1,  r:210, g:200, b:30,  a:255},
-    {v:3.2,  r:220, g:200, b:25,  a:255},
-    {v:3.3,  r:230, g:200, b:20,  a:255},
-    {v:3.4,  r:240, g:200, b:15,  a:255},
-    {v:3.5,  r:250, g:200, b:10,  a:255},
-    {v:3.6,  r:255, g:190, b:5,   a:255},
-    {v:3.7,  r:255, g:180, b:0,   a:255},
-    {v:3.8,  r:255, g:170, b:0,   a:255},
-    {v:3.9,  r:255, g:160, b:0,   a:255},
-    {v:4.0,  r:255, g:150, b:0,   a:255},
-    {v:4.2,  r:255, g:130, b:0,   a:255},
-    {v:4.4,  r:255, g:110, b:0,   a:255},
-    {v:4.6,  r:255, g:90,  b:0,   a:255},
-    {v:4.8,  r:255, g:70,  b:0,   a:255},
-    {v:5.0,  r:255, g:50,  b:0,   a:255},
-    {v:5.2,  r:255, g:35,  b:0,   a:255},
-    {v:5.4,  r:255, g:20,  b:0,   a:255},
-    {v:5.6,  r:255, g:5,   b:0,   a:255},
-    {v:5.8,  r:255, g:0,   b:0,   a:255},
-    {v:6.0,  r:240, g:0,   b:0,   a:255},
-    {v:6.2,  r:230, g:0,   b:20,  a:255},
-    {v:6.4,  r:220, g:0,   b:40,  a:255},
-    {v:6.6,  r:210, g:0,   b:60,  a:255},
-    {v:6.8,  r:200, g:0,   b:80,  a:255},
-    {v:7.0,  r:190, g:0,   b:100, a:255},
-    {v:7.2,  r:180, g:0,   b:120, a:255},
-    {v:7.4,  r:170, g:0,   b:140, a:255},
-    {v:7.6,  r:160, g:0,   b:160, a:255},
-    {v:7.8,  r:150, g:0,   b:180, a:255},
-    {v:8.0,  r:140, g:0,   b:200, a:255},
-    {v:8.2,  r:130, g:0,   b:220, a:255},
-    {v:8.4,  r:120, g:0,   b:240, a:255},
-    {v:8.6,  r:110, g:0,   b:255, a:255},
-    {v:8.8,  r:100, g:20,  b:255, a:255},
-    {v:9.0,  r:90,  g:40,  b:255, a:255},
-    {v:9.2,  r:80,  g:60,  b:255, a:255},
-    {v:9.4,  r:70,  g:80,  b:255, a:255},
-    {v:9.6,  r:60,  g:100, b:255, a:255},
-    {v:9.8,  r:50,  g:120, b:255, a:255},
-    {v:10.0, r:255, g:255, b:255, a:255},
+    // ========== SENSE RISC (0 cm) ==========
+    {v:0,    r:255, g:255, b:255, a:0},     // Totalment transparent
+    
+    // ========== RISC MOLT BAIX (0.1 - 1 cm) ==========
+    // Blau molt clar → Blau (perill baix)
+    {v:0.1,  r:220, g:240, b:255, a:60},
+    {v:0.2,  r:200, g:225, b:255, a:100},
+    {v:0.3,  r:180, g:210, b:255, a:130},
+    {v:0.4,  r:160, g:195, b:255, a:155},
+    {v:0.5,  r:140, g:180, b:255, a:175},
+    {v:0.6,  r:120, g:165, b:255, a:190},
+    {v:0.7,  r:100, g:150, b:255, a:200},
+    {v:0.8,  r:80,  g:135, b:255, a:210},
+    {v:0.9,  r:60,  g:120, b:255, a:218},
+    {v:1.0,  r:40,  g:105, b:255, a:225},
+    
+    // ========== RISC BAIX-MITJÀ (1 - 5 cm) ==========
+    // Blau → Cian → Verd (augmenta el perill)
+    {v:1.2,  r:20,  g:90,  b:255, a:235},
+    {v:1.4,  r:0,   g:75,  b:245, a:242},
+    {v:1.6,  r:0,   g:60,  b:230, a:248},
+    {v:1.8,  r:0,   g:45,  b:215, a:252},
+    {v:2.0,  r:0,   g:30,  b:200, a:255},
+    {v:2.5,  r:0,   g:60,  b:180, a:255},
+    {v:3.0,  r:0,   g:100, b:160, a:255},
+    {v:3.5,  r:0,   g:150, b:140, a:255},
+    {v:4.0,  r:0,   g:200, b:120, a:255},
+    {v:4.5,  r:50,  g:230, b:100, a:255},
+    {v:5.0,  r:100, g:250, b:80,  a:255},
+    
+    // ========== RISC MITJÀ-ALT (5 - 10 cm) ==========
+    // Verd → Groc → Taronja (perill significatiu)
+    {v:5.5,  r:150, g:255, b:60,  a:255},
+    {v:6.0,  r:200, g:255, b:40,  a:255},
+    {v:6.5,  r:230, g:255, b:20,  a:255},
+    {v:7.0,  r:255, g:255, b:0,   a:255},
+    {v:7.5,  r:255, g:230, b:0,   a:255},
+    {v:8.0,  r:255, g:200, b:0,   a:255},
+    {v:8.5,  r:255, g:170, b:0,   a:255},
+    {v:9.0,  r:255, g:140, b:0,   a:255},
+    {v:9.5,  r:255, g:110, b:0,   a:255},
+    {v:10.0, r:255, g:80,  b:0,   a:255},
+    
+    // ========== RISC ALT (10 - 20 cm) ==========
+    // Taronja → Vermell → Vermell fosc (perill greu)
+    {v:11,   r:255, g:60,  b:0,   a:255},
+    {v:12,   r:255, g:40,  b:0,   a:255},
+    {v:13,   r:255, g:20,  b:0,   a:255},
+    {v:14,   r:255, g:0,   b:0,   a:255},
+    {v:15,   r:240, g:0,   b:0,   a:255},
+    {v:16,   r:220, g:0,   b:20,  a:255},
+    {v:17,   r:200, g:0,   b:40,  a:255},
+    {v:18,   r:180, g:0,   b:60,  a:255},
+    {v:19,   r:160, g:0,   b:80,  a:255},
+    {v:20,   r:140, g:0,   b:100, a:255},
+    
+    // ========== RISC EXTREM (20 - 30 cm) ==========
+    // Vermell fosc → Morat → Blanc (calamarsa gegant)
+    {v:21,   r:120, g:0,   b:120, a:255},
+    {v:22,   r:100, g:0,   b:140, a:255},
+    {v:23,   r:80,  g:0,   b:160, a:255},
+    {v:24,   r:60,  g:0,   b:180, a:255},
+    {v:25,   r:40,  g:0,   b:200, a:255},
+    {v:26,   r:60,  g:20,  b:210, a:255},
+    {v:27,   r:80,  g:40,  b:220, a:255},
+    {v:28,   r:100, g:60,  b:230, a:255},
+    {v:29,   r:120, g:80,  b:240, a:255},
+    {v:30,   r:255, g:255, b:255, a:255},  // Blanc = EXTREM
 ];
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -1509,8 +1732,9 @@ function escalarVariablesMitjana(variables) {
 const GRUP_PRINCIPAL = ['st', 'sd', 'srh', 'temp_min2m', 'temp_max2m', 'wind_speed_10m', 'wind_gust'];
 
 const GRUPS_SIMPLES = {
+    // === TEMPERATURA I CONDICIONS GENERALS ===
     'Temperatura i Humitat': [
-        'st', 'sd', 'temp_min2m', 'temp_max2m', 'wind_speed_10m', 'wind_gust',
+        'st', 'sd', 'temp_min2m', 'temp_max2m',
         'TEMPERATURE__GROUND_OR_WATER_SURFACE',
         'T__GROUND',
     ],
@@ -1521,6 +1745,29 @@ const GRUPS_SIMPLES = {
         'PRESSURE__MEAN_SEA_LEVEL',
     ],
 
+    // === VENT ===
+    'Vent en superfície': [
+        'wind_speed_10m', 'wind_gust',
+    ],
+
+    'Vent en nivells (3D)': [
+        'wind_speed_1000', 'wind_speed_950', 'wind_speed_925', 'wind_speed_900',
+        'wind_speed_875', 'wind_speed_850', 'wind_speed_800', 'wind_speed_750',
+        'wind_speed_700', 'wind_speed_650', 'wind_speed_600', 'wind_speed_550',
+        'wind_speed_500', 'wind_speed_450', 'wind_speed_400', 'wind_speed_350',
+        'wind_speed_300', 'wind_speed_250', 'wind_speed_200', 'wind_speed_150',
+        'wind_speed_100',
+    ],
+
+    'Velocitat vertical': [
+        'w_925', 'w_850', 'w_700', 'w_500', 'w_300',
+    ],
+
+    'Shear i SRH': [
+        'shear_03', 'shear_06', 'srh_01', 'srh_03', 'srh', 'sh2',
+    ],
+
+    // === PRECIPITACIÓ ===
     'Precipitació': [
         'tp', 'tsnowp',
         'TOTAL_PRECIPITATION_RATE__GROUND_OR_WATER_SURFACE',
@@ -1535,6 +1782,22 @@ const GRUPS_SIMPLES = {
         'PRECIP__GROUND',
     ],
 
+    // === NEU ===
+    'Neu': [
+        'SNOW_DEPTH__GROUND_OR_WATER_SURFACE',
+        'WATER_EQUIVALENT_ACCUMULATED_SNOW__GROUND_OR_WATER_SURFACE',
+        'HTEURNEIGE__GROUND', 'NEIGE_SC__GROUND', 'RESR_NEIGE__GROUND',
+        'RR_SOL_GELE__GROUND', 'NEIGE__GROUND',
+    ],
+
+    'Visibilitat': [
+        'VISIBILITY_MINI_60MIN__GROUND_OR_WATER_SURFACE',
+        'VISIBILITY_MINI_PRECIP_60MIN__GROUND_OR_WATER_SURFACE',
+        'VISIBILITY_MINI_15MIN__GROUND_OR_WATER_SURFACE',
+        'VISIBILITY_MINI_PRECIP_15MIN__GROUND_OR_WATER_SURFACE',
+    ],
+
+    // === TORMENTES / CONVECCIÓ ===
     'Inestabilitat i Convecció': [
         'cape', 'cin',
         'MEAN_LAYER_CAPE__GROUND_OR_WATER_SURFACE',
@@ -1549,10 +1812,17 @@ const GRUPS_SIMPLES = {
         'HELICITE__GROUND',
     ],
 
-    'Shear i SRH': [
-        'shear_03', 'shear_06', 'srh_01', 'srh_03', 'srh', 'sh2',
+    'Cumulonimbus': [
+        'P__BASE_CB', 'P__TOP_CB',
     ],
 
+    'Reflectivitat (Radar)': [
+        'radar_dbz',
+        'REFLECTIVITY_MAX__GROUND_OR_WATER_SURFACE',
+        'REFLECTIVITY_MAX_DBZ__GROUND_OR_WATER_SURFACE',
+    ],
+
+    // === NÚVOLS I SATÈL·LIT ===
     'Núvols': [
         'low_cloud_cover', 'medium_cloud_cover', 'high_cloud_cover',
         'TOTAL_CLOUD_COVER__GROUND_OR_WATER_SURFACE',
@@ -1561,31 +1831,11 @@ const GRUPS_SIMPLES = {
         'BASE_NUAGE__GROUND', 'PLAFOND__GROUND',
     ],
 
-    'Cumulonimbus': [
-        'P__BASE_CB', 'P__TOP_CB',
-    ],
-
-    'Neu i Visibilitat': [
-        'SNOW_DEPTH__GROUND_OR_WATER_SURFACE',
-        'WATER_EQUIVALENT_ACCUMULATED_SNOW__GROUND_OR_WATER_SURFACE',
-        'VISIBILITY_MINI_60MIN__GROUND_OR_WATER_SURFACE',
-        'VISIBILITY_MINI_PRECIP_60MIN__GROUND_OR_WATER_SURFACE',
-        'VISIBILITY_MINI_15MIN__GROUND_OR_WATER_SURFACE',
-        'VISIBILITY_MINI_PRECIP_15MIN__GROUND_OR_WATER_SURFACE',
-        'HTEURNEIGE__GROUND', 'NEIGE_SC__GROUND', 'RESR_NEIGE__GROUND',
-        'RR_SOL_GELE__GROUND', 'NEIGE__GROUND',
-    ],
-
     'Satèl·lit': [
         'bt108', 'bt62',
     ],
 
-    'Reflectivitat': [
-        'radar_dbz',
-        'REFLECTIVITY_MAX__GROUND_OR_WATER_SURFACE',
-        'REFLECTIVITY_MAX_DBZ__GROUND_OR_WATER_SURFACE',
-    ],
-
+    // === ALTITUD I NIVELLS ===
     'Geometria i Altitud': [
         'altitud',
         'GEOMETRIC_HEIGHT__GROUND_OR_WATER_SURFACE',
@@ -1596,10 +1846,6 @@ const GRUPS_SIMPLES = {
         'ALTITUDE__ISO_TPW_27315', 'ALTITUDE__ISO_TPW_27415', 'ALTITUDE__ISO_TPW_27465',
     ],
 
-    'Velocitat vertical': [
-        'w_925', 'w_850', 'w_700', 'w_500', 'w_300',
-    ],
-
     'PV Superfícies': [
         'pv_925', 'pv_850', 'pv_700', 'pv_500', 'pv_300', 'pv_200',
         'GEOPOTENTIAL_PV1500', 'GEOPOTENTIAL_PV2000',
@@ -1608,15 +1854,6 @@ const GRUPS_SIMPLES = {
         'V_PV1500', 'V_PV2000',
         'WIND_PV1500', 'WIND_PV2000',
         'FF__ISO_TP_1500', 'FF__ISO_TP_2000',
-    ],
-
-    'Vent en nivells (3D)': [
-        'wind_speed_1000', 'wind_speed_950', 'wind_speed_925', 'wind_speed_900',
-        'wind_speed_875', 'wind_speed_850', 'wind_speed_800', 'wind_speed_750',
-        'wind_speed_700', 'wind_speed_650', 'wind_speed_600', 'wind_speed_550',
-        'wind_speed_500', 'wind_speed_450', 'wind_speed_400', 'wind_speed_350',
-        'wind_speed_300', 'wind_speed_250', 'wind_speed_200', 'wind_speed_150',
-        'wind_speed_100',
     ],
 };
 
@@ -3107,7 +3344,7 @@ function construirPanellParametres() {
             row.style.opacity = '0.35';
             row.style.filter = 'grayscale(0.8)';
             row.style.cursor = 'not-allowed';
-            row.title = '🔒 Variable exclusiva per membres premium';
+            row.title = ' Variable exclusiva per membres premium';
         } else {
             row.style.cursor = 'pointer';
         }
@@ -3118,7 +3355,7 @@ function construirPanellParametres() {
         const semblaClauCrua = /^[A-Z0-9_]+$/.test(nomBackend) && nomBackend.length > 6;
         const nom = semblaClauCrua ? pal.titol : (nomBackend || pal.titol);
 
-        const iconaCandau = (!teAcces && esPremium) ? ' 🔒' : '';
+        const iconaCandau = (!teAcces && esPremium) ? ' ' : '';
 
         row.innerHTML = `<div class="param-link">${nom} <span class="param-unit">(${unitat})</span>${iconaCandau}</div>`;
 

@@ -282,26 +282,44 @@ function mostrarAvisPremium(paramName) {
     `;
 }
 
-// ─── ESTIL PER VARIABLES PREMIUM EN GRIS AL PANELL ──────────────────
+// ─── ESTIL PER VARIABLES PREMIUM AL PANELL ──────────────────────────
+// Versió modificada: Candado desbloqueado para usuarios con acceso
 
-// Funció per aplicar estil gris a les variables premium al panell
+// Funció per aplicar estil a les variables premium al panell
 function aplicarEstilPremiumAlPanell() {
     // Esperar que el panell estigui renderitzat
     setTimeout(() => {
+        const teAcces = comprovarPremiumPerUID();
+        
         document.querySelectorAll('.param-row').forEach(row => {
             const clau = row.dataset.clau;
             if (clau && esParametrePremium(clau)) {
-                // Aplicar estil gris (bloquejat)
-                row.style.opacity = '0.4';
-                row.style.filter = 'grayscale(0.8)';
-                row.style.cursor = 'not-allowed';
-                row.style.borderLeft = '3px solid #FF8C00';
-                row.style.background = 'rgba(255,140,0,0.05)';
-                
-                // Afegir indicador de bloqueig
-                const label = row.querySelector('.param-link');
-                if (label && !label.innerHTML.includes('🔒')) {
-                    label.innerHTML += ' <span style="color:#FF8C00; font-size:10px;">🔒</span>';
+                if (teAcces) {
+                    // Usuario CON acceso premium - Candado desbloqueado
+                    row.style.opacity = '1';
+                    row.style.filter = 'none';
+                    row.style.cursor = 'pointer';
+                    row.style.borderLeft = '3px solid #4CAF50'; // Verde para desbloqueado
+                    row.style.background = 'rgba(76, 175, 80, 0.08)';
+                    
+                    // Afegir indicador de candado desbloqueado
+                    const label = row.querySelector('.param-link');
+                    if (label && !label.innerHTML.includes('🔓')) {
+                        label.innerHTML += ' <span style="color:#4CAF50; font-size:11px;" title="Accés premium actiu">🔓</span>';
+                    }
+                } else {
+                    // Usuario SIN acceso premium - Candado bloqueado
+                    row.style.opacity = '0.4';
+                    row.style.filter = 'grayscale(0.8)';
+                    row.style.cursor = 'not-allowed';
+                    row.style.borderLeft = '3px solid #FF8C00';
+                    row.style.background = 'rgba(255,140,0,0.05)';
+                    
+                    // Afegir indicador de candado bloqueado
+                    const label = row.querySelector('.param-link');
+                    if (label && !label.innerHTML.includes('🔒')) {
+                        label.innerHTML += ' <span style="color:#FF8C00; font-size:11px;" title="Requereix accés premium">🔒</span>';
+                    }
                 }
             }
         });
@@ -349,6 +367,9 @@ observer.observe(document.getElementById('parameter_selection') || document.body
     childList: true,
     subtree: true
 });
+
+// Re-aplicar estil quan hi hagi canvis d'autenticació
+document.addEventListener('firebase-auth-changed', aplicarEstilPremiumAlPanell);
 
 console.log('[Empresa] Carregat | Variables:', [...VARIABLES_PREMIUM].join(', '));
 console.log('[Empresa] UIDs autoritzats:', [...UIDS_PREMIUM].join(', '));
