@@ -4,6 +4,9 @@
 //  🔧 Normalització de claus WCS (bt108, ehi, cin, scp_wcs, tpw_700/850, etc.)
 //  🔧 FIX: carrera de condicions a assegurarHoraCarregada (mapa en blanc a 3D)
 //  🔧 FIX: precàrrega completa en segon pla de TOTES les hores 3D (sense purga)
+//  🔧 FIX: alias BT__CHANNELS_108/62 afegits (abans queien a paleta 'st')
+//  🔧 FIX: paleta BT108/BT62 reescalada al rang real de dades
+//  🔧 FIX: variables WCS "Altres" ara classificades i amb unitat correcta
 // ═══════════════════════════════════════════════════════════════════════
 
 const REGION = {
@@ -18,22 +21,22 @@ const MAX_STEPS = 52;
 const DADES_PATH = './dades';
 
 const VARS_SENSE_VENT = [
-    'rain', 'rain_1h', 'snow', 'graupel', 
+    'rain', 'rain_1h', 'snow', 'graupel',
     'tp', 'tgrp', 'tsnowp', 'precip_water',
     'low_cloud_cover', 'medium_cloud_cover', 'high_cloud_cover',
     'spbl', 'cin',
-    'pressure_msl', 'sp','shear_06_eff',
-    'el_m', 'reflectivity_dbz', 'lightning','lcl_m','lfc_m',
-    'geopotencial_500', 'temperatura_500','bt108', 'lightning_1h','radar_dbz',
+    'pressure_msl', 'sp', 'shear_06_eff',
+    'el_m', 'reflectivity_dbz', 'lightning', 'lcl_m', 'lfc_m',
+    'geopotencial_500', 'temperatura_500', 'bt108', 'lightning_1h', 'radar_dbz',
     'scp', 'hail_cm', 'scp_wcs', 'stp', 'altitud',
     'ciwc_500', 'cld_rain_850', 'tpw_700', 'tpw_850', 'ehi', 'bt62',
-    
-    // 🔧 WCS 3D MITJANA
+
+    // WCS 3D MITJANA
     'CIWC_MITJANA',
     'CLD_RAIN_MITJANA',
     'TPW_MITJANA',
-    
-    // 🔧 WCS 3D PV SURFACES
+
+    // WCS 3D PV SURFACES
     'GEOPOTENTIAL_PV1500',
     'GEOPOTENTIAL_PV2000',
     'THETA_PV1500',
@@ -44,18 +47,17 @@ const VARS_SENSE_VENT = [
     'V_PV2000',
     'WIND_PV1500',
     'WIND_PV2000',
-    
-    // 🔧 WCS 3D ISOTERMES
+
+    // WCS 3D ISOTERMES
     'ALTITUDE_ISOTERMA_0C',
     'ALTITUDE_ISOTERMA_M10C',
-    
-    
+
     'SNOW_DEPTH__GROUND_OR_WATER_SURFACE',
     'WATER_EQUIVALENT_ACCUMULATED_SNOW__GROUND_OR_WATER_SURFACE',
     'PRECIPITATION_TYPE_60_MIN__GROUND_OR_WATER_SURFACE',
     'SEVERE_PRECIPITATION_TYPE_60_MIN__GROUND_OR_WATER_SURFACE',
     'REFLECTIVITY_MAX__GROUND_OR_WATER_SURFACE',
-    'REFLECTIVITY_MAX_DBZ__GROUND_OR_WATER_SURFACE',  // ← AFEGIDA!
+    'REFLECTIVITY_MAX_DBZ__GROUND_OR_WATER_SURFACE',
     'VISIBILITY_MINI_60MIN__GROUND_OR_WATER_SURFACE',
     'VISIBILITY_MINI_PRECIP_60MIN__GROUND_OR_WATER_SURFACE',
     'PRECIPITABLE_WATER__GROUND_OR_WATER_SURFACE',
@@ -81,7 +83,6 @@ const wCfg = {
 };
 
 // ─── MAPES BASE DISPONIBLES ─────────────────────────────────────────
-// ─── MAPA BASE OpenStreetMap ──────────────────────────────────────
 const MAPES_BASE = {
     osm: {
         url: 'https://geoserveis.icgc.cat/servei/catalunya/mapa-base/wmts/simplificat/MON3857NW/{z}/{x}/{y}.png',
@@ -92,7 +93,6 @@ const MAPES_BASE = {
 let mapaBaseActiva = 'osm';
 
 // ─── MAPA ─────────────────────────────────────────────────────────
-// Centrado en la ciudad de Valencia
 const map = L.map('map', {
     crs: L.CRS.EPSG3857,
     zoomControl: false,
@@ -224,265 +224,306 @@ const STOPS_RADAR = [
     {v:75,  r:255, g:255, b:255, a:255},
 ];
 
-// ─── BT 10.8µm (negre = calent, blanc = fred) ──────────────────────
+// ═══════════════════════════════════════════════════════════════════════
+//  PALETES SATÈL·LIT IR — REESCALADA AL RANG REAL DE DADES
+//  NEGRE = càlid (superfície) | BLANC = fred (núvols alts) | VERMELL = molt fred (tops)
+// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
+//  PALETA SATÈL·LIT IR - Grisos per positives + Colors per negatives
+//  - Temperatures positives: Escala de grisos (blanc = més calent)
+//  - Temperatures negatives: Colors (groc, taronja, vermell)
+// ═══════════════════════════════════════════════════════════════════════
+
 const STOPS_BT108 = [
-    {v:-80, r:255, g:255, b:255},
-    {v:-70, r:250, g:250, b:250},
-    {v:-60, r:240, g:240, b:240},
-    {v:-50, r:225, g:225, b:225},
-    {v:-40, r:210, g:210, b:210},
-    {v:-35, r:195, g:195, b:195},
-    {v:-30, r:180, g:180, b:180},
-    {v:-25, r:165, g:165, b:165},
-    {v:-20, r:150, g:150, b:150},
-    {v:-15, r:135, g:135, b:135},
-    {v:-10, r:120, g:120, b:120},
-    {v:-5,  r:105, g:105, b:105},
-    {v:0,   r:90,  g:90,  b:90},
-    {v:5,   r:60,  g:60,  b:60},
-    {v:10,  r:35,  g:35,  b:35},
-    {v:15,  r:18,  g:18,  b:18},
-    {v:20,  r:8,   g:8,   b:8},
-    {v:25,  r:3,   g:3,   b:3},
-    {v:30,  r:0,   g:0,   b:0},
-    {v:35,  r:0,   g:0,   b:0},
-    {v:40,  r:0,   g:0,   b:0},
-    {v:50,  r:0,   g:0,   b:0},
+    // ─── FRED EXTREM (T < -55°C) - Colors intensos ──────────────────
+    {v:-80, r:180, g:0,   b:0},   // Vermell fosc
+    {v:-75, r:210, g:0,   b:0},   // Vermell
+    {v:-72, r:240, g:0,   b:0},   // Vermell intens
+    {v:-70, r:255, g:0,   b:0},   // Vermell
+    {v:-68, r:255, g:30,  b:0},   // Vermell-taronja
+    {v:-66, r:255, g:60,  b:0},   // Taronja
+    {v:-65, r:255, g:90,  b:0},   // Taronja
+    {v:-63, r:255, g:120, b:0},   // Taronja-groc
+    {v:-61, r:255, g:150, b:0},   // Groc-taronja
+    {v:-60, r:255, g:180, b:0},   // Groc
+    {v:-58, r:255, g:200, b:0},   // Groc
+    {v:-55, r:255, g:220, b:0},   // Groc (inici groc)
+    
+    // ─── FRED MODERAT (-55°C a -30°C) - Transició a grisos ──────────
+    {v:-53, r:240, g:220, b:50},  // Groc-verdós
+    {v:-50, r:220, g:215, b:100}, // Groc-verdós
+    {v:-48, r:200, g:210, b:140}, // Groc-verdós
+    {v:-45, r:180, g:205, b:170}, // Gris-groc
+    {v:-42, r:160, g:200, b:190}, // Gris-groc
+    {v:-40, r:145, g:195, b:200}, // Gris
+    {v:-38, r:130, g:190, b:205}, // Gris
+    {v:-35, r:115, g:185, b:210}, // Gris
+    
+    // ─── FRED SUAU (-30°C a 0°C) - Grisos clars ─────────────────────
+    {v:-32, r:100, g:180, b:210}, // Gris clar
+    {v:-29, r:90,  g:170, b:200}, // Gris clar
+    {v:-26, r:80,  g:160, b:190}, // Gris
+    {v:-23, r:70,  g:150, b:180}, // Gris
+    {v:-20, r:60,  g:140, b:170}, // Gris
+    {v:-17, r:55,  g:130, b:160}, // Gris
+    {v:-14, r:50,  g:120, b:150}, // Gris
+    {v:-11, r:45,  g:110, b:140}, // Gris
+    {v:-8,  r:40,  g:100, b:130}, // Gris
+    {v:-5,  r:38,  g:90,  b:120}, // Gris
+    {v:-2,  r:35,  g:80,  b:110}, // Gris
+    
+    // ─── TEMPERATURES POSITIVES (0°C a 50°C) - ESCALA DE GRISOS ─────
+    // (blanc = calent, gris clar = temperat, gris fosc = menys calent)
+    {v:0,   r:200, g:200, b:200}, // Gris clar (0°C)
+    {v:2,   r:190, g:190, b:190}, // Gris clar
+    {v:4,   r:180, g:180, b:180}, // Gris
+    {v:6,   r:170, g:170, b:170}, // Gris
+    {v:8,   r:160, g:160, b:160}, // Gris
+    {v:10,  r:150, g:150, b:150}, // Gris
+    {v:12,  r:140, g:140, b:140}, // Gris
+    {v:14,  r:130, g:130, b:130}, // Gris
+    {v:16,  r:120, g:120, b:120}, // Gris
+    {v:18,  r:110, g:110, b:110}, // Gris
+    {v:20,  r:100, g:100, b:100}, // Gris fosc
+    {v:22,  r:90,  g:90,  b:90},  // Gris fosc
+    {v:24,  r:80,  g:80,  b:80},  // Gris fosc
+    {v:26,  r:70,  g:70,  b:70},  // Gris fosc
+    {v:28,  r:60,  g:60,  b:60},  // Gris fosc
+    {v:30,  r:55,  g:55,  b:55},  // Gris fosc
+    {v:32,  r:50,  g:50,  b:50},  // Gris fosc
+    {v:35,  r:45,  g:45,  b:45},  // Gris fosc
+    {v:38,  r:40,  g:40,  b:40},  // Gris fosc
+    {v:40,  r:35,  g:35,  b:35},  // Gris fosc
+    {v:42,  r:30,  g:30,  b:30},  // Gris fosc
+    {v:45,  r:25,  g:25,  b:25},  // Gris fosc
+    {v:48,  r:20,  g:20,  b:20},  // Gris fosc
+    {v:50,  r:15,  g:15,  b:15},  // Gris fosc
 ];
 
-// ─── BT62 - VAPOR D'AIGUA (BLANC → BLAU → NEGRE) ──────────────────
 const STOPS_BT62 = [
-    {v:-60, r:255, g:255, b:255},  // blanc
-    {v:-55, r:250, g:250, b:255},
-    {v:-50, r:245, g:245, b:255},
-    {v:-45, r:240, g:240, b:255},
-    {v:-40, r:235, g:235, b:255},
-    {v:-35, r:225, g:225, b:255},
-    {v:-30, r:210, g:210, b:255},
-    {v:-25, r:195, g:195, b:255},
-    {v:-20, r:180, g:180, b:255},
-    {v:-15, r:160, g:160, b:255},
-    {v:-10, r:140, g:140, b:255},
-    {v:-5,  r:120, g:120, b:255},
-    {v:0,   r:100, g:100, b:255},
-    {v:5,   r:70,  g:70,  b:255},
-    {v:10,  r:40,  g:40,  b:255},
-    {v:15,  r:20,  g:20,  b:230},
-    {v:20,  r:0,   g:0,   b:200},
-    {v:25,  r:0,   g:0,   b:160},
-    {v:30,  r:0,   g:0,   b:120},
-    {v:35,  r:0,   g:0,   b:80},
-    {v:40,  r:0,   g:0,   b:40},
-    {v:45,  r:0,   g:0,   b:20},
-    {v:50,  r:0,   g:0,   b:0},    // negre
+    {v:20,  r:0,   g:0,   b:0},
+    {v:15,  r:15,  g:15,  b:15},
+    {v:10,  r:32,  g:32,  b:32},
+    {v:5,   r:52,  g:52,  b:52},
+    {v:0,   r:75,  g:75,  b:75},
+
+    {v:-5,  r:98,  g:98,  b:98},
+    {v:-10, r:120, g:120, b:120},
+    {v:-15, r:142, g:142, b:142},
+    {v:-20, r:163, g:163, b:163},
+
+    {v:-25, r:182, g:182, b:182},
+    {v:-30, r:200, g:200, b:200},
+    {v:-35, r:216, g:216, b:216},
+    {v:-40, r:230, g:230, b:230},
+
+    {v:-45, r:244, g:244, b:244},
+    {v:-50, r:255, g:255, b:255},
+    {v:-53, r:255, g:255, b:255},
+
+    {v:-55, r:255, g:255, b:0},
+    {v:-57, r:255, g:220, b:0},
+    {v:-59, r:255, g:180, b:0},
+    {v:-61, r:255, g:140, b:0},
+    {v:-63, r:255, g:100, b:0},
+    {v:-65, r:255, g:60,  b:0},
+    {v:-68, r:255, g:20,  b:0},
+    {v:-71, r:230, g:0,   b:0},
+    {v:-75, r:200, g:0,   b:0},
+    {v:-80, r:160, g:0,   b:20},
+    {v:-85, r:120, g:0,   b:40},
 ];
 
 // ─── EHI (Energy Helicity Index) - BLANC SEMITRANSPARENT ──────────
 const STOPS_EHI = [
-    {v:0,    r:255, g:255, b:255, a:30},   // blanc semitransparent (sense dades / EHI≈0)
-    {v:0.5,  r:200, g:220, b:255, a:80},   // blau molt clar (per sota del llindar)
-    {v:1,    r:150, g:200, b:255, a:120},  // blau clar — llindar EHI≥1: amenaça de tornados
-    {v:2,    r:80,  g:180, b:255, a:160},  // blau
-    {v:3,    r:0,   g:150, b:255, a:190},  // blau intens — potencial de supercèl·lules ciclòniques
-    {v:4,    r:0,   g:200, b:255, a:210},  // cian
-    {v:5,    r:0,   g:240, b:200, a:220},  // cian-verd — llindar EHI≥5: tornados violents (rar)
-    {v:7,    r:0,   g:255, b:100, a:230},  // verd
-    {v:9,    r:100, g:255, b:0,   a:235},  // verd-groc
-    {v:11,   r:200, g:255, b:0,   a:240},  // groc-verd
-    {v:13,   r:255, g:255, b:0,   a:242},  // groc
-    {v:16,   r:255, g:200, b:0,   a:245},  // groc-taronja
-    {v:20,   r:255, g:140, b:0,   a:248},  // taronja
-    {v:25,   r:255, g:80,  b:0,   a:250},  // taronja-vermell
-    {v:30,   r:255, g:20,  b:0,   a:252},  // vermell
-    {v:40,   r:220, g:0,   b:60,  a:254},  // vermell-rosa
-    {v:50,   r:180, g:0,   b:140, a:255},  // magenta
-    {v:70,   r:140, g:0,   b:200, a:255},  // púrpura
-    {v:100,  r:100, g:0,   b:255, a:255},  // lila intens (valor extrem, teòric)
+    {v:0,    r:255, g:255, b:255, a:30},
+    {v:0.5,  r:200, g:220, b:255, a:80},
+    {v:1,    r:150, g:200, b:255, a:120},
+    {v:2,    r:80,  g:180, b:255, a:160},
+    {v:3,    r:0,   g:150, b:255, a:190},
+    {v:4,    r:0,   g:200, b:255, a:210},
+    {v:5,    r:0,   g:240, b:200, a:220},
+    {v:7,    r:0,   g:255, b:100, a:230},
+    {v:9,    r:100, g:255, b:0,   a:235},
+    {v:11,   r:200, g:255, b:0,   a:240},
+    {v:13,   r:255, g:255, b:0,   a:242},
+    {v:16,   r:255, g:200, b:0,   a:245},
+    {v:20,   r:255, g:140, b:0,   a:248},
+    {v:25,   r:255, g:80,  b:0,   a:250},
+    {v:30,   r:255, g:20,  b:0,   a:252},
+    {v:40,   r:220, g:0,   b:60,  a:254},
+    {v:50,   r:180, g:0,   b:140, a:255},
+    {v:70,   r:140, g:0,   b:200, a:255},
+    {v:100,  r:100, g:0,   b:255, a:255},
 ];
 
 // ─── STP (Significant Tornado Parameter) - MULTICOLOR ──────────────
 const STOPS_STP = [
-    {v:0.0,  r:255, g:255, b:255, a:255}, // blanc
-    {v:0.57, r:210, g:233, b:255, a:255}, // blau molt clar
-    {v:1.16, r:117, g:186, b:255, a:255}, // blau clar
-    {v:1.74, r:4,   g:130, b:255, a:255}, // blau
-    {v:2.33, r:0,   g:105, b:210, a:255}, // blau mitjà-fosc
-    {v:2.93, r:0,   g:54,  b:127, a:255}, // blau fosc
-    {v:3.51, r:20,  g:143, b:27,  a:255}, // verd fosc
-    {v:4.11, r:99,  g:237, b:7,   a:255}, // verd llima
-    {v:4.70, r:255, g:244, b:43,  a:255}, // groc
-    {v:5.28, r:232, g:220, b:0,   a:255}, // groc-oliva
-    {v:5.88, r:255, g:127, b:39,  a:255}, // taronja
-    {v:6.46, r:247, g:30,  b:84,  a:255}, // vermell-rosa
-    {v:7.06, r:136, g:0,   b:0,   a:255}, // vermell fosc
-    {v:7.65, r:100, g:0,   b:127, a:255}, // púrpura
-    {v:8.24, r:194, g:0,   b:251, a:255}, // lila
-    {v:8.83, r:221, g:102, b:255, a:255}, // lila clar
-    {v:9.41, r:235, g:166, b:255, a:255}, // lila molt clar
-    {v:10.0, r:245, g:200, b:255, a:255}, // marge final (extrapolat, la imatge no arriba fins aquí)
+    {v:0.0,  r:255, g:255, b:255, a:255},
+    {v:0.57, r:210, g:233, b:255, a:255},
+    {v:1.16, r:117, g:186, b:255, a:255},
+    {v:1.74, r:4,   g:130, b:255, a:255},
+    {v:2.33, r:0,   g:105, b:210, a:255},
+    {v:2.93, r:0,   g:54,  b:127, a:255},
+    {v:3.51, r:20,  g:143, b:27,  a:255},
+    {v:4.11, r:99,  g:237, b:7,   a:255},
+    {v:4.70, r:255, g:244, b:43,  a:255},
+    {v:5.28, r:232, g:220, b:0,   a:255},
+    {v:5.88, r:255, g:127, b:39,  a:255},
+    {v:6.46, r:247, g:30,  b:84,  a:255},
+    {v:7.06, r:136, g:0,   b:0,   a:255},
+    {v:7.65, r:100, g:0,   b:127, a:255},
+    {v:8.24, r:194, g:0,   b:251, a:255},
+    {v:8.83, r:221, g:102, b:255, a:255},
+    {v:9.41, r:235, g:166, b:255, a:255},
+    {v:10.0, r:245, g:200, b:255, a:255},
 ];
 
 // ─── GEL NÚVOLS (CIWC) ─────────────────────────────────────────────
 const STOPS_GEL = [
-    {v:0,    r:255, g:255, b:255, a:0},    // sense gel
-    {v:0.01, r:240, g:245, b:255, a:30},   // traces
-    {v:0.05, r:220, g:235, b:255, a:60},   // gra molt petit
-    {v:0.1,  r:200, g:220, b:255, a:90},   // gra petit
+    {v:0,    r:255, g:255, b:255, a:0},
+    {v:0.01, r:240, g:245, b:255, a:30},
+    {v:0.05, r:220, g:235, b:255, a:60},
+    {v:0.1,  r:200, g:220, b:255, a:90},
     {v:0.2,  r:170, g:200, b:255, a:120},
-    {v:0.3,  r:140, g:180, b:255, a:150},  // pèsol petit
-    {v:0.5,  r:100, g:150, b:255, a:180},  // pèsol
+    {v:0.3,  r:140, g:180, b:255, a:150},
+    {v:0.5,  r:100, g:150, b:255, a:180},
     {v:0.7,  r:60,  g:120, b:255, a:200},
-    {v:1.0,  r:0,   g:80,  b:255, a:215},  // ~1cm, mida típica de calamarsa
+    {v:1.0,  r:0,   g:80,  b:255, a:215},
     {v:1.5,  r:0,   g:40,  b:230, a:230},
-    {v:2.0,  r:0,   g:0,   b:200, a:240},  // moneda gran
-    {v:3.0,  r:60,  g:0,   b:200, a:248},  // pilota golf
-    {v:5.0,  r:140, g:0,   b:200, a:252},  // pilota tennis — llindar sever (EUA, ≥2.5cm)
-    {v:8.0,  r:200, g:0,   b:180, a:255},  // pilota beisbol
-    {v:12,   r:255, g:0,   b:140, a:255},  // pilota softbol
-    {v:20,   r:255, g:0,   b:60,  a:255},  // extrem
-    {v:30,   r:200, g:0,   b:0,   a:255},  // rècord mundial (~15-20cm real; marge teòric)
+    {v:2.0,  r:0,   g:0,   b:200, a:240},
+    {v:3.0,  r:60,  g:0,   b:200, a:248},
+    {v:5.0,  r:140, g:0,   b:200, a:252},
+    {v:8.0,  r:200, g:0,   b:180, a:255},
+    {v:12,   r:255, g:0,   b:140, a:255},
+    {v:20,   r:255, g:0,   b:60,  a:255},
+    {v:30,   r:200, g:0,   b:0,   a:255},
 ];
 
 // ─── AIGUA PRECIPITABLE (TPW) ─────────────────────────────────────
 const STOPS_TPW = [
-    {v:0,   r:255, g:255, b:255},  // ⬜ blanc
-    {v:2,   r:200, g:255, b:200},  // 🟩 verd clar
-    {v:4,   r:100, g:255, b:100},  // 🟩 verd clar mig
-    {v:6,   r:0,   g:255, b:50},   // 🟩 verd
-    {v:8,   r:0,   g:255, b:0},    // 🟩 verd pur
-    {v:10,  r:150, g:255, b:0},    // 🟨 verd-groc
-    {v:12,  r:255, g:255, b:0},    // 🟨 groc
-    {v:14,  r:255, g:230, b:0},    // 🟨 groc daurat
-    {v:16,  r:255, g:200, b:0},    // 🟧 groc-taronja
-    {v:18,  r:255, g:170, b:0},    // 🟧 taronja clar
-    {v:20,  r:255, g:140, b:0},    // 🟧 taronja
-    {v:22,  r:255, g:110, b:0},    // 🟧 taronja intens
-    {v:24,  r:255, g:80,  b:0},    // 🟧 taronja fort
-    {v:26,  r:255, g:50,  b:0},    // 🟧🟥 taronja-vermell
-    {v:28,  r:255, g:20,  b:0},    // 🟥 vermell-taronja
-    {v:30,  r:255, g:0,   b:0},    // 🟥 vermell
-    {v:32,  r:240, g:0,   b:20},   // 🟥 vermell-rosa
-    {v:34,  r:220, g:0,   b:50},   // 🟪 rosa
-    {v:36,  r:200, g:0,   b:80},   // 🟪 rosa-lila
-    {v:38,  r:180, g:0,   b:110},  // 🟪 lila clar
-    {v:40,  r:160, g:0,   b:140},  // 🟪 lila
-    {v:42,  r:140, g:0,   b:170},  // 🟪 lila mig
-    {v:44,  r:120, g:0,   b:200},  // 🟪 lila intens
-    {v:46,  r:100, g:0,   b:230},  // 🟪 lila-porpra
-    {v:48,  r:80,  g:0,   b:255},  // 🟪 porpra
-    {v:50,  r:60,  g:20,  b:255},  // 🔵 porpra-blau
-    {v:52,  r:40,  g:40,  b:230},  // 🔵 blau-lila
-    {v:54,  r:20,  g:60,  b:200},  // 🔵 blau
-    {v:56,  r:0,   g:80,  b:180},  // 🔵 blau mitjà
-    {v:58,  r:0,   g:60,  b:150},  // 🔵 blau fosc
-    {v:60,  r:0,   g:40,  b:120},  // 🔵 blau més fosc
-    {v:62,  r:0,   g:20,  b:90},   // ⬛ blau nit
-    {v:64,  r:0,   g:10,  b:60},   // ⬛ blau molt fosc
-    {v:66,  r:0,   g:0,   b:40},   // ⬛ gairebé negre
-    {v:70,  r:0,   g:0,   b:20},   // ⬛ negre
-    {v:75,  r:0,   g:0,   b:10},   // ⬛ negre intens
-    {v:80,  r:0,   g:0,   b:5},    // ⬛ negre pur
+    {v:0,   r:255, g:255, b:255},
+    {v:2,   r:200, g:255, b:200},
+    {v:4,   r:100, g:255, b:100},
+    {v:6,   r:0,   g:255, b:50},
+    {v:8,   r:0,   g:255, b:0},
+    {v:10,  r:150, g:255, b:0},
+    {v:12,  r:255, g:255, b:0},
+    {v:14,  r:255, g:230, b:0},
+    {v:16,  r:255, g:200, b:0},
+    {v:18,  r:255, g:170, b:0},
+    {v:20,  r:255, g:140, b:0},
+    {v:22,  r:255, g:110, b:0},
+    {v:24,  r:255, g:80,  b:0},
+    {v:26,  r:255, g:50,  b:0},
+    {v:28,  r:255, g:20,  b:0},
+    {v:30,  r:255, g:0,   b:0},
+    {v:32,  r:240, g:0,   b:20},
+    {v:34,  r:220, g:0,   b:50},
+    {v:36,  r:200, g:0,   b:80},
+    {v:38,  r:180, g:0,   b:110},
+    {v:40,  r:160, g:0,   b:140},
+    {v:42,  r:140, g:0,   b:170},
+    {v:44,  r:120, g:0,   b:200},
+    {v:46,  r:100, g:0,   b:230},
+    {v:48,  r:80,  g:0,   b:255},
+    {v:50,  r:60,  g:20,  b:255},
+    {v:52,  r:40,  g:40,  b:230},
+    {v:54,  r:20,  g:60,  b:200},
+    {v:56,  r:0,   g:80,  b:180},
+    {v:58,  r:0,   g:60,  b:150},
+    {v:60,  r:0,   g:40,  b:120},
+    {v:62,  r:0,   g:20,  b:90},
+    {v:64,  r:0,   g:10,  b:60},
+    {v:66,  r:0,   g:0,   b:40},
+    {v:70,  r:0,   g:0,   b:20},
+    {v:75,  r:0,   g:0,   b:10},
+    {v:80,  r:0,   g:0,   b:5},
 ];
 
 // ─── THETA VIRTUAL (θv) - PALETA PSICODÈLICA EXTREMA ────────────────
-// COLORS NEÓ PURS - Cada 1°C és un color COMPLETAMENT diferent
 const STOPS_THETAV = [
-    // ❄️ AIRE ÀRTIC (negre → neó)
-    {v:-40, r:0,   g:0,   b:0},       // NEGRE ABSOLUT
-    {v:-39, r:255, g:0,   b:255},     // MAGENTA NEÓ
-    {v:-38, r:0,   g:255, b:255},     // CIAN NEÓ
-    {v:-37, r:255, g:255, b:0},       // GROC NEÓ
-    {v:-36, r:0,   g:255, b:0},       // VERD NEÓ
-    {v:-35, r:255, g:0,   b:0},       // VERMELL NEÓ
-    {v:-34, r:0,   g:0,   b:255},     // BLAU NEÓ
-    {v:-33, r:255, g:128, b:0},       // TARONJA NEÓ
-    {v:-32, r:128, g:0,   b:255},     // VIOLETA NEÓ
-    {v:-31, r:0,   g:255, b:128},     // VERD MENTA NEÓ
-    {v:-30, r:255, g:0,   b:128},     // ROSA NEÓ
-    
-    // 💙 AIRE MOLT FRED (neó → colors purs)
-    {v:-29, r:0,   g:128, b:255},     // BLAU CEL
-    {v:-28, r:128, g:255, b:0},       // LIMA
-    {v:-27, r:255, g:128, b:255},     // ORQUÍDIA
-    {v:-26, r:0,   g:255, b:255},     // AIGUA
-    {v:-25, r:255, g:255, b:128},     // CREMA
-    {v:-24, r:128, g:0,   b:255},     // PORPRA ELÈCTRIC
-    {v:-23, r:255, g:0,   b:255},     // FUCSIA
-    {v:-22, r:0,   g:255, b:0},       // VERD PUR
-    {v:-21, r:255, g:255, b:0},       // GROC PUR
-    {v:-20, r:0,   g:0,   b:255},     // BLAU PUR
-    
-    // 💚 AIRE FRED (colors primaris elèctrics)
-    {v:-19, r:255, g:0,   b:0},       // VERMELL PUR
-    {v:-18, r:0,   g:255, b:255},     // CIAN PUR
-    {v:-17, r:255, g:0,   b:255},     // MAGENTA PUR
-    {v:-16, r:255, g:255, b:0},       // GROC PUR
-    {v:-15, r:0,   g:0,   b:0},       // NEGRE
-    {v:-14, r:255, g:255, b:255},     // BLANC
-    {v:-13, r:255, g:128, b:0},       // TARONJA
-    {v:-12, r:0,   g:255, b:128},     // PRIMAVERA
-    {v:-11, r:128, g:0,   b:255},     // VIOLETA
-    {v:-10, r:255, g:0,   b:128},     // ROSA FORT
-    
-    // 💛 AIRE FRESC (colors impossibles)
-    {v:-9,  r:0,   g:128, b:255},     // BLAU REIAL
-    {v:-8,  r:128, g:255, b:0},       // VERD ÀCID
-    {v:-7,  r:255, g:128, b:255},     // ROSA CLAR
-    {v:-6,  r:0,   g:255, b:255},     // TURQUESA
-    {v:-5,  r:255, g:255, b:128},     // GROC CLAR
-    {v:-4,  r:128, g:0,   b:0},       // MARRÓ FOSC
-    {v:-3,  r:0,   g:128, b:0},       // VERD FOSC
-    {v:-2,  r:0,   g:0,   b:128},     // BLAU MARÍ
-    {v:-1,  r:255, g:165, b:0},       // TARONJA BRILLANT
-    {v:0,   r:255, g:20,  b:147},     // ROSA XOCANT
-    
-    // 🧡 AIRE TEMPERAT (colors elèctrics)
-    {v:1,   r:0,   g:255, b:255},     // CIAN ELÈCTRIC
-    {v:2,   r:255, g:255, b:0},       // GROC ELÈCTRIC
-    {v:3,   r:255, g:0,   b:255},     // MAGENTA ELÈCTRIC
-    {v:4,   r:0,   g:255, b:0},       // VERD ELÈCTRIC
-    {v:5,   r:255, g:0,   b:0},       // VERMELL ELÈCTRIC
-    {v:6,   r:0,   g:0,   b:255},     // BLAU ELÈCTRIC
-    {v:7,   r:255, g:128, b:0},       // TARONJA ELÈCTRIC
-    {v:8,   r:128, g:0,   b:255},     // VIOLETA ELÈCTRIC
-    {v:9,   r:0,   g:255, b:128},     // MENTA ELÈCTRIC
-    {v:10,  r:255, g:0,   b:128},     // ROSA ELÈCTRIC
-    
-    // ❤️ AIRE CÀLID (colors impossibles)
-    {v:11,  r:255, g:255, b:255},     // BLANC PUR
-    {v:12,  r:0,   g:0,   b:0},       // NEGRE PUR
-    {v:13,  r:255, g:215, b:0},       // OR
-    {v:14,  r:192, g:192, b:192},     // PLATA
-    {v:15,  r:255, g:69,  b:0},       // TARONJA-vermell
-    {v:16,  r:0,   g:255, b:255},     // AIGUA MARINA
-    {v:17,  r:255, g:0,   b:255},     // FUCSIA
-    {v:18,  r:50,  g:205, b:50},      // VERD LIMA
-    {v:19,  r:255, g:105, b:180},     // ROSA CALENT
-    {v:20,  r:0,   g:191, b:255},     // BLAU PROFUND
-    
-    // 🔥 AIRE MOLT CÀLID (colors extrems)
-    {v:21,  r:255, g:255, b:0},       // GROC
-    {v:22,  r:255, g:0,   b:0},       // VERMELL
-    {v:23,  r:0,   g:255, b:0},       // VERD
-    {v:24,  r:0,   g:0,   b:255},     // BLAU
-    {v:25,  r:255, g:0,   b:255},     // MAGENTA
-    {v:26,  r:0,   g:255, b:255},     // CIAN
-    {v:27,  r:255, g:255, b:255},     // BLANC
-    {v:28,  r:0,   g:0,   b:0},       // NEGRE
-    {v:29,  r:255, g:128, b:0},       // TARONJA
-    {v:30,  r:128, g:0,   b:255},     // VIOLETA
-    
-    // ⚡ AIRE TÒRRID (colors impossibles finals)
-    {v:31,  r:0,   g:255, b:128},     // VERD NEÓ
-    {v:32,  r:255, g:0,   b:128},     // ROSA NEÓ
-    {v:33,  r:0,   g:128, b:255},     // BLAU NEÓ
-    {v:34,  r:255, g:128, b:255},     // PORPRA NEÓ
-    {v:35,  r:128, g:255, b:0},       // LIMA NEÓ
-    {v:36,  r:255, g:255, b:128},     // CREMA NEÓ
-    {v:37,  r:128, g:255, b:255},     // CEL NEÓ
-    {v:38,  r:255, g:128, b:128},     // CORAL NEÓ
-    {v:39,  r:128, g:128, b:255},     // LAVANDA NEÓ
-    {v:40,  r:255, g:255, b:255},     // BLANC ABSOLUT
+    {v:-40, r:0,   g:0,   b:0},
+    {v:-39, r:255, g:0,   b:255},
+    {v:-38, r:0,   g:255, b:255},
+    {v:-37, r:255, g:255, b:0},
+    {v:-36, r:0,   g:255, b:0},
+    {v:-35, r:255, g:0,   b:0},
+    {v:-34, r:0,   g:0,   b:255},
+    {v:-33, r:255, g:128, b:0},
+    {v:-32, r:128, g:0,   b:255},
+    {v:-31, r:0,   g:255, b:128},
+    {v:-30, r:255, g:0,   b:128},
+    {v:-29, r:0,   g:128, b:255},
+    {v:-28, r:128, g:255, b:0},
+    {v:-27, r:255, g:128, b:255},
+    {v:-26, r:0,   g:255, b:255},
+    {v:-25, r:255, g:255, b:128},
+    {v:-24, r:128, g:0,   b:255},
+    {v:-23, r:255, g:0,   b:255},
+    {v:-22, r:0,   g:255, b:0},
+    {v:-21, r:255, g:255, b:0},
+    {v:-20, r:0,   g:0,   b:255},
+    {v:-19, r:255, g:0,   b:0},
+    {v:-18, r:0,   g:255, b:255},
+    {v:-17, r:255, g:0,   b:255},
+    {v:-16, r:255, g:255, b:0},
+    {v:-15, r:0,   g:0,   b:0},
+    {v:-14, r:255, g:255, b:255},
+    {v:-13, r:255, g:128, b:0},
+    {v:-12, r:0,   g:255, b:128},
+    {v:-11, r:128, g:0,   b:255},
+    {v:-10, r:255, g:0,   b:128},
+    {v:-9,  r:0,   g:128, b:255},
+    {v:-8,  r:128, g:255, b:0},
+    {v:-7,  r:255, g:128, b:255},
+    {v:-6,  r:0,   g:255, b:255},
+    {v:-5,  r:255, g:255, b:128},
+    {v:-4,  r:128, g:0,   b:0},
+    {v:-3,  r:0,   g:128, b:0},
+    {v:-2,  r:0,   g:0,   b:128},
+    {v:-1,  r:255, g:165, b:0},
+    {v:0,   r:255, g:20,  b:147},
+    {v:1,   r:0,   g:255, b:255},
+    {v:2,   r:255, g:255, b:0},
+    {v:3,   r:255, g:0,   b:255},
+    {v:4,   r:0,   g:255, b:0},
+    {v:5,   r:255, g:0,   b:0},
+    {v:6,   r:0,   g:0,   b:255},
+    {v:7,   r:255, g:128, b:0},
+    {v:8,   r:128, g:0,   b:255},
+    {v:9,   r:0,   g:255, b:128},
+    {v:10,  r:255, g:0,   b:128},
+    {v:11,  r:255, g:255, b:255},
+    {v:12,  r:0,   g:0,   b:0},
+    {v:13,  r:255, g:215, b:0},
+    {v:14,  r:192, g:192, b:192},
+    {v:15,  r:255, g:69,  b:0},
+    {v:16,  r:0,   g:255, b:255},
+    {v:17,  r:255, g:0,   b:255},
+    {v:18,  r:50,  g:205, b:50},
+    {v:19,  r:255, g:105, b:180},
+    {v:20,  r:0,   g:191, b:255},
+    {v:21,  r:255, g:255, b:0},
+    {v:22,  r:255, g:0,   b:0},
+    {v:23,  r:0,   g:255, b:0},
+    {v:24,  r:0,   g:0,   b:255},
+    {v:25,  r:255, g:0,   b:255},
+    {v:26,  r:0,   g:255, b:255},
+    {v:27,  r:255, g:255, b:255},
+    {v:28,  r:0,   g:0,   b:0},
+    {v:29,  r:255, g:128, b:0},
+    {v:30,  r:128, g:0,   b:255},
+    {v:31,  r:0,   g:255, b:128},
+    {v:32,  r:255, g:0,   b:128},
+    {v:33,  r:0,   g:128, b:255},
+    {v:34,  r:255, g:128, b:255},
+    {v:35,  r:128, g:255, b:0},
+    {v:36,  r:255, g:255, b:128},
+    {v:37,  r:128, g:255, b:255},
+    {v:38,  r:255, g:128, b:128},
+    {v:39,  r:128, g:128, b:255},
+    {v:40,  r:255, g:255, b:255},
 ];
 
 // ─── PLUJA NÚVOLS (CLD_RAIN) ──────────────────────────────────────
@@ -537,7 +578,6 @@ const STOPS_CIN = [
     {v:100,r:255,g:150,b:0},{v:200,r:200,g:50,b:0},{v:500,r:150,g:0,b:0}
 ];
 
-// Paleta per a NÚVOLS ALTS - Només grocs
 const STOPS_NUVOLS_ALTS = [
     {v:0,  r:0,   g:0,   b:0,   a:0},
     {v:10, r:255, g:255, b:230, a:160},
@@ -552,7 +592,6 @@ const STOPS_NUVOLS_ALTS = [
     {v:100,r:255, g:235, b:0,   a:240},
 ];
 
-// Paleta per a NÚVOLS MITJANS - Només liles
 const STOPS_NUVOLS_MITJANS = [
     {v:0,  r:0,   g:0,   b:0,   a:0},
     {v:10, r:230, g:210, b:255, a:160},
@@ -567,7 +606,6 @@ const STOPS_NUVOLS_MITJANS = [
     {v:100,r:95,  g:0,   b:210, a:240},
 ];
 
-// Paleta per a NÚVOLS BAIXOS - Només vermells
 const STOPS_NUVOLS_BAIXOS = [
     {v:0,  r:0,   g:0,   b:0,   a:0},
     {v:10, r:255, g:200, b:200, a:160},
@@ -627,22 +665,22 @@ const STOPS_VORT_POT = [
 ];
 
 const STOPS_DBZ = [
-    {v:0,  r:0,   g:0,   b:0,   a:0},    // sense eco
-    {v:5,  r:0,   g:236, b:236, a:150},  // cian — traces / boira
-    {v:10, r:1,   g:160, b:246, a:200},  // blau clar — pluja/neu molt lleugera
-    {v:15, r:0,   g:0,   b:246, a:210},  // blau
-    {v:20, r:0,   g:236, b:0,   a:220},  // verd — inici pluja lleugera
-    {v:25, r:0,   g:180, b:0,   a:220},  // verd mitjà
-    {v:30, r:0,   g:100, b:0,   a:220},  // verd fosc — límit lleugera/moderada
-    {v:35, r:255, g:144, b:0,   a:230},  // taronja — pluja moderada
-    {v:40, r:255, g:0,   b:0,   a:240},  // vermell — convectiu / moderada-forta
-    {v:45, r:192, g:0,   b:0,   a:240},  // vermell fosc
-    {v:50, r:120, g:0,   b:0,   a:240},  // granat — pluja forta
-    {v:55, r:255, g:0,   b:255, a:250},  // magenta — probable calamarsa
-    {v:60, r:160, g:32,  b:240, a:250},  // púrpura — calamarsa probable
-    {v:65, r:80,  g:0,   b:130, a:255},  // indi — calamarsa ~2,5cm
-    {v:70, r:200, g:200, b:200, a:255},  // gris — extrem
-    {v:75, r:255, g:255, b:255, a:255},  // blanc — extrem màxim
+    {v:0,  r:0,   g:0,   b:0,   a:0},
+    {v:5,  r:0,   g:236, b:236, a:150},
+    {v:10, r:1,   g:160, b:246, a:200},
+    {v:15, r:0,   g:0,   b:246, a:210},
+    {v:20, r:0,   g:236, b:0,   a:220},
+    {v:25, r:0,   g:180, b:0,   a:220},
+    {v:30, r:0,   g:100, b:0,   a:220},
+    {v:35, r:255, g:144, b:0,   a:230},
+    {v:40, r:255, g:0,   b:0,   a:240},
+    {v:45, r:192, g:0,   b:0,   a:240},
+    {v:50, r:120, g:0,   b:0,   a:240},
+    {v:55, r:255, g:0,   b:255, a:250},
+    {v:60, r:160, g:32,  b:240, a:250},
+    {v:65, r:80,  g:0,   b:130, a:255},
+    {v:70, r:200, g:200, b:200, a:255},
+    {v:75, r:255, g:255, b:255, a:255},
 ];
 
 const STOPS_LLAMPS = [
@@ -757,13 +795,10 @@ const STOPS_SHEAR = [
     {v:70,  r:0,   g:0,   b:0},
 ];
 
-
-
 // ═══════════════════════════════════════════════════════════════════════
-//  🔧 PALETES FALTANTS — WCS 2D
+//  PALETES FALTANTS — WCS 2D
 // ═══════════════════════════════════════════════════════════════════════
 
-// ─── Neu i aigua equivalent ──────────────────────────────────────────
 const STOPS_NEU = [
     {v:0, r:255, g:255, b:255, a:0},
     {v:1, r:200, g:230, b:255, a:80},
@@ -776,16 +811,14 @@ const STOPS_NEU = [
     {v:500, r:0, g:0, b:50, a:255},
 ];
 
-// ─── Tipus de precipitació (categòric) ──────────────────────────────
 const STOPS_PRECIP_TYPE = [
-    {v:0, r:255, g:255, b:255, a:0},    // Sense dades
-    {v:1, r:0,   g:150, b:255, a:200},  // Pluja (bleu — estàndard Météo-France)
-    {v:2, r:255, g:255, b:255, a:220},  // Neige (blanc)
-    {v:3, r:255, g:0,   b:255, a:220},  // Verglas / Gel (magenta-rosa — alerta crítica)
-    {v:4, r:180, g:0,   b:220, a:200},  // Mélange (púrpura, transició pluja/neu)
+    {v:0, r:255, g:255, b:255, a:0},
+    {v:1, r:0,   g:150, b:255, a:200},
+    {v:2, r:255, g:255, b:255, a:220},
+    {v:3, r:255, g:0,   b:255, a:220},
+    {v:4, r:180, g:0,   b:220, a:200},
 ];
 
-// ─── Reflectivitat WCS ──────────────────────────────────────────────
 const STOPS_REFLECTIVITAT = [
     {v:0, r:0, g:0, b:0, a:0},
     {v:5, r:0, g:236, b:236, a:150},
@@ -805,9 +838,8 @@ const STOPS_REFLECTIVITAT = [
     {v:75, r:255, g:255, b:255, a:255},
 ];
 
-// ─── Visibilitat ─────────────────────────────────────────────────────
 const STOPS_VISIBILITAT = [
-    {v:0, r:0, g:0, b:0, a:255},        // Molt mala
+    {v:0, r:0, g:0, b:0, a:255},
     {v:100, r:255, g:0, b:0, a:230},
     {v:500, r:255, g:100, b:0, a:200},
     {v:1000, r:255, g:255, b:0, a:180},
@@ -818,7 +850,6 @@ const STOPS_VISIBILITAT = [
     {v:50000, r:255, g:255, b:255, a:60},
 ];
 
-// ─── Aigua precipitable (TPW) ──────────────────────────────────────
 const STOPS_TPW_WCS = [
     {v:0, r:255, g:255, b:255, a:0},
     {v:2, r:200, g:255, b:200, a:80},
@@ -834,7 +865,6 @@ const STOPS_TPW_WCS = [
     {v:80, r:100, g:0, b:150, a:255},
 ];
 
-// ─── Temperatura superfície (model) ────────────────────────────────
 const STOPS_TEMP_SFC_MODEL = [
     {v:-50, r:45, g:0, b:75},
     {v:-40, r:130, g:0, b:160},
@@ -854,7 +884,6 @@ const STOPS_TEMP_SFC_MODEL = [
     {v:50, r:180, g:0, b:0},
 ];
 
-// ─── Nuvolositat total ──────────────────────────────────────────────
 const STOPS_TOTAL_CLOUD = [
     {v:0, r:0, g:0, b:0, a:0},
     {v:10, r:50, g:50, b:50, a:80},
@@ -869,7 +898,6 @@ const STOPS_TOTAL_CLOUD = [
     {v:100, r:255, g:255, b:255, a:230},
 ];
 
-// ─── CAPE mitjana ────────────────────────────────────────────────────
 const STOPS_CAPE_MITJANA = [
     {v:0, r:79, g:195, b:247, a:255},
     {v:100, r:50, g:170, b:240, a:255},
@@ -888,7 +916,6 @@ const STOPS_CAPE_MITJANA = [
     {v:3800, r:200, g:0, b:255, a:255},
 ];
 
-// ─── Intensitat precipitació ────────────────────────────────────────
 const STOPS_PRECIP_RATE = [
     {v:0, r:0, g:0, b:0, a:0},
     {v:0.1, r:200, g:230, b:255, a:80},
@@ -904,13 +931,9 @@ const STOPS_PRECIP_RATE = [
     {v:100, r:200, g:0, b:200, a:255},
 ];
 
-// ─── GEL NÚVOLS (CIWC) - PALETA BLANC-BLAU ESPECTACULAR ─────────────
-// Del blau més profund al blanc més brillant (gel pur)
+// GEL NÚVOLS (CIWC) - PALETA BLANC-BLAU
 const STOPS_CIWC_MITJANA = [
-    // Sense dades → Transparent
     {v:0,         r:255, g:255, b:255, a:0},
-    
-    // Gel molt lleu (blanc-blau molt suau, gairebé invisible)
     {v:0.000001,  r:220, g:230, b:255, a:30},
     {v:0.000002,  r:200, g:220, b:255, a:50},
     {v:0.000005,  r:180, g:210, b:255, a:70},
@@ -919,15 +942,11 @@ const STOPS_CIWC_MITJANA = [
     {v:0.00003,   r:120, g:180, b:255, a:130},
     {v:0.00004,   r:100, g:170, b:255, a:145},
     {v:0.00005,   r:80,  g:160, b:255, a:155},
-    
-    // Gel lleu (blaus clars)
     {v:0.00006,   r:60,  g:150, b:255, a:165},
     {v:0.00007,   r:40,  g:140, b:255, a:175},
     {v:0.00008,   r:20,  g:130, b:255, a:185},
     {v:0.00009,   r:0,   g:120, b:255, a:190},
     {v:0.0001,    r:0,   g:110, b:250, a:195},
-    
-    // Gel moderat (blaus mitjans)
     {v:0.0002,    r:0,   g:100, b:245, a:200},
     {v:0.0003,    r:0,   g:90,  b:240, a:205},
     {v:0.0004,    r:0,   g:80,  b:235, a:210},
@@ -936,8 +955,6 @@ const STOPS_CIWC_MITJANA = [
     {v:0.0007,    r:0,   g:50,  b:220, a:225},
     {v:0.0008,    r:0,   g:40,  b:215, a:230},
     {v:0.0009,    r:0,   g:30,  b:210, a:235},
-    
-    // Gel abundant (blaus profunds)
     {v:0.001,     r:0,   g:20,  b:205, a:240},
     {v:0.002,     r:0,   g:10,  b:200, a:245},
     {v:0.003,     r:0,   g:0,   b:195, a:248},
@@ -947,60 +964,44 @@ const STOPS_CIWC_MITJANA = [
     {v:0.007,     r:40,  g:0,   b:175, a:254},
     {v:0.008,     r:50,  g:0,   b:170, a:255},
     {v:0.009,     r:60,  g:0,   b:165, a:255},
-    
-    // Gel molt abundant (blaus-porpra profunds)
     {v:0.01,      r:70,  g:0,   b:160, a:255},
     {v:0.02,      r:80,  g:0,   b:155, a:255},
     {v:0.03,      r:90,  g:0,   b:150, a:255},
     {v:0.04,      r:100, g:0,   b:145, a:255},
     {v:0.05,      r:110, g:0,   b:140, a:255},
-    
-    // Gel extrem (porpres-blanes intensos)
     {v:0.06,      r:120, g:0,   b:135, a:255},
     {v:0.07,      r:130, g:0,   b:130, a:255},
     {v:0.08,      r:140, g:0,   b:125, a:255},
     {v:0.09,      r:150, g:0,   b:120, a:255},
     {v:0.1,       r:160, g:0,   b:115, a:255},
-    
-    // Gel molt extrem (transició a blanc brillant)
     {v:0.15,      r:170, g:0,   b:110, a:255},
     {v:0.2,       r:180, g:20,  b:105, a:255},
     {v:0.25,      r:190, g:40,  b:100, a:255},
     {v:0.3,       r:200, g:60,  b:95,  a:255},
     {v:0.4,       r:210, g:80,  b:90,  a:255},
     {v:0.5,       r:220, g:100, b:85,  a:255},
-    
-    // Gel pur (blanc-blau brillant)
     {v:0.6,       r:230, g:120, b:80,  a:255},
     {v:0.7,       r:235, g:140, b:75,  a:255},
     {v:0.8,       r:240, g:160, b:70,  a:255},
     {v:0.9,       r:245, g:180, b:65,  a:255},
     {v:1.0,       r:250, g:200, b:60,  a:255},
-    
-    // Gel molt intens (blanc daurat)
     {v:1.2,       r:252, g:210, b:55,  a:255},
     {v:1.4,       r:254, g:220, b:50,  a:255},
     {v:1.6,       r:255, g:230, b:45,  a:255},
     {v:1.8,       r:255, g:235, b:40,  a:255},
     {v:2.0,       r:255, g:240, b:35,  a:255},
-    
-    // Gel extremadament intens (blanc pur)
     {v:2.5,       r:255, g:245, b:30,  a:255},
     {v:3.0,       r:255, g:250, b:25,  a:255},
     {v:4.0,       r:255, g:252, b:20,  a:255},
     {v:5.0,       r:255, g:254, b:15,  a:255},
     {v:7.0,       r:255, g:255, b:10,  a:255},
-    {v:10.0,      r:255, g:255, b:255, a:255},  // BLANC PUR (gel màxim)
-    
-    // Valors extrems (blanc brillant amb to daurat)
+    {v:10.0,      r:255, g:255, b:255, a:255},
     {v:15.0,      r:255, g:250, b:240, a:255},
-    {v:20.0,      r:255, g:255, b:255, a:255},  // BLANC ABSOLUT
+    {v:20.0,      r:255, g:255, b:255, a:255},
 ];
+
 const STOPS_CLD_RAIN_MITJANA = [
-    // Sense dades / Zero → Gris fosc elegant
     {v:0,         r:25,  g:28,  b:40,  a:220},
-    
-    // Blaus profunds (valors molt petits)
     {v:0.000001,  r:10,  g:40,  b:120, a:230},
     {v:0.000005,  r:0,   g:70,  b:190, a:235},
     {v:0.00001,   r:0,   g:110, b:240, a:240},
@@ -1008,78 +1009,52 @@ const STOPS_CLD_RAIN_MITJANA = [
     {v:0.00003,   r:0,   g:200, b:255, a:245},
     {v:0.00004,   r:0,   g:230, b:220, a:248},
     {v:0.00005,   r:0,   g:255, b:180, a:250},
-    
-    // Verds (valors petits)
     {v:0.0001,    r:50,  g:255, b:120, a:252},
     {v:0.0002,    r:130, g:255, b:70,  a:253},
     {v:0.0005,    r:210, g:255, b:20,  a:254},
-    
-    // Grocs i taronges (valors mitjans)
     {v:0.001,     r:255, g:255, b:0,   a:255},
     {v:0.002,     r:255, g:220, b:0,   a:255},
     {v:0.003,     r:255, g:180, b:0,   a:255},
     {v:0.005,     r:255, g:140, b:0,   a:255},
     {v:0.01,      r:255, g:100, b:0,   a:255},
-    
-    // Vermells (valors alts)
     {v:0.02,      r:255, g:60,  b:0,   a:255},
     {v:0.03,      r:255, g:20,  b:0,   a:255},
     {v:0.05,      r:230, g:0,   b:50,  a:255},
     {v:0.1,       r:200, g:0,   b:120, a:255},
-    
-    // Liles i morats (valors molt alts)
     {v:0.2,       r:160, g:0,   b:200, a:255},
     {v:0.5,       r:120, g:0,   b:240, a:255},
     {v:1.0,       r:80,  g:0,   b:220, a:255},
     {v:2.0,       r:40,  g:0,   b:180, a:255},
-    
-    // Blanc brillant per a valors extrems
     {v:5.0,       r:200, g:200, b:255, a:255},
     {v:10.0,      r:255, g:255, b:255, a:255},
 ];
 
-// ─── TPW mitjana ──────────────────────────────────────────────────
 const STOPS_TPW_MITJANA = [
-    // Sense dades / Zero → Gris fosc elegant
     {v:0,     r:30,  g:32,  b:45,  a:220},
-    
-    // Molt sec (blau molt clar)
     {v:1,     r:200, g:220, b:255, a:200},
     {v:2,     r:180, g:210, b:255, a:210},
     {v:4,     r:150, g:195, b:255, a:215},
     {v:6,     r:120, g:180, b:255, a:220},
-    
-    // Humitat baixa (blau)
     {v:8,     r:90,  g:165, b:255, a:225},
     {v:10,    r:60,  g:145, b:255, a:230},
     {v:12,    r:30,  g:125, b:255, a:235},
     {v:14,    r:0,   g:105, b:245, a:240},
-    
-    // Humitat mitjana (cian a verd)
     {v:16,    r:0,   g:145, b:230, a:242},
     {v:17,    r:0,   g:180, b:210, a:244},
     {v:18,    r:0,   g:210, b:185, a:246},
     {v:19,    r:50,  g:230, b:155, a:248},
-    
-    // Humitat alta (verd a groc)
     {v:20,    r:100, g:245, b:120, a:250},
     {v:21,    r:160, g:250, b:80,  a:252},
     {v:22,    r:210, g:250, b:40,  a:253},
     {v:23,    r:245, g:245, b:0,   a:254},
-    
-    // Molt humit (groc a taronja)
     {v:24,    r:255, g:220, b:0,   a:255},
     {v:25,    r:255, g:195, b:0,   a:255},
     {v:26,    r:255, g:165, b:0,   a:255},
     {v:27,    r:255, g:135, b:0,   a:255},
-    
-    // Extremadament humit (taronja a vermell)
     {v:28,    r:255, g:105, b:0,   a:255},
     {v:29,    r:255, g:75,  b:0,   a:255},
     {v:30,    r:255, g:45,  b:0,   a:255},
     {v:32,    r:255, g:20,  b:0,   a:255},
-    
-    // Saturat (vermell fosc)
     {v:34,    r:230, g:0,   b:0,   a:255},
     {v:36,    r:200, g:0,   b:0,   a:255},
     {v:38,    r:170, g:0,   b:0,   a:255},
@@ -1090,10 +1065,9 @@ const STOPS_TPW_MITJANA = [
 ];
 
 // ═══════════════════════════════════════════════════════════════════════
-//  🔧 PALETES FALTANTS — WCS 3D (PV SURFACES)
+//  PALETES FALTANTS — WCS 3D (PV SURFACES)
 // ═══════════════════════════════════════════════════════════════════════
 
-// ─── Geopotencial PV ──────────────────────────────────────────────
 const STOPS_GEO_PV = [
     {v:470, r:0, g:0, b:200},
     {v:490, r:0, g:100, b:255},
@@ -1111,7 +1085,6 @@ const STOPS_GEO_PV = [
     {v:650, r:150, g:0, b:150},
 ];
 
-// ─── Theta PV ──────────────────────────────────────────────────────
 const STOPS_THETA_PV = [
     {v:-30, r:0, g:0, b:200},
     {v:-20, r:0, g:100, b:255},
@@ -1128,7 +1101,6 @@ const STOPS_THETA_PV = [
     {v:90, r:150, g:0, b:150},
 ];
 
-// ─── Vent U i V (PV) ──────────────────────────────────────────────
 const STOPS_VENT_PV = [
     {v:-100, r:255, g:0, b:255},
     {v:-60, r:200, g:0, b:200},
@@ -1141,7 +1113,6 @@ const STOPS_VENT_PV = [
     {v:100, r:100, g:0, b:0},
 ];
 
-// ─── Vent total (PV) ──────────────────────────────────────────────
 const STOPS_WIND_PV = [
     {v:0, r:200, g:200, b:255},
     {v:5, r:150, g:200, b:255},
@@ -1163,7 +1134,6 @@ const STOPS_WIND_PV = [
     {v:300, r:255, g:255, b:255},
 ];
 
-// ─── Altitud isoterma ──────────────────────────────────────────────
 const STOPS_ISOTERMA = [
     {v:0, r:0, g:0, b:0, a:0},
     {v:500, r:200, g:200, b:255, a:80},
@@ -1181,26 +1151,26 @@ const STOPS_ISOTERMA = [
     {v:12000, r:100, g:0, b:150, a:255},
 ];
 
-// ─── SCP (Supercell Composite Parameter) - BLANC SEMITRANSPARENT ──
+// SCP (Supercell Composite Parameter) - BLANC SEMITRANSPARENT
 const STOPS_SCP = [
-    {v:0,    r:255, g:255, b:255, a:30},   // blanc semitransparent (sense dades)
+    {v:0,    r:255, g:255, b:255, a:30},
     {v:0.1,  r:255, g:250, b:255, a:50},
     {v:0.2,  r:255, g:240, b:255, a:70},
     {v:0.3,  r:255, g:230, b:255, a:90},
-    {v:0.5,  r:255, g:210, b:255, a:120},  // risc baix
+    {v:0.5,  r:255, g:210, b:255, a:120},
     {v:0.7,  r:255, g:180, b:255, a:150},
-    {v:1.0,  r:255, g:150, b:255, a:175},  // risc moderat
+    {v:1.0,  r:255, g:150, b:255, a:175},
     {v:1.3,  r:255, g:120, b:255, a:190},
     {v:1.5,  r:255, g:100, b:255, a:200},
     {v:1.8,  r:255, g:70,  b:255, a:210},
-    {v:2.0,  r:255, g:40,  b:255, a:220},  // risc alt
+    {v:2.0,  r:255, g:40,  b:255, a:220},
     {v:2.3,  r:255, g:20,  b:220, a:225},
     {v:2.5,  r:255, g:0,   b:190, a:230},
-    {v:3.0,  r:240, g:0,   b:160, a:235},  // risc molt alt
+    {v:3.0,  r:240, g:0,   b:160, a:235},
     {v:3.5,  r:220, g:0,   b:130, a:240},
     {v:4.0,  r:200, g:0,   b:100, a:245},
     {v:4.5,  r:180, g:0,   b:80,  a:248},
-    {v:5.0,  r:160, g:0,   b:60,  a:250},  // risc extrem
+    {v:5.0,  r:160, g:0,   b:60,  a:250},
     {v:6.0,  r:140, g:0,   b:40,  a:252},
     {v:7.0,  r:120, g:0,   b:20,  a:254},
     {v:8.0,  r:100, g:0,   b:0,   a:255},
@@ -1208,10 +1178,10 @@ const STOPS_SCP = [
     {v:10,   r:60,  g:0,   b:0,   a:255},
     {v:12,   r:40,  g:0,   b:0,   a:255},
     {v:15,   r:20,  g:0,   b:0,   a:255},
-    {v:20,   r:0,   g:0,   b:0,   a:255},  // negre
+    {v:20,   r:0,   g:0,   b:0,   a:255},
 ];
 
-// ─── CALAMARSA (mida cm) ──────────────────────────────────────────────
+// CALAMARSA (mida cm)
 const STOPS_HAIL = [
     {v:0,    r:255, g:255, b:255, a:0},
     {v:0.1,  r:250, g:252, b:255, a:60},
@@ -1286,13 +1256,18 @@ const STOPS_HAIL = [
     {v:10.0, r:255, g:255, b:255, a:255},
 ];
 
+// ═══════════════════════════════════════════════════════════════════════
+//  NORMALITZACIÓ DE CLAUS WCS
+// ═══════════════════════════════════════════════════════════════════════
 
 const ALIES_CLAUS = {
     'BRIGHTNESS_TEMPERATURE__GROUND_OR_WATER_SURFACE': 'bt108',
     'BRIGHTNESS_TEMPERATURE_62__GROUND_OR_WATER_SURFACE': 'bt62',
+    'BT__CHANNELS_108': 'bt108',
+    'BT__CHANNELS_62': 'bt62',
     'DIAG_EHI__GROUND': 'ehi',
     'CIN__GROUND': 'cin',
-    'DIAG_SCP__GROUND': 'scp_wcs',      // SCP del WCS (Météo-France) — diferenciat del 'scp' calculat localment
+    'DIAG_SCP__GROUND': 'scp_wcs',
     'DIAG_STP__GROUND': 'stp',
     'ALTITUDE__GROUND': 'altitud',
     'CIWC__ISOBARIC_500': 'ciwc_500',
@@ -1302,18 +1277,15 @@ const ALIES_CLAUS = {
     'THETAV__ISOBARIC_850': 'thetav_850',
 };
 
-// Mapeig invers: clau curta -> clau crua real del JSON
 const CLAU_REAL = {};
 Object.entries(ALIES_CLAUS).forEach(([crua, curta]) => {
     CLAU_REAL[curta] = crua;
 });
 
-// Retorna la clau curta normalitzada (per PALETES, panell, agrupacions)
 function normalitzarClau(clauOriginal) {
     return ALIES_CLAUS[clauOriginal] || clauOriginal;
 }
 
-// Retorna la clau tal com és realment al JSON (data.variables[...])
 function clauRealPerLlegir(clauCurta) {
     return CLAU_REAL[clauCurta] || clauCurta;
 }
@@ -1340,10 +1312,8 @@ const PALETES = {
     spbl:           {titol:'Capa límit',               unitat:'m',         stops:STOPS_ALTURA_CL},
     radar_dbz:      {titol:'Radar simulat',            unitat:'dBZ',       stops:STOPS_RADAR},
     'REFLECTIVITY_MAX_DBZ__GROUND_OR_WATER_SURFACE': {
-    titol: 'Reflectivitat dBZ',
-    unitat: 'dBZ',
-    stops: STOPS_REFLECTIVITAT
-},
+        titol: 'Reflectivitat dBZ', unitat: 'dBZ', stops: STOPS_REFLECTIVITAT
+    },
     lightning_1h:   {titol:'Llamps 1h',                unitat:'fl/m²',     stops:STOPS_LLAMPS_V2},
     low_cloud_cover:{titol:'Núvols baixos',            unitat:'%',         stops:STOPS_NUVOLS_BAIXOS},
     medium_cloud_cover:{titol:'Núvols mitjans',        unitat:'%',         stops:STOPS_NUVOLS_MITJANS},
@@ -1356,7 +1326,7 @@ const PALETES = {
     bt62:           {titol:'BT 6.2µm (vapor)',         unitat:'°C',        stops:STOPS_BT62},
 
     // ─── 3D ─────────────────────────────────────────────────────────
-    t:              {titol:'Temperatura',               unitat:'°C',        stops:STOPS_TEMP_ALT},
+    t:              {titol:'Temperatura',              unitat:'°C',        stops:STOPS_TEMP_ALT},
     u:              {titol:'Vent U',                   unitat:'m/s',       stops:STOPS_VENT_UV},
     v:              {titol:'Vent V',                   unitat:'m/s',       stops:STOPS_VENT_UV},
     wind_speed:     {titol:'Vent',                     unitat:'km/h',      stops:STOPS_RATXA},
@@ -1370,8 +1340,8 @@ const PALETES = {
     lfc_m:          {titol:'LFC (alçada)',             unitat:'m',         stops:STOPS_ALTURA_CL},
     lifted_index:   {titol:'Lifted Index',             unitat:'°C',        stops:STOPS_LI},
     el_m:           {titol:'Equilibrium Level',        unitat:'m',         stops:STOPS_ALTURA_CL},
-    scp:            {titol:'SCP (càlcul local)',       unitat:'Index',    stops:STOPS_SCP},
-    scp_wcs:        {titol:'SCP (Météo-France)',       unitat:'Index',    stops:STOPS_SCP},
+    scp:            {titol:'SCP (càlcul local)',       unitat:'Index',     stops:STOPS_SCP},
+    scp_wcs:        {titol:'SCP (Météo-France)',       unitat:'Index',     stops:STOPS_SCP},
     stp:            {titol:'STP (Météo-France)',       unitat:'Index',     stops:STOPS_STP},
     hail_cm:        {titol:'Calamarsa (mida aprox.)',  unitat:'cm',        stops:STOPS_HAIL},
     ehi:            {titol:'EHI (SRH×CAPE)',           unitat:'m²/s²',     stops:STOPS_EHI},
@@ -1385,15 +1355,16 @@ const PALETES = {
     // ─── NÚVOLS (WCS 3D) ────────────────────────────────────────────
     ciwc_500:       {titol:'Gel núvols 500hPa',        unitat:'g/kg',     stops:STOPS_GEL},
     cld_rain_850:   {titol:'Pluja núvols 850hPa',      unitat:'g/kg',     stops:STOPS_PLUJA},
-    tpw_700:        {titol:'Aigua precip   @700hPa',    unitat:'kg/m²',   stops:STOPS_TPW},
-    tpw_850:        {titol:'Aigua precip. @850hPa',    unitat:'mm',   stops:STOPS_TPW},
-    thetav_850:     {titol:'Theta virtual 850hPa',     unitat:'°C',        stops:STOPS_THETAV},
+    tpw_700:        {titol:'Aigua precip. @700hPa',    unitat:'kg/m²',    stops:STOPS_TPW},
+    tpw_850:        {titol:'Aigua precip. @850hPa',    unitat:'mm',       stops:STOPS_TPW},
+    thetav_850:     {titol:'Theta virtual 850hPa',     unitat:'°C',       stops:STOPS_THETAV},
 
     // ─── ALTRES ─────────────────────────────────────────────────────
     geopotencial_500:{titol:'Geopotencial 500hPa',     unitat:'dam',      stops:STOPS_GEO500},
     temperatura_500:{titol:'Temperatura 500hPa',       unitat:'°C',       stops:STOPS_T500},
     altitud:        {titol:'Altitud',                  unitat:'m',        stops:STOPS_ALTURA_CL},
-      'SNOW_DEPTH__GROUND_OR_WATER_SURFACE': {
+
+    'SNOW_DEPTH__GROUND_OR_WATER_SURFACE': {
         titol: 'Gruix de neu', unitat: 'm', stops: STOPS_NEU
     },
     'WATER_EQUIVALENT_ACCUMULATED_SNOW__GROUND_OR_WATER_SURFACE': {
@@ -1427,7 +1398,7 @@ const PALETES = {
         titol: 'CAPE mitjana', unitat: 'J/kg', stops: STOPS_CAPE_MITJANA
     },
     'DIAG_GRELE__GROUND_OR_WATER_SURFACE': {
-        titol: 'Calamarsa (WCS)', unitat: 'Index', stops: STOPS_HAIL  // Reutilitzem la paleta d'hail_cm
+        titol: 'Calamarsa (WCS)', unitat: 'Index', stops: STOPS_HAIL
     },
     'PRECIPITATION_TYPE_15_MIN__GROUND_OR_WATER_SURFACE': {
         titol: 'Tipus precip. 15min', unitat: 'categ.', stops: STOPS_PRECIP_TYPE
@@ -1445,104 +1416,53 @@ const PALETES = {
         titol: 'Visibilitat sota precip. 15min', unitat: 'm', stops: STOPS_VISIBILITAT
     },
 
-'CIWC_MITJANA': {
-    titol: 'Gel núvols (mitjana)',
-    unitat: 'g/m²',  // ← CANVIAT DE g/kg A g/m²
-    stops: STOPS_CIWC_MITJANA
-},
-'CLD_RAIN_MITJANA': {
-    titol: 'Pluja núvols (mitjana)',
-    unitat: 'g/m²',  // ← Manté
-    stops: STOPS_CLD_RAIN_MITJANA
-},
-'TPW_MITJANA': {
-    titol: 'Aigua precipitable (mitjana)',
-    unitat: 'mm',  // o 'kg/m²'
-    stops: STOPS_TPW_MITJANA
-},
+    'CIWC_MITJANA': {
+        titol: 'Gel núvols (mitjana)', unitat: 'g/m²', stops: STOPS_CIWC_MITJANA
+    },
+    'CLD_RAIN_MITJANA': {
+        titol: 'Pluja núvols (mitjana)', unitat: 'g/m²', stops: STOPS_CLD_RAIN_MITJANA
+    },
+    'TPW_MITJANA': {
+        titol: 'Aigua precipitable (mitjana)', unitat: 'mm', stops: STOPS_TPW_MITJANA
+    },
 
     // ─── WCS 3D (PV SURFACES) ────────────────────────────────────────
-    'GEOPOTENTIAL_PV1500': {
-        titol: 'Geopotencial PV=1.5', unitat: 'dam', stops: STOPS_GEO_PV
-    },
-    'GEOPOTENTIAL_PV2000': {
-        titol: 'Geopotencial PV=2.0', unitat: 'dam', stops: STOPS_GEO_PV
-    },
-    'THETA_PV1500': {
-        titol: 'Theta PV=1.5', unitat: '°C', stops: STOPS_THETA_PV
-    },
-    'THETA_PV2000': {
-        titol: 'Theta PV=2.0', unitat: '°C', stops: STOPS_THETA_PV
-    },
-    'U_PV1500': {
-        titol: 'Vent U PV=1.5', unitat: 'm/s', stops: STOPS_VENT_PV
-    },
-    'U_PV2000': {
-        titol: 'Vent U PV=2.0', unitat: 'm/s', stops: STOPS_VENT_PV
-    },
-    'V_PV1500': {
-        titol: 'Vent V PV=1.5', unitat: 'm/s', stops: STOPS_VENT_PV
-    },
-    'V_PV2000': {
-        titol: 'Vent V PV=2.0', unitat: 'm/s', stops: STOPS_VENT_PV
-    },
-    'WIND_PV1500': {
-        titol: 'Vent total PV=1.5', unitat: 'm/s', stops: STOPS_WIND_PV
-    },
-    'WIND_PV2000': {
-        titol: 'Vent total PV=2.0', unitat: 'm/s', stops: STOPS_WIND_PV
-    },
-    'ALTITUDE_ISOTERMA_0C': {
-        titol: 'Altitud isoterma 0°C', unitat: 'm', stops: STOPS_ISOTERMA
-    },
-    'ALTITUDE_ISOTERMA_M10C': {
-        titol: 'Altitud isoterma -10°C', unitat: 'm', stops: STOPS_ISOTERMA
-    },
+    'GEOPOTENTIAL_PV1500': { titol: 'Geopotencial PV=1.5', unitat: 'dam', stops: STOPS_GEO_PV },
+    'GEOPOTENTIAL_PV2000': { titol: 'Geopotencial PV=2.0', unitat: 'dam', stops: STOPS_GEO_PV },
+    'THETA_PV1500':        { titol: 'Theta PV=1.5', unitat: '°C', stops: STOPS_THETA_PV },
+    'THETA_PV2000':        { titol: 'Theta PV=2.0', unitat: '°C', stops: STOPS_THETA_PV },
+    'U_PV1500':            { titol: 'Vent U PV=1.5', unitat: 'm/s', stops: STOPS_VENT_PV },
+    'U_PV2000':             { titol: 'Vent U PV=2.0', unitat: 'm/s', stops: STOPS_VENT_PV },
+    'V_PV1500':            { titol: 'Vent V PV=1.5', unitat: 'm/s', stops: STOPS_VENT_PV },
+    'V_PV2000':            { titol: 'Vent V PV=2.0', unitat: 'm/s', stops: STOPS_VENT_PV },
+    'WIND_PV1500':         { titol: 'Vent total PV=1.5', unitat: 'm/s', stops: STOPS_WIND_PV },
+    'WIND_PV2000':         { titol: 'Vent total PV=2.0', unitat: 'm/s', stops: STOPS_WIND_PV },
+    'ALTITUDE_ISOTERMA_0C':   { titol: 'Altitud isoterma 0°C', unitat: 'm', stops: STOPS_ISOTERMA },
+    'ALTITUDE_ISOTERMA_M10C': { titol: 'Altitud isoterma -10°C', unitat: 'm', stops: STOPS_ISOTERMA },
+
+    // ─── VARIABLES WCS 2D QUE ABANS CAIEN A "ALTRES" AMB °C ───────────
+    'ALTITUDE__ISO_T_27315':    { titol: 'Isoterma 0°C',      unitat: 'm', stops: STOPS_ISOTERMA },
+    'ALTITUDE__ISO_TPW_27315':  { titol: 'Iso TPW 0°C',       unitat: 'm', stops: STOPS_ISOTERMA },
+    'ALTITUDE__ISO_TPW_27415':  { titol: 'Iso TPW +1°C',      unitat: 'm', stops: STOPS_ISOTERMA },
+    'ALTITUDE__ISO_TPW_27465':  { titol: 'Iso TPW +1.5°C',    unitat: 'm', stops: STOPS_ISOTERMA },
+    'BASE_NUAGE__GROUND':       { titol: 'Base núvols',       unitat: 'm', stops: STOPS_ALTURA_CL },
+    'PLAFOND__GROUND':          { titol: 'Sostre núvols',     unitat: 'm', stops: STOPS_ALTURA_CL },
+    'P__BASE_CB':                { titol: 'Base Cumulonimbus', unitat: 'm', stops: STOPS_ALTURA_CL },
+    'P__TOP_CB':                 { titol: 'Cim Cumulonimbus',  unitat: 'm', stops: STOPS_ALTURA_CL },
+    'HTEURNEIGE__GROUND':       { titol: 'Altura neu',        unitat: 'mm', stops: STOPS_NEU },
+    'NEIGE_SC__GROUND':         { titol: 'Neu superfície',    unitat: 'mm', stops: STOPS_NEU },
+    'RESR_NEIGE__GROUND':       { titol: 'Reserva neu',       unitat: 'mm', stops: STOPS_NEU },
+    'RR_SOL_GELE__GROUND':      { titol: 'Pluja gelada',      unitat: 'mm', stops: STOPS_PRECIP },
+    'PRECIP__GROUND':           { titol: 'Precipitació 1h',   unitat: 'mm', stops: STOPS_PRECIP },
+    'NEIGE__GROUND':            { titol: 'Neu 1h',            unitat: 'mm', stops: STOPS_NEU },
+    'DIAG_GRELE__GROUND':       { titol: 'Calamarsa (diag. WCS)', unitat: 'Index', stops: STOPS_HAIL },
+    'FF__ISO_TP_1500':          { titol: 'Vent PV=1.5 (WCS)', unitat: 'm/s', stops: STOPS_VENT_PV },
+    'FF__ISO_TP_2000':          { titol: 'Vent PV=2.0 (WCS)', unitat: 'm/s', stops: STOPS_VENT_PV },
+    'HELICITE__GROUND':         { titol: 'Helicitat',         unitat: 'm²/s²', stops: STOPS_SRH },
+    'T__GROUND':                 { titol: 'Temperatura superfície', unitat: '°C', stops: STOPS_TEMP_SFC_MODEL },
 };
 
-function escalarVariablesMitjana(variables) {
-    // CIWC_MITJANA: g/kg → g/m² (multiplicar per ~0.1)
-if (variables['CIWC_MITJANA']?.datos) {
-    const vals = variables['CIWC_MITJANA'].datos;
-    const escalats = new Float32Array(vals.length);
-    for (let i = 0; i < vals.length; i++) {
-        escalats[i] = vals[i] * 1000;
-    }
-    variables['CIWC_MITJANA'].datos = escalats;
-}
-    
-    // CLD_RAIN_MITJANA: g/kg → g/m²
-    if (variables['CLD_RAIN_MITJANA']?.datos) {
-        const vals = variables['CLD_RAIN_MITJANA'].datos;
-        const escalats = new Float32Array(vals.length);
-        for (let i = 0; i < vals.length; i++) {
-            escalats[i] = vals[i] * 100;
-        }
-        variables['CLD_RAIN_MITJANA'].datos = escalats;
-    }
-    
-// TPW_MITJANA: kg/m² → mm (1:1, no cal escalar)
-// Però si ve en g/kg, multiplicar per 0.1
-if (variables['TPW_MITJANA']?.datos) {
-    const vals = variables['TPW_MITJANA'].datos;
-    const escalats = new Float32Array(vals.length);
-    for (let i = 0; i < vals.length; i++) {
-        // Si ve en g/kg → mm (÷1000 perquè 1 mm = 1 kg/m² = 1000 g/m²)
-        // Però com que les dades ja estan en kg/m², no cal canviar
-        escalats[i] = vals[i];  // 1 kg/m² = 1 mm
-    }
-    variables['TPW_MITJANA'].datos = escalats;
-}
-    
-    return variables;
-}
-
-// GRUP PRINCIPAL (apareix primer, sense títol, destacat) — TOTES LLIURES SENSE LOGIN
-// ═══════════════════════════════════════════════════════════════════════
-//  PALETES — ASGURAR QUE wind_speed_10m EXISTEIX
-// ═══════════════════════════════════════════════════════════════════════
-
-// Si no existeix, afegir-la
+// Assegurar que wind_speed_10m existeix (per si l'ordre de càrrega falla)
 if (!PALETES['wind_speed_10m']) {
     PALETES['wind_speed_10m'] = {
         titol: 'Vent 10m',
@@ -1551,204 +1471,154 @@ if (!PALETES['wind_speed_10m']) {
     };
 }
 
-// GRUP PRINCIPAL (apareix primer, sense títol, destacat)
-// AFEGIR 'wind_speed_10m' al final del grup
+function escalarVariablesMitjana(variables) {
+    if (variables['CIWC_MITJANA']?.datos) {
+        const vals = variables['CIWC_MITJANA'].datos;
+        const escalats = new Float32Array(vals.length);
+        for (let i = 0; i < vals.length; i++) {
+            escalats[i] = vals[i] * 1000;
+        }
+        variables['CIWC_MITJANA'].datos = escalats;
+    }
+
+    if (variables['CLD_RAIN_MITJANA']?.datos) {
+        const vals = variables['CLD_RAIN_MITJANA'].datos;
+        const escalats = new Float32Array(vals.length);
+        for (let i = 0; i < vals.length; i++) {
+            escalats[i] = vals[i] * 100;
+        }
+        variables['CLD_RAIN_MITJANA'].datos = escalats;
+    }
+
+    if (variables['TPW_MITJANA']?.datos) {
+        const vals = variables['TPW_MITJANA'].datos;
+        const escalats = new Float32Array(vals.length);
+        for (let i = 0; i < vals.length; i++) {
+            escalats[i] = vals[i];
+        }
+        variables['TPW_MITJANA'].datos = escalats;
+    }
+
+    return variables;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  GRUPS DEL PANELL DE PARÀMETRES
+// ═══════════════════════════════════════════════════════════════════════
+
 const GRUP_PRINCIPAL = ['st', 'sd', 'srh', 'temp_min2m', 'temp_max2m', 'wind_speed_10m', 'wind_gust'];
+
 const GRUPS_SIMPLES = {
-    // ═══════════════════════════════════════════════════════════════════
-    // 1. TEMPERATURA I HUMITAT (Superfície)
-    // ═══════════════════════════════════════════════════════════════════
     'Temperatura i Humitat': [
-        'st',              // Temperatura 2m
-        'sd',              // Punt rosada 2m
-        'temp_min2m',      // Temp. mín. 2m
-        'temp_max2m',      // Temp. màx. 2m
-        'wind_speed_10m',  // Vent 10m
-        'wind_gust',       // Ratxa 10m
-        'TEMPERATURE__GROUND_OR_WATER_SURFACE', // Temp. superfície model
-        
+        'st', 'sd', 'temp_min2m', 'temp_max2m', 'wind_speed_10m', 'wind_gust',
+        'TEMPERATURE__GROUND_OR_WATER_SURFACE',
+        'T__GROUND',
     ],
 
-    // ═══════════════════════════════════════════════════════════════════
-    // 2. PRESSIÓ
-    // ═══════════════════════════════════════════════════════════════════
     'Pressió': [
-        'pressure_msl',    // Pressió MSL
-        'sp',              // Pressió superfície
+        'pressure_msl', 'sp',
         'PRESSURE__GROUND_OR_WATER_SURFACE',
         'PRESSURE__MEAN_SEA_LEVEL',
     ],
 
-'Precipitació': [
-    'tp',              // Precip. total acum.
-    'tsnowp',          // Neu acum.
-    'TOTAL_PRECIPITATION_RATE__GROUND_OR_WATER_SURFACE', // Intensitat precip.
-    'CONVECTIVE_PRECIPITATION_RATE__GROUND_OR_WATER_SURFACE', // Precip. convectiva
-    'PRECIPITATION_TYPE_60_MIN__GROUND_OR_WATER_SURFACE', // Tipus precip. 60min
-    'SEVERE_PRECIPITATION_TYPE_60_MIN__GROUND_OR_WATER_SURFACE', // ← Tipus precip. severa
-    'PRECIPITATION_TYPE_15_MIN__GROUND_OR_WATER_SURFACE', // Tipus precip. 15min
-    'SEVERE_PRECIPITATION_TYPE_15_MIN__GROUND_OR_WATER_SURFACE', // ← Tipus precip. severa 15min
-    'TPW_MITJANA',     
-    'PRECIPITABLE_WATER__GROUND_OR_WATER_SURFACE', 
-    'tpw_700',         
-    'tpw_850',  
-],
+    'Precipitació': [
+        'tp', 'tsnowp',
+        'TOTAL_PRECIPITATION_RATE__GROUND_OR_WATER_SURFACE',
+        'CONVECTIVE_PRECIPITATION_RATE__GROUND_OR_WATER_SURFACE',
+        'PRECIPITATION_TYPE_60_MIN__GROUND_OR_WATER_SURFACE',
+        'SEVERE_PRECIPITATION_TYPE_60_MIN__GROUND_OR_WATER_SURFACE',
+        'PRECIPITATION_TYPE_15_MIN__GROUND_OR_WATER_SURFACE',
+        'SEVERE_PRECIPITATION_TYPE_15_MIN__GROUND_OR_WATER_SURFACE',
+        'TPW_MITJANA',
+        'PRECIPITABLE_WATER__GROUND_OR_WATER_SURFACE',
+        'tpw_700', 'tpw_850',
+        'PRECIP__GROUND',
+    ],
 
-    // ═══════════════════════════════════════════════════════════════════
-    // 4. INESTABILITAT I CONVECCIÓ
-    // ═══════════════════════════════════════════════════════════════════
     'Inestabilitat i Convecció': [
-        'cape',            // CAPE
-        'cin',             // CIN
-        'MEAN_LAYER_CAPE__GROUND_OR_WATER_SURFACE', // CAPE mitjana
-        'lifted_index',    // Lifted Index
-        'lcl_m',           // LCL alçada
-        'lfc_m',           // LFC alçada
-        'el_m',            // Equilibrium Level
-        'THETAV_850',      // Theta virtual 850hPa
+        'cape', 'cin',
+        'MEAN_LAYER_CAPE__GROUND_OR_WATER_SURFACE',
+        'lifted_index', 'lcl_m', 'lfc_m', 'el_m',
+        'thetav_850',
     ],
 
-    // ═══════════════════════════════════════════════════════════════════
-    // 5. TORNADOS I SUPERCÈL·LULES
-    // ═══════════════════════════════════════════════════════════════════
     'Tornados i Supercèl·lules': [
-        'scp',             // SCP (càlcul local)
-        'scp_wcs',         // SCP (Météo-France)
-        'stp',             // STP
-        'ehi',             // EHI
-        'hail_cm',         // Calamarsa mida
-        'DIAG_GRELE__GROUND_OR_WATER_SURFACE', // Calamarsa WCS
+        'scp', 'scp_wcs', 'stp', 'ehi', 'hail_cm',
+        'DIAG_GRELE__GROUND_OR_WATER_SURFACE',
+        'DIAG_GRELE__GROUND',
+        'HELICITE__GROUND',
     ],
 
-    // ═══════════════════════════════════════════════════════════════════
-    // 6. SHEAR I SRH
-    // ═══════════════════════════════════════════════════════════════════
     'Shear i SRH': [
-        'shear_03',        // Shear 0-3km
-        'shear_06',        // Shear 0-6km
-        'srh_01',          // SRH 0-1km
-        'srh_03',          // SRH 0-3km
-                'srh',             // Humitat 2m
-        'sh2', 
+        'shear_03', 'shear_06', 'srh_01', 'srh_03', 'srh', 'sh2',
     ],
 
-    // ═══════════════════════════════════════════════════════════════════
-    // 7. NÚVOLS (Superfície + WCS 3D)
-    // ═══════════════════════════════════════════════════════════════════
     'Núvols': [
-        'low_cloud_cover',   // Núvols baixos
-        'medium_cloud_cover', // Núvols mitjans
-        'high_cloud_cover',  // Núvols alts
-        'TOTAL_CLOUD_COVER__GROUND_OR_WATER_SURFACE', // Nuvolositat total
-        'CIWC_MITJANA',      // Gel núvols (mitjana)
-        'CLD_RAIN_MITJANA',  // Pluja núvols (mitjana)
-        'ciwc_500',          // Gel núvols 500hPa
-        'cld_rain_850',      // Pluja núvols 850hPa
+        'low_cloud_cover', 'medium_cloud_cover', 'high_cloud_cover',
+        'TOTAL_CLOUD_COVER__GROUND_OR_WATER_SURFACE',
+        'CIWC_MITJANA', 'CLD_RAIN_MITJANA',
+        'ciwc_500', 'cld_rain_850',
+        'BASE_NUAGE__GROUND', 'PLAFOND__GROUND',
     ],
 
+    'Cumulonimbus': [
+        'P__BASE_CB', 'P__TOP_CB',
+    ],
 
-    // ═══════════════════════════════════════════════════════════════════
-    // 9. NEU I VISIBILITAT
-    // ═══════════════════════════════════════════════════════════════════
     'Neu i Visibilitat': [
-        'SNOW_DEPTH__GROUND_OR_WATER_SURFACE',  // Gruix de neu
-        'WATER_EQUIVALENT_ACCUMULATED_SNOW__GROUND_OR_WATER_SURFACE', // Equivalent aigua neu
-        'VISIBILITY_MINI_60MIN__GROUND_OR_WATER_SURFACE',  // Visibilitat 60min
+        'SNOW_DEPTH__GROUND_OR_WATER_SURFACE',
+        'WATER_EQUIVALENT_ACCUMULATED_SNOW__GROUND_OR_WATER_SURFACE',
+        'VISIBILITY_MINI_60MIN__GROUND_OR_WATER_SURFACE',
         'VISIBILITY_MINI_PRECIP_60MIN__GROUND_OR_WATER_SURFACE',
         'VISIBILITY_MINI_15MIN__GROUND_OR_WATER_SURFACE',
         'VISIBILITY_MINI_PRECIP_15MIN__GROUND_OR_WATER_SURFACE',
+        'HTEURNEIGE__GROUND', 'NEIGE_SC__GROUND', 'RESR_NEIGE__GROUND',
+        'RR_SOL_GELE__GROUND', 'NEIGE__GROUND',
     ],
 
-    // ═══════════════════════════════════════════════════════════════════
-    // 10. SATÈL·LIT
-    // ═══════════════════════════════════════════════════════════════════
     'Satèl·lit': [
-        'bt108',           // BT 10.8µm
-        'bt62',            // BT 6.2µm vapor
+        'bt108', 'bt62',
     ],
 
-    // ═══════════════════════════════════════════════════════════════════
-    // 11. REFLECTIVITAT (Radar)
-    // ═══════════════════════════════════════════════════════════════════
     'Reflectivitat': [
-        'radar_dbz',            // Radar simulat
-        'REFLECTIVITY_MAX__GROUND_OR_WATER_SURFACE', // Reflectivitat
-        'REFLECTIVITY_MAX_DBZ__GROUND_OR_WATER_SURFACE', // Reflectivitat dBZ
+        'radar_dbz',
+        'REFLECTIVITY_MAX__GROUND_OR_WATER_SURFACE',
+        'REFLECTIVITY_MAX_DBZ__GROUND_OR_WATER_SURFACE',
     ],
 
-    // ═══════════════════════════════════════════════════════════════════
-    // 12. GEOMETRIA I ALTITUD
-    // ═══════════════════════════════════════════════════════════════════
     'Geometria i Altitud': [
-        'altitud',           // Altitud
-        'GEOMETRIC_HEIGHT__GROUND_OR_WATER_SURFACE', // Altitud geomètrica
-        'spbl',              // Alçada capa límit
+        'altitud',
+        'GEOMETRIC_HEIGHT__GROUND_OR_WATER_SURFACE',
+        'spbl',
         'PLANETARY_BOUNDARY_LAYER_HEIGHT__GROUND_OR_WATER_SURFACE',
-        'ALTITUDE_ISOTERMA_0C',   // Altitud isoterma 0°C
-        'ALTITUDE_ISOTERMA_M10C', // Altitud isoterma -10°C
+        'ALTITUDE_ISOTERMA_0C', 'ALTITUDE_ISOTERMA_M10C',
+        'ALTITUDE__ISO_T_27315',
+        'ALTITUDE__ISO_TPW_27315', 'ALTITUDE__ISO_TPW_27415', 'ALTITUDE__ISO_TPW_27465',
     ],
 
-    // ═══════════════════════════════════════════════════════════════════
-    // 13. VELOCITAT VERTICAL (w)
-    // ═══════════════════════════════════════════════════════════════════
     'Velocitat vertical': [
-        'w_925',           // Vel. vertical @ 925hPa
-        'w_850',           // Vel. vertical @ 850hPa
-        'w_700',           // Vel. vertical @ 700hPa
-        'w_500',           // Vel. vertical @ 500hPa
-        'w_300',           // Vel. vertical @ 300hPa
+        'w_925', 'w_850', 'w_700', 'w_500', 'w_300',
     ],
 
-    // ═══════════════════════════════════════════════════════════════════
-    // 14. PV SUPERFÍCIES (Vorticitat potencial)
-    // ═══════════════════════════════════════════════════════════════════
     'PV Superfícies': [
-        'pv_925',           // Vorticitat potencial @ 925hPa
-        'pv_850',           // Vorticitat potencial @ 850hPa
-        'pv_700',           // Vorticitat potencial @ 700hPa
-        'pv_500',           // Vorticitat potencial @ 500hPa
-        'pv_300',           // Vorticitat potencial @ 300hPa
-        'pv_200',           // Vorticitat potencial @ 200hPa
-        'GEOPOTENTIAL_PV1500',  // Geopotencial PV=1.5
-        'GEOPOTENTIAL_PV2000',  // Geopotencial PV=2.0
-        'THETA_PV1500',         // Theta PV=1.5
-        'THETA_PV2000',         // Theta PV=2.0
-        'U_PV1500',             // Vent U PV=1.5
-        'U_PV2000',             // Vent U PV=2.0
-        'V_PV1500',             // Vent V PV=1.5
-        'V_PV2000',             // Vent V PV=2.0
-        'WIND_PV1500',          // Vent total PV=1.5
-        'WIND_PV2000',          // Vent total PV=2.0
+        'pv_925', 'pv_850', 'pv_700', 'pv_500', 'pv_300', 'pv_200',
+        'GEOPOTENTIAL_PV1500', 'GEOPOTENTIAL_PV2000',
+        'THETA_PV1500', 'THETA_PV2000',
+        'U_PV1500', 'U_PV2000',
+        'V_PV1500', 'V_PV2000',
+        'WIND_PV1500', 'WIND_PV2000',
+        'FF__ISO_TP_1500', 'FF__ISO_TP_2000',
     ],
 
-    // ═══════════════════════════════════════════════════════════════════
-    // 15. VENT EN NIVELLS (3D) - TOTS ELS NIVELLS
-    // ═══════════════════════════════════════════════════════════════════
     'Vent en nivells (3D)': [
-        'wind_speed_1000',
-        'wind_speed_950',
-        'wind_speed_925',
-        'wind_speed_900',
-        'wind_speed_875',
-        'wind_speed_850',
-        'wind_speed_800',
-        'wind_speed_750',
-        'wind_speed_700',
-        'wind_speed_650',
-        'wind_speed_600',
-        'wind_speed_550',
-        'wind_speed_500',
-        'wind_speed_450',
-        'wind_speed_400',
-        'wind_speed_350',
-        'wind_speed_300',
-        'wind_speed_250',
-        'wind_speed_200',
-        'wind_speed_150',
+        'wind_speed_1000', 'wind_speed_950', 'wind_speed_925', 'wind_speed_900',
+        'wind_speed_875', 'wind_speed_850', 'wind_speed_800', 'wind_speed_750',
+        'wind_speed_700', 'wind_speed_650', 'wind_speed_600', 'wind_speed_550',
+        'wind_speed_500', 'wind_speed_450', 'wind_speed_400', 'wind_speed_350',
+        'wind_speed_300', 'wind_speed_250', 'wind_speed_200', 'wind_speed_150',
         'wind_speed_100',
     ],
 };
-
 
 const GRUPS_ACORDIO = {
     'Temperatura':      ['t'],
@@ -1764,19 +1634,16 @@ const CLAUS_3D = new Set(['t','u','v','r','w','dpt','pv','wind_speed']);
 const VARIABLES_AMAGADES = new Set([
     'su', 'sv', 'u', 'v', 'sh2', 'geo_h', 'shear_06_eff',
     'srh_06_eff', 'sp', 'lightning', 'reflectivity_dbz', 'rain','precip_water', 'group', 'tgrp' ,'scp', 'bt62',
-    
-    // 🔧 NÚVOLS WCS (amagar)
+
     'LOW_CLOUD_COVER__GROUND_OR_WATER_SURFACE',
     'MEDIUM_CLOUD_COVER__GROUND_OR_WATER_SURFACE',
     'HIGH_CLOUD_COVER__GROUND_OR_WATER_SURFACE',
     'TOTAL_CLOUD_COVER__GROUND_OR_WATER_SURFACE',
-    
-    // 🔧 CAPE i CIN WCS (amagar)
+
     'CONVECTIVE_AVAILABLE_POTENTIAL_ENERGY__GROUND_OR_WATER_SURFACE',
     'CONVECTIVE_INHIBITION__GROUND_OR_WATER_SURFACE',
     'CIN__GROUND',
-    
-    // 🔧 Altres WCS duplicats
+
     'MEAN_LAYER_CAPE__GROUND_OR_WATER_SURFACE',
     'PLANETARY_BOUNDARY_LAYER_HEIGHT__GROUND_OR_WATER_SURFACE',
     'PRECIPITABLE_WATER__GROUND_OR_WATER_SURFACE',
@@ -1974,7 +1841,7 @@ function _hauriaDeDibuixarVent() {
         if (variableActiva.startsWith(v + '_')) return false;
     }
     const item = totesLesHores[curIdx];
-    if (!item || !item.data || !item.data.variables) return false; // 🔧 protecció null
+    if (!item || !item.data || !item.data.variables) return false;
     const data = item.data;
     return !!(data.variables['su'] || data.variables['u']);
 }
@@ -1990,7 +1857,7 @@ function _dibuixarStreamlines() {
     if (window.ventMode !== 'streamlines') return;
 
     const item = totesLesHores[curIdx];
-    if (!item || !item.data) return; // 🔧 protecció null
+    if (!item || !item.data) return;
     const data = item.data;
     const ventData = obtenirVentPerStreamlines(data, variableActiva);
     if (!ventData) return;
@@ -2122,13 +1989,10 @@ function inicialitzarCanvasVent() {
     canvasVent.style.cssText = 'position:absolute;top:0;left:0;pointer-events:none;';
     map.getPane('paneVent').appendChild(canvasVent);
     ctxVent = canvasVent.getContext('2d');
-    
-    // ⬅️ Només redibuixar al FINAL del moviment, no durant
+
     map.on('moveend', _redibuixarCanvasVent);
     map.on('zoomend', _redibuixarCanvasVent);
-    // ELIMINAR: map.on('moveend zoomend', _redibuixarCanvasVent);
-    // ELIMINAR: map.on('move', ...);  // no existeix, però per si de cas
-    
+
     _redibuixarCanvasVent();
 }
 
@@ -2225,9 +2089,6 @@ const CanvasLayer = L.Layer.extend({
         const Nlat = lats.length;
         const Nlon = lons.length;
 
-        // 🔧 Llegim les dades fent servir la clau REAL del JSON
-        // (variableActiva pot ser una clau curta normalitzada, p. ex. 'ehi',
-        //  però al JSON pot estar guardada com 'DIAG_EHI__GROUND')
         const clauLectura = clauRealPerLlegir(variableActiva);
         const varInfo = this._data.variables[clauLectura] || this._data.variables[variableActiva];
         if (!varInfo || !varInfo.datos) {
@@ -2350,8 +2211,7 @@ window._canvasLayer = canvasLayer;
 // ═══════════════════════════════════════════════════════════════════════
 
 const GEOJSON_CAPES = [
-    { id: 'catalunya', nom: 'Catalunya', arxiu: 'girona_comarques.geojson', color: '#000000', gruix: 1.2 },
-
+    { id: 'catalunya', nom: 'Catalunya', arxiu: 'spain.geojson', color: '#000000', gruix: 1.2 },
 ];
 
 const capaInstancies = {};
@@ -2362,7 +2222,7 @@ function estilCapa(def) {
 
 async function carregarCapaGeojson(def) {
     let retard = RETARD_INICIAL;
-    
+
     for (let intent = 1; intent <= MAX_REINTENTS; intent++) {
         try {
             const r = await fetch(`${DADES_PATH}/${def.arxiu}`);
@@ -2412,7 +2272,6 @@ map.on('click', function(e) {
     const coords = getCoordenadesPer(data, variableActiva);
     const lats = coords.lat;
     const lons = coords.lon;
-    // 🔧 Fem servir la clau real del JSON per llegir les dades
     const clauLectura = clauRealPerLlegir(variableActiva);
     const varInfo = data.variables[clauLectura] || data.variables[variableActiva];
     if (!varInfo || !varInfo.datos) return;
@@ -2440,30 +2299,20 @@ map.on('click', function(e) {
     }
 
     const pal = getPaleta(variableActiva);
-// Funció per formatar valors de manera llegible
-function formatarValor(v) {
-    if (v === null || v === undefined || isNaN(v)) return '—';
-    
-    const absV = Math.abs(v);
-    
-    // Valors molt petits (menys de 0.001) → mostrar amb decimals significatius
-    if (absV < 0.001 && absV > 0) {
-        // Mostrar amb notació decimal, no científica
-        return v.toFixed(6);
+
+    function formatarValor(v) {
+        if (v === null || v === undefined || isNaN(v)) return '—';
+        const absV = Math.abs(v);
+        if (absV < 0.001 && absV > 0) {
+            return v.toFixed(6);
+        }
+        if (absV >= 10000) return v.toExponential(2);
+        if (Number.isInteger(v)) return v.toString();
+        return v.toFixed(2);
     }
-    
-    // Valors grans
-    if (absV >= 10000) return v.toExponential(2);
-    
-    // Valors normals
-    if (Number.isInteger(v)) return v.toString();
-    return v.toFixed(2);
-}
 
-// Al popup, usa:
-const vt = formatarValor(v);
+    const vt = formatarValor(v);
 
-    // ─── POPUP ESTIL AMERICÀ (COMPACTE / LATERAL) ───
     const html = `
         <div style="
             position: relative;
@@ -2497,7 +2346,7 @@ const vt = formatarValor(v);
             ">${vt}<span style="font-size:9px;color:#667788;font-weight:400;margin-left:2px;">${pal.unitat}</span></div>
 
             <button onclick="if(marcadorClic){map.removeLayer(marcadorClic);marcadorClic=null;}" style="
-                position: absolute; 
+                position: absolute;
                 top: 3px;
                 right: 4px;
                 background: transparent;
@@ -2520,7 +2369,6 @@ const vt = formatarValor(v);
     }).setLatLng(e.latlng).setContent(html).openOn(map);
 });
 
-// ─── TANCAR AMB ESC ──────────────────────────────────────────────────
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape' && marcadorClic) {
         map.removeLayer(marcadorClic);
@@ -2531,40 +2379,22 @@ document.addEventListener('keydown', function(e) {
 // ═══════════════════════════════════════════════════════════════════════
 //  CÀRREGA DE JSONs
 // ═══════════════════════════════════════════════════════════════════════
-// ═══════════════════════════════════════════════════════════════════════
-//  🔧 CÀRREGA DE JSONs — VERSIÓ OPTIMITZADA (lazy-load intel·ligent)
-//  Manté l'estructura totesLesHores[idx].data igual que abans, però:
-//   1) NOMÉS carrega SFC a l'inici, ràpid (barra de progrés visible)
-//   2) Un cop acabat l'SFC, comença AUTOMÀTICAMENT una precàrrega en
-//      segon pla del 3D de TOTES les hores (52), amb concurrència baixa
-//      (2 a la vegada) perquè no saturi xarxa ni CPU/RAM de cop
-//   3) El 3D, un cop carregat per a una hora, NO es purga mai (no hi ha
-//      LRU pel 3D): es manté sempre en memòria fins que es recarrega la
-//      pàgina. Així mai més falla per "hora no disponible".
-//   4) Els arrays "datos" es converteixen a Float32Array (4-8x menys RAM)
-//   5) 🔧 FIX carrera de condicions: assegurarHoraCarregada ara reutilitza
-//      la MATEIXA promesa si ja hi ha una càrrega en curs per a la
-//      mateixa hora+tipus, en lloc d'abandonar silenciosament amb false.
-// ═══════════════════════════════════════════════════════════════════════
 
-const MAX_REINTENTS = 4;           // Màxim intents per petició
-const RETARD_INICIAL = 500;        // ms (500ms, 1s, 2s, 4s...)
-const CONCURRENCIA_CARREGA = 3;    // SFC en paral·lel
-const CONCURRENCIA_3D = 2;         // 3D en paral·lel
-const MAX_HORES_SFC_CACHE = 999;   // (mantenir)
+const MAX_REINTENTS = 4;
+const RETARD_INICIAL = 500;
+const CONCURRENCIA_CARREGA = 3;
+const CONCURRENCIA_3D = 2;
+const MAX_HORES_SFC_CACHE = 999;
 
-let totesLesHores = [];   // array d'objectes {step, dateObj, data} — 'data' pot ser null si encara no s'ha carregat
+let totesLesHores = [];
 let curIdx = 0;
-let _ordreUsSfc = [];      // es manté per compatibilitat, però ja no purga (veure _marcarUsSfc)
+let _ordreUsSfc = [];
 
-// 🔧 Ara guardem Promeses (no només flags) per poder ESPERAR una càrrega
-//    en curs en lloc d'abandonar-la. Clau: "idx_sfc" o "idx_3d".
-let _carregantAra = new Map(); // clauPeticio -> Promise<boolean>
+let _carregantAra = new Map();
 
 let _precarga3dEnMarxa = false;
 let _precarga3dCompletada = false;
 
-// ─── Converteix array JS (amb null) a Float32Array (molta menys RAM) ──
 function aArrayTipat(datos) {
     const n = datos.length;
     const arr = new Float32Array(n);
@@ -2612,8 +2442,6 @@ async function descomprimirGzip(response) {
     }
 }
 
-
-// ─── Mostra un avís si hi ha moltes hores fallades ──────────────────
 function comprovarHoresFallades() {
     const total = totesLesHores.length;
     const fallades = totesLesHores.filter(h => h.data === null).length;
@@ -2656,21 +2484,19 @@ function comprovarHoresFallades() {
         }
     }
 }
-// ─── Espera amb backoff exponencial ──────────────────────────────────
+
 function esperar(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-// ─── Intenta descomprimir amb múltiples estratègies ──────────────────
 async function descomprimirGzipAmbFallback(response, url) {
     try {
-        // Estratègia 1: DecompressionStream (nadiu)
         if (typeof DecompressionStream !== 'undefined') {
             const ds = new DecompressionStream('gzip');
             const reader = response.body.pipeThrough(ds).getReader();
             const chunks = [];
             let errorDeCompresio = false;
-            
+
             try {
                 while (true) {
                     const { value, done } = await reader.read();
@@ -2678,11 +2504,10 @@ async function descomprimirGzipAmbFallback(response, url) {
                     chunks.push(value);
                 }
             } catch (e) {
-                // Si falla aquí, és un error de compressió
                 errorDeCompresio = true;
                 console.warn(`[Descompressió] Error amb DecompressionStream:`, e.message);
             }
-            
+
             if (!errorDeCompresio && chunks.length > 0) {
                 const blob = new Blob(chunks);
                 const text = await blob.text();
@@ -2694,8 +2519,7 @@ async function descomprimirGzipAmbFallback(response, url) {
                 }
             }
         }
-        
-        // Estratègia 2: pako (llibreria de fallback)
+
         if (typeof pako !== 'undefined') {
             try {
                 const buffer = await response.arrayBuffer();
@@ -2711,8 +2535,7 @@ async function descomprimirGzipAmbFallback(response, url) {
                 throw e;
             }
         }
-        
-        // Estratègia 3: Intentar com a JSON sense comprimir (fallback final)
+
         try {
             const text = await response.text();
             return JSON.parse(text);
@@ -2720,9 +2543,8 @@ async function descomprimirGzipAmbFallback(response, url) {
             console.warn(`[Descompressió] No és JSON vàlid:`, e.message);
             throw new Error('No es pot descomprimir ni llegir com a JSON');
         }
-        
+
     } catch (e) {
-        // Si tot falla, intentar llegir el raw (potser és text pla)
         try {
             const text = await response.text();
             if (text.startsWith('{') || text.startsWith('[')) {
@@ -2735,51 +2557,45 @@ async function descomprimirGzipAmbFallback(response, url) {
     }
 }
 
-// ─── Carrega un fitxer amb múltiples intents i estratègies ────────────
 async function carregarFitxerAmbReintents(url, maxIntents = 3) {
     let retard = RETARD_INICIAL;
     let ultimError = null;
-    
+
     for (let intent = 1; intent <= maxIntents; intent++) {
         try {
             const response = await fetch(url);
-            
+
             if (response.status === 404) {
                 console.log(`[Fitxer] ${url} no existeix (404)`);
                 return null;
             }
-            
+
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
-            
-            // Intentar descomprimir
+
             try {
                 const data = await descomprimirGzipAmbFallback(response, url);
                 return data;
             } catch (e) {
-                // Si la descompressió falla per corrupte, NO reintentar
-                if (e.message.includes('incorrect header check') || 
+                if (e.message.includes('incorrect header check') ||
                     e.message.includes('corrupted') ||
                     e.message.includes('header check')) {
                     console.warn(`[Fitxer corrupte] ${url} - No es pot recuperar:`, e.message);
-                    return null; // No reintentar, el fitxer està malmès
+                    return null;
                 }
-                // Altres errors (xarxa, timeout) → reintentar
                 throw e;
             }
-            
+
         } catch (e) {
             ultimError = e;
-            
-            // Si és l'últim intent, rendir-se
+
             if (intent === maxIntents) {
                 console.warn(`[Fitxer] ${url} fallat després de ${maxIntents} intents:`, e.message);
                 return null;
             }
-            
-            // Si és un error de xarxa (NS_BASE_STREAM_CLOSED), reintentar
-            if (e.message.includes('NS_BASE_STREAM_CLOSED') || 
+
+            if (e.message.includes('NS_BASE_STREAM_CLOSED') ||
                 e.message.includes('network') ||
                 e.message.includes('timeout')) {
                 console.warn(`[Reintent ${intent}/${maxIntents}] ${url} - Error de xarxa: ${e.message}. Reintentant en ${retard}ms...`);
@@ -2787,28 +2603,23 @@ async function carregarFitxerAmbReintents(url, maxIntents = 3) {
                 retard *= 2;
                 continue;
             }
-            
-            // Altres errors (corrupte) → no reintentar
+
             console.warn(`[Fitxer] ${url} - Error no recuperable:`, e.message);
             return null;
         }
     }
-    
+
     return null;
 }
 
-// ─── Carrega SFC (i 3D si cal) amb estratègies múltiples ─────────────
 async function carregarUnStep(i, ambDades3d) {
-    const base = 'web_data/';
+    const base = 'web_dataNE/';
     const p = String(i).padStart(2, '0');
-    
-    // Intentar 3D si es demana
+
     let td = null;
     if (ambDades3d) {
-        // Intentar primer .json.gz
         td = await carregarFitxerAmbReintents(base + '3d_' + p + '.json.gz', 3);
-        
-        // Si falla, intentar .json sense comprimir (per si de cas)
+
         if (!td) {
             try {
                 const resp = await fetch(base + '3d_' + p + '.json');
@@ -2821,11 +2632,9 @@ async function carregarUnStep(i, ambDades3d) {
             }
         }
     }
-    
-    // Intentar SFC
+
     let sfc = await carregarFitxerAmbReintents(base + 'sfc_' + p + '.json.gz', 3);
-    
-    // Si falla, intentar .json sense comprimir
+
     if (!sfc) {
         try {
             const resp = await fetch(base + 'sfc_' + p + '.json');
@@ -2837,8 +2646,7 @@ async function carregarUnStep(i, ambDades3d) {
             // Silenciós
         }
     }
-    
-    // Si tenim almenys SFC o 3D
+
     if (sfc || td) {
         const base_d = sfc || td;
         const variables = {};
@@ -2849,9 +2657,9 @@ async function carregarUnStep(i, ambDades3d) {
             console.warn(`[carregarUnStep] Hora ${p}: variables buides`);
             return null;
         }
-        
+
         calcularVelocitatVent(variables);
-        
+
         const data = {
             ...base_d, variables,
             coordenadas: sfc ? sfc.coordenadas : td.coordenadas,
@@ -2860,31 +2668,17 @@ async function carregarUnStep(i, ambDades3d) {
         };
         return { step: data.step, dateObj: new Date(data.hora_utc + 'Z'), data };
     }
-    
-    // Si arribem aquí, no tenim dades
+
     console.warn(`[carregarUnStep] Hora ${p}: sense dades (SFC ni 3D)`);
     return null;
 }
 
-// ─── Marca un idx com "usat". 🔧 Ja NO purga res: mantenim totes les
-//     hores (SFC sempre, 3D quan es carrega) permanentment en memòria
-//     perquè no torni a fallar cap hora un cop carregada. ──────────────
 function _marcarUsSfc(idx) {
     const p = _ordreUsSfc.indexOf(idx);
     if (p !== -1) _ordreUsSfc.splice(p, 1);
     _ordreUsSfc.push(idx);
-    // 🔧 Purga desactivada intencionadament (es volen les 52 hores sempre
-    //     disponibles, tant SFC com 3D). Si en el futur cal limitar RAM,
-    //     reactivar aquí una purga LRU com abans.
 }
 
-// ─── Assegura que l'hora idx té dades carregades (SFC sempre; 3D només
-//     si ambDades3d=true o ja hi era). Retorna una Promise<boolean>.
-//     🔧 FIX carrera de condicions: si ja hi ha una càrrega en curs per
-//     a la mateixa clau (idx+tipus), ESPEREM la seva mateixa promesa en
-//     lloc de retornar false immediatament. Això evita el "mapa en blanc"
-//     quan dues parts del codi demanen la mateixa hora alhora (per
-//     exemple: la precàrrega en segon pla i un clic de l'usuari). ──────
 async function assegurarHoraCarregada(idx, ambDades3d) {
     if (idx < 0 || idx >= totesLesHores.length) return false;
     const item = totesLesHores[idx];
@@ -2899,8 +2693,6 @@ async function assegurarHoraCarregada(idx, ambDades3d) {
 
     const clauPeticio = idx + '_' + (ambDades3d ? '3d' : 'sfc');
 
-    // Si ja hi ha una càrrega en curs per a aquesta mateixa clau,
-    // n'esperem el resultat en lloc d'abandonar.
     if (_carregantAra.has(clauPeticio)) {
         return await _carregantAra.get(clauPeticio);
     }
@@ -2911,7 +2703,6 @@ async function assegurarHoraCarregada(idx, ambDades3d) {
 
         const itemActual = totesLesHores[idx];
         if (itemActual.data && itemActual.data.variables && !ambDades3d) {
-            // Ja teníem SFC (i potser 3D antic); combinem per no perdre res
             Object.assign(itemActual.data.variables, nou.data.variables);
         } else {
             itemActual.data = nou.data;
@@ -2929,7 +2720,6 @@ async function assegurarHoraCarregada(idx, ambDades3d) {
     }
 }
 
-// ─── Prefetch en segon pla de les hores veïnes (no bloqueja la UI) ─────
 function prefetchVeines(idx, amb3d) {
     [idx - 1, idx + 1].forEach(v => {
         if (v >= 0 && v < totesLesHores.length) {
@@ -2964,7 +2754,6 @@ function afegirHoraCarregada(item) {
     }
 }
 
-// ─── Carrega inicial: només SFC, amb concurrència limitada ─────────────
 async function carregarTotsJSONs() {
     const TIEMPO_INICIO = Date.now();
     const TIEMPO_MINIMO = 1500;
@@ -3018,17 +2807,10 @@ async function carregarTotsJSONs() {
     precarregarTot3dEnSegonPla();
 }
 
-// ─── 🔧 NOU: precàrrega en segon pla del 3D de TOTES les hores ─────────
-//     No bloqueja la UI. Prioritza sempre l'hora que l'usuari té oberta
-//     en aquell moment (curIdx) perquè, si canvia de variable a una 3D,
-//     ja estigui (o estigui a punt d'estar) disponible.
 async function precarregarTot3dEnSegonPla() {
     if (_precarga3dEnMarxa || _precarga3dCompletada) return;
     _precarga3dEnMarxa = true;
 
-    // Ordenem els índexs començant per l'hora actual i expandint-nos cap
-    // enfora (actual, +1, -1, +2, -2...) perquè les hores que l'usuari
-    // és més probable que miri aviat es carreguin primero.
     const total = totesLesHores.length;
     const ordre = [];
     const centre = curIdx || 0;
@@ -3043,7 +2825,6 @@ async function precarregarTot3dEnSegonPla() {
         while (cursor < ordre.length) {
             const idx = ordre[cursor++];
             await assegurarHoraCarregada(idx, true);
-            // petita pausa perquè no acapari tota la xarxa/CPU de cop
             await new Promise(r => setTimeout(r, 30));
         }
     }
@@ -3086,7 +2867,6 @@ async function mostrarHora(idx) {
         if (window.ventEnabled && typeof redibuixarVent === 'function') redibuixarVent();
     }
 
-    // Actualitzar barra d'hores
     const grid = document.getElementById('fh_grid');
     if (grid) {
         const items = grid.querySelectorAll('.fh-item');
@@ -3112,7 +2892,6 @@ async function mostrarHora(idx) {
         }, 100);
     }
 
-    // Actualitzar overlay
     const d = totesLesHores[idx].dateObj;
     const ds = d.toLocaleDateString('ca-ES', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'Europe/Madrid' });
     const ls = d.toLocaleTimeString('ca-ES', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Europe/Madrid' });
@@ -3128,7 +2907,6 @@ async function mostrarHora(idx) {
     if (overlayUtc) overlayUtc.textContent = us;
     if (fhValidTime) fhValidTime.textContent = ds + ' · ' + ls + ' local / ' + us;
 
-    // 🔧 Cal 3D si: la variable activa del mapa és 3D, O el Skew-T està obert
     const necessita3d = (variableActiva && esVariable3D(variableActiva)) || window.sondeigObert;
 
     const item = totesLesHores[idx];
@@ -3163,18 +2941,18 @@ function construirGraellaHores() {
     const grid = document.getElementById('fh_grid');
     if (!grid) return;
     grid.innerHTML = '';
-    
+
     if (!totesLesHores || totesLesHores.length === 0) {
         grid.innerHTML = '<div style="color:#556680;padding:6px 12px;font-size:11px;text-align:center;width:100%;">Carregant dades...</div>';
         return;
     }
-    
+
     const user = window._firebaseUser || null;
     const bloquejat = !user;
-    
+
     const container = document.createElement('div');
     container.style.cssText = 'display:flex;gap:3px;align-items:center;padding:2px 4px;';
-    
+
     totesLesHores.forEach((item, i) => {
         const d = item.dateObj;
         const horaNum = d.getHours();
@@ -3182,14 +2960,13 @@ function construirGraellaHores() {
         const minStr = String(d.getMinutes()).padStart(2, '0');
         const isActive = (i === curIdx);
 
-        // Hores lliures cada 3h (0, 3, 6, 9...)
         const horaLliure = (i % 3 === 0);
         const itemBloquejat = bloquejat && !horaLliure;
-        
+
         const cell = document.createElement('div');
         cell.className = 'fh-item' + (isActive ? ' active' : '');
         cell.dataset.idx = i;
-        
+
         cell.style.cssText = `
             flex: 0 0 auto;
             padding: 2px 8px;
@@ -3209,7 +2986,7 @@ function construirGraellaHores() {
             line-height: 1.2;
             opacity: ${itemBloquejat ? '0.3' : '1'};
         `;
-        
+
         if (itemBloquejat) {
             cell.title = 'Inicia sessió per desbloquejar';
             cell.innerHTML = `
@@ -3223,7 +3000,7 @@ function construirGraellaHores() {
                 <span style="font-size:7px;color:#3a4a5a;display:block;margin-top:-1px;">${minStr}'</span>
             `;
         }
-        
+
         if (!itemBloquejat) {
             cell.addEventListener('mouseenter', function() {
                 if (!this.classList.contains('active')) {
@@ -3238,7 +3015,7 @@ function construirGraellaHores() {
                 }
             });
         }
-        
+
         cell.onclick = function(e) {
             e.stopPropagation();
             const idx = parseInt(this.dataset.idx);
@@ -3251,19 +3028,19 @@ function construirGraellaHores() {
             }
             mostrarHora(idx);
         };
-        
+
         container.appendChild(cell);
     });
-    
+
     grid.appendChild(container);
-    
+
     setTimeout(() => {
         const active = grid.querySelector('.fh-item.active');
         if (active) {
-            active.scrollIntoView({ 
-                behavior: 'smooth', 
-                block: 'nearest', 
-                inline: 'center' 
+            active.scrollIntoView({
+                behavior: 'smooth',
+                block: 'nearest',
+                inline: 'center'
             });
         }
     }, 150);
@@ -3301,10 +3078,6 @@ function construirPanellParametres() {
     if (!cont || !totesLesHores[0]) return;
     cont.innerHTML = '';
 
-    // 1. RECOLLIR TOTES LES VARIABLES DISPONIBLES
-    //    🔧 Normalitzem les claus crues del WCS a claus curtes aquí mateix,
-    //    perquè tota la resta del panell (agrupacions, cerca, etc.) treballi
-    //    sempre amb noms consistents amb PALETES/GRUPS_SIMPLES.
     const totesVariables = new Set();
     const infoVariables = {};
     totesLesHores.forEach(hora => {
@@ -3319,70 +3092,68 @@ function construirPanellParametres() {
 
     const clausUsades = new Set();
 
-const crearRow = (clau, className = 'param-row') => {
-    const info = infoVariables[clau];
-    if (!info) return null;
-    
-    const teAcces = verificarAccesVariable(clau);
-    const esPremium = typeof esParametrePremium === 'function' && esParametrePremium(clau);
-    
-    const row = document.createElement('div');
-    row.className = className;
-    row.dataset.clau = clau;
-    
-    if (!teAcces && esPremium) {
-        row.style.opacity = '0.35';
-        row.style.filter = 'grayscale(0.8)';
-        row.style.cursor = 'not-allowed';
-        row.title = '🔒 Variable exclusiva per membres premium';
-    } else {
-        row.style.cursor = 'pointer';
-    }
-    
-    const pal = getPaleta(clau);
-    const unitat = (info.unidades && info.unidades.trim() !== '') ? info.unidades : (pal.unitat || '');
-    const nomBackend = info.nombre || '';
-    const semblaClauCrua = /^[A-Z0-9_]+$/.test(nomBackend) && nomBackend.length > 6;
-    const nom = semblaClauCrua ? pal.titol : (nomBackend || pal.titol);
-    
-    const iconaCandau = (!teAcces && esPremium) ? ' 🔒' : '';
-    
-    row.innerHTML = `<div class="param-link">${nom} <span class="param-unit">(${unitat})</span>${iconaCandau}</div>`;
-    
-    row.onclick = () => {
-        if (teAcces) {
-            seleccionarVariable(clau);
-        } else if (esPremium) {
-            if (typeof mostrarAvisPremium === 'function') {
-                mostrarAvisPremium(clau);
-            } else {
-                console.warn('[Accés] Variable premium bloquejada:', clau);
-            }
+    const crearRow = (clau, className = 'param-row') => {
+        const info = infoVariables[clau];
+        if (!info) return null;
+
+        const teAcces = verificarAccesVariable(clau);
+        const esPremium = typeof esParametrePremium === 'function' && esParametrePremium(clau);
+
+        const row = document.createElement('div');
+        row.className = className;
+        row.dataset.clau = clau;
+
+        if (!teAcces && esPremium) {
+            row.style.opacity = '0.35';
+            row.style.filter = 'grayscale(0.8)';
+            row.style.cursor = 'not-allowed';
+            row.title = '🔒 Variable exclusiva per membres premium';
         } else {
-            if (typeof mostrarAvisLogin === 'function') {
-                mostrarAvisLogin(clau);
-            } else {
-                console.warn('[Accés] Variable bloquejada per login:', clau);
-            }
+            row.style.cursor = 'pointer';
         }
+
+        const pal = getPaleta(clau);
+        const unitat = (info.unidades && info.unidades.trim() !== '') ? info.unidades : (pal.unitat || '');
+        const nomBackend = info.nombre || '';
+        const semblaClauCrua = /^[A-Z0-9_]+$/.test(nomBackend) && nomBackend.length > 6;
+        const nom = semblaClauCrua ? pal.titol : (nomBackend || pal.titol);
+
+        const iconaCandau = (!teAcces && esPremium) ? ' 🔒' : '';
+
+        row.innerHTML = `<div class="param-link">${nom} <span class="param-unit">(${unitat})</span>${iconaCandau}</div>`;
+
+        row.onclick = () => {
+            if (teAcces) {
+                seleccionarVariable(clau);
+            } else if (esPremium) {
+                if (typeof mostrarAvisPremium === 'function') {
+                    mostrarAvisPremium(clau);
+                } else {
+                    console.warn('[Accés] Variable premium bloquejada:', clau);
+                }
+            } else {
+                if (typeof mostrarAvisLogin === 'function') {
+                    mostrarAvisLogin(clau);
+                } else {
+                    console.warn('[Accés] Variable bloquejada per login:', clau);
+                }
+            }
+        };
+
+        return row;
     };
 
-    return row;
-};
-
-
-// ─── Tancar bloqueig ──────────────────────────────────────────────────
-window.tancarBloqueig = function() {
-    const overlay = document.getElementById('mapLockOverlay');
-    if (overlay) {
-        overlay.style.display = 'none';
-    }
-    const mapa = document.getElementById('map');
-    if (mapa) {
-        mapa.style.opacity = '1';
-        mapa.style.pointerEvents = 'auto';
-    }
-};
+    window.tancarBloqueig = function() {
+        const overlay = document.getElementById('mapLockOverlay');
+        if (overlay) {
+            overlay.style.display = 'none';
+        }
+        const mapa = document.getElementById('map');
+        if (mapa) {
+            mapa.style.opacity = '1';
+            mapa.style.pointerEvents = 'auto';
+        }
+    };
 
     const crearSeparador = () => {
         const sep = document.createElement('div');
@@ -3398,13 +3169,10 @@ window.tancarBloqueig = function() {
         return h3;
     };
 
-    // ============================================
     // PART SUPERIOR - GRUP PRINCIPAL
-    // ============================================
-    
     const principals = GRUP_PRINCIPAL
         .filter(clau => totesVariables.has(clau) && !esVariableAmagada(clau));
-    
+
     if (principals.length > 0) {
         principals.forEach(clau => {
             const row = crearRow(clau, 'param-row param-row-principal');
@@ -3416,10 +3184,7 @@ window.tancarBloqueig = function() {
         cont.appendChild(crearSeparador());
     }
 
-    // ============================================
     // GRUPS SIMPLES
-    // ============================================
-    
     Object.entries(GRUPS_SIMPLES).forEach(([nomGrup, clausGrup]) => {
         const entrades = [];
 
@@ -3452,10 +3217,7 @@ window.tancarBloqueig = function() {
         });
     });
 
-    // ============================================
     // GRUPS ACORDIÓ
-    // ============================================
-    
     Object.entries(GRUPS_ACORDIO).forEach(([nomGrupTitol, clausBase]) => {
         clausBase.forEach(clauB => {
             const nivellsClaus = [];
@@ -3478,8 +3240,8 @@ window.tancarBloqueig = function() {
             capcal.className = 'param-acordio-cap';
             capcal.dataset.clauBase = clauB;
             capcal.innerHTML = `
-                <span class="param-acordio-fletxa">${estatAcordio[clauEstat] ? '▾' : '▸'}</span> 
-                ${nomBase} 
+                <span class="param-acordio-fletxa">${estatAcordio[clauEstat] ? '▾' : '▸'}</span>
+                ${nomBase}
                 <span class="param-unit">(${nivellsOrdenats.length} nivells)</span>
             `;
             cont.appendChild(capcal);
@@ -3508,10 +3270,7 @@ window.tancarBloqueig = function() {
         });
     });
 
-    // ============================================
     // PART INFERIOR - ALTRES
-    // ============================================
-    
     const sobrants = [...totesVariables]
         .filter(c => !clausUsades.has(c) && !esVariableAmagada(c))
         .sort((a, b) => a.localeCompare(b));
@@ -3525,7 +3284,6 @@ window.tancarBloqueig = function() {
         });
     }
 
-    // SELECCIONAR VARIABLE PER DEFECTE
     seleccionarVariable('st', true);
 }
 
@@ -3560,22 +3318,14 @@ async function seleccionarVariable(clau, silenciós) {
         }
     }
 
-    // 🔧 Si la variable és 3D i encara no tenim el 3D d'aquesta hora carregat,
-    //    el descarreguem ara (només aquesta hora, no totes). Amb la
-    //    precàrrega en segon pla activa, normalment ja hi serà; això és
-    //    només una xarxa de seguretat per si l'usuari va més ràpid que la
-    //    precàrrega. 🔧 FIX: ara SÍ comprovem el resultat (`ok`) abans de
-    //    renderitzar, per no pintar un mapa buit si la càrrega ha fallat.
     if (esVariable3D(clau)) {
         const item = totesLesHores[curIdx];
         const jaTe3d = item && item.data && item.data._te3d;
         if (!jaTe3d) {
             const ok = await assegurarHoraCarregada(curIdx, true);
-            if (variableActiva !== clau) return; // l'usuari ha canviat de variable mentrestant
+            if (variableActiva !== clau) return;
             if (!ok) {
                 console.warn('[seleccionarVariable] No s\'ha pogut carregar el 3D d\'aquesta hora encara. Es tornarà a intentar.');
-                // Petit reintent automàtic (per exemple si hi va haver un
-                // error de xarxa puntual), sense bloquejar la UI massa temps.
                 setTimeout(() => {
                     if (variableActiva === clau) {
                         assegurarHoraCarregada(curIdx, true).then(ok2 => {
@@ -3607,9 +3357,6 @@ function actualitzarCapcaleraParametre() {
     const label = document.getElementById('parameter_menu_link');
     if (label) label.textContent = pal.titol + ' (' + pal.unitat + ')';
 }
-
-
-
 
 // ═══════════════════════════════════════════════════════════════════════
 //  PANELL D'AJUSTOS
@@ -3778,10 +3525,8 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════
-//  PUBLICAR DADES PER SKEW-T
+//  ESDEVENIMENTS LOGIN/LOGOUT
 // ═══════════════════════════════════════════════════════════════════════
-
-
 
 window.addEventListener('tc:login', function(e) {
     console.log('[mapa.js] Usuari loguejat');
@@ -3789,7 +3534,6 @@ window.addEventListener('tc:login', function(e) {
         construirGraellaHores();
         mostrarHora(curIdx);
     }
-    // Amagar overlay si existeix
     if (typeof window.amagarOverlay === 'function') {
         window.amagarOverlay();
     }
@@ -3801,94 +3545,76 @@ window.addEventListener('tc:logout', function() {
         construirGraellaHores();
         mostrarHora(0);
     }
-    // Tornar a variable bàsica
     if (typeof seleccionarVariable === 'function') {
         seleccionarVariable('st', true);
     }
-    // Amagar overlay si existeix
     if (typeof window.amagarOverlay === 'function') {
         window.amagarOverlay();
     }
 });
 
-
-
-
+// ═══════════════════════════════════════════════════════════════════════
+//  CURSOR PERSONALITZAT (CREU)
+// ═══════════════════════════════════════════════════════════════════════
 
 (function() {
     const mapContainer = map.getContainer();
-    
-    // Crear un cursor personalitzat amb SVG - Només la creu
+
     const cursorSVG = `
         <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
-            <!-- Línia horitzontal de la creu amb ombra -->
             <line x1="6" y1="24" x2="42" y2="24" stroke="#030303" stroke-width="2" stroke-linecap="round"/>
             <line x1="6" y1="24" x2="42" y2="24" stroke="#faf8f8" stroke-width="1" stroke-linecap="round" opacity="0.3" transform="translate(1, 1)"/>
-            
-            <!-- Línia vertical de la creu amb ombra -->
             <line x1="24" y1="6" x2="24" y2="42" stroke="#030303" stroke-width="2" stroke-linecap="round"/>
             <line x1="24" y1="6" x2="24" y2="42" stroke="#faf8f8" stroke-width="1" stroke-linecap="round" opacity="0.3" transform="translate(1, 1)"/>
-            
-            <!-- Punt central brillant -->
             <circle cx="24" cy="24" r="3" fill="#070000"/>
             <circle cx="24" cy="24" r="1.5" fill="#fcf9f9"/>
         </svg>
     `;
-    
-    // Convertir SVG a data URI
+
     const encodedSVG = encodeURIComponent(cursorSVG);
     const cursorURL = `data:image/svg+xml,${encodedSVG}`;
-    
-    // Aplicar el cursor personalitzat
+
     mapContainer.style.cursor = `url('${cursorURL}') 24 24, crosshair`;
-    
-    // Forçar crosshair a TOTS els elements dins del mapa
+
     mapContainer.addEventListener('mouseover', function(e) {
         mapContainer.style.cursor = `url('${cursorURL}') 24 24, crosshair`;
     });
-    
+
     mapContainer.addEventListener('mouseout', function(e) {
         if (!mapContainer.contains(e.relatedTarget)) {
             mapContainer.style.cursor = '';
         }
     });
-    
-    // Estil CSS per assegurar que TOT dins del mapa tingui el cursor personalitzat
+
     const style = document.createElement('style');
     style.textContent = `
         #map, #map * {
             cursor: url('${cursorURL}') 24 24, crosshair !important;
         }
-        /* Excepcions: botons i enllaços dins del mapa */
         #map button, #map a, #map .leaflet-control, #map .leaflet-popup,
         #map button *, #map a * {
             cursor: pointer !important;
         }
-        /* Efecte suau per quan el cursor està sobre el mapa */
         #map {
             transition: cursor 0.1s ease;
         }
     `;
     document.head.appendChild(style);
-    
+
     console.log('✅ Cursor en creu (+) gran i bonica (sense cercles) activat!');
 })();
-
-
-
 
 // ═══════════════════════════════════════════════════════════════════════
 //  FONS NEGRE NOMÉS FORA DE LA ZONA lon/lat DEFINIDA
 // ═══════════════════════════════════════════════════════════════════════
 
 (function() {
-    // Zona on es veu el mapa base (dins) vs negre (fora)
-    const ZONA_VISIBLE = {
-        lon_min: 0.1,
-        lon_max: 3.4,
-        lat_min: 45,
-        lat_max: 42.9
-    };  
+const ZONA_VISIBLE = {
+    lon_min: -5.0,   // Més a l'oest (per tallar la costa Est)
+    lon_max: 4.7,    // Talla la costa Est (València, Balears)
+    lat_min: 37.5,   // Fins al sud (Múrcia)
+    lat_max: 44.5,   // Fins al nord (Cantàbria)
+};
 
     function aplicarOverride() {
         if (!window._canvasLayer) {
@@ -3912,26 +3638,18 @@ window.addEventListener('tc:logout', function() {
             const ctx = canvas.getContext('2d');
             L.DomUtil.setPosition(canvas, m.containerPointToLayerPoint([0, 0]));
 
-            // ── 1. Calculem el rectangle en píxels de la ZONA_VISIBLE ──
             const nwZona = m.latLngToContainerPoint(L.latLng(ZONA_VISIBLE.lat_max, ZONA_VISIBLE.lon_min));
             const seZona = m.latLngToContainerPoint(L.latLng(ZONA_VISIBLE.lat_min, ZONA_VISIBLE.lon_max));
             const zx = nwZona.x, zy = nwZona.y, zw = seZona.x - nwZona.x, zh = seZona.y - nwZona.y;
 
-            // ── 2. Netegem tot el canvas (transparent = es veu el mapa base) ──
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // ── 3. Pintem de negre NOMÉS fora del rectangle ZONA_VISIBLE ──
             ctx.fillStyle = '#000000';
-            // Marge superior
             ctx.fillRect(0, 0, canvas.width, Math.max(0, zy));
-            // Marge inferior
             ctx.fillRect(0, zy + zh, canvas.width, canvas.height - (zy + zh));
-            // Marge esquerre
             ctx.fillRect(0, zy, Math.max(0, zx), zh);
-            // Marge dret
             ctx.fillRect(zx + zw, zy, canvas.width - (zx + zw), zh);
 
-            // ── 4. Dibuixem les dades AROME a sobre (rectangle petit) ──
             const coords = getCoordenadesPer(layer._data, variableActiva);
             const lats = coords.lat;
             const lons = coords.lon;
@@ -3970,6 +3688,10 @@ window.addEventListener('tc:logout', function() {
     aplicarOverride();
 })();
 
+// ═══════════════════════════════════════════════════════════════════════
+//  INICIALITZACIÓ
+// ═══════════════════════════════════════════════════════════════════════
+
 inicialitzarGeojson();
 inicialitzarCanvasVent();
 crearPanellAjustos();
@@ -3980,11 +3702,7 @@ carregarTotsJSONs().then(() => {
     });
 });
 
-// 🔧 Estat global: indica si el panell de Skew-T està obert.
-//    Quan és true, mostrarHora() carregarà sempre el 3D encara que
-//    la variable activa del mapa sigui de superfície.
-//    Es declara amb "window." explícitament perquè funcioni igual
-//    des del HTML (index.html) i des de skewt.js.
+// Estat global: indica si el panell de Skew-T està obert.
 window.sondeigObert = false;
 
 window._currentParameter = variableActiva || 'st';

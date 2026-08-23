@@ -19,10 +19,10 @@ jobs:
       with:
         token: ${{ secrets.PRIVATE_REPO_TOKEN }}
 
-    - name: Checkout private submodule
+    - name: Clonar private-scripts
       run: |
-        git config --global url."https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/".insteadOf "https://github.com/"
-        git submodule update --init --recursive
+        rm -rf private-scripts-new
+        git clone https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/Tempestesscatt/Scripts.git private-scripts-new
 
     - uses: actions/setup-python@v5
       with:
@@ -44,7 +44,7 @@ jobs:
 
     - name: Executar cat.py
       run: |
-        cd private-scripts
+        cd private-scripts-new
         python3 -c 'import json; cfg = json.load(open("config.json", "r", encoding="utf-8-sig")); cfg["api_key"] = "${{ secrets.AROME_API_KEY }}"; json.dump(cfg, open("config.json", "w", encoding="utf-8"), indent=2)'
         for i in 1 2 3; do
           echo "--- cat.py: intent $i/3 ---"
@@ -78,10 +78,10 @@ jobs:
       with:
         token: ${{ secrets.PRIVATE_REPO_TOKEN }}
 
-    - name: Checkout private submodule
+    - name: Clonar private-scripts
       run: |
-        git config --global url."https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/".insteadOf "https://github.com/"
-        git submodule update --init --recursive
+        rm -rf private-scripts-new
+        git clone https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/Tempestesscatt/Scripts.git private-scripts-new
 
     - uses: actions/setup-python@v5
       with:
@@ -102,7 +102,7 @@ jobs:
 
     - name: Executar ones.py
       run: |
-        cd private-scripts
+        cd private-scripts-new
         for i in 1 2 3; do
           echo "--- ones.py: intent $i/3 ---"
           python3 ones.py --total-hores 44 && echo "OK exit a l'intent $i" && exit 0 || echo "ERROR ha fallat (codi $?) a l'intent $i/3"
@@ -134,10 +134,10 @@ jobs:
       with:
         token: ${{ secrets.PRIVATE_REPO_TOKEN }}
 
-    - name: Checkout private submodule
+    - name: Clonar private-scripts
       run: |
-        git config --global url."https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/".insteadOf "https://github.com/"
-        git submodule update --init --recursive
+        rm -rf private-scripts-new
+        git clone https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/Tempestesscatt/Scripts.git private-scripts-new
 
     - uses: actions/setup-python@v5
       with:
@@ -158,7 +158,7 @@ jobs:
 
     - name: Executar X.py
       run: |
-        cd private-scripts
+        cd private-scripts-new
         for i in 1 2 3; do
           echo "--- X.py: intent $i/3 ---"
           python3 X.py --total-hores 44 && echo "OK exit a l'intent $i" && exit 0 || echo "ERROR ha fallat (codi $?) a l'intent $i/3"
@@ -192,10 +192,10 @@ jobs:
       with:
         token: ${{ secrets.PRIVATE_REPO_TOKEN }}
 
-    - name: Checkout private submodule
+    - name: Clonar private-scripts
       run: |
-        git config --global url."https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/".insteadOf "https://github.com/"
-        git submodule update --init --recursive
+        rm -rf private-scripts-new
+        git clone https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/Tempestesscatt/Scripts.git private-scripts-new
 
     - uses: actions/setup-python@v5
       with:
@@ -232,7 +232,7 @@ jobs:
 
     - name: Executar status.py
       run: |
-        cd private-scripts
+        cd private-scripts-new
         python3 status.py
       timeout-minutes: 5
 
