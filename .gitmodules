@@ -1,3 +1,6 @@
 [submodule "private-scripts"]
 	path = private-scripts
 	url = https://github.com/Tempestesscatt/private-scripts.git
+[submodule "private-scripts-new"]
+	path = private-scripts-new
+	url = https://github.com/Tempestesscatt/Scripts.git
