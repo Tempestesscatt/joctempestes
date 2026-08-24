@@ -6,38 +6,12 @@ on:
 permissions:
   contents: write
   deployments: write
-  actions: write   # necessari per poder esborrar artifacts via API
 
 jobs:
-  # ════════════════════════════════════════════════════════════════
-  #  JOB 0: NETEJA - esborra TOTS els artifacts abans de començar
-  # ════════════════════════════════════════════════════════════════
-  neteja_artifacts:
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-    - name: Esborrar tots els artifacts existents del repo
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        echo "Buscant artifacts existents..."
-        ARTIFACT_IDS=$(gh api "repos/${{ github.repository }}/actions/artifacts" --paginate --jq '.artifacts[].id')
-
-        if [ -z "$ARTIFACT_IDS" ]; then
-          echo "No hi ha artifacts per esborrar."
-        else
-          for id in $ARTIFACT_IDS; do
-            echo "Esborrant artifact ID: $id"
-            gh api --method DELETE "repos/${{ github.repository }}/actions/artifacts/$id" || echo "No s'ha pogut esborrar $id (potser ja no existeix)"
-          done
-          echo "Neteja completada."
-        fi
-
   # ════════════════════════════════════════════════════════════════
   #  JOB 1: SFC (arome_sfc.py)
   # ════════════════════════════════════════════════════════════════
   arome_sfc:
-    needs: neteja_artifacts
     runs-on: ubuntu-latest
     timeout-minutes: 250
     steps:
@@ -97,7 +71,6 @@ jobs:
   #  JOB 2: 3D (arome_3d.py)
   # ════════════════════════════════════════════════════════════════
   arome_3d:
-    needs: neteja_artifacts
     runs-on: ubuntu-latest
     timeout-minutes: 250
     steps:
@@ -156,7 +129,6 @@ jobs:
   #  JOB 3: ONES (ones.py)
   # ════════════════════════════════════════════════════════════════
   ones:
-    needs: neteja_artifacts
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
