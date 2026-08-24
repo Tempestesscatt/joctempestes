@@ -3330,57 +3330,59 @@ function construirPanellParametres() {
     });
 
     const clausUsades = new Set();
+const crearRow = (clau, className = 'param-row') => {
+    const info = infoVariables[clau];
+    if (!info) return null;
 
-    const crearRow = (clau, className = 'param-row') => {
-        const info = infoVariables[clau];
-        if (!info) return null;
+    const esPremium = typeof esParametrePremium === 'function' && esParametrePremium(clau);
 
-        const teAcces = verificarAccesVariable(clau);
-        const esPremium = typeof esParametrePremium === 'function' && esParametrePremium(clau);
+    const row = document.createElement('div');
+    row.className = className;
+    row.dataset.clau = clau;
 
-        const row = document.createElement('div');
-        row.className = className;
-        row.dataset.clau = clau;
+    // El estilo visual inicial se basa en el acceso ACTUAL al construir (esto está bien, es solo estético)
+    const teAccesInicial = verificarAccesVariable(clau);
+    if (!teAccesInicial && esPremium) {
+        row.style.opacity = '0.35';
+        row.style.filter = 'grayscale(0.8)';
+        row.style.cursor = 'not-allowed';
+        row.title = ' Variable exclusiva per membres premium';
+    } else {
+        row.style.cursor = 'pointer';
+    }
 
-        if (!teAcces && esPremium) {
-            row.style.opacity = '0.35';
-            row.style.filter = 'grayscale(0.8)';
-            row.style.cursor = 'not-allowed';
-            row.title = ' Variable exclusiva per membres premium';
-        } else {
-            row.style.cursor = 'pointer';
-        }
+    const pal = getPaleta(clau);
+    const unitat = (info.unidades && info.unidades.trim() !== '') ? info.unidades : (pal.unitat || '');
+    const nomBackend = info.nombre || '';
+    const semblaClauCrua = /^[A-Z0-9_]+$/.test(nomBackend) && nomBackend.length > 6;
+    const nom = semblaClauCrua ? pal.titol : (nomBackend || pal.titol);
 
-        const pal = getPaleta(clau);
-        const unitat = (info.unidades && info.unidades.trim() !== '') ? info.unidades : (pal.unitat || '');
-        const nomBackend = info.nombre || '';
-        const semblaClauCrua = /^[A-Z0-9_]+$/.test(nomBackend) && nomBackend.length > 6;
-        const nom = semblaClauCrua ? pal.titol : (nomBackend || pal.titol);
+    const iconaCandau = (!teAccesInicial && esPremium) ? ' ' : '';
 
-        const iconaCandau = (!teAcces && esPremium) ? ' ' : '';
+    row.innerHTML = `<div class="param-link">${nom} <span class="param-unit">(${unitat})</span>${iconaCandau}</div>`;
 
-        row.innerHTML = `<div class="param-link">${nom} <span class="param-unit">(${unitat})</span>${iconaCandau}</div>`;
-
-        row.onclick = () => {
-            if (teAcces) {
-                seleccionarVariable(clau);
-            } else if (esPremium) {
-                if (typeof mostrarAvisPremium === 'function') {
-                    mostrarAvisPremium(clau);
-                } else {
-                    console.warn('[Accés] Variable premium bloquejada:', clau);
-                }
+    // 🔑 FIX: comprovar l'accés SEMPRE al moment del clic, no el valor congelat de quan es va crear la fila
+    row.onclick = () => {
+        const teAccesAra = verificarAccesVariable(clau);
+        if (teAccesAra) {
+            seleccionarVariable(clau);
+        } else if (esPremium) {
+            if (typeof mostrarAvisPremium === 'function') {
+                mostrarAvisPremium(clau);
             } else {
-                if (typeof mostrarAvisLogin === 'function') {
-                    mostrarAvisLogin(clau);
-                } else {
-                    console.warn('[Accés] Variable bloquejada per login:', clau);
-                }
+                console.warn('[Accés] Variable premium bloquejada:', clau);
             }
-        };
-
-        return row;
+        } else {
+            if (typeof mostrarAvisLogin === 'function') {
+                mostrarAvisLogin(clau);
+            } else {
+                console.warn('[Accés] Variable bloquejada per login:', clau);
+            }
+        }
     };
+
+    return row;
+};
 
     window.tancarBloqueig = function() {
         const overlay = document.getElementById('mapLockOverlay');
@@ -3771,6 +3773,7 @@ window.addEventListener('tc:login', function(e) {
     console.log('[mapa.js] Usuari loguejat');
     if (totesLesHores && totesLesHores.length > 0) {
         construirGraellaHores();
+        construirPanellParametres();   // 👈 AÑADIR: reconstruye también el panel de variables
         mostrarHora(curIdx);
     }
     if (typeof window.amagarOverlay === 'function') {
@@ -3782,6 +3785,7 @@ window.addEventListener('tc:logout', function() {
     console.log('[mapa.js] Usuari desloguejat');
     if (totesLesHores && totesLesHores.length > 0) {
         construirGraellaHores();
+        construirPanellParametres();   // 👈 AÑADIR aquí también
         mostrarHora(0);
     }
     if (typeof seleccionarVariable === 'function') {
