@@ -1606,15 +1606,17 @@ window.quantsCanvisFotoDisponibles = quantsCanvisFotoDisponibles;
     //  INICIALITZACIÓ
     // ════════════════════════════════════════════════════════════════════
 
-    window.addEventListener('tc:login', async function(e) {
-        const user = e.detail;
-        if (user) {
-            setTimeout(() => {
-                actualitzarUIUsuari(user);
-                actualitzarNomUI(user);
-            }, 500);
-        }
-    });
+window.addEventListener('tc:login', async function(e) {
+    const user = e.detail;
+    if (!user) return;
+    
+    // Sin timeout — actualiza en cuanto llega el evento
+    actualitzarUIUsuari(user);       // esto ya internamente espera el fetch del nombre
+    // Fuerza refresco del estado de bloqueo del mapa
+    if (typeof mostrarHora === 'function' && typeof curIdx === 'number') {
+        mostrarHora(curIdx);
+    }
+});
 
     window.addEventListener('tc:logout', function() {
         actualitzarUIUsuari(null);

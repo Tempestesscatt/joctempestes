@@ -3183,9 +3183,6 @@ function construirGraellaHores() {
         return;
     }
 
-    const user = window._firebaseUser || null;
-    const bloquejat = !user;
-
     const container = document.createElement('div');
     container.style.cssText = 'display:flex;gap:3px;align-items:center;padding:2px 4px;';
 
@@ -3196,8 +3193,10 @@ function construirGraellaHores() {
         const minStr = String(d.getMinutes()).padStart(2, '0');
         const isActive = (i === curIdx);
 
+        // 🔑 Ja no capturem "bloquejat" aquí — es comprova sempre en temps real (veure onclick)
         const horaLliure = (i % 3 === 0);
-        const itemBloquejat = bloquejat && !horaLliure;
+        const userAra = window._firebaseUser || null;
+        const itemBloquejatVisual = !userAra && !horaLliure;
 
         const cell = document.createElement('div');
         cell.className = 'fh-item' + (isActive ? ' active' : '');
@@ -3207,7 +3206,7 @@ function construirGraellaHores() {
             flex: 0 0 auto;
             padding: 2px 8px;
             border-radius: 3px;
-            cursor: ${itemBloquejat ? 'not-allowed' : 'pointer'};
+            cursor: ${itemBloquejatVisual ? 'not-allowed' : 'pointer'};
             font-size: 11px;
             font-weight: 500;
             color: ${isActive ? '#FFD700' : '#556680'};
@@ -3220,10 +3219,10 @@ function construirGraellaHores() {
             user-select: none;
             font-family: 'Segoe UI', Tahoma, sans-serif;
             line-height: 1.2;
-            opacity: ${itemBloquejat ? '0.3' : '1'};
+            opacity: ${itemBloquejatVisual ? '0.3' : '1'};
         `;
 
-        if (itemBloquejat) {
+        if (itemBloquejatVisual) {
             cell.title = 'Inicia sessió per desbloquejar';
             cell.innerHTML = `
                 <span style="font-size:12px;font-weight:600;display:block;">${horaStr}</span>
@@ -3237,26 +3236,28 @@ function construirGraellaHores() {
             `;
         }
 
-        if (!itemBloquejat) {
-            cell.addEventListener('mouseenter', function() {
-                if (!this.classList.contains('active')) {
-                    this.style.background = 'rgba(255,255,255,0.08)';
-                    this.style.color = '#c8d8e8';
-                }
-            });
-            cell.addEventListener('mouseleave', function() {
-                if (!this.classList.contains('active')) {
-                    this.style.background = 'rgba(255,255,255,0.03)';
-                    this.style.color = '#556680';
-                }
-            });
-        }
+        cell.addEventListener('mouseenter', function() {
+            if (!this.classList.contains('active')) {
+                this.style.background = 'rgba(255,255,255,0.08)';
+                this.style.color = '#c8d8e8';
+            }
+        });
+        cell.addEventListener('mouseleave', function() {
+            if (!this.classList.contains('active')) {
+                this.style.background = 'rgba(255,255,255,0.03)';
+                this.style.color = '#556680';
+            }
+        });
 
+        // 🔑 FIX PRINCIPAL: el clic sempre comprova l'estat REAL de sessió en aquell instant,
+        // no un valor "congelat" de quan es va construir la graella.
         cell.onclick = function(e) {
             e.stopPropagation();
             const idx = parseInt(this.dataset.idx);
             const lliure = (idx % 3 === 0);
-            if (bloquejat && !lliure) {
+            const userActual = window._firebaseUser || null;
+
+            if (!userActual && !lliure) {
                 if (typeof loginWithGoogle === 'function') {
                     loginWithGoogle();
                 }
@@ -3281,6 +3282,8 @@ function construirGraellaHores() {
         }
     }, 150);
 }
+
+
 
 // ═══════════════════════════════════════════════════════════════════════
 //  PANELL DE PARÀMETRES
