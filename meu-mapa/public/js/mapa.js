@@ -3950,3 +3950,466 @@ window.sondeigObert = false;
 
 window._currentParameter = variableActiva || 'st';
 actualitzarBloqueigMapa();
+
+
+
+// ═══════════════════════════════════════════════════════════════════════
+//  SISTEMA DE CARGA 3D CON FEEDBACK VISUAL
+// ═══════════════════════════════════════════════════════════════════════
+
+// ─── Estado del sistema ──────────────────────────────────────────────
+const SISTEMA_3D = {
+    carregant: false,
+    complet: false,
+    total: 0,
+    carregats: 0,
+    progress: 0,
+    callbacks: [],
+    iniciCarga: null,
+};
+
+// ─── Notificación de carga 3D ────────────────────────────────────────
+let notificacio3D = null;
+
+function crearNotificacio3D() {
+    if (notificacio3D) return;
+
+    const div = document.createElement('div');
+    div.id = 'notificacio-3d';
+    div.style.cssText = `
+        position: fixed;
+        bottom: 80px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(10, 16, 26, 0.92);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 215, 0, 0.2);
+        border-radius: 8px;
+        padding: 12px 24px;
+        font-family: 'Segoe UI', Tahoma, sans-serif;
+        color: #cfe0ee;
+        font-size: 13px;
+        z-index: 9998;
+        display: none;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
+        min-width: 280px;
+        text-align: center;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
+    `;
+    div.innerHTML = `
+        <div style="display:flex;align-items:center;gap:12px;justify-content:center;">
+            <div style="width:20px;height:20px;border:2px solid rgba(255,215,0,0.2);border-top:2px solid #FFD700;border-radius:50%;animation:spin-3d 0.8s linear infinite;"></div>
+            <div>
+                <div style="font-weight:600;color:#FFD700;">Carregant dades 3D</div>
+                <div id="notificacio-3d-progress" style="font-size:11px;color:#7f9bb3;">0%</div>
+            </div>
+        </div>
+        <div style="margin-top:6px;font-size:10px;color:#556680;">
+            <span id="notificacio-3d-comptador">0 / 0</span> hores
+        </div>
+        <style>
+            @keyframes spin-3d {
+                to { transform: rotate(360deg); }
+            }
+        </style>
+    `;
+    document.body.appendChild(div);
+    notificacio3D = div;
+}
+
+function mostrarNotificacio3D(mostrar = true) {
+    if (!notificacio3D) crearNotificacio3D();
+    notificacio3D.style.display = mostrar ? 'block' : 'none';
+    if (mostrar) {
+        notificacio3D.style.opacity = '1';
+    }
+}
+
+function actualitzarNotificacio3D(progress, carregats, total) {
+    if (!notificacio3D) return;
+    const pct = Math.round(progress * 100);
+    const bar = notificacio3D.querySelector('#notificacio-3d-progress');
+    const comptador = notificacio3D.querySelector('#notificacio-3d-comptador');
+    if (bar) bar.textContent = pct + '%';
+    if (comptador) comptador.textContent = carregats + ' / ' + total;
+}
+
+function amagarNotificacio3D() {
+    if (notificacio3D) {
+        notificacio3D.style.opacity = '0';
+        setTimeout(() => {
+            notificacio3D.style.display = 'none';
+        }, 300);
+    }
+}
+
+// ─── Función para comprobar si una hora tiene datos 3D ──────────────
+function horaTe3D(idx) {
+    if (idx < 0 || idx >= totesLesHores.length) return false;
+    const item = totesLesHores[idx];
+    return item && item.data && item.data._te3d && item.data.coordenadas_3d;
+}
+
+// ─── Función para comprobar si todos los parámetros 3D están listos ──
+function tots3DCarregats() {
+    if (!totesLesHores || totesLesHores.length === 0) return false;
+    return totesLesHores.every(item => {
+        return item && item.data && item.data._te3d;
+    });
+}
+
+// ─── Carga masiva de 3D con feedback ────────────────────────────────
+async function carregarTots3DAmbFeedback() {
+    if (SISTEMA_3D.carregant || SISTEMA_3D.complet) {
+        console.log('[3D] Ya está cargando o ya está completo.');
+        return;
+    }
+
+    const total = totesLesHores.length;
+    if (total === 0) {
+        console.warn('[3D] No hay horas para cargar.');
+        return;
+    }
+
+    // Contar cuántas ya tienen 3D
+    let jaTenen3D = 0;
+    const perCarregar = [];
+    for (let i = 0; i < total; i++) {
+        if (horaTe3D(i)) {
+            jaTenen3D++;
+        } else {
+            perCarregar.push(i);
+        }
+    }
+
+    if (perCarregar.length === 0) {
+        SISTEMA_3D.complet = true;
+        console.log('[3D] Todas las horas ya tienen datos 3D.');
+        return;
+    }
+
+    SISTEMA_3D.carregant = true;
+    SISTEMA_3D.total = perCarregar.length;
+    SISTEMA_3D.carregats = 0;
+    SISTEMA_3D.progress = 0;
+    SISTEMA_3D.iniciCarga = Date.now();
+
+    // Mostrar notificación
+    crearNotificacio3D();
+    mostrarNotificacio3D(true);
+    actualitzarNotificacio3D(0, 0, perCarregar.length);
+
+    console.log(`[3D] Iniciando carga de ${perCarregar.length} horas 3D...`);
+
+    // Ordenar: primero la hora actual y las cercanas
+    const centre = curIdx || 0;
+    perCarregar.sort((a, b) => {
+        const distA = Math.abs(a - centre);
+        const distB = Math.abs(b - centre);
+        return distA - distB;
+    });
+
+    const CONCURRENCIA_3D_CARREGA = 2;
+    let cursor = 0;
+    let errors = 0;
+
+    async function worker3D() {
+        while (cursor < perCarregar.length) {
+            const idx = perCarregar[cursor++];
+            try {
+                const ok = await assegurarHoraCarregada(idx, true);
+                if (ok) {
+                    SISTEMA_3D.carregats++;
+                } else {
+                    errors++;
+                    console.warn(`[3D] Error carregant hora ${idx}`);
+                }
+            } catch (e) {
+                errors++;
+                console.warn(`[3D] Excepción carregant hora ${idx}:`, e);
+            }
+
+            // Actualizar progreso
+            const completats = SISTEMA_3D.carregats + (perCarregar.length - cursor);
+            SISTEMA_3D.progress = completats / perCarregar.length;
+            actualitzarNotificacio3D(SISTEMA_3D.progress, SISTEMA_3D.carregats, perCarregar.length);
+
+            // Si hay un cambio visible, actualizar el panel
+            if (SISTEMA_3D.carregats % 3 === 0 || cursor === perCarregar.length) {
+                // Actualizar el grid de horas para mostrar 3D disponible
+                construirGraellaHores();
+
+                // Si la hora actual ahora tiene 3D, refrescar el mapa
+                if (horaTe3D(curIdx) && canvasLayer) {
+                    const item = totesLesHores[curIdx];
+                    if (item && item.data) {
+                        canvasLayer.setData(item.data);
+                        if (window.ventEnabled && typeof redibuixarVent === 'function') redibuixarVent();
+                    }
+                }
+            }
+
+            // Pequeña pausa para no saturar
+            await new Promise(r => setTimeout(r, 10));
+        }
+    }
+
+    // Lanzar workers
+    const workers = [];
+    for (let w = 0; w < CONCURRENCIA_3D_CARREGA; w++) {
+        workers.push(worker3D());
+    }
+    await Promise.all(workers);
+
+    SISTEMA_3D.carregant = false;
+    SISTEMA_3D.complet = true;
+
+    const temps = ((Date.now() - SISTEMA_3D.iniciCarga) / 1000).toFixed(1);
+    console.log(`[3D] Carga completada: ${SISTEMA_3D.carregats} horas en ${temps}s. Errors: ${errors}`);
+
+    // Ocultar notificación después de un momento
+    setTimeout(() => {
+        amagarNotificacio3D();
+        // Si hay algún error notable, mostrar aviso
+        if (errors > 0) {
+            const div = document.createElement('div');
+            div.style.cssText = `
+                position: fixed;
+                bottom: 140px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: rgba(255, 60, 60, 0.85);
+                color: white;
+                padding: 8px 16px;
+                border-radius: 6px;
+                font-size: 12px;
+                z-index: 9999;
+                font-family: 'Segoe UI', Tahoma, sans-serif;
+                backdrop-filter: blur(4px);
+                border: 1px solid rgba(255,255,255,0.1);
+                text-align: center;
+            `;
+            div.textContent = `⚠️ ${errors} hores 3D no s'han pogut carregar. Torna a provar més tard.`;
+            document.body.appendChild(div);
+            setTimeout(() => {
+                div.style.transition = 'opacity 0.5s';
+                div.style.opacity = '0';
+                setTimeout(() => div.remove(), 500);
+            }, 5000);
+        }
+
+        // Reconstruir el panel de parámetros para mostrar los nuevos 3D
+        construirPanellParametres();
+
+        // Si la hora actual tiene 3D, actualizar
+        if (horaTe3D(curIdx)) {
+            const item = totesLesHores[curIdx];
+            if (item && item.data) {
+                canvasLayer._needsRedraw = true;
+                canvasLayer._render();
+            }
+        }
+
+        // Disparar evento
+        document.dispatchEvent(new CustomEvent('mapa-3d-llest', {
+            detail: { total: SISTEMA_3D.carregats, errors }
+        }));
+
+    }, 500);
+
+    return { carregats: SISTEMA_3D.carregats, errors };
+}
+
+// ─── Función para iniciar la carga 3D desde el exterior ─────────────
+function iniciarCarga3D() {
+    if (SISTEMA_3D.carregant) {
+        console.log('[3D] Ya está en marcha una carga.');
+        return;
+    }
+    if (SISTEMA_3D.complet) {
+        console.log('[3D] Ya está todo cargado.');
+        return;
+    }
+    carregarTots3DAmbFeedback();
+}
+
+// ─── Interceptar cambios de hora para priorizar carga 3D ────────────
+const _mostrarHoraOriginal = mostrarHora;
+
+mostrarHora = async function(idx) {
+    if (idx < 0 || idx >= totesLesHores.length) return;
+
+    // Llamar al original
+    await _mostrarHoraOriginal(idx);
+
+    // Si la hora seleccionada no tiene 3D, iniciar carga prioritaria
+    if (!horaTe3D(idx) && !SISTEMA_3D.carregant && !SISTEMA_3D.complet) {
+        // Mostrar notificación
+        crearNotificacio3D();
+        mostrarNotificacio3D(true);
+        actualitzarNotificacio3D(0, 0, 1);
+
+        // Cargar solo esta hora primero
+        try {
+            const ok = await assegurarHoraCarregada(idx, true);
+            if (ok) {
+                // Si la hora actual sigue siendo la misma, actualizar
+                if (curIdx === idx) {
+                    const item = totesLesHores[idx];
+                    if (item && item.data) {
+                        canvasLayer._needsRedraw = true;
+                        canvasLayer._render();
+                        construirGraellaHores();
+                        construirPanellParametres();
+                    }
+                }
+            }
+        } catch (e) {
+            console.warn('[3D] Error cargando hora prioritaria:', e);
+        }
+
+        // Ocultar notificación
+        setTimeout(() => amagarNotificacio3D(), 500);
+
+        // Si no está completa la carga total, iniciarla en background
+        if (!SISTEMA_3D.complet && !SISTEMA_3D.carregant) {
+            setTimeout(() => iniciarCarga3D(), 100);
+        }
+    }
+
+    // Si hay 3D cargando y no está completa, iniciar en background
+    if (!SISTEMA_3D.complet && !SISTEMA_3D.carregant && !horaTe3D(idx)) {
+        setTimeout(() => iniciarCarga3D(), 500);
+    }
+};
+
+// ─── Añadir botón de carga 3D manual ────────────────────────────────
+function afegirBotoCarga3D() {
+    const container = document.querySelector('.controls-container') || document.getElementById('controls');
+    if (!container) {
+        setTimeout(afegirBotoCarga3D, 500);
+        return;
+    }
+
+    const btn = document.createElement('button');
+    btn.id = 'btnCarga3D';
+    btn.textContent = '📡 Carregar 3D';
+    btn.title = 'Carregar totes les dades 3D en segon pla';
+    btn.style.cssText = `
+        padding: 4px 10px;
+        font-size: 11px;
+        border-radius: 4px;
+        border: 1px solid #2a3a5a;
+        background: #1a2a3a;
+        color: #7f9bb3;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-family: 'Segoe UI', Tahoma, sans-serif;
+    `;
+
+    btn.addEventListener('mouseenter', () => {
+        btn.style.background = '#2a4a6a';
+        btn.style.color = '#cfe0ee';
+        btn.style.borderColor = '#4a7a9a';
+    });
+    btn.addEventListener('mouseleave', () => {
+        btn.style.background = '#1a2a3a';
+        btn.style.color = '#7f9bb3';
+        btn.style.borderColor = '#2a3a5a';
+    });
+
+    btn.addEventListener('click', () => {
+        if (SISTEMA_3D.complet) {
+            btn.textContent = '✅ 3D complet';
+            btn.style.background = '#1a3a2a';
+            btn.style.color = '#6fbf8f';
+            setTimeout(() => {
+                btn.textContent = '📡 Carregar 3D';
+                btn.style.background = '#1a2a3a';
+                btn.style.color = '#7f9bb3';
+            }, 3000);
+            return;
+        }
+        if (SISTEMA_3D.carregant) {
+            btn.textContent = '⏳ Carregant...';
+            btn.style.color = '#FFD700';
+            return;
+        }
+        btn.textContent = '⏳ Iniciant...';
+        btn.style.color = '#FFD700';
+        iniciarCarga3D();
+
+        // Monitorear progreso
+        const checkProgress = setInterval(() => {
+            if (SISTEMA_3D.complet) {
+                btn.textContent = '✅ 3D complet';
+                btn.style.color = '#6fbf8f';
+                clearInterval(checkProgress);
+                setTimeout(() => {
+                    btn.textContent = '📡 Carregar 3D';
+                    btn.style.color = '#7f9bb3';
+                }, 2000);
+            } else if (SISTEMA_3D.carregant) {
+                const pct = Math.round(SISTEMA_3D.progress * 100);
+                btn.textContent = `⏳ ${pct}%`;
+            } else {
+                btn.textContent = '📡 Carregar 3D';
+                btn.style.color = '#7f9bb3';
+                clearInterval(checkProgress);
+            }
+        }, 500);
+    });
+
+    container.appendChild(btn);
+    console.log('[3D] Botón de carga añadido.');
+}
+
+// ─── Inicializar el sistema ──────────────────────────────────────────
+function inicialitzarSistema3D() {
+    crearNotificacio3D();
+
+    // Esperar a que el DOM esté listo
+    setTimeout(() => {
+        afegirBotoCarga3D();
+
+        // Si ya hay horas cargadas, iniciar carga 3D automática
+        if (totesLesHores && totesLesHores.length > 0) {
+            // Esperar un poco para no saturar la carga inicial
+            setTimeout(() => {
+                if (!SISTEMA_3D.complet && !SISTEMA_3D.carregant) {
+                    console.log('[3D] Iniciando carga automática en background...');
+                    iniciarCarga3D();
+                }
+            }, 3000);
+        }
+    }, 500);
+
+    // Escuchar evento de horas cargadas
+    document.addEventListener('mapa-dades-llestes', (e) => {
+        const { totesLesHores: novesHores } = e.detail || {};
+        if (novesHores && novesHores.length > 0 && !SISTEMA_3D.complet && !SISTEMA_3D.carregant) {
+            setTimeout(() => {
+                if (!SISTEMA_3D.complet && !SISTEMA_3D.carregant) {
+                    console.log('[3D] Iniciando carga automática tras carga SFC...');
+                    iniciarCarga3D();
+                }
+            }, 2000);
+        }
+    });
+}
+
+// ─── Exponer funciones globalmente ───────────────────────────────────
+window.iniciarCarga3D = iniciarCarga3D;
+window.carregarTots3DAmbFeedback = carregarTots3DAmbFeedback;
+window.SISTEMA_3D = SISTEMA_3D;
+window.horaTe3D = horaTe3D;
+
+// ─── Inicializar al cargar ──────────────────────────────────────────
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    inicialitzarSistema3D();
+} else {
+    document.addEventListener('DOMContentLoaded', inicialitzarSistema3D);
+}
+
+console.log('✅ Sistema de carga 3D con feedback inicializado.');
