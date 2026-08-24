@@ -9,11 +9,57 @@ permissions:
 
 jobs:
   # ════════════════════════════════════════════════════════════════
+  #  JOB 0: NETEJA - Borra carpetas antes de empezar
+  # ════════════════════════════════════════════════════════════════
+  neteja:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.PRIVATE_REPO_TOKEN }}
+
+    - name: Clonar private-scripts
+      run: |
+        rm -rf private-scripts-new
+        git clone https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/Tempestesscatt/Scripts.git private-scripts-new
+
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Crear estructura de carpetes
+      run: |
+        mkdir -p meu-mapa/public/web_data_NE
+        mkdir -p meu-mapa/public/web_data_ones
+        mkdir -p meu-mapa/public/js
+        mkdir -p meu-mapa/public/logs
+        echo "Estructura de carpetes creada"
+
+    - name: Executar neteja_dades.py
+      run: |
+        cd private-scripts-new
+        python3 neteja_dades.py
+      timeout-minutes: 5
+
+    - name: Verificar carpetes netes
+      run: |
+        echo "=== Estat de les carpetes després de la neteja ==="
+        echo "--- web_data_NE ---"
+        ls -la meu-mapa/public/web_data_NE/ 2>/dev/null || echo "buit"
+        echo "--- web_data_ones ---"
+        ls -la meu-mapa/public/web_data_ones/ 2>/dev/null || echo "buit"
+        echo "--- logs ---"
+        ls -la meu-mapa/public/logs/ 2>/dev/null || echo "buit"
+        echo "✓ Neteja completada"
+
+  # ════════════════════════════════════════════════════════════════
   #  JOB 1: SFC (arome_sfc.py)
   # ════════════════════════════════════════════════════════════════
   arome_sfc:
     runs-on: ubuntu-latest
     timeout-minutes: 250
+    needs: neteja
     steps:
     - uses: actions/checkout@v4
       with:
@@ -73,6 +119,7 @@ jobs:
   arome_3d:
     runs-on: ubuntu-latest
     timeout-minutes: 250
+    needs: neteja
     steps:
     - uses: actions/checkout@v4
       with:
@@ -131,6 +178,7 @@ jobs:
   ones:
     runs-on: ubuntu-latest
     timeout-minutes: 120
+    needs: neteja
     steps:
     - uses: actions/checkout@v4
       with:
@@ -203,10 +251,10 @@ jobs:
       with:
         python-version: '3.11'
 
-    - name: Instal·lar dependencies (basiques)
+    - name: Instal·lar dependencies (bàsiques)
       run: |
         python3 -m pip install --upgrade pip
-        # status.py nomes necessita Python estandard
+        # status.py només necessita Python estàndard
 
     - name: Descarregar artifact - SFC (per si cal)
       if: needs.arome_sfc.result == 'success'
@@ -265,21 +313,6 @@ jobs:
     - uses: actions/checkout@v4
       with:
         token: ${{ secrets.PRIVATE_REPO_TOKEN }}
-
-    - name: Clonar private-scripts (per tenir borrar.py)
-      run: |
-        rm -rf private-scripts-new
-        git clone https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/Tempestesscatt/Scripts.git private-scripts-new
-
-    - uses: actions/setup-python@v5
-      with:
-        python-version: '3.11'
-
-    - name: Netejar carpetes de dades abans de descarregar
-      run: |
-        cd private-scripts-new
-        python3 borrar.py
-      continue-on-error: true
 
     - name: Comprovar resultat dels jobs anteriors
       run: |
@@ -348,7 +381,7 @@ jobs:
       run: |
         cd meu-mapa
         npm install -g wrangler
-        wrangler pages deploy public --project-name=tempestes-cat --branch=production --commit-dirty=true
+        wrangler pages deploy public --project-name=tempestes-cat --branch=main --commit-dirty=true
       env:
         CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
