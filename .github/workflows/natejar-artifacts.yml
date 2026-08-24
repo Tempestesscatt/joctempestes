@@ -1,0 +1,44 @@
+name: NETEJA ARTIFACTS
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  deployments: write
+  actions: write   # necessari per poder esborrar artifacts via API
+
+jobs:
+  # ════════════════════════════════════════════════════════════════
+  #  JOB ÚNIC: NETEJA - esborra TOTS els artifacts abans de començar
+  # ════════════════════════════════════════════════════════════════
+  neteja_artifacts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+    - name: Esborrar tots els artifacts existents del repo
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        echo "🔍 Buscant artifacts existents..."
+        ARTIFACT_IDS=$(gh api "repos/${{ github.repository }}/actions/artifacts" --paginate --jq '.artifacts[].id')
+
+        if [ -z "$ARTIFACT_IDS" ]; then
+          echo "✅ No hi ha artifacts per esborrar."
+        else
+          TOTAL=$(echo "$ARTIFACT_IDS" | wc -l)
+          echo "📦 Trobats $TOTAL artifacts. Esborrant en paral·lel (10 alhora)..."
+          echo "$ARTIFACT_IDS" | xargs -P 10 -I {} sh -c '
+            gh api --method DELETE "repos/${{ github.repository }}/actions/artifacts/{}" 2>/dev/null \
+              && echo "  ✅ Esborrat: {}" \
+              || echo "  ⚠️  No s'"'"'ha pogut esborrar {} (rate limit o ja no existeix, es continua)"
+          '
+          echo "✅ Neteja completada (o intentada per a tots els $TOTAL artifacts)."
+        fi
+      continue-on-error: true
+
+    - name: Resum final
+      run: |
+        echo "═══════════════════════════════════════════════════════════════"
+        echo "  ✅ NETEJA D'ARTIFACTS COMPLETADA"
+        echo "═══════════════════════════════════════════════════════════════"
