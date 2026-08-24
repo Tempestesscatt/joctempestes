@@ -203,10 +203,10 @@ jobs:
       with:
         python-version: '3.11'
 
-    - name: Instal·lar dependencies (bàsiques)
+    - name: Instal·lar dependencies (basiques)
       run: |
         python3 -m pip install --upgrade pip
-        # status.py només necessita Python estàndard
+        # status.py nomes necessita Python estandard
 
     - name: Descarregar artifact - SFC (per si cal)
       if: needs.arome_sfc.result == 'success'
@@ -265,6 +265,21 @@ jobs:
     - uses: actions/checkout@v4
       with:
         token: ${{ secrets.PRIVATE_REPO_TOKEN }}
+
+    - name: Clonar private-scripts (per tenir borrar.py)
+      run: |
+        rm -rf private-scripts-new
+        git clone https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/Tempestesscatt/Scripts.git private-scripts-new
+
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Netejar carpetes de dades abans de descarregar
+      run: |
+        cd private-scripts-new
+        python3 borrar.py
+      continue-on-error: true
 
     - name: Comprovar resultat dels jobs anteriors
       run: |
@@ -333,7 +348,7 @@ jobs:
       run: |
         cd meu-mapa
         npm install -g wrangler
-        wrangler pages deploy public --project-name=tempestes-cat --branch=main --commit-dirty=true
+        wrangler pages deploy public --project-name=tempestes-cat --branch=production --commit-dirty=true
       env:
         CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
