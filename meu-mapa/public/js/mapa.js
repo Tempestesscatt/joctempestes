@@ -2847,30 +2847,20 @@ async function carregarFitxerAmbReintents(url, maxIntents = 3) {
 
     return null;
 }
-
 async function carregarUnStep(i, ambDades3d) {
     const base = 'web_data_NE/';
     const p = String(i).padStart(2, '0');
 
-    let td = null;
-    if (ambDades3d) {
-        td = await carregarFitxerAmbReintents(base + '3d_' + p + '.json.gz', 3);
+    // 🔥 Carregar SFC i 3D en paral·lel
+    const [sfcResult, tdResult] = await Promise.all([
+        carregarFitxerAmbReintents(base + 'sfc_' + p + '.json.gz', 3),
+        ambDades3d ? carregarFitxerAmbReintents(base + '3d_' + p + '.json.gz', 3) : Promise.resolve(null)
+    ]);
 
-        if (!td) {
-            try {
-                const resp = await fetch(base + '3d_' + p + '.json');
-                if (resp.ok) {
-                    td = await resp.json();
-                    console.log(`[3D] Carregat sense compressió: 3d_${p}.json`);
-                }
-            } catch (e) {
-                // Silenciós
-            }
-        }
-    }
+    let sfc = sfcResult;
+    let td = tdResult;
 
-    let sfc = await carregarFitxerAmbReintents(base + 'sfc_' + p + '.json.gz', 3);
-
+    // Fallback sense compressió per SFC
     if (!sfc) {
         try {
             const resp = await fetch(base + 'sfc_' + p + '.json');
@@ -2878,9 +2868,18 @@ async function carregarUnStep(i, ambDades3d) {
                 sfc = await resp.json();
                 console.log(`[SFC] Carregat sense compressió: sfc_${p}.json`);
             }
-        } catch (e) {
-            // Silenciós
-        }
+        } catch (e) { /* silenciós */ }
+    }
+
+    // Fallback sense compressió per 3D
+    if (!td && ambDades3d) {
+        try {
+            const resp = await fetch(base + '3d_' + p + '.json');
+            if (resp.ok) {
+                td = await resp.json();
+                console.log(`[3D] Carregat sense compressió: 3d_${p}.json`);
+            }
+        } catch (e) { /* silenciós */ }
     }
 
     if (sfc || td) {
@@ -2989,7 +2988,6 @@ function afegirHoraCarregada(item) {
         curIdx++;
     }
 }
-
 async function carregarTotsJSONs() {
     const TIEMPO_INICIO = Date.now();
     const TIEMPO_MINIMO = 1500;
@@ -3005,7 +3003,8 @@ async function carregarTotsJSONs() {
     async function worker() {
         while (seguent < total) {
             const i = seguent++;
-            const item = await carregarUnStep(i, false);
+            // 🔥 CANVI: carregar SFC + 3D a la vegada (true = amb 3D)
+            const item = await carregarUnStep(i, true);
             if (item) {
                 afegirHoraCarregada(item);
                 carregats++;
@@ -3038,41 +3037,16 @@ async function carregarTotsJSONs() {
     const loadingOverlay = document.getElementById('loading_overlay');
     if (loadingOverlay) loadingOverlay.classList.add('hidden');
 
-    console.log(`[Loading] ${totesLesHores.length} hores (SFC) carregades en ${((Date.now() - TIEMPO_INICIO) / 1000).toFixed(1)}s. Començant precàrrega 3D en segon pla...`);
+    console.log(`[Loading] ${totesLesHores.length} hores (SFC + 3D) carregades en ${((Date.now() - TIEMPO_INICIO) / 1000).toFixed(1)}s.`);
+    
+    // 🔥 ELIMINAR: ja no cal precarregar 3D en segon pla perquè ja està carregat
+    // precarregarTot3dEnSegonPla();  // Comentat o eliminat 
 
-    precarregarTot3dEnSegonPla();
+    
 }
 
-async function precarregarTot3dEnSegonPla() {
-    if (_precarga3dEnMarxa || _precarga3dCompletada) return;
-    _precarga3dEnMarxa = true;
 
-    const total = totesLesHores.length;
-    const ordre = [];
-    const centre = curIdx || 0;
-    ordre.push(centre);
-    for (let d = 1; d < total; d++) {
-        if (centre + d < total) ordre.push(centre + d);
-        if (centre - d >= 0) ordre.push(centre - d);
-    }
 
-    let cursor = 0;
-    async function worker() {
-        while (cursor < ordre.length) {
-            const idx = ordre[cursor++];
-            await assegurarHoraCarregada(idx, true);
-            await new Promise(r => setTimeout(r, 30));
-        }
-    }
-
-    const workers = [];
-    for (let w = 0; w < CONCURRENCIA_3D; w++) workers.push(worker());
-    await Promise.all(workers);
-
-    _precarga3dEnMarxa = false;
-    _precarga3dCompletada = true;
-    console.log('[3D] Precàrrega completa: totes les hores tenen dades 3D disponibles en memòria.');
-}
 
 function actualitzarBarraProgress(carregats, total) {
     const pct = Math.round((carregats / total) * 100);
@@ -4407,7 +4381,7 @@ window.horaTe3D = horaTe3D;
 
 // ─── Inicializar al cargar ──────────────────────────────────────────
 if (document.readyState === 'complete' || document.readyState === 'interactive') {
-    inicialitzarSistema3D();
+    
 } else {
     document.addEventListener('DOMContentLoaded', inicialitzarSistema3D);
 }
