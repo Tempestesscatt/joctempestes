@@ -36,10 +36,10 @@ jobs:
         mkdir -p meu-mapa/public/logs
         echo "Estructura de carpetes creada"
 
-    - name: Executar neteja_dades.py
+    - name: Executar borrar.py
       run: |
         cd private-scripts-new
-        python3 neteja_dades.py
+        python3 borrar.py
       timeout-minutes: 5
 
     - name: Verificar carpetes netes
