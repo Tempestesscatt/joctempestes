@@ -61,11 +61,10 @@ const VARS_SENSE_VENT = [
     // ═══════════════════════════════════════════════════════════════
     // 4. INESTABILITAT I CONVECCIÓ
     // ═══════════════════════════════════════════════════════════════
-    'cape', 'cin',
-    'MEAN_LAYER_CAPE__GROUND_OR_WATER_SURFACE',
-    'CONVECTIVE_INHIBITION__GROUND_OR_WATER_SURFACE',
+    
+    
     'el_m', 'lcl_m', 'lfc_m', 'lifted_index',
-    'thetav_850',
+    
     
     // ═══════════════════════════════════════════════════════════════
     // 5. TORNADOS I SUPERCELLES
