@@ -304,8 +304,8 @@ function aplicarEstilPremiumAlPanell() {
                     
                     // Afegir indicador de candado desbloqueado
                     const label = row.querySelector('.param-link');
-                    if (label && !label.innerHTML.includes('🔓')) {
-                        label.innerHTML += ' <span style="color:#4CAF50; font-size:11px;" title="Accés premium actiu">🔓</span>';
+                    if (label && !label.innerHTML.includes('')) {
+                        label.innerHTML += ' <span style="color:#4CAF50; font-size:11px;" title="Accés premium actiu"></span>';
                     }
                 } else {
                     // Usuario SIN acceso premium - Candado bloqueado
@@ -318,7 +318,7 @@ function aplicarEstilPremiumAlPanell() {
                     // Afegir indicador de candado bloqueado
                     const label = row.querySelector('.param-link');
                     if (label && !label.innerHTML.includes('🔒')) {
-                        label.innerHTML += ' <span style="color:#FF8C00; font-size:11px;" title="Requereix accés premium">🔒</span>';
+                        label.innerHTML += ' <span style="color:#FF8C00; font-size:11px;" title="Requereix accés premium"></span>';
                     }
                 }
             }

@@ -1526,7 +1526,7 @@ const PALETES = {
     su:             {titol:'Vent U 10m',               unitat:'m/s',       stops:STOPS_VENT_UV},
     sv:             {titol:'Vent V 10m',               unitat:'m/s',       stops:STOPS_VENT_UV},
     wind_speed_10m: {titol:'Vent 10m',                 unitat:'km/h',      stops:STOPS_RATXA},
-    wind_gust:      {titol:'Ratxa 10m',                unitat:'km/h',      stops:STOPS_RATXA},
+    wind_gust_real:      {titol:'Ratxa 10m',                unitat:'km/h',      stops:STOPS_RATXA},
     sp:             {titol:'Pressió superf.',          unitat:'hPa',       stops:STOPS_PRESSIO},
     pressure_msl:   {titol:'Pressió MSL',              unitat:'hPa',       stops:STOPS_PRESSIO},
     cape:           {titol:'CAPE',                     unitat:'J/kg',      stops:STOPS_CAPE},
@@ -1728,8 +1728,8 @@ function escalarVariablesMitjana(variables) {
 //  GRUPS DEL PANELL DE PARÀMETRES
 // ═══════════════════════════════════════════════════════════════════════
 
-const GRUP_PRINCIPAL = ['st', 'sd', 'srh', 'temp_min2m', 'temp_max2m', 'wind_speed_10m', 'wind_gust'];
-
+const GRUP_PRINCIPAL = ['st', 'sd', 'srh', 'temp_min2m', 'temp_max2m', 'wind_speed_10m', 'wind_gust_real'];
+     
 const GRUPS_SIMPLES = {
     // === TEMPERATURA I CONDICIONS GENERALS ===
     'Temperatura i Humitat': [
