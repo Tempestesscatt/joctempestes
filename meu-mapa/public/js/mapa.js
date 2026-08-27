@@ -1728,7 +1728,7 @@ function escalarVariablesMitjana(variables) {
 //  GRUPS DEL PANELL DE PARÀMETRES
 // ═══════════════════════════════════════════════════════════════════════
 
-const GRUP_PRINCIPAL = ['st', 'sd', 'srh', 'temp_min2m', 'temp_max2m', 'wind_speed_10m', 'wind_gust_real'];
+const GRUP_PRINCIPAL = ['st', 'sd', 'srh', 'temp_min2m', 'temp_max2m', 'wind_speed_10m', 'wind_gust'];
      
 const GRUPS_SIMPLES = {
     // === TEMPERATURA I CONDICIONS GENERALS ===
