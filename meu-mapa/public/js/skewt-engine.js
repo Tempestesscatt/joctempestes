@@ -5,9 +5,10 @@
 //  Inclou: SARS (Sounding Analog Retrieval System)
 //
 //  ── NOVETAT D'AQUESTA VERSIÓ ──────────────────────────────────────────
-//  AUTÒNOM: carrega la pressió superficial REAL des de 
-//  gfs_pressio_superficial_ne.json (GFS) o del fitxer que se li passi.
-//  El sondeig arrenca a la pressió REAL de cada punt (no a 1000 hPa fix).
+//  AUTÒNOM: deriva la pressió superficial REAL a partir de l'altitud
+//  geomètrica del terreny (dades/altitude.js, AROME), carregada com a
+//  <script> abans d'aquest fitxer. El sondeig arrenca a la pressió REAL
+//  de cada punt (no a 1000 hPa fix).
 // ═══════════════════════════════════════════════════════════════════════
 
 (function (global) {
@@ -24,8 +25,15 @@
     const NIVELLS_PRESSIO = [1000, 950, 925, 900, 875, 850, 800, 750, 700, 650,
                               600, 550, 500, 450, 400, 350, 300, 250, 200, 150, 100];
 
-    // ─── PRESSIÓ SUPERFICIAL GLOBAL (carregada automàticament) ──────────
-    let pressioSuperficialGlobal = null;
+    // ─── PRESSIÓ SUPERFICIAL GLOBAL (derivada de l'altitud real) ────────
+    // Ja NO es carrega per fetch. Es llegeix directament de la variable
+    // global `altitude` que ha de quedar definida per:
+    //   <script src="dades/altitude.js"></script>
+    // (abans de skewt-engine.js al HTML). Format de altitude.js:
+    //   var altitude = { lat: [...], lon: [...], data: [[...], ...] }  (metres, 2D)
+    // La pressió superficial es deriva amb alcadaAPressio(z) (atmosfera
+    // estàndard), i es guarda internament en el mateix format "pla" que
+    // s'usava abans per no haver de tocar obtenirPressioSuperficial().
     let pressioSuperficialCoords = null;
     let pressioSuperficialDades = null;
 
@@ -416,34 +424,51 @@
     function filaRealPerIndex(lats, i) { const latNord = lats[0] > lats[lats.length - 1]; return latNord ? (lats.length - 1 - i) : i; }
 
     // ══════════════════════════════════════════════════════════════════
-    //  CARREGAR PRESSIÓ SUPERFICIAL (AUTÒNOM)
+    //  CARREGAR PRESSIÓ SUPERFICIAL A PARTIR DE L'ALTITUD REAL (altitude.js)
     // ══════════════════════════════════════════════════════════════════
 
     /**
-     * Carrega la pressió superficial des de gfs_pressio_superficial_ne.json
-     * o des de la URL que es passi.
+     * Llegeix la variable global `altitude` (definida per
+     * <script src="dades/altitude.js">, amb format
+     * { lat: [...], lon: [...], data: [[...], ...] } en metres) i en
+     * deriva la pressió superficial de cada punt amb l'atmosfera
+     * estàndard (alcadaAPressio). El resultat es desa en el mateix
+     * format "pla" (array 1D fila-major) que abans, perquè
+     * obtenirPressioSuperficial() no hagi de canviar.
+     *
+     * Cal cridar-la (p.ex. en carregar la pàgina) DESPRÉS que
+     * altitude.js ja s'hagi executat.
      */
-    async function carregarPressioSuperficial(url) {
-        const urlFinal = url || 'dades/gfs_pressio_superficial_ne.json';
-        try {
-            const resp = await fetch(urlFinal + '?_=' + Date.now());
-            if (!resp.ok) {
-                console.warn('[SkewtEngine] ⚠️ No s\'ha trobat pressió superficial a:', urlFinal);
-                return false;
-            }
-            const json = await resp.json();
-            pressioSuperficialGlobal = json;
-            pressioSuperficialCoords = json.coordenadas;
-            pressioSuperficialDades = json.variables.surface_pressure.datos;
-            console.log('[SkewtEngine] ✅ Pressió superficial carregada:', 
-                pressioSuperficialCoords.lat.length, 'lat ×', 
-                pressioSuperficialCoords.lon.length, 'lon =',
-                pressioSuperficialDades.length, 'punts');
-            return true;
-        } catch (e) {
-            console.warn('[SkewtEngine] ⚠️ Error carregant pressió superficial:', e.message);
+    function carregarPressioSuperficial() {
+        const alt = global.altitude;
+        if (!alt || !alt.lat || !alt.lon || !alt.data) {
+            console.warn('[SkewtEngine] ⚠️ No s\'ha trobat la variable global "altitude". Assegura\'t de carregar dades/altitude.js abans de skewt-engine.js.');
             return false;
         }
+
+        const lats = alt.lat, lons = alt.lon, data2d = alt.data;
+        const Nlat = lats.length, Nlon = lons.length;
+
+        if (!Array.isArray(data2d) || data2d.length !== Nlat) {
+            console.warn('[SkewtEngine] ⚠️ Format inesperat a altitude.js (data no coincideix amb lat).');
+            return false;
+        }
+
+        const dades = new Array(Nlat * Nlon);
+        for (let i = 0; i < Nlat; i++) {
+            const fila = data2d[i] || [];
+            for (let j = 0; j < Nlon; j++) {
+                const zM = fila[j];
+                dades[i * Nlon + j] = esFinit(zM) ? alcadaAPressio(zM) : null;
+            }
+        }
+
+        pressioSuperficialCoords = { lat: lats, lon: lons };
+        pressioSuperficialDades = dades;
+
+        console.log('[SkewtEngine] ✅ Pressió superficial derivada de altitude.js:',
+            Nlat, 'lat ×', Nlon, 'lon =', dades.length, 'punts');
+        return true;
     }
 
     /**
@@ -482,11 +507,20 @@
     /**
      * Extreu el perfil vertical en un punt (lat, lon).
      * 
-     * Si el paràmetre `opcions` conté `usarPressioReal: true` (per defecte),
-     * intenta obtenir la pressió superficial REAL de la graella GFS.
-     * Si no la troba, cau a la graella 3D (sense forçar 1000 hPa).
+     * El sondeig SEMPRE comença amb dades de la graella de nivells de
+     * pressió estàndard (NIVELLS_PRESSIO, típicament 1000 hPa com a
+     * primer nivell disponible per sota del terreny) — MAI amb la
+     * temperatura/punt de rosada "de superfície" (st/sd, sensor a 2/10m).
+     * Mesclar una font de 2m amb la graella de pressió genera salts
+     * artificials de temperatura que semblen inversions tèrmiques falses.
      * 
-     * També accepta `spOverride` per forçar manualment una pressió.
+     * Si el paràmetre `opcions` conté `usarPressioReal: true` (per defecte),
+     * s'obté la pressió superficial REAL derivada de l'altitud del terreny
+     * (dades/altitude.js) i s'usa NOMÉS per descartar els nivells de la
+     * graella 3D que quedin per sota del terreny (niv >= pSfc). Si no es
+     * troba, es fa servir el primer nivell de NIVELLS_PRESSIO disponible.
+     * 
+     * També accepta `spOverride` per forçar manualment aquesta pressió de tall.
      */
     function extreurePerfil(data, lat, lon, opcions) {
         const opt = opcions || {};
@@ -494,53 +528,28 @@
         const spOverride = opt.spOverride || null;
 
         const vars = data.variables || {};
-        let coordSfc = data.coordenadas_sfc || data.coordenadas;
         const coord3d = data.coordenadas_3d || data.coordenadas;
 
         const out = { p: [], t: [], td: [], u: [], v: [] };
-        let pSfc = null, tSfc = null, tdSfc = null, uSfc = null, vSfc = null;
+        let pSfc = null;
 
-        // ── 1. Intentar obtenir pSfc REAL de la graella de pressió ──
+        // ── 1. Intentar obtenir pSfc REAL (només com a llindar de tall) ──
         if (usarPressioReal && pressioSuperficialDades) {
             const sp = obtenirPressioSuperficial(lat, lon);
             if (esFinit(sp)) {
                 pSfc = sp;
-                console.log('[SkewtEngine] ✅ Pressió real a', lat.toFixed(3), lon.toFixed(3), '=', pSfc.toFixed(1), 'hPa');
+                console.log('[SkewtEngine] ✅ Pressió real (llindar de tall) a', lat.toFixed(3), lon.toFixed(3), '=', pSfc.toFixed(1), 'hPa');
             }
         }
 
         // ── 2. Override extern (per a proves) ──
         if (esFinit(spOverride)) pSfc = spOverride;
 
-        // ── 3. Llegir T/Td de superfície (st/sd) si existeixen ──
-        if (coordSfc && vars.st && vars.st.datos) {
-            const idx = indexGraellaMesProper(coordSfc.lat, coordSfc.lon, lat, lon);
-            const Nlon = coordSfc.lon.length;
-            const filaReal = filaRealPerIndex(coordSfc.lat, idx.i);
-            const flatIdx = filaReal * Nlon + idx.j;
+        // NOTA: NO s'afegeix cap punt "sfc" (st/sd/su/sv, dades de 2/10m).
+        // El primer punt del sondeig sempre serà el primer nivell de
+        // NIVELLS_PRESSIO que quedi per sota de pSfc (normalment 1000 hPa).
 
-            const rawSt = vars.st.datos[flatIdx];
-            tSfc = esFinit(rawSt) ? (rawSt > 100 ? rawSt - 273.15 : rawSt) : null;
-
-            if (vars.sd && vars.sd.datos) {
-                const rawSd = vars.sd.datos[flatIdx];
-                tdSfc = esFinit(rawSd) ? (rawSd > 100 ? rawSd - 273.15 : rawSd) : null;
-            }
-
-            if (vars.su && vars.su.datos) uSfc = vars.su.datos[flatIdx];
-            if (vars.sv && vars.sv.datos) vSfc = vars.sv.datos[flatIdx];
-        }
-
-        // ── 4. Si tenim pSfc real i T/Td, afegir punt de superfície ──
-        if (esFinit(pSfc) && esFinit(tSfc) && esFinit(tdSfc)) {
-            out.p.push(pSfc);
-            out.t.push(tSfc);
-            out.td.push(tdSfc);
-            out.u.push(esFinit(uSfc) ? uSfc : 0);
-            out.v.push(esFinit(vSfc) ? vSfc : 0);
-        }
-
-        // ── 5. Nivells 3D (descartant els que estiguin per sota de pSfc) ──
+        // ── 3. Nivells 3D (descartant els que estiguin per sota de pSfc) ──
         if (coord3d) {
             const idx3d = indexGraellaMesProper(coord3d.lat, coord3d.lon, lat, lon);
             const Nlon3 = coord3d.lon.length;
@@ -578,7 +587,7 @@
             });
         }
 
-        // ── 6. Ordenar per pressió decreixent ──
+        // ── 4. Ordenar per pressió decreixent ──
         const idxOrdre = out.p.map((_, i) => i).sort((a, b) => out.p[b] - out.p[a]);
         const net = { p: [], t: [], td: [], u: [], v: [] };
         let lastP = Infinity;
@@ -691,7 +700,16 @@
     };
 
     // ─── INICIALITZACIÓ AUTOMÀTICA ──────────────────────────────────────
-    // Carrega la pressió superficial automàticament en carregar el script.
+    // Carrega la pressió superficial (derivada de l'altitud real) en
+    // carregar el script. IMPORTANT: al HTML, altitude.js s'ha de
+    // carregar ABANS que skewt-engine.js:
+    //
+    //   <script src="dades/altitude.js"></script>
+    //   <script src="skewt-engine.js"></script>
+    //
+    // Si per algun motiu es carreguen en ordre invers, o cal recarregar
+    // l'altitud més tard, es pot tornar a cridar manualment:
+    //   SkewtEngine.carregarPressioSuperficial()
     // Si falla, el Skew-T funcionarà igual però arrencarà a 1000 hPa.
     carregarPressioSuperficial();
 

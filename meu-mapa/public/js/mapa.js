@@ -4030,8 +4030,8 @@ function crearNotificacio3D() {
     div.id = 'notificacio-3d';
     div.style.cssText = `
         position: fixed;
-        bottom: 80px;
-        left: 50%;
+        bottom: 5px;
+        left: 70%;
         transform: translateX(-50%);
         background: rgba(10, 16, 26, 0.92);
         backdrop-filter: blur(8px);
@@ -4050,11 +4050,11 @@ function crearNotificacio3D() {
         pointer-events: none;
     `;
     div.innerHTML = `
-        <div style="display:flex;align-items:center;gap:12px;justify-content:center;">
-            <div style="width:20px;height:20px;border:2px solid rgba(255,215,0,0.2);border-top:2px solid #FFD700;border-radius:50%;animation:spin-3d 0.8s linear infinite;"></div>
+        <div style="display:flex;align-items:center;gap:5px;justify-content:center;">
+            <div style="width:10px;height:10px;border:5px solid rgba(255,215,0,0.2);border-top:5px solid #ffd90095;border-radius:50%;animation:spin-3d 0.8s linear infinite;"></div>
             <div>
-                <div style="font-weight:600;color:#FFD700;">Carregant dades 3D</div>
-                <div id="notificacio-3d-progress" style="font-size:11px;color:#7f9bb3;">0%</div>
+                <div style="font-weight:600;color:#FFD700;">Carregant dades esperi</div>
+                <div id="notificacio-3d-progress" style="font-size:1px;color:#7f9bb3;">0%</div>
             </div>
         </div>
         <div style="margin-top:6px;font-size:10px;color:#556680;">
