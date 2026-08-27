@@ -97,7 +97,7 @@ jobs:
   # ════════════════════════════════════════════════════════════════
   ensembles:
     runs-on: ubuntu-latest
-    timeout-minutes: 180
+    timeout-minutes: 360  # Augmentat a 6 hores
     steps:
     - uses: actions/checkout@v4
       with:
@@ -129,18 +129,17 @@ jobs:
       run: |
         cd private-scripts-new
         echo "--- enssambles.py: inici ---"
-        python3 enssambles.py
+        echo "Hora d'inici: $(date)"
+        python3 enssambles.py 2>&1 | tee ensembles.log
+        echo "Hora de final: $(date)"
         echo "✅ enssambles.py: completat"
-      timeout-minutes: 150
+      timeout-minutes: 300
 
-    - name: Mostrar log de enssambles.py si falla
+    - name: Mostrar log si falla
       if: failure()
       run: |
         echo "=== LOG DE ENSSAMBLES.PY ==="
-        find . -name "*.log" -type f -exec cat {} \; 2>/dev/null || echo "No s'ha trobat cap log"
-        echo ""
-        echo "=== Últimes línies de sortida ==="
-        ls -la meu-mapa/public/previsions_catalunya/ 2>/dev/null || echo "No hi ha fitxers"
+        cat private-scripts-new/ensembles.log 2>/dev/null || echo "No s'ha trobat cap log"
 
     - name: Verificar fitxers generats
       run: |
