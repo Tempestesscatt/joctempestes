@@ -4346,7 +4346,7 @@ function afegirBotoCarga3D() {
 
     const btn = document.createElement('button');
     btn.id = 'btnCarga3D';
-    btn.textContent = '📡 Carregar 3D';
+    btn.textContent = ' Carregar 3D';
     btn.title = 'Carregar totes les dades 3D en segon pla';
     btn.style.cssText = `
         padding: 4px 10px;
@@ -4377,7 +4377,7 @@ function afegirBotoCarga3D() {
             btn.style.background = '#1a3a2a';
             btn.style.color = '#6fbf8f';
             setTimeout(() => {
-                btn.textContent = '📡 Carregar 3D';
+                btn.textContent = 'Carregar 3D';
                 btn.style.background = '#1a2a3a';
                 btn.style.color = '#7f9bb3';
             }, 3000);
@@ -4399,14 +4399,14 @@ function afegirBotoCarga3D() {
                 btn.style.color = '#6fbf8f';
                 clearInterval(checkProgress);
                 setTimeout(() => {
-                    btn.textContent = '📡 Carregar 3D';
+                    btn.textContent = 'Carregar 3D';
                     btn.style.color = '#7f9bb3';
                 }, 2000);
             } else if (SISTEMA_3D.carregant) {
                 const pct = Math.round(SISTEMA_3D.progress * 100);
                 btn.textContent = `⏳ ${pct}%`;
             } else {
-                btn.textContent = '📡 Carregar 3D';
+                btn.textContent = 'Carregar 3D';
                 btn.style.color = '#7f9bb3';
                 clearInterval(checkProgress);
             }
