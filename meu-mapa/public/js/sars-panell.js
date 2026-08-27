@@ -319,7 +319,7 @@
             ctx.font = '9px "Courier New", monospace';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText('⏳ NO MATCHING CASES', panellX + panellW/2, panellY + 44);
+            ctx.fillText('X  NO MATCHING CASES', panellX + panellW/2, panellY + 44);
             ctx.fillStyle = '#445566';
             ctx.font = '8px "Courier New", monospace';
             ctx.fillText('(' + historial.length + ' CASES AVAILABLE)', panellX + panellW/2, panellY + 62);

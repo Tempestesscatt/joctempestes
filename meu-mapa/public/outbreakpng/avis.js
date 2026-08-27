@@ -21,6 +21,11 @@ function carregarOutbreak() {
     // Mostrar loading
     if (loadingContainer) {
         loadingContainer.style.display = 'flex';
+        loadingContainer.style.removeProperty('display'); // per si mostrarError l'ha sobreescrit amb innerHTML
+        loadingContainer.style.display = 'flex';
+    }
+    if (img) {
+        img.style.display = 'none';
     }
     
     // Obtenir data actual a Madrid
@@ -83,14 +88,6 @@ function carregarOutbreak() {
         });
     });
     
-    // Fallback: imatge fixa
-    fitxers.push({
-        nom: 'outbreak_catalunya_20260826_12Z.png',
-        label: 'fallback',
-        data: '26/08/2026',
-        esDema: false
-    });
-    
     let intent = 0;
     
     function provarProper() {
@@ -101,17 +98,23 @@ function carregarOutbreak() {
         }
         
         const fitxer = fitxers[intent];
+        // Cache-buster perquè el navegador/CDN no ens serveixi una resposta
+        // cachejada del 404-fallback en HTML per aquesta mateixa ruta.
         const ruta = `avis/${fitxer.nom}`;
+        const rutaAmbCache = `${ruta}?v=${Date.now()}`;
         
         console.log(`🔍 [${intent+1}/${fitxers.length}] Provant: ${ruta} (${fitxer.label})`);
         
-        fetch(ruta, { method: 'HEAD' })
+        fetch(rutaAmbCache, { method: 'GET', cache: 'no-store' })
             .then(response => {
-                if (response.ok) {
-                    console.log(`✅ Trobat: ${ruta}`);
+                const contentType = response.headers.get('content-type') || '';
+                const esImatge = response.ok && contentType.startsWith('image/');
+                
+                if (esImatge) {
+                    console.log(`✅ Trobat: ${ruta} (${contentType})`);
                     
-                    // Carregar la imatge
-                    img.src = ruta;
+                    // Carregar la imatge (sense el cache-buster, ja sabem que existeix)
+                    img.src = rutaAmbCache;
                     img.style.display = 'block';
                     img.style.width = '100%';
                     img.style.height = 'auto';
@@ -159,6 +162,9 @@ function carregarOutbreak() {
                     }
                     
                 } else {
+                    if (response.ok && !esImatge) {
+                        console.log(`⚠️ Respon 200 però no és imatge (content-type: "${contentType}") — descartat: ${ruta}`);
+                    }
                     intent++;
                     provarProper();
                 }
@@ -175,6 +181,7 @@ function carregarOutbreak() {
 function mostrarError(wrapper, loadingContainer) {
     if (!wrapper) return;
     if (loadingContainer) {
+        loadingContainer.style.display = 'flex';
         loadingContainer.innerHTML = `
             <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:400px;background:#152c44;color:#f5c842;font-size:18px;text-align:center;padding:40px;border-radius:12px;">
                 <i class="fa-solid fa-cloud-bolt" style="font-size:48px;display:block;margin-bottom:16px;color:#f5c842;"></i>

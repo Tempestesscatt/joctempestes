@@ -1,13 +1,7 @@
 // ═══════════════════════════════════════════════════════════════════
 //  ZONA DE CONGELACIÓ / CREIXEMENT DE CALAMARSA (-10°C a -20°C)
-//  Dibuixa les isotermes de -10° i -20° INCLINADES (seguint l'skew,
-//  igual que les isotermes de fons) i ombreja només la franja
-//  vertical (en pressió) entre -10° i -20°, limitada horitzontalment
-//  a la zona al voltant de les corbes T/Td (una mica abans de la
-//  rosada i una mica després de la temperatura).
-//  Pinta en un <canvas> propi, superposat, que no depèn dels
-//  redibuixos interns de skewt.js (hover, etc.), així que mai
-//  desapareix.
+//  ZONA VERTICAL ENTRE Td i T seguint el perfil
+//  Sense etiquetes, mantenint l'estil original
 // ═══════════════════════════════════════════════════════════════════
 (function () {
     'use strict';
@@ -46,7 +40,6 @@
         return null;
     }
 
-    // Valor (T o Td) interpolat del perfil a una pressió donada.
     function interpolarValor(perfil, pTarget, key) {
         const p = perfil.p, v = perfil[key];
         if (pTarget > p[0] || pTarget < p[p.length - 1]) return null;
@@ -100,7 +93,6 @@
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         ctx.clearRect(0, 0, wTotal, hTotal);
 
-        // Ha de coincidir amb la geometria real del Skew-T dins skewt.js
         const hodoAmpleIdeal = Math.min(340, Math.max(230, hTotal * 0.42));
         const hodoAmple = Math.min(hodoAmpleIdeal, wTotal * 0.42);
         const skewtAmple = wTotal - hodoAmple;
@@ -111,47 +103,42 @@
         const p20 = trobaPressioPerTemp(perfil, -20);
         if (!p10 || !p20) return;
 
-        const pTop = Math.min(p10, p20);   // pressió més baixa (més amunt, -20°C)
-        const pBot = Math.max(p10, p20);   // pressió més alta (més avall, -10°C)
+        const pTop = Math.min(p10, p20);
+        const pBot = Math.max(p10, p20);
 
         ctx.save();
         ctx.beginPath();
         ctx.rect(padLeft, padTop, w - padLeft - padRight, h - padTop - padBot);
         ctx.clip();
 
-        // ── 1. Ombrejat de la franja, seguint EL PERFIL (no un rectangle) ──
-        // Recorrem els nivells del perfil entre pTop i pBot, agafant per a
-        // cada nivell un marge horitzontal: una mica abans de Td i una
-        // mica després de T. Aquest polígon "flueix" amb el perfil real.
-        const MARGE_T = 4;   // °C més enllà de la línia de temperatura
-        const MARGE_TD = 3;  // °C abans de la línia de rosada
+        // ── 1. ZONA VERTICAL ENTRE Td i T (seguint el perfil) ──
+        const pasPressio = 2;
+        const puntsEsquerra = [];
+        const puntsDreta = [];
 
-        const puntsDreta = []; // vora dreta del polígon (costat T, pujant en alçada)
-        const puntsEsquerra = []; // vora esquerra (costat Td)
-
-        // Nivells reals del perfil dins el rang, més els dos límits exactes
-        const nivellsRang = [pBot];
-        perfil.p.forEach(p => { if (p < pBot && p > pTop) nivellsRang.push(p); });
-        nivellsRang.push(pTop);
-        // pBot té pressió més gran -> ha d'anar primer (part baixa, més avall al gràfic)
-        nivellsRang.sort((a, b) => b - a);
-
-        nivellsRang.forEach(p => {
+        for (let p = pBot; p >= pTop; p -= pasPressio) {
             const tC = interpolarValor(perfil, p, 't');
             const tdC = interpolarValor(perfil, p, 'td');
-            if (tC === null || tdC === null) return;
+            if (tC === null || tdC === null) continue;
+            
             const y = yPerP(p, h, padTop, padBot);
-            const xDreta = xPerT(tC + MARGE_T, p, w, h, padLeft, padRight, padTop, padBot);
-            const xEsq = xPerT(tdC - MARGE_TD, p, w, h, padLeft, padRight, padTop, padBot);
-            puntsDreta.push({ x: xDreta, y });
-            puntsEsquerra.push({ x: xEsq, y });
-        });
+            const xT = xPerT(tC, p, w, h, padLeft, padRight, padTop, padBot);
+            const xTd = xPerT(tdC, p, w, h, padLeft, padRight, padTop, padBot);
+            
+            // Assegurar que Td < T (esquerra < dreta)
+            const xEsq = Math.min(xT, xTd);
+            const xDreta = Math.max(xT, xTd);
+            
+            puntsEsquerra.push({ x: xEsq, y: y });
+            puntsDreta.push({ x: xDreta, y: y });
+        }
 
-        if (puntsDreta.length >= 2) {
-            ctx.fillStyle = 'rgba(180, 220, 255, 0.16)';
+        if (puntsEsquerra.length >= 2) {
+            ctx.fillStyle = 'rgba(136, 123, 250, 0.21)';
             ctx.beginPath();
             puntsEsquerra.forEach((pt, i) => {
-                if (i === 0) ctx.moveTo(pt.x, pt.y); else ctx.lineTo(pt.x, pt.y);
+                if (i === 0) ctx.moveTo(pt.x, pt.y);
+                else ctx.lineTo(pt.x, pt.y);
             });
             for (let i = puntsDreta.length - 1; i >= 0; i--) {
                 ctx.lineTo(puntsDreta[i].x, puntsDreta[i].y);
@@ -160,43 +147,44 @@
             ctx.fill();
         }
 
-        // ── 2. Isotermes -10°C i -20°C INCLINADES (seguint l'skew) ──
-        function dibuixarIsotermaInclinada(tC, color, etiqueta) {
+        // ── 2. Isotermes -10°C i -20°C NOMÉS ENTRE Td i T ──
+        function dibuixarIsoterma(tC, color) {
             ctx.strokeStyle = color;
             ctx.lineWidth = 1.3;
             ctx.setLineDash([5, 3]);
             ctx.beginPath();
             let started = false;
-            for (let p = P_BOT; p >= P_TOP; p -= 10) {
-                const x = xPerT(tC, p, w, h, padLeft, padRight, padTop, padBot);
-                const y = yPerP(p, h, padTop, padBot);
-                if (x < padLeft - 60 || x > w - padRight + 60) { started = false; continue; }
-                if (!started) { ctx.moveTo(x, y); started = true; } else { ctx.lineTo(x, y); }
+            
+            for (let p = pBot; p >= pTop; p -= 2) {
+                const t = interpolarValor(perfil, p, 't');
+                const td = interpolarValor(perfil, p, 'td');
+                if (t === null || td === null) continue;
+                
+                // Només dibuixar si la isoterma està entre Td i T
+                if (td < tC && tC < t) {
+                    const x = xPerT(tC, p, w, h, padLeft, padRight, padTop, padBot);
+                    const y = yPerP(p, h, padTop, padBot);
+                    
+                    if (!started) {
+                        ctx.moveTo(x, y);
+                        started = true;
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                } else {
+                    started = false;
+                }
             }
             ctx.stroke();
             ctx.setLineDash([]);
-
-            // Etiqueta al costat dret, a l'alçada on la isoterma creua el perfil
-            const pCreua = tC === -10 ? p10 : p20;
-            if (pCreua) {
-                const y = yPerP(pCreua, h, padTop, padBot);
-                ctx.fillStyle = color;
-                ctx.font = '10px Arial';
-                ctx.textAlign = 'left';
-                ctx.fillText(tC + '°C ' + pCreua.toFixed(0), w - padRight - 74, y - 2);
-            }
         }
 
-        dibuixarIsotermaInclinada(-10, '#4302bc00');
-        dibuixarIsotermaInclinada(-20, '#7f6f95bb');
+        dibuixarIsoterma(-10, '#dacaf9e4');
+        dibuixarIsoterma(-20, '#a879eaca');
 
         ctx.restore();
     }
 
-    // Redibuixem en bucle lleuger (requestAnimationFrame) mentre el
-    // modal estigui obert. És econòmic i garanteix que mai
-    // "desapareix", independentment de què faci skewt.js internament
-    // (hover, resize, canvi de tema, etc.).
     function bucle() {
         dibuixar();
         requestAnimationFrame(bucle);
