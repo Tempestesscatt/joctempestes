@@ -1,4 +1,4 @@
-name: CAT + ONES
+name: CAT + ONES + MSGPACK
 
 on:
   workflow_dispatch:
@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   # ════════════════════════════════════════════════════════════════
-  #  JOB 0: NETEJA - Borra carpetas antes de empezar
+  #  JOB 0: NETEJA - Borra carpetes abans de començar
   # ════════════════════════════════════════════════════════════════
   neteja:
     runs-on: ubuntu-latest
@@ -79,7 +79,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y libgeos-dev libproj-dev proj-data proj-bin
         python3 -m pip install --upgrade pip
-        python3 -m pip install numpy requests tifffile scipy python-dotenv lxml xarray cfgrib meteofetch matplotlib
+        python3 -m pip install numpy requests tifffile scipy python-dotenv lxml xarray cfgrib meteofetch matplotlib msgpack
       continue-on-error: true
 
     - name: Netejar web_data_NE
@@ -139,7 +139,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y libgeos-dev libproj-dev proj-data proj-bin
         python3 -m pip install --upgrade pip
-        python3 -m pip install numpy requests tifffile scipy python-dotenv lxml xarray cfgrib meteofetch matplotlib
+        python3 -m pip install numpy requests tifffile scipy python-dotenv lxml xarray cfgrib meteofetch matplotlib msgpack
       continue-on-error: true
 
     - name: Netejar web_data_NE (3d)
@@ -198,7 +198,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y libgeos-dev libproj-dev proj-data proj-bin
         python3 -m pip install --upgrade pip
-        python3 -m pip install numpy requests scipy python-dotenv lxml xarray cfgrib meteofetch matplotlib
+        python3 -m pip install numpy requests scipy python-dotenv lxml xarray cfgrib meteofetch matplotlib msgpack
       continue-on-error: true
 
     - name: Netejar sortida Ones
@@ -236,7 +236,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs: [arome_sfc, arome_3d, ones]
-    if: always()  # S'executa sempre, fins i tot si algun job anterior falla
+    if: always()
     steps:
     - uses: actions/checkout@v4
       with:

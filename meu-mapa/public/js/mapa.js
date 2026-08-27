@@ -2793,6 +2793,54 @@ async function descomprimirGzipAmbFallback(response, url) {
     }
 }
 
+
+
+// ============================================================
+// DESCOMPRIMIR .MSGPACK.GZ (MessagePack + GZIP)
+// ============================================================
+async function descomprimirMsgPackGz(response) {
+    try {
+        const buffer = await response.arrayBuffer();
+        
+        const ds = new DecompressionStream('gzip');
+        const blob = new Blob([buffer]);
+        const stream = blob.stream().pipeThrough(ds);
+        const reader = stream.getReader();
+        
+        const chunks = [];
+        while (true) {
+            const { value, done } = await reader.read();
+            if (done) break;
+            chunks.push(value);
+        }
+        
+        const totalLength = chunks.reduce((a, b) => a + b.length, 0);
+        const decompressed = new Uint8Array(totalLength);
+        let offset = 0;
+        for (const chunk of chunks) {
+            decompressed.set(chunk, offset);
+            offset += chunk.length;
+        }
+        
+        // 🔧 usar la librería global cargada por <script>, no import()
+        if (typeof MessagePack !== 'undefined') {
+            return MessagePack.decode(decompressed);
+        }
+        
+        // Fallback si de verdad es JSON
+        try {
+            const text = new TextDecoder().decode(decompressed);
+            return JSON.parse(text);
+        } catch (jsonError) {
+            throw new Error('No es pot descomprimir ni llegir com a JSON (falta MessagePack)');
+        }
+    } catch (e) {
+        console.warn('[descomprimirMsgPackGz] Error:', e.message);
+        throw e;
+    }
+}
+
+
 async function carregarFitxerAmbReintents(url, maxIntents = 3) {
     let retard = RETARD_INICIAL;
     let ultimError = null;
@@ -2811,8 +2859,14 @@ async function carregarFitxerAmbReintents(url, maxIntents = 3) {
             }
 
             try {
-                const data = await descomprimirGzipAmbFallback(response, url);
-                return data;
+                // 🔥 DETECTAR SI ÉS .MSGPACK.GZ
+                if (url.includes('.msgpack.gz')) {
+                    const data = await descomprimirMsgPackGz(response);
+                    return data;
+                } else {
+                    const data = await descomprimirGzipAmbFallback(response, url);
+                    return data;
+                }
             } catch (e) {
                 if (e.message.includes('incorrect header check') ||
                     e.message.includes('corrupted') ||
@@ -2847,20 +2901,29 @@ async function carregarFitxerAmbReintents(url, maxIntents = 3) {
 
     return null;
 }
+
 async function carregarUnStep(i, ambDades3d) {
     const base = 'web_data_NE/';
     const p = String(i).padStart(2, '0');
 
-    // 🔥 Carregar SFC i 3D en paral·lel
+    // Carregar SFC i 3D EN PARAL·LEL
     const [sfcResult, tdResult] = await Promise.all([
-        carregarFitxerAmbReintents(base + 'sfc_' + p + '.json.gz', 3),
-        ambDades3d ? carregarFitxerAmbReintents(base + '3d_' + p + '.json.gz', 3) : Promise.resolve(null)
+        carregarFitxerAmbReintents(base + 'sfc_' + p + '.msgpack.gz', 3),
+        carregarFitxerAmbReintents(base + '3d_' + p + '.msgpack.gz', 3)
     ]);
 
     let sfc = sfcResult;
     let td = tdResult;
 
-    // Fallback sense compressió per SFC
+    // Fallback a .json.gz si falta algun dels dos
+    if (!sfc) {
+        sfc = await carregarFitxerAmbReintents(base + 'sfc_' + p + '.json.gz', 3);
+    }
+    if (!td) {
+        td = await carregarFitxerAmbReintents(base + '3d_' + p + '.json.gz', 3);
+    }
+
+    // Fallback sense compressió
     if (!sfc) {
         try {
             const resp = await fetch(base + 'sfc_' + p + '.json');
@@ -2870,9 +2933,7 @@ async function carregarUnStep(i, ambDades3d) {
             }
         } catch (e) { /* silenciós */ }
     }
-
-    // Fallback sense compressió per 3D
-    if (!td && ambDades3d) {
+    if (!td) {
         try {
             const resp = await fetch(base + '3d_' + p + '.json');
             if (resp.ok) {
@@ -2882,31 +2943,41 @@ async function carregarUnStep(i, ambDades3d) {
         } catch (e) { /* silenciós */ }
     }
 
-    if (sfc || td) {
-        const base_d = sfc || td;
-        const variables = {};
-        if (sfc) Object.assign(variables, tipificarVariables(sfc.variables));
-        if (td) Object.assign(variables, tipificarVariables(td.variables));
-        escalarVariablesMitjana(variables);
-        if (Object.keys(variables).length === 0) {
-            console.warn(`[carregarUnStep] Hora ${p}: variables buides`);
-            return null;
-        }
-
-        calcularVelocitatVent(variables);
-
-        const data = {
-            ...base_d, variables,
-            coordenadas: sfc ? sfc.coordenadas : td.coordenadas,
-            coordenadas_3d: td ? td.coordenadas : null,
-            _te3d: !!td,
-        };
-        return { step: data.step, dateObj: new Date(data.hora_utc + 'Z'), data };
+    if (!sfc && !td) {
+        console.warn(`[carregarUnStep] Hora ${p}: sense dades (ni SFC ni 3D)`);
+        return null;
     }
 
-    console.warn(`[carregarUnStep] Hora ${p}: sense dades (SFC ni 3D)`);
-    return null;
+    // Combinar variables de tots dos fitxers
+    const base_d = sfc || td;
+    const variables = {};
+    if (sfc) Object.assign(variables, tipificarVariables(sfc.variables));
+    if (td) Object.assign(variables, tipificarVariables(td.variables));
+    escalarVariablesMitjana(variables);
+
+    if (Object.keys(variables).length === 0) {
+        console.warn(`[carregarUnStep] Hora ${p}: variables buides`);
+        return null;
+    }
+
+    calcularVelocitatVent(variables);
+
+    const data = {
+        ...base_d, variables,
+        coordenadas: sfc ? sfc.coordenadas : td.coordenadas,
+        coordenadas_3d: td ? td.coordenadas : (sfc ? sfc.coordenadas : null),
+        _te3d: !!td,
+    };
+    return { step: data.step, dateObj: new Date(data.hora_utc + 'Z'), data };
 }
+
+// ═══════════════════════════════════════════════════════════════════════
+//  CÀRREGA SOTA DEMANDA — SENSE MANIFEST
+//  Detecta automàticament quantes hores hi ha disponibles provant-les
+//  seqüencialment (sense descarregar dades pesades, només confirmant
+//  que el fitxer existeix). Un cop sabem el rang, construïm esquelets
+//  i només es descarrega de veritat la hora que l'usuari clica.
+// ═══════════════════════════════════════════════════════════════════════
 
 function _marcarUsSfc(idx) {
     const p = _ordreUsSfc.indexOf(idx);
@@ -2933,10 +3004,12 @@ async function assegurarHoraCarregada(idx, ambDades3d) {
     }
 
     const promesa = (async () => {
-        const nou = await carregarUnStep(idx, ambDades3d);
+        const stepReal = totesLesHores[idx].step;
+        const nou = await carregarUnStep(stepReal, ambDades3d);
         if (!nou) return false;
 
         const itemActual = totesLesHores[idx];
+        itemActual.dateObj = nou.dateObj;
         if (itemActual.data && itemActual.data.variables && !ambDades3d) {
             Object.assign(itemActual.data.variables, nou.data.variables);
         } else {
@@ -2967,86 +3040,81 @@ function prefetchVeines(idx, amb3d) {
     });
 }
 
-function afegirHoraCarregada(item) {
-    if (!item) return;
-    if (totesLesHores.some(h => h.step === item.step)) return;
-    let idxInsercio = totesLesHores.findIndex(h => h.dateObj > item.dateObj);
-    if (idxInsercio === -1) idxInsercio = totesLesHores.length;
-    totesLesHores.splice(idxInsercio, 0, item);
-    _marcarUsSfc(idxInsercio);
+// ─── Detecta quantes hores hi ha SENSE descarregar-les totes ─────────
+// Fa peticions HEAD (lleugeres, sense cos) per confirmar existència.
+async function detectarHoresDisponibles() {
+    const steps = [];
+    let fallsConsecutius = 0;
+    const MAX_FALLS_CONSECUTIUS = 2;
 
-    window.totesLesHores = totesLesHores;
-    document.dispatchEvent(new CustomEvent('mapa-dades-llestes', {
-        detail: { totesLesHores: totesLesHores }
-    }));
+    for (let i = 0; i < MAX_STEPS && fallsConsecutius < MAX_FALLS_CONSECUTIUS; i++) {
+        const p = String(i).padStart(2, '0');
+        let existeix = false;
+        try {
+            const r1 = await fetch('web_data_NE/sfc_' + p + '.msgpack.gz', { method: 'HEAD' });
+            if (r1.ok) existeix = true;
+        } catch (e) { /* ignorem */ }
+        if (!existeix) {
+            try {
+                const r2 = await fetch('web_data_NE/3d_' + p + '.msgpack.gz', { method: 'HEAD' });
+                if (r2.ok) existeix = true;
+            } catch (e) { /* ignorem */ }
+        }
 
-    construirGraellaHores();
-    if (totesLesHores.length === 1) {
-        construirPanellParametres();
-        mostrarHora(0);
-    } else if (idxInsercio <= curIdx) {
-        curIdx++;
-    }
-}
-async function carregarTotsJSONs() {
-    const TIEMPO_INICIO = Date.now();
-    const TIEMPO_MINIMO = 1500;
-
-    let carregats = 0;
-    let fallats = 0;
-    const total = MAX_STEPS;
-    actualitzarBarraProgress(0, total);
-
-    let seguent = 0;
-    const errors = [];
-
-    async function worker() {
-        while (seguent < total) {
-            const i = seguent++;
-            // 🔥 CANVI: carregar SFC + 3D a la vegada (true = amb 3D)
-            const item = await carregarUnStep(i, true);
-            if (item) {
-                afegirHoraCarregada(item);
-                carregats++;
-                actualitzarBarraProgress(carregats + fallats, total);
-            } else {
-                fallats++;
-                errors.push(i);
-                actualitzarBarraProgress(carregats + fallats, total);
-            }
+        if (existeix) {
+            steps.push(i);
+            fallsConsecutius = 0;
+        } else {
+            fallsConsecutius++;
         }
     }
+    return steps;
+}
 
-    const workers = [];
-    for (let w = 0; w < CONCURRENCIA_CARREGA; w++) workers.push(worker());
-    await Promise.all(workers);
+async function inicialitzarCarregaSotaDemanda() {
+    const TIEMPO_INICIO = Date.now();
+    const TIEMPO_MINIMO = 800;
+
+    const steps = await detectarHoresDisponibles();
+
+    if (steps.length === 0) {
+        console.warn('[Càrrega] No s\'ha trobat cap hora disponible.');
+        totesLesHores = [];
+        window.totesLesHores = totesLesHores;
+        construirGraellaHores();
+        const loadingOverlay = document.getElementById('loading_overlay');
+        if (loadingOverlay) loadingOverlay.classList.add('hidden');
+        return;
+    }
+
+    totesLesHores = steps.map(s => ({ step: s, dateObj: null, data: null }));
+    window.totesLesHores = totesLesHores;
+
+    console.log(`[Càrrega] ${steps.length} hores disponibles (steps: ${steps[0]}..${steps[steps.length - 1]})`);
+
+    construirGraellaHores();
+
+    // Carreguem NOMÉS la primera hora real
+    const primerItem = await carregarUnStep(totesLesHores[0].step, false);
+    if (primerItem) {
+        totesLesHores[0].dateObj = primerItem.dateObj;
+        totesLesHores[0].data = primerItem.data;
+    }
 
     const tempsPassat = Date.now() - TIEMPO_INICIO;
     if (tempsPassat < TIEMPO_MINIMO) {
         await new Promise(resolve => setTimeout(resolve, TIEMPO_MINIMO - tempsPassat));
     }
 
-    if (errors.length > 0) {
-        console.warn(`[Loading] ${errors.length} hores SFC fallades:`, errors);
-        comprovarHoresFallades();
-    }
-
     construirPanellParametres();
-    if (totesLesHores.length > 0) mostrarHora(0);
+    construirGraellaHores();
+    if (totesLesHores[0].data) mostrarHora(0);
 
     const loadingOverlay = document.getElementById('loading_overlay');
     if (loadingOverlay) loadingOverlay.classList.add('hidden');
 
-    console.log(`[Loading] ${totesLesHores.length} hores (SFC + 3D) carregades en ${((Date.now() - TIEMPO_INICIO) / 1000).toFixed(1)}s.`);
-    
-    // 🔥 ELIMINAR: ja no cal precarregar 3D en segon pla perquè ja està carregat
-    // precarregarTot3dEnSegonPla();  // Comentat o eliminat 
-
-    
+    console.log(`[Càrrega] Arrencada ràpida: 1 hora carregada de ${totesLesHores.length} disponibles.`);
 }
-
-
-
 
 function actualitzarBarraProgress(carregats, total) {
     const pct = Math.round((carregats / total) * 100);
@@ -3070,6 +3138,20 @@ async function mostrarHora(idx) {
 
     curIdx = idx;
     window.skewtHourIndex = idx;
+
+    // Descàrrega sota demanda si aquesta hora encara és un esquelet
+    if (!totesLesHores[idx].dateObj || !totesLesHores[idx].data) {
+        const stepReal = totesLesHores[idx].step;
+        const nou = await carregarUnStep(stepReal, true);
+        if (nou) {
+            totesLesHores[idx].dateObj = nou.dateObj;
+            totesLesHores[idx].data = nou.data;
+            construirGraellaHores();
+        } else {
+            console.warn('[mostrarHora] No hi ha dades per a la hora', stepReal);
+            return;
+        }
+    }
 
     const item0 = totesLesHores[idx];
     if (item0 && item0.data) {
@@ -3161,13 +3243,13 @@ function construirGraellaHores() {
     container.style.cssText = 'display:flex;gap:3px;align-items:center;padding:2px 4px;';
 
     totesLesHores.forEach((item, i) => {
-        const d = item.dateObj;
-        const horaNum = d.getHours();
-        const horaStr = String(horaNum).padStart(2, '0') + 'h';
-        const minStr = String(d.getMinutes()).padStart(2, '0');
+        const teDataReal = !!item.dateObj;
+        const horaStr = teDataReal
+            ? String(item.dateObj.getHours()).padStart(2, '0') + 'h'
+            : ('+' + String(item.step).padStart(2, '0') + 'h');
+        const minStr = teDataReal ? String(item.dateObj.getMinutes()).padStart(2, '0') : '--';
         const isActive = (i === curIdx);
 
-        // 🔑 Ja no capturem "bloquejat" aquí — es comprova sempre en temps real (veure onclick)
         const horaLliure = (i % 3 === 0);
         const userAra = window._firebaseUser || null;
         const itemBloquejatVisual = !userAra && !horaLliure;
@@ -3193,20 +3275,20 @@ function construirGraellaHores() {
             user-select: none;
             font-family: 'Segoe UI', Tahoma, sans-serif;
             line-height: 1.2;
-            opacity: ${itemBloquejatVisual ? '0.3' : '1'};
+            opacity: ${itemBloquejatVisual ? '0.3' : (teDataReal ? '1' : '0.55')};
         `;
 
         if (itemBloquejatVisual) {
             cell.title = 'Inicia sessió per desbloquejar';
             cell.innerHTML = `
                 <span style="font-size:12px;font-weight:600;display:block;">${horaStr}</span>
-                <span style="font-size:7px;color:#3a4a5a;display:block;margin-top:-1px;">${minStr}'</span>
+                <span style="font-size:7px;color:#3a4a5a;display:block;margin-top:-1px;">${minStr}${teDataReal ? "'" : ''}</span>
                 <span style="position:absolute;top:-2px;right:-1px;font-size:7px;color:#FF6B35;"><i class="fas fa-lock"></i></span>
             `;
         } else {
             cell.innerHTML = `
                 <span style="font-size:12px;font-weight:600;display:block;">${horaStr}</span>
-                <span style="font-size:7px;color:#3a4a5a;display:block;margin-top:-1px;">${minStr}'</span>
+                <span style="font-size:7px;color:#3a4a5a;display:block;margin-top:-1px;">${minStr}${teDataReal ? "'" : ''}</span>
             `;
         }
 
@@ -3223,8 +3305,6 @@ function construirGraellaHores() {
             }
         });
 
-        // 🔑 FIX PRINCIPAL: el clic sempre comprova l'estat REAL de sessió en aquell instant,
-        // no un valor "congelat" de quan es va construir la graella.
         cell.onclick = function(e) {
             e.stopPropagation();
             const idx = parseInt(this.dataset.idx);
@@ -3913,17 +3993,15 @@ inicialitzarGeojson();
 inicialitzarCanvasVent();
 crearPanellAjustos();
 
-carregarTotsJSONs().then(() => {
-    assegurarHoraCarregada(0, true).then(() => {
-        construirPanellParametres();
-    });
-});
+inicialitzarCarregaSotaDemanda();
 
 // Estat global: indica si el panell de Skew-T està obert.
 window.sondeigObert = false;
 
 window._currentParameter = variableActiva || 'st';
-actualitzarBloqueigMapa();
+function actualitzarBloqueigMapa() {
+    // La funció es defineix a accesvariable.js
+}
 
 
 
