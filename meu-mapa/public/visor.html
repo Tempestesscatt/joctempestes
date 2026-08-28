@@ -3138,6 +3138,38 @@ async function obtenirFotoUsuari(user) {
     return user.photoURL || null;
 }
 
+
+
+
+function actualitzarUIHora(idx) {
+    const item = totesLesHores[idx];
+    if (!item || !item.data) return;
+
+    const label = document.getElementById('current_time_label');
+    if (!label) return;
+
+    // Intentar obtenir hora_madrid
+    if (item.data.hora_madrid) {
+        try {
+            // "2026-08-28 14:00 CEST" -> "14:00"
+            const parts = item.data.hora_madrid.split(' ');
+            if (parts.length >= 3) {
+                label.textContent = parts[1];  // "14:00"
+                return;
+            }
+        } catch (e) {
+            // fallback
+        }
+    }
+
+    // Fallback amb step
+    const step = item.step || 0;
+    const hh = String(Math.floor(step / 2)).padStart(2, '0');
+    const mm = String((step % 2) * 30).padStart(2, '0');
+    label.textContent = hh + ':' + mm;
+}
+
+
 function actualitzarFotoUI(user, fotoURL) {
     if (!user || !fotoURL) return;
     

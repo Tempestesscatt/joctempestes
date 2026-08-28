@@ -3302,31 +3302,8 @@ function resaltarHoraEnGrid(idx) {
 }
 
 
-// ─── Lock global para evitar reconstrucciones solapadas ──────────────
-let _construintGrid = false;
-let _construirGridPendent = false;
 
 function construirGraellaHores() {
-    // Si ya se está construyendo, marcar que hace falta una repetición
-    // al final, en vez de lanzar una segunda reconstrucción en paralelo.
-    if (_construintGrid) {
-        _construirGridPendent = true;
-        return;
-    }
-    _construintGrid = true;
-
-    try {
-        _construirGraellaHoresReal();
-    } finally {
-        _construintGrid = false;
-        if (_construirGridPendent) {
-            _construirGridPendent = false;
-            // Reconstrucción diferida al siguiente frame, ya con datos frescos
-            requestAnimationFrame(() => construirGraellaHores());
-        }
-    }
-}
-function _construirGraellaHoresReal() {
     const grid = document.getElementById('fh_grid');
     if (!grid) {
         console.warn('[Grid] Element fh_grid no trobat');
@@ -3349,34 +3326,37 @@ function _construirGraellaHoresReal() {
     }
 
     totesLesHores.forEach((item, i) => {
-        const teDataReal = !!item.dateObj;
-
+        const teDataReal = !!item.dateObj && !!item.data && !!item.data.variables;
+        
         let horaStr = '';
         let minStr = '';
+
+        // 🔥 DETECTAR si l'hora està REALMENT carregada (té dades)
+        const estaCarregada = teDataReal && Object.keys(item.data.variables).length > 0;
 
         if (teDataReal) {
             try {
                 const madridTime = new Date(item.dateObj.toLocaleString('en-US', { timeZone: 'Europe/Madrid' }));
-                // ✅ Format: "12:00", "18:30", etc.
-                const hh = String(madridTime.getHours()).padStart(2, '0');
-                const mm = String(madridTime.getMinutes()).padStart(2, '0');
-                horaStr = hh + ':' + mm;
-                minStr = ''; // Ya no necesitamos minutos separados
+                const horas = String(madridTime.getHours()).padStart(2, '0');
+                const minutos = String(madridTime.getMinutes()).padStart(2, '0');
+                
+                // 🔥 Si NO està carregada, afegir "+" al davant
+                horaStr = (estaCarregada ? '' : '+') + horas + 'h';
+                minStr = minutos;
             } catch (e) {
-                // Fallback si falla la fecha
                 const step = item.step;
-                const hh = String(Math.floor(step / 2)).padStart(2, '0');
-                const mm = String((step % 2) * 30).padStart(2, '0');
-                horaStr = hh + ':' + mm;
-                minStr = '';
+                const horaStep = Math.floor(step / 2);
+                const minutosStep = (step % 2) * 30;
+                horaStr = (estaCarregada ? '' : '+') + String(horaStep).padStart(2, '0') + 'h';
+                minStr = String(minutosStep).padStart(2, '0');
             }
         } else {
-            // Si no hay fecha real, usar step
             const step = item.step;
-            const hh = String(Math.floor(step / 2)).padStart(2, '0');
-            const mm = String((step % 2) * 30).padStart(2, '0');
-            horaStr = hh + ':' + mm;
-            minStr = '';
+            const horaStep = Math.floor(step / 2);
+            const minutosStep = (step % 2) * 30;
+            // Sense dades → sempre "+"
+            horaStr = '+' + String(horaStep).padStart(2, '0') + 'h';
+            minStr = String(minutosStep).padStart(2, '0');
         }
 
         const isActive = (i === curIdx);
@@ -3400,7 +3380,7 @@ function _construirGraellaHoresReal() {
             border: ${isActive ? '1px solid rgba(255,215,0,0.3)' : '1px solid transparent'};
             transition: all 0.15s ease;
             text-align: center;
-            min-width: 40px;
+            min-width: 32px;
             position: relative;
             user-select: none;
             font-family: 'Segoe UI', Tahoma, sans-serif;
@@ -3408,15 +3388,20 @@ function _construirGraellaHoresReal() {
             opacity: ${itemBloquejatVisual ? '0.3' : (teDataReal ? '1' : '0.55')};
         `;
 
+        // 🔥 Si NO està carregada, posar el "+" en color diferent
+        const prefixStyle = estaCarregada ? '' : 'color:#FFA500;';
+
         if (itemBloquejatVisual) {
             cell.title = 'Inicia sessió per desbloquejar';
             cell.innerHTML = `
-                <span style="font-size:12px;font-weight:600;display:block;">${horaStr}</span>
+                <span style="font-size:12px;font-weight:600;display:block;${prefixStyle}">${horaStr}</span>
+                <span style="font-size:7px;color:#3a4a5a;display:block;margin-top:-1px;">${minStr}</span>
                 <span style="position:absolute;top:-2px;right:-1px;font-size:7px;color:#FF6B35;"><i class="fas fa-lock"></i></span>
             `;
         } else {
             cell.innerHTML = `
-                <span style="font-size:12px;font-weight:600;display:block;">${horaStr}</span>
+                <span style="font-size:12px;font-weight:600;display:block;${prefixStyle}">${horaStr}</span>
+                <span style="font-size:7px;color:#3a4a5a;display:block;margin-top:-1px;">${minStr}</span>
             `;
         }
 
@@ -3424,15 +3409,17 @@ function _construirGraellaHoresReal() {
             e.stopPropagation();
             const idx = parseInt(this.dataset.idx);
             if (isNaN(idx)) return;
-
+            
             const lliure = (idx % 3 === 0);
             const userActual = window._firebaseUser || null;
 
             if (!userActual && !lliure) {
-                if (typeof loginWithGoogle === 'function') loginWithGoogle();
+                if (typeof loginWithGoogle === 'function') {
+                    loginWithGoogle();
+                }
                 return;
             }
-
+            
             if (typeof mostrarHora === 'function') {
                 mostrarHora(idx);
             }
@@ -3444,6 +3431,7 @@ function _construirGraellaHoresReal() {
                 this.style.color = '#c8d8e8';
             }
         });
+
         cell.addEventListener('mouseleave', function() {
             if (!this.classList.contains('active')) {
                 this.style.background = 'rgba(255,255,255,0.03)';
@@ -3459,11 +3447,14 @@ function _construirGraellaHoresReal() {
     setTimeout(() => {
         const active = grid.querySelector('.fh-item.active');
         if (active) {
-            active.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            active.scrollIntoView({
+                behavior: 'smooth',
+                block: 'nearest',
+                inline: 'center'
+            });
         }
     }, 100);
 }
-
 
 // ─── NETEGAR ESDEVENIMENTS DUPLICATS ──────────────────────────────────
 function netejarGridEvents() {
@@ -4374,47 +4365,47 @@ async function carregarTots3DAmbFeedback() {
     const CONCURRENCIA_3D_CARREGA = 2;
     let cursor = 0;
     let errors = 0;
-async function worker3D() {
-    while (cursor < perCarregar.length) {
-        const idx = perCarregar[cursor++];
-        try {
-            const ok = await assegurarHoraCarregada(idx, true);
-            if (ok) {
-                SISTEMA_3D.carregats++;
-            } else {
+
+    async function worker3D() {
+        while (cursor < perCarregar.length) {
+            const idx = perCarregar[cursor++];
+            try {
+                const ok = await assegurarHoraCarregada(idx, true);
+                if (ok) {
+                    SISTEMA_3D.carregats++;
+                } else {
+                    errors++;
+                    console.warn(`[3D] Error carregant hora ${idx}`);
+                }
+            } catch (e) {
                 errors++;
-                console.warn(`[3D] Error carregant hora ${idx}`);
+                console.warn(`[3D] Excepción carregant hora ${idx}:`, e);
             }
-        } catch (e) {
-            errors++;
-            console.warn(`[3D] Excepción carregant hora ${idx}:`, e);
-        }
 
-        // Actualizar progreso
-        const completats = SISTEMA_3D.carregats + (perCarregar.length - cursor);
-        SISTEMA_3D.progress = completats / perCarregar.length;
-        actualitzarNotificacio3D(SISTEMA_3D.progress, SISTEMA_3D.carregats, perCarregar.length);
+            // Actualizar progreso
+            const completats = SISTEMA_3D.carregats + (perCarregar.length - cursor);
+            SISTEMA_3D.progress = completats / perCarregar.length;
+            actualitzarNotificacio3D(SISTEMA_3D.progress, SISTEMA_3D.carregats, perCarregar.length);
 
-        // Si hay un cambio visible, actualizar el panel
-        // 🔧 CAMBIADO: de % 3 === 0 a % 6 === 0 para reducir reconstrucciones del grid
-        if (SISTEMA_3D.carregats % 6 === 0 || cursor === perCarregar.length) {
-            // Actualizar el grid de horas para mostrar 3D disponible
-            construirGraellaHores();
+            // Si hay un cambio visible, actualizar el panel
+            if (SISTEMA_3D.carregats % 3 === 0 || cursor === perCarregar.length) {
+                // Actualizar el grid de horas para mostrar 3D disponible
+                construirGraellaHores();
 
-            // Si la hora actual ahora tiene 3D, refrescar el mapa
-            if (horaTe3D(curIdx) && canvasLayer) {
-                const item = totesLesHores[curIdx];
-                if (item && item.data) {
-                    canvasLayer.setData(item.data);
-                    if (window.ventEnabled && typeof redibuixarVent === 'function') redibuixarVent();
+                // Si la hora actual ahora tiene 3D, refrescar el mapa
+                if (horaTe3D(curIdx) && canvasLayer) {
+                    const item = totesLesHores[curIdx];
+                    if (item && item.data) {
+                        canvasLayer.setData(item.data);
+                        if (window.ventEnabled && typeof redibuixarVent === 'function') redibuixarVent();
+                    }
                 }
             }
-        }
 
-        // Pequeña pausa para no saturar
-        await new Promise(r => setTimeout(r, 10));
+            // Pequeña pausa para no saturar
+            await new Promise(r => setTimeout(r, 10));
+        }
     }
-}
 
     // Lanzar workers
     const workers = [];
@@ -4540,7 +4531,9 @@ mostrarHora = async function(idx) {
     }
 
     // Si hay 3D cargando y no está completa, iniciar en background
-  
+    if (!SISTEMA_3D.complet && !SISTEMA_3D.carregant && !horaTe3D(idx)) {
+        setTimeout(() => iniciarCarga3D(), 500);
+    }
 };
 
 function afegirBotoCarga3D() {
