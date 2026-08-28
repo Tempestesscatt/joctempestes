@@ -3126,16 +3126,22 @@ async function assegurarHoraCarregada(idx, ambDades3d) {
     }
 }
 
-function prefetchVeines(idx, amb3d) {
-    [idx - 1, idx + 1].forEach(v => {
-        if (v >= 0 && v < totesLesHores.length) {
-            const item = totesLesHores[v];
-            const jaTe3d = item && item.data && item.data._te3d;
-            if (!item || !item.data || (amb3d && !jaTe3d)) {
-                assegurarHoraCarregada(v, !!amb3d);
-            }
-        }
-    });
+function inicialitzarSistema3D() {
+    crearNotificacio3D();
+
+    setTimeout(() => {
+        afegirBotoCarga3D();
+        // ❌ ELIMINAR estas líneas:
+        // if (!SISTEMA_3D.complet && !SISTEMA_3D.carregant) {
+        //     console.log('[3D] Iniciando carga automática...');
+        //     iniciarCarga3D();
+        // }
+    }, 500);
+
+    // ❌ ELIMINAR este event listener
+    // document.addEventListener('mapa-dades-llestes', (e) => {
+    //     ...
+    // });
 }
 
 // ─── Detecta quantes hores hi ha SENSE descarregar-les totes ─────────
@@ -3237,10 +3243,11 @@ async function mostrarHora(idx) {
     curIdx = idx;
     window.skewtHourIndex = idx;
 
-    // Descàrrega sota demanda si aquesta hora encara és un esquelet
+    // ✅ Solo cargar SFC + 3D si no están en memoria
     if (!totesLesHores[idx].dateObj || !totesLesHores[idx].data) {
+        console.log(`📥 Cargando hora ${idx} (SFC + 3D)...`);
         const stepReal = totesLesHores[idx].step;
-        const nou = await carregarUnStep(stepReal, true);
+        const nou = await carregarUnStep(stepReal, true); // ← Carga SFC + 3D
         if (nou) {
             totesLesHores[idx].dateObj = nou.dateObj;
             totesLesHores[idx].data = nou.data;
@@ -3251,80 +3258,18 @@ async function mostrarHora(idx) {
         }
     }
 
+    // ❌ ELIMINAR la precarga de vecinas
+    // prefetchVeines(idx, necessita3d);
+
+    // Mostrar los datos
     const item0 = totesLesHores[idx];
     if (item0 && item0.data) {
         if (canvasLayer) canvasLayer.setData(item0.data);
         if (window.ventEnabled && typeof redibuixarVent === 'function') redibuixarVent();
     }
 
-    const grid = document.getElementById('fh_grid');
-    if (grid) {
-        const items = grid.querySelectorAll('.fh-item');
-        items.forEach((el, i) => {
-            el.classList.remove('active');
-            el.style.color = '#556680';
-            el.style.background = 'rgba(255,255,255,0.03)';
-            el.style.borderColor = 'transparent';
-
-            if (i === idx) {
-                el.classList.add('active');
-                el.style.color = '#FFD700';
-                el.style.background = 'rgba(255,215,0,0.12)';
-                el.style.borderColor = 'rgba(255,215,0,0.3)';
-            }
-        });
-
-        setTimeout(() => {
-            const active = grid.querySelector('.fh-item.active');
-            if (active) {
-                active.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-            }
-        }, 100);
-    }
-
-    const d = totesLesHores[idx].dateObj;
-    const ds = d.toLocaleDateString('ca-ES', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'Europe/Madrid' });
-    const ls = d.toLocaleTimeString('ca-ES', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Europe/Madrid' });
-    const us = String(d.getUTCHours()).padStart(2, '0') + 'Z';
-
-    const overlayDate = document.getElementById('overlay-date');
-    const overlayLocal = document.getElementById('overlay-local');
-    const overlayUtc = document.getElementById('overlay-utc');
-    const fhValidTime = document.getElementById('fh_validtime');
-
-    if (overlayDate) overlayDate.textContent = ds.toUpperCase();
-    if (overlayLocal) overlayLocal.textContent = ls;
-    if (overlayUtc) overlayUtc.textContent = us;
-    if (fhValidTime) fhValidTime.textContent = ds + ' · ' + ls + ' local / ' + us;
-
-    const necessita3d = (variableActiva && esVariable3D(variableActiva)) || window.sondeigObert;
-
-    const item = totesLesHores[idx];
-    const teDadesJa = item && item.data && item.data.variables &&
-                       (!necessita3d || item.data._te3d);
-
-    if (!teDadesJa) {
-        const ok = await assegurarHoraCarregada(idx, necessita3d);
-        if (!ok) {
-            console.warn('[mostrarHora] No s\'ha pogut carregar la hora', idx);
-            return;
-        }
-        if (curIdx === idx && totesLesHores[idx].data) {
-            if (canvasLayer) canvasLayer.setData(totesLesHores[idx].data);
-            if (window.ventEnabled && typeof redibuixarVent === 'function') redibuixarVent();
-            document.dispatchEvent(new CustomEvent('mapa-dades-llestes', {
-                detail: { totesLesHores: totesLesHores, idx: idx }
-            }));
-        }
-    } else {
-        document.dispatchEvent(new CustomEvent('mapa-dades-llestes', {
-            detail: { totesLesHores: totesLesHores, idx: idx }
-        }));
-    }
-
-    if (curIdx !== idx) return;
-
-    prefetchVeines(idx, necessita3d);
+    // Actualizar UI...
+    actualitzarUIHora(idx);
 }
 
 function construirGraellaHores() {
@@ -4501,85 +4446,11 @@ mostrarHora = async function(idx) {
     }
 };
 
-// ─── Añadir botón de carga 3D manual ────────────────────────────────
 function afegirBotoCarga3D() {
-    const container = document.querySelector('.controls-container') || document.getElementById('controls');
-    if (!container) {
-        setTimeout(afegirBotoCarga3D, 500);
-        return;
-    }
-
-    const btn = document.createElement('button');
-    btn.id = 'btnCarga3D';
-    btn.textContent = ' Carregar 3D';
-    btn.title = 'Carregar totes les dades 3D en segon pla';
-    btn.style.cssText = `
-        padding: 4px 10px;
-        font-size: 11px;
-        border-radius: 4px;
-        border: 1px solid #2a3a5a;
-        background: #1a2a3a;
-        color: #7f9bb3;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        font-family: 'Segoe UI', Tahoma, sans-serif;
-    `;
-
-    btn.addEventListener('mouseenter', () => {
-        btn.style.background = '#2a4a6a';
-        btn.style.color = '#cfe0ee';
-        btn.style.borderColor = '#4a7a9a';
-    });
-    btn.addEventListener('mouseleave', () => {
-        btn.style.background = '#1a2a3a';
-        btn.style.color = '#7f9bb3';
-        btn.style.borderColor = '#2a3a5a';
-    });
-
-    btn.addEventListener('click', () => {
-        if (SISTEMA_3D.complet) {
-            btn.textContent = '✅ 3D complet';
-            btn.style.background = '#1a3a2a';
-            btn.style.color = '#6fbf8f';
-            setTimeout(() => {
-                btn.textContent = 'Carregar 3D';
-                btn.style.background = '#1a2a3a';
-                btn.style.color = '#7f9bb3';
-            }, 3000);
-            return;
-        }
-        if (SISTEMA_3D.carregant) {
-            btn.textContent = '⏳ Carregant...';
-            btn.style.color = '#FFD700';
-            return;
-        }
-        btn.textContent = '⏳ Iniciant...';
-        btn.style.color = '#FFD700';
-        iniciarCarga3D();
-
-        // Monitorear progreso
-        const checkProgress = setInterval(() => {
-            if (SISTEMA_3D.complet) {
-                btn.textContent = '✅ 3D complet';
-                btn.style.color = '#6fbf8f';
-                clearInterval(checkProgress);
-                setTimeout(() => {
-                    btn.textContent = 'Carregar 3D';
-                    btn.style.color = '#7f9bb3';
-                }, 2000);
-            } else if (SISTEMA_3D.carregant) {
-                const pct = Math.round(SISTEMA_3D.progress * 100);
-                btn.textContent = `⏳ ${pct}%`;
-            } else {
-                btn.textContent = 'Carregar 3D';
-                btn.style.color = '#7f9bb3';
-                clearInterval(checkProgress);
-            }
-        }, 500);
-    });
-
-    container.appendChild(btn);
-    console.log('[3D] Botón de carga añadido.');
+    // ❌ No añadir el botón o desactivarlo
+    // const btn = document.createElement('button');
+    // ...
+    console.log('⏭️ Botón de carga 3D desactivado');
 }
 
 // ─── Inicializar el sistema ──────────────────────────────────────────
