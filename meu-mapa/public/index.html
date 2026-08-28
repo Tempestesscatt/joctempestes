@@ -2773,8 +2773,8 @@ CONTACTE (amb EmailJS)
     <!-- ============================================================
     ARTICLE MODAL
     ============================================================ -->
-    <div class="article-modal-overlay" id="articleModal">
-        <div class="article-modal" id="articleModalContent">
+    <div class="article-modal-overlay" id="articleModal" onclick="closeArticleModal()">
+        <div class="article-modal" id="articleModalContent" onclick="event.stopPropagation();">
             <!-- Contingut injectat per JavaScript -->
         </div>
     </div>
@@ -3292,7 +3292,7 @@ CONTACTE (amb EmailJS)
         }];
 
         // ============================================================
-        // RENDERITZA ARTICLES
+        // RENDERITZA ARTICLES (amb etiquetes molt petites a la imatge per a l'article 15)
         // ============================================================
         function renderBlog() {
             const grid = document.getElementById('blogGrid');
@@ -3304,10 +3304,34 @@ CONTACTE (amb EmailJS)
                 card.className = 'blog-card';
                 card.onclick = function() { showArticle(article.id); };
 
+                // Detectar si és l'article 15 per mostrar les etiquetes
+                const isCacatempestes = (article.id === 15);
+
+                let tagsHTML = '';
+                if (isCacatempestes) {
+                    tagsHTML = `
+                        <div style="position: absolute; bottom: 6px; left: 6px; right: 6px; display: flex; flex-wrap: wrap; gap: 2px; justify-content: center; z-index: 5;">
+                            <span style="background: rgba(21, 44, 68, 0.92); backdrop-filter: blur(4px); color: #f5c842; padding: 0px 6px; border-radius: 10px; font-size: 6px; font-weight: 700; border: 1px solid rgba(255,255,255,0.06); box-shadow: 0 1px 4px rgba(0,0,0,0.3); letter-spacing: 0.1px; white-space: nowrap; line-height: 14px;">
+                                <i class="fa-regular fa-circle-check" style="margin-right: 1px; font-size: 5px;"></i> @Meteo.Felix
+                            </span>
+                            <span style="background: rgba(21, 44, 68, 0.92); backdrop-filter: blur(4px); color: #f5c842; padding: 0px 6px; border-radius: 10px; font-size: 6px; font-weight: 700; border: 1px solid rgba(255,255,255,0.06); box-shadow: 0 1px 4px rgba(0,0,0,0.3); letter-spacing: 0.1px; white-space: nowrap; line-height: 14px;">
+                                <i class="fa-regular fa-circle-check" style="margin-right: 1px; font-size: 5px;"></i> @Meteo_nordeste
+                            </span>
+                            <span style="background: rgba(21, 44, 68, 0.92); backdrop-filter: blur(4px); color: #f5c842; padding: 0px 6px; border-radius: 10px; font-size: 6px; font-weight: 700; border: 1px solid rgba(255,255,255,0.06); box-shadow: 0 1px 4px rgba(0,0,0,0.3); letter-spacing: 0.1px; white-space: nowrap; line-height: 14px;">
+                                <i class="fa-regular fa-circle-check" style="margin-right: 1px; font-size: 5px;"></i> @Tempestes.cat
+                            </span>
+                            <span style="background: rgba(21, 44, 68, 0.92); backdrop-filter: blur(4px); color: #f5c842; padding: 0px 6px; border-radius: 10px; font-size: 6px; font-weight: 700; border: 1px solid rgba(255,255,255,0.06); box-shadow: 0 1px 4px rgba(0,0,0,0.3); letter-spacing: 0.1px; white-space: nowrap; line-height: 14px;">
+                                <i class="fa-regular fa-circle-check" style="margin-right: 1px; font-size: 5px;"></i> @ruben.aibar.martinez
+                            </span>
+                        </div>
+                    `;
+                }
+
                 card.innerHTML = `
-                    <div class="blog-img">
+                    <div class="blog-img" style="position: relative;">
                         <img src="${article.img}" alt="${article.title}" onerror="this.parentElement.style.background='#e8edf2';this.style.display='none'">
                         <span class="blog-category">${article.category}</span>
+                        ${tagsHTML}
                     </div>
                     <div class="blog-body">
                         <div class="blog-title">${article.title}</div>
@@ -3327,9 +3351,8 @@ CONTACTE (amb EmailJS)
                 grid.appendChild(card);
             });
         }
-
         // ============================================================
-        // MOSTRA ARTICLE COMPLET (MODAL)
+        // MOSTRA ARTICLE COMPLET (MODAL) AMB IMATGE I ETIQUETES
         // ============================================================
         function showArticle(id) {
             const article = articles.find(a => a.id === id);
@@ -3339,19 +3362,61 @@ CONTACTE (amb EmailJS)
             const content = document.getElementById('articleModalContent');
             if (!overlay || !content) return;
 
-            content.innerHTML = `
+            // Detectar si és l'article 15 per mostrar les etiquetes
+            const isCacatempestes = (id === 15);
+
+            let tagsHTML = '';
+            if (isCacatempestes) {
+                tagsHTML = `
+                    <div style="position: absolute; bottom: 16px; left: 16px; right: 16px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; z-index: 5;">
+                        <span style="background: rgba(21, 44, 68, 0.88); backdrop-filter: blur(8px); color: #f5c842; padding: 5px 16px; border-radius: 30px; font-size: 12px; font-weight: 600; border: 1px solid rgba(255,255,255,0.12); box-shadow: 0 2px 12px rgba(0,0,0,0.3);">
+                            <i class="fa-regular fa-circle-check" style="margin-right: 5px;"></i> @Meteo.Felix
+                        </span>
+                        <span style="background: rgba(21, 44, 68, 0.88); backdrop-filter: blur(8px); color: #f5c842; padding: 5px 16px; border-radius: 30px; font-size: 12px; font-weight: 600; border: 1px solid rgba(255,255,255,0.12); box-shadow: 0 2px 12px rgba(0,0,0,0.3);">
+                            <i class="fa-regular fa-circle-check" style="margin-right: 5px;"></i> @Meteo_nordeste
+                        </span>
+                        <span style="background: rgba(21, 44, 68, 0.88); backdrop-filter: blur(8px); color: #f5c842; padding: 5px 16px; border-radius: 30px; font-size: 12px; font-weight: 600; border: 1px solid rgba(255,255,255,0.12); box-shadow: 0 2px 12px rgba(0,0,0,0.3);">
+                            <i class="fa-regular fa-circle-check" style="margin-right: 5px;"></i> @Tempestes.cat
+                        </span>
+                        <span style="background: rgba(21, 44, 68, 0.88); backdrop-filter: blur(8px); color: #f5c842; padding: 5px 16px; border-radius: 30px; font-size: 12px; font-weight: 600; border: 1px solid rgba(255,255,255,0.12); box-shadow: 0 2px 12px rgba(0,0,0,0.3);">
+                            <i class="fa-regular fa-circle-check" style="margin-right: 5px;"></i> @ruben.aibar.martinez
+                        </span>
+                    </div>
+                `;
+            }
+
+            // Construir el contingut del modal amb la imatge a dalt
+            let modalContent = `
                 <button class="modal-close" onclick="closeArticleModal()">✕</button>
-                <div class="modal-category">${article.category}</div>
-                ${article.content}
+                
+                <!-- CAPÇALERA AMB IMATGE I ETIQUETES -->
+                <div style="position: relative; border-radius: 12px; overflow: hidden; margin-bottom: 24px; background: #152c44; aspect-ratio: 16/9; width: 100%;">
+                    <img src="${article.img}" alt="${article.title}" style="width: 100%; height: 100%; object-fit: cover; display: block;" onerror="this.style.display='none'; this.parentElement.style.background='linear-gradient(135deg,#152c44,#1e3a5f)';">
+                    ${tagsHTML}
+                    <!-- Categoria a la part superior esquerra (opcional) -->
+                    <span style="position: absolute; top: 16px; left: 16px; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); color: #f5c842; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 4px 16px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.08); z-index: 5;">
+                        ${article.category}
+                    </span>
+                </div>
+                
+                <!-- COS DE L'ARTICLE -->
+                <div style="padding: 0 4px;">
+                    ${article.content}
+                </div>
+                
                 <div class="modal-footer">
-                    TEMPESTES.CAT 
+                    TEMPESTES.CAT · ${new Date().getFullYear()}
                 </div>
             `;
 
+            content.innerHTML = modalContent;
             overlay.classList.add('active');
             document.body.style.overflow = 'hidden';
         }
 
+        // ============================================================
+        // TANCAR MODAL DE L'ARTICLE
+        // ============================================================
         function closeArticleModal() {
             const overlay = document.getElementById('articleModal');
             if (overlay) {
@@ -3359,16 +3424,6 @@ CONTACTE (amb EmailJS)
                 document.body.style.overflow = '';
             }
         }
-
-        // Tancar modal amb Escape
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') closeArticleModal();
-        });
-
-        // Tancar modal clicant fora
-        document.getElementById('articleModal')?.addEventListener('click', function(e) {
-            if (e.target === this) closeArticleModal();
-        });
 
         // ============================================================
         // CERCADOR
