@@ -3302,11 +3302,39 @@ function resaltarHoraEnGrid(idx) {
 }
 
 
-
+// ─── Lock global para evitar reconstrucciones solapadas ──────────────
+let _construintGrid = false;
+let _construirGridPendent = false;
 
 function construirGraellaHores() {
+    // Si ya se está construyendo, marcar que hace falta una repetición
+    // al final, en vez de lanzar una segunda reconstrucción en paralelo.
+    if (_construintGrid) {
+        _construirGridPendent = true;
+        return;
+    }
+    _construintGrid = true;
+
+    try {
+        _construirGraellaHoresReal();
+    } finally {
+        _construintGrid = false;
+        if (_construirGridPendent) {
+            _construirGridPendent = false;
+            // Reconstrucción diferida al siguiente frame, ya con datos frescos
+            requestAnimationFrame(() => construirGraellaHores());
+        }
+    }
+}
+
+function _construirGraellaHoresReal() {
     const grid = document.getElementById('fh_grid');
-    if (!grid) return;
+    if (!grid) {
+        console.warn('[Grid] Element fh_grid no trobat');
+        return;
+    }
+
+    // Ya no hace falta netejarGridEvents(): innerHTML='' destruye los listeners igualmente.
     grid.innerHTML = '';
 
     if (!totesLesHores || totesLesHores.length === 0) {
@@ -3315,33 +3343,36 @@ function construirGraellaHores() {
     }
 
     const container = document.createElement('div');
-    container.style.cssText = 'display:flex;gap:3px;align-items:center;padding:2px 4px;';
+    container.className = 'fh-grid-container';
+    container.style.cssText = 'display:flex;gap:3px;align-items:center;padding:2px 4px;overflow-x:auto;';
+
+    if (curIdx >= totesLesHores.length) {
+        curIdx = 0;
+    }
 
     totesLesHores.forEach((item, i) => {
         const teDataReal = !!item.dateObj;
-        
-        // ✅ NUEVO: Calcular hora de Madrid
+
         let horaStr = '';
         let minStr = '';
-        
+
         if (teDataReal) {
-            // Convertir a hora de Madrid (UTC+1 o UTC+2 según época del año)
-            const madridTime = new Date(item.dateObj.toLocaleString('en-US', { timeZone: 'Europe/Madrid' }));
-            const horas = String(madridTime.getHours()).padStart(2, '0');
-            const minutos = String(madridTime.getMinutes()).padStart(2, '0');
-            horaStr = horas + 'h';
-            minStr = minutos;
+            try {
+                const madridTime = new Date(item.dateObj.toLocaleString('en-US', { timeZone: 'Europe/Madrid' }));
+                horaStr = String(madridTime.getHours()).padStart(2, '0') + 'h';
+                minStr = String(madridTime.getMinutes()).padStart(2, '0');
+            } catch (e) {
+                const step = item.step;
+                horaStr = String(Math.floor(step / 2)).padStart(2, '0') + 'h';
+                minStr = String((step % 2) * 30).padStart(2, '0');
+            }
         } else {
-            // Si no hay datos reales, mostrar el step (pero formateado)
             const step = item.step;
-            const horaStep = Math.floor(step / 2); // Asumiendo step cada 30min
-            const minutosStep = (step % 2) * 30;
-            horaStr = String(horaStep).padStart(2, '0') + 'h';
-            minStr = String(minutosStep).padStart(2, '0');
+            horaStr = String(Math.floor(step / 2)).padStart(2, '0') + 'h';
+            minStr = String((step % 2) * 30).padStart(2, '0');
         }
 
         const isActive = (i === curIdx);
-
         const horaLliure = (i % 3 === 0);
         const userAra = window._firebaseUser || null;
         const itemBloquejatVisual = !userAra && !horaLliure;
@@ -3384,7 +3415,24 @@ function construirGraellaHores() {
             `;
         }
 
-        // Event listeners...
+        cell.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const idx = parseInt(this.dataset.idx);
+            if (isNaN(idx)) return;
+
+            const lliure = (idx % 3 === 0);
+            const userActual = window._firebaseUser || null;
+
+            if (!userActual && !lliure) {
+                if (typeof loginWithGoogle === 'function') loginWithGoogle();
+                return;
+            }
+
+            if (typeof mostrarHora === 'function') {
+                mostrarHora(idx);
+            }
+        });
+
         cell.addEventListener('mouseenter', function() {
             if (!this.classList.contains('active')) {
                 this.style.background = 'rgba(255,255,255,0.08)';
@@ -3398,21 +3446,6 @@ function construirGraellaHores() {
             }
         });
 
-        cell.onclick = function(e) {
-            e.stopPropagation();
-            const idx = parseInt(this.dataset.idx);
-            const lliure = (idx % 3 === 0);
-            const userActual = window._firebaseUser || null;
-
-            if (!userActual && !lliure) {
-                if (typeof loginWithGoogle === 'function') {
-                    loginWithGoogle();
-                }
-                return;
-            }
-            mostrarHora(idx);
-        };
-
         container.appendChild(cell);
     });
 
@@ -3421,13 +3454,24 @@ function construirGraellaHores() {
     setTimeout(() => {
         const active = grid.querySelector('.fh-item.active');
         if (active) {
-            active.scrollIntoView({
-                behavior: 'smooth',
-                block: 'nearest',
-                inline: 'center'
-            });
+            active.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
         }
-    }, 150);
+    }, 100);
+}
+
+
+// ─── NETEGAR ESDEVENIMENTS DUPLICATS ──────────────────────────────────
+function netejarGridEvents() {
+    const grid = document.getElementById('fh_grid');
+    if (!grid) return;
+    
+    // Eliminar tots els listeners clonats (si n'hi ha)
+    const items = grid.querySelectorAll('.fh-item');
+    items.forEach(item => {
+        // Clonar i substituir per eliminar listeners antics
+        const nouItem = item.cloneNode(true);
+        item.parentNode.replaceChild(nouItem, item);
+    });
 }
 
 
@@ -4325,47 +4369,47 @@ async function carregarTots3DAmbFeedback() {
     const CONCURRENCIA_3D_CARREGA = 2;
     let cursor = 0;
     let errors = 0;
-
-    async function worker3D() {
-        while (cursor < perCarregar.length) {
-            const idx = perCarregar[cursor++];
-            try {
-                const ok = await assegurarHoraCarregada(idx, true);
-                if (ok) {
-                    SISTEMA_3D.carregats++;
-                } else {
-                    errors++;
-                    console.warn(`[3D] Error carregant hora ${idx}`);
-                }
-            } catch (e) {
+async function worker3D() {
+    while (cursor < perCarregar.length) {
+        const idx = perCarregar[cursor++];
+        try {
+            const ok = await assegurarHoraCarregada(idx, true);
+            if (ok) {
+                SISTEMA_3D.carregats++;
+            } else {
                 errors++;
-                console.warn(`[3D] Excepción carregant hora ${idx}:`, e);
+                console.warn(`[3D] Error carregant hora ${idx}`);
             }
+        } catch (e) {
+            errors++;
+            console.warn(`[3D] Excepción carregant hora ${idx}:`, e);
+        }
 
-            // Actualizar progreso
-            const completats = SISTEMA_3D.carregats + (perCarregar.length - cursor);
-            SISTEMA_3D.progress = completats / perCarregar.length;
-            actualitzarNotificacio3D(SISTEMA_3D.progress, SISTEMA_3D.carregats, perCarregar.length);
+        // Actualizar progreso
+        const completats = SISTEMA_3D.carregats + (perCarregar.length - cursor);
+        SISTEMA_3D.progress = completats / perCarregar.length;
+        actualitzarNotificacio3D(SISTEMA_3D.progress, SISTEMA_3D.carregats, perCarregar.length);
 
-            // Si hay un cambio visible, actualizar el panel
-            if (SISTEMA_3D.carregats % 3 === 0 || cursor === perCarregar.length) {
-                // Actualizar el grid de horas para mostrar 3D disponible
-                construirGraellaHores();
+        // Si hay un cambio visible, actualizar el panel
+        // 🔧 CAMBIADO: de % 3 === 0 a % 6 === 0 para reducir reconstrucciones del grid
+        if (SISTEMA_3D.carregats % 6 === 0 || cursor === perCarregar.length) {
+            // Actualizar el grid de horas para mostrar 3D disponible
+            construirGraellaHores();
 
-                // Si la hora actual ahora tiene 3D, refrescar el mapa
-                if (horaTe3D(curIdx) && canvasLayer) {
-                    const item = totesLesHores[curIdx];
-                    if (item && item.data) {
-                        canvasLayer.setData(item.data);
-                        if (window.ventEnabled && typeof redibuixarVent === 'function') redibuixarVent();
-                    }
+            // Si la hora actual ahora tiene 3D, refrescar el mapa
+            if (horaTe3D(curIdx) && canvasLayer) {
+                const item = totesLesHores[curIdx];
+                if (item && item.data) {
+                    canvasLayer.setData(item.data);
+                    if (window.ventEnabled && typeof redibuixarVent === 'function') redibuixarVent();
                 }
             }
-
-            // Pequeña pausa para no saturar
-            await new Promise(r => setTimeout(r, 10));
         }
+
+        // Pequeña pausa para no saturar
+        await new Promise(r => setTimeout(r, 10));
     }
+}
 
     // Lanzar workers
     const workers = [];
