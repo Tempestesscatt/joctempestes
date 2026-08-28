@@ -3326,7 +3326,6 @@ function construirGraellaHores() {
         }
     }
 }
-
 function _construirGraellaHoresReal() {
     const grid = document.getElementById('fh_grid');
     if (!grid) {
@@ -3334,7 +3333,6 @@ function _construirGraellaHoresReal() {
         return;
     }
 
-    // Ya no hace falta netejarGridEvents(): innerHTML='' destruye los listeners igualmente.
     grid.innerHTML = '';
 
     if (!totesLesHores || totesLesHores.length === 0) {
@@ -3359,17 +3357,26 @@ function _construirGraellaHoresReal() {
         if (teDataReal) {
             try {
                 const madridTime = new Date(item.dateObj.toLocaleString('en-US', { timeZone: 'Europe/Madrid' }));
-                horaStr = String(madridTime.getHours()).padStart(2, '0') + 'h';
-                minStr = String(madridTime.getMinutes()).padStart(2, '0');
+                // ✅ Format: "12:00", "18:30", etc.
+                const hh = String(madridTime.getHours()).padStart(2, '0');
+                const mm = String(madridTime.getMinutes()).padStart(2, '0');
+                horaStr = hh + ':' + mm;
+                minStr = ''; // Ya no necesitamos minutos separados
             } catch (e) {
+                // Fallback si falla la fecha
                 const step = item.step;
-                horaStr = String(Math.floor(step / 2)).padStart(2, '0') + 'h';
-                minStr = String((step % 2) * 30).padStart(2, '0');
+                const hh = String(Math.floor(step / 2)).padStart(2, '0');
+                const mm = String((step % 2) * 30).padStart(2, '0');
+                horaStr = hh + ':' + mm;
+                minStr = '';
             }
         } else {
+            // Si no hay fecha real, usar step
             const step = item.step;
-            horaStr = String(Math.floor(step / 2)).padStart(2, '0') + 'h';
-            minStr = String((step % 2) * 30).padStart(2, '0');
+            const hh = String(Math.floor(step / 2)).padStart(2, '0');
+            const mm = String((step % 2) * 30).padStart(2, '0');
+            horaStr = hh + ':' + mm;
+            minStr = '';
         }
 
         const isActive = (i === curIdx);
@@ -3393,7 +3400,7 @@ function _construirGraellaHoresReal() {
             border: ${isActive ? '1px solid rgba(255,215,0,0.3)' : '1px solid transparent'};
             transition: all 0.15s ease;
             text-align: center;
-            min-width: 32px;
+            min-width: 40px;
             position: relative;
             user-select: none;
             font-family: 'Segoe UI', Tahoma, sans-serif;
@@ -3405,13 +3412,11 @@ function _construirGraellaHoresReal() {
             cell.title = 'Inicia sessió per desbloquejar';
             cell.innerHTML = `
                 <span style="font-size:12px;font-weight:600;display:block;">${horaStr}</span>
-                <span style="font-size:7px;color:#3a4a5a;display:block;margin-top:-1px;">${minStr}</span>
                 <span style="position:absolute;top:-2px;right:-1px;font-size:7px;color:#FF6B35;"><i class="fas fa-lock"></i></span>
             `;
         } else {
             cell.innerHTML = `
                 <span style="font-size:12px;font-weight:600;display:block;">${horaStr}</span>
-                <span style="font-size:7px;color:#3a4a5a;display:block;margin-top:-1px;">${minStr}</span>
             `;
         }
 
@@ -4535,9 +4540,7 @@ mostrarHora = async function(idx) {
     }
 
     // Si hay 3D cargando y no está completa, iniciar en background
-    if (!SISTEMA_3D.complet && !SISTEMA_3D.carregant && !horaTe3D(idx)) {
-        setTimeout(() => iniciarCarga3D(), 500);
-    }
+  
 };
 
 function afegirBotoCarga3D() {
