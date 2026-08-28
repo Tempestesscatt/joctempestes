@@ -11,232 +11,20 @@
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <style>
-        /* ═══ MODAL RADAR EN TEMPS REAL (flotant, mateixa pestanya) ═══ */
-        .radar-modal-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.65);
-            z-index: 9999;
-            align-items: center;
-            justify-content: center;
-        }
 
-.popup-minimal .leaflet-popup-content-wrapper {
-    background: transparent;
-    box-shadow: none;
-    border-radius: 4px;
-    padding: 0;
-}
-.popup-minimal .leaflet-popup-content {
-    margin: 0;
-}
-.popup-minimal .leaflet-popup-tip {
-    background: rgba(0, 0, 0, 0.75);
-    box-shadow: none;
-}
-
-#app {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    z-index: 1;
-}
-
-body > *:first-child {
-    z-index: 0 !important;
-}
-
-
-/* Variables premium bloquejades */
-.param-row-premium-bloquejat {
-    opacity: 0.35 !important;
-    filter: grayscale(0.8) !important;
-    cursor: not-allowed !important;
-}
-
-.param-row-premium-bloquejat .param-link {
-    color: #667788 !important;
-}
-
-.param-row-premium-bloquejat .param-unit {
-    color: #445566 !important;
-}
-
-.param-row-premium-bloquejat:hover {
-    background: rgba(255,255,255,0.02) !important;
-}
-
-/* ═══ ESTILS PER AL CANVI DE NOM ═══ */
-#profileName:disabled {
-    background: rgba(255,255,255,0.05);
-    border-color: rgba(255,255,255,0.1);
-    color: #8899aa;
-}
-
-#profileName:not(:disabled) {
-    border-color: #FF8C00;
-}
-
-#profileName:not(:disabled):focus {
-    border-color: #FF8C00;
-    box-shadow: 0 0 10px rgba(255,140,0,0.3);
-}
-
-.avis-nom {
-    margin-top: 8px;
-    padding: 8px 12px;
-    background: rgba(255,140,0,0.1);
-    border: 1px solid rgba(255,140,0,0.3);
-    border-radius: 6px;
-    color: #FF8C00;
-    font-size: 12px;
-    animation: fadeIn 0.3s ease;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-5px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* ═══ SCROLLBAR PERSONALITZADA — CERCADOR DE POBLACIONS ═══ */
-        #townSearchResults::-webkit-scrollbar {
-            width: 6px;
-        }
-        #townSearchResults::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        #townSearchResults::-webkit-scrollbar-thumb {
-            background: #2a4361;
-            border-radius: 3px;
-        }
-        #townSearchResults::-webkit-scrollbar-thumb:hover {
-            background: #3a5a80;
-        }
-        #townSearchResults {
-            scrollbar-width: thin;
-            scrollbar-color: #2a4361 transparent;
-        }
-
-        /* ═══ MARCADOR HOVER — CERCADOR DE POBLACIONS ═══ */
-        .town-hover-dot {
-            width: 14px;
-            height: 14px;
-            border-radius: 50%;
-            background: #000000;
-            border: 2px solid #ffffff;
-            box-shadow: 0 0 0 4px rgba(111, 195, 255, 0.35), 0 2px 6px rgba(0,0,0,0.4);
-            animation: townHoverPulse 1.2s ease-in-out infinite;
-        }
-        @keyframes townHoverPulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.25); }
-        }
-        
-        .radar-modal-overlay.active {
-            display: flex;
-        }
-        .radar-modal {
-            background: #0b1420;
-            border: 1px solid #223247;
-            border-radius: 10px;
-            width: min(1100px, 94vw);
-            height: min(750px, 90vh);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            box-shadow: 0 12px 40px rgba(0,0,0,0.5);
-        }
-        .radar-modal-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px 14px;
-            background: #101d2e;
-            border-bottom: 1px solid #223247;
-            flex-shrink: 0;
-        }
-        .radar-modal-header h3 {
-            margin: 0;
-            font-size: 14px;
-            color: #e6edf3;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .radar-modal-header h3 i {
-            color: #3ea6ff;
-        }
-        .radar-modal-close {
-            background: transparent;
-            border: none;
-            color: #9fb0c3;
-            font-size: 16px;
-            cursor: pointer;
-            padding: 4px 8px;
-            border-radius: 6px;
-            line-height: 1;
-        }
-        .radar-modal-close:hover {
-            background: #1a2a3d;
-            color: #fff;
-        }
-        .radar-modal-body {
-            flex: 1;
-            position: relative;
-            background: #000;
-        }
-        .radar-modal-body iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-            display: block;
-        }
-        .radar-modal-loading {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #9fb0c3;
-            font-size: 13px;
-            background: #0b1420;
-        }
-        .radar-modal-loading.hidden {
-            display: none;
-        }
-
-        /* Botó a la topnav */
-        .topnav-radar-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 7px 12px;
-            border-radius: 6px;
-            background: #142338;
-            color: #6fc3ff;
-            border: 1px solid #2a4361;
-            font-size: 13px;
-            cursor: pointer;
-            text-decoration: none;
-            font-weight: 500;
-        }
-        .topnav-radar-btn:hover {
-            background: #1c3350;
-        }
-        .topnav-radar-btn i {
-            font-size: 12px;
-        }
     </style>
 </head>
 <body>
     <div id="app">
+
+
+        <!-- ═══ OVERLAY PER TANCAR SIDEBAR ═══ -->
+<div id="sidebar-overlay"></div>
+
+<!-- ═══ BOTÓ HAMBURGUESA PER OBRIR SIDEBAR ═══ -->
+<button id="sidebar-toggle-btn" title="Obrir menú de paràmetres">
+    <i class="fas fa-bars"></i>
+</button>
 
         <!-- ═══ TOPNAV ═══ -->
         <div id="topnav">
@@ -274,16 +62,21 @@ body > *:first-child {
         <div id="body-row">
 
             <!-- PANELL LATERAL -->
-            <div id="side-panel">
-                <div id="side-panel-header">
-                    <div class="label">Cercar paràmetre</div>
-                    <input type="text" id="parameter_search" placeholder="p.ex. temperatura, vent, CAPE..." autocomplete="off" />
-                </div>
-                <div id="parameter_selection">
-                    <!-- omplert dinàmicament per mapa.js -->
-                </div>
-            </div>
-
+<!-- PANELL LATERAL (ara lliscant) -->
+<div id="side-panel">
+    <div id="side-panel-header">
+        <span class="label">📊 Paràmetres</span>
+        <button class="sidebar-close-btn" id="sidebar-close-btn" title="Tancar">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    <div style="padding: 0 18px 10px 18px; flex-shrink: 0;">
+        <input type="text" id="parameter_search" placeholder=" Cercar paràmetre..." autocomplete="off" />
+    </div>
+    <div class="scroll-area" id="parameter_selection">
+        <!-- omplert dinàmicament per mapa.js -->
+    </div>
+</div>
             <!-- MAIN -->
             <div id="main-area">
 
@@ -474,7 +267,7 @@ body > *:first-child {
 <!-- ANTES de mapa.js -->
 <script src="js/status.js"></script>
 <script src="js/cap.js"></script>
-<script src="js/rangs.js"></script>
+
 <script src="js/premium.js"></script>
 <script src="js/accesvariable.js"></script>
 <script src="js/msgpack.min.js"></script>
@@ -1129,6 +922,7 @@ window.quantsCanvisFotoDisponibles = quantsCanvisFotoDisponibles;
             });
         }
     }
+    
 
     document.getElementById('profileModal')?.addEventListener('click', function(e) {
         if (e.target === this) closeProfile();
@@ -1670,8 +1464,98 @@ window.addEventListener('tc:login', async function(e) {
         var random = Math.random().toString(36).substring(7);
         document.write('<script src="js/status.js?nocache=' + timestamp + '_' + random + '"><\/script>');
     })();
+    
 </script>
+
+
+
+<script>
+(function() {
+    const sidePanel = document.getElementById('side-panel');
+    const toggleBtn = document.getElementById('sidebar-toggle-btn');
+    const closeBtn = document.getElementById('sidebar-close-btn');
+    const overlay = document.getElementById('sidebar-overlay');
+    const mainArea = document.getElementById('main-area');
+
+    let isOpen = false;
+
+    function obrirSidebar() {
+        isOpen = true;
+        sidePanel.classList.add('obert');
+        toggleBtn.classList.add('obert');
+        overlay.classList.add('visible');
+        mainArea?.classList.add('sidebar-obert');
+        toggleBtn.innerHTML = '<i class="fas fa-chevron-left"></i>';
+        document.body.style.overflow = 'hidden';
+        
+        // Disparar event per si cal refrescar
+        document.dispatchEvent(new CustomEvent('sidebar:obert'));
+    }
+
+    function tancarSidebar() {
+        isOpen = false;
+        sidePanel.classList.remove('obert');
+        toggleBtn.classList.remove('obert');
+        overlay.classList.remove('visible');
+        mainArea?.classList.remove('sidebar-obert');
+        toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+        document.body.style.overflow = '';
+        
+        document.dispatchEvent(new CustomEvent('sidebar:tancat'));
+    }
+
+    function toggleSidebar() {
+        isOpen ? tancarSidebar() : obrirSidebar();
+    }
+
+    // ─── Event listeners ──────────────────────────────────────────────
+    toggleBtn.addEventListener('click', toggleSidebar);
+    closeBtn.addEventListener('click', tancarSidebar);
+    overlay.addEventListener('click', tancarSidebar);
+
+    // Tancar amb Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && isOpen) {
+            tancarSidebar();
+        }
+    });
+
+    // Si el panell de paràmetres es reconstrueix, mantenir l'estat
+    const observer = new MutationObserver(() => {
+        if (isOpen) {
+            sidePanel.classList.add('obert');
+        }
+    });
+    
+    const paramSelection = document.getElementById('parameter_selection');
+    if (paramSelection) {
+        observer.observe(paramSelection, { childList: true, subtree: true });
+    }
+
+    // ─── Exposar globalment ───────────────────────────────────────────
+    window.toggleSidebar = toggleSidebar;
+    window.obrirSidebar = obrirSidebar;
+    window.tancarSidebar = tancarSidebar;
+    window.isSidebarOpen = () => isOpen;
+
+    // Obrir automàticament en escriptori si no hi ha cap paràmetre seleccionat
+    if (window.innerWidth > 768) {
+        setTimeout(() => {
+            if (!document.querySelector('.param-row.param-selected')) {
+                obrirSidebar();
+            }
+        }, 1500);
+    }
+
+    console.log('✅ Sidebar lliscant inicialitzat correctament');
+})();
+</script>
+
+
+
 <!-- eliminar: <script src="js/status.js"></script> -->
 
 </body>
+
+
 </html>
