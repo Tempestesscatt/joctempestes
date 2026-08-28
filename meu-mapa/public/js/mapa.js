@@ -4451,6 +4451,10 @@ function inicialitzarSistema3D() {
     });
 }
 
+
+
+
+
 // ─── Exponer funciones globalmente ───────────────────────────────────
 window.iniciarCarga3D = iniciarCarga3D;
 window.carregarTots3DAmbFeedback = carregarTots3DAmbFeedback;
@@ -4465,3 +4469,5 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
 }
 
 console.log('✅ Sistema de carga 3D con feedback inicializado.');
+
+
