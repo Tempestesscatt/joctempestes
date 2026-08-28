@@ -1,0 +1,168 @@
+name: AVIS + ENSEMBLES
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Cada dia a les 5:00 AM (UTC)
+    - cron: '0 5 * * *'
+
+permissions:
+  contents: write
+  deployments: write
+
+jobs:
+  # ════════════════════════════════════════════════════════════════
+  #  JOB: AVIS - Genera el mapa d'outbreak
+  # ════════════════════════════════════════════════════════════════
+  avis:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.PRIVATE_REPO_TOKEN }}
+
+    - name: Clonar private-scripts
+      run: |
+        rm -rf private-scripts-new
+        git clone https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/Tempestesscatt/Scripts.git private-scripts-new
+
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Instal·lar dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libgeos-dev libproj-dev proj-data proj-bin
+        python3 -m pip install --upgrade pip
+        python3 -m pip install numpy requests tifffile scipy python-dotenv lxml xarray cfgrib meteofetch matplotlib cartopy
+      continue-on-error: true
+
+    - name: Crear carpeta avis
+      run: |
+        mkdir -p meu-mapa/public/avis
+        echo "Carpeta avis creada"
+
+    - name: Configurar API key
+      run: |
+        cd private-scripts-new
+        python3 -c 'import json; cfg = json.load(open("configAVIS.json", "r", encoding="utf-8-sig")); cfg["api_key"] = "${{ secrets.AROME_API_KEY }}"; json.dump(cfg, open("configAVIS.json", "w", encoding="utf-8"), indent=2)'
+
+    - name: Executar avis.py
+      run: |
+        cd private-scripts-new
+        for i in 1 2 3; do
+          echo "--- avis.py: intent $i/3 ---"
+          python3 avis.py && echo "✅ avis.py: exit a l'intent $i" && exit 0 || echo "❌ avis.py: ha fallat (codi $?) a l'intent $i/3"
+          sleep 30
+        done
+        echo "❌ avis.py: tots els 3 intents han fallat." && exit 1
+      timeout-minutes: 100
+
+    - name: Mostrar log de avis.py si falla
+      if: failure()
+      run: |
+        echo "=== LOG DE AVIS.PY ==="
+        find . -name "*.log" -type f -exec cat {} \; 2>/dev/null || echo "No s'ha trobat cap log"
+
+    - name: Verificar fitxers generats
+      run: |
+        echo "=== Fitxers generats a avis/ ==="
+        ls -la meu-mapa/public/avis/ 2>/dev/null || echo "No hi ha fitxers"
+        echo ""
+        echo "=== Comprovant nivell.json ==="
+        cat meu-mapa/public/avis/nivell.json 2>/dev/null || echo "No existeix nivell.json"
+
+    - name: Deploy a Cloudflare
+      run: |
+        cd meu-mapa
+        npm install -g wrangler
+        wrangler pages deploy public --project-name=tempestes-cat --branch=main --commit-dirty=true
+      env:
+        CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+    - name: Completat AVIS
+      run: |
+        echo "============================================"
+        echo "  ✅ AVIS COMPLETAT!"
+        echo "  Mapa d'outbreak generat i desplegat"
+        echo "  Fitxers a: meu-mapa/public/avis/"
+        echo "  Hora: $(date)"
+        echo "============================================"
+
+  # ════════════════════════════════════════════════════════════════
+  #  JOB: ENSEMBLES - Genera els gràfics d'ensembles
+  # ════════════════════════════════════════════════════════════════
+  ensembles:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.PRIVATE_REPO_TOKEN }}
+
+    - name: Clonar private-scripts
+      run: |
+        rm -rf private-scripts-new
+        git clone https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/Tempestesscatt/Scripts.git private-scripts-new
+
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Instal·lar dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libgeos-dev libproj-dev proj-data proj-bin
+        python3 -m pip install --upgrade pip
+        python3 -m pip install numpy requests matplotlib
+      continue-on-error: true
+
+    - name: Crear carpeta previsions_catalunya
+      run: |
+        mkdir -p meu-mapa/public/previsions_catalunya
+        echo "Carpeta previsions_catalunya creada"
+
+    - name: Executar enssambles.py
+      run: |
+        cd private-scripts-new
+        echo "--- enssambles.py: inici ---"
+        echo "Hora d'inici: $(date)"
+        python3 enssambles.py 2>&1 | tee ensembles.log
+        echo "Hora de final: $(date)"
+        echo "✅ enssambles.py: completat"
+      timeout-minutes: 300
+
+    - name: Mostrar log si falla
+      if: failure()
+      run: |
+        echo "=== LOG DE ENSSAMBLES.PY ==="
+        cat private-scripts-new/ensembles.log 2>/dev/null || echo "No s'ha trobat cap log"
+
+    - name: Verificar fitxers generats
+      run: |
+        echo "=== Fitxers generats a previsions_catalunya/ ==="
+        ls -la meu-mapa/public/previsions_catalunya/ 2>/dev/null || echo "No hi ha fitxers"
+        echo ""
+        echo "=== Comptant imatges PNG ==="
+        find meu-mapa/public/previsions_catalunya/ -name "*.png" -type f | wc -l
+
+    - name: Deploy a Cloudflare
+      run: |
+        cd meu-mapa
+        npm install -g wrangler
+        wrangler pages deploy public --project-name=tempestes-cat --branch=main --commit-dirty=true
+      env:
+        CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+    - name: Completat ENSEMBLES
+      run: |
+        echo "============================================"
+        echo "  ✅ ENSEMBLES COMPLETAT!"
+        echo "  Gràfics d'ensembles generats i desplegats"
+        echo "  Fitxers a: meu-mapa/public/previsions_catalunya/"
+        echo "  Hora: $(date)"
+        echo "============================================"
