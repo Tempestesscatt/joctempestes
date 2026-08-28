@@ -18,7 +18,7 @@ const REGION = {
 };
 
 const MAX_STEPS = 52;
-const DADES_PATH = './dades';
+const DADES_PATH = 'dades'; 
 
 const VARS_SENSE_VENT = [
     // ═══════════════════════════════════════════════════════════════
@@ -1697,30 +1697,21 @@ function escalarVariablesMitjana(variables) {
     if (variables['CIWC_MITJANA']?.datos) {
         const vals = variables['CIWC_MITJANA'].datos;
         const escalats = new Float32Array(vals.length);
-        for (let i = 0; i < vals.length; i++) {
-            escalats[i] = vals[i] * 1000;
-        }
+        for (let i = 0; i < vals.length; i++) escalats[i] = vals[i] * 1000;
         variables['CIWC_MITJANA'].datos = escalats;
     }
-
     if (variables['CLD_RAIN_MITJANA']?.datos) {
         const vals = variables['CLD_RAIN_MITJANA'].datos;
         const escalats = new Float32Array(vals.length);
-        for (let i = 0; i < vals.length; i++) {
-            escalats[i] = vals[i] * 100;
-        }
+        for (let i = 0; i < vals.length; i++) escalats[i] = vals[i] * 100;
         variables['CLD_RAIN_MITJANA'].datos = escalats;
     }
-
     if (variables['TPW_MITJANA']?.datos) {
         const vals = variables['TPW_MITJANA'].datos;
         const escalats = new Float32Array(vals.length);
-        for (let i = 0; i < vals.length; i++) {
-            escalats[i] = vals[i];
-        }
+        for (let i = 0; i < vals.length; i++) escalats[i] = vals[i];
         variables['TPW_MITJANA'].datos = escalats;
     }
-
     return variables;
 }
 
@@ -1729,26 +1720,21 @@ function escalarVariablesMitjana(variables) {
 // ═══════════════════════════════════════════════════════════════════════
 
 const GRUP_PRINCIPAL = ['st', 'sd', 'srh', 'temp_min2m', 'temp_max2m', 'wind_speed_10m', 'wind_gust'];
-     
+ 
 const GRUPS_SIMPLES = {
-    // === TEMPERATURA I CONDICIONS GENERALS ===
     'Temperatura i Humitat': [
         'st', 'sd', 'temp_min2m', 'temp_max2m',
         'TEMPERATURE__GROUND_OR_WATER_SURFACE',
         'T__GROUND',
     ],
-
     'Pressió': [
         'pressure_msl', 'sp',
         'PRESSURE__GROUND_OR_WATER_SURFACE',
         'PRESSURE__MEAN_SEA_LEVEL',
     ],
-
-    // === VENT ===
     'Vent en superfície': [
         'wind_speed_10m', 'wind_gust',
     ],
-
     'Vent en nivells (3D)': [
         'wind_speed_1000', 'wind_speed_950', 'wind_speed_925', 'wind_speed_900',
         'wind_speed_875', 'wind_speed_850', 'wind_speed_800', 'wind_speed_750',
@@ -1757,16 +1743,12 @@ const GRUPS_SIMPLES = {
         'wind_speed_300', 'wind_speed_250', 'wind_speed_200', 'wind_speed_150',
         'wind_speed_100',
     ],
-
     'Velocitat vertical': [
         'w_925', 'w_850', 'w_700', 'w_500', 'w_300',
     ],
-
     'Shear i SRH': [
         'shear_03', 'shear_06', 'srh_01', 'srh_03', 'srh', 'sh2',
     ],
-
-    // === PRECIPITACIÓ ===
     'Precipitació': [
         'tp', 'tsnowp',
         'TOTAL_PRECIPITATION_RATE__GROUND_OR_WATER_SURFACE',
@@ -1780,48 +1762,38 @@ const GRUPS_SIMPLES = {
         'tpw_700', 'tpw_850',
         'PRECIP__GROUND',
     ],
-
-    // === NEU ===
     'Neu': [
         'SNOW_DEPTH__GROUND_OR_WATER_SURFACE',
         'WATER_EQUIVALENT_ACCUMULATED_SNOW__GROUND_OR_WATER_SURFACE',
         'HTEURNEIGE__GROUND', 'NEIGE_SC__GROUND', 'RESR_NEIGE__GROUND',
         'RR_SOL_GELE__GROUND', 'NEIGE__GROUND',
     ],
-
     'Visibilitat': [
         'VISIBILITY_MINI_60MIN__GROUND_OR_WATER_SURFACE',
         'VISIBILITY_MINI_PRECIP_60MIN__GROUND_OR_WATER_SURFACE',
         'VISIBILITY_MINI_15MIN__GROUND_OR_WATER_SURFACE',
         'VISIBILITY_MINI_PRECIP_15MIN__GROUND_OR_WATER_SURFACE',
     ],
-
-    // === TORMENTES / CONVECCIÓ ===
     'Inestabilitat i Convecció': [
         'cape', 'cin',
         'MEAN_LAYER_CAPE__GROUND_OR_WATER_SURFACE',
         'lifted_index', 'lcl_m', 'lfc_m', 'el_m',
         'thetav_850',
     ],
-
     'Tornados i Supercèl·lules': [
         'scp', 'scp_wcs', 'stp', 'ehi', 'hail_cm',
         'DIAG_GRELE__GROUND_OR_WATER_SURFACE',
         'DIAG_GRELE__GROUND',
         'HELICITE__GROUND',
     ],
-
     'Cumulonimbus': [
         'P__BASE_CB', 'P__TOP_CB',
     ],
-
     'Reflectivitat (Radar)': [
         'radar_dbz',
         'REFLECTIVITY_MAX__GROUND_OR_WATER_SURFACE',
         'REFLECTIVITY_MAX_DBZ__GROUND_OR_WATER_SURFACE',
     ],
-
-    // === NÚVOLS I SATÈL·LIT ===
     'Núvols': [
         'low_cloud_cover', 'medium_cloud_cover', 'high_cloud_cover',
         'TOTAL_CLOUD_COVER__GROUND_OR_WATER_SURFACE',
@@ -1829,12 +1801,9 @@ const GRUPS_SIMPLES = {
         'ciwc_500', 'cld_rain_850',
         'BASE_NUAGE__GROUND', 'PLAFOND__GROUND',
     ],
-
     'Satèl·lit': [
         'bt108', 'bt62',
     ],
-
-    // === ALTITUD I NIVELLS ===
     'Geometria i Altitud': [
         'altitud',
         'GEOMETRIC_HEIGHT__GROUND_OR_WATER_SURFACE',
@@ -1844,7 +1813,6 @@ const GRUPS_SIMPLES = {
         'ALTITUDE__ISO_T_27315',
         'ALTITUDE__ISO_TPW_27315', 'ALTITUDE__ISO_TPW_27415', 'ALTITUDE__ISO_TPW_27465',
     ],
-
     'PV Superfícies': [
         'pv_925', 'pv_850', 'pv_700', 'pv_500', 'pv_300', 'pv_200',
         'GEOPOTENTIAL_PV1500', 'GEOPOTENTIAL_PV2000',
@@ -1855,7 +1823,7 @@ const GRUPS_SIMPLES = {
         'FF__ISO_TP_1500', 'FF__ISO_TP_2000',
     ],
 };
-
+ 
 const GRUPS_ACORDIO = {
     'Temperatura':      ['t'],
     'Punt rosada':      ['dpt'],
@@ -1864,22 +1832,22 @@ const GRUPS_ACORDIO = {
     'Vel. vertical':    ['w'],
     'Vort. potencial':  ['pv'],
 };
-
+ 
 const CLAUS_3D = new Set(['t','u','v','r','w','dpt','pv','wind_speed']);
-
+ 
 const VARIABLES_AMAGADES = new Set([
     'su', 'sv', 'u', 'v', 'sh2', 'geo_h', 'shear_06_eff',
     'srh_06_eff', 'sp', 'lightning', 'reflectivity_dbz', 'rain','precip_water', 'group', 'tgrp' ,'scp', 'bt62',
-
+ 
     'LOW_CLOUD_COVER__GROUND_OR_WATER_SURFACE',
     'MEDIUM_CLOUD_COVER__GROUND_OR_WATER_SURFACE',
     'HIGH_CLOUD_COVER__GROUND_OR_WATER_SURFACE',
     'TOTAL_CLOUD_COVER__GROUND_OR_WATER_SURFACE',
-
+ 
     'CONVECTIVE_AVAILABLE_POTENTIAL_ENERGY__GROUND_OR_WATER_SURFACE',
     'CONVECTIVE_INHIBITION__GROUND_OR_WATER_SURFACE',
     'CIN__GROUND',
-
+ 
     'MEAN_LAYER_CAPE__GROUND_OR_WATER_SURFACE',
     'PLANETARY_BOUNDARY_LAYER_HEIGHT__GROUND_OR_WATER_SURFACE',
     'PRECIPITABLE_WATER__GROUND_OR_WATER_SURFACE',
@@ -1888,36 +1856,33 @@ const VARIABLES_AMAGADES = new Set([
     'PRESSURE__MEAN_SEA_LEVEL',
     'GEOMETRIC_HEIGHT__GROUND_OR_WATER_SURFACE',
 ]);
-
+ 
 function esVariableAmagada(clau) {
     if (VARIABLES_AMAGADES.has(clau)) return true;
     const m = clau.match(/^(.+)_(-?\d+)$/);
     if (m && VARIABLES_AMAGADES.has(m[1])) return true;
     return false;
 }
-
+ 
 function esVariable3D(clau) { return CLAUS_3D.has(clauBase(clau)); }
-
+ 
 function getCoordenadesPer(data, clau) {
     if (esVariable3D(clau) && data.coordenadas_3d) return data.coordenadas_3d;
     return data.coordenadas;
 }
-
+ 
 let variableActiva = 'st';
 window._currentParameter = 'st';
-
+ 
 function clauBase(c) {
-    // 1. Coincidència directa a PALETES
     if (PALETES[c]) return c;
-    // 2. És una clau crua del WCS? Traduir-la a la curta normalitzada
     if (ALIES_CLAUS[c] && PALETES[ALIES_CLAUS[c]]) return ALIES_CLAUS[c];
-    // 3. Sufix numèric de nivell (p. ex. t_850)
     const m = c.match(/^(.+)_(-?\d+)$/);
     return (m && PALETES[m[1]]) ? m[1] : 'st';
 }
-
+ 
 function getPaleta(c) { return PALETES[clauBase(c)] || PALETES.st; }
-
+ 
 function getColor(pal, v) {
     const s = pal.stops;
     if (v === null || v === undefined || isNaN(v)) return {r:0,g:0,b:0,a:0};
@@ -1936,7 +1901,6 @@ function getColor(pal, v) {
 // ═══════════════════════════════════════════════════════════════════════
 //  CALCULAR VENT
 // ═══════════════════════════════════════════════════════════════════════
-
 function calcularVelocitatVent(variables) {
     if (variables['su'] && variables['sv']) {
         const u = variables['su'].datos;
@@ -1953,13 +1917,13 @@ function calcularVelocitatVent(variables) {
             };
         }
     }
-
+ 
     const nivellsPressio = new Set();
     Object.keys(variables).forEach(clau => {
         const m = clau.match(/^[uv]_(\d+)$/);
         if (m) nivellsPressio.add(parseInt(m[1]));
     });
-
+ 
     nivellsPressio.forEach(nivell => {
         const clauU = `u_${nivell}`;
         const clauV = `v_${nivell}`;
@@ -1980,6 +1944,7 @@ function calcularVelocitatVent(variables) {
         }
     });
 }
+ 
 
 // ═══════════════════════════════════════════════════════════════════════
 //  OBTENIR DADES DE VENT PER STREAMLINES
@@ -2066,6 +2031,10 @@ function obtenirVentPerStreamlines(data, clau) {
 //  STREAMLINES
 // ═══════════════════════════════════════════════════════════════════════
 
+// ═══════════════════════════════════════════════════════════════════════
+//  STREAMLINES
+// ═══════════════════════════════════════════════════════════════════════
+
 let canvasVent = null;
 let ctxVent = null;
 
@@ -2080,6 +2049,75 @@ function _hauriaDeDibuixarVent() {
     if (!item || !item.data || !item.data.variables) return false;
     const data = item.data;
     return !!(data.variables['su'] || data.variables['u']);
+}
+
+function obtenirVentPerStreamlines(data, clau) {
+    const coords = getCoordenadesPer(data, clau);
+    const lats = coords.lat;
+    const lons = coords.lon;
+    const Nlat = lats.length;
+    const Nlon = lons.length;
+
+    let clauU, clauV;
+    const base = clauBase(clau);
+
+    const varsSuperficie = [
+        'st','sd','srh','sp','pressure_msl','cape','cin','spbl',
+        'rain','rain_1h','snow','graupel','tp','tgrp','tsnowp',
+        'precip_water','low_cloud_cover','medium_cloud_cover',
+        'high_cloud_cover','reflectivity_dbz','lightning',
+        'wind_speed_10m','wind_gust',
+        'lcl_m','lfc_m','lifted_index','el_m',
+        'temp_min2m','temp_max2m','scp','scp_wcs','stp','hail_cm',
+        'ehi','bt108','bt62','ciwc_500','cld_rain_850','tpw_700','tpw_850',
+        'thetav_850','altitud'
+    ];
+
+    if (varsSuperficie.includes(base) || varsSuperficie.includes(clau)) {
+        clauU = 'su';
+        clauV = 'sv';
+    } else if (base === 'wind_speed') {
+        const m = clau.match(/_(\d+)$/);
+        if (m) { clauU = `u_${m[1]}`; clauV = `v_${m[1]}`; }
+    } else {
+        const m = clau.match(/_(\d+)$/);
+        if (m) { clauU = `u_${m[1]}`; clauV = `v_${m[1]}`; }
+        else { clauU = 'su'; clauV = 'sv'; }
+    }
+
+    const varU = data.variables[clauU];
+    const varV = data.variables[clauV];
+    if (!varU || !varV) return null;
+    if (varU.datos.length !== Nlat * Nlon || varV.datos.length !== Nlat * Nlon) return null;
+
+    const speed = new Float32Array(Nlat * Nlon);
+    const dir = new Float32Array(Nlat * Nlon);
+
+    for (let i = 0; i < Nlat; i++) {
+        const filaReal = (Nlat - 1 - i);
+        for (let j = 0; j < Nlon; j++) {
+            const idx = filaReal * Nlon + j;
+            const uVal = varU.datos[idx];
+            const vVal = varV.datos[idx];
+            if (uVal === null || vVal === null || isNaN(uVal) || isNaN(vVal)) {
+                speed[i * Nlon + j] = 0;
+                dir[i * Nlon + j] = 0;
+            } else {
+                const spd = Math.sqrt(uVal * uVal + vVal * vVal) * 3.6;
+                let angle = Math.atan2(vVal, uVal) * 180 / Math.PI;
+                angle = (270 - angle) % 360;
+                if (angle < 0) angle += 360;
+                speed[i * Nlon + j] = spd;
+                dir[i * Nlon + j] = angle;
+            }
+        }
+    }
+
+    return {
+        lats, lons, Nlat, Nlon,
+        speed, dir,
+        extent: [Math.min(...lons), Math.max(...lons), Math.min(...lats), Math.max(...lats)]
+    };
 }
 
 function _dibuixarStreamlines() {
@@ -2098,7 +2136,7 @@ function _dibuixarStreamlines() {
     const ventData = obtenirVentPerStreamlines(data, variableActiva);
     if (!ventData) return;
 
-    const { lats, lons, Nlat, Nlon, speed, dir, extent } = ventData;
+    const { Nlat, Nlon, speed, dir, extent } = ventData;
 
     function sampleUV(px, py) {
         if (px < 0 || px > w || py < 0 || py > h) return null;
@@ -2126,7 +2164,7 @@ function _dibuixarStreamlines() {
         };
     }
 
-    const STEP = 28, STEP_LEN = 2.5, MAX_STEPS = 45, GRID = 8;
+    const STEP = 28, STEP_LEN = 2.5, MAX_STEPS_LINIA = 45, GRID = 8;
 
     const gw = Math.floor(w / GRID) + 1;
     const gh = Math.floor(h / GRID) + 1;
@@ -2155,7 +2193,7 @@ function _dibuixarStreamlines() {
             const fwd = [], back = [];
             let cx = sx, cy = sy;
 
-            for (let s = 0; s < MAX_STEPS; s++) {
+            for (let s = 0; s < MAX_STEPS_LINIA; s++) {
                 const uv = sampleUV(cx, cy);
                 if (!uv) break;
                 const mag = Math.hypot(uv.u, uv.v);
@@ -2169,7 +2207,7 @@ function _dibuixarStreamlines() {
             }
 
             cx = sx; cy = sy;
-            for (let s = 0; s < MAX_STEPS; s++) {
+            for (let s = 0; s < MAX_STEPS_LINIA; s++) {
                 const uv = sampleUV(cx, cy);
                 if (!uv) break;
                 const mag = Math.hypot(uv.u, uv.v);
@@ -2284,10 +2322,34 @@ window.setStreamlineOpacity = function(v) {
     _redibuixarCanvasVent();
 };
 
+window.toggleVentMode = function() {
+    window.ventMode = window.ventMode === 'streamlines' ? 'particles' : 'streamlines';
+    if (window.ventMode !== 'streamlines' && canvasVent) {
+        ctxVent.clearRect(0, 0, canvasVent.width, canvasVent.height);
+    }
+    _redibuixarCanvasVent();
+    return window.ventMode;
+};
+
+window.setStreamlineColor = function(color) {
+    wCfg.streamlineColor = color;
+    _redibuixarCanvasVent();
+};
+
+window.setStreamlineWidth = function(v) {
+    wCfg.streamlineWidth = Math.min(3, Math.max(0.5, v));
+    _redibuixarCanvasVent();
+};
+
+window.setStreamlineOpacity = function(v) {
+    wCfg.streamlineOpacity = Math.min(1, Math.max(0.1, v));
+    _redibuixarCanvasVent();
+};
+
 // ═══════════════════════════════════════════════════════════════════════
 //  CANVAS LAYER (dades)
 // ═══════════════════════════════════════════════════════════════════════
-
+ 
 const CanvasLayer = L.Layer.extend({
     initialize: function() {
         this._canvas = null;
@@ -2295,7 +2357,7 @@ const CanvasLayer = L.Layer.extend({
         this._offscreen = null;
         this._needsRedraw = true;
     },
-
+ 
     onAdd: function(map) {
         this._map = map;
         const c = document.createElement('canvas');
@@ -2305,18 +2367,18 @@ const CanvasLayer = L.Layer.extend({
         map.on('moveend zoomend', this._render, this);
         this._render();
     },
-
+ 
     onRemove: function(map) {
         map.getPane('paneDades').removeChild(this._canvas);
         map.off('moveend zoomend', this._render, this);
     },
-
+ 
     setData: function(data) {
         this._data = data;
         this._needsRedraw = true;
         this._render();
     },
-
+ 
     _drawOffscreen: function() {
         if (!this._data) return;
         const coords = getCoordenadesPer(this._data, variableActiva);
@@ -2324,7 +2386,7 @@ const CanvasLayer = L.Layer.extend({
         const lons = coords.lon;
         const Nlat = lats.length;
         const Nlon = lons.length;
-
+ 
         const clauLectura = clauRealPerLlegir(variableActiva);
         const varInfo = this._data.variables[clauLectura] || this._data.variables[variableActiva];
         if (!varInfo || !varInfo.datos) {
@@ -2335,7 +2397,7 @@ const CanvasLayer = L.Layer.extend({
             this._needsRedraw = false;
             return;
         }
-
+ 
         const dades = varInfo.datos;
         if (dades.length !== Nlat * Nlon) {
             if (this._offscreen) {
@@ -2345,22 +2407,22 @@ const CanvasLayer = L.Layer.extend({
             this._needsRedraw = false;
             return;
         }
-
+ 
         const pal = getPaleta(variableActiva);
         if (!this._offscreen || this._offscreen.width !== Nlon || this._offscreen.height !== Nlat) {
             this._offscreen = document.createElement('canvas');
             this._offscreen.width = Nlon;
             this._offscreen.height = Nlat;
         }
-
+ 
         const ctx = this._offscreen.getContext('2d');
         const imgData = ctx.createImageData(Nlon, Nlat);
         const d = imgData.data;
-
+ 
         const CLAUS_TEMP = ['st', 'sd', 't', 'dpt', 'temp_min2m', 'temp_max2m'];
         const base = clauBase(variableActiva);
         const esTemperatura = CLAUS_TEMP.includes(base);
-
+ 
         for (let i = 0; i < Nlat; i++) {
             const filaReal = (Nlat - 1 - i);
             for (let j = 0; j < Nlon; j++) {
@@ -2380,11 +2442,11 @@ const CanvasLayer = L.Layer.extend({
         ctx.putImageData(imgData, 0, 0);
         this._needsRedraw = false;
     },
-
+ 
     _render: function() {
         if (!this._data || !this._map) return;
         if (this._needsRedraw) this._drawOffscreen();
-
+ 
         const map = this._map;
         const size = map.getSize();
         const canvas = this._canvas;
@@ -2393,7 +2455,7 @@ const CanvasLayer = L.Layer.extend({
         const ctx = canvas.getContext('2d');
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         L.DomUtil.setPosition(canvas, map.containerPointToLayerPoint([0,0]));
-
+ 
         const coords = getCoordenadesPer(this._data, variableActiva);
         const lats = coords.lat;
         const lons = coords.lon;
@@ -2401,11 +2463,11 @@ const CanvasLayer = L.Layer.extend({
         const latMin = Math.min(lats[0], lats[lats.length - 1]);
         const lonMin = Math.min(lons[0], lons[lons.length - 1]);
         const lonMax = Math.max(lons[0], lons[lons.length - 1]);
-
+ 
         const nw = map.latLngToContainerPoint(L.latLng(latMax, lonMin));
         const se = map.latLngToContainerPoint(L.latLng(latMin, lonMax));
         const x = nw.x, y = nw.y, w = se.x - nw.x, h = se.y - nw.y;
-
+ 
         if (this._offscreen && w > 0 && h > 0) {
             ctx.save();
             ctx.imageSmoothingEnabled = true;
@@ -2413,12 +2475,12 @@ const CanvasLayer = L.Layer.extend({
             ctx.drawImage(this._offscreen, x, y, w, h);
             ctx.restore();
         }
-
+ 
         this._drawLegend(ctx, getPaleta(variableActiva));
         actualitzarCapcaleraParametre();
         redibuixarVent();
     },
-
+ 
     _drawLegend: function(ctx, pal) {
         const s = pal.stops;
         const W = ctx.canvas.width, H = ctx.canvas.height;
@@ -2437,31 +2499,35 @@ const CanvasLayer = L.Layer.extend({
         ctx.fillText(fmt(s[0].v), x0-3, y0+s.length*3+2);
     }
 });
-
+ 
 const canvasLayer = new CanvasLayer();
 canvasLayer.addTo(map);
 window._canvasLayer = canvasLayer;
+ 
 
-// ═══════════════════════════════════════════════════════════════════════
-//  GEOJSON
-// ═══════════════════════════════════════════════════════════════════════
 
 const GEOJSON_CAPES = [
-    { id: 'catalunya', nom: 'Catalunya', arxiu: 'spain.geojson', color: '#000000', gruix: 1.2 },
+    { 
+        id: 'catalunya', 
+        nom: 'Catalunya', 
+        arxiu: 'spain.geojson',  // ← El archivo que sí existe
+        color: '#040400',        // ← Dorado para que se vea bien
+        gruix: 2.5 
+    },
 ];
-
 const capaInstancies = {};
-
+ 
 function estilCapa(def) {
     return { pane: 'paneGeojson', color: def.color, weight: def.gruix, opacity: 1, fill: false };
 }
-
+ 
 async function carregarCapaGeojson(def) {
     let retard = RETARD_INICIAL;
-
-    for (let intent = 1; intent <= MAX_REINTENTS; intent++) {
+    const MAX_REINTENTS_GEO = 4;
+ 
+    for (let intent = 1; intent <= MAX_REINTENTS_GEO; intent++) {
         try {
-            const r = await fetch(`${DADES_PATH}/${def.arxiu}`);
+            const r = await fetch(ambCacheBuster(`${DADES_PATH}/${def.arxiu}`), { cache: 'no-store' });
             if (!r.ok) throw new Error('HTTP ' + r.status);
             const geojson = await r.json();
             const capa = L.geoJSON(geojson, { pane: 'paneGeojson', style: () => estilCapa(def) });
@@ -2469,27 +2535,60 @@ async function carregarCapaGeojson(def) {
             capa.addTo(map);
             return;
         } catch (err) {
-            if (intent === MAX_REINTENTS) {
+            if (intent === MAX_REINTENTS_GEO) {
                 console.warn('[GeoJSON] ' + def.nom + ': fallada definitiva — ' + err.message);
                 return;
             }
-            console.warn(`[GeoJSON ${def.nom}] Reintent ${intent}/${MAX_REINTENTS} en ${retard}ms...`);
+            console.warn(`[GeoJSON ${def.nom}] Reintent ${intent}/${MAX_REINTENTS_GEO} en ${retard}ms...`);
             await esperar(retard);
             retard *= 2;
         }
     }
 }
-
+ 
 async function inicialitzarGeojson() {
+    console.log('🔄 Iniciando carga de GeoJSON...');
+    
     for (const def of GEOJSON_CAPES) {
-        await carregarCapaGeojson(def);
+        try {
+            const url = `dades/${def.arxiu}`;
+            console.log(`📥 Cargando: ${url}`);
+            
+            const r = await fetch(url);
+            if (!r.ok) throw new Error(`HTTP ${r.status}`);
+            
+            const geojson = await r.json();
+            console.log(`✅ GeoJSON cargado: ${geojson.features?.length || 0} features`);
+            
+            const capa = L.geoJSON(geojson, {
+                pane: 'paneGeojson',
+                style: () => ({
+                    color: def.color || '#FFD700',
+                    weight: def.gruix || 2.5,
+                    opacity: 0.9,
+                    fill: false,
+                    fillOpacity: 0.1,
+                    fillColor: def.color || '#FFD700'
+                })
+            });
+            
+            capaInstancies[def.id] = capa;
+            capa.addTo(map);
+            console.log(`✅ Capa "${def.nom}" añadida al mapa`);
+            
+            // Forzar redibujo
+            map.invalidateSize();
+            
+        } catch (err) {
+            console.error(`❌ Error cargando ${def.nom}:`, err);
+        }
     }
 }
 
 // ═══════════════════════════════════════════════════════════════════════
 //  CLICK AL MAPA — POPUP ESTIL AMERICÀ (MINIMALISTA)
 // ═══════════════════════════════════════════════════════════════════════
-
+ 
 function trobarIndexMesProper(arr, val) {
     let best=0, bestDiff=Infinity;
     for (let i=0;i<arr.length;i++) {
@@ -2498,12 +2597,12 @@ function trobarIndexMesProper(arr, val) {
     }
     return best;
 }
-
+ 
 let marcadorClic = null;
 map.on('click', function(e) {
     const {lat, lng} = e.latlng;
     const item = totesLesHores[curIdx];
-    if (!item) return;
+    if (!item || !item.data) return;
     const data = item.data;
     const coords = getCoordenadesPer(data, variableActiva);
     const lats = coords.lat;
@@ -2511,44 +2610,42 @@ map.on('click', function(e) {
     const clauLectura = clauRealPerLlegir(variableActiva);
     const varInfo = data.variables[clauLectura] || data.variables[variableActiva];
     if (!varInfo || !varInfo.datos) return;
-
+ 
     const latMin = Math.min(lats[0], lats[lats.length-1]);
     const latMax = Math.max(lats[0], lats[lats.length-1]);
     const lonMin = Math.min(lons[0], lons[lons.length-1]);
     const lonMax = Math.max(lons[0], lons[lons.length-1]);
     if (lat<latMin||lat>latMax||lng<lonMin||lng>lonMax) return;
-
+ 
     const i = trobarIndexMesProper(lats, lat);
     const j = trobarIndexMesProper(lons, lng);
     const Nlon = lons.length;
     if (varInfo.datos.length !== lats.length * Nlon) return;
-
+ 
     const latNord = lats[0] > lats[lats.length-1];
     const filaReal = latNord ? (lats.length - 1 - i) : i;
-
+ 
     let v = varInfo.datos[filaReal * Nlon + j];
-
+ 
     const CLAUS_TEMP = ['st', 'sd', 't', 'dpt', 'temp_min2m', 'temp_max2m'];
     const base = clauBase(variableActiva);
     if (CLAUS_TEMP.includes(base) && v !== null && !isNaN(v) && v > 100) {
         v = v - 273.15;
     }
-
+ 
     const pal = getPaleta(variableActiva);
-
+ 
     function formatarValor(v) {
         if (v === null || v === undefined || isNaN(v)) return '—';
         const absV = Math.abs(v);
-        if (absV < 0.001 && absV > 0) {
-            return v.toFixed(6);
-        }
+        if (absV < 0.001 && absV > 0) return v.toFixed(6);
         if (absV >= 10000) return v.toExponential(2);
         if (Number.isInteger(v)) return v.toString();
         return v.toFixed(2);
     }
-
+ 
     const vt = formatarValor(v);
-
+ 
     const html = `
         <div style="
             position: relative;
@@ -2573,14 +2670,14 @@ map.on('click', function(e) {
                 text-transform: uppercase;
                 line-height: 1.2;
             ">${lat.toFixed(2)}°${lat >= 0 ? 'N' : 'S'}<br>${lng.toFixed(2)}°${lng >= 0 ? 'E' : 'W'}</div>
-
+ 
             <div style="
                 font-size: 20px;
                 font-weight: 700;
                 color: #ffffff;
                 line-height: 1;
             ">${vt}<span style="font-size:9px;color:#667788;font-weight:400;margin-left:2px;">${pal.unitat}</span></div>
-
+ 
             <button onclick="if(marcadorClic){map.removeLayer(marcadorClic);marcadorClic=null;}" style="
                 position: absolute;
                 top: 3px;
@@ -2595,7 +2692,7 @@ map.on('click', function(e) {
             " onmouseover="this.style.color='#ffffff'" onmouseout="this.style.color='#8899aa'">✕</button>
         </div>
     `;
-
+ 
     if (marcadorClic) map.removeLayer(marcadorClic);
     marcadorClic = L.popup({
         closeButton: false,
@@ -2604,13 +2701,14 @@ map.on('click', function(e) {
         offset: [0, -8]
     }).setLatLng(e.latlng).setContent(html).openOn(map);
 });
-
+ 
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape' && marcadorClic) {
         map.removeLayer(marcadorClic);
         marcadorClic = null;
     }
 });
+ 
 
 // ═══════════════════════════════════════════════════════════════════════
 //  CÀRREGA DE JSONs
@@ -3338,11 +3436,6 @@ function construirGraellaHores() {
 }
 
 
-
-// ═══════════════════════════════════════════════════════════════════════
-//  PANELL DE PARÀMETRES
-// ═══════════════════════════════════════════════════════════════════════
-
 function tancarTotsAcordions(excepteClauBase) {
     document.querySelectorAll('.param-acordio-cap').forEach(capcal => {
         const clauB = capcal.dataset.clauBase;
@@ -3356,7 +3449,7 @@ function tancarTotsAcordions(excepteClauBase) {
         }
     });
 }
-
+ 
 function ordenarClausPerNivell(claus) {
     return claus.slice().sort((a, b) => {
         const na = parseFloat(a.split('_').pop());
@@ -3364,13 +3457,13 @@ function ordenarClausPerNivell(claus) {
         return nb - na;
     });
 }
-
+ 
 const estatAcordio = {};
 function construirPanellParametres() {
     const cont = document.getElementById('parameter_selection');
     if (!cont || !totesLesHores[0]) return;
     cont.innerHTML = '';
-
+ 
     const totesVariables = new Set();
     const infoVariables = {};
     totesLesHores.forEach(hora => {
@@ -3382,92 +3475,88 @@ function construirPanellParametres() {
             });
         }
     });
-
+ 
     const clausUsades = new Set();
-const crearRow = (clau, className = 'param-row') => {
-    const info = infoVariables[clau];
-    if (!info) return null;
-
-    const esPremium = typeof esParametrePremium === 'function' && esParametrePremium(clau);
-
-    const row = document.createElement('div');
-    row.className = className;
-    row.dataset.clau = clau;
-
-    // El estilo visual inicial se basa en el acceso ACTUAL al construir (esto está bien, es solo estético)
-    const teAccesInicial = verificarAccesVariable(clau);
-    if (!teAccesInicial && esPremium) {
-        row.style.opacity = '0.35';
-        row.style.filter = 'grayscale(0.8)';
-        row.style.cursor = 'not-allowed';
-        row.title = ' Variable exclusiva per membres premium';
-    } else {
-        row.style.cursor = 'pointer';
-    }
-
-    const pal = getPaleta(clau);
-    const unitat = (info.unidades && info.unidades.trim() !== '') ? info.unidades : (pal.unitat || '');
-    const nomBackend = info.nombre || '';
-    const semblaClauCrua = /^[A-Z0-9_]+$/.test(nomBackend) && nomBackend.length > 6;
-    const nom = semblaClauCrua ? pal.titol : (nomBackend || pal.titol);
-
-    const iconaCandau = (!teAccesInicial && esPremium) ? ' ' : '';
-
-    row.innerHTML = `<div class="param-link">${nom} <span class="param-unit">(${unitat})</span>${iconaCandau}</div>`;
-
-    // 🔑 FIX: comprovar l'accés SEMPRE al moment del clic, no el valor congelat de quan es va crear la fila
-    row.onclick = () => {
-        const teAccesAra = verificarAccesVariable(clau);
-        if (teAccesAra) {
-            seleccionarVariable(clau);
-        } else if (esPremium) {
-            if (typeof mostrarAvisPremium === 'function') {
-                mostrarAvisPremium(clau);
-            } else {
-                console.warn('[Accés] Variable premium bloquejada:', clau);
-            }
+    const crearRow = (clau, className = 'param-row') => {
+        const info = infoVariables[clau];
+        if (!info) return null;
+ 
+        const esPremium = typeof esParametrePremium === 'function' && esParametrePremium(clau);
+ 
+        const row = document.createElement('div');
+        row.className = className;
+        row.dataset.clau = clau;
+ 
+        const teAccesInicial = verificarAccesVariable(clau);
+        if (!teAccesInicial && esPremium) {
+            row.style.opacity = '0.35';
+            row.style.filter = 'grayscale(0.8)';
+            row.style.cursor = 'not-allowed';
+            row.title = ' Variable exclusiva per membres premium';
         } else {
-            if (typeof mostrarAvisLogin === 'function') {
-                mostrarAvisLogin(clau);
-            } else {
-                console.warn('[Accés] Variable bloquejada per login:', clau);
-            }
+            row.style.cursor = 'pointer';
         }
+ 
+        const pal = getPaleta(clau);
+        const unitat = (info.unidades && info.unidades.trim() !== '') ? info.unidades : (pal.unitat || '');
+        const nomBackend = info.nombre || '';
+        const semblaClauCrua = /^[A-Z0-9_]+$/.test(nomBackend) && nomBackend.length > 6;
+        const nom = semblaClauCrua ? pal.titol : (nomBackend || pal.titol);
+ 
+        const iconaCandau = (!teAccesInicial && esPremium) ? ' ' : '';
+ 
+        row.innerHTML = `<div class="param-link">${nom} <span class="param-unit">(${unitat})</span>${iconaCandau}</div>`;
+ 
+        row.onclick = () => {
+            const teAccesAra = verificarAccesVariable(clau);
+            if (teAccesAra) {
+                seleccionarVariable(clau);
+            } else if (esPremium) {
+                if (typeof mostrarAvisPremium === 'function') {
+                    mostrarAvisPremium(clau);
+                } else {
+                    console.warn('[Accés] Variable premium bloquejada:', clau);
+                }
+            } else {
+                if (typeof mostrarAvisLogin === 'function') {
+                    mostrarAvisLogin(clau);
+                } else {
+                    console.warn('[Accés] Variable bloquejada per login:', clau);
+                }
+            }
+        };
+ 
+        return row;
     };
-
-    return row;
-};
-
+ 
     window.tancarBloqueig = function() {
         const overlay = document.getElementById('mapLockOverlay');
-        if (overlay) {
-            overlay.style.display = 'none';
-        }
+        if (overlay) overlay.style.display = 'none';
         const mapa = document.getElementById('map');
         if (mapa) {
             mapa.style.opacity = '1';
             mapa.style.pointerEvents = 'auto';
         }
     };
-
+ 
     const crearSeparador = () => {
         const sep = document.createElement('div');
         sep.className = 'param-separador';
         sep.style.cssText = 'border-top:1px solid rgba(255,255,255,0.08);margin:6px 12px;';
         return sep;
     };
-
+ 
     const crearTitolGrup = (nom, count) => {
         const h3 = document.createElement('h3');
         h3.className = 'param-group-title';
         h3.textContent = `${nom} (${count})`;
         return h3;
     };
-
+ 
     // PART SUPERIOR - GRUP PRINCIPAL
     const principals = GRUP_PRINCIPAL
         .filter(clau => totesVariables.has(clau) && !esVariableAmagada(clau));
-
+ 
     if (principals.length > 0) {
         principals.forEach(clau => {
             const row = crearRow(clau, 'param-row param-row-principal');
@@ -3478,17 +3567,17 @@ const crearRow = (clau, className = 'param-row') => {
         });
         cont.appendChild(crearSeparador());
     }
-
+ 
     // GRUPS SIMPLES
     Object.entries(GRUPS_SIMPLES).forEach(([nomGrup, clausGrup]) => {
         const entrades = [];
-
+ 
         clausGrup.forEach(clauB => {
             if (totesVariables.has(clauB) && !esVariableAmagada(clauB) && !clausUsades.has(clauB)) {
                 entrades.push(clauB);
             }
         });
-
+ 
         totesVariables.forEach(clau => {
             if (clausUsades.has(clau)) return;
             for (const clauB of clausGrup) {
@@ -3498,10 +3587,10 @@ const crearRow = (clau, className = 'param-row') => {
                 }
             }
         });
-
+ 
         entrades.sort((a, b) => a.localeCompare(b));
         if (entrades.length === 0) return;
-
+ 
         cont.appendChild(crearTitolGrup(nomGrup, entrades.length));
         entrades.forEach(clau => {
             const row = crearRow(clau);
@@ -3511,7 +3600,7 @@ const crearRow = (clau, className = 'param-row') => {
             }
         });
     });
-
+ 
     // GRUPS ACORDIÓ
     Object.entries(GRUPS_ACORDIO).forEach(([nomGrupTitol, clausBase]) => {
         clausBase.forEach(clauB => {
@@ -3522,15 +3611,15 @@ const crearRow = (clau, className = 'param-row') => {
                     nivellsClaus.push(clau);
                 }
             });
-
+ 
             if (nivellsClaus.length === 0) return;
-
+ 
             const nivellsOrdenats = ordenarClausPerNivell(nivellsClaus);
             const paletaBase = PALETES[clauB];
             const nomBase = paletaBase ? paletaBase.titol : clauB;
             const clauEstat = `acordio_${clauB}`;
             if (!(clauEstat in estatAcordio)) estatAcordio[clauEstat] = false;
-
+ 
             const capcal = document.createElement('div');
             capcal.className = 'param-acordio-cap';
             capcal.dataset.clauBase = clauB;
@@ -3540,11 +3629,11 @@ const crearRow = (clau, className = 'param-row') => {
                 <span class="param-unit">(${nivellsOrdenats.length} nivells)</span>
             `;
             cont.appendChild(capcal);
-
+ 
             const cosContenidor = document.createElement('div');
             cosContenidor.className = 'param-acordio-cos';
             cosContenidor.style.display = estatAcordio[clauEstat] ? 'block' : 'none';
-
+ 
             nivellsOrdenats.forEach(clau => {
                 const row = crearRow(clau, 'param-row param-row-nivell');
                 if (row) {
@@ -3552,9 +3641,9 @@ const crearRow = (clau, className = 'param-row') => {
                     clausUsades.add(clau);
                 }
             });
-
+ 
             cont.appendChild(cosContenidor);
-
+ 
             capcal.addEventListener('click', () => {
                 const obert = estatAcordio[clauEstat];
                 tancarTotsAcordions(clauB);
@@ -3564,12 +3653,12 @@ const crearRow = (clau, className = 'param-row') => {
             });
         });
     });
-
+ 
     // PART INFERIOR - ALTRES
     const sobrants = [...totesVariables]
         .filter(c => !clausUsades.has(c) && !esVariableAmagada(c))
         .sort((a, b) => a.localeCompare(b));
-
+ 
     if (sobrants.length > 0) {
         cont.appendChild(crearSeparador());
         cont.appendChild(crearTitolGrup('Altres', sobrants.length));
@@ -3578,13 +3667,12 @@ const crearRow = (clau, className = 'param-row') => {
             if (row) cont.appendChild(row);
         });
     }
-
+ 
     seleccionarVariable('st', true);
 }
-
 async function seleccionarVariable(clau, silenciós) {
     if (variableActiva === clau && !silenciós) return;
-
+ 
     if (typeof window.verificarAccesVariable === 'function') {
         const acces = window.verificarAccesVariable(clau);
         if (!acces) {
@@ -3592,14 +3680,14 @@ async function seleccionarVariable(clau, silenciós) {
             return;
         }
     }
-
+ 
     variableActiva = clau;
     window._currentParameter = clau;
-
+ 
     document.querySelectorAll('.param-row').forEach(el => {
         el.classList.toggle('param-selected', el.dataset.clau === clau);
     });
-
+ 
     const base = clauBase(clau);
     const clauEstat = `acordio_${base}`;
     if (clauEstat in estatAcordio && !estatAcordio[clauEstat] && clau !== base) {
@@ -3612,40 +3700,24 @@ async function seleccionarVariable(clau, silenciós) {
             if (cos && cos.classList.contains('param-acordio-cos')) cos.style.display = 'block';
         }
     }
-
-    if (esVariable3D(clau)) {
-        const item = totesLesHores[curIdx];
-        const jaTe3d = item && item.data && item.data._te3d;
-        if (!jaTe3d) {
-            const ok = await assegurarHoraCarregada(curIdx, true);
-            if (variableActiva !== clau) return;
-            if (!ok) {
-                console.warn('[seleccionarVariable] No s\'ha pogut carregar el 3D d\'aquesta hora encara. Es tornarà a intentar.');
-                setTimeout(() => {
-                    if (variableActiva === clau) {
-                        assegurarHoraCarregada(curIdx, true).then(ok2 => {
-                            if (ok2 && variableActiva === clau) {
-                                canvasLayer._needsRedraw = true;
-                                canvasLayer._render();
-                            }
-                        });
-                    }
-                }, 1500);
-                return;
-            }
-        }
-    }
-
+ 
     canvasLayer._needsRedraw = true;
     canvasLayer._render();
-
+ 
     if (!silenciós) {
         const actiu = document.querySelector('.param-row.param-selected');
         if (actiu) actiu.scrollIntoView({ block: 'nearest' });
     }
-
+ 
     actualitzarCapcaleraParametre();
 }
+ 
+function actualitzarCapcaleraParametre() {
+    const pal = getPaleta(variableActiva);
+    const label = document.getElementById('parameter_menu_link');
+    if (label) label.textContent = pal.titol + ' (' + pal.unitat + ')';
+}
+ 
 
 function actualitzarCapcaleraParametre() {
     const pal = getPaleta(variableActiva);
@@ -3656,7 +3728,7 @@ function actualitzarCapcaleraParametre() {
 // ═══════════════════════════════════════════════════════════════════════
 //  PANELL D'AJUSTOS
 // ═══════════════════════════════════════════════════════════════════════
-
+ 
 function crearPanellAjustos() {
     const btnAjustos = document.createElement('button');
     btnAjustos.id = 'btnAjustos';
@@ -3664,11 +3736,11 @@ function crearPanellAjustos() {
     btnAjustos.title = 'Ajustos: mapa base i capes';
     btnAjustos.style.cssText = 'position:absolute;top:10px;right:10px;z-index:1000;width:34px;height:34px;border-radius:4px;border:1px solid #33475b;background:#0a101a;color:#cfe0ee;font-size:16px;cursor:pointer;';
     document.body.appendChild(btnAjustos);
-
+ 
     const gridMapesHtml = Object.entries(MAPES_BASE).map(([clau, def]) => `
         <button data-mapa="${clau}" class="aj-mapa-btn" style="display:block;width:100%;text-align:left;padding:5px 8px;margin-bottom:3px;border-radius:3px;border:1px solid #2a3a5a;background:${clau===mapaBaseActiva?'#2a5a8a':'#141c2a'};color:#cfe0ee;font-size:11px;cursor:pointer;">${def.nom}</button>
     `).join('');
-
+ 
     const capesHtml = GEOJSON_CAPES.map(def => `
         <div class="aj-capa-fila" data-id="${def.id}" style="display:flex;align-items:center;gap:6px;padding:4px 0;">
             <input type="checkbox" checked style="cursor:pointer;">
@@ -3676,7 +3748,7 @@ function crearPanellAjustos() {
             <input type="color" value="${def.color}" style="width:22px;height:18px;padding:0;border:none;cursor:pointer;background:transparent;">
         </div>
     `).join('');
-
+ 
     const panell = document.createElement('div');
     panell.id = 'panellAjustos';
     panell.style.cssText = 'display:none;position:absolute;top:50px;right:10px;z-index:1000;width:230px;background:#0a101a;border:1px solid #33475b;border-radius:6px;padding:10px;font-family:Arial,sans-serif;font-size:12px;color:#cfe0ee;box-shadow:0 4px 14px rgba(0,0,0,0.4);';
@@ -3705,7 +3777,7 @@ function crearPanellAjustos() {
         </div>
     `;
     document.body.appendChild(panell);
-
+ 
     btnAjustos.addEventListener('click', (e) => {
         e.stopPropagation();
         panell.style.display = panell.style.display === 'none' ? 'block' : 'none';
@@ -3715,7 +3787,7 @@ function crearPanellAjustos() {
             panell.style.display = 'none';
         }
     });
-
+ 
     panell.querySelectorAll('.aj-mapa-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             canviarMapaBase(btn.dataset.mapa);
@@ -3724,7 +3796,7 @@ function crearPanellAjustos() {
             });
         });
     });
-
+ 
     panell.querySelectorAll('.aj-capa-fila').forEach(fila => {
         const id = fila.dataset.id;
         const cb = fila.querySelector('input[type="checkbox"]');
@@ -3740,7 +3812,7 @@ function crearPanellAjustos() {
             if (capa) capa.setStyle({ color: colorInput.value });
         });
     });
-
+ 
     document.getElementById('btnVent').addEventListener('click', function() {
         window.toggleVent();
     });
@@ -3757,7 +3829,7 @@ function crearPanellAjustos() {
         window.setStreamlineWidth(parseFloat(this.value));
     });
 }
-
+ 
 // ─── CONTROLS ─────────────────────────────────────────────────────────
 document.getElementById('btnPrev').addEventListener('click', ()=>mostrarHora((curIdx-1+totesLesHores.length)%totesLesHores.length));
 document.getElementById('btnNext').addEventListener('click', ()=>mostrarHora((curIdx+1)%totesLesHores.length));
@@ -3770,18 +3842,18 @@ document.addEventListener('keydown', (e) => {
     if (e.key==='ArrowLeft') mostrarHora((curIdx-1+totesLesHores.length)%totesLesHores.length);
     if (e.key==='ArrowRight') mostrarHora((curIdx+1)%totesLesHores.length);
 });
-
+ 
 // ─── CERCADOR ─────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
     const cercador = document.getElementById('parameter_search');
     if (!cercador) return;
     cercador.addEventListener('input', () => {
         const q = cercador.value.trim().toLowerCase();
-
+ 
         document.querySelectorAll('.param-row').forEach(row => {
             row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
         });
-
+ 
         document.querySelectorAll('.param-group-title').forEach(title => {
             let next = title.nextElementSibling;
             let visible = false;
@@ -3792,7 +3864,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             title.style.display = visible ? '' : 'none';
         });
-
+ 
         document.querySelectorAll('.param-acordio-cap').forEach(capcal => {
             const cos = capcal.nextElementSibling;
             if (!cos || !cos.classList.contains('param-acordio-cos')) return;
@@ -3800,7 +3872,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const teMatch = Array.from(rows).some(r => r.style.display !== 'none');
             const nomCapcal = capcal.textContent.toLowerCase();
             const capcalMatch = nomCapcal.includes(q);
-
+ 
             if (q === '') {
                 capcal.style.display = '';
                 cos.style.display = 'none';
@@ -3822,24 +3894,24 @@ document.addEventListener('DOMContentLoaded', () => {
 // ═══════════════════════════════════════════════════════════════════════
 //  ESDEVENIMENTS LOGIN/LOGOUT
 // ═══════════════════════════════════════════════════════════════════════
-
+ 
 window.addEventListener('tc:login', function(e) {
     console.log('[mapa.js] Usuari loguejat');
     if (totesLesHores && totesLesHores.length > 0) {
         construirGraellaHores();
-        construirPanellParametres();   // 👈 AÑADIR: reconstruye también el panel de variables
+        construirPanellParametres();
         mostrarHora(curIdx);
     }
     if (typeof window.amagarOverlay === 'function') {
         window.amagarOverlay();
     }
 });
-
+ 
 window.addEventListener('tc:logout', function() {
     console.log('[mapa.js] Usuari desloguejat');
     if (totesLesHores && totesLesHores.length > 0) {
         construirGraellaHores();
-        construirPanellParametres();   // 👈 AÑADIR aquí también
+        construirPanellParametres();
         mostrarHora(0);
     }
     if (typeof seleccionarVariable === 'function') {
@@ -3850,13 +3922,13 @@ window.addEventListener('tc:logout', function() {
     }
 });
 
+
 // ═══════════════════════════════════════════════════════════════════════
 //  CURSOR PERSONALITZAT (CREU)
 // ═══════════════════════════════════════════════════════════════════════
-
 (function() {
     const mapContainer = map.getContainer();
-
+ 
     const cursorSVG = `
         <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
             <line x1="6" y1="24" x2="42" y2="24" stroke="#030303" stroke-width="2" stroke-linecap="round"/>
@@ -3867,22 +3939,22 @@ window.addEventListener('tc:logout', function() {
             <circle cx="24" cy="24" r="1.5" fill="#fcf9f9"/>
         </svg>
     `;
-
+ 
     const encodedSVG = encodeURIComponent(cursorSVG);
     const cursorURL = `data:image/svg+xml,${encodedSVG}`;
-
+ 
     mapContainer.style.cursor = `url('${cursorURL}') 24 24, crosshair`;
-
+ 
     mapContainer.addEventListener('mouseover', function(e) {
         mapContainer.style.cursor = `url('${cursorURL}') 24 24, crosshair`;
     });
-
+ 
     mapContainer.addEventListener('mouseout', function(e) {
         if (!mapContainer.contains(e.relatedTarget)) {
             mapContainer.style.cursor = '';
         }
     });
-
+ 
     const style = document.createElement('style');
     style.textContent = `
         #map, #map * {
@@ -3897,10 +3969,93 @@ window.addEventListener('tc:logout', function() {
         }
     `;
     document.head.appendChild(style);
-
-    console.log('✅ Cursor en creu (+) gran i bonica (sense cercles) activat!');
+ 
+    console.log('✅ Cursor en creu (+) gran i bonica activat!');
 })();
-
+ 
+// ═══════════════════════════════════════════════════════════════════════
+//  FONS NEGRE NOMÉS FORA DE LA ZONA lon/lat DEFINIDA
+// ═══════════════════════════════════════════════════════════════════════
+ 
+(function() {
+    const ZONA_VISIBLE = {
+        lon_min: -5.0,
+        lon_max: 4.7,
+        lat_min: 37.5,
+        lat_max: 44.5,
+    };
+ 
+    function aplicarOverride() {
+        if (!window._canvasLayer) {
+            setTimeout(aplicarOverride, 200);
+            return;
+        }
+ 
+        const layer = window._canvasLayer;
+        const renderOriginal = layer._render;
+        map.off('moveend zoomend', renderOriginal, layer);
+ 
+        function renderAmbNegre() {
+            if (!layer._data || !layer._map) return;
+            if (layer._needsRedraw) layer._drawOffscreen();
+ 
+            const m = layer._map;
+            const size = m.getSize();
+            const canvas = layer._canvas;
+            canvas.width = size.x;
+            canvas.height = size.y;
+            const ctx = canvas.getContext('2d');
+            L.DomUtil.setPosition(canvas, m.containerPointToLayerPoint([0, 0]));
+ 
+            const nwZona = m.latLngToContainerPoint(L.latLng(ZONA_VISIBLE.lat_max, ZONA_VISIBLE.lon_min));
+            const seZona = m.latLngToContainerPoint(L.latLng(ZONA_VISIBLE.lat_min, ZONA_VISIBLE.lon_max));
+            const zx = nwZona.x, zy = nwZona.y, zw = seZona.x - nwZona.x, zh = seZona.y - nwZona.y;
+ 
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+ 
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, canvas.width, Math.max(0, zy));
+            ctx.fillRect(0, zy + zh, canvas.width, canvas.height - (zy + zh));
+            ctx.fillRect(0, zy, Math.max(0, zx), zh);
+            ctx.fillRect(zx + zw, zy, canvas.width - (zx + zw), zh);
+ 
+            const coords = getCoordenadesPer(layer._data, variableActiva);
+            const lats = coords.lat;
+            const lons = coords.lon;
+            const latMax = Math.max(lats[0], lats[lats.length - 1]);
+            const latMin = Math.min(lats[0], lats[lats.length - 1]);
+            const lonMin = Math.min(lons[0], lons[lons.length - 1]);
+            const lonMax = Math.max(lons[0], lons[lons.length - 1]);
+ 
+            const nw = m.latLngToContainerPoint(L.latLng(latMax, lonMin));
+            const se = m.latLngToContainerPoint(L.latLng(latMin, lonMax));
+            const x = nw.x, y = nw.y, w = se.x - nw.x, h = se.y - nw.y;
+ 
+            if (layer._offscreen && w > 0 && h > 0) {
+                ctx.save();
+                ctx.imageSmoothingEnabled = true;
+                ctx.imageSmoothingQuality = 'high';
+                ctx.drawImage(layer._offscreen, x, y, w, h);
+                ctx.restore();
+            }
+ 
+            layer._drawLegend(ctx, getPaleta(variableActiva));
+            actualitzarCapcaleraParametre();
+            redibuixarVent();
+        }
+ 
+        layer._render = renderAmbNegre;
+        map.off('move', renderAmbNegre);
+        map.on('move moveend zoomend', renderAmbNegre);
+ 
+        layer._needsRedraw = true;
+        renderAmbNegre();
+ 
+        console.log('[Fons negre] Aplicat: negre fora de la zona visible.');
+    }
+ 
+    aplicarOverride();
+})();
 // ═══════════════════════════════════════════════════════════════════════
 //  FONS NEGRE NOMÉS FORA DE LA ZONA lon/lat DEFINIDA
 // ═══════════════════════════════════════════════════════════════════════
@@ -3989,12 +4144,22 @@ const ZONA_VISIBLE = {
 //  INICIALITZACIÓ
 // ═══════════════════════════════════════════════════════════════════════
 
-inicialitzarGeojson();
+// ═══════════════════════════════════════════════════════════════════════
+//  INICIALITZACIÓ
+// ═══════════════════════════════════════════════════════════════════════
+
 inicialitzarCanvasVent();
 crearPanellAjustos();
 
-inicialitzarCarregaSotaDemanda();
+// Espera a que el DOM esté listo
+document.addEventListener('DOMContentLoaded', function() {
+    // Carga el GeoJSON cuando la página esté lista
+    setTimeout(() => {
+        inicialitzarGeojson();
+    }, 500);
+});
 
+inicialitzarCarregaSotaDemanda();
 // Estat global: indica si el panell de Skew-T està obert.
 window.sondeigObert = false;
 
@@ -4421,20 +4586,11 @@ function afegirBotoCarga3D() {
 function inicialitzarSistema3D() {
     crearNotificacio3D();
 
-    // Esperar a que el DOM esté listo
     setTimeout(() => {
         afegirBotoCarga3D();
-
-        // Si ya hay horas cargadas, iniciar carga 3D automática
-        if (totesLesHores && totesLesHores.length > 0) {
-            // Esperar un poco para no saturar la carga inicial
-            setTimeout(() => {
-                if (!SISTEMA_3D.complet && !SISTEMA_3D.carregant) {
-                    console.log('[3D] Iniciando carga automática en background...');
-                    iniciarCarga3D();
-                }
-            }, 3000);
-        }
+        // 🔧 FIX: ya NO se llama a iniciarCarga3D() automáticamente aquí.
+        // El usuario decide cuándo cargar el 3D pulsando el botón,
+        // o se carga solo bajo demanda cuando selecciona una variable 3D.
     }, 500);
 
     // Escuchar evento de horas cargadas
