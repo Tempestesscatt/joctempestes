@@ -2691,6 +2691,7 @@ body {
 <script src="dades/altitude.js"></script>
 <script src="js/skewt-engine.js"></script>
 <script src="js/mapa.js"></script>
+<script src="js/horamapa.js"></script>
 <script src="js/towns_cat.js"></script>
 <script src="js/skewt.js"></script>
 <script src="js/zona-calamarsa.js"></script>
@@ -3140,33 +3141,39 @@ async function obtenirFotoUsuari(user) {
 
 
 
-
 function actualitzarUIHora(idx) {
-    const item = totesLesHores[idx];
-    if (!item || !item.data) return;
-
     const label = document.getElementById('current_time_label');
     if (!label) return;
 
-    // Intentar obtenir hora_madrid
-    if (item.data.hora_madrid) {
-        try {
-            // "2026-08-28 14:00 CEST" -> "14:00"
-            const parts = item.data.hora_madrid.split(' ');
-            if (parts.length >= 3) {
-                label.textContent = parts[1];  // "14:00"
-                return;
-            }
-        } catch (e) {
-            // fallback
-        }
+    const item = totesLesHores[idx];
+    if (!item || !item.dateObj) {
+        label.textContent = '⏳ Sense dades';
+        return;
     }
 
-    // Fallback amb step
-    const step = item.step || 0;
-    const hh = String(Math.floor(step / 2)).padStart(2, '0');
-    const mm = String((step % 2) * 30).padStart(2, '0');
-    label.textContent = hh + ':' + mm;
+    // 🔥 Comprovar si REALMENT té dades carregades
+    const teDataReal = !!item.data && !!item.data.variables && Object.keys(item.data.variables).length > 0;
+    const prefix = teDataReal ? '' : '+';
+
+    try {
+        const madridTime = new Date(item.dateObj.toLocaleString('en-US', { timeZone: 'Europe/Madrid' }));
+        const horaStr = madridTime.toLocaleString('es-ES', { 
+            hour: '2-digit', 
+            minute: '2-digit', 
+            day: '2-digit', 
+            month: 'short' 
+        });
+        
+        // 🔥 Afegir prefix "+" si NO està carregada
+        label.textContent = prefix + ' ' + horaStr;
+        
+        // 🔥 Opcional: canviar color per indicar estat
+        label.style.color = teDataReal ? '#cfe0ee' : '#FFA500';
+        
+    } catch (e) {
+        label.textContent = (teDataReal ? '' : '+') + ' Hora ' + String(item.step).padStart(2, '0') + ':00';
+        label.style.color = teDataReal ? '#cfe0ee' : '#FFA500';
+    }
 }
 
 
