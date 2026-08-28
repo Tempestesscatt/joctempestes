@@ -3227,50 +3227,83 @@ function actualitzarBarraProgress(carregats, total) {
     if (barra) barra.style.width = pct + '%';
     if (text) text.textContent = carregats + ' / ' + total + ' hores (' + pct + '%)';
 }
+// ─── REEMPLAZA la función mostrarHora original con esta ─────────────
+let _cargaHoraEnProgreso = false;
 
 async function mostrarHora(idx) {
     if (idx < 0 || idx >= totesLesHores.length) return;
+    if (_cargaHoraEnProgreso) return;
 
     const user = window._firebaseUser || null;
-    const horaLliure = (idx % 3 === 0);
-    const bloquejat = !user && !horaLliure;
-
-    if (bloquejat) {
+    if (!user && idx % 3 !== 0) {
         if (typeof loginWithGoogle === 'function') loginWithGoogle();
         return;
     }
 
+    _cargaHoraEnProgreso = true;
+    const idxSeleccionada = idx;
     curIdx = idx;
     window.skewtHourIndex = idx;
 
-    // ✅ Solo cargar SFC + 3D si no están en memoria
-    if (!totesLesHores[idx].dateObj || !totesLesHores[idx].data) {
-        console.log(`📥 Cargando hora ${idx} (SFC + 3D)...`);
-        const stepReal = totesLesHores[idx].step;
-        const nou = await carregarUnStep(stepReal, true); // ← Carga SFC + 3D
-        if (nou) {
-            totesLesHores[idx].dateObj = nou.dateObj;
-            totesLesHores[idx].data = nou.data;
-            construirGraellaHores();
-        } else {
-            console.warn('[mostrarHora] No hi ha dades per a la hora', stepReal);
+    // ✅ Resaltar inmediatamente
+    resaltarHoraEnGrid(idx);
+
+    // ✅ Mostrar "Carregant..."
+    const label = document.getElementById('current_time_label');
+    const textoOriginal = label?.textContent || '';
+    if (label) label.textContent = '⏳ Carregant...';
+
+    try {
+        if (!totesLesHores[idx].dateObj || !totesLesHores[idx].data) {
+            const nou = await carregarUnStep(totesLesHores[idx].step, true);
+            if (nou) {
+                totesLesHores[idx].dateObj = nou.dateObj;
+                totesLesHores[idx].data = nou.data;
+                construirGraellaHores();
+            }
+        }
+
+        if (curIdx !== idxSeleccionada) {
+            _cargaHoraEnProgreso = false;
             return;
         }
+
+        const item = totesLesHores[idx];
+        if (item?.data) {
+            canvasLayer._needsRedraw = true;
+            canvasLayer.setData(item.data);
+            if (window.ventEnabled && typeof redibuixarVent === 'function') redibuixarVent();
+        }
+
+        actualitzarUIHora(idx);
+
+    } catch (e) {
+        console.error('[mostrarHora]', e);
+    } finally {
+        _cargaHoraEnProgreso = false;
+        // Restaurar label
+        if (label && totesLesHores[idx]?.dateObj) {
+            const d = new Date(totesLesHores[idx].dateObj.toLocaleString('en-US', { timeZone: 'Europe/Madrid' }));
+            label.textContent = d.toLocaleString('es-ES', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' });
+        }
     }
-
-    // ❌ ELIMINAR la precarga de vecinas
-    // prefetchVeines(idx, necessita3d);
-
-    // Mostrar los datos
-    const item0 = totesLesHores[idx];
-    if (item0 && item0.data) {
-        if (canvasLayer) canvasLayer.setData(item0.data);
-        if (window.ventEnabled && typeof redibuixarVent === 'function') redibuixarVent();
-    }
-
-    // Actualizar UI...
-    actualitzarUIHora(idx);
 }
+
+// ─── FUNCIÓN AUXILIAR para resaltar ──────────────────────────────────
+function resaltarHoraEnGrid(idx) {
+    document.querySelectorAll('.fh-item').forEach((el, i) => {
+        el.classList.toggle('active', i === idx);
+        el.style.background = i === idx ? 'rgba(255,215,0,0.12)' : 'rgba(255,255,255,0.03)';
+        el.style.color = i === idx ? '#FFD700' : '#556680';
+        el.style.border = i === idx ? '1px solid rgba(255,215,0,0.3)' : '1px solid transparent';
+    });
+    const target = document.querySelector(`.fh-item[data-idx="${idx}"]`);
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+}
+
+
+
+
 function construirGraellaHores() {
     const grid = document.getElementById('fh_grid');
     if (!grid) return;
