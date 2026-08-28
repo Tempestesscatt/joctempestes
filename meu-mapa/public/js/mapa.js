@@ -20,10 +20,6 @@ const REGION = {
 const MAX_STEPS = 52;
 const DADES_PATH = 'dades'; 
 
-
-
-
-
 const VARS_SENSE_VENT = [
     // ═══════════════════════════════════════════════════════════════
     // 1. PRECIPITACIÓ I NEU
@@ -3202,34 +3198,11 @@ async function inicialitzarCarregaSotaDemanda() {
 
     construirGraellaHores();
 
-    // ✅ Cargar SOLO las fechas de todas las horas (sin datos pesados)
-    console.log('📥 Obteniendo fechas de todas las horas...');
-    
-    // Cargar en lotes de 3 para no saturar
-    const BATCH_SIZE = 3;
-    for (let i = 0; i < totesLesHores.length; i += BATCH_SIZE) {
-        const batch = totesLesHores.slice(i, i + BATCH_SIZE);
-        await Promise.all(batch.map(async (item, idx) => {
-            const realIdx = i + idx;
-            const dateObj = await obtenirNomésDataHora(item.step);
-            if (dateObj) {
-                totesLesHores[realIdx].dateObj = dateObj;
-                console.log(`✅ Hora ${realIdx}: ${dateObj.toLocaleString('ca-ES', { timeZone: 'Europe/Madrid' })}`);
-            }
-        }));
-    }
-
-    // ✅ Encontrar la hora más cercana a la actual
-    const idxInicial = trobarHoraMesPropera();
-    console.log(`🎯 Hora inicial seleccionada: ${idxInicial}`);
-
-    // ✅ Cargar SOLO esa hora (SFC + 3D)
-    console.log(`📦 Cargando datos completos de la hora ${idxInicial}...`);
-    const primerItem = await carregarUnStep(totesLesHores[idxInicial].step, true);
+    // Carreguem NOMÉS la primera hora real
+    const primerItem = await carregarUnStep(totesLesHores[0].step, false);
     if (primerItem) {
-        totesLesHores[idxInicial].dateObj = primerItem.dateObj;
-        totesLesHores[idxInicial].data = primerItem.data;
-        console.log(`✅ Hora ${idxInicial} cargada completamente`);
+        totesLesHores[0].dateObj = primerItem.dateObj;
+        totesLesHores[0].data = primerItem.data;
     }
 
     const tempsPassat = Date.now() - TIEMPO_INICIO;
@@ -3239,77 +3212,12 @@ async function inicialitzarCarregaSotaDemanda() {
 
     construirPanellParametres();
     construirGraellaHores();
-    
-    // ✅ Mostrar la hora más cercana
-    if (totesLesHores[idxInicial].data) {
-        mostrarHora(idxInicial);
-    } else if (totesLesHores[0].data) {
-        console.warn('⚠️ No se pudo cargar la hora más cercana, usando la primera');
-        mostrarHora(0);
-    } else {
-        console.error('❌ No se pudo cargar ninguna hora');
-    }
+    if (totesLesHores[0].data) mostrarHora(0);
 
     const loadingOverlay = document.getElementById('loading_overlay');
     if (loadingOverlay) loadingOverlay.classList.add('hidden');
 
-    console.log(`[Càrrega] Completada. Hora inicial: ${idxInicial} de ${totesLesHores.length} disponibles.`);
-}
-
-
-
-function actualitzarUIHora(idx) {
-    const item = totesLesHores[idx];
-    if (!item || !item.data) return;
-    
-    const d = item.dateObj;
-    if (!d) return;
-    
-    // Convertir a hora de Madrid
-    const madridTime = new Date(d.toLocaleString('en-US', { timeZone: 'Europe/Madrid' }));
-    const ds = madridTime.toLocaleDateString('ca-ES', { 
-        weekday: 'short', 
-        day: 'numeric', 
-        month: 'short', 
-        timeZone: 'Europe/Madrid' 
-    });
-    const ls = madridTime.toLocaleTimeString('ca-ES', { 
-        hour: '2-digit', 
-        minute: '2-digit', 
-        hour12: false, 
-        timeZone: 'Europe/Madrid' 
-    });
-    const us = String(d.getUTCHours()).padStart(2, '0') + 'Z';
-
-    const overlayDate = document.getElementById('overlay-date');
-    const overlayLocal = document.getElementById('overlay-local');
-    const overlayUtc = document.getElementById('overlay-utc');
-    const fhValidTime = document.getElementById('fh_validtime');
-
-    if (overlayDate) overlayDate.textContent = ds.toUpperCase();
-    if (overlayLocal) overlayLocal.textContent = ls;
-    if (overlayUtc) overlayUtc.textContent = us;
-    if (fhValidTime) fhValidTime.textContent = ds + ' · ' + ls + ' local / ' + us;
-}
-
-
-async function obtenirNomésDataHora(step) {
-    const base = 'web_data_NE/';
-    const p = String(step).padStart(2, '0');
-    
-    try {
-        // Intentar con SFC primero (más ligero)
-        let sfc = await carregarFitxerAmbReintents(base + 'sfc_' + p + '.msgpack.gz', 2);
-        if (!sfc) {
-            sfc = await carregarFitxerAmbReintents(base + 'sfc_' + p + '.json.gz', 2);
-        }
-        if (sfc && sfc.hora_utc) {
-            return new Date(sfc.hora_utc + 'Z');
-        }
-    } catch (e) {
-        // Silencioso
-    }
-    return null;
+    console.log(`[Càrrega] Arrencada ràpida: 1 hora carregada de ${totesLesHores.length} disponibles.`);
 }
 
 function actualitzarBarraProgress(carregats, total) {
@@ -3487,59 +3395,6 @@ function construirGraellaHores() {
             });
         }
     }, 150);
-}
-
-
-
-// ═══════════════════════════════════════════════════════════════════════
-//  UTILITATS DE HORA
-// ═══════════════════════════════════════════════════════════════════════
-
-function obtenirHoraMadrid(dateObj) {
-    if (!dateObj) return null;
-    try {
-        const madridTime = new Date(dateObj.toLocaleString('en-US', { timeZone: 'Europe/Madrid' }));
-        return {
-            horas: String(madridTime.getHours()).padStart(2, '0'),
-            minutos: String(madridTime.getMinutes()).padStart(2, '0'),
-            date: madridTime,
-            formatted: `${String(madridTime.getHours()).padStart(2, '0')}h${String(madridTime.getMinutes()).padStart(2, '0')}`
-        };
-    } catch (e) {
-        console.warn('[Hora] Error obteniendo hora Madrid:', e);
-        return null;
-    }
-}
-
-function trobarHoraMesPropera() {
-    if (!totesLesHores || totesLesHores.length === 0) return 0;
-    
-    const ara = new Date();
-    console.log('🕐 Hora actual:', ara.toLocaleString('ca-ES', { timeZone: 'Europe/Madrid' }));
-    
-    let idxMesProper = 0;
-    let diffMinima = Infinity;
-    
-    totesLesHores.forEach((item, idx) => {
-        if (!item.dateObj) return;
-        
-        // Diferencia en milisegundos
-        const diff = Math.abs(ara.getTime() - item.dateObj.getTime());
-        
-        if (diff < diffMinima) {
-            diffMinima = diff;
-            idxMesProper = idx;
-        }
-    });
-    
-    // Si la diferencia es muy grande (> 6 horas), coger la primera
-    if (diffMinima > 6 * 60 * 60 * 1000) {
-        console.log('⚠️ La hora más cercana está a más de 6h, cogiendo la primera');
-        return 0;
-    }
-    
-    console.log(`✅ Hora más cercana: índice ${idxMesProper} (${totesLesHores[idxMesProper].dateObj?.toLocaleString('ca-ES', { timeZone: 'Europe/Madrid' })})`);
-    return idxMesProper;
 }
 
 
