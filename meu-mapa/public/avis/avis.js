@@ -1,16 +1,40 @@
 // ============================================================
-// avis/avis.js - Carrega el PNG de /avis/
+// avis.js - Mostra el PNG d'outbreak de /avis/
+// Primer intenta nivell.json (instantani); si falla, cerca per força bruta
 // ============================================================
 
 (function() {
     'use strict';
 
-    const CONFIG = {
-        PNG_FOLDER: '/avis/',
-        REFRESH_INTERVAL: 10 * 60 * 1000,
-    };
+    // ============================================================
+    // GENERAR TOTS ELS NOMS POSSIBLES (mètode antic, com a fallback)
+    // ============================================================
 
-    let refreshTimer = null;
+    const ara = new Date();
+    const possibles = [];
+
+    for (let d = 0; d < 30; d++) {
+        const data = new Date(ara);
+        data.setDate(data.getDate() - d);
+        const any = data.getFullYear();
+        const mes = String(data.getMonth() + 1).padStart(2, '0');
+        const dia = String(data.getDate()).padStart(2, '0');
+        const dataStr = `${any}${mes}${dia}`;
+
+        const runs = ['21', '18', '15', '12', '09', '06', '03', '00'];
+        for (const run of runs) {
+            possibles.push(`outbreak_catalunya_${dataStr}_${run}Z.png`);
+        }
+        possibles.push(`outbreak_catalunya_${dataStr}.png`);
+    }
+    possibles.push('outbreak_catalunya.png');
+
+    let index = 0;
+    let trobat = false;
+
+    // ============================================================
+    // FUNCIÓ PRINCIPAL
+    // ============================================================
 
     function carregarOutbreak() {
         const img = document.getElementById('outbreakImage');
@@ -27,80 +51,107 @@
         loading.innerHTML = `
             <div style="width:60px;height:60px;border:4px solid #f5c842;border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:20px;"></div>
             <span>Carregant mapa d'outbreak...</span>
+            <span style="font-size:14px;color:#8aa3be;margin-top:8px;">Buscant PNG a /avis/</span>
         `;
         img.style.display = 'none';
 
         // ============================================================
-        // PROVAR ELS PNGs MÉS RECENTS
+        // MÈTODE RÀPID: llegir nivell.json
         // ============================================================
 
-        const ara = new Date();
-        const possibles = [];
+        fetch('/avis/nivell.json?_=' + Date.now())
+            .then(response => {
+                if (!response.ok) throw new Error('nivell.json no trobat');
+                return response.json();
+            })
+            .then(data => {
+                // Ajusta aquest camp segons l'estructura real de nivell.json
+                // Prova diversos noms de camp habituals per si de cas
+                const nomFitxer = data.fitxer || data.filename || data.png || data.imatge || data.latest;
 
-        // Generar totes les combinacions possibles
-        for (let d = 0; d < 10; d++) {
-            const data = new Date(ara);
-            data.setDate(data.getDate() - d);
-            const any = data.getFullYear();
-            const mes = String(data.getMonth() + 1).padStart(2, '0');
-            const dia = String(data.getDate()).padStart(2, '0');
-            const dataStr = `${any}${mes}${dia}`;
-            
-            // Runs de més recent a més antic
-            const runs = ['21', '18', '15', '12', '09', '06', '03', '00'];
-            for (const run of runs) {
-                possibles.push({
-                    nom: `outbreak_catalunya_${dataStr}_${run}Z.png`,
-                    data: data,
-                    run: run
-                });
-            }
-        }
+                if (!nomFitxer) {
+                    console.warn('avis.js: nivell.json trobat però no conté el nom del fitxer, es fa servir cerca per força bruta');
+                    provarSeguent();
+                    return;
+                }
 
-        let index = 0;
+                console.log(`✅ avis.js: nom obtingut via nivell.json: ${nomFitxer}`);
+                trobat = true;
+                mostrarImatge(`/avis/${nomFitxer}`, nomFitxer);
+            })
+            .catch(err => {
+                console.warn(`avis.js: no s'ha pogut llegir nivell.json (${err.message}), es fa servir cerca per força bruta`);
+                provarSeguent();
+            });
+
+        // ============================================================
+        // MÈTODE FALLBACK: provar cada nom fins a trobar-ne un
+        // ============================================================
 
         function provarSeguent() {
+            if (trobat) return;
+
             if (index >= possibles.length) {
                 loading.innerHTML = `
                     <div style="color:#f5c842;font-size:18px;text-align:center;">
                         <i class="fa-solid fa-triangle-exclamation" style="font-size:36px;display:block;margin-bottom:12px;"></i>
-                        No s'ha trobat cap imatge PNG
-                        <div style="font-size:14px;color:#8aa3be;margin-top:8px;">Carpeta: ${CONFIG.PNG_FOLDER}</div>
+                        No s'ha trobat cap imatge PNG a /avis/
+                        <div style="font-size:14px;color:#8aa3be;margin-top:8px;">
+                            Genera un PNG amb el script Python
+                        </div>
+                        <div style="font-size:13px;color:#8aa3be;margin-top:4px;">
+                            Obre <a href="/avis/" target="_blank" style="color:#f5c842;">/avis/</a> per veure els fitxers
+                        </div>
                     </div>
                 `;
                 return;
             }
 
-            const f = possibles[index];
-            const url = `${CONFIG.PNG_FOLDER}${f.nom}`;
+            const nom = possibles[index];
+            const url = `/avis/${nom}`;
 
             fetch(url, { method: 'HEAD' })
                 .then(response => {
+                    if (trobat) return;
                     if (response.ok) {
-                        console.log(`✅ Trobat: ${f.nom}`);
-                        carregarImatge(url, f);
+                        console.log(`✅ Trobat (força bruta): ${nom}`);
+                        trobat = true;
+                        mostrarImatge(url, nom);
                     } else {
                         index++;
                         provarSeguent();
                     }
                 })
                 .catch(() => {
+                    if (trobat) return;
                     index++;
                     provarSeguent();
                 });
         }
 
-        function carregarImatge(url, f) {
-            // Actualitzar info
-            if (infoSpan) {
-                const dataStr = f.data.toLocaleDateString('ca-ES', { 
-                    day: '2-digit', 
-                    month: '2-digit', 
-                    year: 'numeric' 
-                });
-                infoSpan.textContent = `Run ${f.run}Z · ${dataStr} · Risc màxim (10h-21h)`;
+        // ============================================================
+        // MOSTRAR LA IMATGE
+        // ============================================================
+
+        function mostrarImatge(url, nom) {
+            const img = document.getElementById('outbreakImage');
+            const loading = document.getElementById('loadingContainer');
+            const infoSpan = document.getElementById('outbreakInfo');
+            const dateSpan = document.getElementById('outbreakDate');
+
+            const match = nom.match(/(\d{8})/);
+            if (match) {
+                const dataStr = match[1];
+                const any = dataStr.substring(0, 4);
+                const mes = dataStr.substring(4, 6);
+                const dia = dataStr.substring(6, 8);
+                if (infoSpan) {
+                    infoSpan.textContent = `${dia}/${mes}/${any} · Risc màxim (10h-21h)`;
+                }
+            } else if (infoSpan) {
+                infoSpan.textContent = `Mapa d'outbreak · Risc màxim (10h-21h)`;
             }
-            
+
             if (dateSpan) {
                 dateSpan.textContent = `Actualitzat: ${new Date().toLocaleString('ca-ES')}`;
             }
@@ -108,33 +159,18 @@
             img.onload = function() {
                 loading.style.display = 'none';
                 img.style.display = 'block';
-                console.log(`✅ Mapa carregat: ${f.nom}`);
-                programarRefresc();
+                console.log(`✅ Mapa carregat: ${nom}`);
             };
 
             img.onerror = function() {
-                console.warn(`❌ Error carregant ${f.nom}`);
+                console.warn(`❌ Error carregant ${nom}, es reprèn la cerca`);
+                trobat = false;
                 index++;
                 provarSeguent();
             };
 
-            // Afegir timestamp per evitar cache
             img.src = url + '?_=' + Date.now();
         }
-
-        // ============================================================
-        // COMENÇAR LA CERCA
-        // ============================================================
-
-        provarSeguent();
-    }
-
-    function programarRefresc() {
-        if (refreshTimer) clearTimeout(refreshTimer);
-        refreshTimer = setTimeout(() => {
-            console.log('🔄 Refresc automàtic');
-            carregarOutbreak();
-        }, CONFIG.REFRESH_INTERVAL);
     }
 
     // ============================================================
@@ -147,6 +183,6 @@
         carregarOutbreak();
     }
 
-    console.log('✅ avis.js: Carregat');
+    console.log('✅ avis.js: Carregat - primer nivell.json, després /avis/');
 
 })();
