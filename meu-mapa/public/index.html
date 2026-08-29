@@ -1907,13 +1907,25 @@ QUI SOM - Estils
             <button onclick="searchArticles()"><i class="fa-solid fa-magnifying-glass"></i></button>
         </div>
 
+        
+
         <div class="nav-links">
             <a href="#blog">Articles</a>
             <a href="#avisos">Avisos</a>
             <a href="#qui-som">Qui som</a>
             <a href="#contacte">Contacte</a>
             <a href="#models">Models</a>
+            <!-- Botó d'idioma -->
+<button class="topbar-icon" id="btnIdioma" onclick="canviarIdioma(this.getAttribute('data-idioma'))" data-idioma="es" style="cursor:pointer;background:none;border:none;color:#8aa3be;font-size:13px;font-weight:600;padding:6px 12px;border-radius:30px;display:flex;align-items:center;gap:6px;">
+    <i class="fa-solid fa-language"></i>
+    <span> Castellano</span>
+
+
+    
+</button>
         </div>
+
+        
 
         <div class="topbar-links">
             <a href="https://x.com/tempestes_cat" target="_blank" class="topbar-icon">
@@ -1982,6 +1994,9 @@ QUI SOM - Estils
         </div>
     </div>
 
+
+
+    
     <!-- ============================================================
     CONTENT
     ============================================================ -->
@@ -1997,6 +2012,8 @@ QUI SOM - Estils
             </div>
         </div>
 
+        
+
         <div class="wrap">
 
             <!-- ============================================================
@@ -2005,7 +2022,7 @@ QUI SOM - Estils
             <div class="sec" id="blog">
                 <div class="sec-head">
                     <h2><i class="fa-solid fa-newspaper"></i> Articles meteorològics</h2>
-                    <span style="font-size:13px;color:#888;">15 articles amb estructura professional</span>
+                    <span style="font-size:13px;color:#888;">15 articles</span>
                 </div>
                 <div class="blog-grid" id="blogGrid">
                     <!-- Generat per JavaScript -->
@@ -2016,7 +2033,7 @@ QUI SOM - Estils
 
 
             <!-- ============================================================
-ARTICLES PRERENDERITZATS PER A SEO (invisibles per a l'usuari)
+
 ============================================================ -->
 <div style="display:none;" aria-hidden="true">
     <!-- Article 1 -->
@@ -3352,7 +3369,7 @@ CONTACTE (amb EmailJS)
             });
         }
         // ============================================================
-        // MOSTRA ARTICLE COMPLET (MODAL) AMB IMATGE I ETIQUETES
+        // MOSTRA ARTICLE COMPLET (MODAL) AMB TRADUCCIÓ
         // ============================================================
         function showArticle(id) {
             const article = articles.find(a => a.id === id);
@@ -3385,7 +3402,20 @@ CONTACTE (amb EmailJS)
                 `;
             }
 
-            // Construir el contingut del modal amb la imatge a dalt
+            // Agafar el contingut de l'article
+            let articleContent = article.content;
+
+            // Si l'idioma actual és castellà, traduir el contingut
+            if (idiomaActual === 'es') {
+                // Recórrer totes les claus del diccionari i substituir
+                for (let [clau, valor] of Object.entries(traduccions)) {
+                    if (articleContent.includes(clau)) {
+                        articleContent = articleContent.replaceAll(clau, valor);
+                    }
+                }
+            }
+
+            // Construir el modal
             let modalContent = `
                 <button class="modal-close" onclick="closeArticleModal()">✕</button>
                 
@@ -3393,15 +3423,14 @@ CONTACTE (amb EmailJS)
                 <div style="position: relative; border-radius: 12px; overflow: hidden; margin-bottom: 24px; background: #152c44; aspect-ratio: 16/9; width: 100%;">
                     <img src="${article.img}" alt="${article.title}" style="width: 100%; height: 100%; object-fit: cover; display: block;" onerror="this.style.display='none'; this.parentElement.style.background='linear-gradient(135deg,#152c44,#1e3a5f)';">
                     ${tagsHTML}
-                    <!-- Categoria a la part superior esquerra (opcional) -->
                     <span style="position: absolute; top: 16px; left: 16px; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); color: #f5c842; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 4px 16px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.08); z-index: 5;">
-                        ${article.category}
+                        ${idiomaActual === 'es' ? (traduccions[article.category] || article.category) : article.category}
                     </span>
                 </div>
                 
-                <!-- COS DE L'ARTICLE -->
+                <!-- COS DE L'ARTICLE (JA TRADUÏT) -->
                 <div style="padding: 0 4px;">
-                    ${article.content}
+                    ${articleContent}
                 </div>
                 
                 <div class="modal-footer">
@@ -3486,7 +3515,7 @@ CONTACTE (amb EmailJS)
             }
 
             feedback.style.display = 'block';
-            feedback.textContent = 'Missatge enviat correctament! Et respondrem en 24h.';
+            feedback.textContent = 'Missatge enviat correctament! Et respondrem en 24h.';y
             feedback.style.color = '#28a745';
 
             document.getElementById('contactName').value = '';
@@ -3767,6 +3796,7 @@ CONTACTE (amb EmailJS)
 
 
 <script src="avis/avis.js"></script>
+<script src="js/index/traduccions.js"></script>
 
 
 </body>
