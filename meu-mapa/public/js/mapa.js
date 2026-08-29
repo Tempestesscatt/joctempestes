@@ -2896,40 +2896,49 @@ async function descomprimirGzipAmbFallback(response, url) {
     }
 }
 
-
-
-// ============================================================
-// DESCOMPRIMIR .MSGPACK.GZ (MessagePack + GZIP)
-// ============================================================
 async function descomprimirMsgPackGz(response) {
     try {
         const buffer = await response.arrayBuffer();
-        
-        const ds = new DecompressionStream('gzip');
-        const blob = new Blob([buffer]);
-        const stream = blob.stream().pipeThrough(ds);
-        const reader = stream.getReader();
-        
-        const chunks = [];
-        while (true) {
-            const { value, done } = await reader.read();
-            if (done) break;
-            chunks.push(value);
+        const bytes = new Uint8Array(buffer);
+
+        // 🔧 FIX: detectar si Cloudflare ya descomprimió el archivo
+        // gzip real siempre empieza con los bytes 0x1F 0x8B (magic number)
+        const esGzipReal = bytes.length >= 2 && bytes[0] === 0x1F && bytes[1] === 0x8B;
+
+        let decompressed;
+
+        if (esGzipReal) {
+            // Sigue comprimido de verdad -> descomprimir normalmente
+            const ds = new DecompressionStream('gzip');
+            const blob = new Blob([buffer]);
+            const stream = blob.stream().pipeThrough(ds);
+            const reader = stream.getReader();
+
+            const chunks = [];
+            while (true) {
+                const { value, done } = await reader.read();
+                if (done) break;
+                chunks.push(value);
+            }
+
+            const totalLength = chunks.reduce((a, b) => a + b.length, 0);
+            decompressed = new Uint8Array(totalLength);
+            let offset = 0;
+            for (const chunk of chunks) {
+                decompressed.set(chunk, offset);
+                offset += chunk.length;
+            }
+        } else {
+            // Cloudflare ya lo descomprimió por el camino (Content-Encoding: gzip
+            // a nivel HTTP) -> usar los bytes tal cual, sin descomprimir de nuevo
+            decompressed = bytes;
         }
-        
-        const totalLength = chunks.reduce((a, b) => a + b.length, 0);
-        const decompressed = new Uint8Array(totalLength);
-        let offset = 0;
-        for (const chunk of chunks) {
-            decompressed.set(chunk, offset);
-            offset += chunk.length;
-        }
-        
-        // 🔧 usar la librería global cargada por <script>, no import()
+
+        // usar la librería global cargada por <script>, no import()
         if (typeof MessagePack !== 'undefined') {
             return MessagePack.decode(decompressed);
         }
-        
+
         // Fallback si de verdad es JSON
         try {
             const text = new TextDecoder().decode(decompressed);
@@ -2942,7 +2951,6 @@ async function descomprimirMsgPackGz(response) {
         throw e;
     }
 }
-
 
 async function carregarFitxerAmbReintents(url, maxIntents = 3) {
     let retard = RETARD_INICIAL;
