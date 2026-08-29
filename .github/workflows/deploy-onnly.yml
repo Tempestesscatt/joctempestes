@@ -26,7 +26,10 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y jq
     
-    - name: 📥 Descarregar dades dels últims artifacts
+    # ════════════════════════════════════════════════════════════════
+    #  PAS 1: DESCARREGAR ELS ARTIFACTS DEL WORKFLOW ANTERIOR
+    # ════════════════════════════════════════════════════════════════
+    - name: 📥 Descarregar i descomprimir artifacts correctament
       run: |
         echo "📥 Buscant l'últim workflow 'CAT + ONES + MSGPACK'..."
         
@@ -36,7 +39,6 @@ jobs:
         
         if [ -z "$WORKFLOW_ID" ] || [ "$WORKFLOW_ID" = "null" ]; then
           echo "⚠️ No s'ha trobat el workflow 'CAT + ONES + MSGPACK'"
-          echo "📦 Continuant amb les dades del repositori..."
           exit 0
         fi
         
@@ -47,151 +49,116 @@ jobs:
           | jq -r '.workflow_runs[0].id')
         
         if [ -z "$RUN_ID" ] || [ "$RUN_ID" = "null" ]; then
-          echo "⚠️ No s'ha trobat cap run amb èxit del workflow 'CAT + ONES + MSGPACK'"
-          echo "📦 Continuant amb les dades del repositori..."
+          echo "⚠️ No s'ha trobat cap run amb èxit"
           exit 0
         fi
         
         echo "✅ Run ID: $RUN_ID"
         
-        # Crear carpeta temporal per als artifacts
+        # Crear carpetes on aniran les dades
+        mkdir -p meu-mapa/public/dades/web_data_NE
+        mkdir -p meu-mapa/public/dades/web_data_ones
+        
+        # Crear carpeta temporal
         mkdir -p artifacts_temp
         cd artifacts_temp
         
-        echo "📦 Descarregant llista d'artifacts..."
-        ARTIFACT_URLS=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-          "https://api.github.com/repos/${{ github.repository }}/actions/runs/$RUN_ID/artifacts" \
-          | jq -r '.artifacts[] | .archive_download_url')
-        
-        if [ -z "$ARTIFACT_URLS" ]; then
-          echo "⚠️ No s'han trobat artifacts"
-          cd ..
-          rm -rf artifacts_temp
-          exit 0
-        fi
-        
         # Descarregar tots els artifacts
-        echo "$ARTIFACT_URLS" | while read url; do
-          if [ -n "$url" ]; then
-            echo "📦 Descarregant artifact de: $url"
-            curl -L -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -O "$url" 2>/dev/null
-          fi
-        done
+        echo "📦 Descarregant artifacts..."
+        curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          "https://api.github.com/repos/${{ github.repository }}/actions/runs/$RUN_ID/artifacts" \
+          | jq -r '.artifacts[] | .archive_download_url' | while read url; do
+            if [ -n "$url" ]; then
+              echo "   📦 $(basename $url)"
+              curl -L -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -O "$url" 2>/dev/null
+            fi
+          done
         
-        # 🔥 IMPORTANT: Descomprimir CADA artifact a la carpeta correcta
-        echo "📂 Descomprimint artifacts a meu-mapa/public/..."
+        # Descomprimir CADA zip i col·locar els fitxers a la carpeta correcta
+        echo "📂 Descomprimint artifacts a les carpetes corresponents..."
         for zip in *.zip; do
           if [ -f "$zip" ]; then
-            echo "   📂 Descomprimint $zip..."
-            # Descomprimir directament a meu-mapa/public/
-            unzip -o "$zip" -d "../meu-mapa/public/" 2>/dev/null || true
+            echo "   📂 Processant $zip..."
             
-            # Mostrar què s'ha descomprimit
-            echo "   📄 Contingut del zip:"
-            unzip -l "$zip" 2>/dev/null | head -10 || true
+            # Crear carpeta temporal per aquest zip
+            mkdir -p temp_extract
+            unzip -o "$zip" -d temp_extract/ 2>/dev/null || true
+            
+            # Determinar a quina carpeta va
+            if [[ "$zip" == *"dades-sfc"* ]] || [[ "$zip" == *"dades-3d"* ]]; then
+              echo "      → web_data_NE"
+              cp -r temp_extract/* ../meu-mapa/public/dades/web_data_NE/ 2>/dev/null || true
+            elif [[ "$zip" == *"dades-ones"* ]]; then
+              echo "      → web_data_ones"
+              cp -r temp_extract/* ../meu-mapa/public/dades/web_data_ones/ 2>/dev/null || true
+            elif [[ "$zip" == *"dades-status"* ]]; then
+              echo "      → js/"
+              mkdir -p ../meu-mapa/public/js
+              cp -r temp_extract/* ../meu-mapa/public/js/ 2>/dev/null || true
+            fi
+            
+            rm -rf temp_extract
           fi
         done
         
         cd ..
         rm -rf artifacts_temp
         
-        echo "✅ Artifacts descarregats i descomprimits"
+        echo "✅ Artifacts processats correctament"
     
-    - name: 📂 Verificar dades descarregades
+    # ════════════════════════════════════════════════════════════════
+    #  PAS 2: VERIFICAR QUE LES DADES S'HAN COL·LOCAT BÉ
+    # ════════════════════════════════════════════════════════════════
+    - name: 📂 Verificar dades finals
       run: |
-        echo "📊 VERIFICACIÓ DE DADES:"
+        echo ""
+        echo "═══════════════════════════════════════════════════════════════"
+        echo "  📊 VERIFICACIÓ DE DADES"
+        echo "═══════════════════════════════════════════════════════════════"
         
-        # Comprovar si web_data_NE existeix i quants fitxers té
-        if [ -d "meu-mapa/public/web_data_NE" ]; then
-          COUNT_NE=$(find meu-mapa/public/web_data_NE -type f 2>/dev/null | wc -l)
-          echo "📁 web_data_NE: $COUNT_NE fitxers"
-          # Mostrar alguns fitxers
-          echo "📄 Mostrant fitxers de web_data_NE:"
-          ls -la meu-mapa/public/web_data_NE/ 2>/dev/null | head -10 || echo "   (buit)"
-        else
-          echo "📁 web_data_NE: ❌ NO EXISTEIX"
-          # Buscar on s'han descomprimit les dades
-          echo "🔍 Buscant web_data_NE a tot arreu..."
-          find . -name "web_data_NE" -type d 2>/dev/null | head -5
+        COUNT_NE=$(find meu-mapa/public/dades/web_data_NE -type f 2>/dev/null | wc -l)
+        COUNT_ONES=$(find meu-mapa/public/dades/web_data_ones -type f 2>/dev/null | wc -l)
+        
+        echo "📁 web_data_NE: $COUNT_NE fitxers"
+        if [ $COUNT_NE -gt 0 ]; then
+          echo "   📄 Mostrant primers fitxers:"
+          ls meu-mapa/public/dades/web_data_NE/ 2>/dev/null | head -5
         fi
         
-        if [ -d "meu-mapa/public/web_data_ones" ]; then
-          COUNT_ONES=$(find meu-mapa/public/web_data_ones -type f 2>/dev/null | wc -l)
-          echo "📁 web_data_ones: $COUNT_ONES fitxers"
-        else
-          echo "📁 web_data_ones: ❌ NO EXISTEIX"
+        echo "📁 web_data_ones: $COUNT_ONES fitxers"
+        if [ $COUNT_ONES -gt 0 ]; then
+          echo "   📄 Mostrant primers fitxers:"
+          ls meu-mapa/public/dades/web_data_ones/ 2>/dev/null | head -5
         fi
         
         echo "📁 js/status.js: $([ -f meu-mapa/public/js/status.js ] && echo '✅ existeix' || echo '❌ no existeix')"
+        echo "═══════════════════════════════════════════════════════════════"
     
-    - name: 📂 Alternativa - Buscar dades en altres carpetes
-      run: |
-        echo "🔍 Buscant dades a tot arreu..."
-        echo ""
-        echo "📁 Directoris que contenen 'web_data':"
-        find . -name "*web_data*" -type d 2>/dev/null | while read dir; do
-          count=$(find "$dir" -type f 2>/dev/null | wc -l)
-          echo "   $dir: $count fitxers"
-        done
-        
-        echo ""
-        echo "📁 Si les dades estan a una altra carpeta, copiar-les a public/"
-        # Si les dades estan a artifacts_temp o similar, copiar-les
-        if [ -d "artifacts_temp" ]; then
-          echo "📦 Movent dades de artifacts_temp a public/"
-          find artifacts_temp -name "*.msgpack.gz" -o -name "*.json.gz" 2>/dev/null | while read file; do
-            echo "   📄 $file"
-          done
-        fi
-        
-        # Comprovar si les dades estan a la carpeta arrel
-        if [ -d "web_data_NE" ] && [ "$(ls -A web_data_NE 2>/dev/null)" ]; then
-          echo "📦 web_data_NE trobat a l'arrel! Copiant a public/..."
-          mkdir -p meu-mapa/public/web_data_NE
-          cp -r web_data_NE/* meu-mapa/public/web_data_NE/
-          echo "✅ Copiat!"
-        fi
-        
-        if [ -d "web_data_ones" ] && [ "$(ls -A web_data_ones 2>/dev/null)" ]; then
-          echo "📦 web_data_ones trobat a l'arrel! Copiant a public/..."
-          mkdir -p meu-mapa/public/web_data_ones
-          cp -r web_data_ones/* meu-mapa/public/web_data_ones/
-          echo "✅ Copiat!"
-        fi
-    
+    # ════════════════════════════════════════════════════════════════
+    #  PAS 3: RESUM ABANS DEL DEPLOY
+    # ════════════════════════════════════════════════════════════════
     - name: 📊 Resum de dades abans del deploy
       run: |
         echo ""
         echo "═══════════════════════════════════════════════════════════════"
         echo "  📊 RESUM DE DADES ABANS DEL DEPLOY"
         echo "═══════════════════════════════════════════════════════════════"
-        echo "🌡️  web_data_NE:       $(find meu-mapa/public/web_data_NE -type f 2>/dev/null | wc -l) fitxers"
-        echo "🌊  web_data_ones:     $(find meu-mapa/public/web_data_ones -type f 2>/dev/null | wc -l) fitxers"
+        echo "🌡️  web_data_NE:       $(find meu-mapa/public/dades/web_data_NE -type f 2>/dev/null | wc -l) fitxers"
+        echo "🌊  web_data_ones:     $(find meu-mapa/public/dades/web_data_ones -type f 2>/dev/null | wc -l) fitxers"
         echo "📦  TOTAL fitxers:     $(find meu-mapa/public -type f 2>/dev/null | wc -l) fitxers"
-        echo ""
-        echo "📁 Directoris principals:"
-        for dir in meu-mapa/public/*/; do
-          if [ -d "$dir" ]; then
-            count=$(find "$dir" -type f 2>/dev/null | wc -l)
-            echo "  $(basename $dir): $count fitxers"
-          fi
-        done
         echo "═══════════════════════════════════════════════════════════════"
     
-    - name: 📥 Sincronitzar amb remot
-      run: |
-        cd meu-mapa
-        git pull --rebase origin main 2>/dev/null || git pull --rebase origin master 2>/dev/null || true
-        echo "✅ Sincronitzat"
-
+    # ════════════════════════════════════════════════════════════════
+    #  PAS 4: DEPLOY A CLOUDFLARE
+    # ════════════════════════════════════════════════════════════════
     - name: 🚀 DEPLOY a Cloudflare
       run: |
         cd meu-mapa
         npm install -g wrangler
         echo "📦 Desplegant a Cloudflare Pages..."
         echo "📁 Contingut de public abans del deploy:"
-        echo "   web_data_NE: $(find public/web_data_NE -type f 2>/dev/null | wc -l) fitxers"
-        echo "   web_data_ones: $(find public/web_data_ones -type f 2>/dev/null | wc -l) fitxers"
+        echo "   dades/web_data_NE: $(find public/dades/web_data_NE -type f 2>/dev/null | wc -l) fitxers"
+        echo "   dades/web_data_ones: $(find public/dades/web_data_ones -type f 2>/dev/null | wc -l) fitxers"
         echo ""
         
         wrangler pages deploy public --project-name=tempestes-cat --branch=main --commit-dirty=true
@@ -199,6 +166,9 @@ jobs:
         CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
     
+    # ════════════════════════════════════════════════════════════════
+    #  PAS 5: CONFIRMACIÓ FINAL
+    # ════════════════════════════════════════════════════════════════
     - name: 🎉 Confirmació final
       run: |
         echo ""
@@ -210,8 +180,8 @@ jobs:
         echo "   https://tempestes-cat.pages.dev/"
         echo ""
         echo "📊 Estadístiques finals:"
-        echo "   📦 web_data_NE: $(find meu-mapa/public/web_data_NE -type f 2>/dev/null | wc -l) fitxers"
-        echo "   📦 web_data_ones: $(find meu-mapa/public/web_data_ones -type f 2>/dev/null | wc -l) fitxers"
+        echo "   📦 web_data_NE: $(find meu-mapa/public/dades/web_data_NE -type f 2>/dev/null | wc -l) fitxers"
+        echo "   📦 web_data_ones: $(find meu-mapa/public/dades/web_data_ones -type f 2>/dev/null | wc -l) fitxers"
         echo "   📦 status.js: $([ -f meu-mapa/public/js/status.js ] && echo '✅' || echo '❌')"
         echo ""
         echo "═══════════════════════════════════════════════════════════════"
