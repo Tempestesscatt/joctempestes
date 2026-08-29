@@ -111,7 +111,7 @@ jobs:
       with:
         name: dades-sfc
         path: meu-mapa/public/web_data_NE/
-        retention-days: 1
+        retention-days: 5
 
   # ════════════════════════════════════════════════════════════════
   #  JOB 2: 3D (arome_3d.py)
@@ -170,7 +170,7 @@ jobs:
       with:
         name: dades-3d
         path: meu-mapa/public/web_data_NE/
-        retention-days: 1
+        retention-days: 5
 
   # ════════════════════════════════════════════════════════════════
   #  JOB 3: ONES (ones.py)
@@ -227,7 +227,7 @@ jobs:
       with:
         name: dades-ones
         path: meu-mapa/public/web_data_ones/
-        retention-days: 1
+        retention-days: 5
 
   # ════════════════════════════════════════════════════════════════
   #  JOB 4: STATUS (status.py) - GENERA status.js
@@ -296,7 +296,7 @@ jobs:
       with:
         name: dades-status
         path: meu-mapa/public/js/status.js
-        retention-days: 1
+        retention-days: 5
 
   # ════════════════════════════════════════════════════════════════
   #  JOB FINAL: deploy
@@ -386,6 +386,17 @@ jobs:
         CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
+    - name: 📤 Publicar dades a la branca 'data' (force-push, sense historial)
+      run: |
+        cd meu-mapa/public
+        rm -rf .git
+        git init -q
+        git checkout -q -b data
+        git add web_data_NE web_data_ones js/status.js
+        git -c user.name="bot-dades" -c user.email="bot@tempestes-cat" commit -q -m "dades $(date -u +'%Y-%m-%d %H:%M UTC')"
+        git push --force "https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/Tempestesscatt/joctempestes.git" data
+      continue-on-error: true
+
     - name: Comprovar si algun job ha fallat
       run: |
         FALLITS="${{ env.SCRIPTS_FALLITS }}"
@@ -403,5 +414,6 @@ jobs:
         echo "============================================"
         echo "  OK TOT COMPLETAT (sfc + 3d + ones + status)!"
         echo "  Dades desplegades a Cloudflare Pages"
+        echo "  Dades publicades a la branca 'data'"
         echo "  status.js generat correctament"
         echo "============================================"

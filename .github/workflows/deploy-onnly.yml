@@ -15,173 +15,52 @@ jobs:
     - uses: actions/checkout@v4
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-    
+        fetch-depth: 0
+
     - name: 🔐 Checkout private submodule
       run: |
         git config --global url."https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/".insteadOf "https://github.com/"
         git submodule update --init --recursive
-    
-    - name: 🔧 Instal·lar jq
+
+    - name: 📥 Traer dades de la branca 'data'
       run: |
-        sudo apt-get update
-        sudo apt-get install -y jq
-    
-    # ════════════════════════════════════════════════════════════════
-    #  PAS 1: DESCARREGAR ELS ARTIFACTS DEL WORKFLOW ANTERIOR
-    # ════════════════════════════════════════════════════════════════
-    - name: 📥 Descarregar i descomprimir artifacts correctament
-      run: |
-        echo "📥 Buscant l'últim workflow 'CAT + ONES + MSGPACK'..."
-        
-        WORKFLOW_ID=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-          "https://api.github.com/repos/${{ github.repository }}/actions/workflows" \
-          | jq -r '.workflows[] | select(.name == "CAT + ONES + MSGPACK") | .id')
-        
-        if [ -z "$WORKFLOW_ID" ] || [ "$WORKFLOW_ID" = "null" ]; then
-          echo "⚠️ No s'ha trobat el workflow 'CAT + ONES + MSGPACK'"
-          exit 0
-        fi
-        
-        echo "✅ Workflow ID: $WORKFLOW_ID"
-        
-        RUN_ID=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-          "https://api.github.com/repos/${{ github.repository }}/actions/workflows/$WORKFLOW_ID/runs?status=success&per_page=1" \
-          | jq -r '.workflow_runs[0].id')
-        
-        if [ -z "$RUN_ID" ] || [ "$RUN_ID" = "null" ]; then
-          echo "⚠️ No s'ha trobat cap run amb èxit"
-          exit 0
-        fi
-        
-        echo "✅ Run ID: $RUN_ID"
-        
-        # Crear carpetes on aniran les dades
-        mkdir -p meu-mapa/public/dades/web_data_NE
-        mkdir -p meu-mapa/public/dades/web_data_ones
-        
-        # Crear carpeta temporal
-        mkdir -p artifacts_temp
-        cd artifacts_temp
-        
-        # Descarregar tots els artifacts
-        echo "📦 Descarregant artifacts..."
-        curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-          "https://api.github.com/repos/${{ github.repository }}/actions/runs/$RUN_ID/artifacts" \
-          | jq -r '.artifacts[] | .archive_download_url' | while read url; do
-            if [ -n "$url" ]; then
-              echo "   📦 $(basename $url)"
-              curl -L -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -O "$url" 2>/dev/null
-            fi
-          done
-        
-        # Descomprimir CADA zip i col·locar els fitxers a la carpeta correcta
-        echo "📂 Descomprimint artifacts a les carpetes corresponents..."
-        for zip in *.zip; do
-          if [ -f "$zip" ]; then
-            echo "   📂 Processant $zip..."
-            
-            # Crear carpeta temporal per aquest zip
-            mkdir -p temp_extract
-            unzip -o "$zip" -d temp_extract/ 2>/dev/null || true
-            
-            # Determinar a quina carpeta va
-            if [[ "$zip" == *"dades-sfc"* ]] || [[ "$zip" == *"dades-3d"* ]]; then
-              echo "      → web_data_NE"
-              cp -r temp_extract/* ../meu-mapa/public/dades/web_data_NE/ 2>/dev/null || true
-            elif [[ "$zip" == *"dades-ones"* ]]; then
-              echo "      → web_data_ones"
-              cp -r temp_extract/* ../meu-mapa/public/dades/web_data_ones/ 2>/dev/null || true
-            elif [[ "$zip" == *"dades-status"* ]]; then
-              echo "      → js/"
-              mkdir -p ../meu-mapa/public/js
-              cp -r temp_extract/* ../meu-mapa/public/js/ 2>/dev/null || true
-            fi
-            
-            rm -rf temp_extract
-          fi
-        done
-        
-        cd ..
-        rm -rf artifacts_temp
-        
-        echo "✅ Artifacts processats correctament"
-    
-    # ════════════════════════════════════════════════════════════════
-    #  PAS 2: VERIFICAR QUE LES DADES S'HAN COL·LOCAT BÉ
-    # ════════════════════════════════════════════════════════════════
-    - name: 📂 Verificar dades finals
-      run: |
-        echo ""
-        echo "═══════════════════════════════════════════════════════════════"
-        echo "  📊 VERIFICACIÓ DE DADES"
-        echo "═══════════════════════════════════════════════════════════════"
-        
-        COUNT_NE=$(find meu-mapa/public/dades/web_data_NE -type f 2>/dev/null | wc -l)
-        COUNT_ONES=$(find meu-mapa/public/dades/web_data_ones -type f 2>/dev/null | wc -l)
-        
-        echo "📁 web_data_NE: $COUNT_NE fitxers"
-        if [ $COUNT_NE -gt 0 ]; then
-          echo "   📄 Mostrant primers fitxers:"
-          ls meu-mapa/public/dades/web_data_NE/ 2>/dev/null | head -5
-        fi
-        
-        echo "📁 web_data_ones: $COUNT_ONES fitxers"
-        if [ $COUNT_ONES -gt 0 ]; then
-          echo "   📄 Mostrant primers fitxers:"
-          ls meu-mapa/public/dades/web_data_ones/ 2>/dev/null | head -5
-        fi
-        
-        echo "📁 js/status.js: $([ -f meu-mapa/public/js/status.js ] && echo '✅ existeix' || echo '❌ no existeix')"
-        echo "═══════════════════════════════════════════════════════════════"
-    
-    # ════════════════════════════════════════════════════════════════
-    #  PAS 3: RESUM ABANS DEL DEPLOY
-    # ════════════════════════════════════════════════════════════════
+        git fetch origin data
+        git checkout origin/data -- meu-mapa/public/web_data_NE meu-mapa/public/web_data_ones meu-mapa/public/js/status.js
+        echo "✅ Dades de la branca 'data' aplicades sobre main (només al filesystem, no es commiteja res)"
+      continue-on-error: true
+
     - name: 📊 Resum de dades abans del deploy
       run: |
+        echo "📊 RESUM DE DADES:"
+        echo "🌡️  web_data_NE:    $(find meu-mapa/public/web_data_NE -type f 2>/dev/null | wc -l) fitxers"
+        echo "🌊 web_data_ones:   $(find meu-mapa/public/web_data_ones -type f 2>/dev/null | wc -l) fitxers"
+        echo "📄 status.js:       $(ls -la meu-mapa/public/js/status.js 2>/dev/null || echo 'NO TROBAT')"
+        echo "📦 TOTAL:           $(find meu-mapa/public -type f 2>/dev/null | wc -l) fitxers"
         echo ""
-        echo "═══════════════════════════════════════════════════════════════"
-        echo "  📊 RESUM DE DADES ABANS DEL DEPLOY"
-        echo "═══════════════════════════════════════════════════════════════"
-        echo "🌡️  web_data_NE:       $(find meu-mapa/public/dades/web_data_NE -type f 2>/dev/null | wc -l) fitxers"
-        echo "🌊  web_data_ones:     $(find meu-mapa/public/dades/web_data_ones -type f 2>/dev/null | wc -l) fitxers"
-        echo "📦  TOTAL fitxers:     $(find meu-mapa/public -type f 2>/dev/null | wc -l) fitxers"
-        echo "═══════════════════════════════════════════════════════════════"
-    
-    # ════════════════════════════════════════════════════════════════
-    #  PAS 4: DEPLOY A CLOUDFLARE
-    # ════════════════════════════════════════════════════════════════
+        echo "📁 Directoris:"
+        for dir in meu-mapa/public/*/; do
+          if [ -d "$dir" ]; then
+            count=$(find "$dir" -type f 2>/dev/null | wc -l)
+            echo "  $(basename "$dir"): $count fitxers"
+          fi
+        done
+
     - name: 🚀 DEPLOY a Cloudflare
       run: |
         cd meu-mapa
         npm install -g wrangler
         echo "📦 Desplegant a Cloudflare Pages..."
-        echo "📁 Contingut de public abans del deploy:"
-        echo "   dades/web_data_NE: $(find public/dades/web_data_NE -type f 2>/dev/null | wc -l) fitxers"
-        echo "   dades/web_data_ones: $(find public/dades/web_data_ones -type f 2>/dev/null | wc -l) fitxers"
-        echo ""
-        
         wrangler pages deploy public --project-name=tempestes-cat --branch=main --commit-dirty=true
       env:
         CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-    
-    # ════════════════════════════════════════════════════════════════
-    #  PAS 5: CONFIRMACIÓ FINAL
-    # ════════════════════════════════════════════════════════════════
+
     - name: 🎉 Confirmació final
       run: |
-        echo ""
-        echo "═══════════════════════════════════════════════════════════════"
-        echo "  🎉 DEPLOY COMPLETAT AMB ÈXIT!"
-        echo "═══════════════════════════════════════════════════════════════"
+        echo "🎉 DEPLOY COMPLETAT!"
         echo ""
         echo "🌐 Web desplegada a:"
         echo "   https://tempestes-cat.pages.dev/"
         echo ""
-        echo "📊 Estadístiques finals:"
-        echo "   📦 web_data_NE: $(find meu-mapa/public/dades/web_data_NE -type f 2>/dev/null | wc -l) fitxers"
-        echo "   📦 web_data_ones: $(find meu-mapa/public/dades/web_data_ones -type f 2>/dev/null | wc -l) fitxers"
-        echo "   📦 status.js: $([ -f meu-mapa/public/js/status.js ] && echo '✅' || echo '❌')"
-        echo ""
-        echo "═══════════════════════════════════════════════════════════════"
+        echo "📊 Estadístiques:"
+        echo "   📦 TOTAL fitxers: $(find meu-mapa/public -type f 2>/dev/null | wc -l)"
