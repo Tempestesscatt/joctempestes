@@ -3884,7 +3884,7 @@ function crearPanellAjustos() {
     panell.innerHTML = `
         <div style="padding:16px 18px 12px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
             <span style="font-size:13px;font-weight:700;color:#FFD700;display:flex;align-items:center;gap:8px;">
-                <i class="fas fa-wind"></i> Ajustos de vent i mapa
+                <i class=""></i> Ajustos de vent i mapa
             </span>
             <button id="btnTancarAjustosVent" style="background:none;border:none;color:#556680;font-size:18px;cursor:pointer;padding:4px 6px;border-radius:6px;line-height:1;">
                 <i class="fas fa-times"></i>
