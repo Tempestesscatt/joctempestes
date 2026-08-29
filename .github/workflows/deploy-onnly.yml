@@ -25,7 +25,7 @@ jobs:
     - name: 📥 Traer dades de la branca 'data'
       run: |
         git fetch origin data
-        git checkout origin/data -- meu-mapa/public/web_data_NE meu-mapa/public/web_data_ones meu-mapa/public/js/status.js
+        git checkout origin/data -- meu-mapa/public/web_data_NE meu-mapa/public/webdata_waves meu-mapa/public/js/status.js
         echo "✅ Dades de la branca 'data' aplicades sobre main (només al filesystem, no es commiteja res)"
       continue-on-error: true
 
@@ -33,7 +33,7 @@ jobs:
       run: |
         echo "📊 RESUM DE DADES:"
         echo "🌡️  web_data_NE:    $(find meu-mapa/public/web_data_NE -type f 2>/dev/null | wc -l) fitxers"
-        echo "🌊 web_data_ones:   $(find meu-mapa/public/web_data_ones -type f 2>/dev/null | wc -l) fitxers"
+        echo "🌊 webdata_waves:   $(find meu-mapa/public/webdata_waves -type f 2>/dev/null | wc -l) fitxers"
         echo "📄 status.js:       $(ls -la meu-mapa/public/js/status.js 2>/dev/null || echo 'NO TROBAT')"
         echo "📦 TOTAL:           $(find meu-mapa/public -type f 2>/dev/null | wc -l) fitxers"
         echo ""

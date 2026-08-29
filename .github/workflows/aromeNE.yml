@@ -31,7 +31,7 @@ jobs:
     - name: Crear estructura de carpetes
       run: |
         mkdir -p meu-mapa/public/web_data_NE
-        mkdir -p meu-mapa/public/web_data_ones
+        mkdir -p meu-mapa/public/webdata_waves
         mkdir -p meu-mapa/public/js
         mkdir -p meu-mapa/public/logs
         echo "Estructura de carpetes creada"
@@ -47,8 +47,8 @@ jobs:
         echo "=== Estat de les carpetes després de la neteja ==="
         echo "--- web_data_NE ---"
         ls -la meu-mapa/public/web_data_NE/ 2>/dev/null || echo "buit"
-        echo "--- web_data_ones ---"
-        ls -la meu-mapa/public/web_data_ones/ 2>/dev/null || echo "buit"
+        echo "--- webdata_waves ---"
+        ls -la meu-mapa/public/webdata_waves/ 2>/dev/null || echo "buit"
         echo "--- logs ---"
         ls -la meu-mapa/public/logs/ 2>/dev/null || echo "buit"
         echo "✓ Neteja completada"
@@ -203,7 +203,7 @@ jobs:
 
     - name: Netejar sortida Ones
       run: |
-        mkdir -p meu-mapa/public/web_data_ones
+        mkdir -p meu-mapa/public/webdata_waves
         echo "preparat"
 
     - name: Executar ones.py
@@ -220,13 +220,13 @@ jobs:
     - name: Mostrar log si falla
       if: failure()
       run: |
-        find . -name "*ones*.log" -type f -exec cat {} \; 2>/dev/null || echo "No s'ha trobat cap log"
+        find meu-mapa/public/webdata_waves/logs -name "*.log" -type f -exec cat {} \; 2>/dev/null || echo "No s'ha trobat cap log"
 
     - name: Pujar Ones com a artifact
       uses: actions/upload-artifact@v4
       with:
         name: dades-ones
-        path: meu-mapa/public/web_data_ones/
+        path: meu-mapa/public/webdata_waves/
         retention-days: 5
 
   # ════════════════════════════════════════════════════════════════
@@ -277,7 +277,7 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: dades-ones
-        path: meu-mapa/public/web_data_ones/
+        path: meu-mapa/public/webdata_waves/
       continue-on-error: true
 
     - name: Executar status.py
@@ -349,7 +349,7 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: dades-ones
-        path: meu-mapa/public/web_data_ones/
+        path: meu-mapa/public/webdata_waves/
       continue-on-error: true
 
     - name: Descarregar artifact - STATUS
@@ -371,8 +371,8 @@ jobs:
         echo "Dades meteorologiques generades correctament."
         echo "--- web_data_NE (sfc + 3d) ---"
         ls public/web_data_NE/ 2>/dev/null | wc -l || echo "buit"
-        echo "--- web_data_ones ---"
-        ls public/web_data_ones/ 2>/dev/null | wc -l || echo "buit"
+        echo "--- webdata_waves ---"
+        ls public/webdata_waves/ 2>/dev/null | wc -l || echo "buit"
         echo "--- status.js ---"
         ls -la public/js/status.js 2>/dev/null || echo "No existeix"
         echo "Pes total: $(du -sh public 2>/dev/null | cut -f1)"
@@ -389,12 +389,34 @@ jobs:
     - name: 📤 Publicar dades a la branca 'data' (force-push, sense historial)
       run: |
         cd meu-mapa/public
+        mkdir -p web_data_NE webdata_waves js
         rm -rf .git
         git init -q
         git checkout -q -b data
-        git add web_data_NE web_data_ones js/status.js
-        git -c user.name="bot-dades" -c user.email="bot@tempestes-cat" commit -q -m "dades $(date -u +'%Y-%m-%d %H:%M UTC')"
-        git push --force "https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/Tempestesscatt/joctempestes.git" data
+
+        AFEGIT=0
+        for carpeta in web_data_NE webdata_waves; do
+          if [ -n "$(find "$carpeta" -type f 2>/dev/null)" ]; then
+            git add "$carpeta"
+            AFEGIT=1
+          else
+            echo "⚠️  $carpeta buida o inexistent, s'omet"
+          fi
+        done
+        if [ -f js/status.js ]; then
+          git add js/status.js
+          AFEGIT=1
+        else
+          echo "⚠️  js/status.js no existeix, s'omet"
+        fi
+
+        if [ "$AFEGIT" = "1" ]; then
+          git -c user.name="bot-dades" -c user.email="bot@tempestes-cat" commit -q -m "dades $(date -u +'%Y-%m-%d %H:%M UTC')"
+          git push --force "https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/Tempestesscatt/joctempestes.git" data
+          echo "✅ Dades publicades a la branca 'data'"
+        else
+          echo "❌ Cap dada disponible per publicar, s'omet el push"
+        fi
       continue-on-error: true
 
     - name: Comprovar si algun job ha fallat
