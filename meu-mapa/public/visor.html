@@ -2498,7 +2498,7 @@ body {
             <div id="main-area">
 
                 <div id="fh_valid_outer">
-                    <span class="lbl">Vàlid:</span>
+                    <span class="lbl">Data del mapa:</span>
                     <span id="fh_validtime">—</span>
                     <span class="lbl" style="margin-left:auto; opacity:0.5;"> Ctrl + Shift + R i clic dret de nou al mapa → Skew-T</span>
                 </div>
@@ -3140,9 +3140,10 @@ async function obtenirFotoUsuari(user) {
 }
 
 
+const DIES_SETMANA_VALID = ['Diumenge','Dilluns','Dimarts','Dimecres','Dijous','Divendres','Dissabte'];
 
 function actualitzarUIHora(idx) {
-    const label = document.getElementById('current_time_label');
+    const label = document.getElementById('fh_validtime');
     if (!label) return;
 
     const item = totesLesHores[idx];
@@ -3151,27 +3152,24 @@ function actualitzarUIHora(idx) {
         return;
     }
 
-    // 🔥 Comprovar si REALMENT té dades carregades
+    // Comprovar si REALMENT té dades carregades
     const teDataReal = !!item.data && !!item.data.variables && Object.keys(item.data.variables).length > 0;
-    const prefix = teDataReal ? '' : '+';
+    const prefix = teDataReal ? '' : '+ ';
 
     try {
         const madridTime = new Date(item.dateObj.toLocaleString('en-US', { timeZone: 'Europe/Madrid' }));
-        const horaStr = madridTime.toLocaleString('es-ES', { 
-            hour: '2-digit', 
-            minute: '2-digit', 
-            day: '2-digit', 
-            month: 'short' 
-        });
-        
-        // 🔥 Afegir prefix "+" si NO està carregada
-        label.textContent = prefix + ' ' + horaStr;
-        
-        // 🔥 Opcional: canviar color per indicar estat
+        const diaSetmana = DIES_SETMANA_VALID[madridTime.getDay()];
+        const dia = String(madridTime.getDate()).padStart(2, '0');
+        const mes = String(madridTime.getMonth() + 1).padStart(2, '0');
+        const hores = String(madridTime.getHours()).padStart(2, '0');
+        const minuts = String(madridTime.getMinutes()).padStart(2, '0');
+        const horaStr = `${diaSetmana} ${dia}/${mes} ${hores}:${minuts}`;
+
+        label.textContent = prefix + horaStr;
         label.style.color = teDataReal ? '#cfe0ee' : '#FFA500';
-        
+
     } catch (e) {
-        label.textContent = (teDataReal ? '' : '+') + ' Hora ' + String(item.step).padStart(2, '0') + ':00';
+        label.textContent = prefix + 'Hora ' + String(item.step).padStart(2, '0') + ':00';
         label.style.color = teDataReal ? '#cfe0ee' : '#FFA500';
     }
 }

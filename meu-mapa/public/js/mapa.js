@@ -3334,23 +3334,26 @@ function construirGraellaHores() {
         // 🔥 DETECTAR si l'hora està REALMENT carregada (té dades)
         const estaCarregada = teDataReal && Object.keys(item.data.variables).length > 0;
 
-        if (teDataReal) {
-            try {
-                const madridTime = new Date(item.dateObj.toLocaleString('en-US', { timeZone: 'Europe/Madrid' }));
-                const horas = String(madridTime.getHours()).padStart(2, '0');
-                const minutos = String(madridTime.getMinutes()).padStart(2, '0');
-                
-                // 🔥 Si NO està carregada, afegir "+" al davant
-                horaStr = (estaCarregada ? '' : '+') + horas + 'h';
-                minStr = minutos;
-            } catch (e) {
-                const step = item.step;
-                const horaStep = Math.floor(step / 2);
-                const minutosStep = (step % 2) * 30;
-                horaStr = (estaCarregada ? '' : '+') + String(horaStep).padStart(2, '0') + 'h';
-                minStr = String(minutosStep).padStart(2, '0');
-            }
-        } else {
+let dataStr = '';
+if (teDataReal) {
+    try {
+        const madridTime = new Date(item.dateObj.toLocaleString('en-US', { timeZone: 'Europe/Madrid' }));
+        const horas = String(madridTime.getHours()).padStart(2, '0');
+        const minutos = String(madridTime.getMinutes()).padStart(2, '0');
+        
+        // 🔥 Si NO està carregada, afegir "+" al davant
+        horaStr = (estaCarregada ? '' : '+') + horas + 'h';
+        minStr = minutos;
+        dataStr = String(madridTime.getDate()).padStart(2, '0') + '/' + String(madridTime.getMonth() + 1).padStart(2, '0');
+    } catch (e) {
+        const step = item.step;
+        const horaStep = Math.floor(step / 2);
+        const minutosStep = (step % 2) * 30;
+        horaStr = (estaCarregada ? '' : '+') + String(horaStep).padStart(2, '0') + 'h';
+        minStr = String(minutosStep).padStart(2, '0');
+        dataStr = '';
+    }
+} else {
             const step = item.step;
             const horaStep = Math.floor(step / 2);
             const minutosStep = (step % 2) * 30;
@@ -3391,19 +3394,21 @@ function construirGraellaHores() {
         // 🔥 Si NO està carregada, posar el "+" en color diferent
         const prefixStyle = estaCarregada ? '' : 'color:#FFA500;';
 
-        if (itemBloquejatVisual) {
-            cell.title = 'Inicia sessió per desbloquejar';
-            cell.innerHTML = `
-                <span style="font-size:12px;font-weight:600;display:block;${prefixStyle}">${horaStr}</span>
-                <span style="font-size:7px;color:#3a4a5a;display:block;margin-top:-1px;">${minStr}</span>
-                <span style="position:absolute;top:-2px;right:-1px;font-size:7px;color:#FF6B35;"><i class="fas fa-lock"></i></span>
-            `;
-        } else {
-            cell.innerHTML = `
-                <span style="font-size:12px;font-weight:600;display:block;${prefixStyle}">${horaStr}</span>
-                <span style="font-size:7px;color:#3a4a5a;display:block;margin-top:-1px;">${minStr}</span>
-            `;
-        }
+if (itemBloquejatVisual) {
+    cell.title = 'Inicia sessió per desbloquejar';
+    cell.innerHTML = `
+        <span style="font-size:12px;font-weight:600;display:block;${prefixStyle}">${horaStr}</span>
+        <span style="font-size:7px;color:#3a4a5a;display:block;margin-top:-1px;">${minStr}</span>
+        <span style="font-size:7px;color:#7f9bb3;display:block;margin-top:-1px;">${dataStr}</span>
+        <span style="position:absolute;top:-2px;right:-1px;font-size:7px;color:#FF6B35;"><i class="fas fa-lock"></i></span>
+    `;
+} else {
+    cell.innerHTML = `
+        <span style="font-size:12px;font-weight:600;display:block;${prefixStyle}">${horaStr}</span>
+        <span style="font-size:7px;color:#3a4a5a;display:block;margin-top:-1px;">${minStr}</span>
+        <span style="font-size:7px;color:#7f9bb3;display:block;margin-top:-1px;">${dataStr}</span>
+    `;
+}
 
         cell.addEventListener('click', function(e) {
             e.stopPropagation();
