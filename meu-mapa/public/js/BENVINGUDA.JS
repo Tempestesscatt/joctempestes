@@ -41,7 +41,7 @@ async function obtenirNomUsuariBenvinguda() {
             const nom = await window.obtenirNomUsuari(user);
             return nom;
         } catch (e) {
-            console.warn('[Benvinguda] Error obtenint nom:', e.message);
+            // Error obtenint nom
         }
     }
     
@@ -307,7 +307,6 @@ function tancarBenvinguda(element) {
 
 async function inicialitzarBenvinguda() {
     const hora = obtenirHoraMadrid();
-    console.log('[Benvinguda] Hora:', hora.getHours() + 'h');
     
     // Esperar una mica més perquè el login es processi
     setTimeout(async () => {
@@ -329,5 +328,3 @@ if (document.readyState === 'loading') {
 } else {
     inicialitzarBenvinguda();
 }
-
-console.log('[Benvinguda] Sistema carregat amb Meteocons');

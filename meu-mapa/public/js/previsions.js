@@ -473,7 +473,7 @@ function initMap() {
         if (layer) {
             comarquesLayer = layer;
             comarquesLayer.addTo(leafletMap);
-            console.log('✅ Capa de comarques carregada');
+            
         }
     });
 

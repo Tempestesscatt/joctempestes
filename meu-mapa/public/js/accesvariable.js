@@ -93,8 +93,6 @@ function mostrarAvisLogin(paramName) {
 window.verificarAccesVariable = function(paramName) {
     const user = window._firebaseUser || null;
     
-    console.log('[Accés] Verificant:', paramName, '| Lliure:', esParametreLliure(paramName), '| User:', !!user);
-    
     // 1. Si és lliure → permès sempre
     if (esParametreLliure(paramName)) {
         amagarOverlay();
@@ -136,17 +134,12 @@ window.esParametreLliure = esParametreLliure;
 window.amagarOverlay = amagarOverlay;
 
 window.addEventListener('tc:login', function() {
-    console.log('[Accés] Login → amagar overlay');
     amagarOverlay();
 });
 
 window.addEventListener('tc:logout', function() {
-    console.log('[Accés] Logout → tornar a bàsica');
     amagarOverlay();
     if (typeof seleccionarVariable === 'function') {
         seleccionarVariable('st', true);
     }
 });
-
-console.log('[Accés] Carregat | Lliures:', [...PARAMETRES_LLIURES].join(', '));
-console.log('[Accés] Premium delegat a premium.js');

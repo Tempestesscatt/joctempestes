@@ -639,7 +639,7 @@
         document.addEventListener('mapa-3d-llest', redibuixarIsolinies);
 
         redibuixarIsolinies();
-        console.log('✅ isos.js: generador d\'isolínies inicialitzat.');
+        
     }
 
     if (document.readyState === 'complete' || document.readyState === 'interactive') {

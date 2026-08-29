@@ -1,779 +1,533 @@
 // ═══════════════════════════════════════════════════════════════════════
-//  NOTIFICACIONS.JS — Sistema d'avisos amb control per IP
-//  Versió 1.0 Oficial - Notificacions laterals per usuaris existents
+//  NOTIFICACIONS.JS — Sistema de notificacions Meteorologia
+//  Versió 1.0.0
 // ═══════════════════════════════════════════════════════════════════════
 
 const NOTIFICACIONS = {
     versio: '1.0.0',
-    logo: 'blob:https://web.telegram.org/abaf44b2-7d72-443a-8422-5cf351110b0a',
-    modeProves: false,
-    avisos: [
-        {
-            id: 'rendiment_v1',
-            tipus: 'exit',
-            titol: 'VERSIÓ 1.0 OFICIAL',
-            missatge: 'Actualització de rendiment i memòria RAM',
-            detalls: [
-                'Optimització per a més dispositius   ',
-                'Millora de velocitat de càrrega',
-                'Reducció de consum de RAM',
-                'Compatibilitat amb dispositius antics',
-                'Estabilitat millorada del sistema'
-            ],
-            data: '2024-01-15',
-            prioritat: 'alta',
-            icona: 'rendiment',
-            imatgeFons: 'https://miro.medium.com/v2/resize:fit:1200/1*L8AOPwkeMKvSs10jRNjCkQ.jpeg'
-        }
-    ]
+    checkInterval: 300000, // 5 minuts
+    maxNotifications: 50,
+    storageKey: 'meteo_notificacions'
 };
 
-// ──────────────────────────────────────────────────────────────
-//  DETECCIÓ DE DISPOSITIU
-// ──────────────────────────────────────────────────────────────
+// ─── TIPUS DE NOTIFICACIONS ──────────────────────────────────────────
 
-function detectarDispositiu() {
-    const width = window.innerWidth;
-    const height = window.innerHeight;
-    const userAgent = navigator.userAgent.toLowerCase();
-    
-    let dispositiu = {
-        tipus: 'escriptori',
-        esMobil: false,
-        esTauleta: false,
-        esEscriptori: false,
-        width: width,
-        height: height
-    };
-    
-    if (/mobile|android|iphone|ipad|ipod|blackberry|iemobile|opera mini/.test(userAgent)) {
-        dispositiu.tipus = 'mobil';
-        dispositiu.esMobil = true;
+const TIPUS_NOTIFICACIO = {
+    ALERTA: 'alerta',
+    INFO: 'info',
+    SUCCESS: 'success',
+    WARNING: 'warning'
+};
+
+// ─── GESTIÓ D'ESTAT ──────────────────────────────────────────────────
+
+function obtenirNotificacions() {
+    try {
+        const data = localStorage.getItem(NOTIFICACIONS.storageKey);
+        return data ? JSON.parse(data) : [];
+    } catch (e) {
+        return [];
     }
-    else if (/tablet|ipad/.test(userAgent) || (width >= 768 && width <= 1024)) {
-        dispositiu.tipus = 'tauleta';
-        dispositiu.esTauleta = true;
-    }
-    else {
-        dispositiu.tipus = 'escriptori';
-        dispositiu.esEscriptori = true;
-    }
-    
-    if (width < 480) {
-        dispositiu.esMobil = true;
-        dispositiu.tipus = 'mobil';
-    }
-    
-    return dispositiu;
 }
 
-// ──────────────────────────────────────────────────────────────
-//  GESTIÓ D'IP I USUARIS
-// ──────────────────────────────────────────────────────────────
-
-async function obtenirIP() {
+function guardarNotificacions(notificacions) {
     try {
-        const resposta = await fetch('https://api.ipify.org?format=json');
-        const dades = await resposta.json();
-        return dades.ip;
-    } catch (error) {
-        console.warn('[Notificacions] No s\'ha pogut obtenir IP, intentant mètode alternatiu...');
-        try {
-            const resposta2 = await fetch('https://api.ip.sb/ip');
-            return await resposta2.text();
-        } catch (error2) {
-            return 'ip_desconeguda';
+        // Limitar nombre de notificacions
+        if (notificacions.length > NOTIFICACIONS.maxNotifications) {
+            notificacions = notificacions.slice(-NOTIFICACIONS.maxNotifications);
         }
+        localStorage.setItem(NOTIFICACIONS.storageKey, JSON.stringify(notificacions));
+    } catch (e) {
+        // Error guardant notificacions
     }
 }
 
-function obtenirIdentificadorUsuari() {
-    const user = window._firebaseUser;
-    if (user && user.uid) {
-        return `uid_${user.uid}`;
-    }
-    return null;
-}
-
-async function obtenirClauEmmagatzematge() {
-    // Prioritat: UID > IP
-    const uid = obtenirIdentificadorUsuari();
-    if (uid) {
-        return `notif_vistes_${uid}`;
-    }
-    
-    const ip = await obtenirIP();
-    return `notif_vistes_ip_${ip}`;
-}
-
-async function comprovarNotificacionsVistes() {
-    if (NOTIFICACIONS.modeProves) {
-        return {};
-    }
-    
-    const clau = await obtenirClauEmmagatzematge();
-    
-    try {
-        const dades = localStorage.getItem(clau);
-        return dades ? JSON.parse(dades) : {};
-    } catch (error) {
-        console.warn('[Notificacions] Error llegint localStorage:', error);
-        return {};
-    }
-}
-
-async function marcarNotificacioVista(id) {
-    if (NOTIFICACIONS.modeProves) {
-        return;
-    }
-    
-    const vistes = await comprovarNotificacionsVistes();
-    vistes[id] = {
-        data: new Date().toISOString(),
-        versio: NOTIFICACIONS.versio
-    };
-    
-    const clau = await obtenirClauEmmagatzematge();
-    
-    try {
-        localStorage.setItem(clau, JSON.stringify(vistes));
-    } catch (error) {
-        console.warn('[Notificacions] Error guardant localStorage:', error);
-    }
-}
-
-async function esNouUsuari() {
-    const vistes = await comprovarNotificacionsVistes();
-    const clau = await obtenirClauEmmagatzematge();
-    
-    // Comprovar si existeix alguna entrada al localStorage per aquesta IP/UID
-    try {
-        const existeix = localStorage.getItem(clau) !== null;
-        return !existeix;
-    } catch (error) {
+function marcarComLlegida(id) {
+    const notificacions = obtenirNotificacions();
+    const index = notificacions.findIndex(n => n.id === id);
+    if (index !== -1) {
+        notificacions[index].llegida = true;
+        guardarNotificacions(notificacions);
+        actualitzarComptador();
         return true;
     }
-}
-
-async function obtenirNotificacionsPendents() {
-    const vistes = await comprovarNotificacionsVistes();
-    return NOTIFICACIONS.avisos.filter(avis => !vistes[avis.id]);
-}
-
-// ──────────────────────────────────────────────────────────────
-//  NOTIFICACIÓ LATERAL (PER USUARIS EXISTENTS)
-// ──────────────────────────────────────────────────────────────
-
-function mostrarNotificacioLateral(avis) {
-    const dispositiu = detectarDispositiu();
-    
-    const lateral = document.createElement('div');
-    lateral.id = `lateral_${avis.id}`;
-    
-    // Estils per a notificació lateral
-    let estilsLateral = `
-        position: fixed;
-        z-index: 9996;
-        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-        border-right: 4px solid #00C853;
-        border-radius: 0 12px 12px 0;
-        padding: ${dispositiu.esMobil ? '12px' : '16px'};
-        box-shadow: 4px 0 32px rgba(0,0,0,0.5);
-        animation: lateralSlideIn 0.5s ease-out;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        max-width: ${dispositiu.esMobil ? '280px' : '350px'};
-        width: calc(100% - 20px);
-    `;
-    
-    // Posició lateral (esquerra)
-    if (dispositiu.esMobil) {
-        estilsLateral += `
-            top: 50%;
-            left: 0;
-            transform: translateY(-50%);
-        `;
-    } else {
-        estilsLateral += `
-            bottom: 30px;
-            left: 0;
-        `;
-    }
-    
-    lateral.style.cssText = estilsLateral;
-    
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes lateralSlideIn {
-            0% { transform: translateX(-100%); opacity: 0; }
-            100% { transform: translateX(0); opacity: 1; }
-        }
-        @keyframes lateralSlideOut {
-            0% { transform: translateX(0); opacity: 1; }
-            100% { transform: translateX(-100%); opacity: 0; }
-        }
-        @keyframes lateralPulse {
-            0%, 100% { box-shadow: 4px 0 32px rgba(0,0,0,0.5); }
-            50% { box-shadow: 4px 0 40px rgba(0,200,83,0.4); }
-        }
-    `;
-    
-    if (!document.querySelector('#lateralStyles')) {
-        style.id = 'lateralStyles';
-        document.head.appendChild(style);
-    }
-    
-    lateral.innerHTML = `
-        <div style="display: flex; align-items: flex-start; gap: 10px;">
-            <img src="${NOTIFICACIONS.logo}" alt="Logo" style="
-                width: ${dispositiu.esMobil ? '28px' : '32px'};
-                height: ${dispositiu.esMobil ? '28px' : '32px'};
-                border-radius: 50%;
-                object-fit: cover;
-                border: 2px solid #00C853;
-            " onerror="this.style.display='none'">
-            <div style="flex: 1; min-width: 0;">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                    <h4 style="
-                        margin: 0 0 5px 0;
-                        color: #00C853;
-                        font-size: ${dispositiu.esMobil ? '11px' : '13px'};
-                        font-weight: 600;
-                    ">
-                        ${avis.titol}
-                    </h4>
-                    <button onclick="event.stopPropagation(); this.closest('[id^=lateral_]').remove()" style="
-                        background: none;
-                        border: none;
-                        color: #666;
-                        cursor: pointer;
-                        font-size: 16px;
-                        padding: 0 2px;
-                    ">×</button>
-                </div>
-                <p style="
-                    margin: 0;
-                    color: #b0c0d0;
-                    font-size: ${dispositiu.esMobil ? '10px' : '12px'};
-                    line-height: 1.3;
-                ">
-                    ${avis.missatge}
-                </p>
-                <span style="
-                    color: #666;
-                    font-size: ${dispositiu.esMobil ? '8px' : '9px'};
-                    display: block;
-                    margin-top: 5px;
-                ">
-                    Click per veure detalls
-                </span>
-            </div>
-        </div>
-    `;
-    
-    // Efecte hover
-    lateral.addEventListener('mouseenter', () => {
-        lateral.style.animation = 'lateralPulse 2s infinite';
-    });
-    
-    lateral.addEventListener('mouseleave', () => {
-        lateral.style.animation = '';
-    });
-    
-    // Click per obrir panell complet
-    lateral.addEventListener('click', () => {
-        mostrarPanellComplet(avis);
-        lateral.remove();
-    });
-    
-    document.body.appendChild(lateral);
-    
-    marcarNotificacioVista(avis.id);
-    
-    // Auto-eliminar després de 5 segons
-    setTimeout(() => {
-        if (lateral.parentNode) {
-            lateral.style.animation = 'lateralSlideOut 0.5s ease-in';
-            setTimeout(() => {
-                if (lateral.parentNode) {
-                    lateral.remove();
-                }
-            }, 500);
-        }
-    }, 5000);
-}
-
-// ──────────────────────────────────────────────────────────────
-//  POPUP COMPLET (PER USUARIS NOUS)
-// ──────────────────────────────────────────────────────────────
-
-function mostrarPopupNotificacio(avis) {
-    const dispositiu = detectarDispositiu();
-    
-    const contenidor = document.createElement('div');
-    contenidor.id = `popup_${avis.id}`;
-    
-    let estilsPopup = `
-        position: fixed;
-        z-index: 9997;
-        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-        border-left: 4px solid #00C853;
-        border-radius: 12px;
-        padding: ${dispositiu.esMobil ? '16px' : '20px'};
-        box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-        animation: popupSlideIn 0.5s ease-out;
-        border: 1px solid rgba(0,200,83,0.3);
-        cursor: pointer;
-    `;
-    
-    if (dispositiu.esMobil) {
-        estilsPopup += `
-            bottom: 20px;
-            right: 10px;
-            max-width: 340px;
-            width: calc(100% - 20px);
-        `;
-    } else if (dispositiu.esTauleta) {
-        estilsPopup += `
-            bottom: 25px;
-            right: 20px;
-            max-width: 400px;
-            width: calc(100% - 40px);
-        `;
-    } else {
-        estilsPopup += `
-            bottom: 30px;
-            right: 25px;
-            max-width: 420px;
-            width: calc(100% - 50px);
-        `;
-    }
-    
-    contenidor.style.cssText = estilsPopup;
-    
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes popupSlideIn {
-            0% { transform: translateX(100%); opacity: 0; }
-            100% { transform: translateX(0); opacity: 1; }
-        }
-        @keyframes popupSlideOut {
-            0% { transform: translateX(0); opacity: 1; }
-            100% { transform: translateX(100%); opacity: 0; }
-        }
-        @keyframes popupGlow {
-            0%, 100% { box-shadow: 0 8px 32px rgba(0,0,0,0.5); }
-            50% { box-shadow: 0 8px 40px rgba(0,200,83,0.3); }
-        }
-    `;
-    
-    if (!document.querySelector('#popupStyles')) {
-        style.id = 'popupStyles';
-        document.head.appendChild(style);
-    }
-    
-    const fonsHTML = avis.imatgeFons ? `
-        <div style="
-            margin: 12px 0;
-            border-radius: 8px;
-            overflow: hidden;
-            position: relative;
-            height: ${dispositiu.esMobil ? '100px' : '130px'};
-        ">
-            <img src="${avis.imatgeFons}" alt="Actualització" style="
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-                filter: blur(2px);
-            ">
-            <div style="
-                position: absolute;
-                inset: 0;
-                background: rgba(0,0,0,0.3);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            ">
-                <span style="
-                    color: white;
-                    font-size: ${dispositiu.esMobil ? '12px' : '14px'};
-                    font-weight: 600;
-                    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-                ">
-                    Versió ${NOTIFICACIONS.versio}
-                </span>
-            </div>
-        </div>
-    ` : '';
-    
-    contenidor.innerHTML = `
-        <div style="display: flex; align-items: flex-start; gap: 12px;">
-            <img src="${NOTIFICACIONS.logo}" alt="Logo" style="
-                width: ${dispositiu.esMobil ? '32px' : '36px'};
-                height: ${dispositiu.esMobil ? '32px' : '36px'};
-                border-radius: 50%;
-                object-fit: cover;
-                border: 2px solid #00C853;
-            " onerror="this.style.display='none'">
-            <div style="flex: 1; min-width: 0;">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                    <h4 style="
-                        margin: 0 0 8px 0;
-                        color: #00C853;
-                        font-size: ${dispositiu.esMobil ? '14px' : '16px'};
-                        font-weight: 600;
-                    ">
-                        ${avis.titol}
-                    </h4>
-                    <button onclick="event.stopPropagation(); this.closest('[id^=popup_]').remove()" style="
-                        background: none;
-                        border: none;
-                        color: #666;
-                        cursor: pointer;
-                        font-size: 20px;
-                        padding: 0 4px;
-                    ">×</button>
-                </div>
-                <p style="
-                    margin: 0;
-                    color: #b0c0d0;
-                    font-size: ${dispositiu.esMobil ? '12px' : '14px'};
-                    line-height: 1.4;
-                ">
-                    ${avis.missatge}
-                </p>
-                ${fonsHTML}
-                <div style="
-                    margin-top: 12px;
-                    padding-top: 12px;
-                    border-top: 1px solid rgba(255,255,255,0.1);
-                ">
-                    <ul style="
-                        list-style: none;
-                        padding: 0;
-                        margin: 0;
-                    ">
-                        ${avis.detalls.map(detall => `
-                            <li style="
-                                color: #90a0b0;
-                                font-size: ${dispositiu.esMobil ? '11px' : '12px'};
-                                padding: 4px 0;
-                            ">
-                                <span style="color: #00C853; margin-right: 5px;">✓</span>${detall}
-                            </li>
-                        `).join('')}
-                    </ul>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    contenidor.addEventListener('mouseenter', () => {
-        contenidor.style.animation = 'popupGlow 2s infinite';
-    });
-    
-    contenidor.addEventListener('mouseleave', () => {
-        contenidor.style.animation = '';
-    });
-    
-    document.body.appendChild(contenidor);
-    
-    marcarNotificacioVista(avis.id);
-    
-    setTimeout(() => {
-        if (contenidor.parentNode) {
-            contenidor.style.animation = 'popupSlideOut 0.5s ease-in';
-            setTimeout(() => {
-                if (contenidor.parentNode) {
-                    contenidor.remove();
-                }
-            }, 500);
-        }
-    }, 12000);
-}
-
-// ──────────────────────────────────────────────────────────────
-//  PANELL COMPLET (PER USUARIS EXISTENTS)
-// ──────────────────────────────────────────────────────────────
-
-function mostrarPanellComplet(avis) {
-    const dispositiu = detectarDispositiu();
-    
-    const panell = document.createElement('div');
-    panell.id = `panell_${avis.id}`;
-    
-    let estilsPanell = `
-        position: fixed;
-        z-index: 9995;
-        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-        border-radius: 16px;
-        box-shadow: 0 20px 60px rgba(0,0,0,0.8);
-        animation: panellSlideIn 0.4s ease-out;
-        border: 1px solid rgba(0,200,83,0.3);
-        overflow-y: auto;
-    `;
-    
-    if (dispositiu.esMobil) {
-        estilsPanell += `
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: calc(100vw - 30px);
-            max-width: 400px;
-            max-height: 70vh;
-        `;
-    } else {
-        estilsPanell += `
-            bottom: 30px;
-            left: 30px;
-            width: 420px;
-            max-width: calc(100vw - 60px);
-            max-height: 70vh;
-        `;
-    }
-    
-    panell.style.cssText = estilsPanell;
-    
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes panellSlideIn {
-            0% { transform: translateY(20px); opacity: 0; }
-            100% { transform: translateY(0); opacity: 1; }
-        }
-    `;
-    
-    if (!document.querySelector('#panellStyles')) {
-        style.id = 'panellStyles';
-        document.head.appendChild(style);
-    }
-    
-    const fonsHTML = avis.imatgeFons ? `
-        <div style="
-            margin: 15px 0;
-            border-radius: 10px;
-            overflow: hidden;
-            position: relative;
-            height: ${dispositiu.esMobil ? '120px' : '150px'};
-        ">
-            <img src="${avis.imatgeFons}" alt="Actualització" style="
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-                filter: blur(2px);
-            ">
-            <div style="
-                position: absolute;
-                inset: 0;
-                background: rgba(0,0,0,0.3);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            ">
-                <span style="
-                    color: white;
-                    font-size: ${dispositiu.esMobil ? '13px' : '15px'};
-                    font-weight: 600;
-                    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-                ">
-                    Versió ${NOTIFICACIONS.versio}
-                </span>
-            </div>
-        </div>
-    ` : '';
-    
-    panell.innerHTML = `
-        <div style="
-            padding: ${dispositiu.esMobil ? '15px' : '20px'};
-            background: linear-gradient(135deg, #00C853, #009624);
-            border-radius: 16px 16px 0 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        ">
-            <div style="display: flex; align-items: center; gap: 12px;">
-                <img src="${NOTIFICACIONS.logo}" alt="Logo" style="
-                    width: ${dispositiu.esMobil ? '35px' : '40px'};
-                    height: ${dispositiu.esMobil ? '35px' : '40px'};
-                    border-radius: 50%;
-                    border: 2px solid white;
-                    object-fit: cover;
-                " onerror="this.style.display='none'">
-                <div>
-                    <h3 style="margin: 0; color: white; font-size: ${dispositiu.esMobil ? '16px' : '18px'}; font-weight: 600;">
-                        ${avis.titol}
-                    </h3>
-                    <p style="margin: 5px 0 0 0; color: rgba(255,255,255,0.8); font-size: ${dispositiu.esMobil ? '11px' : '12px'};">
-                        Versió ${NOTIFICACIONS.versio} Oficial
-                    </p>
-                </div>
-            </div>
-            <button onclick="this.closest('[id^=panell_]').remove()" style="
-                background: rgba(255,255,255,0.2);
-                border: none;
-                color: white;
-                width: 30px;
-                height: 30px;
-                border-radius: 50%;
-                cursor: pointer;
-                font-size: 16px;
-            ">×</button>
-        </div>
-        <div style="padding: ${dispositiu.esMobil ? '15px' : '20px'};">
-            <p style="
-                color: #b0c0d0;
-                font-size: ${dispositiu.esMobil ? '12px' : '14px'};
-                line-height: 1.5;
-                margin: 0 0 10px 0;
-            ">
-                ${avis.missatge}
-            </p>
-            ${fonsHTML}
-            <div style="
-                margin-top: 15px;
-                padding-top: 15px;
-                border-top: 1px solid rgba(255,255,255,0.1);
-            ">
-                <h5 style="
-                    margin: 0 0 10px 0;
-                    color: #00C853;
-                    font-size: ${dispositiu.esMobil ? '12px' : '14px'};
-                    font-weight: 600;
-                ">
-                    Millores incloses:
-                </h5>
-                <ul style="
-                    list-style: none;
-                    padding: 0;
-                    margin: 0;
-                ">
-                    ${avis.detalls.map(detall => `
-                        <li style="
-                            color: #90a0b0;
-                            font-size: ${dispositiu.esMobil ? '11px' : '13px'};
-                            padding: 5px 0;
-                        ">
-                            <span style="color: #00C853; margin-right: 5px;">✓</span>${detall}
-                        </li>
-                    `).join('')}
-                </ul>
-            </div>
-            <span style="
-                color: #666;
-                font-size: ${dispositiu.esMobil ? '9px' : '10px'};
-                display: block;
-                margin-top: 15px;
-            ">
-                ${avis.data} · Prioritat: ${avis.prioritat}
-            </span>
-        </div>
-    `;
-    
-    document.body.appendChild(panell);
-}
-
-// ──────────────────────────────────────────────────────────────
-//  INICIALITZACIÓ
-// ──────────────────────────────────────────────────────────────
-
-async function inicialitzarNotificacions() {
-    console.log('[Notificacions] Inicialitzant sistema...');
-    console.log('[Notificacions] Versió:', NOTIFICACIONS.versio);
-    
-    const dispositiu = detectarDispositiu();
-    console.log('[Notificacions] Dispositiu:', dispositiu.tipus);
-    
-    const ip = await obtenirIP();
-    console.log('[Notificacions] IP:', ip);
-    
-    const nouUsuari = await esNouUsuari();
-    console.log('[Notificacions] Usuari nou:', nouUsuari ? 'SÍ' : 'NO');
-    
-    const pendents = await obtenirNotificacionsPendents();
-    
-    if (pendents.length > 0) {
-        console.log(`[Notificacions] ${pendents.length} notificacions pendents`);
-        
-        pendents.forEach((avis, index) => {
-            setTimeout(() => {
-                if (nouUsuari) {
-                    // Usuari nou: popup complet
-                    mostrarPopupNotificacio(avis);
-                } else {
-                    // Usuari existent: notificació lateral
-                    mostrarNotificacioLateral(avis);
-                }
-            }, 500 + (index * 800));
-        });
-    } else {
-        console.log('[Notificacions] Cap notificació pendent');
-    }
-}
-
-// ──────────────────────────────────────────────────────────────
-//  FUNCIONS PÚBLIQUES
-// ──────────────────────────────────────────────────────────────
-
-function afegirNovaNotificacio(avis) {
-    if (!avis.id || !avis.titol || !avis.missatge) {
-        console.error('[Notificacions] Notificació invàlida');
-        return false;
-    }
-    
-    const existeix = NOTIFICACIONS.avisos.some(a => a.id === avis.id);
-    if (!existeix) {
-        NOTIFICACIONS.avisos.push({
-            tipus: avis.tipus || 'info',
-            data: avis.data || new Date().toISOString().split('T')[0],
-            prioritat: avis.prioritat || 'normal',
-            icona: avis.icona || 'info',
-            ...avis
-        });
-        return true;
-    }
-    
     return false;
 }
 
-async function netejarHistorial() {
-    const clau = await obtenirClauEmmagatzematge();
-    localStorage.removeItem(clau);
-    console.log('[Notificacions] Historial netejat');
+function marcarTotesLlegides() {
+    const notificacions = obtenirNotificacions();
+    notificacions.forEach(n => n.llegida = true);
+    guardarNotificacions(notificacions);
+    actualitzarComptador();
 }
 
-function activarModeProves() {
-    NOTIFICACIONS.modeProves = true;
-    console.log('[Notificacions] Mode proves ACTIVAT');
+function eliminarNotificacio(id) {
+    let notificacions = obtenirNotificacions();
+    notificacions = notificacions.filter(n => n.id !== id);
+    guardarNotificacions(notificacions);
+    actualitzarComptador();
 }
 
-function desactivarModeProves() {
-    NOTIFICACIONS.modeProves = false;
-    console.log('[Notificacions] Mode proves DESACTIVAT');
+function eliminarTotesNotificacions() {
+    guardarNotificacions([]);
+    actualitzarComptador();
 }
 
-// ──────────────────────────────────────────────────────────────
-//  EXPOSAR FUNCIONS
-// ──────────────────────────────────────────────────────────────
+// ─── COMPTADOR ────────────────────────────────────────────────────────
 
-window.NOTIFICACIONS = NOTIFICACIONS;
-window.inicialitzarNotificacions = inicialitzarNotificacions;
-window.mostrarPopupNotificacio = mostrarPopupNotificacio;
-window.mostrarNotificacioLateral = mostrarNotificacioLateral;
-window.mostrarPanellComplet = mostrarPanellComplet;
-window.afegirNovaNotificacio = afegirNovaNotificacio;
-window.netejarHistorial = netejarHistorial;
-window.activarModeProves = activarModeProves;
-window.desactivarModeProves = desactivarModeProves;
-window.detectarDispositiu = detectarDispositiu;
+function actualitzarComptador() {
+    const notificacions = obtenirNotificacions();
+    const noLlegides = notificacions.filter(n => !n.llegida).length;
+    
+    // Actualitzar badge al header
+    const badge = document.getElementById('notificacionsBadge');
+    if (badge) {
+        if (noLlegides > 0) {
+            badge.style.display = 'flex';
+            badge.textContent = noLlegides > 99 ? '99+' : noLlegides;
+        } else {
+            badge.style.display = 'none';
+        }
+    }
+    
+    // Actualitzar títol de la pàgina
+    if (noLlegides > 0) {
+        document.title = `(${noLlegides}) Meteorologia`;
+    } else {
+        document.title = 'Meteorologia';
+    }
+}
+
+// ─── CREAR NOTIFICACIÓ ──────────────────────────────────────────────
+
+function crearNotificacio(titol, missatge, tipus = TIPUS_NOTIFICACIO.INFO, data = null) {
+    const notificacio = {
+        id: 'notif_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+        titol: titol,
+        missatge: missatge,
+        tipus: tipus,
+        data: data || new Date().toISOString(),
+        llegida: false,
+        timestamp: Date.now()
+    };
+    
+    const notificacions = obtenirNotificacions();
+    notificacions.push(notificacio);
+    guardarNotificacions(notificacions);
+    
+    actualitzarComptador();
+    
+    // Mostrar notificació al panell si està obert
+    if (document.getElementById('notificacionsPanel')?.style.display === 'block') {
+        renderitzarNotificacions();
+    }
+    
+    return notificacio;
+}
+
+// ─── RENDERITZAR NOTIFICACIONS ──────────────────────────────────────
+
+function renderitzarNotificacions() {
+    const panel = document.getElementById('notificacionsPanel');
+    const llista = document.getElementById('notificacionsLlista');
+    const buit = document.getElementById('notificacionsBuit');
+    const comptador = document.getElementById('notificacionsComptador');
+    
+    if (!panel || !llista) return;
+    
+    const notificacions = obtenirNotificacions();
+    const noLlegides = notificacions.filter(n => !n.llegida).length;
+    
+    // Actualitzar comptador
+    if (comptador) {
+        comptador.textContent = noLlegides;
+        comptador.style.display = noLlegides > 0 ? 'inline' : 'none';
+    }
+    
+    // Mostrar missatge buit
+    if (notificacions.length === 0) {
+        if (buit) buit.style.display = 'block';
+        llista.innerHTML = '';
+        return;
+    }
+    
+    if (buit) buit.style.display = 'none';
+    
+    // Renderitzar llista (més recents primer)
+    const sorted = [...notificacions].reverse();
+    
+    llista.innerHTML = sorted.map(n => `
+        <div class="notificacio-item ${n.llegida ? 'llegida' : 'no-llegida'}" 
+             data-id="${n.id}"
+             style="
+                 padding: 12px 15px;
+                 border-bottom: 1px solid rgba(255,255,255,0.05);
+                 cursor: pointer;
+                 transition: all 0.2s;
+                 background: ${n.llegida ? 'transparent' : 'rgba(62, 166, 255, 0.05)'};
+                 border-left: 3px solid ${getColorTipus(n.tipus)};
+             "
+             onmouseover="this.style.background='rgba(255,255,255,0.05)'"
+             onmouseout="this.style.background='${n.llegida ? 'transparent' : 'rgba(62, 166, 255, 0.05)'}'">
+            
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;">
+                <div style="flex: 1; min-width: 0;">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                        <span style="font-size: 16px;">${getIconTipus(n.tipus)}</span>
+                        <strong style="color: white; font-size: 14px;">${n.titol}</strong>
+                        ${!n.llegida ? '<span style="background: #3ea6ff; width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;"></span>' : ''}
+                    </div>
+                    <p style="margin: 0; color: rgba(255,255,255,0.7); font-size: 13px; line-height: 1.4; word-wrap: break-word;">
+                        ${n.missatge}
+                    </p>
+                    <span style="color: rgba(255,255,255,0.3); font-size: 10px; display: block; margin-top: 4px;">
+                        ${new Date(n.data).toLocaleString('ca-ES')}
+                    </span>
+                </div>
+                <button onclick="event.stopPropagation(); eliminarNotificacio('${n.id}')" 
+                        style="
+                            background: rgba(255,255,255,0.1);
+                            border: none;
+                            color: rgba(255,255,255,0.4);
+                            width: 24px;
+                            height: 24px;
+                            border-radius: 50%;
+                            cursor: pointer;
+                            font-size: 12px;
+                            transition: all 0.2s;
+                            flex-shrink: 0;
+                        "
+                        onmouseover="this.style.background='rgba(255,0,0,0.3)'; this.style.color='white'"
+                        onmouseout="this.style.background='rgba(255,255,255,0.1)'; this.style.color='rgba(255,255,255,0.4)'">
+                    ✕
+                </button>
+            </div>
+        </div>
+    `).join('');
+    
+    // Afegir event listeners per marcar com a llegida
+    llista.querySelectorAll('.notificacio-item').forEach(item => {
+        item.addEventListener('click', function() {
+            const id = this.dataset.id;
+            if (id) {
+                marcarComLlegida(id);
+                renderitzarNotificacions();
+            }
+        });
+    });
+}
+
+// ─── UTILITATS ──────────────────────────────────────────────────────
+
+function getColorTipus(tipus) {
+    const colors = {
+        [TIPUS_NOTIFICACIO.ALERTA]: '#FF4500',
+        [TIPUS_NOTIFICACIO.WARNING]: '#FF8C00',
+        [TIPUS_NOTIFICACIO.SUCCESS]: '#4CAF50',
+        [TIPUS_NOTIFICACIO.INFO]: '#3ea6ff'
+    };
+    return colors[tipus] || '#3ea6ff';
+}
+
+function getIconTipus(tipus) {
+    const icons = {
+        [TIPUS_NOTIFICACIO.ALERTA]: '⚠️',
+        [TIPUS_NOTIFICACIO.WARNING]: '⚡',
+        [TIPUS_NOTIFICACIO.SUCCESS]: '✅',
+        [TIPUS_NOTIFICACIO.INFO]: 'ℹ️'
+    };
+    return icons[tipus] || '📢';
+}
+
+// ─── PANELL DE NOTIFICACIONS ───────────────────────────────────────
+
+function toggleNotificacionsPanel() {
+    const panel = document.getElementById('notificacionsPanel');
+    if (!panel) return;
+    
+    const isOpen = panel.style.display === 'block';
+    
+    if (isOpen) {
+        panel.style.display = 'none';
+    } else {
+        panel.style.display = 'block';
+        renderitzarNotificacions();
+    }
+}
+
+function crearPanelNotificacions() {
+    // Comprovar si ja existeix
+    if (document.getElementById('notificacionsPanel')) return;
+    
+    // Crear contenidor del panel
+    const panel = document.createElement('div');
+    panel.id = 'notificacionsPanel';
+    panel.style.cssText = `
+        position: fixed;
+        top: 60px;
+        right: 15px;
+        width: 380px;
+        max-width: calc(100% - 30px);
+        max-height: 500px;
+        background: #0d1826;
+        border: 1px solid rgba(62, 166, 255, 0.2);
+        border-radius: 12px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+        z-index: 10000;
+        display: none;
+        overflow: hidden;
+        font-family: 'Segoe UI', Tahoma, sans-serif;
+    `;
+    
+    panel.innerHTML = `
+        <div style="
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(13, 24, 38, 0.95);
+        ">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 20px;">🔔</span>
+                <h3 style="margin: 0; color: white; font-size: 16px; font-weight: 600;">
+                    Notificacions
+                </h3>
+                <span id="notificacionsComptador" style="
+                    background: #3ea6ff;
+                    color: white;
+                    font-size: 10px;
+                    padding: 1px 8px;
+                    border-radius: 10px;
+                    display: none;
+                ">0</span>
+            </div>
+            <div style="display: flex; gap: 8px;">
+                <button onclick="marcarTotesLlegides(); renderitzarNotificacions();" 
+                        style="
+                            background: rgba(255,255,255,0.05);
+                            border: none;
+                            color: rgba(255,255,255,0.6);
+                            padding: 4px 10px;
+                            border-radius: 6px;
+                            cursor: pointer;
+                            font-size: 11px;
+                            transition: all 0.2s;
+                        "
+                        onmouseover="this.style.background='rgba(255,255,255,0.1)'"
+                        onmouseout="this.style.background='rgba(255,255,255,0.05)'">
+                    Marcar totes
+                </button>
+                <button onclick="eliminarTotesNotificacions(); renderitzarNotificacions();" 
+                        style="
+                            background: rgba(255,0,0,0.1);
+                            border: none;
+                            color: rgba(255,255,255,0.6);
+                            padding: 4px 10px;
+                            border-radius: 6px;
+                            cursor: pointer;
+                            font-size: 11px;
+                            transition: all 0.2s;
+                        "
+                        onmouseover="this.style.background='rgba(255,0,0,0.2)'"
+                        onmouseout="this.style.background='rgba(255,0,0,0.1)'">
+                    Eliminar totes
+                </button>
+            </div>
+        </div>
+        
+        <div id="notificacionsLlista" style="
+            overflow-y: auto;
+            max-height: 420px;
+            padding: 0;
+        "></div>
+        
+        <div id="notificacionsBuit" style="
+            padding: 40px 20px;
+            text-align: center;
+            color: rgba(255,255,255,0.3);
+            display: none;
+        ">
+            <div style="font-size: 40px; margin-bottom: 10px;">📭</div>
+            <p style="margin: 0; font-size: 14px;">Cap notificació pendent</p>
+            <p style="margin: 5px 0 0; font-size: 12px;">Tornaràs a rebre notificacions quan hi hagi novetats</p>
+        </div>
+    `;
+    
+    document.body.appendChild(panel);
+    
+    // Afegir botó de notificacions al header
+    afegirBotoNotificacions();
+}
+
+function afegirBotoNotificacions() {
+    // Comprovar si el botó ja existeix
+    if (document.getElementById('notificacionsBtn')) return;
+    
+    // Buscar el contenidor del header
+    const header = document.querySelector('.header-right') || document.querySelector('#app > div > div > div > div > div');
+    if (!header) return;
+    
+    // Crear botó
+    const btn = document.createElement('button');
+    btn.id = 'notificacionsBtn';
+    btn.style.cssText = `
+        background: none;
+        border: none;
+        color: rgba(255,255,255,0.7);
+        font-size: 20px;
+        cursor: pointer;
+        position: relative;
+        padding: 6px;
+        transition: all 0.2s;
+        border-radius: 50%;
+        width: 38px;
+        height: 38px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    `;
+    btn.innerHTML = `
+        🔔
+        <span id="notificacionsBadge" style="
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            background: #FF4500;
+            color: white;
+            font-size: 9px;
+            font-weight: 700;
+            padding: 2px 5px;
+            border-radius: 50%;
+            min-width: 18px;
+            height: 18px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #0d1826;
+        ">0</span>
+    `;
+    btn.title = 'Notificacions';
+    
+    btn.addEventListener('mouseenter', () => {
+        btn.style.background = 'rgba(255,255,255,0.05)';
+    });
+    btn.addEventListener('mouseleave', () => {
+        btn.style.background = 'none';
+    });
+    
+    btn.addEventListener('click', toggleNotificacionsPanel);
+    
+    // Inserir al header
+    header.appendChild(btn);
+    
+    // Actualitzar comptador
+    actualitzarComptador();
+}
+
+// ─── NOTIFICACIONS PREDEFINIDES ─────────────────────────────────────
+
+function notificacioAlertaTempesta(temps, intensitat) {
+    const titol = ` Alerta de tempesta${intensitat ? ' ' + intensitat : ''}`;
+    const missatge = `Tempesta detectada${temps ? ' per a ' + temps : ''}. Precaució!`;
+    return crearNotificacio(titol, missatge, TIPUS_NOTIFICACIO.ALERTA);
+}
+
+function notificacioCanviModel(temps, model) {
+    const titol = ` Canvi en el model`;
+    const missatge = `El model ${model || 'desconegut'} ha actualitzat les dades${temps ? ' per a ' + temps : ''}.`;
+    return crearNotificacio(titol, missatge, TIPUS_NOTIFICACIO.INFO);
+}
+
+function notificacioNovaVariable(temps, variable) {
+    const titol = ` Nova variable disponible`;
+    const missatge = `S'ha afegit ${variable || 'una nova variable'}${temps ? ' per a ' + temps : ''}.`;
+    return crearNotificacio(titol, missatge, TIPUS_NOTIFICACIO.SUCCESS);
+}
+
+function notificacioRiscAlt(temps, risc) {
+    const titol = ` Risc elevat`;
+    const missatge = `Nivell de risc ${risc || 'alt'} detectat${temps ? ' per a ' + temps : ''}.`;
+    return crearNotificacio(titol, missatge, TIPUS_NOTIFICACIO.WARNING);
+}
+
+// ─── NOTIFICACIONS PER TEMPS ────────────────────────────────────────
+
+function notificacioPerTemps(temps) {
+    if (!temps) return;
+    
+    // Exemples de notificacions basades en el temps
+    const tempsLower = temps.toLowerCase();
+    
+    if (tempsLower.includes('pluja') || tempsLower.includes('ruixat')) {
+        crearNotificacio(
+            ' Precipitació prevista',
+            `Pluja esperada${temps ? ' per a ' + temps : ''}. Porta paraigua!`,
+            TIPUS_NOTIFICACIO.INFO
+        );
+    }
+    
+    if (tempsLower.includes('tempesta') || tempsLower.includes('trons')) {
+        crearNotificacio(
+            ' Tempesta imminent',
+            `Tempesta detectada${temps ? ' per a ' + temps : ''}. Precaució!`,
+            TIPUS_NOTIFICACIO.ALERTA
+        );
+    }
+    
+    if (tempsLower.includes('calor') || tempsLower.includes('onada de calor')) {
+        crearNotificacio(
+            ' Onada de calor',
+            `Temperatures extremes${temps ? ' per a ' + temps : ''}. Mantén-te hidratat!`,
+            TIPUS_NOTIFICACIO.WARNING
+        );
+    }
+}
+
+// ─── INICIALITZACIÓ ──────────────────────────────────────────────────
+
+function inicialitzarNotificacions() {
+    // Crear panel
+    crearPanelNotificacions();
+    
+    // Actualitzar comptador
+    actualitzarComptador();
+    
+    // Verificar notificacions periòdicament
+    setInterval(() => {
+        // Aquí es podrien verificar noves notificacions del servidor
+        actualitzarComptador();
+    }, NOTIFICACIONS.checkInterval);
+}
+
+// ─── EXPOSAR FUNCIONS ──────────────────────────────────────────────
+
+window.notificacions = {
+    crear: crearNotificacio,
+    crearAlerta: notificacioAlertaTempesta,
+    crearCanviModel: notificacioCanviModel,
+    crearNovaVariable: notificacioNovaVariable,
+    crearRiscAlt: notificacioRiscAlt,
+    crearPerTemps: notificacioPerTemps,
+    marcarLlegida: marcarComLlegida,
+    marcarTotes: marcarTotesLlegides,
+    eliminar: eliminarNotificacio,
+    eliminarTotes: eliminarTotesNotificacions,
+    obtenir: obtenirNotificacions,
+    renderitzar: renderitzarNotificacions,
+    togglePanel: toggleNotificacionsPanel
+};
+
+window.crearNotificacio = crearNotificacio;
+window.marcarTotesLlegides = marcarTotesLlegides;
+window.eliminarTotesNotificacions = eliminarTotesNotificacions;
+window.eliminarNotificacio = eliminarNotificacio;
+window.renderitzarNotificacions = renderitzarNotificacions;
+window.toggleNotificacionsPanel = toggleNotificacionsPanel;
 
 // Auto-inicialitzar
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-        setTimeout(inicialitzarNotificacions, 1000);
-    });
+    document.addEventListener('DOMContentLoaded', inicialitzarNotificacions);
 } else {
-    setTimeout(inicialitzarNotificacions, 1000);
+    inicialitzarNotificacions();
 }
-
-console.log('[Notificacions] Sistema carregat');
-console.log('[Notificacions] Versió:', NOTIFICACIONS.versio);
-console.log('[Notificacions] Control per IP: Activat');

@@ -326,7 +326,7 @@ function horaMapaInit() {
         return;
     }
     
-    console.log('🕐 Inicialitzant HoraMapa...');
+    
     window._horaMapaInicialitzat = true;
     
     // Actualitzar dades inicials
@@ -361,7 +361,7 @@ function horaMapaInit() {
         }
     }, 500);
     
-    console.log('✅ HoraMapa inicialitzat correctament');
+    
 }
 
 // ─── Exposar funcions globalment (amb prefix per evitar conflictes) ──
@@ -400,4 +400,3 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
     });
 }
 
-console.log('✅ HoraMapa carregat correctament (sense conflictes)');

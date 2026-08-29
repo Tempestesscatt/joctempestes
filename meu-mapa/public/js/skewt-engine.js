@@ -466,8 +466,7 @@
         pressioSuperficialCoords = { lat: lats, lon: lons };
         pressioSuperficialDades = dades;
 
-        console.log('[SkewtEngine] ✅ Pressió superficial derivada de altitude.js:',
-            Nlat, 'lat ×', Nlon, 'lon =', dades.length, 'punts');
+        // Pressió superficial carregada correctament
         return true;
     }
 

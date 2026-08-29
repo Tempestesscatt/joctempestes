@@ -95,9 +95,7 @@ function esParametrePremium(paramName) {
 function comprovarPremiumPerUID() {
     const user = window._firebaseUser;
     if (!user || !user.uid) return false;
-    const isPremium = UIDS_PREMIUM.has(user.uid);
-    console.log('[Empresa] UID:', user.uid, '→ Accés:', isPremium);
-    return isPremium;
+    return UIDS_PREMIUM.has(user.uid);
 }
 
 // Comptar membres actius (excloent strings buits)
@@ -370,7 +368,3 @@ observer.observe(document.getElementById('parameter_selection') || document.body
 
 // Re-aplicar estil quan hi hagi canvis d'autenticació
 document.addEventListener('firebase-auth-changed', aplicarEstilPremiumAlPanell);
-
-console.log('[Empresa] Carregat | Variables:', [...VARIABLES_PREMIUM].join(', '));
-console.log('[Empresa] UIDs autoritzats:', [...UIDS_PREMIUM].join(', '));
-console.log('[Empresa] Membres actius:', comptarMembresActius());

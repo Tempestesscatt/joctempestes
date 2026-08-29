@@ -298,7 +298,7 @@
         }
         
         integrarAmbXat();
-        console.log('[Noms] Carregat (només lectura)');
+        
     }
     
     window.Noms = {

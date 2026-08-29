@@ -2179,6 +2179,16 @@ function _dibuixarStreamlines() {
         ? `rgba(255, 255, 255, ${wCfg.streamlineOpacity})`
         : `rgba(0, 0, 0, ${wCfg.streamlineOpacity})`;
 
+
+        function _hexAOpacitatRgba(color, opacitat) {
+    if (color === 'white') return `rgba(255, 255, 255, ${opacitat})`;
+    if (color === 'black') return `rgba(0, 0, 0, ${opacitat})`;
+    const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(color || '');
+    if (!m) return `rgba(0, 0, 0, ${opacitat})`;
+    const r = parseInt(m[1], 16), g = parseInt(m[2], 16), b = parseInt(m[3], 16);
+    return `rgba(${r}, ${g}, ${b}, ${opacitat})`;
+}
+
     ctx.save();
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
@@ -2338,6 +2348,11 @@ window.toggleVentMode = function() {
 
 window.setStreamlineColor = function(color) {
     wCfg.streamlineColor = color;
+    _redibuixarCanvasVent();
+};
+
+window.setStreamlineColorHex = function (hex) {
+    wCfg.streamlineColor = hex;
     _redibuixarCanvasVent();
 };
 
@@ -2552,18 +2567,18 @@ async function carregarCapaGeojson(def) {
 }
  
 async function inicialitzarGeojson() {
-    console.log('🔄 Iniciando carga de GeoJSON...');
+    
     
     for (const def of GEOJSON_CAPES) {
         try {
             const url = `dades/${def.arxiu}`;
-            console.log(`📥 Cargando: ${url}`);
+            
             
             const r = await fetch(url);
             if (!r.ok) throw new Error(`HTTP ${r.status}`);
             
             const geojson = await r.json();
-            console.log(`✅ GeoJSON cargado: ${geojson.features?.length || 0} features`);
+            
             
             const capa = L.geoJSON(geojson, {
                 pane: 'paneGeojson',
@@ -2579,7 +2594,7 @@ async function inicialitzarGeojson() {
             
             capaInstancies[def.id] = capa;
             capa.addTo(map);
-            console.log(`✅ Capa "${def.nom}" añadida al mapa`);
+            
             
             // Forzar redibujo
             map.invalidateSize();
@@ -3157,8 +3172,6 @@ function inicialitzarSistema3D() {
     // });
 }
 
-// ─── Detecta quantes hores hi ha SENSE descarregar-les totes ─────────
-// Fa peticions HEAD (lleugeres, sense cos) per confirmar existència.
 async function detectarHoresDisponibles() {
     const steps = [];
     let fallsConsecutius = 0;
@@ -3167,15 +3180,22 @@ async function detectarHoresDisponibles() {
     for (let i = 0; i < MAX_STEPS && fallsConsecutius < MAX_FALLS_CONSECUTIUS; i++) {
         const p = String(i).padStart(2, '0');
         let existeix = false;
-        try {
-            const r1 = await fetch(ambCacheBusterDades('web_data_NE/sfc_' + p + '.msgpack.gz'), { method: 'HEAD', cache: 'no-store' });
-            if (r1.ok) existeix = true;
-        } catch (e) { /* ignorem */ }
+        
+        // 🔧 FIX: Gestionar errors 404 silenciosament
+try {
+    const r1 = await fetch(ambCacheBusterDades('web_data_NE/sfc_' + p + '.msgpack.gz'), { method: 'HEAD', cache: 'no-store' });
+    if (r1.ok) existeix = true;
+} catch (e) {
+    // Silenciós - el fitxer no existeix
+}
+        
         if (!existeix) {
             try {
                 const r2 = await fetch(ambCacheBusterDades('web_data_NE/3d_' + p + '.msgpack.gz'), { method: 'HEAD', cache: 'no-store' });
                 if (r2.ok) existeix = true;
-            } catch (e) { /* ignorem */ }
+            } catch (e) {
+                // Silenciós - el fitxer no existeix
+            }
         }
 
         if (existeix) {
@@ -3207,7 +3227,7 @@ async function inicialitzarCarregaSotaDemanda() {
     totesLesHores = steps.map(s => ({ step: s, dateObj: null, data: null }));
     window.totesLesHores = totesLesHores;
 
-    console.log(`[Càrrega] ${steps.length} hores disponibles (steps: ${steps[0]}..${steps[steps.length - 1]})`);
+    
 
     construirGraellaHores();
 
@@ -3230,7 +3250,7 @@ async function inicialitzarCarregaSotaDemanda() {
     const loadingOverlay = document.getElementById('loading_overlay');
     if (loadingOverlay) loadingOverlay.classList.add('hidden');
 
-    console.log(`[Càrrega] Arrencada ràpida: 1 hora carregada de ${totesLesHores.length} disponibles.`);
+    
 }
 
 function actualitzarBarraProgress(carregats, total) {
@@ -3777,179 +3797,656 @@ function actualitzarCapcaleraParametre() {
     const label = document.getElementById('parameter_menu_link');
     if (label) label.textContent = pal.titol + ' (' + pal.unitat + ')';
 }
+// ═══════════════════════════════════════════════════════════════════════
+//  PARCHE: PERSISTÈNCIA EN localStorage PER AL PANELL D'AJUSTOS DE VENT
+//  Aplica aquests canvis sobre el fitxer que ja et vaig passar
+//  (el que vas enganxar dins de crearPanellAjustos() a mapa.js)
+// ═══════════════════════════════════════════════════════════════════════
+//
+//  RESUM DELS CANVIS:
+//  1. Nova clau de storage + funcions carregarAjustosVent() / desarAjustosVent()
+//  2. A l'inici de crearPanellAjustos(): carregar valors guardats i aplicar-los
+//     als inputs ABANS d'afegir els listeners
+//  3. Dins de cada listener que ja tens: cridar desarAjustosVent() al final
+//
+//  Pots aplicar-ho de dues maneres:
+//    A) Substituir tota la funció crearPanellAjustos() per la versió
+//       d'aquest fitxer (està completa, no cal barrejar res).
+//    B) Si ja has fet altres canvis manuals, mira els comentaris
+//       "// ← NOU" per localitzar exactament què s'ha afegit.
+//
+// ═══════════════════════════════════════════════════════════════════════
+
+const CLAU_STORAGE_AJUSTOS_VENT = 'tempestescat_ajustos_vent_v1';
+
+function carregarAjustosVent() {
+    try {
+        const raw = localStorage.getItem(CLAU_STORAGE_AJUSTOS_VENT);
+        if (!raw) return null;
+        return JSON.parse(raw);
+    } catch (e) {
+        console.warn('[AjustosVent] Error llegint localStorage:', e.message);
+        return null;
+    }
+}
+
+function desarAjustosVent(valors) {
+    try {
+        const actuals = carregarAjustosVent() || {};
+        const nous = { ...actuals, ...valors };
+        localStorage.setItem(CLAU_STORAGE_AJUSTOS_VENT, JSON.stringify(nous));
+    } catch (e) {
+        console.warn('[AjustosVent] Error guardant a localStorage:', e.message);
+    }
+}
 
 // ═══════════════════════════════════════════════════════════════════════
-//  PANELL D'AJUSTOS
+//  FUNCIÓ COMPLETA — substitueix la crearPanellAjustos() que ja tens
 // ═══════════════════════════════════════════════════════════════════════
- 
+
 function crearPanellAjustos() {
-    const btnAjustos = document.createElement('button');
-    btnAjustos.id = 'btnAjustos';
-    btnAjustos.textContent = '⚙';
-    btnAjustos.title = 'Ajustos: mapa base i capes';
-    btnAjustos.style.cssText = 'position:absolute;top:10px;right:10px;z-index:1000;width:34px;height:34px;border-radius:4px;border:1px solid #33475b;background:#0a101a;color:#cfe0ee;font-size:16px;cursor:pointer;';
-    document.body.appendChild(btnAjustos);
- 
-    const gridMapesHtml = Object.entries(MAPES_BASE).map(([clau, def]) => `
-        <button data-mapa="${clau}" class="aj-mapa-btn" style="display:block;width:100%;text-align:left;padding:5px 8px;margin-bottom:3px;border-radius:3px;border:1px solid #2a3a5a;background:${clau===mapaBaseActiva?'#2a5a8a':'#141c2a'};color:#cfe0ee;font-size:11px;cursor:pointer;">${def.nom}</button>
-    `).join('');
- 
-    const capesHtml = GEOJSON_CAPES.map(def => `
-        <div class="aj-capa-fila" data-id="${def.id}" style="display:flex;align-items:center;gap:6px;padding:4px 0;">
-            <input type="checkbox" checked style="cursor:pointer;">
-            <span style="flex:1;font-size:11px;color:#cfe0ee;">${def.nom}</span>
-            <input type="color" value="${def.color}" style="width:22px;height:18px;padding:0;border:none;cursor:pointer;background:transparent;">
-        </div>
-    `).join('');
- 
+
     const panell = document.createElement('div');
-    panell.id = 'panellAjustos';
-    panell.style.cssText = 'display:none;position:absolute;top:50px;right:10px;z-index:1000;width:230px;background:#0a101a;border:1px solid #33475b;border-radius:6px;padding:10px;font-family:Arial,sans-serif;font-size:12px;color:#cfe0ee;box-shadow:0 4px 14px rgba(0,0,0,0.4);';
+    panell.id = 'panellAjustosVent';
+    panell.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 300px;
+        max-width: 88vw;
+        height: 100vh;
+        background: rgba(10, 16, 26, 0.97);
+        backdrop-filter: blur(16px);
+        border-right: 1px solid rgba(255, 215, 0, 0.1);
+        z-index: 995;
+        transform: translateX(-105%);
+        transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+        box-shadow: 4px 0 40px rgba(0,0,0,0.6);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        font-family: 'Segoe UI', Tahoma, sans-serif;
+    `;
+
     panell.innerHTML = `
-        <div style="font-weight:700;margin-bottom:6px;">Mapa base</div>
-        <div id="ajGridMapes">${gridMapesHtml}</div>
-        <div style="border-top:1px solid #2a3a5a;margin:8px 0;"></div>
-        <div style="font-weight:700;margin-bottom:6px;">Capes</div>
-        <div id="ajLlistaCapes">${capesHtml}</div>
-        <div style="border-top:1px solid #2a3a5a;margin:8px 0;"></div>
-        <div style="font-weight:700;margin-bottom:6px;">Vent</div>
-        <div style="display:flex;gap:6px;margin-bottom:4px;">
-            <button id="btnVent" style="flex:1;padding:4px;border-radius:3px;border:1px solid #2a3a5a;background:${window.ventEnabled?'#2a5a8a':'#141c2a'};color:#cfe0ee;font-size:10px;cursor:pointer;">${window.ventEnabled?'💨 Vent ON':'💨 Vent OFF'}</button>
-            <button id="btnVentMode" style="flex:1;padding:4px;border-radius:3px;border:1px solid #2a3a5a;background:#141c2a;color:#cfe0ee;font-size:10px;cursor:pointer;">〜 Streamlines</button>
+        <div style="padding:16px 18px 12px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+            <span style="font-size:13px;font-weight:700;color:#FFD700;display:flex;align-items:center;gap:8px;">
+                <i class="fas fa-wind"></i> Ajustos de vent i mapa
+            </span>
+            <button id="btnTancarAjustosVent" style="background:none;border:none;color:#556680;font-size:18px;cursor:pointer;padding:4px 6px;border-radius:6px;line-height:1;">
+                <i class="fas fa-times"></i>
+            </button>
         </div>
-        <div style="display:flex;align-items:center;gap:4px;font-size:10px;color:#7f9bb3;">
-            <span>Color:</span>
-            <select id="ventColor" style="background:#141c2a;color:#cfe0ee;border:1px solid #2a3a5a;border-radius:3px;padding:2px;font-size:10px;">
-                <option value="black" selected>Negre</option>
-                <option value="white">Blanc</option>
-            </select>
-            <span>Opac:</span>
-            <input type="range" id="ventOpacity" min="0.1" max="1" step="0.1" value="0.7" style="width:40px;">
-            <span>Gruix:</span>
-            <input type="range" id="ventWidth" min="0.5" max="3" step="0.1" value="1.2" style="width:40px;">
+
+        <div style="flex:1;overflow-y:auto;padding:14px 18px 24px;">
+
+            <div class="aj-titol-seccio">Vent</div>
+
+            <div class="aj-fila">
+                <span class="aj-label">Mostrar vent</span>
+                <button id="ajVentOn" class="aj-toggle-btn"></button>
+            </div>
+
+            <div class="aj-fila">
+                <span class="aj-label">Mode</span>
+                <div class="aj-segmented" id="ajVentMode">
+                    <button data-mode="streamlines" class="aj-seg-btn">〜 Línies</button>
+                    <button data-mode="particles" class="aj-seg-btn">✦ Partícules</button>
+                </div>
+            </div>
+
+            <div class="aj-fila aj-fila-vent-comu">
+                <span class="aj-label">Color</span>
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <input type="color" id="ajVentColor" value="#ffffff" style="width:34px;height:26px;border:none;border-radius:5px;background:none;cursor:pointer;padding:0;">
+                    <div class="aj-swatches" id="ajVentSwatches">
+                        <span data-c="#ffffff" style="background:#ffffff"></span>
+                        <span data-c="#000000" style="background:#000000"></span>
+                        <span data-c="#3ea6ff" style="background:#3ea6ff"></span>
+                        <span data-c="#FFD700" style="background:#FFD700"></span>
+                        <span data-c="#ff5e5e" style="background:#ff5e5e"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="aj-fila aj-fila-vent-comu">
+                <span class="aj-label">Opacitat <span class="aj-val" id="valVentOpacitat">75%</span></span>
+                <input type="range" id="ajVentOpacitat" min="10" max="100" value="75" class="aj-range">
+            </div>
+
+            <div class="aj-fila aj-fila-particules" style="display:none;">
+                <span class="aj-label">Densitat <span class="aj-val" id="valVentDensitat">1400</span></span>
+                <input type="range" id="ajVentDensitat" min="200" max="8000" step="100" value="1400" class="aj-range">
+            </div>
+
+            <div class="aj-fila aj-fila-particules" style="display:none;">
+                <span class="aj-label">Durada estela <span class="aj-val" id="valVentEstela">1.0x</span></span>
+                <input type="range" id="ajVentEstela" min="0.3" max="3" step="0.1" value="1.0" class="aj-range">
+            </div>
+
+            <div class="aj-fila aj-fila-particules" style="display:none;">
+                <span class="aj-label">Mida partícula <span class="aj-val" id="valVentMida">1.6</span></span>
+                <input type="range" id="ajVentMida" min="0.5" max="4" step="0.1" value="1.6" class="aj-range">
+            </div>
+
+            <div class="aj-fila aj-fila-particules" style="display:none;">
+                <span class="aj-label">Velocitat <span class="aj-val" id="valVentVelocitat">1.0x</span></span>
+                <input type="range" id="ajVentVelocitat" min="0.2" max="3" step="0.1" value="1.0" class="aj-range">
+            </div>
+
+            <div class="aj-fila aj-fila-linies">
+                <span class="aj-label">Gruix línia <span class="aj-val" id="valVentGruix">1.2</span></span>
+                <input type="range" id="ajVentGruix" min="0.5" max="3" step="0.1" value="1.2" class="aj-range">
+            </div>
+
+            <div class="aj-separador"></div>
+
+            <div class="aj-titol-seccio">Contorn del mapa</div>
+
+            <div class="aj-fila">
+                <span class="aj-label">Color de la vora</span>
+                <input type="color" id="ajContornColor" value="#040400" style="width:34px;height:26px;border:none;border-radius:5px;background:none;cursor:pointer;padding:0;">
+            </div>
+
+            <div class="aj-fila">
+                <span class="aj-label">Opacitat vora <span class="aj-val" id="valContornOpacitat">100%</span></span>
+                <input type="range" id="ajContornOpacitat" min="0" max="100" value="100" class="aj-range">
+            </div>
+
+            <div class="aj-fila">
+                <span class="aj-label">Gruix vora <span class="aj-val" id="valContornGruix">2.5</span></span>
+                <input type="range" id="ajContornGruix" min="0.5" max="6" step="0.1" value="2.5" class="aj-range">
+            </div>
+
+            <div class="aj-separador"></div>
+
+            <div class="aj-titol-seccio">Capa de dades</div>
+
+            <div class="aj-fila">
+                <span class="aj-label">Opacitat capa <span class="aj-val" id="valCapaOpacitat">100%</span></span>
+                <input type="range" id="ajCapaOpacitat" min="10" max="100" value="100" class="aj-range">
+            </div>
+
+            <div class="aj-separador"></div>
+
+            <button id="ajResetDefectes" class="aj-btn-reset">
+                <i class="fas fa-rotate-left"></i> Restaurar valors per defecte
+            </button>
+
         </div>
     `;
+
     document.body.appendChild(panell);
- 
-    btnAjustos.addEventListener('click', (e) => {
-        e.stopPropagation();
-        panell.style.display = panell.style.display === 'none' ? 'block' : 'none';
-    });
-    document.addEventListener('click', (e) => {
-        if (panell.style.display !== 'none' && !panell.contains(e.target) && e.target !== btnAjustos) {
-            panell.style.display = 'none';
+    injectarEstilsPanellAjustos();
+
+    // ─── Referències ──────────────────────────────────────────────────
+    const btnTancar = panell.querySelector('#btnTancarAjustosVent');
+    const btnVentOn = panell.querySelector('#ajVentOn');
+    const modeButtons = panell.querySelectorAll('#ajVentMode .aj-seg-btn');
+    const inputColor = panell.querySelector('#ajVentColor');
+    const swatches = panell.querySelectorAll('#ajVentSwatches span');
+    const inputOpacitat = panell.querySelector('#ajVentOpacitat');
+    const inputDensitat = panell.querySelector('#ajVentDensitat');
+    const inputEstela = panell.querySelector('#ajVentEstela');
+    const inputMida = panell.querySelector('#ajVentMida');
+    const inputVelocitat = panell.querySelector('#ajVentVelocitat');
+    const inputGruix = panell.querySelector('#ajVentGruix');
+    const filesParticules = panell.querySelectorAll('.aj-fila-particules');
+    const filesLinies = panell.querySelectorAll('.aj-fila-linies');
+
+    const inputContornColor = panell.querySelector('#ajContornColor');
+    const inputContornOpacitat = panell.querySelector('#ajContornOpacitat');
+    const inputContornGruix = panell.querySelector('#ajContornGruix');
+
+    const inputCapaOpacitat = panell.querySelector('#ajCapaOpacitat');
+    const btnReset = panell.querySelector('#ajResetDefectes');
+
+    // ═══════════════════════════════════════════════════════════════════
+    //  ← NOU: CARREGAR VALORS GUARDATS I APLICAR-LOS ABANS DE TOT
+    // ═══════════════════════════════════════════════════════════════════
+    const DEFECTES = {
+        ventActiu: true,
+        ventMode: 'streamlines',
+        ventColor: '#ffffff',
+        ventOpacitat: 75,
+        ventDensitat: 1400,
+        ventMida: 1.6,
+        ventVelocitat: 1.0,
+        ventEstela: 1.0,
+        ventGruix: 1.2,
+        contornColor: '#040400',
+        contornOpacitat: 100,
+        contornGruix: 2.5,
+        capaOpacitat: 100,
+    };
+    const guardats = carregarAjustosVent() || {};
+    const A = { ...DEFECTES, ...guardats };
+
+    window._ventMode = A.ventMode;
+    window._ventActiu = A.ventActiu;
+
+    inputColor.value = A.ventColor;
+    inputOpacitat.value = A.ventOpacitat;
+    panell.querySelector('#valVentOpacitat').textContent = A.ventOpacitat + '%';
+    inputDensitat.value = A.ventDensitat;
+    panell.querySelector('#valVentDensitat').textContent = A.ventDensitat;
+    inputMida.value = A.ventMida;
+    panell.querySelector('#valVentMida').textContent = Number(A.ventMida).toFixed(1);
+    inputVelocitat.value = A.ventVelocitat;
+    panell.querySelector('#valVentVelocitat').textContent = Number(A.ventVelocitat).toFixed(1) + 'x';
+    inputEstela.value = A.ventEstela;
+    panell.querySelector('#valVentEstela').textContent = Number(A.ventEstela).toFixed(1) + 'x';
+    inputGruix.value = A.ventGruix;
+    panell.querySelector('#valVentGruix').textContent = Number(A.ventGruix).toFixed(1);
+
+    inputContornColor.value = A.contornColor;
+    inputContornOpacitat.value = A.contornOpacitat;
+    panell.querySelector('#valContornOpacitat').textContent = A.contornOpacitat + '%';
+    inputContornGruix.value = A.contornGruix;
+    panell.querySelector('#valContornGruix').textContent = Number(A.contornGruix).toFixed(1);
+
+    inputCapaOpacitat.value = A.capaOpacitat;
+    panell.querySelector('#valCapaOpacitat').textContent = A.capaOpacitat + '%';
+
+    // Aplicar-ho tot de seguida al motor de vent / streamlines / mapa
+        // Aplicar-ho tot de seguida al motor de vent / streamlines / mapa
+    function aplicarTotElsAjustosGuardats() {
+        // Streamlines (configuració, encara que no s'activin)
+        if (typeof wCfg !== 'undefined') {
+            wCfg.streamlineColor = A.ventColor;
+            wCfg.streamlineOpacity = A.ventOpacitat / 100;
+            wCfg.streamlineWidth = Number(A.ventGruix);
         }
-    });
- 
-    panell.querySelectorAll('.aj-mapa-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            canviarMapaBase(btn.dataset.mapa);
-            panell.querySelectorAll('.aj-mapa-btn').forEach(b => {
-                b.style.background = b.dataset.mapa === mapaBaseActiva ? '#2a5a8a' : '#141c2a';
+        // Partícules (configuració, encara que no s'activin)
+        if (typeof Vent !== 'undefined') {
+            const baseVida = 40, baseVidaMax = 110;
+            const factorEstela = Number(A.ventEstela);
+            Vent.configurar({
+                color: A.ventColor,
+                opacitat: A.ventOpacitat / 100,
+                numParticules: Number(A.ventDensitat),
+                midaParticula: Number(A.ventMida),
+                velocitatFactor: Number(A.ventVelocitat),
+                vidaMinima: baseVida * factorEstela,
+                vidaMaxima: baseVidaMax * factorEstela,
             });
-        });
-    });
- 
-    panell.querySelectorAll('.aj-capa-fila').forEach(fila => {
-        const id = fila.dataset.id;
-        const cb = fila.querySelector('input[type="checkbox"]');
-        const colorInput = fila.querySelector('input[type="color"]');
-        cb.addEventListener('change', () => {
-            const capa = capaInstancies[id];
-            if (!capa) return;
-            if (cb.checked) capa.addTo(map);
-            else map.removeLayer(capa);
-        });
-        colorInput.addEventListener('input', () => {
-            const capa = capaInstancies[id];
-            if (capa) capa.setStyle({ color: colorInput.value });
-        });
-    });
- 
-    document.getElementById('btnVent').addEventListener('click', function() {
-        window.toggleVent();
-    });
-    document.getElementById('btnVentMode').addEventListener('click', function() {
-        window.toggleVentMode();
-    });
-    document.getElementById('ventColor').addEventListener('change', function() {
-        window.setStreamlineColor(this.value);
-    });
-    document.getElementById('ventOpacity').addEventListener('input', function() {
-        window.setStreamlineOpacity(parseFloat(this.value));
-    });
-    document.getElementById('ventWidth').addEventListener('input', function() {
-        window.setStreamlineWidth(parseFloat(this.value));
-    });
-}
- 
-// ─── CONTROLS ─────────────────────────────────────────────────────────
-document.getElementById('btnPrev').addEventListener('click', ()=>mostrarHora((curIdx-1+totesLesHores.length)%totesLesHores.length));
-document.getElementById('btnNext').addEventListener('click', ()=>mostrarHora((curIdx+1)%totesLesHores.length));
-let animTimer=null, isPlaying=false;
-document.getElementById('btnPlay').addEventListener('click', function() {
-    if (isPlaying) { clearInterval(animTimer); isPlaying=false; this.textContent='▶ Animació'; }
-    else { isPlaying=true; this.textContent='⏹ Aturar'; animTimer=setInterval(()=>mostrarHora((curIdx+1)%totesLesHores.length), 600); }
-});
-document.addEventListener('keydown', (e) => {
-    if (e.key==='ArrowLeft') mostrarHora((curIdx-1+totesLesHores.length)%totesLesHores.length);
-    if (e.key==='ArrowRight') mostrarHora((curIdx+1)%totesLesHores.length);
-});
- 
-// ─── CERCADOR ─────────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-    const cercador = document.getElementById('parameter_search');
-    if (!cercador) return;
-    cercador.addEventListener('input', () => {
-        const q = cercador.value.trim().toLowerCase();
- 
-        document.querySelectorAll('.param-row').forEach(row => {
-            row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
-        });
- 
-        document.querySelectorAll('.param-group-title').forEach(title => {
-            let next = title.nextElementSibling;
-            let visible = false;
-            while (next && !next.classList.contains('param-group-title') && !next.classList.contains('param-acordio-cap')) {
-                const rows = next.querySelectorAll ? next.querySelectorAll('.param-row') : [];
-                if (Array.from(rows).some(r => r.style.display !== 'none')) visible = true;
-                next = next.nextElementSibling;
+        }
+
+        // Apagar SEMPRE els dos motors abans de decidir quin engegar,
+        // per evitar que es quedin els dos actius alhora
+        window.ventEnabled = false;
+        if (typeof canvasVent !== 'undefined' && canvasVent && typeof ctxVent !== 'undefined' && ctxVent) {
+            ctxVent.clearRect(0, 0, canvasVent.width, canvasVent.height);
+        }
+        if (typeof Vent !== 'undefined' && Vent.estaActiu()) {
+            Vent.aturar();
+        }
+
+        // Ara sí, engegar només el motor que toca (si estava actiu)
+        if (A.ventActiu) {
+            if (A.ventMode === 'particles' && typeof Vent !== 'undefined') {
+                Vent.iniciar();
+            } else if (A.ventMode === 'streamlines') {
+                window.ventEnabled = true;
+                if (typeof redibuixarVent === 'function') redibuixarVent();
             }
-            title.style.display = visible ? '' : 'none';
+        }
+
+        // Capa de dades
+        if (typeof canvasLayer !== 'undefined' && canvasLayer && canvasLayer._canvas) {
+            canvasLayer._canvas.style.opacity = (A.capaOpacitat / 100).toString();
+        }
+
+        // Contorn — pot ser que capaInstancies encara no tingui res carregat;
+        // ho apliquem ara i també un cop es carregui el geojson (vegeu més avall)
+        aplicarEstilContornDesat();
+    }
+
+    function aplicarEstilContornDesat() {
+        if (typeof capaInstancies === 'undefined') return;
+        const color = inputContornColor.value;
+        const opacitat = parseInt(inputContornOpacitat.value) / 100;
+        const gruix = parseFloat(inputContornGruix.value);
+        Object.values(capaInstancies).forEach(capa => {
+            if (capa && capa.setStyle) {
+                capa.setStyle({ color, opacity: opacitat, weight: gruix });
+            }
         });
- 
-        document.querySelectorAll('.param-acordio-cap').forEach(capcal => {
-            const cos = capcal.nextElementSibling;
-            if (!cos || !cos.classList.contains('param-acordio-cos')) return;
-            const rows = cos.querySelectorAll('.param-row');
-            const teMatch = Array.from(rows).some(r => r.style.display !== 'none');
-            const nomCapcal = capcal.textContent.toLowerCase();
-            const capcalMatch = nomCapcal.includes(q);
- 
-            if (q === '') {
-                capcal.style.display = '';
-                cos.style.display = 'none';
-                const clauB = capcal.dataset.clauBase;
-                if (clauB) estatAcordio[`acordio_${clauB}`] = false;
-                capcal.querySelector('.param-acordio-fletxa').textContent = '▸';
-            } else if (teMatch || capcalMatch) {
-                capcal.style.display = '';
-                cos.style.display = 'block';
-                capcal.querySelector('.param-acordio-fletxa').textContent = '▾';
+    }
+
+    // El geojson es carrega de forma asíncrona (inicialitzarGeojson), així que
+    // reintentem aplicar l'estil del contorn un parell de cops per si encara
+    // no existia quan s'ha creat el panell.
+    setTimeout(aplicarEstilContornDesat, 1200);
+    setTimeout(aplicarEstilContornDesat, 3000);
+
+    aplicarTotElsAjustosGuardats();
+    // ═══════════════════════════════════════════════════════════════════
+
+    function actualitzarVisibilitatFilesMode() {
+        const esParticules = window._ventMode === 'particles';
+        filesParticules.forEach(f => f.style.display = esParticules ? 'flex' : 'none');
+        filesLinies.forEach(f => f.style.display = esParticules ? 'none' : 'flex');
+        modeButtons.forEach(b => b.classList.toggle('actiu', b.dataset.mode === window._ventMode));
+    }
+
+    function actualitzarBotoOnOff() {
+        const actiuAra = window._ventMode === 'particles' ? Vent.estaActiu() : !!window.ventEnabled;
+        btnVentOn.classList.toggle('actiu', actiuAra);
+        btnVentOn.innerHTML = actiuAra
+            ? '<i class="fas fa-toggle-on"></i> Activat'
+            : '<i class="fas fa-toggle-off"></i> Desactivat';
+    }
+
+    // ─── ON / OFF ─────────────────────────────────────────────────────
+    btnVentOn.addEventListener('click', () => {
+        if (window._ventMode === 'particles') {
+            if (typeof Vent === 'undefined') return;
+            if (Vent.estaActiu()) {
+                Vent.aturar();
             } else {
-                capcal.style.display = 'none';
-                cos.style.display = 'none';
+                Vent.iniciar();
             }
+        } else {
+            window.ventEnabled = !window.ventEnabled;
+            if (window.ventEnabled) {
+                if (typeof redibuixarVent === 'function') redibuixarVent();
+            } else if (typeof canvasVent !== 'undefined' && canvasVent && typeof ctxVent !== 'undefined' && ctxVent) {
+                ctxVent.clearRect(0, 0, canvasVent.width, canvasVent.height);
+            }
+        }
+        actualitzarBotoOnOff();
+        desarAjustosVent({ ventActiu: window._ventMode === 'particles' ? Vent.estaActiu() : !!window.ventEnabled }); // ← NOU
+    });
+
+    // ─── Canvi de mode ──────────────────────────────────────────────────
+    modeButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const nouMode = btn.dataset.mode;
+            if (nouMode === window._ventMode) return;
+
+            if (window._ventMode === 'particles' && typeof Vent !== 'undefined') {
+                Vent.aturar();
+            } else if (window._ventMode === 'streamlines') {
+                window.ventEnabled = false;
+                if (typeof canvasVent !== 'undefined' && canvasVent && typeof ctxVent !== 'undefined' && ctxVent) {
+                    ctxVent.clearRect(0, 0, canvasVent.width, canvasVent.height);
+                }
+            }
+
+            window._ventMode = nouMode;
+
+            const volActiu = btnVentOn.classList.contains('actiu');
+            if (volActiu) {
+                if (nouMode === 'particles' && typeof Vent !== 'undefined') {
+                    Vent.iniciar();
+                } else if (nouMode === 'streamlines') {
+                    window.ventEnabled = true;
+                    if (typeof redibuixarVent === 'function') redibuixarVent();
+                }
+            }
+
+            actualitzarVisibilitatFilesMode();
+            actualitzarBotoOnOff();
+            desarAjustosVent({ ventMode: nouMode }); // ← NOU
         });
     });
-});
+
+    // ─── Color ────────────────────────────────────────────────────────
+    function aplicarColor(hex) {
+        inputColor.value = hex;
+        if (window._ventMode === 'particles' && typeof Vent !== 'undefined') {
+            Vent.configurar({ color: hex });
+        } else if (typeof window.setStreamlineColorHex === 'function') {
+            window.setStreamlineColorHex(hex);
+        } else if (typeof wCfg !== 'undefined') {
+            wCfg.streamlineColor = hex;
+            if (typeof redibuixarVent === 'function') redibuixarVent();
+        }
+        desarAjustosVent({ ventColor: hex }); // ← NOU
+    }
+    inputColor.addEventListener('input', () => aplicarColor(inputColor.value));
+    swatches.forEach(sw => {
+        sw.addEventListener('click', () => aplicarColor(sw.dataset.c));
+    });
+
+    // ─── Opacitat ─────────────────────────────────────────────────────
+    inputOpacitat.addEventListener('input', () => {
+        const v = parseInt(inputOpacitat.value);
+        panell.querySelector('#valVentOpacitat').textContent = v + '%';
+        const frac = v / 100;
+        if (window._ventMode === 'particles' && typeof Vent !== 'undefined') {
+            Vent.configurar({ opacitat: frac });
+        } else if (typeof window.setStreamlineOpacity === 'function') {
+            window.setStreamlineOpacity(frac);
+        }
+        desarAjustosVent({ ventOpacitat: v }); // ← NOU
+    });
+
+    // ─── Densitat (partícules) ──────────────────────────────────────────
+    inputDensitat.addEventListener('input', () => {
+        const v = parseInt(inputDensitat.value);
+        panell.querySelector('#valVentDensitat').textContent = v;
+        if (typeof Vent !== 'undefined') Vent.configurar({ numParticules: v });
+        desarAjustosVent({ ventDensitat: v }); // ← NOU
+    });
+
+    // ─── Mida partícula ─────────────────────────────────────────────────
+    inputMida.addEventListener('input', () => {
+        const v = parseFloat(inputMida.value);
+        panell.querySelector('#valVentMida').textContent = v.toFixed(1);
+        if (typeof Vent !== 'undefined') Vent.configurar({ midaParticula: v });
+        desarAjustosVent({ ventMida: v }); // ← NOU
+    });
+
+    // ─── Durada de l'estela (vida de la partícula) ──────────────────────
+    inputEstela.addEventListener('input', () => {
+        const v = parseFloat(inputEstela.value);
+        panell.querySelector('#valVentEstela').textContent = v.toFixed(1) + 'x';
+        if (typeof Vent !== 'undefined') {
+            Vent.configurar({ vidaMinima: 40 * v, vidaMaxima: 110 * v });
+        }
+        desarAjustosVent({ ventEstela: v }); // ← NOU
+    });
+
+    // ─── Gruix línies (streamlines) ─────────────────────────────────────
+    inputGruix.addEventListener('input', () => {
+        const v = parseFloat(inputGruix.value);
+        panell.querySelector('#valVentGruix').textContent = v.toFixed(1);
+        if (typeof window.setStreamlineWidth === 'function') window.setStreamlineWidth(v);
+        desarAjustosVent({ ventGruix: v }); // ← NOU
+    });
+
+    // ─── Contorn del mapa (geojson) ─────────────────────────────────────
+    function aplicarEstilContorn() {
+        aplicarEstilContornDesat();
+    }
+    inputContornColor.addEventListener('input', () => {
+        aplicarEstilContorn();
+        desarAjustosVent({ contornColor: inputContornColor.value }); // ← NOU
+    });
+    inputContornOpacitat.addEventListener('input', () => {
+        panell.querySelector('#valContornOpacitat').textContent = inputContornOpacitat.value + '%';
+        aplicarEstilContorn();
+        desarAjustosVent({ contornOpacitat: parseInt(inputContornOpacitat.value) }); // ← NOU
+    });
+    inputContornGruix.addEventListener('input', () => {
+        panell.querySelector('#valContornGruix').textContent = parseFloat(inputContornGruix.value).toFixed(1);
+        aplicarEstilContorn();
+        desarAjustosVent({ contornGruix: parseFloat(inputContornGruix.value) }); // ← NOU
+    });
+
+    // ─── Opacitat de la capa de dades ───────────────────────────────────
+    inputCapaOpacitat.addEventListener('input', () => {
+        const v = parseInt(inputCapaOpacitat.value);
+        panell.querySelector('#valCapaOpacitat').textContent = v + '%';
+        if (typeof canvasLayer !== 'undefined' && canvasLayer && canvasLayer._canvas) {
+            canvasLayer._canvas.style.opacity = (v / 100).toString();
+        }
+        desarAjustosVent({ capaOpacitat: v }); // ← NOU
+    });
+
+    // ─── Restaurar valors per defecte ───────────────────────────────── ← NOU
+    btnReset.addEventListener('click', () => {
+        try {
+            localStorage.removeItem(CLAU_STORAGE_AJUSTOS_VENT);
+        } catch (e) { /* silenciós */ }
+        location.reload();
+    });
+
+    // ─── Obrir / tancar lligat al sidebar ───────────────────────────────
+    function obrirPanellAjustos() {
+        panell.style.transform = 'translateX(0)';
+        actualitzarVisibilitatFilesMode();
+        actualitzarBotoOnOff();
+    }
+    function tancarPanellAjustos() {
+        panell.style.transform = 'translateX(-105%)';
+    }
+
+    btnTancar.addEventListener('click', tancarPanellAjustos);
+
+    document.addEventListener('sidebar:obert', obrirPanellAjustos);
+    document.addEventListener('sidebar:tancat', tancarPanellAjustos);
+
+    // Botó "Configuració general" al costat de "Paràmetres": reobre el
+    // panell d'ajustos independentment de tancar/obrir el sidebar
+    const btnConfigGeneral = document.getElementById('btnObrirAjustosVent');
+    if (btnConfigGeneral) {
+        btnConfigGeneral.addEventListener('click', (e) => {
+            e.stopPropagation();
+            obrirPanellAjustos();
+        });
+    }
+
+    if (typeof window.isSidebarOpen === 'function' && window.isSidebarOpen()) {
+        obrirPanellAjustos();
+    }
+
+    actualitzarVisibilitatFilesMode();
+    actualitzarBotoOnOff();
+}
+
+// injectarEstilsPanellAjustos() es manté EXACTAMENT igual que abans,
+// no cal tocar-la.
+function injectarEstilsPanellAjustos() {
+    if (document.getElementById('estils-panell-ajustos-vent')) return;
+    const style = document.createElement('style');
+    style.id = 'estils-panell-ajustos-vent';
+    style.textContent = `
+        #panellAjustosVent .aj-titol-seccio {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #2aa3e8;
+            margin: 4px 0 10px;
+        }
+        #panellAjustosVent .aj-separador {
+            border-top: 1px solid rgba(255,255,255,0.07);
+            margin: 16px 0;
+        }
+        #panellAjustosVent .aj-fila {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        #panellAjustosVent .aj-label {
+            font-size: 11.5px;
+            color: #c8d8e8;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        #panellAjustosVent .aj-val {
+            color: #FFD700;
+            font-size: 10px;
+            font-weight: 700;
+        }
+        #panellAjustosVent .aj-range {
+            width: 130px;
+            accent-color: #FFD700;
+            cursor: pointer;
+        }
+        #panellAjustosVent .aj-toggle-btn {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #8899bb;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 5px 12px;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        #panellAjustosVent .aj-toggle-btn.actiu {
+            background: rgba(67, 233, 123, 0.15);
+            border-color: rgba(67, 233, 123, 0.4);
+            color: #43e97b;
+        }
+        #panellAjustosVent .aj-toggle-btn i { margin-right: 4px; }
+        #panellAjustosVent .aj-segmented {
+            display: flex;
+            background: rgba(255,255,255,0.05);
+            border-radius: 6px;
+            padding: 2px;
+            gap: 2px;
+        }
+        #panellAjustosVent .aj-seg-btn {
+            background: none;
+            border: none;
+            color: #8899bb;
+            font-size: 10px;
+            font-weight: 600;
+            padding: 5px 9px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        #panellAjustosVent .aj-seg-btn.actiu {
+            background: rgba(255, 215, 0, 0.15);
+            color: #FFD700;
+        }
+        #panellAjustosVent .aj-swatches {
+            display: flex;
+            gap: 5px;
+        }
+        #panellAjustosVent .aj-swatches span {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.25);
+            cursor: pointer;
+            display: inline-block;
+        }
+        #panellAjustosVent .aj-swatches span:hover {
+            border-color: #FFD700;
+            transform: scale(1.1);
+        }
+        #panellAjustosVent .scroll-area-ajustos::-webkit-scrollbar { width: 3px; }
+        #panellAjustosVent .scroll-area-ajustos::-webkit-scrollbar-thumb { background: #FFD700; border-radius: 4px; }
+
+        @media (max-width: 768px) {
+            #panellAjustosVent {
+                width: 100% !important;
+                max-width: 100vw !important;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+}
 
 // ═══════════════════════════════════════════════════════════════════════
 //  ESDEVENIMENTS LOGIN/LOGOUT
 // ═══════════════════════════════════════════════════════════════════════
  
 window.addEventListener('tc:login', function(e) {
-    console.log('[mapa.js] Usuari loguejat');
+    
     if (totesLesHores && totesLesHores.length > 0) {
         construirGraellaHores();
         construirPanellParametres();
@@ -4023,7 +4520,7 @@ window.addEventListener('tc:logout', function() {
     `;
     document.head.appendChild(style);
  
-    console.log('✅ Cursor en creu (+) gran i bonica activat!');
+    
 })();
  
 // ═══════════════════════════════════════════════════════════════════════
@@ -4104,7 +4601,7 @@ window.addEventListener('tc:logout', function() {
         layer._needsRedraw = true;
         renderAmbNegre();
  
-        console.log('[Fons negre] Aplicat: negre fora de la zona visible.');
+        
     }
  
     aplicarOverride();
@@ -4187,7 +4684,7 @@ const ZONA_VISIBLE = {
         layer._needsRedraw = true;
         renderAmbNegre();
 
-        console.log('[Fons negre] Aplicat: negre fora de la zona -1.0/4.0/40.0/43.5');
+       
     }
 
     aplicarOverride();
@@ -4556,9 +5053,7 @@ mostrarHora = async function(idx) {
 
 function afegirBotoCarga3D() {
     // ❌ No añadir el botón o desactivarlo
-    // const btn = document.createElement('button');
-    // ...
-    console.log('⏭️ Botón de carga 3D desactivado');
+  
 }
 
 // ─── Inicializar el sistema ──────────────────────────────────────────
@@ -4603,6 +5098,8 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
     document.addEventListener('DOMContentLoaded', inicialitzarSistema3D);
 }
 
-console.log('✅ Sistema de carga 3D con feedback inicializado.');
+
+
+console.log('✅ Tot bé!');
 
 
