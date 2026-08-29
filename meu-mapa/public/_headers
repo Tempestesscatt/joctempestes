@@ -1,28 +1,60 @@
-﻿# Datos meteorológicos SFC + 3D
-/web_data_NE/*
+﻿# ═══════════════════════════════════════════════════════════════
+#  _headers — Cloudflare Pages
+#  Evita que el navegador (o cualquier CDN intermedio) guarde en
+#  cache los datos meteorológicos, para que SIEMPRE se pida la
+#  última versión al servidor.
+# ═══════════════════════════════════════════════════════════════
+
+# Datos meteorológicos SFC + 3D (lo más importante)
+# IMPORTANTE: Content-Type + Content-Encoding explícitos para que
+# Cloudflare NO intente re-comprimir/descomprimir estos .gz al vuelo.
+/web_data_NE/*.msgpack.gz
   Cache-Control: no-cache, no-store, must-revalidate
   Pragma: no-cache
   Expires: 0
+  Content-Type: application/octet-stream
+  Content-Encoding: identity
+
+/web_data_NE/*.json.gz
+  Cache-Control: no-cache, no-store, must-revalidate
+  Pragma: no-cache
+  Expires: 0
+  Content-Type: application/octet-stream
+  Content-Encoding: identity
 
 # Datos de oleaje
-/web_data_ones/*
+/web_data_ones/*.msgpack.gz
   Cache-Control: no-cache, no-store, must-revalidate
   Pragma: no-cache
   Expires: 0
+  Content-Type: application/octet-stream
+  Content-Encoding: identity
 
-# Estado del sistema
+/web_data_ones/*.json.gz
+  Cache-Control: no-cache, no-store, must-revalidate
+  Pragma: no-cache
+  Expires: 0
+  Content-Type: application/octet-stream
+  Content-Encoding: identity
+
+# Estado del sistema (status.js)
 /js/status.js
   Cache-Control: no-cache, no-store, must-revalidate
   Pragma: no-cache
   Expires: 0
 
-# mapa.js
+# El propio mapa.js — por si cambias lógica y quieres que se recargue rápido
 /js/mapa.js
   Cache-Control: no-cache, no-store, must-revalidate
   Pragma: no-cache
   Expires: 0
 
-# HTML principal
+# El HTML principal - nunca debe cachearse agresivamente
+/
+  Cache-Control: no-cache, no-store, must-revalidate
+  Pragma: no-cache
+  Expires: 0
+
 /index.html
   Cache-Control: no-cache, no-store, must-revalidate
   Pragma: no-cache
