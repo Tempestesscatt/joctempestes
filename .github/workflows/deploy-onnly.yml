@@ -21,23 +21,103 @@ jobs:
         git config --global url."https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/".insteadOf "https://github.com/"
         git submodule update --init --recursive
     
+    - name: 🔧 Instal·lar jq
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y jq
+    
+    - name: 📥 Descarregar dades dels últims artifacts
+      run: |
+        echo "📥 Buscant l'últim workflow 'CAT + ONES + MSGPACK'..."
+        
+        WORKFLOW_ID=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          "https://api.github.com/repos/${{ github.repository }}/actions/workflows" \
+          | jq -r '.workflows[] | select(.name == "CAT + ONES + MSGPACK") | .id')
+        
+        if [ -z "$WORKFLOW_ID" ] || [ "$WORKFLOW_ID" = "null" ]; then
+          echo "⚠️ No s'ha trobat el workflow 'CAT + ONES + MSGPACK'"
+          echo "📦 Continuant amb les dades del repositori..."
+          exit 0
+        fi
+        
+        echo "✅ Workflow ID: $WORKFLOW_ID"
+        
+        RUN_ID=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          "https://api.github.com/repos/${{ github.repository }}/actions/workflows/$WORKFLOW_ID/runs?status=success&per_page=1" \
+          | jq -r '.workflow_runs[0].id')
+        
+        if [ -z "$RUN_ID" ] || [ "$RUN_ID" = "null" ]; then
+          echo "⚠️ No s'ha trobat cap run amb èxit del workflow 'CAT + ONES + MSGPACK'"
+          echo "📦 Continuant amb les dades del repositori..."
+          exit 0
+        fi
+        
+        echo "✅ Run ID: $RUN_ID"
+        
+        mkdir -p artifacts_temp
+        cd artifacts_temp
+        
+        echo "📦 Descarregant llista d'artifacts..."
+        ARTIFACT_URLS=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          "https://api.github.com/repos/${{ github.repository }}/actions/runs/$RUN_ID/artifacts" \
+          | jq -r '.artifacts[] | .archive_download_url')
+        
+        if [ -z "$ARTIFACT_URLS" ]; then
+          echo "⚠️ No s'han trobat artifacts"
+          cd ..
+          rm -rf artifacts_temp
+          exit 0
+        fi
+        
+        echo "$ARTIFACT_URLS" | while read url; do
+          if [ -n "$url" ]; then
+            echo "📦 Descarregant artifact de: $url"
+            curl -L -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -O "$url" 2>/dev/null
+          fi
+        done
+        
+        echo "📂 Descomprimint artifacts..."
+        for zip in *.zip; do
+          if [ -f "$zip" ]; then
+            echo "   📂 $zip"
+            unzip -o "$zip" -d "../meu-mapa/public/" 2>/dev/null || true
+          fi
+        done
+        
+        cd ..
+        rm -rf artifacts_temp
+        
+        echo "✅ Artifacts descarregats i descomprimits"
+    
+    - name: 📂 Verificar dades descarregades
+      run: |
+        echo "📊 VERIFICACIÓ DE DADES:"
+        echo "📁 web_data_NE: $(find meu-mapa/public/web_data_NE -type f 2>/dev/null | wc -l) fitxers"
+        echo "📁 web_data_ones: $(find meu-mapa/public/web_data_ones -type f 2>/dev/null | wc -l) fitxers"
+        echo "📁 js/status.js: $([ -f meu-mapa/public/js/status.js ] && echo '✅ existeix' || echo '❌ no existeix')"
+        
+        echo ""
+        echo "📄 Mostrant els primers fitxers de web_data_NE:"
+        ls -la meu-mapa/public/web_data_NE/ 2>/dev/null | head -10 || echo "   (buit o no existeix)"
+    
     - name: 📊 Resum de dades abans del deploy
       run: |
-        echo "📊 RESUM DE DADES:"
-        echo "🛰️  bt62_fc:        $(find meu-mapa/public/bt62_fc -type f 2>/dev/null | wc -l) fitxers"
-        echo "🛰️  bt108_previsio:  $(find meu-mapa/public/bt108_previsio -type f 2>/dev/null | wc -l) fitxers"
-        echo "🛰️  bt62_previsio:   $(find meu-mapa/public/bt62_previsio -type f 2>/dev/null | wc -l) fitxers"
-        echo "🌡️  web_data:        $(find meu-mapa/public/web_data -type f 2>/dev/null | wc -l) fitxers"
-        echo "🌡️  web_data2:       $(find meu-mapa/public/web_data2 -type f 2>/dev/null | wc -l) fitxers"
-        echo "📦 TOTAL:            $(find meu-mapa/public -type f 2>/dev/null | wc -l) fitxers"
         echo ""
-        echo "📁 Directoris:"
+        echo "═══════════════════════════════════════════════════════════════"
+        echo "  📊 RESUM DE DADES ABANS DEL DEPLOY"
+        echo "═══════════════════════════════════════════════════════════════"
+        echo "🌡️  web_data_NE:       $(find meu-mapa/public/web_data_NE -type f 2>/dev/null | wc -l) fitxers"
+        echo "🌊  web_data_ones:     $(find meu-mapa/public/web_data_ones -type f 2>/dev/null | wc -l) fitxers"
+        echo "📦  TOTAL fitxers:     $(find meu-mapa/public -type f 2>/dev/null | wc -l) fitxers"
+        echo ""
+        echo "📁 Directoris principals:"
         for dir in meu-mapa/public/*/; do
           if [ -d "$dir" ]; then
             count=$(find "$dir" -type f 2>/dev/null | wc -l)
             echo "  $(basename $dir): $count fitxers"
           fi
         done
+        echo "═══════════════════════════════════════════════════════════════"
     
     - name: 📥 Sincronitzar amb remot
       run: |
@@ -50,6 +130,11 @@ jobs:
         cd meu-mapa
         npm install -g wrangler
         echo "📦 Desplegant a Cloudflare Pages..."
+        echo "📁 Contingut de public abans del deploy:"
+        echo "   web_data_NE: $(find public/web_data_NE -type f 2>/dev/null | wc -l) fitxers"
+        echo "   web_data_ones: $(find public/web_data_ones -type f 2>/dev/null | wc -l) fitxers"
+        echo ""
+        
         wrangler pages deploy public --project-name=tempestes-cat --branch=main --commit-dirty=true
       env:
         CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -57,10 +142,17 @@ jobs:
     
     - name: 🎉 Confirmació final
       run: |
-        echo "🎉 DEPLOY COMPLETAT!"
+        echo ""
+        echo "═══════════════════════════════════════════════════════════════"
+        echo "  🎉 DEPLOY COMPLETAT AMB ÈXIT!"
+        echo "═══════════════════════════════════════════════════════════════"
         echo ""
         echo "🌐 Web desplegada a:"
         echo "   https://tempestes-cat.pages.dev/"
         echo ""
-        echo "📊 Estadístiques:"
-        echo "   📦 TOTAL fitxers: $(find meu-mapa/public -type f 2>/dev/null | wc -l)"
+        echo "📊 Estadístiques finals:"
+        echo "   📦 web_data_NE: $(find meu-mapa/public/web_data_NE -type f 2>/dev/null | wc -l) fitxers"
+        echo "   📦 web_data_ones: $(find meu-mapa/public/web_data_ones -type f 2>/dev/null | wc -l) fitxers"
+        echo "   📦 status.js: $([ -f meu-mapa/public/js/status.js ] && echo '✅' || echo '❌')"
+        echo ""
+        echo "═══════════════════════════════════════════════════════════════"

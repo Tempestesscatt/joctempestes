@@ -1,9 +1,3 @@
-// ═══════════════════════════════════════════════════════════════════════
-//  vent.js — Sistema de PARTÍCULES ANIMADES de vent
-//  Es connecta a les mateixes dades U/V que ja usen les streamlines
-//  (funció global obtenirVentPerStreamlines definida a mapa.js)
-// ═══════════════════════════════════════════════════════════════════════
-
 const Vent = (function () {
 
     // ─── Configuració per defecte ──────────────────────────────────────
@@ -12,10 +6,10 @@ const Vent = (function () {
         opacitat: 0.75,
         midaParticula: 1.6,
         numParticules: 1400,
-        velocitatFactor: 1.0,   // multiplicador de velocitat de desplaçament
+        velocitatFactor: 1.0,
         vidaMinima: 40,
         vidaMaxima: 110,
-        estelaAlpha: 0.90,      // com de ràpid s'esvaeix l'estela (0-1, més alt = estela més curta)
+        estelaAlpha: 0.90,
     };
 
     let canvas = null;
@@ -25,6 +19,7 @@ const Vent = (function () {
     let actiu = false;
     let ventDataCache = null;
     let ultimIdxCache = -1;
+    let ultimaClauVariable = null;  // ← NUEVO: para detectar cambios de nivel
 
     // ─── Utilitats ──────────────────────────────────────────────────────
     function hexToRgb(hex) {
@@ -131,6 +126,15 @@ const Vent = (function () {
         }
     }
 
+    // 🔥 NUEVO: Función para reiniciar completamente las partículas
+    function reiniciarComplet() {
+        particules = [];
+        invalidarCache();
+        if (actiu && canvas) {
+            if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+    }
+
     function pas() {
         if (!actiu || !canvas || !ctx) return;
 
@@ -157,7 +161,6 @@ const Vent = (function () {
             const uv = sampleUV(p.x, p.y, ventData);
 
             if (!uv || (Math.abs(uv.u) < 0.05 && Math.abs(uv.v) < 0.05)) {
-                // Fora de zona amb dades o vent nul → reciclar
                 const np = novaParticula(ventData);
                 particules[i] = np;
                 continue;
@@ -189,7 +192,7 @@ const Vent = (function () {
         obtenirCanvasVent();
         if (!canvas) return;
         actiu = true;
-        particules = [];
+        reiniciarComplet();
         if (!animFrame) animFrame = requestAnimationFrame(pas);
     }
 
@@ -207,7 +210,7 @@ const Vent = (function () {
         return actiu;
     }
 
-        function configurar(opcions) {
+    function configurar(opcions) {
         Object.assign(cfg, opcions || {});
     }
 
@@ -221,6 +224,40 @@ const Vent = (function () {
 
     function notificarCanviHora() {
         invalidarCache();
+        if (actiu) {
+            reiniciarComplet();
+        }
+    }
+
+    // 🔥 NUEVO: Notificar cambio de variable (nivel)
+    function notificarCanviVariable(novaClau) {
+        // Si la variable ha cambiado de nivel (ej: wind_speed_850 → wind_speed_300)
+        // o si es una variable diferente que puede tener viento diferente
+        const baseAnterior = ultimaClauVariable ? clauBase(ultimaClauVariable) : null;
+        const baseNova = clauBase(novaClau);
+        
+        // Si cambia la base o si es una variable de nivel diferente
+        if (baseAnterior !== baseNova || novaClau !== ultimaClauVariable) {
+            ultimaClauVariable = novaClau;
+            invalidarCache();
+            if (actiu) {
+                reiniciarComplet();
+                // Forzar un paso inmediato
+                if (animFrame) {
+                    cancelAnimationFrame(animFrame);
+                    animFrame = null;
+                }
+                animFrame = requestAnimationFrame(pas);
+            }
+        }
+    }
+
+    // Función auxiliar para obtener la base de una variable (como clauBase en mapa.js)
+    function clauBase(c) {
+        if (typeof window.clauBase === 'function') return window.clauBase(c);
+        // Fallback simple
+        const m = c.match(/^(.+)_(-?\d+)$/);
+        return m ? m[1] : c;
     }
 
     return {
@@ -231,13 +268,8 @@ const Vent = (function () {
         obtenirConfig,
         notificarCanviHora,
         reiniciarParticules,
+        notificarCanviVariable,  // ← NUEVO
     };
 })();
 
 window.Vent = Vent;
-
-// Invalidar la caché de dades de vent cada cop que canvia la hora mostrada
-window.addEventListener('DOMContentLoaded', function () {
-    document.addEventListener('mapa-dades-llestes', () => Vent.notificarCanviHora());
-    document.addEventListener('mapa-3d-llest', () => Vent.notificarCanviHora());
-});

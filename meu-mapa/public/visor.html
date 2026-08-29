@@ -60,6 +60,92 @@ body {
 #topnav::-webkit-scrollbar-thumb {
     background: #FFD700;
 }
+
+
+/* ─── Botó Restaurar valors per defecte ────────────────────────────── */
+#ajResetDefectes {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 10px 18px;
+    margin-top: 4px;
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.08), rgba(255, 215, 0, 0.02));
+    border: 1px solid rgba(255, 215, 0, 0.15);
+    border-radius: 8px;
+    color: #FFD700;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    letter-spacing: 0.3px;
+    backdrop-filter: blur(4px);
+    position: relative;
+    overflow: hidden;
+}
+
+#ajResetDefectes i {
+    font-size: 13px;
+    transition: transform 0.4s ease;
+}
+
+#ajResetDefectes::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), transparent);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+#ajResetDefectes:hover {
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 215, 0, 0.05));
+    border-color: rgba(255, 215, 0, 0.4);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 20px rgba(255, 215, 0, 0.15);
+}
+
+#ajResetDefectes:hover::before {
+    opacity: 1;
+}
+
+#ajResetDefectes:hover i {
+    transform: rotate(-180deg);
+}
+
+#ajResetDefectes:active {
+    transform: scale(0.97) translateY(0);
+    box-shadow: 0 2px 10px rgba(255, 215, 0, 0.1);
+}
+
+#ajResetDefectes:focus-visible {
+    outline: 2px solid #FFD700;
+    outline-offset: 2px;
+}
+
+/* ─── Animació de confirmació ────────────────────────────────────── */
+#ajResetDefectes.confirmat {
+    background: linear-gradient(135deg, rgba(67, 233, 123, 0.15), rgba(67, 233, 123, 0.05)) !important;
+    border-color: rgba(67, 233, 123, 0.4) !important;
+    color: #43e97b !important;
+    animation: confirmPulse 0.6s ease;
+}
+
+#ajResetDefectes.confirmat i {
+    transform: rotate(0deg) !important;
+}
+
+@keyframes confirmPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+}
+
+/* ─── Separador anterior ──────────────────────────────────────────── */
+#panellAjustosVent .aj-separador:last-of-type {
+    margin-bottom: 14px;
+}
 .brand {
     font-size: 14px;
     font-weight: 800;

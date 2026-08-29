@@ -3754,6 +3754,8 @@ async function seleccionarVariable(clau, silenciós) {
         }
     }
  
+    // Guardar la variable anterior para detectar cambio de nivel
+    const variableAnterior = variableActiva;
     variableActiva = clau;
     window._currentParameter = clau;
  
@@ -3771,6 +3773,18 @@ async function seleccionarVariable(clau, silenciós) {
             capcal.querySelector('.param-acordio-fletxa').textContent = '▾';
             const cos = capcal.nextElementSibling;
             if (cos && cos.classList.contains('param-acordio-cos')) cos.style.display = 'block';
+        }
+    }
+ 
+    // 🔥 NUEVO: Notificar a Vent que ha cambiado la variable
+    if (typeof Vent !== 'undefined' && Vent.notificarCanviVariable) {
+        // Detectar si ha cambiado el nivel de presión
+        const baseAnterior = variableAnterior ? clauBase(variableAnterior) : null;
+        const baseNova = clauBase(clau);
+        
+        // Si cambia la base o es un nivel diferente, reiniciar partículas
+        if (baseAnterior !== baseNova || variableAnterior !== clau) {
+            Vent.notificarCanviVariable(clau);
         }
     }
  
@@ -3843,7 +3857,6 @@ function desarAjustosVent(valors) {
 // ═══════════════════════════════════════════════════════════════════════
 //  FUNCIÓ COMPLETA — substitueix la crearPanellAjustos() que ja tens
 // ═══════════════════════════════════════════════════════════════════════
-
 function crearPanellAjustos() {
 
     const panell = document.createElement('div');
@@ -4002,7 +4015,7 @@ function crearPanellAjustos() {
     const btnReset = panell.querySelector('#ajResetDefectes');
 
     // ═══════════════════════════════════════════════════════════════════
-    //  ← NOU: CARREGAR VALORS GUARDATS I APLICAR-LOS ABANS DE TOT
+    //  CARREGAR VALORS GUARDATS I APLICAR-LOS ABANS DE TOT
     // ═══════════════════════════════════════════════════════════════════
     const DEFECTES = {
         ventActiu: true,
@@ -4049,15 +4062,14 @@ function crearPanellAjustos() {
     panell.querySelector('#valCapaOpacitat').textContent = A.capaOpacitat + '%';
 
     // Aplicar-ho tot de seguida al motor de vent / streamlines / mapa
-        // Aplicar-ho tot de seguida al motor de vent / streamlines / mapa
     function aplicarTotElsAjustosGuardats() {
-        // Streamlines (configuració, encara que no s'activin)
+        // Streamlines
         if (typeof wCfg !== 'undefined') {
             wCfg.streamlineColor = A.ventColor;
             wCfg.streamlineOpacity = A.ventOpacitat / 100;
             wCfg.streamlineWidth = Number(A.ventGruix);
         }
-        // Partícules (configuració, encara que no s'activin)
+        // Partícules
         if (typeof Vent !== 'undefined') {
             const baseVida = 40, baseVidaMax = 110;
             const factorEstela = Number(A.ventEstela);
@@ -4072,8 +4084,7 @@ function crearPanellAjustos() {
             });
         }
 
-        // Apagar SEMPRE els dos motors abans de decidir quin engegar,
-        // per evitar que es quedin els dos actius alhora
+        // Apagar SEMPRE els dos motors abans de decidir quin engegar
         window.ventEnabled = false;
         if (typeof canvasVent !== 'undefined' && canvasVent && typeof ctxVent !== 'undefined' && ctxVent) {
             ctxVent.clearRect(0, 0, canvasVent.width, canvasVent.height);
@@ -4097,8 +4108,7 @@ function crearPanellAjustos() {
             canvasLayer._canvas.style.opacity = (A.capaOpacitat / 100).toString();
         }
 
-        // Contorn — pot ser que capaInstancies encara no tingui res carregat;
-        // ho apliquem ara i també un cop es carregui el geojson (vegeu més avall)
+        // Contorn
         aplicarEstilContornDesat();
     }
 
@@ -4114,14 +4124,10 @@ function crearPanellAjustos() {
         });
     }
 
-    // El geojson es carrega de forma asíncrona (inicialitzarGeojson), així que
-    // reintentem aplicar l'estil del contorn un parell de cops per si encara
-    // no existia quan s'ha creat el panell.
     setTimeout(aplicarEstilContornDesat, 1200);
     setTimeout(aplicarEstilContornDesat, 3000);
 
     aplicarTotElsAjustosGuardats();
-    // ═══════════════════════════════════════════════════════════════════
 
     function actualitzarVisibilitatFilesMode() {
         const esParticules = window._ventMode === 'particles';
@@ -4156,7 +4162,7 @@ function crearPanellAjustos() {
             }
         }
         actualitzarBotoOnOff();
-        desarAjustosVent({ ventActiu: window._ventMode === 'particles' ? Vent.estaActiu() : !!window.ventEnabled }); // ← NOU
+        desarAjustosVent({ ventActiu: window._ventMode === 'particles' ? Vent.estaActiu() : !!window.ventEnabled });
     });
 
     // ─── Canvi de mode ──────────────────────────────────────────────────
@@ -4188,7 +4194,7 @@ function crearPanellAjustos() {
 
             actualitzarVisibilitatFilesMode();
             actualitzarBotoOnOff();
-            desarAjustosVent({ ventMode: nouMode }); // ← NOU
+            desarAjustosVent({ ventMode: nouMode });
         });
     });
 
@@ -4203,7 +4209,7 @@ function crearPanellAjustos() {
             wCfg.streamlineColor = hex;
             if (typeof redibuixarVent === 'function') redibuixarVent();
         }
-        desarAjustosVent({ ventColor: hex }); // ← NOU
+        desarAjustosVent({ ventColor: hex });
     }
     inputColor.addEventListener('input', () => aplicarColor(inputColor.value));
     swatches.forEach(sw => {
@@ -4220,7 +4226,7 @@ function crearPanellAjustos() {
         } else if (typeof window.setStreamlineOpacity === 'function') {
             window.setStreamlineOpacity(frac);
         }
-        desarAjustosVent({ ventOpacitat: v }); // ← NOU
+        desarAjustosVent({ ventOpacitat: v });
     });
 
     // ─── Densitat (partícules) ──────────────────────────────────────────
@@ -4228,7 +4234,7 @@ function crearPanellAjustos() {
         const v = parseInt(inputDensitat.value);
         panell.querySelector('#valVentDensitat').textContent = v;
         if (typeof Vent !== 'undefined') Vent.configurar({ numParticules: v });
-        desarAjustosVent({ ventDensitat: v }); // ← NOU
+        desarAjustosVent({ ventDensitat: v });
     });
 
     // ─── Mida partícula ─────────────────────────────────────────────────
@@ -4236,7 +4242,7 @@ function crearPanellAjustos() {
         const v = parseFloat(inputMida.value);
         panell.querySelector('#valVentMida').textContent = v.toFixed(1);
         if (typeof Vent !== 'undefined') Vent.configurar({ midaParticula: v });
-        desarAjustosVent({ ventMida: v }); // ← NOU
+        desarAjustosVent({ ventMida: v });
     });
 
     // ─── Durada de l'estela (vida de la partícula) ──────────────────────
@@ -4246,7 +4252,15 @@ function crearPanellAjustos() {
         if (typeof Vent !== 'undefined') {
             Vent.configurar({ vidaMinima: 40 * v, vidaMaxima: 110 * v });
         }
-        desarAjustosVent({ ventEstela: v }); // ← NOU
+        desarAjustosVent({ ventEstela: v });
+    });
+
+    // ─── Velocitat ──────────────────────────────────────────────────────
+    inputVelocitat.addEventListener('input', () => {
+        const v = parseFloat(inputVelocitat.value);
+        panell.querySelector('#valVentVelocitat').textContent = v.toFixed(1) + 'x';
+        if (typeof Vent !== 'undefined') Vent.configurar({ velocitatFactor: v });
+        desarAjustosVent({ ventVelocitat: v });
     });
 
     // ─── Gruix línies (streamlines) ─────────────────────────────────────
@@ -4254,7 +4268,7 @@ function crearPanellAjustos() {
         const v = parseFloat(inputGruix.value);
         panell.querySelector('#valVentGruix').textContent = v.toFixed(1);
         if (typeof window.setStreamlineWidth === 'function') window.setStreamlineWidth(v);
-        desarAjustosVent({ ventGruix: v }); // ← NOU
+        desarAjustosVent({ ventGruix: v });
     });
 
     // ─── Contorn del mapa (geojson) ─────────────────────────────────────
@@ -4263,17 +4277,17 @@ function crearPanellAjustos() {
     }
     inputContornColor.addEventListener('input', () => {
         aplicarEstilContorn();
-        desarAjustosVent({ contornColor: inputContornColor.value }); // ← NOU
+        desarAjustosVent({ contornColor: inputContornColor.value });
     });
     inputContornOpacitat.addEventListener('input', () => {
         panell.querySelector('#valContornOpacitat').textContent = inputContornOpacitat.value + '%';
         aplicarEstilContorn();
-        desarAjustosVent({ contornOpacitat: parseInt(inputContornOpacitat.value) }); // ← NOU
+        desarAjustosVent({ contornOpacitat: parseInt(inputContornOpacitat.value) });
     });
     inputContornGruix.addEventListener('input', () => {
         panell.querySelector('#valContornGruix').textContent = parseFloat(inputContornGruix.value).toFixed(1);
         aplicarEstilContorn();
-        desarAjustosVent({ contornGruix: parseFloat(inputContornGruix.value) }); // ← NOU
+        desarAjustosVent({ contornGruix: parseFloat(inputContornGruix.value) });
     });
 
     // ─── Opacitat de la capa de dades ───────────────────────────────────
@@ -4283,10 +4297,10 @@ function crearPanellAjustos() {
         if (typeof canvasLayer !== 'undefined' && canvasLayer && canvasLayer._canvas) {
             canvasLayer._canvas.style.opacity = (v / 100).toString();
         }
-        desarAjustosVent({ capaOpacitat: v }); // ← NOU
+        desarAjustosVent({ capaOpacitat: v });
     });
 
-    // ─── Restaurar valors per defecte ───────────────────────────────── ← NOU
+    // ─── Restaurar valors per defecte ─────────────────────────────────
     btnReset.addEventListener('click', () => {
         try {
             localStorage.removeItem(CLAU_STORAGE_AJUSTOS_VENT);
@@ -4294,34 +4308,52 @@ function crearPanellAjustos() {
         location.reload();
     });
 
-    // ─── Obrir / tancar lligat al sidebar ───────────────────────────────
+    // ─── Obrir / tancar NOMÉS amb el botó ────────────────────────────
     function obrirPanellAjustos() {
         panell.style.transform = 'translateX(0)';
         actualitzarVisibilitatFilesMode();
         actualitzarBotoOnOff();
     }
+    
     function tancarPanellAjustos() {
         panell.style.transform = 'translateX(-105%)';
     }
 
     btnTancar.addEventListener('click', tancarPanellAjustos);
 
-    document.addEventListener('sidebar:obert', obrirPanellAjustos);
-    document.addEventListener('sidebar:tancat', tancarPanellAjustos);
+    // ❌ ELIMINADES les obertes automàtiques amb sidebar
+    // document.addEventListener('sidebar:obert', obrirPanellAjustos);
+    // document.addEventListener('sidebar:tancat', tancarPanellAjustos);
 
-    // Botó "Configuració general" al costat de "Paràmetres": reobre el
-    // panell d'ajustos independentment de tancar/obrir el sidebar
+    // ✅ NOMÉS el botó de configuració obre el panell
     const btnConfigGeneral = document.getElementById('btnObrirAjustosVent');
     if (btnConfigGeneral) {
         btnConfigGeneral.addEventListener('click', (e) => {
             e.stopPropagation();
-            obrirPanellAjustos();
+            const estaObert = panell.style.transform === 'translateX(0)';
+            if (estaObert) {
+                tancarPanellAjustos();
+            } else {
+                obrirPanellAjustos();
+            }
         });
     }
 
-    if (typeof window.isSidebarOpen === 'function' && window.isSidebarOpen()) {
-        obrirPanellAjustos();
-    }
+    // Tancar amb Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            tancarPanellAjustos();
+        }
+    });
+
+    // Clic fora tanca
+    document.addEventListener('click', function(e) {
+        if (panell.style.transform === 'translateX(0)') {
+            if (!panell.contains(e.target) && e.target.id !== 'btnObrirAjustosVent') {
+                tancarPanellAjustos();
+            }
+        }
+    });
 
     actualitzarVisibilitatFilesMode();
     actualitzarBotoOnOff();
