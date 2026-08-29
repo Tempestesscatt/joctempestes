@@ -1,0 +1,36 @@
+name: PURGAR CACHE CLOUDFLARE
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 */2 * * *'   # cada 2 hores
+
+jobs:
+  purgar_cache:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.PRIVATE_REPO_TOKEN }}
+
+    - name: Clonar private-scripts
+      run: |
+        rm -rf private-scripts-new
+        git clone https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/Tempestesscatt/Scripts.git private-scripts-new
+
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Instal·lar dependencies
+      run: |
+        python3 -m pip install --upgrade pip
+        python3 -m pip install requests
+
+    - name: Purgar cache de Cloudflare
+      run: |
+        python3 private-scripts-new/purgar_cache.py
+      env:
+        CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
