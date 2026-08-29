@@ -18,6 +18,11 @@ const REGION = {
 };
 
 const MAX_STEPS = 52;
+
+function ambCacheBusterDades(url) {
+    const sep = url.includes('?') ? '&' : '?';
+    return url + sep + '_cb=' + Date.now();
+}
 const DADES_PATH = 'dades'; 
 
 const VARS_SENSE_VENT = [
@@ -2945,7 +2950,7 @@ async function carregarFitxerAmbReintents(url, maxIntents = 3) {
 
     for (let intent = 1; intent <= maxIntents; intent++) {
         try {
-            const response = await fetch(url);
+            const response = await fetch(ambCacheBusterDades(url), { cache: 'no-store' });
 
             if (response.status === 404) {
                 console.log(`[Fitxer] ${url} no existeix (404)`);
@@ -3155,12 +3160,12 @@ async function detectarHoresDisponibles() {
         const p = String(i).padStart(2, '0');
         let existeix = false;
         try {
-            const r1 = await fetch('web_data_NE/sfc_' + p + '.msgpack.gz', { method: 'HEAD' });
+            const r1 = await fetch(ambCacheBusterDades('web_data_NE/sfc_' + p + '.msgpack.gz'), { method: 'HEAD', cache: 'no-store' });
             if (r1.ok) existeix = true;
         } catch (e) { /* ignorem */ }
         if (!existeix) {
             try {
-                const r2 = await fetch('web_data_NE/3d_' + p + '.msgpack.gz', { method: 'HEAD' });
+                const r2 = await fetch(ambCacheBusterDades('web_data_NE/3d_' + p + '.msgpack.gz'), { method: 'HEAD', cache: 'no-store' });
                 if (r2.ok) existeix = true;
             } catch (e) { /* ignorem */ }
         }
