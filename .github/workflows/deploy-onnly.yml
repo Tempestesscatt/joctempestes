@@ -54,6 +54,7 @@ jobs:
         
         echo "✅ Run ID: $RUN_ID"
         
+        # Crear carpeta temporal per als artifacts
         mkdir -p artifacts_temp
         cd artifacts_temp
         
@@ -69,6 +70,7 @@ jobs:
           exit 0
         fi
         
+        # Descarregar tots els artifacts
         echo "$ARTIFACT_URLS" | while read url; do
           if [ -n "$url" ]; then
             echo "📦 Descarregant artifact de: $url"
@@ -76,11 +78,17 @@ jobs:
           fi
         done
         
-        echo "📂 Descomprimint artifacts..."
+        # 🔥 IMPORTANT: Descomprimir CADA artifact a la carpeta correcta
+        echo "📂 Descomprimint artifacts a meu-mapa/public/..."
         for zip in *.zip; do
           if [ -f "$zip" ]; then
-            echo "   📂 $zip"
+            echo "   📂 Descomprimint $zip..."
+            # Descomprimir directament a meu-mapa/public/
             unzip -o "$zip" -d "../meu-mapa/public/" 2>/dev/null || true
+            
+            # Mostrar què s'ha descomprimit
+            echo "   📄 Contingut del zip:"
+            unzip -l "$zip" 2>/dev/null | head -10 || true
           fi
         done
         
@@ -92,13 +100,64 @@ jobs:
     - name: 📂 Verificar dades descarregades
       run: |
         echo "📊 VERIFICACIÓ DE DADES:"
-        echo "📁 web_data_NE: $(find meu-mapa/public/web_data_NE -type f 2>/dev/null | wc -l) fitxers"
-        echo "📁 web_data_ones: $(find meu-mapa/public/web_data_ones -type f 2>/dev/null | wc -l) fitxers"
+        
+        # Comprovar si web_data_NE existeix i quants fitxers té
+        if [ -d "meu-mapa/public/web_data_NE" ]; then
+          COUNT_NE=$(find meu-mapa/public/web_data_NE -type f 2>/dev/null | wc -l)
+          echo "📁 web_data_NE: $COUNT_NE fitxers"
+          # Mostrar alguns fitxers
+          echo "📄 Mostrant fitxers de web_data_NE:"
+          ls -la meu-mapa/public/web_data_NE/ 2>/dev/null | head -10 || echo "   (buit)"
+        else
+          echo "📁 web_data_NE: ❌ NO EXISTEIX"
+          # Buscar on s'han descomprimit les dades
+          echo "🔍 Buscant web_data_NE a tot arreu..."
+          find . -name "web_data_NE" -type d 2>/dev/null | head -5
+        fi
+        
+        if [ -d "meu-mapa/public/web_data_ones" ]; then
+          COUNT_ONES=$(find meu-mapa/public/web_data_ones -type f 2>/dev/null | wc -l)
+          echo "📁 web_data_ones: $COUNT_ONES fitxers"
+        else
+          echo "📁 web_data_ones: ❌ NO EXISTEIX"
+        fi
+        
         echo "📁 js/status.js: $([ -f meu-mapa/public/js/status.js ] && echo '✅ existeix' || echo '❌ no existeix')"
+    
+    - name: 📂 Alternativa - Buscar dades en altres carpetes
+      run: |
+        echo "🔍 Buscant dades a tot arreu..."
+        echo ""
+        echo "📁 Directoris que contenen 'web_data':"
+        find . -name "*web_data*" -type d 2>/dev/null | while read dir; do
+          count=$(find "$dir" -type f 2>/dev/null | wc -l)
+          echo "   $dir: $count fitxers"
+        done
         
         echo ""
-        echo "📄 Mostrant els primers fitxers de web_data_NE:"
-        ls -la meu-mapa/public/web_data_NE/ 2>/dev/null | head -10 || echo "   (buit o no existeix)"
+        echo "📁 Si les dades estan a una altra carpeta, copiar-les a public/"
+        # Si les dades estan a artifacts_temp o similar, copiar-les
+        if [ -d "artifacts_temp" ]; then
+          echo "📦 Movent dades de artifacts_temp a public/"
+          find artifacts_temp -name "*.msgpack.gz" -o -name "*.json.gz" 2>/dev/null | while read file; do
+            echo "   📄 $file"
+          done
+        fi
+        
+        # Comprovar si les dades estan a la carpeta arrel
+        if [ -d "web_data_NE" ] && [ "$(ls -A web_data_NE 2>/dev/null)" ]; then
+          echo "📦 web_data_NE trobat a l'arrel! Copiant a public/..."
+          mkdir -p meu-mapa/public/web_data_NE
+          cp -r web_data_NE/* meu-mapa/public/web_data_NE/
+          echo "✅ Copiat!"
+        fi
+        
+        if [ -d "web_data_ones" ] && [ "$(ls -A web_data_ones 2>/dev/null)" ]; then
+          echo "📦 web_data_ones trobat a l'arrel! Copiant a public/..."
+          mkdir -p meu-mapa/public/web_data_ones
+          cp -r web_data_ones/* meu-mapa/public/web_data_ones/
+          echo "✅ Copiat!"
+        fi
     
     - name: 📊 Resum de dades abans del deploy
       run: |
