@@ -4094,7 +4094,185 @@ window.addEventListener('tc:login', async function(e) {
 })();
 
 
+// ═══════════════════════════════════════════════════════════════════════
+//  MONITORITZACIÓ DEL XAT AMB PERSISTÈNCIA (localStorage)
+//  Recorda quins missatges ja has vist entre recàrregues
+//
+//  FIX aplicat (2):
+//  1) S'ha eliminat el filtre "notificacioRecent" que mirava
+//     obtenirNotificacions() (nick + finestra de 2 minuts). Aquest filtre
+//     era la causa que, un cop marcaves una notificació com llegida (sense
+//     eliminar-la), qualsevol usuari actiu al xat quedés "silenciat"
+//     indefinidament: sempre hi havia una notificació seva (llegida o no)
+//     dins els últims 2 minuts a l'array, així que mai tornava a notificar.
+//     L'únic control de duplicats que cal és el de "missatgesVistos" per
+//     msgId, que ja és robust i no depèn de l'estat llegit/no llegit.
+//  2) S'ha ampliat la finestra de "recents" de 10 a 30 missatges, ja que
+//     l'interval de comprovació ha passat d'1s a 30s: amb només 10
+//     missatges de marge, un xat actiu podia superar aquest límit entre
+//     comprovacions i perdre notificacions sense relació amb el bug de
+//     dalt.
+// ═══════════════════════════════════════════════════════════════════════
 
+const XAT_POLLING = {
+    interval: 30000, // 30 segons
+    recentsLimit: 30, // marge de missatges revisats a cada comprovació
+    storageKey: 'xat_missatges_vistos'
+};
+
+// ─── OBTENIR SET DE MISSATGES VISTOS ──────────────────────────────
+
+function obtenirMissatgesVistos() {
+    try {
+        const data = localStorage.getItem(XAT_POLLING.storageKey);
+        if (data) {
+            const array = JSON.parse(data);
+            return new Set(array);
+        }
+    } catch (e) {
+        console.warn('[Xat-Polling] Error llegint localStorage:', e);
+    }
+    return new Set();
+}
+
+// ─── GUARDAR SET DE MISSATGES VISTOS ──────────────────────────────
+
+function guardarMissatgesVistos(set) {
+    try {
+        // Convertir Set a Array per JSON
+        const array = Array.from(set);
+        localStorage.setItem(XAT_POLLING.storageKey, JSON.stringify(array));
+    } catch (e) {
+        console.warn('[Xat-Polling] Error guardant localStorage:', e);
+    }
+}
+
+// ─── COMPROVAR MISSATGES NOUS ──────────────────────────────────────
+
+async function comprovarMissatgesXat() {
+    try {
+        const API_URL_CHAT = 'https://tempestes-cat.pages.dev/api';
+        const resp = await fetch(API_URL_CHAT + '/get-messages');
+        if (!resp.ok) return;
+        
+        const missatges = await resp.json();
+        if (!missatges || missatges.length === 0) return;
+        
+        // Carregar els IDs ja vistos
+        const missatgesVistos = obtenirMissatgesVistos();
+        
+        // Agafar els últims N missatges (marge ampliat perquè l'interval és de 30s)
+        const recents = missatges.slice(-XAT_POLLING.recentsLimit);
+        let hiHaNous = false;
+        
+        recents.forEach(msg => {
+            // Saltar missatges del sistema
+            if (msg.type === 'system') return;
+            
+            // Generar ID únic per al missatge
+            const msgId = msg.id || `${msg.ts}_${msg.uid || msg.nick}_${msg.text?.substring(0,20) || 'empty'}`;
+            
+            // Si ja l'hem vist, saltar (aquest és l'ÚNIC control anti-duplicats que cal)
+            if (missatgesVistos.has(msgId)) return;
+            
+            // Marcar com a vist
+            missatgesVistos.add(msgId);
+            hiHaNous = true;
+            
+            // Limitar memòria (màxim 500 IDs)
+            if (missatgesVistos.size > 500) {
+                const toRemove = [...missatgesVistos].slice(0, 100);
+                toRemove.forEach(id => missatgesVistos.delete(id));
+            }
+            
+            // Excloure el propi usuari
+            const user = window._firebaseUser;
+            if (user && msg.uid === user.uid) return;
+            
+            // Comprovar si el xat està obert
+            const xatObert = document.getElementById('xatModal')?.classList?.contains('active') || false;
+            if (xatObert) return;
+            
+            // 🔥 ELIMINAT: el filtre "notificacioRecent" (nick + 2 min sobre
+            // obtenirNotificacions()). Era la causa del bug de notificacions
+            // que deixaven d'arribar. El control de duplicats real ja el fa
+            // "missatgesVistos" per msgId, just a sobre.
+            
+            if (msg.nick && msg.text) {
+                const tempsRelatiu = formatarTempsRelatiu2(new Date(msg.ts).getTime());
+                const preview = msg.text.length > 40 ? msg.text.substring(0, 40) + '…' : msg.text;
+                
+                if (window.crearNotificacio) {
+                    window.crearNotificacio(
+                        `${msg.nick} ha enviat un missatge al xat`,
+                        `"${preview}" · ${tempsRelatiu}`,
+                        'info'
+                    );
+                }
+            }
+        });
+        
+        // Si hi ha hagut canvis, guardar
+        if (hiHaNous) {
+            guardarMissatgesVistos(missatgesVistos);
+        }
+        
+    } catch (e) {
+        console.warn('[Xat-Polling] Error:', e);
+    }
+}
+
+// ─── FORMATAR TEMPS RELATIU ────────────────────────────────────────
+
+function formatarTempsRelatiu2(timestamp) {
+    const ara = Date.now();
+    const diff = ara - timestamp;
+    
+    if (diff < 60000) return 'fa ' + Math.floor(diff / 1000) + ' segons';
+    if (diff < 3600000) return 'fa ' + Math.floor(diff / 60000) + ' min';
+    if (diff < 86400000) return 'fa ' + Math.floor(diff / 3600000) + ' h';
+    if (diff < 172800000) return 'ahir';
+    return 'fa ' + Math.floor(diff / 86400000) + ' dies';
+}
+
+// ─── NETEGAR MISSATGES VISTOS (per si cal) ─────────────────────────
+
+function netejarMissatgesVistos() {
+    try {
+        localStorage.removeItem(XAT_POLLING.storageKey);
+        console.log('[Xat-Polling] Missatges vistos netejats');
+    } catch (e) {
+        console.warn('[Xat-Polling] Error netejant:', e);
+    }
+}
+
+// ─── INICIAR MONITORITZACIÓ ─────────────────────────────────────────
+
+let intervalXatPolling = null;
+
+function iniciarMonitoritzacioXatPolling() {
+    // Comprovar immediatament
+    comprovarMissatgesXat();
+    
+    // Configurar interval
+    if (intervalXatPolling) {
+        clearInterval(intervalXatPolling);
+    }
+    intervalXatPolling = setInterval(comprovarMissatgesXat, XAT_POLLING.interval);
+    
+    console.log('[Xat-Polling] Monitorització iniciada (cada ' + (XAT_POLLING.interval / 1000) + 's)');
+}
+
+// ─── EXPOSAR FUNCIONS ──────────────────────────────────────────────
+
+window.netejarMissatgesVistos = netejarMissatgesVistos;
+window.iniciarMonitoritzacioXatPolling = iniciarMonitoritzacioXatPolling;
+window.comprovarMissatgesXat = comprovarMissatgesXat;
+
+// Iniciar automàticament
+setTimeout(() => {
+    iniciarMonitoritzacioXatPolling();
+}, 5000);
 
 
 </script>

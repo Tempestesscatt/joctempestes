@@ -1727,6 +1727,11 @@ function escalarVariablesMitjana(variables) {
 const GRUP_PRINCIPAL = ['st', 'sd', 'srh', 'temp_min2m', 'temp_max2m', 'wind_speed_10m', 'wind_gust'];
  
 const GRUPS_SIMPLES = {
+
+        'Ratxes de vent': [
+        'wind_speed_10m', 'wind_gust',
+    ],
+
     'Temperatura i Humitat': [
         'st', 'sd', 'temp_min2m', 'temp_max2m',
         'TEMPERATURE__GROUND_OR_WATER_SURFACE',
@@ -1737,9 +1742,7 @@ const GRUPS_SIMPLES = {
         'PRESSURE__GROUND_OR_WATER_SURFACE',
         'PRESSURE__MEAN_SEA_LEVEL',
     ],
-    'Vent en superfície': [
-        'wind_speed_10m', 'wind_gust',
-    ],
+
     'Vent en nivells (3D)': [
         'wind_speed_1000', 'wind_speed_950', 'wind_speed_925', 'wind_speed_900',
         'wind_speed_875', 'wind_speed_850', 'wind_speed_800', 'wind_speed_750',
