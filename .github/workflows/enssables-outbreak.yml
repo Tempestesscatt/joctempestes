@@ -21,6 +21,7 @@ jobs:
     - uses: actions/checkout@v4
       with:
         token: ${{ secrets.PRIVATE_REPO_TOKEN }}
+        fetch-depth: 0
 
     - name: Clonar private-scripts
       run: |
@@ -74,6 +75,19 @@ jobs:
         echo "=== Comprovant nivell.json ==="
         cat meu-mapa/public/avis/nivell.json 2>/dev/null || echo "No existeix nivell.json"
 
+    - name: 📥 Traer dades de la branca 'data' (per no esborrar-les al desplegar)
+      run: |
+        git fetch origin data
+        rm -rf /tmp/data-branch
+        git worktree add /tmp/data-branch origin/data
+        mkdir -p meu-mapa/public/web_data_NE meu-mapa/public/webdata_waves meu-mapa/public/js
+        cp -r /tmp/data-branch/web_data_NE/. meu-mapa/public/web_data_NE/ 2>/dev/null || echo "⚠️  web_data_NE no trobat a la branca data"
+        cp -r /tmp/data-branch/webdata_waves/. meu-mapa/public/webdata_waves/ 2>/dev/null || echo "⚠️  webdata_waves no trobat a la branca data"
+        cp /tmp/data-branch/js/status.js meu-mapa/public/js/status.js 2>/dev/null || echo "⚠️  status.js no trobat a la branca data"
+        git worktree remove /tmp/data-branch --force
+        echo "✅ Dades de la branca 'data' aplicades sobre el checkout (només al filesystem, no es commiteja res)"
+      continue-on-error: true
+
     - name: Deploy a Cloudflare
       run: |
         cd meu-mapa
@@ -102,6 +116,7 @@ jobs:
     - uses: actions/checkout@v4
       with:
         token: ${{ secrets.PRIVATE_REPO_TOKEN }}
+        fetch-depth: 0
 
     - name: Clonar private-scripts
       run: |
@@ -148,6 +163,19 @@ jobs:
         echo ""
         echo "=== Comptant imatges PNG ==="
         find meu-mapa/public/previsions_catalunya/ -name "*.png" -type f | wc -l
+
+    - name: 📥 Traer dades de la branca 'data' (per no esborrar-les al desplegar)
+      run: |
+        git fetch origin data
+        rm -rf /tmp/data-branch
+        git worktree add /tmp/data-branch origin/data
+        mkdir -p meu-mapa/public/web_data_NE meu-mapa/public/webdata_waves meu-mapa/public/js
+        cp -r /tmp/data-branch/web_data_NE/. meu-mapa/public/web_data_NE/ 2>/dev/null || echo "⚠️  web_data_NE no trobat a la branca data"
+        cp -r /tmp/data-branch/webdata_waves/. meu-mapa/public/webdata_waves/ 2>/dev/null || echo "⚠️  webdata_waves no trobat a la branca data"
+        cp /tmp/data-branch/js/status.js meu-mapa/public/js/status.js 2>/dev/null || echo "⚠️  status.js no trobat a la branca data"
+        git worktree remove /tmp/data-branch --force
+        echo "✅ Dades de la branca 'data' aplicades sobre el checkout (només al filesystem, no es commiteja res)"
+      continue-on-error: true
 
     - name: Deploy a Cloudflare
       run: |
