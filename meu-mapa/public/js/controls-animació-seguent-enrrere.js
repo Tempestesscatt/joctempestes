@@ -323,6 +323,6 @@
         }
     });
 
-    console.log('✅ [controls-fix] Botons de controls connectats (vent unificat + bloqueig login respectat)');
+    
 
 })();

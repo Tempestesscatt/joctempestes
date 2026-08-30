@@ -653,7 +653,7 @@ function inicialitzarNotificacions() {
         actualitzarComptador();
     }, NOTIFICACIONS.checkInterval);
     
-    console.log('[Notificacions] 🔔 Sistema actiu. Comprovant cada ' + (NOTIFICACIONS.checkInterval / 1000) + 's');
+    
 }
 
 // ─── EXPOSAR FUNCIONS ──────────────────────────────────────────────

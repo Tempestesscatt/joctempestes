@@ -271,7 +271,7 @@ var TOWNS_CAT = {"meta":{"count":11927,"updated":"2026-04-06 18:19"},"towns":[{"
             }
         });
 
-        console.log('Poblacions totals  ' + townsIndex.length + ' poblacions');
+        
     }
 
     if (document.readyState === 'loading') {
