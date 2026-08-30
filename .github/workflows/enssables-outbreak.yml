@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   # ════════════════════════════════════════════════════════════════
-  #  JOB: AVIS - Genera el mapa d'outbreak
+  #  JOB: AVIS - Genera el mapa d'outbreak (NO desplega)
   # ════════════════════════════════════════════════════════════════
   avis:
     runs-on: ubuntu-latest
@@ -21,7 +21,6 @@ jobs:
     - uses: actions/checkout@v4
       with:
         token: ${{ secrets.PRIVATE_REPO_TOKEN }}
-        fetch-depth: 0
 
     - name: Clonar private-scripts
       run: |
@@ -75,39 +74,15 @@ jobs:
         echo "=== Comprovant nivell.json ==="
         cat meu-mapa/public/avis/nivell.json 2>/dev/null || echo "No existeix nivell.json"
 
-    - name: 📥 Traer dades de la branca 'data' (per no esborrar-les al desplegar)
-      run: |
-        git fetch origin data
-        rm -rf /tmp/data-branch
-        git worktree add /tmp/data-branch origin/data
-        mkdir -p meu-mapa/public/web_data_NE meu-mapa/public/webdata_waves meu-mapa/public/js
-        cp -r /tmp/data-branch/web_data_NE/. meu-mapa/public/web_data_NE/ 2>/dev/null || echo "⚠️  web_data_NE no trobat a la branca data"
-        cp -r /tmp/data-branch/webdata_waves/. meu-mapa/public/webdata_waves/ 2>/dev/null || echo "⚠️  webdata_waves no trobat a la branca data"
-        cp /tmp/data-branch/js/status.js meu-mapa/public/js/status.js 2>/dev/null || echo "⚠️  status.js no trobat a la branca data"
-        git worktree remove /tmp/data-branch --force
-        echo "✅ Dades de la branca 'data' aplicades sobre el checkout (només al filesystem, no es commiteja res)"
-      continue-on-error: true
-
-    - name: Deploy a Cloudflare
-      run: |
-        cd meu-mapa
-        npm install -g wrangler
-        wrangler pages deploy public --project-name=tempestes-cat --branch=main --commit-dirty=true
-      env:
-        CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-        CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-
-    - name: Completat AVIS
-      run: |
-        echo "============================================"
-        echo "  ✅ AVIS COMPLETAT!"
-        echo "  Mapa d'outbreak generat i desplegat"
-        echo "  Fitxers a: meu-mapa/public/avis/"
-        echo "  Hora: $(date)"
-        echo "============================================"
+    - name: Pujar AVIS com a artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: dades-avis
+        path: meu-mapa/public/avis/
+        retention-days: 5
 
   # ════════════════════════════════════════════════════════════════
-  #  JOB: ENSEMBLES - Genera els gràfics d'ensembles
+  #  JOB: ENSEMBLES - Genera els gràfics d'ensembles (NO desplega)
   # ════════════════════════════════════════════════════════════════
   ensembles:
     runs-on: ubuntu-latest
@@ -116,7 +91,6 @@ jobs:
     - uses: actions/checkout@v4
       with:
         token: ${{ secrets.PRIVATE_REPO_TOKEN }}
-        fetch-depth: 0
 
     - name: Clonar private-scripts
       run: |
@@ -164,7 +138,56 @@ jobs:
         echo "=== Comptant imatges PNG ==="
         find meu-mapa/public/previsions_catalunya/ -name "*.png" -type f | wc -l
 
-    - name: 📥 Traer dades de la branca 'data' (per no esborrar-les al desplegar)
+    - name: Pujar ENSEMBLES com a artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: dades-ensembles
+        path: meu-mapa/public/previsions_catalunya/
+        retention-days: 5
+
+  # ════════════════════════════════════════════════════════════════
+  #  JOB FINAL: deploy - Junta AVIS + ENSEMBLES + dades del mapa
+  #  i fa un ÚNIC deploy a Cloudflare
+  # ════════════════════════════════════════════════════════════════
+  deploy:
+    needs: [avis, ensembles]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.PRIVATE_REPO_TOKEN }}
+        fetch-depth: 0
+
+    - name: Comprovar resultat dels jobs anteriors
+      run: |
+        FALLITS=""
+        if [ "${{ needs.avis.result }}" != "success" ]; then FALLITS="$FALLITS avis"; fi
+        if [ "${{ needs.ensembles.result }}" != "success" ]; then FALLITS="$FALLITS ensembles"; fi
+        if [ -n "$FALLITS" ]; then
+          echo "⚠️  ATENCIÓ: Jobs que NO han acabat en èxit:$FALLITS (es continua igualment amb el que hi hagi)"
+        else
+          echo "✅ Tots els jobs han acabat en èxit"
+        fi
+
+    - name: Descarregar artifact - AVIS
+      if: needs.avis.result == 'success'
+      uses: actions/download-artifact@v4
+      with:
+        name: dades-avis
+        path: meu-mapa/public/avis/
+      continue-on-error: true
+
+    - name: Descarregar artifact - ENSEMBLES
+      if: needs.ensembles.result == 'success'
+      uses: actions/download-artifact@v4
+      with:
+        name: dades-ensembles
+        path: meu-mapa/public/previsions_catalunya/
+      continue-on-error: true
+
+    - name: 📥 Traer dades del mapa (branca 'data', per no esborrar-les al desplegar)
       run: |
         git fetch origin data
         rm -rf /tmp/data-branch
@@ -174,10 +197,25 @@ jobs:
         cp -r /tmp/data-branch/webdata_waves/. meu-mapa/public/webdata_waves/ 2>/dev/null || echo "⚠️  webdata_waves no trobat a la branca data"
         cp /tmp/data-branch/js/status.js meu-mapa/public/js/status.js 2>/dev/null || echo "⚠️  status.js no trobat a la branca data"
         git worktree remove /tmp/data-branch --force
-        echo "✅ Dades de la branca 'data' aplicades sobre el checkout (només al filesystem, no es commiteja res)"
+        echo "✅ Dades de la branca 'data' aplicades sobre el checkout"
       continue-on-error: true
 
-    - name: Deploy a Cloudflare
+    - name: Resum abans del deploy
+      run: |
+        echo "📊 RESUM:"
+        echo "--- avis/ ---"
+        ls meu-mapa/public/avis/ 2>/dev/null | wc -l || echo "buit"
+        echo "--- previsions_catalunya/ ---"
+        find meu-mapa/public/previsions_catalunya/ -name "*.png" -type f 2>/dev/null | wc -l || echo "buit"
+        echo "--- web_data_NE ---"
+        find meu-mapa/public/web_data_NE -type f 2>/dev/null | wc -l || echo "buit"
+        echo "--- webdata_waves ---"
+        find meu-mapa/public/webdata_waves -type f 2>/dev/null | wc -l || echo "buit"
+        echo "--- status.js ---"
+        ls -la meu-mapa/public/js/status.js 2>/dev/null || echo "No existeix"
+        echo "📦 TOTAL: $(find meu-mapa/public -type f 2>/dev/null | wc -l) fitxers"
+
+    - name: Deploy a Cloudflare (ÚNIC, amb tot junt)
       run: |
         cd meu-mapa
         npm install -g wrangler
@@ -186,11 +224,10 @@ jobs:
         CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
-    - name: Completat ENSEMBLES
+    - name: Completat
       run: |
         echo "============================================"
-        echo "  ✅ ENSEMBLES COMPLETAT!"
-        echo "  Gràfics d'ensembles generats i desplegats"
-        echo "  Fitxers a: meu-mapa/public/previsions_catalunya/"
+        echo "  ✅ AVIS + ENSEMBLES COMPLETAT!"
+        echo "  Un únic deploy amb tots els fitxers junts"
         echo "  Hora: $(date)"
         echo "============================================"
