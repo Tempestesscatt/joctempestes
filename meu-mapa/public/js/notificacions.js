@@ -138,9 +138,9 @@ function actualitzarComptador() {
     animarBotoNotificacions();
     
     if (noLlegides > 0) {
-        document.title = `(${noLlegides}) ⚡ Tempestes.cat`;
+        document.title = `(${noLlegides}) Tempestes.cat`;
     } else {
-        document.title = '⚡ Tempestes.cat';
+        document.title = 'Tempestes.cat';
     }
 }
 

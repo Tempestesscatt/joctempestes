@@ -2533,12 +2533,22 @@ const GEOJSON_CAPES = [
     { 
         id: 'catalunya', 
         nom: 'Catalunya', 
-        arxiu: 'spain.geojson',  // ← El archivo que sí existe
-        color: '#040400',        // ← Dorado para que se vea bien
-        gruix: 2.5 
+        arxiu: 'spain.geojson',
+        color: '#040400',
+        gruix: 2.5,
+        visiblePerDefecte: true
+    },
+    {
+        id: 'girona_comarques',
+        nom: 'Comarques de Girona',
+        arxiu: 'girona_comarques.geojson',
+        color: '#040400',
+        gruix: 2.5,
+        visiblePerDefecte: false
     },
 ];
 const capaInstancies = {};
+const capaOpacitats = {}; // opacitat pròpia de cada capa (independent de la vora)
  
 function estilCapa(def) {
     return { pane: 'paneGeojson', color: def.color, weight: def.gruix, opacity: 1, fill: false };
@@ -2568,21 +2578,15 @@ async function carregarCapaGeojson(def) {
         }
     }
 }
- 
-async function inicialitzarGeojson() {
-    
-    
+ async function inicialitzarGeojson() {
     for (const def of GEOJSON_CAPES) {
         try {
             const url = `dades/${def.arxiu}`;
-            
-            
             const r = await fetch(url);
             if (!r.ok) throw new Error(`HTTP ${r.status}`);
-            
+
             const geojson = await r.json();
-            
-            
+
             const capa = L.geoJSON(geojson, {
                 pane: 'paneGeojson',
                 style: () => ({
@@ -2594,17 +2598,24 @@ async function inicialitzarGeojson() {
                     fillColor: def.color || '#FFD700'
                 })
             });
-            
+
             capaInstancies[def.id] = capa;
-            capa.addTo(map);
-            
-            
-            // Forzar redibujo
+            capaOpacitats[def.id] = 100; // % per defecte
+
+            if (def.visiblePerDefecte) {
+                capa.addTo(map);
+            }
+
             map.invalidateSize();
-            
+
         } catch (err) {
             console.error(`❌ Error cargando ${def.nom}:`, err);
         }
+    }
+
+    // Un cop carregades, aplicar l'estat guardat (visibilitat + estil)
+    if (typeof aplicarEstatCapesGeojsonDesat === 'function') {
+        aplicarEstatCapesGeojsonDesat();
     }
 }
 
@@ -3957,7 +3968,7 @@ function crearPanellAjustos() {
 
             <div class="aj-separador"></div>
 
-            <div class="aj-titol-seccio">Contorn del mapa</div>
+                      <div class="aj-titol-seccio">Contorn del mapa</div>
 
             <div class="aj-fila">
                 <span class="aj-label">Color de la vora</span>
@@ -3972,6 +3983,18 @@ function crearPanellAjustos() {
             <div class="aj-fila">
                 <span class="aj-label">Gruix vora <span class="aj-val" id="valContornGruix">2.5</span></span>
                 <input type="range" id="ajContornGruix" min="0.5" max="6" step="0.1" value="2.5" class="aj-range">
+            </div>
+
+            <div class="aj-fila">
+                <span class="aj-label">Comarques</span>
+                <button id="ajCapaGironaOn" class="aj-toggle-btn">
+                    <i class="fas fa-toggle-off"></i> Desactivat
+                </button>
+            </div>
+
+            <div class="aj-fila aj-fila-girona" style="display:none;">
+                <span class="aj-label">Opacitat capa <span class="aj-val" id="valCapaGironaOpacitat">100%</span></span>
+                <input type="range" id="ajCapaGironaOpacitat" min="10" max="100" value="100" class="aj-range">
             </div>
 
             <div class="aj-separador"></div>
@@ -4011,6 +4034,9 @@ function crearPanellAjustos() {
     const filesLinies = panell.querySelectorAll('.aj-fila-linies');
 
     const inputContornColor = panell.querySelector('#ajContornColor');
+        const btnCapaGironaOn = panell.querySelector('#ajCapaGironaOn');
+    const inputCapaGironaOpacitat = panell.querySelector('#ajCapaGironaOpacitat');
+    const filaCapaGirona = panell.querySelector('.aj-fila-girona');
     const inputContornOpacitat = panell.querySelector('#ajContornOpacitat');
     const inputContornGruix = panell.querySelector('#ajContornGruix');
 
@@ -4034,6 +4060,8 @@ function crearPanellAjustos() {
         contornOpacitat: 100,
         contornGruix: 2.5,
         capaOpacitat: 100,
+        capaGironaActiva: false,
+        capaGironaOpacitat: 100,
     };
     const guardats = carregarAjustosVent() || {};
     const A = { ...DEFECTES, ...guardats };
@@ -4120,12 +4148,31 @@ function crearPanellAjustos() {
         const color = inputContornColor.value;
         const opacitat = parseInt(inputContornOpacitat.value) / 100;
         const gruix = parseFloat(inputContornGruix.value);
-        Object.values(capaInstancies).forEach(capa => {
-            if (capa && capa.setStyle) {
-                capa.setStyle({ color, opacity: opacitat, weight: gruix });
+
+        Object.entries(capaInstancies).forEach(([id, capa]) => {
+            if (!capa || !capa.setStyle) return;
+            let opacitatFinal = opacitat;
+            if (id === 'girona_comarques') {
+                const opacitatCapaPropia = parseInt(inputCapaGironaOpacitat.value) / 100;
+                opacitatFinal = opacitat * opacitatCapaPropia;
             }
+            capa.setStyle({ color, opacity: opacitatFinal, weight: gruix });
         });
     }
+
+    // Exposar-la globalment perquè inicialitzarGeojson() pugui cridar-la
+    // un cop les capes es carreguin de forma asíncrona
+    window.aplicarEstatCapesGeojsonDesat = function() {
+        aplicarEstilContornDesat();
+        const capaGirona = capaInstancies['girona_comarques'];
+        if (capaGirona) {
+            if (A.capaGironaActiva && !map.hasLayer(capaGirona)) {
+                capaGirona.addTo(map);
+            } else if (!A.capaGironaActiva && map.hasLayer(capaGirona)) {
+                map.removeLayer(capaGirona);
+            }
+        }
+    };
 
     setTimeout(aplicarEstilContornDesat, 1200);
     setTimeout(aplicarEstilContornDesat, 3000);
@@ -4291,6 +4338,40 @@ function crearPanellAjustos() {
         panell.querySelector('#valContornGruix').textContent = parseFloat(inputContornGruix.value).toFixed(1);
         aplicarEstilContorn();
         desarAjustosVent({ contornGruix: parseFloat(inputContornGruix.value) });
+    });
+
+
+        // ─── Capa de comarques de Girona (on/off + opacitat pròpia) ─────────
+    btnCapaGironaOn.addEventListener('click', () => {
+        const araActiu = btnCapaGironaOn.classList.contains('actiu');
+        const noviActiu = !araActiu;
+
+        btnCapaGironaOn.classList.toggle('actiu', noviActiu);
+        btnCapaGironaOn.innerHTML = noviActiu
+            ? '<i class="fas fa-toggle-on"></i> Activat'
+            : '<i class="fas fa-toggle-off"></i> Desactivat';
+        filaCapaGirona.style.display = noviActiu ? 'flex' : 'none';
+
+        const capaGirona = capaInstancies['girona_comarques'];
+        if (capaGirona) {
+            if (noviActiu && !map.hasLayer(capaGirona)) {
+                capaGirona.addTo(map);
+                aplicarEstilContorn();
+            } else if (!noviActiu && map.hasLayer(capaGirona)) {
+                map.removeLayer(capaGirona);
+            }
+        }
+        // Si encara no s'ha carregat (petit marge de temps just a l'inici),
+        // window.aplicarEstatCapesGeojsonDesat() la mostrarà en acabar de carregar.
+
+        desarAjustosVent({ capaGironaActiva: noviActiu });
+    });
+
+    inputCapaGironaOpacitat.addEventListener('input', () => {
+        const v = parseInt(inputCapaGironaOpacitat.value);
+        panell.querySelector('#valCapaGironaOpacitat').textContent = v + '%';
+        aplicarEstilContorn();
+        desarAjustosVent({ capaGironaOpacitat: v });
     });
 
     // ─── Opacitat de la capa de dades ───────────────────────────────────

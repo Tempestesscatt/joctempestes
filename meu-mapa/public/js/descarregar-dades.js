@@ -275,8 +275,8 @@
         const btn = document.createElement('button');
         btn.className = 'skewt-btn';
         btn.id = 'skewtBtnCopiarJSON';
-        btn.title = 'Copiar JSON sense coma (per enganxar al final)';
-        btn.innerHTML = '<i class="fas fa-copy"></i> <span>Copiar JSON</span>';
+        btn.title = 'Copiar dades sense coma (per enganxar al final)';
+        btn.innerHTML = '<i class="fas fa-copy"></i> <span>Copiar dades</span>';
 
         const btnClose = document.getElementById('skewtBtnClose');
         if (btnClose) {

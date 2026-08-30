@@ -1215,7 +1215,7 @@ function renderAll() {
     if (alerts.length) {
         ac.classList.add('on');
         document.getElementById('alertsGrid').innerHTML = alerts.map(a => {
-            const icon = a.type === 'danger' ? '⚠' : a.type === 'warning' ? '⚡' : 'ℹ';
+            const icon = a.type === 'danger' ? '⚠' : a.type === 'warning' ? '' : 'ℹ';
             return `<div class="alert-card alert-${a.type}"><span class="alert-icon">${icon}</span>${a.text}</div>`;
         }).join('');
     } else {
