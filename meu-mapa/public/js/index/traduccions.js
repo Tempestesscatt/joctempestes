@@ -444,11 +444,9 @@ const traduccions = {
     "El codi ètic del caçador": "El código ético del cazador",
     "Respecta les propietats i les persones. No obstaculitzis el trànsit. Comparteix les teves fotos i dades amb la comunitat per millorar la ciència. A TEMPESTES.CAT donem suport a aquesta comunitat.": "Respeta las propiedades y las personas. No obstaculices el tráfico. Comparte tus fotos y datos con la comunidad para mejorar la ciencia. En TEMPESTES.CAT damos apoyo a esta comunidad.",
     "Els caçadors de tempestes tenen un codi ètic: respectar les propietats i les persones, no obstaculitzar el trànsit i compartir les fotos i les dades amb la comunitat. A TEMPESTES.CAT donem suport a aquesta comunitat, oferint eines i difonent les seves imatges.": "Los cazatormentas tienen un código ético: respetar las propiedades y las personas, no obstaculizar el tráfico y compartir las fotos y los datos con la comunidad. En TEMPESTES.CAT damos apoyo a esta comunidad, ofreciendo herramientas y difundiendo sus imágenes.",
-
     // ============================================================
-    // POLÍTICA DE PRIVACITAT (COMPLET)
+    // POLÍTICA DE PRIVACITAT - TEXTOS DEL HTML
     // ============================================================
-    "Política de Privacitat": "Política de Privacidad",
     "Política de privacitat de TEMPESTES.CAT": "Política de privacidad de TEMPESTES.CAT",
     "Responsable del tractament:": "Responsable del tratamiento:",
     "A TEMPESTES.CAT respectem la teva privacitat. Aquesta política explica quines dades recollim, com les utilitzem i quins drets tens.": "En TEMPESTES.CAT respetamos tu privacidad. Esta política explica qué datos recogemos, cómo los utilizamos y qué derechos tienes.",
@@ -471,7 +469,6 @@ const traduccions = {
     "4. Cookies": "4. Cookies",
     "Utilitzem cookies pròpies i de tercers (Google Analytics, AdSense) per analitzar el trànsit i mostrar anuncis. Pots gestionar les cookies des del teu navegador o mitjançant el nostre panell de cookies.": "Utilizamos cookies propias y de terceros (Google Analytics, AdSense) para analizar el tráfico y mostrar anuncios. Puedes gestionar las cookies desde tu navegador o mediante nuestro panel de cookies.",
     "Última actualització: 26 d'agost de 2026": "Última actualización: 26 de agosto de 2026",
-
     // ============================================================
     // CONTACTE (COMPLET)
     // ============================================================
@@ -634,7 +631,10 @@ const traduccions = {
     "Entrar al radar en viu": "Entrar al radar en vivo",
     "Interactiu": "Interactivo",
 
-
+// ============================================================
+// OUTBREAK / AVISOS - FRASE COMPLETA
+// ============================================================
+"Risc de tempestes severes amb calamarsa de gran tamany, vents forts (>90 km/h) i possible tornado en zones de l'interior i el litoral.": "Riesgo de tormentas severas con granizo de gran tamaño, vientos fuertes (>90 km/h) y posible tornado en zonas del interior y el litoral.",
 
         // ============================================================
     // QUI SOM - TRUST BADGES (COMPLET)
@@ -656,6 +656,14 @@ const traduccions = {
 
 function traduirPagina() {
     if (idiomaActual === 'ca') return;
+
+    // Traducir elementos con data-i18n
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (traduccions[key] !== undefined) {
+            el.textContent = traduccions[key];
+        }
+    });
 
     function recorrerNodes(node) {
         if (node.nodeType === 3) {
