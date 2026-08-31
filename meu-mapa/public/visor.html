@@ -4227,12 +4227,7 @@ async function comprovarMissatgesXat() {
 function formatarTempsRelatiu2(timestamp) {
     const ara = Date.now();
     const diff = ara - timestamp;
-    
-    if (diff < 60000) return 'fa ' + Math.floor(diff / 1000) + ' segons';
-    if (diff < 3600000) return 'fa ' + Math.floor(diff / 60000) + ' min';
-    if (diff < 86400000) return 'fa ' + Math.floor(diff / 3600000) + ' h';
-    if (diff < 172800000) return 'ahir';
-    return 'fa ' + Math.floor(diff / 86400000) + ' dies';
+
 }
 
 // ─── NETEGAR MISSATGES VISTOS (per si cal) ─────────────────────────

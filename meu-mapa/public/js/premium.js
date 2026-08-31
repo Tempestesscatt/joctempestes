@@ -83,7 +83,8 @@ const UIDS_PREMIUM = new Set([
     'VWM3W2Gi66UEHkJFPa0R0OQj27C3',
     'euwB3lQCVWVih7fqb8Gkmf86ffX2',
     'xESlMcddSgWNW8g5zoK6YDkFklW2',
-    'xqrOr8v1awb11l5LUsxo7bkGP622'
+    'xqrOr8v1awb11l5LUsxo7bkGP622',
+    '5frJ8PZHT4Yj9FkJQ4z3nNhT2AN2'
 ]);
 
 function esParametrePremium(paramName) {
