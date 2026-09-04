@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="ca">
 <head>
-<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes" />
     <title>TEMPESTES.CAT · Previsió Meteorològica Professional</title>
@@ -73,6 +72,92 @@
             font-family: var(--font);
         }
 
+
+
+
+
+
+
+
+        /* ============================================================
+   EFECTE GOTES DE PLUJA AL HERO (scroll ràpid)
+   ============================================================ */
+.hero-rain-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+    overflow: hidden;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+}
+.hero-rain-overlay.active {
+    opacity: 1;
+}
+.rain-drop {
+    position: absolute;
+    top: -40px;
+    width: 3px;
+    background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0.55) 40%, rgba(255,255,255,0.85));
+    border-radius: 0 0 50% 50%;
+    filter: blur(0.3px);
+    animation-name: dropFall;
+    animation-timing-function: cubic-bezier(0.55, 0.06, 0.68, 0.19);
+    animation-fill-mode: forwards;
+}
+.rain-drop::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: -2px;
+    width: 5px;
+    height: 5px;
+    background: rgba(255,255,255,0.5);
+    border-radius: 50%;
+    transform: translateX(-50%);
+    filter: blur(0.4px);
+}
+.rain-drop.trail {
+    background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0.18));
+    width: 1.5px;
+}
+@keyframes dropFall {
+    0% {
+        transform: translateY(0) scaleY(0.4);
+        opacity: 0;
+    }
+    8% {
+        opacity: 1;
+    }
+    85% {
+        opacity: 0.9;
+    }
+    100% {
+        transform: translateY(var(--fall-distance, 320px)) scaleY(1.1);
+        opacity: 0;
+    }
+}
+
+/* Efecte de vidre entelat lleuger sobre el hero mentre cauen gotes */
+.hero-fog-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.04), transparent 60%),
+                radial-gradient(circle at 75% 60%, rgba(255,255,255,0.03), transparent 55%);
+    backdrop-filter: blur(0px);
+    opacity: 0;
+    transition: opacity 0.8s ease, backdrop-filter 0.8s ease;
+}
+.hero-fog-layer.active {
+    opacity: 1;
+    backdrop-filter: blur(1.5px);
+}
+
+@media (max-width: 600px) {
+    .rain-drop { width: 2px; }
+}
 
 
         /* ============================================================
@@ -1911,7 +1996,7 @@ QUI SOM - Estils
 
         <div class="nav-links">
             <a href="#blog">Articles</a>
-            <a href="#avisos">Avisos</a>
+        
             <a href="#qui-som">Qui som</a>
             <a href="#contacte">Contacte</a>
             <a href="#models">Models</a>
@@ -2261,68 +2346,7 @@ QUI SOM - Estils
     </div>
 </div>
 
-            
-<!-- ============================================================
-AVISOS - Busca la imatge automàticament
-============================================================ -->
-<div class="sec" id="avisos">
-    <div class="sec-head">
-        <h2><i class=""></i> Outbreak · Avís de tempestes severes</h2>
-        <span style="font-size:13px;color:#888;" id="outbreakInfo">Mapa de risc màxim (14h-18h)</span>
-    </div>
 
-    <!-- Targeta gran per a Catalunya -->
-    <div class="outbreak-card">
-        <div class="outbreak-badge">
-            <i class=""></i> OUTBREAK CATALUNYA
-        </div>
-        <div class="outbreak-img-wrap" id="outbreakWrapper" style="position:relative;min-height:400px;background:#152c44;border-radius:12px;overflow:hidden;">
-            <!-- Loading -->
-            <div id="loadingContainer" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:400px;background:#152c44;color:#f5c842;font-size:18px;text-align:center;padding:40px;">
-                <div style="width:60px;height:60px;border:4px solid #f5c842;border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:20px;"></div>
-                <span>Carregant mapa d'outbreak...</span>
-                <span style="font-size:14px;color:#8aa3be;margin-top:8px;">Si us plau, espera uns segons</span>
-            </div>
-            
-            <!-- Imatge que es carregarà automàticament -->
-            <img id="outbreakImage" 
-                 src="" 
-                 alt="Outbreak Catalunya" 
-                 style="width:100%;height:auto;display:none;">
-        </div>
-        <div class="outbreak-body">
-            <div class="outbreak-header">
-                <h3 class="outbreak-title">Catalunya · Risc de tempestes severes</h3>
-                <span class="outbreak-status" style="background:#cc0033;color:#fff;padding:4px 16px;border-radius:30px;font-size:12px;font-weight:700;text-transform:uppercase;display:inline-flex;align-items:center;gap:6px;">
-                    <i class="fa-solid fa-circle" style="font-size:8px;animation:pulse-dot 1.5s ease-in-out infinite;"></i>
-                    S'actualitza cada 10 hores CEST 
-                </span>
-            </div>
-<div class="outbreak-desc">
-    <p data-i18n="Risc de tempestes severes amb calamarsa de gran tamany, vents forts (>90 km/h) i possible tornado en zones de l'interior i el litoral.">
-        <strong>Risc de tempestes severes</strong> amb calamarsa de gran tamany, 
-        vents forts (>90 km/h) i <strong>possible tornado</strong> en zones de l'interior i el litoral.
-    </p>
-</div>
-                <p style="font-size:14px;color:#888;margin-top:6px;">
-                    <i class="fa-regular fa-clock"></i> Màxim entre les <strong>14h i 18h</strong> · 
-                    <span id="outbreakDate">Carregant data...</span>
-                </p>
-            </div>
-
-        </div>
-    </div>
-</div>
-
-<style>
-    @keyframes spin {
-        to { transform: rotate(360deg); }
-    }
-    @keyframes pulse-dot {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.3; }
-    }
-</style>
 
 
 
@@ -3797,6 +3821,7 @@ CONTACTE (amb EmailJS)
 
 <script src="avis/avis.js"></script>
 <script src="js/index/traduccions.js"></script>
+<script src="js/hero-rain.js"></script>
 
 
 </body>
