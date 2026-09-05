@@ -3174,21 +3174,14 @@ async function detectarHoresDisponibles() {
         trobatsSFC.push(...resultats.filter(r => r.ok));
     }
 
-    // Comprovem 3D en paral·lel per lots també
-    const ambInfo3D = [];
-    for (let i = 0; i < trobatsSFC.length; i += MIDA_LOT) {
-        const lot = trobatsSFC.slice(i, i + MIDA_LOT);
-        const resultats = await Promise.all(lot.map(async c => {
-            const te3D = await existeixFitxerDeVeritat(nom3d(c.dia, c.hora));
-            return { ...c, te3D };
-        }));
-        ambInfo3D.push(...resultats);
-    }
+    trobatsSFC.sort((a, b) => a.idx - b.idx);
 
-    ambInfo3D.sort((a, b) => a.idx - b.idx);
-
+    // 🔧 FIX: construïm ja la llista d'hores AMB SFC confirmat però SENSE
+    // esperar la comprovació del 3D. Això permet mostrar la graella
+    // immediatament; el badge "3D" de cada cel·la s'afegeix més tard,
+    // en segon pla, sense bloquejar la UI.
     let stepCounter = 0;
-    for (const c of ambInfo3D) {
+    for (const c of trobatsSFC) {
         steps.push(stepCounter);
         horesTrobades.push({
             step: stepCounter,
@@ -3197,19 +3190,41 @@ async function detectarHoresDisponibles() {
             horaStr: `${String(c.hora).padStart(2, '0')}:00`,
             diaStr: c.dia,
             teSFC: true,
-            te3D: c.te3D,
+            te3D: false, // es confirma després, en segon pla
             nomSFC: nomSfc(c.dia, c.hora),
-            nom3D: c.te3D ? nom3d(c.dia, c.hora) : null,
+            nom3D: nom3d(c.dia, c.hora), // el guardem igualment; es farà servir si es confirma
         });
         stepCounter++;
     }
 
     window._horesDisponibles = horesTrobades;
-    desarCacheHores(horesTrobades);
-    console.log(`[detectar] ✅ Trobades ${steps.length} hores:`,
-        horesTrobades.map(h => `${h.hora}h ${h.dia}${h.te3D ? ' 📡' : ''}`).join(', '));
+    console.log(`[detectar] ✅ SFC confirmat per ${steps.length} hores (3D es confirma en segon pla)`);
+
+    // Comprovació del 3D en segon pla, per lots, SENSE bloquejar el retorn
+    confirmar3DEnSegonPla(horesTrobades);
+
+    desarCacheHores(horesTrobades); // es torna a desar quan el 3D es confirmi (veure funció següent)
 
     return steps;
+}
+
+// Comprova quines hores tenen 3D disponible DESPRÉS de mostrar la graella,
+// actualitzant window._horesDisponibles i refrescant la graella a mesura
+// que arriben confirmacions, sense bloquejar la UI ni les dades SFC.
+async function confirmar3DEnSegonPla(horesTrobades) {
+    const MIDA_LOT = 24;
+    for (let i = 0; i < horesTrobades.length; i += MIDA_LOT) {
+        const lot = horesTrobades.slice(i, i + MIDA_LOT);
+        await Promise.all(lot.map(async h => {
+            const ok = await existeixFitxerDeVeritat(h.nom3D);
+            h.te3D = ok;
+            if (!ok) h.nom3D = null;
+        }));
+        // Refresquem la graella perquè els badges "3D" vagin apareixent
+        if (typeof construirGraellaHores === 'function') construirGraellaHores();
+    }
+    desarCacheHores(window._horesDisponibles);
+    console.log('[detectar] ✅ Confirmació 3D completada en segon pla');
 }
 
 // Refresc silenciós en segon pla: si el rang real ha canviat (nou run del
@@ -3232,12 +3247,10 @@ async function refrescarHoresEnSegonPla() {
 // ═══════════════════════════════════════════════════════════════════════
 //  INICIALITZACIÓ - NOMÉS LA PRIMERA HORA (SENSE CÀRREGUES AUTOMÀTIQUES)
 // ═══════════════════════════════════════════════════════════════════════
-
 async function inicialitzarCarregaSotaDemanda() {
-    const TIEMPO_INICIO = Date.now();
-    const TIEMPO_MINIMO = 800;
-
-    // 1️⃣ Detectar quines hores existeixen (només HEAD, sense descarregar)
+    // 1️⃣ Detectar quines hores existeixen (ara la graella ja es pot construir
+    // just després que aquesta promesa es resolgui amb el SFC confirmat;
+    // el 3D es confirma en segon pla dins de detectarHoresDisponibles())
     const steps = await detectarHoresDisponibles();
 
     if (steps.length === 0) {
@@ -3254,38 +3267,34 @@ async function inicialitzarCarregaSotaDemanda() {
     totesLesHores = steps.map(s => ({ step: s, dateObj: null, data: null }));
     window.totesLesHores = totesLesHores;
 
-    // 3️⃣ Construir la graella (mostra totes les hores, però sense dades)
+    // 3️⃣ Mostrar la graella IMMEDIATAMENT — l'usuari ja veu 14h, 15h, 16h...
+    // en lloc de +01, +02, abans que es descarregui cap dada.
     construirGraellaHores();
     construirPanellParametres();
 
-    // 4️⃣ CARREGAR NOMÉS LA PRIMERA HORA
-    console.log('[Càrrega] 📥 Carregant primera hora...');
+    // 4️⃣ Amaguem l'overlay de seguida (ja no cal esperar cap mínim artificial)
+    const loadingOverlay = document.getElementById('loading_overlay');
+    if (loadingOverlay) loadingOverlay.classList.add('hidden');
+
+    // 5️⃣ Carreguem la primera hora en segon pla i la pintem quan arribi,
+    // sense bloquejar l'aparició de la graella ni de l'overlay
+    console.log('[Càrrega] 📥 Carregant primera hora (en segon pla)...');
     const primerItem = await carregarUnStep(totesLesHores[0].step, true);
     if (primerItem) {
         totesLesHores[0].dateObj = primerItem.dateObj;
         totesLesHores[0].data = primerItem.data;
-    }
 
-    // 5️⃣ Mostrar la primera hora
-    if (totesLesHores[0].data) {
-        curIdx = 0;
-        canvasLayer._needsRedraw = true;
-        canvasLayer.setData(totesLesHores[0].data);
-        actualitzarUIHora(0);
-        resaltarHoraEnGrid(0);
+        if (curIdx === 0) {
+            canvasLayer._needsRedraw = true;
+            canvasLayer.setData(totesLesHores[0].data);
+            actualitzarUIHora(0);
+            resaltarHoraEnGrid(0);
+            construirPanellParametres();
+        }
     }
-
-    const tempsPassat = Date.now() - TIEMPO_INICIO;
-    if (tempsPassat < TIEMPO_MINIMO) {
-        await new Promise(resolve => setTimeout(resolve, TIEMPO_MINIMO - tempsPassat));
-    }
-
-    const loadingOverlay = document.getElementById('loading_overlay');
-    if (loadingOverlay) loadingOverlay.classList.add('hidden');
 
     console.log('[Càrrega] ✅ Inicialització completada. Carregant només sota demanda...');
 }
-
 function actualitzarBarraProgress(carregats, total) {
     const pct = Math.round((carregats / total) * 100);
     const barra = document.getElementById('loading_progress_bar');
