@@ -2858,7 +2858,13 @@ async function carregarUnStep(i, ambDades3d) {
     }
 
     if (!sfcData) {
-        console.warn(`[carregar] ❌ No s'ha trobat SFC per step ${i}`);
+        // 🔧 FIX: eliminat el fallback que provava sfc_${hora}_avui, ahir, dema...
+        // Aquell fallback disfressava silenciosament dades d'un dia incorrecte
+        // (p.ex. "dema_passat" acabava mostrant dades d'"avui" sense avisar).
+        // Si el fitxer correcte per aquesta hora/dia no es pot carregar, fallem
+        // explícitament — és millor no mostrar l'hora que mostrar-la amb dades
+        // d'un altre moment.
+        console.warn(`[carregar] ❌ No s'ha pogut carregar SFC per step ${i} (${nomSFCTrobat || `sfc_${horaReal}_${diaReal}`}). No es fa servir cap fallback d'un altre dia.`);
         return null;
     }
 
@@ -2970,6 +2976,34 @@ async function assegurarHoraCarregada(idx, ambDades3d) {
     }
 }
 
+
+
+// 🔧 FIX: el servidor retorna sempre 200 (fallback de SPA a index.html) encara
+// que el fitxer no existeixi. Cal comprovar el Content-Type / cos real,
+// no només el status code.
+async function existeixFitxerDeVeritat(url) {
+    try {
+        const r = await fetch(ambCacheBusterDades(url), { method: 'GET', cache: 'no-store' });
+        if (!r.ok) return false;
+
+        const ct = r.headers.get('content-type') || '';
+        // Si torna HTML, és el fallback de la SPA → el fitxer NO existeix
+        if (ct.includes('text/html')) return false;
+
+        // Comprovació extra: si diu ser octet-stream, mirem els primers bytes
+        const buf = await r.arrayBuffer();
+        const bytes = new Uint8Array(buf);
+        if (bytes.length < 4) return false;
+
+        // HTML sol començar per '<' (0x3C) encara que el Content-Type sigui incorrecte
+        if (bytes[0] === 0x3C) return false;
+
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
+
 // ═══════════════════════════════════════════════════════════════════════
 //  DETECTAR HORES DISPONIBLES - NOMÉS LES QUE REALMENT EXISTEIXEN
 // ═══════════════════════════════════════════════════════════════════════
@@ -3061,12 +3095,16 @@ async function detectarHoresDisponibles() {
     }
 
     // ═══════════════════════════════════════════════════════════════════
-    //  MÈTODE 2: Provar només les hores conegudes (fallback)
+    //  MÈTODE 2: Provar totes les hores possibles (fallback)
+    //  🔧 FIX: abans només provava [14..23]; ara prova 0-23 sencer.
+    //  🔧 FIX: usa existeixFitxerDeVeritat() en lloc de HEAD amb status 200,
+    //  perquè el servidor sempre retorna 200 (fallback SPA) encara que el
+    //  fitxer no existeixi de veritat.
     // ═══════════════════════════════════════════════════════════════════
 
-    const horesConegudes = [14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
+    const horesConegudes = Array.from({ length: 24 }, (_, i) => i); // 0..23
 
-    console.log('[detectar] 🔍 Comprovant hores conegudes...');
+    console.log('[detectar] 🔍 Comprovant totes les hores (0-23h) per cada dia...');
     let stepCounter = 0;
 
     const dies = ['ahir', 'avui', 'dema', 'dema_passat'];
@@ -3076,33 +3114,25 @@ async function detectarHoresDisponibles() {
             const horaStr = String(hora).padStart(2, '0');
             const nomSFC = `web_data_NE/sfc_${horaStr}_${dia}.msgpack.gz`;
 
-            try {
-                const r = await fetch(ambCacheBusterDades(nomSFC), { method: 'HEAD', cache: 'no-store' });
-                if (r.ok) {
-                    const nom3D = `web_data_NE/3d_${horaStr}_${dia}.msgpack.gz`;
-                    let te3D = false;
-                    try {
-                        const r3 = await fetch(ambCacheBusterDades(nom3D), { method: 'HEAD', cache: 'no-store' });
-                        te3D = r3.ok;
-                    } catch (e) {}
+            const existeix = await existeixFitxerDeVeritat(nomSFC);
+            if (existeix) {
+                const nom3D = `web_data_NE/3d_${horaStr}_${dia}.msgpack.gz`;
+                const te3D = await existeixFitxerDeVeritat(nom3D);
 
-                    steps.push(stepCounter);
-                    horesTrobades.push({
-                        step: stepCounter,
-                        hora: hora,
-                        dia: dia,
-                        horaStr: `${horaStr}:00`,
-                        diaStr: dia,
-                        teSFC: true,
-                        te3D: te3D,
-                        nomSFC: nomSFC,
-                        nom3D: te3D ? nom3D : null,
-                    });
-                    stepCounter++;
-                    console.log(`[detectar] ✅ Trobat: ${nomSFC} ${te3D ? '(+3D)' : ''}`);
-                }
-            } catch (e) {
-                // Silenciós - no existeix
+                steps.push(stepCounter);
+                horesTrobades.push({
+                    step: stepCounter,
+                    hora: hora,
+                    dia: dia,
+                    horaStr: `${horaStr}:00`,
+                    diaStr: dia,
+                    teSFC: true,
+                    te3D: te3D,
+                    nomSFC: nomSFC,
+                    nom3D: te3D ? nom3D : null,
+                });
+                stepCounter++;
+                console.log(`[detectar] ✅ Trobat: ${nomSFC} ${te3D ? '(+3D)' : ''}`);
             }
         }
     }
