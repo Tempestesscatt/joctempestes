@@ -3005,143 +3005,228 @@ async function existeixFitxerDeVeritat(url) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-//  DETECTAR HORES DISPONIBLES - NOMÉS LES QUE REALMENT EXISTEIXEN
+//  DETECTAR HORES DISPONIBLES - CACHE INSTANTÀNIA + CERCA RÀPIDA
+//  🔧 Sense manifest del backend: cachegem el resultat a localStorage.
+//  🔧 La cerca real (quan cal) és per rang consecutiu, no per força bruta:
+//     el Python sempre genera hores consecutives des d'ara-24h fins a
+//     ara+51h, així que fem servir cerca binària per trobar els límits
+//     en lloc de provar les 96 combinacions dia×hora una per una.
 // ═══════════════════════════════════════════════════════════════════════
+
+const CLAU_CACHE_HORES = 'tempestescat_hores_disponibles_v1';
+const CACHE_HORES_VALID_MS = 15 * 60 * 1000; // 15 minuts
+
+function llegirCacheHores() {
+    try {
+        const raw = localStorage.getItem(CLAU_CACHE_HORES);
+        if (!raw) return null;
+        const obj = JSON.parse(raw);
+        if (!obj.timestamp || (Date.now() - obj.timestamp) > CACHE_HORES_VALID_MS) return null;
+        if (!Array.isArray(obj.hores) || obj.hores.length === 0) return null;
+        return obj.hores;
+    } catch (e) {
+        return null;
+    }
+}
+
+function desarCacheHores(hores) {
+    try {
+        localStorage.setItem(CLAU_CACHE_HORES, JSON.stringify({ timestamp: Date.now(), hores }));
+    } catch (e) { /* silenciós */ }
+}
+
+// Converteix (dia, hora) en un índex lineal continu per poder fer cerca binària
+// sobre la seqüència completa ahir(0..23) → avui(24..47) → dema(48..71) → dema_passat(72..95)
+const DIES_SEQ = ['ahir', 'avui', 'dema', 'dema_passat'];
+function idxLineal(diaIdx, hora) { return diaIdx * 24 + hora; }
+function fromIdxLineal(idx) {
+    const diaIdx = Math.floor(idx / 24);
+    const hora = idx % 24;
+    return { dia: DIES_SEQ[diaIdx], hora };
+}
+function nomSfc(dia, hora) {
+    const hs = String(hora).padStart(2, '0');
+    return `web_data_NE/sfc_${hs}_${dia}.msgpack.gz`;
+}
+function nom3d(dia, hora) {
+    const hs = String(hora).padStart(2, '0');
+    return `web_data_NE/3d_${hs}_${dia}.msgpack.gz`;
+}
+
+// Comprova un únic índex lineal, amb cache de resultats dins la mateixa passada
+async function comprovarIdx(idx, cacheResultats) {
+    if (cacheResultats.has(idx)) return cacheResultats.get(idx);
+    const { dia, hora } = fromIdxLineal(idx);
+    const existeix = await existeixFitxerDeVeritat(nomSfc(dia, hora));
+    cacheResultats.set(idx, existeix);
+    return existeix;
+}
+
+async function trobarRangHoresPerCercaBinaria() {
+    const TOTAL_IDX = DIES_SEQ.length * 24; // 96
+    const cacheResultats = new Map();
+
+    // Punt d'ancoratge: l'hora actual a Madrid segur que existeix (és "avui")
+    const araMadrid = new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/Madrid' }));
+    const idxAra = idxLineal(1, araMadrid.getHours()); // diaIdx 1 = 'avui'
+
+    if (!(await comprovarIdx(idxAra, cacheResultats))) {
+        // Fallback rar: si ni l'hora actual existeix, no podem assumir consecutivitat.
+        // Retornem null perquè el cridant faci una cerca completa de seguretat.
+        return null;
+    }
+
+    // Cerca binària cap enrere: primer idx (des de 0) on comença a existir
+    let lo = 0, hi = idxAra;
+    while (lo < hi) {
+        const mid = Math.ceil((lo + hi) / 2);
+        if (await comprovarIdx(mid, cacheResultats)) {
+            lo = mid;
+        } else {
+            hi = mid - 1;
+        }
+        // Aquí busquem el PRIMER que existeix, així que cal anar cap avall
+    }
+    // 'lo' ara és un punt que existeix; cal seguir baixant fins trobar el límit real
+    let inici = idxAra;
+    {
+        let l = 0, h = idxAra;
+        while (l < h) {
+            const mid = Math.floor((l + h) / 2);
+            if (await comprovarIdx(mid, cacheResultats)) {
+                h = mid;
+            } else {
+                l = mid + 1;
+            }
+        }
+        inici = l;
+    }
+
+    // Cerca binària cap endavant: últim idx (fins TOTAL_IDX-1) on encara existeix
+    let fi = idxAra;
+    {
+        let l = idxAra, h = TOTAL_IDX - 1;
+        while (l < h) {
+            const mid = Math.ceil((l + h) / 2);
+            if (await comprovarIdx(mid, cacheResultats)) {
+                l = mid;
+            } else {
+                h = mid - 1;
+            }
+        }
+        fi = l;
+    }
+
+    // Verificació de seguretat: la consecutivitat és una assumpció. Comprovem
+    // uns quants punts intermedis a l'atzar; si algun falla, no confiem en el
+    // rang i tornem null (el cridant farà la cerca completa com a fallback).
+    const punts_a_verificar = 6;
+    for (let i = 0; i < punts_a_verificar; i++) {
+        const idxTest = inici + Math.floor(Math.random() * (fi - inici + 1));
+        if (!(await comprovarIdx(idxTest, cacheResultats))) {
+            return null; // el rang no és realment consecutiu, cal cerca completa
+        }
+    }
+
+    return { inici, fi };
+}
 
 async function detectarHoresDisponibles() {
     const steps = [];
     const horesTrobades = [];
 
-    console.log('[detectar] 🔍 Buscant fitxers disponibles...');
+    // 1️⃣ Cache instantània (si és recent, la fem servir sense tocar la xarxa)
+    const cachejat = llegirCacheHores();
+    if (cachejat) {
+        console.log(`[detectar] ⚡ Hores carregades de cache instantània (${cachejat.length}h)`);
+        window._horesDisponibles = cachejat.map((h, i) => ({ ...h, step: i }));
+        for (let i = 0; i < cachejat.length; i++) steps.push(i);
 
-    // ═══════════════════════════════════════════════════════════════════
-    //  MÈTODE 1: Llegir el directori (MÉS RÀPID)
-    // ═══════════════════════════════════════════════════════════════════
-    try {
-        const response = await fetch('web_data_NE/');
-        if (response.ok) {
-            const text = await response.text();
-            const regex = /(sfc|3d)_(\d{2})_(avui|ahir|dema|dema_passat|\d{4})\.msgpack\.gz/g;
-            let match;
-            const fitxersTrobats = new Set();
-
-            while ((match = regex.exec(text)) !== null) {
-                const tipus = match[1];
-                const hora = parseInt(match[2]);
-                const dia = match[3];
-                fitxersTrobats.add(`${tipus}_${hora}_${dia}`);
-            }
-
-            if (fitxersTrobats.size > 0) {
-                console.log(`[detectar] ✅ Trobats ${fitxersTrobats.size} fitxers al directori`);
-
-                // Extraure hores úniques
-                const horesUniques = new Map();
-                for (const fitxer of fitxersTrobats) {
-                    const parts = fitxer.split('_');
-                    const hora = parseInt(parts[1]);
-                    const dia = parts[2];
-                    const clau = `${hora}_${dia}`;
-
-                    if (!horesUniques.has(clau)) {
-                        horesUniques.set(clau, { hora, dia });
-                    }
-                }
-
-                // 🔥 ORDENAR per dia i hora — respecta l'ordre real generat pels scripts Python
-                //     (ahir queda sempre abans que avui)
-                const ordreDia = { ahir: -1, avui: 0, dema: 1, dema_passat: 2 };
-                const horesOrdenades = Array.from(horesUniques.values())
-                    .sort((a, b) => {
-                        const diffDia = (ordreDia[a.dia] ?? 99) - (ordreDia[b.dia] ?? 99);
-                        if (diffDia !== 0) return diffDia;
-                        return a.hora - b.hora;
-                    });
-
-                // Assignar steps consecutius respectant aquest ordre
-                let stepCounter = 0;
-                for (const { hora, dia } of horesOrdenades) {
-                    const horaStr = String(hora).padStart(2, '0');
-                    const teSFC = fitxersTrobats.has(`sfc_${horaStr}_${dia}`);
-                    const te3D = fitxersTrobats.has(`3d_${horaStr}_${dia}`);
-
-                    if (teSFC) {
-                        steps.push(stepCounter);
-                        horesTrobades.push({
-                            step: stepCounter,
-                            hora: hora,
-                            dia: dia,
-                            horaStr: `${horaStr}:00`,
-                            diaStr: dia,
-                            teSFC: teSFC,
-                            te3D: te3D,
-                            // 🔧 FIX: incloure sempre la carpeta 'web_data_NE/' al nom
-                            // per evitar el 404 previ al fallback en carregarUnStep.
-                            nomSFC: `web_data_NE/sfc_${horaStr}_${dia}.msgpack.gz`,
-                            nom3D: te3D ? `web_data_NE/3d_${horaStr}_${dia}.msgpack.gz` : null,
-                        });
-                        stepCounter++;
-                    }
-                }
-
-                window._horesDisponibles = horesTrobades;
-                console.log(`[detectar] ✅ Trobades ${steps.length} hores:`,
-                    horesTrobades.map(h => `${h.hora}h ${h.dia} ${h.te3D ? '📡' : ''}`).join(', '));
-                return steps;
-            }
-        }
-    } catch (e) {
-        console.log('[detectar] No es pot llistar el directori');
+        // Refresquem en segon pla sense bloquejar la UI (no esperem aquesta promesa)
+        refrescarHoresEnSegonPla();
+        return steps;
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    //  MÈTODE 2: Provar totes les hores possibles (fallback)
-    //  🔧 FIX: abans només provava [14..23]; ara prova 0-23 sencer.
-    //  🔧 FIX: usa existeixFitxerDeVeritat() en lloc de HEAD amb status 200,
-    //  perquè el servidor sempre retorna 200 (fallback SPA) encara que el
-    //  fitxer no existeixi de veritat.
-    // ═══════════════════════════════════════════════════════════════════
+    console.log('[detectar] 🔍 Sense cache vàlida — cercant hores (cerca binària ràpida)...');
 
-    const horesConegudes = Array.from({ length: 24 }, (_, i) => i); // 0..23
+    const rang = await trobarRangHoresPerCercaBinaria();
 
-    console.log('[detectar] 🔍 Comprovant totes les hores (0-23h) per cada dia...');
+    let candidatsIdx = [];
+    if (rang) {
+        for (let idx = rang.inici; idx <= rang.fi; idx++) candidatsIdx.push(idx);
+        console.log(`[detectar] ✅ Rang consecutiu trobat: ${candidatsIdx.length} hores (cerca binària, ~${Math.ceil(Math.log2(96))*2} peticions)`);
+    } else {
+        // Fallback de seguretat: si l'assumpció de consecutivitat falla,
+        // comprovem totes les 96 combinacions en paral·lel per lots.
+        console.warn('[detectar] ⚠️ El rang no sembla consecutiu — fent cerca completa en paral·lel');
+        for (let i = 0; i < 96; i++) candidatsIdx.push(i);
+    }
+
+    const MIDA_LOT = 24;
+    const trobatsSFC = [];
+    for (let i = 0; i < candidatsIdx.length; i += MIDA_LOT) {
+        const lot = candidatsIdx.slice(i, i + MIDA_LOT);
+        const resultats = await Promise.all(lot.map(async idx => {
+            const { dia, hora } = fromIdxLineal(idx);
+            const ok = await existeixFitxerDeVeritat(nomSfc(dia, hora));
+            return { idx, dia, hora, ok };
+        }));
+        trobatsSFC.push(...resultats.filter(r => r.ok));
+    }
+
+    // Comprovem 3D en paral·lel per lots també
+    const ambInfo3D = [];
+    for (let i = 0; i < trobatsSFC.length; i += MIDA_LOT) {
+        const lot = trobatsSFC.slice(i, i + MIDA_LOT);
+        const resultats = await Promise.all(lot.map(async c => {
+            const te3D = await existeixFitxerDeVeritat(nom3d(c.dia, c.hora));
+            return { ...c, te3D };
+        }));
+        ambInfo3D.push(...resultats);
+    }
+
+    ambInfo3D.sort((a, b) => a.idx - b.idx);
+
     let stepCounter = 0;
-
-    const dies = ['ahir', 'avui', 'dema', 'dema_passat'];
-
-    for (const dia of dies) {
-        for (const hora of horesConegudes) {
-            const horaStr = String(hora).padStart(2, '0');
-            const nomSFC = `web_data_NE/sfc_${horaStr}_${dia}.msgpack.gz`;
-
-            const existeix = await existeixFitxerDeVeritat(nomSFC);
-            if (existeix) {
-                const nom3D = `web_data_NE/3d_${horaStr}_${dia}.msgpack.gz`;
-                const te3D = await existeixFitxerDeVeritat(nom3D);
-
-                steps.push(stepCounter);
-                horesTrobades.push({
-                    step: stepCounter,
-                    hora: hora,
-                    dia: dia,
-                    horaStr: `${horaStr}:00`,
-                    diaStr: dia,
-                    teSFC: true,
-                    te3D: te3D,
-                    nomSFC: nomSFC,
-                    nom3D: te3D ? nom3D : null,
-                });
-                stepCounter++;
-                console.log(`[detectar] ✅ Trobat: ${nomSFC} ${te3D ? '(+3D)' : ''}`);
-            }
-        }
+    for (const c of ambInfo3D) {
+        steps.push(stepCounter);
+        horesTrobades.push({
+            step: stepCounter,
+            hora: c.hora,
+            dia: c.dia,
+            horaStr: `${String(c.hora).padStart(2, '0')}:00`,
+            diaStr: c.dia,
+            teSFC: true,
+            te3D: c.te3D,
+            nomSFC: nomSfc(c.dia, c.hora),
+            nom3D: c.te3D ? nom3d(c.dia, c.hora) : null,
+        });
+        stepCounter++;
     }
 
     window._horesDisponibles = horesTrobades;
-    console.log(`[detectar] ✅ Trobades ${steps.length} hores totals:`,
-        horesTrobades.map(h => `${h.hora}h ${h.dia}`).join(', '));
+    desarCacheHores(horesTrobades);
+    console.log(`[detectar] ✅ Trobades ${steps.length} hores:`,
+        horesTrobades.map(h => `${h.hora}h ${h.dia}${h.te3D ? ' 📡' : ''}`).join(', '));
 
     return steps;
+}
+
+// Refresc silenciós en segon pla: si el rang real ha canviat (nou run del
+// model), la propera vegada que es recarregui la pàgina (cache caducada
+// o buida) es detectarà correctament. Aquí simplement invalidem la cache
+// si detectem que l'hora "ara" ja no hi és, per forçar recàlcul al proper load.
+async function refrescarHoresEnSegonPla() {
+    try {
+        const araMadrid = new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/Madrid' }));
+        const diaActual = 'avui';
+        const horaActual = araMadrid.getHours();
+        const existeix = await existeixFitxerDeVeritat(nomSfc(diaActual, horaActual));
+        if (!existeix) {
+            console.log('[detectar] 🔄 Cache sembla desactualitzada (hora actual no trobada) — invalidant per al proper load');
+            localStorage.removeItem(CLAU_CACHE_HORES);
+        }
+    } catch (e) { /* silenciós */ }
 }
 
 // ═══════════════════════════════════════════════════════════════════════
