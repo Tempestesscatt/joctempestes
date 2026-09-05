@@ -1,12 +1,14 @@
 // ═══════════════════════════════════════════════════════════════════════
-//  mapa.js — VERSIÓ FINAL COMPLETA I FUNCIONAL (BLOQUEIG CORREGIT)
+//  mapa.js — VERSIÓ NETEJADA (SENSE CÀRREGA 3D EN CASCADA + SENSE DUPLICATS)
 //  🌪️ + SCP (risc supercèl·lula) + Calamarsa (mida cm)
 //  🔧 Normalització de claus WCS (bt108, ehi, cin, scp_wcs, tpw_700/850, etc.)
 //  🔧 FIX: carrera de condicions a assegurarHoraCarregada (mapa en blanc a 3D)
-//  🔧 FIX: precàrrega completa en segon pla de TOTES les hores 3D (sense purga)
-//  🔧 FIX: alias BT__CHANNELS_108/62 afegits (abans queien a paleta 'st')
-//  🔧 FIX: paleta BT108/BT62 reescalada al rang real de dades
-//  🔧 FIX: variables WCS "Altres" ara classificades i amb unitat correcta
+//  🔧 FIX: cada hora es carrega NOMÉS quan l'usuari la clica (sota demanda)
+//  🔧 FIX: eliminat el sistema de precàrrega 3D en cascada (causava 30-40MB
+//          de descàrrega de cop en clicar la primera hora sense 3D)
+//  🔧 FIX: eliminades funcions/blocs duplicats (obtenirVentPerStreamlines,
+//          toggleVentMode/setStreamline*, actualitzarCapcaleraParametre,
+//          bloc "fons negre fora de zona")
 // ═══════════════════════════════════════════════════════════════════════
 
 const REGION = {
@@ -23,7 +25,7 @@ function ambCacheBusterDades(url) {
     const sep = url.includes('?') ? '&' : '?';
     return url + sep + '_cb=' + Date.now();
 }
-const DADES_PATH = 'dades'; 
+const DADES_PATH = 'dades';
 
 const VARS_SENSE_VENT = [
     // ═══════════════════════════════════════════════════════════════
@@ -44,7 +46,7 @@ const VARS_SENSE_VENT = [
     'PRECIPITATION_TYPE_15_MIN__GROUND_OR_WATER_SURFACE',
     'SEVERE_PRECIPITATION_TYPE_15_MIN__GROUND_OR_WATER_SURFACE',
     'TOTAL_PRECIPITATION_RATE__GROUND_OR_WATER_SURFACE',
-    
+
     // ═══════════════════════════════════════════════════════════════
     // 2. NÚVOLS
     // ═══════════════════════════════════════════════════════════════
@@ -54,7 +56,7 @@ const VARS_SENSE_VENT = [
     'PLAFOND__GROUND',
     'P__BASE_CB',
     'P__TOP_CB',
-    
+
     // ═══════════════════════════════════════════════════════════════
     // 3. PRESSIÓ I TEMPERATURA
     // ═══════════════════════════════════════════════════════════════
@@ -62,15 +64,12 @@ const VARS_SENSE_VENT = [
     'T__GROUND',
     'TEMPERATURE__GROUND_OR_WATER_SURFACE',
     'temp_min2m', 'temp_max2m',
-    
+
     // ═══════════════════════════════════════════════════════════════
     // 4. INESTABILITAT I CONVECCIÓ
     // ═══════════════════════════════════════════════════════════════
-    
-    
     'el_m', 'lcl_m', 'lfc_m', 'lifted_index',
-    
-    
+
     // ═══════════════════════════════════════════════════════════════
     // 5. TORNADOS I SUPERCELLES
     // ═══════════════════════════════════════════════════════════════
@@ -78,27 +77,27 @@ const VARS_SENSE_VENT = [
     'DIAG_GRELE__GROUND_OR_WATER_SURFACE',
     'DIAG_GRELE__GROUND',
     'HELICITE__GROUND',
-    
+
     // ═══════════════════════════════════════════════════════════════
     // 6. SHEAR I SRH (NO VENT, SÓN ÍNDEXS)
     // ═══════════════════════════════════════════════════════════════
     'shear_03', 'shear_06', 'shear_06_eff',
     'srh_01', 'srh_03', 'srh',
-    
+
     // ═══════════════════════════════════════════════════════════════
     // 7. SATÈL·LIT
     // ═══════════════════════════════════════════════════════════════
     'bt108', 'bt62',
     'BT__CHANNELS_108',
     'BT__CHANNELS_62',
-    
+
     // ═══════════════════════════════════════════════════════════════
     // 8. RADAR I LLAMPS
     // ═══════════════════════════════════════════════════════════════
     'radar_dbz', 'reflectivity_dbz', 'lightning', 'lightning_1h',
     'REFLECTIVITY_MAX__GROUND_OR_WATER_SURFACE',
     'REFLECTIVITY_MAX_DBZ__GROUND_OR_WATER_SURFACE',
-    
+
     // ═══════════════════════════════════════════════════════════════
     // 9. ALTITUD I GEOPOTENCIAL
     // ═══════════════════════════════════════════════════════════════
@@ -106,7 +105,7 @@ const VARS_SENSE_VENT = [
     'geopotencial_500',
     'GEOMETRIC_HEIGHT__GROUND_OR_WATER_SURFACE',
     'PLANETARY_BOUNDARY_LAYER_HEIGHT__GROUND_OR_WATER_SURFACE',
-    
+
     // ═══════════════════════════════════════════════════════════════
     // 10. ISOTERMES (ALTITUD PUNT DE ROSADA)
     // ═══════════════════════════════════════════════════════════════
@@ -116,14 +115,14 @@ const VARS_SENSE_VENT = [
     'ALTITUDE__ISO_TPW_27315',
     'ALTITUDE__ISO_TPW_27415',
     'ALTITUDE__ISO_TPW_27465',
-    
+
     // ═══════════════════════════════════════════════════════════════
     // 11. AIGUA PRECIPITABLE (TPW)
     // ═══════════════════════════════════════════════════════════════
     'tpw_700', 'tpw_850',
     'PRECIPITABLE_WATER__GROUND_OR_WATER_SURFACE',
     'TPW_MITJANA',
-    
+
     // ═══════════════════════════════════════════════════════════════
     // 12. GEL I PLUJA NÚVOLS (WCS 3D)
     // ═══════════════════════════════════════════════════════════════
@@ -131,7 +130,7 @@ const VARS_SENSE_VENT = [
     'cld_rain_850',
     'CIWC_MITJANA',
     'CLD_RAIN_MITJANA',
-    
+
     // ═══════════════════════════════════════════════════════════════
     // 13. PV SURFACES (GEOPOTENCIAL, THETA, VENT PV)
     // ═══════════════════════════════════════════════════════════════
@@ -147,7 +146,7 @@ const VARS_SENSE_VENT = [
     'WIND_PV2000',
     'FF__ISO_TP_1500',
     'FF__ISO_TP_2000',
-    
+
     // ═══════════════════════════════════════════════════════════════
     // 14. VISIBILITAT
     // ═══════════════════════════════════════════════════════════════
@@ -155,7 +154,7 @@ const VARS_SENSE_VENT = [
     'VISIBILITY_MINI_PRECIP_60MIN__GROUND_OR_WATER_SURFACE',
     'VISIBILITY_MINI_15MIN__GROUND_OR_WATER_SURFACE',
     'VISIBILITY_MINI_PRECIP_15MIN__GROUND_OR_WATER_SURFACE',
-    
+
     // ═══════════════════════════════════════════════════════════════
     // 15. TEMPERATURA 500hPa
     // ═══════════════════════════════════════════════════════════════
@@ -260,15 +259,8 @@ const STOPS_VENT_UV = [
     {v:20,r:200,g:0,b:100},{v:40,r:200,g:0,b:0},{v:60,r:100,g:0,b:0}
 ];
 
-
-// ─── HUMITAT 2m - VERD SEC → BLAU-LILA FOSC ───────────────────────────
-//    LÒGICA: SEC (verd clar/ocre) → MODERADA (verd) → HUMIT (blau-lila)
-//    Rang: 0 a 100%
-// ────────────────────────────────────────────────────────────────────────
-
+// ─── HUMITAT 2m ─────────────────────────────────────────────────────
 const STOPS_HUMITAT = [
-    // ========== MOLT SEC (0 - 15%) ==========
-    // Verd-ocre clar → Verd-ocre
     {v:0,    r:200, g:190, b:150, a:255},
     {v:3,    r:195, g:190, b:145, a:255},
     {v:5,    r:190, g:190, b:140, a:255},
@@ -276,54 +268,36 @@ const STOPS_HUMITAT = [
     {v:10,   r:180, g:195, b:130, a:255},
     {v:12,   r:175, g:198, b:128, a:255},
     {v:15,   r:170, g:200, b:125, a:255},
-    
-    // ========== SEC (15 - 30%) ==========
-    // Verd-ocre → Verd
     {v:18,   r:165, g:203, b:122, a:255},
     {v:20,   r:158, g:208, b:118, a:255},
     {v:23,   r:150, g:212, b:115, a:255},
     {v:25,   r:142, g:216, b:112, a:255},
     {v:28,   r:134, g:220, b:110, a:255},
     {v:30,   r:126, g:224, b:108, a:255},
-    
-    // ========== SEC-MODERAT (30 - 45%) ==========
-    // Verd → Verd intens
     {v:33,   r:118, g:228, b:110, a:255},
     {v:35,   r:110, g:230, b:115, a:255},
     {v:38,   r:102, g:232, b:122, a:255},
     {v:40,   r:94,  g:234, b:130, a:255},
     {v:42,   r:86,  g:234, b:140, a:255},
     {v:45,   r:78,  g:234, b:150, a:255},
-    
-    // ========== MODERAT (45 - 60%) ==========
-    // Verd → Verd-blau
     {v:48,   r:70,  g:234, b:162, a:255},
     {v:50,   r:64,  g:232, b:174, a:255},
     {v:52,   r:58,  g:230, b:186, a:255},
     {v:55,   r:52,  g:226, b:196, a:255},
     {v:57,   r:48,  g:220, b:206, a:255},
     {v:60,   r:44,  g:214, b:216, a:255},
-    
-    // ========== HUMIT (60 - 75%) ==========
-    // Verd-blau → Blau
     {v:62,   r:42,  g:206, b:224, a:255},
     {v:65,   r:40,  g:196, b:230, a:255},
     {v:68,   r:38,  g:184, b:236, a:255},
     {v:70,   r:36,  g:172, b:240, a:255},
     {v:72,   r:36,  g:158, b:244, a:255},
     {v:75,   r:38,  g:144, b:248, a:255},
-    
-    // ========== MOLT HUMIT (75 - 90%) ==========
-    // Blau → Blau-lila
     {v:78,   r:40,  g:130, b:248, a:255},
     {v:80,   r:44,  g:116, b:248, a:255},
     {v:83,   r:50,  g:102, b:248, a:255},
     {v:85,   r:58,  g:88,  b:246, a:255},
     {v:88,   r:66,  g:74,  b:244, a:255},
     {v:90,   r:76,  g:62,  b:240, a:255},
-    
-    // ========== EXTREMADAMENT HUMIT (90 - 100%) ==========
-    // Blau-lila → Lila fosc
     {v:92,   r:88,  g:52,  b:236, a:255},
     {v:94,   r:100, g:44,  b:230, a:255},
     {v:95,   r:112, g:38,  b:224, a:255},
@@ -382,79 +356,65 @@ const STOPS_RADAR = [
 ];
 
 // ═══════════════════════════════════════════════════════════════════════
-//  PALETES SATÈL·LIT IR — REESCALADA AL RANG REAL DE DADES
-//  NEGRE = càlid (superfície) | BLANC = fred (núvols alts) | VERMELL = molt fred (tops)
-// ═══════════════════════════════════════════════════════════════════════
-// ═══════════════════════════════════════════════════════════════════════
-//  PALETA SATÈL·LIT IR - Grisos per positives + Colors per negatives
-//  - Temperatures positives: Escala de grisos (blanc = més calent)
-//  - Temperatures negatives: Colors (groc, taronja, vermell)
+//  PALETES SATÈL·LIT IR
 // ═══════════════════════════════════════════════════════════════════════
 
 const STOPS_BT108 = [
-    // ─── FRED EXTREM (T < -55°C) - Colors intensos ──────────────────
-    {v:-80, r:180, g:0,   b:0},   // Vermell fosc
-    {v:-75, r:210, g:0,   b:0},   // Vermell
-    {v:-72, r:240, g:0,   b:0},   // Vermell intens
-    {v:-70, r:255, g:0,   b:0},   // Vermell
-    {v:-68, r:255, g:30,  b:0},   // Vermell-taronja
-    {v:-66, r:255, g:60,  b:0},   // Taronja
-    {v:-65, r:255, g:90,  b:0},   // Taronja
-    {v:-63, r:255, g:120, b:0},   // Taronja-groc
-    {v:-61, r:255, g:150, b:0},   // Groc-taronja
-    {v:-60, r:255, g:180, b:0},   // Groc
-    {v:-58, r:255, g:200, b:0},   // Groc
-    {v:-55, r:255, g:220, b:0},   // Groc (inici groc)
-    
-    // ─── FRED MODERAT (-55°C a -30°C) - Transició a grisos ──────────
-    {v:-53, r:240, g:220, b:50},  // Groc-verdós
-    {v:-50, r:220, g:215, b:100}, // Groc-verdós
-    {v:-48, r:200, g:210, b:140}, // Groc-verdós
-    {v:-45, r:180, g:205, b:170}, // Gris-groc
-    {v:-42, r:160, g:200, b:190}, // Gris-groc
-    {v:-40, r:145, g:195, b:200}, // Gris
-    {v:-38, r:130, g:190, b:205}, // Gris
-    {v:-35, r:115, g:185, b:210}, // Gris
-    
-    // ─── FRED SUAU (-30°C a 0°C) - Grisos clars ─────────────────────
-    {v:-32, r:100, g:180, b:210}, // Gris clar
-    {v:-29, r:90,  g:170, b:200}, // Gris clar
-    {v:-26, r:80,  g:160, b:190}, // Gris
-    {v:-23, r:70,  g:150, b:180}, // Gris
-    {v:-20, r:60,  g:140, b:170}, // Gris
-    {v:-17, r:55,  g:130, b:160}, // Gris
-    {v:-14, r:50,  g:120, b:150}, // Gris
-    {v:-11, r:45,  g:110, b:140}, // Gris
-    {v:-8,  r:40,  g:100, b:130}, // Gris
-    {v:-5,  r:38,  g:90,  b:120}, // Gris
-    {v:-2,  r:35,  g:80,  b:110}, // Gris
-    
-    // ─── TEMPERATURES POSITIVES (0°C a 50°C) - ESCALA DE GRISOS ─────
-    // (blanc = calent, gris clar = temperat, gris fosc = menys calent)
-    {v:0,   r:200, g:200, b:200}, // Gris clar (0°C)
-    {v:2,   r:190, g:190, b:190}, // Gris clar
-    {v:4,   r:180, g:180, b:180}, // Gris
-    {v:6,   r:170, g:170, b:170}, // Gris
-    {v:8,   r:160, g:160, b:160}, // Gris
-    {v:10,  r:150, g:150, b:150}, // Gris
-    {v:12,  r:140, g:140, b:140}, // Gris
-    {v:14,  r:130, g:130, b:130}, // Gris
-    {v:16,  r:120, g:120, b:120}, // Gris
-    {v:18,  r:110, g:110, b:110}, // Gris
-    {v:20,  r:100, g:100, b:100}, // Gris fosc
-    {v:22,  r:90,  g:90,  b:90},  // Gris fosc
-    {v:24,  r:80,  g:80,  b:80},  // Gris fosc
-    {v:26,  r:70,  g:70,  b:70},  // Gris fosc
-    {v:28,  r:60,  g:60,  b:60},  // Gris fosc
-    {v:30,  r:55,  g:55,  b:55},  // Gris fosc
-    {v:32,  r:50,  g:50,  b:50},  // Gris fosc
-    {v:35,  r:45,  g:45,  b:45},  // Gris fosc
-    {v:38,  r:40,  g:40,  b:40},  // Gris fosc
-    {v:40,  r:35,  g:35,  b:35},  // Gris fosc
-    {v:42,  r:30,  g:30,  b:30},  // Gris fosc
-    {v:45,  r:25,  g:25,  b:25},  // Gris fosc
-    {v:48,  r:20,  g:20,  b:20},  // Gris fosc
-    {v:50,  r:15,  g:15,  b:15},  // Gris fosc
+    {v:-80, r:180, g:0,   b:0},
+    {v:-75, r:210, g:0,   b:0},
+    {v:-72, r:240, g:0,   b:0},
+    {v:-70, r:255, g:0,   b:0},
+    {v:-68, r:255, g:30,  b:0},
+    {v:-66, r:255, g:60,  b:0},
+    {v:-65, r:255, g:90,  b:0},
+    {v:-63, r:255, g:120, b:0},
+    {v:-61, r:255, g:150, b:0},
+    {v:-60, r:255, g:180, b:0},
+    {v:-58, r:255, g:200, b:0},
+    {v:-55, r:255, g:220, b:0},
+    {v:-53, r:240, g:220, b:50},
+    {v:-50, r:220, g:215, b:100},
+    {v:-48, r:200, g:210, b:140},
+    {v:-45, r:180, g:205, b:170},
+    {v:-42, r:160, g:200, b:190},
+    {v:-40, r:145, g:195, b:200},
+    {v:-38, r:130, g:190, b:205},
+    {v:-35, r:115, g:185, b:210},
+    {v:-32, r:100, g:180, b:210},
+    {v:-29, r:90,  g:170, b:200},
+    {v:-26, r:80,  g:160, b:190},
+    {v:-23, r:70,  g:150, b:180},
+    {v:-20, r:60,  g:140, b:170},
+    {v:-17, r:55,  g:130, b:160},
+    {v:-14, r:50,  g:120, b:150},
+    {v:-11, r:45,  g:110, b:140},
+    {v:-8,  r:40,  g:100, b:130},
+    {v:-5,  r:38,  g:90,  b:120},
+    {v:-2,  r:35,  g:80,  b:110},
+    {v:0,   r:200, g:200, b:200},
+    {v:2,   r:190, g:190, b:190},
+    {v:4,   r:180, g:180, b:180},
+    {v:6,   r:170, g:170, b:170},
+    {v:8,   r:160, g:160, b:160},
+    {v:10,  r:150, g:150, b:150},
+    {v:12,  r:140, g:140, b:140},
+    {v:14,  r:130, g:130, b:130},
+    {v:16,  r:120, g:120, b:120},
+    {v:18,  r:110, g:110, b:110},
+    {v:20,  r:100, g:100, b:100},
+    {v:22,  r:90,  g:90,  b:90},
+    {v:24,  r:80,  g:80,  b:80},
+    {v:26,  r:70,  g:70,  b:70},
+    {v:28,  r:60,  g:60,  b:60},
+    {v:30,  r:55,  g:55,  b:55},
+    {v:32,  r:50,  g:50,  b:50},
+    {v:35,  r:45,  g:45,  b:45},
+    {v:38,  r:40,  g:40,  b:40},
+    {v:40,  r:35,  g:35,  b:35},
+    {v:42,  r:30,  g:30,  b:30},
+    {v:45,  r:25,  g:25,  b:25},
+    {v:48,  r:20,  g:20,  b:20},
+    {v:50,  r:15,  g:15,  b:15},
 ];
 
 const STOPS_BT62 = [
@@ -463,21 +423,17 @@ const STOPS_BT62 = [
     {v:10,  r:32,  g:32,  b:32},
     {v:5,   r:52,  g:52,  b:52},
     {v:0,   r:75,  g:75,  b:75},
-
     {v:-5,  r:98,  g:98,  b:98},
     {v:-10, r:120, g:120, b:120},
     {v:-15, r:142, g:142, b:142},
     {v:-20, r:163, g:163, b:163},
-
     {v:-25, r:182, g:182, b:182},
     {v:-30, r:200, g:200, b:200},
     {v:-35, r:216, g:216, b:216},
     {v:-40, r:230, g:230, b:230},
-
     {v:-45, r:244, g:244, b:244},
     {v:-50, r:255, g:255, b:255},
     {v:-53, r:255, g:255, b:255},
-
     {v:-55, r:255, g:255, b:0},
     {v:-57, r:255, g:220, b:0},
     {v:-59, r:255, g:180, b:0},
@@ -491,7 +447,7 @@ const STOPS_BT62 = [
     {v:-85, r:120, g:0,   b:40},
 ];
 
-// ─── EHI (Energy Helicity Index) - BLANC SEMITRANSPARENT ──────────
+// ─── EHI ───────────────────────────────────────────────────────────
 const STOPS_EHI = [
     {v:0,    r:255, g:255, b:255, a:30},
     {v:0.5,  r:200, g:220, b:255, a:80},
@@ -514,7 +470,7 @@ const STOPS_EHI = [
     {v:100,  r:100, g:0,   b:255, a:255},
 ];
 
-// ─── STP (Significant Tornado Parameter) - MULTICOLOR ──────────────
+// ─── STP ─────────────────────────────────────────────────────────────
 const STOPS_STP = [
     {v:0.0,  r:255, g:255, b:255, a:255},
     {v:0.57, r:210, g:233, b:255, a:255},
@@ -598,7 +554,7 @@ const STOPS_TPW = [
     {v:80,  r:0,   g:0,   b:5},
 ];
 
-// ─── THETA VIRTUAL (θv) - PALETA PSICODÈLICA EXTREMA ────────────────
+// ─── THETA VIRTUAL ────────────────────────────────────────────────
 const STOPS_THETAV = [
     {v:-24,r:45,g:0,b:75},{v:-20,r:130,g:0,b:160},{v:-15,r:65,g:0,b:115},
     {v:-10,r:0,g:0,b:255},{v:-5,r:0,g:135,b:255},{v:0,r:0,g:235,b:255},
@@ -609,7 +565,7 @@ const STOPS_THETAV = [
     {v:38,r:150,g:0,b:150},{v:42,r:255,g:0,b:255},{v:46,r:255,g:185,b:255}
 ];
 
-// ─── PLUJA NÚVOLS (CLD_RAIN) ──────────────────────────────────────
+// ─── PLUJA NÚVOLS ──────────────────────────────────────────────────
 const STOPS_PLUJA = [
     {v:0,    r:255, g:255, b:255, a:0},
     {v:0.01, r:240, g:248, b:255, a:30},
@@ -633,7 +589,7 @@ const STOPS_PLUJA = [
     {v:50,   r:200, g:0,   b:0,   a:255},
 ];
 
-// Llamps 1h — Transparent → Groc → Taronja → Vermell → Morat
+// Llamps 1h
 const STOPS_LLAMPS_V2 = [
     {v:0,    r:0,   g:0,   b:0,   a:0},
     {v:0.01, r:255, g:255, b:200, a:80},
@@ -703,78 +659,51 @@ const STOPS_NUVOLS_BAIXOS = [
     {v:100,r:160, g:0,   b:0,   a:240},
 ];
 
-// ─── SOSTRE NÚVOLS (PLAFOND) - BLAUS A BAIX, VERMELL TORRAT A ALT ─────
-//    LÒGICA: BAIX = BLAUS (fred/boira) → ALT = VERMELL TORRAT (calor)
-//    Rang: 0 a 12000 m
-// ────────────────────────────────────────────────────────────────────────
-
+// ─── SOSTRE NÚVOLS (PLAFOND) ───────────────────────────────────────
 const STOPS_ALTURA_CL = [
-    // ========== MOLT BAIX (0 - 200 m) ==========
-    // Blau molt fosc → Blau fosc (boira/núvols molt baixos)
     {v:0,    r:10,  g:10,  b:40,  a:255},
     {v:50,   r:15,  g:20,  b:60,  a:255},
     {v:100,  r:20,  g:35,  b:90,  a:255},
     {v:150,  r:25,  g:55,  b:120, a:255},
     {v:200,  r:30,  g:75,  b:150, a:255},
-    
-    // ========== BAIX (200 - 500 m) ==========
-    // Blau fosc → Blau (núvols baixos)
     {v:250,  r:40,  g:95,  b:180, a:255},
     {v:300,  r:55,  g:115, b:200, a:255},
     {v:350,  r:70,  g:135, b:215, a:255},
     {v:400,  r:85,  g:155, b:230, a:255},
     {v:500,  r:100, g:175, b:240, a:255},
-    
-    // ========== MITJÀ-BAIX (500 - 1000 m) ==========
-    // Blau → Blau clar (núvols mitjans-baixos)
     {v:600,  r:115, g:190, b:245, a:255},
     {v:700,  r:130, g:205, b:248, a:255},
     {v:800,  r:145, g:215, b:250, a:255},
     {v:900,  r:160, g:225, b:250, a:255},
     {v:1000, r:175, g:232, b:248, a:255},
-    
-    // ========== MITJÀ (1000 - 2000 m) ==========
-    // Blau clar → Cian (núvols mitjans)
     {v:1200, r:190, g:238, b:245, a:255},
     {v:1400, r:200, g:242, b:240, a:255},
     {v:1600, r:210, g:245, b:235, a:255},
     {v:1800, r:220, g:248, b:225, a:255},
     {v:2000, r:230, g:250, b:210, a:255},
-    
-    // ========== MITJÀ-ALT (2000 - 3500 m) ==========
-    // Cian → Verd clar (núvols mitjans-alts)
     {v:2200, r:235, g:248, b:190, a:255},
     {v:2400, r:240, g:245, b:165, a:255},
     {v:2600, r:245, g:242, b:140, a:255},
     {v:2800, r:248, g:238, b:115, a:255},
     {v:3000, r:250, g:232, b:90,  a:255},
     {v:3500, r:252, g:225, b:65,  a:255},
-    
-    // ========== ALT (3500 - 6000 m) ==========
-    // Groc → Taronja (núvols alts)
     {v:4000, r:255, g:215, b:40,  a:255},
     {v:4500, r:255, g:200, b:20,  a:255},
     {v:5000, r:255, g:185, b:10,  a:255},
     {v:5500, r:255, g:165, b:0,   a:255},
     {v:6000, r:255, g:145, b:0,   a:255},
-    
-    // ========== MOLT ALT (6000 - 9000 m) ==========
-    // Taronja → Vermell torrat (núvols molt alts)
     {v:6500, r:255, g:125, b:0,   a:255},
     {v:7000, r:255, g:105, b:0,   a:255},
     {v:7500, r:255, g:85,  b:0,   a:255},
     {v:8000, r:255, g:65,  b:0,   a:255},
     {v:8500, r:240, g:50,  b:0,   a:255},
     {v:9000, r:220, g:35,  b:0,   a:255},
-    
-    // ========== EXTREM ALT (9000 - 12000 m) ==========
-    // Vermell torrat → Vermell fosc torrat → Blanc (tops)
     {v:9500,  r:200, g:25,  b:0,   a:255},
     {v:10000, r:180, g:15,  b:0,   a:255},
     {v:10500, r:155, g:10,  b:5,   a:255},
     {v:11000, r:130, g:5,   b:15,  a:255},
     {v:11500, r:100, g:0,   b:30,  a:255},
-    {v:12000, r:255, g:255, b:255, a:255},  // Blanc = màxima altitud
+    {v:12000, r:255, g:255, b:255, a:255},
 ];
 
 const STOPS_RATXA = [
@@ -813,73 +742,45 @@ const STOPS_VORT_POT = [
     {v:-10,r:0,g:0,b:200},{v:-3,r:0,g:150,b:255},{v:0,r:220,g:220,b:220},
     {v:3,r:255,g:180,b:0},{v:10,r:200,g:0,b:0}
 ];
-// ─── dBZ (REFLECTIVITAT RADAR) - GRADIENT SUAU ─────────────────────────
-//    LÒGICA: SENSE PLUJA (transparent) → PLUJA DÈBIL (blau) → 
-//    PLUJA MODERADA (verd) → PLUJA FORTA (groc/taronja) → 
-//    TEMPESTA SEVERA (vermell) → TEMPESTA EXTREMA (morat/blanc)
-//    Rang: 0 a 75 dBZ
-// ────────────────────────────────────────────────────────────────────────
 
+// ─── dBZ (REFLECTIVITAT RADAR) ─────────────────────────────────────
 const STOPS_DBZ = [
-    // ========== SENSE PLUJA / PLUJA MOLT DÈBIL (0 - 10) ==========
-    // Transparent → Blau molt clar
     {v:0,    r:255, g:255, b:255, a:0},
     {v:2,    r:245, g:248, b:255, a:30},
     {v:4,    r:235, g:242, b:255, a:60},
     {v:6,    r:220, g:235, b:255, a:90},
     {v:8,    r:205, g:228, b:255, a:120},
     {v:10,   r:190, g:220, b:255, a:150},
-    
-    // ========== PLUJA DÈBIL (10 - 20) ==========
-    // Blau → Cian
     {v:12,   r:170, g:215, b:255, a:170},
     {v:14,   r:150, g:210, b:255, a:185},
     {v:16,   r:130, g:205, b:255, a:195},
     {v:18,   r:110, g:205, b:248, a:205},
     {v:20,   r:95,  g:210, b:240, a:212},
-    
-    // ========== PLUJA MODERADA (20 - 30) ==========
-    // Cian → Verd
     {v:22,   r:85,  g:218, b:228, a:218},
     {v:24,   r:80,  g:226, b:215, a:222},
     {v:26,   r:85,  g:234, b:198, a:226},
     {v:28,   r:95,  g:240, b:178, a:230},
     {v:30,   r:110, g:245, b:158, a:234},
-    
-    // ========== PLUJA FORTA (30 - 40) ==========
-    // Verd → Groc
     {v:32,   r:130, g:248, b:138, a:238},
     {v:34,   r:155, g:250, b:118, a:240},
     {v:36,   r:180, g:250, b:98,  a:242},
     {v:38,   r:205, g:248, b:78,  a:244},
     {v:40,   r:225, g:245, b:58,  a:246},
-    
-    // ========== PLUJA MOLT FORTA (40 - 50) ==========
-    // Groc → Taronja → Vermell
     {v:42,   r:240, g:240, b:40,  a:248},
     {v:44,   r:250, g:232, b:25,  a:250},
     {v:46,   r:255, g:220, b:10,  a:252},
     {v:48,   r:255, g:205, b:0,   a:253},
     {v:50,   r:255, g:185, b:0,   a:254},
-    
-    // ========== TEMPESTA SEVERA (50 - 60) ==========
-    // Vermell → Vermell fosc
     {v:52,   r:255, g:160, b:0,   a:255},
     {v:54,   r:255, g:135, b:0,   a:255},
     {v:56,   r:255, g:110, b:0,   a:255},
     {v:58,   r:255, g:85,  b:0,   a:255},
     {v:60,   r:255, g:60,  b:0,   a:255},
-    
-    // ========== TEMPESTA EXTREMA (60 - 70) ==========
-    // Vermell → Morat
     {v:62,   r:255, g:40,  b:20,  a:255},
     {v:64,   r:240, g:25,  b:50,  a:255},
     {v:66,   r:220, g:15,  b:80,  a:255},
     {v:68,   r:200, g:10,  b:110, a:255},
     {v:70,   r:180, g:10,  b:140, a:255},
-    
-    // ========== TEMPESTA CATASTRÒFICA (70 - 75+) ==========
-    // Morat → Blanc
     {v:72,   r:155, g:20,  b:170, a:255},
     {v:74,   r:130, g:40,  b:195, a:255},
     {v:75,   r:255, g:255, b:255, a:255},
@@ -923,7 +824,7 @@ const STOPS_T500 = [
     {v:30,r:255,g:0,b:0},{v:35,r:200,g:0,b:0},{v:40,r:150,g:0,b:50}
 ];
 
-// SRH (Storm Relative Helicity): Efecte MIRALL simètric
+// SRH: Efecte MIRALL simètric
 const STOPS_SRH = [
     {v:-1500, r:0,   g:0,   b:40},
     {v:-1000, r:0,   g:0,   b:120},
@@ -966,7 +867,7 @@ const STOPS_SRH = [
     {v:1500, r:0,   g:0,   b:40},
 ];
 
-// SHEAR: Un color DIFERENT cada 2 m/s - Contrast MÀXIM
+// SHEAR
 const STOPS_SHEAR = [
     {v:0,   r:0,   g:0,   b:255},
     {v:2,   r:0,   g:200, b:255},
@@ -998,7 +899,7 @@ const STOPS_SHEAR = [
 ];
 
 // ═══════════════════════════════════════════════════════════════════════
-//  PALETES FALTANTS — WCS 2D
+//  PALETES WCS 2D
 // ═══════════════════════════════════════════════════════════════════════
 
 const STOPS_NEU = [
@@ -1133,7 +1034,6 @@ const STOPS_PRECIP_RATE = [
     {v:100, r:200, g:0, b:200, a:255},
 ];
 
-// GEL NÚVOLS (CIWC) - PALETA BLANC-BLAU
 const STOPS_CIWC_MITJANA = [
     {v:0,         r:255, g:255, b:255, a:0},
     {v:0.000001,  r:220, g:230, b:255, a:30},
@@ -1267,7 +1167,7 @@ const STOPS_TPW_MITJANA = [
 ];
 
 // ═══════════════════════════════════════════════════════════════════════
-//  PALETES FALTANTS — WCS 3D (PV SURFACES)
+//  PALETES WCS 3D (PV SURFACES)
 // ═══════════════════════════════════════════════════════════════════════
 
 const STOPS_GEO_PV = [
@@ -1352,16 +1252,14 @@ const STOPS_ISOTERMA = [
     {v:8000, r:150, g:0, b:100, a:255},
     {v:12000, r:100, g:0, b:150, a:255},
 ];
+
 const STOPS_SCP = [
-    // ========== RISC MOLT BAIX (0 - 0.5) ==========
     {v:0,    r:220, g:220, b:220, a:20},
     {v:0.1,  r:200, g:210, b:220, a:50},
     {v:0.2,  r:180, g:200, b:220, a:80},
     {v:0.3,  r:160, g:190, b:220, a:110},
     {v:0.4,  r:140, g:180, b:220, a:140},
     {v:0.5,  r:120, g:170, b:220, a:160},
-    
-    // ========== RISC BAIX (0.5 - 2) ==========
     {v:0.7,  r:100, g:180, b:220, a:175},
     {v:0.9,  r:80,  g:195, b:220, a:190},
     {v:1.1,  r:60,  g:210, b:215, a:200},
@@ -1369,8 +1267,6 @@ const STOPS_SCP = [
     {v:1.5,  r:80,  g:230, b:180, a:215},
     {v:1.8,  r:110, g:235, b:155, a:225},
     {v:2.0,  r:150, g:240, b:130, a:230},
-    
-    // ========== RISC MITJÀ (2 - 5) ==========
     {v:2.3,  r:185, g:245, b:105, a:235},
     {v:2.6,  r:215, g:248, b:80,  a:240},
     {v:2.9,  r:235, g:248, b:55,  a:242},
@@ -1379,8 +1275,6 @@ const STOPS_SCP = [
     {v:4.0,  r:255, g:235, b:10,  a:250},
     {v:4.5,  r:255, g:225, b:0,   a:252},
     {v:5.0,  r:255, g:215, b:0,   a:253},
-    
-    // ========== RISC ALT (5 - 10) - COLORS CÀLIDS INTENSOS ==========
     {v:5.5,  r:255, g:200, b:0,   a:254},
     {v:6.0,  r:255, g:180, b:0,   a:255},
     {v:6.5,  r:255, g:160, b:0,   a:255},
@@ -1391,8 +1285,6 @@ const STOPS_SCP = [
     {v:9.0,  r:255, g:60,  b:0,   a:255},
     {v:9.5,  r:255, g:40,  b:0,   a:255},
     {v:10.0, r:255, g:20,  b:0,   a:255},
-    
-    // ========== RISC MOLT ALT (10 - 15) ==========
     {v:10.5, r:255, g:10,  b:10,  a:255},
     {v:11.0, r:240, g:0,   b:30,  a:255},
     {v:11.5, r:220, g:0,   b:60,  a:255},
@@ -1403,8 +1295,6 @@ const STOPS_SCP = [
     {v:14.0, r:120, g:40,  b:195, a:255},
     {v:14.5, r:100, g:60,  b:215, a:255},
     {v:15.0, r:80,  g:80,  b:235, a:255},
-    
-    // ========== RISC EXTREM (15 - 20+) ==========
     {v:16.0, r:60,  g:100, b:245, a:255},
     {v:17.0, r:80,  g:130, b:248, a:255},
     {v:18.0, r:120, g:170, b:248, a:255},
@@ -1413,11 +1303,7 @@ const STOPS_SCP = [
 ];
 
 const STOPS_HAIL = [
-    // ========== SENSE RISC (0 cm) ==========
-    {v:0,    r:255, g:255, b:255, a:0},     // Totalment transparent
-    
-    // ========== RISC MOLT BAIX (0.1 - 1 cm) ==========
-    // Blau molt clar → Blau (perill baix)
+    {v:0,    r:255, g:255, b:255, a:0},
     {v:0.1,  r:220, g:240, b:255, a:60},
     {v:0.2,  r:200, g:225, b:255, a:100},
     {v:0.3,  r:180, g:210, b:255, a:130},
@@ -1428,9 +1314,6 @@ const STOPS_HAIL = [
     {v:0.8,  r:80,  g:135, b:255, a:210},
     {v:0.9,  r:60,  g:120, b:255, a:218},
     {v:1.0,  r:40,  g:105, b:255, a:225},
-    
-    // ========== RISC BAIX-MITJÀ (1 - 5 cm) ==========
-    // Blau → Cian → Verd (augmenta el perill)
     {v:1.2,  r:20,  g:90,  b:255, a:235},
     {v:1.4,  r:0,   g:75,  b:245, a:242},
     {v:1.6,  r:0,   g:60,  b:230, a:248},
@@ -1442,9 +1325,6 @@ const STOPS_HAIL = [
     {v:4.0,  r:0,   g:200, b:120, a:255},
     {v:4.5,  r:50,  g:230, b:100, a:255},
     {v:5.0,  r:100, g:250, b:80,  a:255},
-    
-    // ========== RISC MITJÀ-ALT (5 - 10 cm) ==========
-    // Verd → Groc → Taronja (perill significatiu)
     {v:5.5,  r:150, g:255, b:60,  a:255},
     {v:6.0,  r:200, g:255, b:40,  a:255},
     {v:6.5,  r:230, g:255, b:20,  a:255},
@@ -1455,9 +1335,6 @@ const STOPS_HAIL = [
     {v:9.0,  r:255, g:140, b:0,   a:255},
     {v:9.5,  r:255, g:110, b:0,   a:255},
     {v:10.0, r:255, g:80,  b:0,   a:255},
-    
-    // ========== RISC ALT (10 - 20 cm) ==========
-    // Taronja → Vermell → Vermell fosc (perill greu)
     {v:11,   r:255, g:60,  b:0,   a:255},
     {v:12,   r:255, g:40,  b:0,   a:255},
     {v:13,   r:255, g:20,  b:0,   a:255},
@@ -1468,9 +1345,6 @@ const STOPS_HAIL = [
     {v:18,   r:180, g:0,   b:60,  a:255},
     {v:19,   r:160, g:0,   b:80,  a:255},
     {v:20,   r:140, g:0,   b:100, a:255},
-    
-    // ========== RISC EXTREM (20 - 30 cm) ==========
-    // Vermell fosc → Morat → Blanc (calamarsa gegant)
     {v:21,   r:120, g:0,   b:120, a:255},
     {v:22,   r:100, g:0,   b:140, a:255},
     {v:23,   r:80,  g:0,   b:160, a:255},
@@ -1480,7 +1354,7 @@ const STOPS_HAIL = [
     {v:27,   r:80,  g:40,  b:220, a:255},
     {v:28,   r:100, g:60,  b:230, a:255},
     {v:29,   r:120, g:80,  b:240, a:255},
-    {v:30,   r:255, g:255, b:255, a:255},  // Blanc = EXTREM
+    {v:30,   r:255, g:255, b:255, a:255},
 ];
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -1724,11 +1598,11 @@ function escalarVariablesMitjana(variables) {
 //  GRUPS DEL PANELL DE PARÀMETRES
 // ═══════════════════════════════════════════════════════════════════════
 
-const GRUP_PRINCIPAL = ['st', 'sd', 'srh', 'temp_min2m', 'temp_max2m', 'wind_speed_10m', 'wind_gust'];
- 
+const GRUP_PRINCIPAL = ['st', 'feels_like',  'temp_min2m', 'temp_max2m','sd', 'srh', 'wind_speed_10m', 'wind_gust'];
+
 const GRUPS_SIMPLES = {
 
-        'Ratxes de vent': [
+    'Ratxes de vent': [
         'wind_speed_10m', 'wind_gust',
     ],
 
@@ -1831,7 +1705,7 @@ const GRUPS_SIMPLES = {
         'FF__ISO_TP_1500', 'FF__ISO_TP_2000',
     ],
 };
- 
+
 const GRUPS_ACORDIO = {
     'Temperatura':      ['t'],
     'Punt rosada':      ['dpt'],
@@ -1840,22 +1714,22 @@ const GRUPS_ACORDIO = {
     'Vel. vertical':    ['w'],
     'Vort. potencial':  ['pv'],
 };
- 
+
 const CLAUS_3D = new Set(['t','u','v','r','w','dpt','pv','wind_speed']);
- 
+
 const VARIABLES_AMAGADES = new Set([
     'su', 'sv', 'u', 'v', 'sh2', 'geo_h', 'shear_06_eff',
     'srh_06_eff', 'sp', 'lightning', 'reflectivity_dbz', 'rain','precip_water', 'group', 'tgrp' ,'scp', 'bt62',
- 
+
     'LOW_CLOUD_COVER__GROUND_OR_WATER_SURFACE',
     'MEDIUM_CLOUD_COVER__GROUND_OR_WATER_SURFACE',
     'HIGH_CLOUD_COVER__GROUND_OR_WATER_SURFACE',
     'TOTAL_CLOUD_COVER__GROUND_OR_WATER_SURFACE',
- 
+
     'CONVECTIVE_AVAILABLE_POTENTIAL_ENERGY__GROUND_OR_WATER_SURFACE',
     'CONVECTIVE_INHIBITION__GROUND_OR_WATER_SURFACE',
     'CIN__GROUND',
- 
+
     'MEAN_LAYER_CAPE__GROUND_OR_WATER_SURFACE',
     'PLANETARY_BOUNDARY_LAYER_HEIGHT__GROUND_OR_WATER_SURFACE',
     'PRECIPITABLE_WATER__GROUND_OR_WATER_SURFACE',
@@ -1864,33 +1738,33 @@ const VARIABLES_AMAGADES = new Set([
     'PRESSURE__MEAN_SEA_LEVEL',
     'GEOMETRIC_HEIGHT__GROUND_OR_WATER_SURFACE',
 ]);
- 
+
 function esVariableAmagada(clau) {
     if (VARIABLES_AMAGADES.has(clau)) return true;
     const m = clau.match(/^(.+)_(-?\d+)$/);
     if (m && VARIABLES_AMAGADES.has(m[1])) return true;
     return false;
 }
- 
+
 function esVariable3D(clau) { return CLAUS_3D.has(clauBase(clau)); }
- 
+
 function getCoordenadesPer(data, clau) {
     if (esVariable3D(clau) && data.coordenadas_3d) return data.coordenadas_3d;
     return data.coordenadas;
 }
- 
+
 let variableActiva = 'st';
 window._currentParameter = 'st';
- 
+
 function clauBase(c) {
     if (PALETES[c]) return c;
     if (ALIES_CLAUS[c] && PALETES[ALIES_CLAUS[c]]) return ALIES_CLAUS[c];
     const m = c.match(/^(.+)_(-?\d+)$/);
     return (m && PALETES[m[1]]) ? m[1] : 'st';
 }
- 
+
 function getPaleta(c) { return PALETES[clauBase(c)] || PALETES.st; }
- 
+
 function getColor(pal, v) {
     const s = pal.stops;
     if (v === null || v === undefined || isNaN(v)) return {r:0,g:0,b:0,a:0};
@@ -1925,13 +1799,13 @@ function calcularVelocitatVent(variables) {
             };
         }
     }
- 
+
     const nivellsPressio = new Set();
     Object.keys(variables).forEach(clau => {
         const m = clau.match(/^[uv]_(\d+)$/);
         if (m) nivellsPressio.add(parseInt(m[1]));
     });
- 
+
     nivellsPressio.forEach(nivell => {
         const clauU = `u_${nivell}`;
         const clauV = `v_${nivell}`;
@@ -1952,92 +1826,6 @@ function calcularVelocitatVent(variables) {
         }
     });
 }
- 
-
-// ═══════════════════════════════════════════════════════════════════════
-//  OBTENIR DADES DE VENT PER STREAMLINES
-// ═══════════════════════════════════════════════════════════════════════
-
-function obtenirVentPerStreamlines(data, clau) {
-    const coords = getCoordenadesPer(data, clau);
-    const lats = coords.lat;
-    const lons = coords.lon;
-    const Nlat = lats.length;
-    const Nlon = lons.length;
-
-    let clauU, clauV;
-    const base = clauBase(clau);
-
-    const varsSuperficie = [
-        'st','sd','srh','sp','pressure_msl','cape','cin','spbl',
-        'rain','rain_1h','snow','graupel','tp','tgrp','tsnowp',
-        'precip_water','low_cloud_cover','medium_cloud_cover',
-        'high_cloud_cover','reflectivity_dbz','lightning',
-        'wind_speed_10m','wind_gust',
-        'lcl_m','lfc_m','lifted_index','el_m',
-        'temp_min2m','temp_max2m','scp','scp_wcs','stp','hail_cm',
-        'ehi','bt108','bt62','ciwc_500','cld_rain_850','tpw_700','tpw_850',
-        'thetav_850','altitud'
-    ];
-
-    if (varsSuperficie.includes(base) || varsSuperficie.includes(clau)) {
-        clauU = 'su';
-        clauV = 'sv';
-    } else if (base === 'wind_speed') {
-        const m = clau.match(/_(\d+)$/);
-        if (m) {
-            clauU = `u_${m[1]}`;
-            clauV = `v_${m[1]}`;
-        }
-    } else {
-        const m = clau.match(/_(\d+)$/);
-        if (m) {
-            clauU = `u_${m[1]}`;
-            clauV = `v_${m[1]}`;
-        } else {
-            clauU = 'su';
-            clauV = 'sv';
-        }
-    }
-
-    const varU = data.variables[clauU];
-    const varV = data.variables[clauV];
-    if (!varU || !varV) return null;
-    if (varU.datos.length !== Nlat * Nlon || varV.datos.length !== Nlat * Nlon) return null;
-
-    const speed = new Float32Array(Nlat * Nlon);
-    const dir = new Float32Array(Nlat * Nlon);
-
-    for (let i = 0; i < Nlat; i++) {
-        const filaReal = (Nlat - 1 - i);
-        for (let j = 0; j < Nlon; j++) {
-            const idx = filaReal * Nlon + j;
-            const uVal = varU.datos[idx];
-            const vVal = varV.datos[idx];
-            if (uVal === null || vVal === null || isNaN(uVal) || isNaN(vVal)) {
-                speed[i * Nlon + j] = 0;
-                dir[i * Nlon + j] = 0;
-            } else {
-                const spd = Math.sqrt(uVal * uVal + vVal * vVal) * 3.6;
-                let angle = Math.atan2(vVal, uVal) * 180 / Math.PI;
-                angle = (270 - angle) % 360;
-                if (angle < 0) angle += 360;
-                speed[i * Nlon + j] = spd;
-                dir[i * Nlon + j] = angle;
-            }
-        }
-    }
-
-    return {
-        lats, lons, Nlat, Nlon,
-        speed, dir,
-        extent: [Math.min(...lons), Math.max(...lons), Math.min(...lats), Math.max(...lats)]
-    };
-}
-
-// ═══════════════════════════════════════════════════════════════════════
-//  STREAMLINES
-// ═══════════════════════════════════════════════════════════════════════
 
 // ═══════════════════════════════════════════════════════════════════════
 //  STREAMLINES
@@ -2182,15 +1970,14 @@ function _dibuixarStreamlines() {
         ? `rgba(255, 255, 255, ${wCfg.streamlineOpacity})`
         : `rgba(0, 0, 0, ${wCfg.streamlineOpacity})`;
 
-
-        function _hexAOpacitatRgba(color, opacitat) {
-    if (color === 'white') return `rgba(255, 255, 255, ${opacitat})`;
-    if (color === 'black') return `rgba(0, 0, 0, ${opacitat})`;
-    const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(color || '');
-    if (!m) return `rgba(0, 0, 0, ${opacitat})`;
-    const r = parseInt(m[1], 16), g = parseInt(m[2], 16), b = parseInt(m[3], 16);
-    return `rgba(${r}, ${g}, ${b}, ${opacitat})`;
-}
+    function _hexAOpacitatRgba(color, opacitat) {
+        if (color === 'white') return `rgba(255, 255, 255, ${opacitat})`;
+        if (color === 'black') return `rgba(0, 0, 0, ${opacitat})`;
+        const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(color || '');
+        if (!m) return `rgba(0, 0, 0, ${opacitat})`;
+        const r = parseInt(m[1], 16), g = parseInt(m[2], 16), b = parseInt(m[3], 16);
+        return `rgba(${r}, ${g}, ${b}, ${opacitat})`;
+    }
 
     ctx.save();
     ctx.lineCap = 'round';
@@ -2330,30 +2117,6 @@ window.setStreamlineColor = function(color) {
     _redibuixarCanvasVent();
 };
 
-window.setStreamlineWidth = function(v) {
-    wCfg.streamlineWidth = Math.min(3, Math.max(0.5, v));
-    _redibuixarCanvasVent();
-};
-
-window.setStreamlineOpacity = function(v) {
-    wCfg.streamlineOpacity = Math.min(1, Math.max(0.1, v));
-    _redibuixarCanvasVent();
-};
-
-window.toggleVentMode = function() {
-    window.ventMode = window.ventMode === 'streamlines' ? 'particles' : 'streamlines';
-    if (window.ventMode !== 'streamlines' && canvasVent) {
-        ctxVent.clearRect(0, 0, canvasVent.width, canvasVent.height);
-    }
-    _redibuixarCanvasVent();
-    return window.ventMode;
-};
-
-window.setStreamlineColor = function(color) {
-    wCfg.streamlineColor = color;
-    _redibuixarCanvasVent();
-};
-
 window.setStreamlineColorHex = function (hex) {
     wCfg.streamlineColor = hex;
     _redibuixarCanvasVent();
@@ -2372,7 +2135,7 @@ window.setStreamlineOpacity = function(v) {
 // ═══════════════════════════════════════════════════════════════════════
 //  CANVAS LAYER (dades)
 // ═══════════════════════════════════════════════════════════════════════
- 
+
 const CanvasLayer = L.Layer.extend({
     initialize: function() {
         this._canvas = null;
@@ -2380,7 +2143,7 @@ const CanvasLayer = L.Layer.extend({
         this._offscreen = null;
         this._needsRedraw = true;
     },
- 
+
     onAdd: function(map) {
         this._map = map;
         const c = document.createElement('canvas');
@@ -2390,18 +2153,18 @@ const CanvasLayer = L.Layer.extend({
         map.on('moveend zoomend', this._render, this);
         this._render();
     },
- 
+
     onRemove: function(map) {
         map.getPane('paneDades').removeChild(this._canvas);
         map.off('moveend zoomend', this._render, this);
     },
- 
+
     setData: function(data) {
         this._data = data;
         this._needsRedraw = true;
         this._render();
     },
- 
+
     _drawOffscreen: function() {
         if (!this._data) return;
         const coords = getCoordenadesPer(this._data, variableActiva);
@@ -2409,7 +2172,7 @@ const CanvasLayer = L.Layer.extend({
         const lons = coords.lon;
         const Nlat = lats.length;
         const Nlon = lons.length;
- 
+
         const clauLectura = clauRealPerLlegir(variableActiva);
         const varInfo = this._data.variables[clauLectura] || this._data.variables[variableActiva];
         if (!varInfo || !varInfo.datos) {
@@ -2420,7 +2183,7 @@ const CanvasLayer = L.Layer.extend({
             this._needsRedraw = false;
             return;
         }
- 
+
         const dades = varInfo.datos;
         if (dades.length !== Nlat * Nlon) {
             if (this._offscreen) {
@@ -2430,22 +2193,22 @@ const CanvasLayer = L.Layer.extend({
             this._needsRedraw = false;
             return;
         }
- 
+
         const pal = getPaleta(variableActiva);
         if (!this._offscreen || this._offscreen.width !== Nlon || this._offscreen.height !== Nlat) {
             this._offscreen = document.createElement('canvas');
             this._offscreen.width = Nlon;
             this._offscreen.height = Nlat;
         }
- 
+
         const ctx = this._offscreen.getContext('2d');
         const imgData = ctx.createImageData(Nlon, Nlat);
         const d = imgData.data;
- 
+
         const CLAUS_TEMP = ['st', 'sd', 't', 'dpt', 'temp_min2m', 'temp_max2m'];
         const base = clauBase(variableActiva);
         const esTemperatura = CLAUS_TEMP.includes(base);
- 
+
         for (let i = 0; i < Nlat; i++) {
             const filaReal = (Nlat - 1 - i);
             for (let j = 0; j < Nlon; j++) {
@@ -2465,11 +2228,11 @@ const CanvasLayer = L.Layer.extend({
         ctx.putImageData(imgData, 0, 0);
         this._needsRedraw = false;
     },
- 
+
     _render: function() {
         if (!this._data || !this._map) return;
         if (this._needsRedraw) this._drawOffscreen();
- 
+
         const map = this._map;
         const size = map.getSize();
         const canvas = this._canvas;
@@ -2478,7 +2241,7 @@ const CanvasLayer = L.Layer.extend({
         const ctx = canvas.getContext('2d');
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         L.DomUtil.setPosition(canvas, map.containerPointToLayerPoint([0,0]));
- 
+
         const coords = getCoordenadesPer(this._data, variableActiva);
         const lats = coords.lat;
         const lons = coords.lon;
@@ -2486,11 +2249,11 @@ const CanvasLayer = L.Layer.extend({
         const latMin = Math.min(lats[0], lats[lats.length - 1]);
         const lonMin = Math.min(lons[0], lons[lons.length - 1]);
         const lonMax = Math.max(lons[0], lons[lons.length - 1]);
- 
+
         const nw = map.latLngToContainerPoint(L.latLng(latMax, lonMin));
         const se = map.latLngToContainerPoint(L.latLng(latMin, lonMax));
         const x = nw.x, y = nw.y, w = se.x - nw.x, h = se.y - nw.y;
- 
+
         if (this._offscreen && w > 0 && h > 0) {
             ctx.save();
             ctx.imageSmoothingEnabled = true;
@@ -2498,12 +2261,12 @@ const CanvasLayer = L.Layer.extend({
             ctx.drawImage(this._offscreen, x, y, w, h);
             ctx.restore();
         }
- 
+
         this._drawLegend(ctx, getPaleta(variableActiva));
         actualitzarCapcaleraParametre();
         redibuixarVent();
     },
- 
+
     _drawLegend: function(ctx, pal) {
         const s = pal.stops;
         const W = ctx.canvas.width, H = ctx.canvas.height;
@@ -2522,17 +2285,15 @@ const CanvasLayer = L.Layer.extend({
         ctx.fillText(fmt(s[0].v), x0-3, y0+s.length*3+2);
     }
 });
- 
+
 const canvasLayer = new CanvasLayer();
 canvasLayer.addTo(map);
 window._canvasLayer = canvasLayer;
- 
-
 
 const GEOJSON_CAPES = [
-    { 
-        id: 'catalunya', 
-        nom: 'Catalunya', 
+    {
+        id: 'catalunya',
+        nom: 'Catalunya',
         arxiu: 'spain.geojson',
         color: '#040400',
         gruix: 2.5,
@@ -2549,15 +2310,15 @@ const GEOJSON_CAPES = [
 ];
 const capaInstancies = {};
 const capaOpacitats = {}; // opacitat pròpia de cada capa (independent de la vora)
- 
+
 function estilCapa(def) {
     return { pane: 'paneGeojson', color: def.color, weight: def.gruix, opacity: 1, fill: false };
 }
- 
+
 async function carregarCapaGeojson(def) {
     let retard = RETARD_INICIAL;
     const MAX_REINTENTS_GEO = 4;
- 
+
     for (let intent = 1; intent <= MAX_REINTENTS_GEO; intent++) {
         try {
             const r = await fetch(ambCacheBuster(`${DADES_PATH}/${def.arxiu}`), { cache: 'no-store' });
@@ -2578,7 +2339,8 @@ async function carregarCapaGeojson(def) {
         }
     }
 }
- async function inicialitzarGeojson() {
+
+async function inicialitzarGeojson() {
     for (const def of GEOJSON_CAPES) {
         try {
             const url = `dades/${def.arxiu}`;
@@ -2622,7 +2384,7 @@ async function carregarCapaGeojson(def) {
 // ═══════════════════════════════════════════════════════════════════════
 //  CLICK AL MAPA — POPUP ESTIL AMERICÀ (MINIMALISTA)
 // ═══════════════════════════════════════════════════════════════════════
- 
+
 function trobarIndexMesProper(arr, val) {
     let best=0, bestDiff=Infinity;
     for (let i=0;i<arr.length;i++) {
@@ -2631,7 +2393,7 @@ function trobarIndexMesProper(arr, val) {
     }
     return best;
 }
- 
+
 let marcadorClic = null;
 map.on('click', function(e) {
     const {lat, lng} = e.latlng;
@@ -2644,31 +2406,31 @@ map.on('click', function(e) {
     const clauLectura = clauRealPerLlegir(variableActiva);
     const varInfo = data.variables[clauLectura] || data.variables[variableActiva];
     if (!varInfo || !varInfo.datos) return;
- 
+
     const latMin = Math.min(lats[0], lats[lats.length-1]);
     const latMax = Math.max(lats[0], lats[lats.length-1]);
     const lonMin = Math.min(lons[0], lons[lons.length-1]);
     const lonMax = Math.max(lons[0], lons[lons.length-1]);
     if (lat<latMin||lat>latMax||lng<lonMin||lng>lonMax) return;
- 
+
     const i = trobarIndexMesProper(lats, lat);
     const j = trobarIndexMesProper(lons, lng);
     const Nlon = lons.length;
     if (varInfo.datos.length !== lats.length * Nlon) return;
- 
+
     const latNord = lats[0] > lats[lats.length-1];
     const filaReal = latNord ? (lats.length - 1 - i) : i;
- 
+
     let v = varInfo.datos[filaReal * Nlon + j];
- 
+
     const CLAUS_TEMP = ['st', 'sd', 't', 'dpt', 'temp_min2m', 'temp_max2m'];
     const base = clauBase(variableActiva);
     if (CLAUS_TEMP.includes(base) && v !== null && !isNaN(v) && v > 100) {
         v = v - 273.15;
     }
- 
+
     const pal = getPaleta(variableActiva);
- 
+
     function formatarValor(v) {
         if (v === null || v === undefined || isNaN(v)) return '—';
         const absV = Math.abs(v);
@@ -2677,9 +2439,9 @@ map.on('click', function(e) {
         if (Number.isInteger(v)) return v.toString();
         return v.toFixed(2);
     }
- 
+
     const vt = formatarValor(v);
- 
+
     const html = `
         <div style="
             position: relative;
@@ -2704,14 +2466,14 @@ map.on('click', function(e) {
                 text-transform: uppercase;
                 line-height: 1.2;
             ">${lat.toFixed(2)}°${lat >= 0 ? 'N' : 'S'}<br>${lng.toFixed(2)}°${lng >= 0 ? 'E' : 'W'}</div>
- 
+
             <div style="
                 font-size: 20px;
                 font-weight: 700;
                 color: #ffffff;
                 line-height: 1;
             ">${vt}<span style="font-size:9px;color:#667788;font-weight:400;margin-left:2px;">${pal.unitat}</span></div>
- 
+
             <button onclick="if(marcadorClic){map.removeLayer(marcadorClic);marcadorClic=null;}" style="
                 position: absolute;
                 top: 3px;
@@ -2726,7 +2488,7 @@ map.on('click', function(e) {
             " onmouseover="this.style.color='#ffffff'" onmouseout="this.style.color='#8899aa'">✕</button>
         </div>
     `;
- 
+
     if (marcadorClic) map.removeLayer(marcadorClic);
     marcadorClic = L.popup({
         closeButton: false,
@@ -2735,14 +2497,13 @@ map.on('click', function(e) {
         offset: [0, -8]
     }).setLatLng(e.latlng).setContent(html).openOn(map);
 });
- 
+
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape' && marcadorClic) {
         map.removeLayer(marcadorClic);
         marcadorClic = null;
     }
 });
- 
 
 // ═══════════════════════════════════════════════════════════════════════
 //  CÀRREGA DE JSONs
@@ -2759,9 +2520,6 @@ let curIdx = 0;
 let _ordreUsSfc = [];
 
 let _carregantAra = new Map();
-
-let _precarga3dEnMarxa = false;
-let _precarga3dCompletada = false;
 
 function aArrayTipat(datos) {
     const n = datos.length;
@@ -2930,14 +2688,12 @@ async function descomprimirMsgPackGz(response) {
         const buffer = await response.arrayBuffer();
         const bytes = new Uint8Array(buffer);
 
-        // 🔧 FIX: detectar si Cloudflare ya descomprimió el archivo
-        // gzip real siempre empieza con los bytes 0x1F 0x8B (magic number)
+        // Detectar si Cloudflare ja ha descomprimit el fitxer
         const esGzipReal = bytes.length >= 2 && bytes[0] === 0x1F && bytes[1] === 0x8B;
 
         let decompressed;
 
         if (esGzipReal) {
-            // Sigue comprimido de verdad -> descomprimir normalmente
             const ds = new DecompressionStream('gzip');
             const blob = new Blob([buffer]);
             const stream = blob.stream().pipeThrough(ds);
@@ -2958,17 +2714,13 @@ async function descomprimirMsgPackGz(response) {
                 offset += chunk.length;
             }
         } else {
-            // Cloudflare ya lo descomprimió por el camino (Content-Encoding: gzip
-            // a nivel HTTP) -> usar los bytes tal cual, sin descomprimir de nuevo
             decompressed = bytes;
         }
 
-        // usar la librería global cargada por <script>, no import()
         if (typeof MessagePack !== 'undefined') {
             return MessagePack.decode(decompressed);
         }
 
-        // Fallback si de verdad es JSON
         try {
             const text = new TextDecoder().decode(decompressed);
             return JSON.parse(text);
@@ -2999,7 +2751,6 @@ async function carregarFitxerAmbReintents(url, maxIntents = 3) {
             }
 
             try {
-                // 🔥 DETECTAR SI ÉS .MSGPACK.GZ
                 if (url.includes('.msgpack.gz')) {
                     const data = await descomprimirMsgPackGz(response);
                     return data;
@@ -3042,81 +2793,131 @@ async function carregarFitxerAmbReintents(url, maxIntents = 3) {
     return null;
 }
 
+// ═══════════════════════════════════════════════════════════════════════
+//  CÀRREGA D'UN STEP - NOMÉS UNA HORA (NO MÉS)
+// ═══════════════════════════════════════════════════════════════════════
+
 async function carregarUnStep(i, ambDades3d) {
     const base = 'web_data_NE/';
     const p = String(i).padStart(2, '0');
 
-    // Carregar SFC i 3D EN PARAL·LEL
-    const [sfcResult, tdResult] = await Promise.all([
-        carregarFitxerAmbReintents(base + 'sfc_' + p + '.msgpack.gz', 3),
-        carregarFitxerAmbReintents(base + '3d_' + p + '.msgpack.gz', 3)
-    ]);
+    let horaReal = null;
+    let diaReal = 'avui';
+    let nomSFCTrobat = null;
+    let nom3DTrobat = null;
 
-    let sfc = sfcResult;
-    let td = tdResult;
-
-    // Fallback a .json.gz si falta algun dels dos
-    if (!sfc) {
-        sfc = await carregarFitxerAmbReintents(base + 'sfc_' + p + '.json.gz', 3);
-    }
-    if (!td) {
-        td = await carregarFitxerAmbReintents(base + '3d_' + p + '.json.gz', 3);
-    }
-
-    // Fallback sense compressió
-    if (!sfc) {
-        try {
-            const resp = await fetch(base + 'sfc_' + p + '.json');
-            if (resp.ok) {
-                sfc = await resp.json();
-                console.log(`[SFC] Carregat sense compressió: sfc_${p}.json`);
-            }
-        } catch (e) { /* silenciós */ }
-    }
-    if (!td) {
-        try {
-            const resp = await fetch(base + '3d_' + p + '.json');
-            if (resp.ok) {
-                td = await resp.json();
-                console.log(`[3D] Carregat sense compressió: 3d_${p}.json`);
-            }
-        } catch (e) { /* silenciós */ }
+    if (window._horesDisponibles && window._horesDisponibles[i]) {
+        const info = window._horesDisponibles[i];
+        horaReal = String(info.hora).padStart(2, '0');
+        diaReal = info.dia;
+        nomSFCTrobat = info.nomSFC;
+        nom3DTrobat = info.nom3D;
+        console.log(`[carregar] 📍 Step ${i} → hora ${horaReal}h ${diaReal}`);
+    } else {
+        const ara = new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/Madrid' }));
+        const araHores = ara.getHours();
+        let h = araHores + i;
+        let dia = 'avui';
+        if (h >= 24) { h -= 24; dia = 'dema'; }
+        if (h >= 48) { h -= 48; dia = 'dema_passat'; }
+        if (h < 0) { h += 24; dia = 'ahir'; }
+        horaReal = String(h).padStart(2, '0');
+        diaReal = dia;
     }
 
-    if (!sfc && !td) {
-        console.warn(`[carregarUnStep] Hora ${p}: sense dades (ni SFC ni 3D)`);
+    let sfcData = null;
+    let sfcNom = null;
+
+    if (nomSFCTrobat) {
+        console.log(`[carregar] 📥 Carregant SFC: ${nomSFCTrobat}`);
+        sfcData = await carregarFitxerAmbReintents(nomSFCTrobat, 3);
+        if (sfcData) sfcNom = nomSFCTrobat;
+    }
+
+    if (!sfcData) {
+        const nomsSFC = [
+            `sfc_${horaReal}_${diaReal}.msgpack.gz`,
+            `sfc_${horaReal}_avui.msgpack.gz`,
+            `sfc_${horaReal}_ahir.msgpack.gz`,
+            `sfc_${horaReal}_dema.msgpack.gz`,
+            `sfc_${horaReal}_dema_passat.msgpack.gz`,
+            `sfc_${horaReal}.msgpack.gz`,
+            `sfc_${p}.msgpack.gz`,
+        ];
+        for (const nom of nomsSFC) {
+            const url = base + nom;
+            try {
+                const r = await fetch(ambCacheBusterDades(url), { method: 'HEAD', cache: 'no-store' });
+                if (r.ok) {
+                    console.log(`[carregar] 📥 Carregant SFC: ${nom}`);
+                    sfcData = await carregarFitxerAmbReintents(url, 3);
+                    if (sfcData) { sfcNom = nom; break; }
+                }
+            } catch (e) {}
+        }
+    }
+
+    if (!sfcData) {
+        console.warn(`[carregar] ❌ No s'ha trobat SFC per step ${i}`);
         return null;
     }
 
-    // Combinar variables de tots dos fitxers
-    const base_d = sfc || td;
+    let tdData = null;
+    let tdNom = null;
+
+    if (ambDades3d && nom3DTrobat) {
+        // 🔧 FIX: nom3DTrobat ve sense la carpeta (només 'web_data_NE/' fa
+        // falta afegir-la). Provem primer amb el path complet i, si falla,
+        // caiem al mateix mecanisme de fallback que ja fem servir pel SFC.
+        const url3D = nom3DTrobat.startsWith(base) ? nom3DTrobat : (base + nom3DTrobat);
+        console.log(`[carregar] 📥 Carregant 3D: ${url3D}`);
+        tdData = await carregarFitxerAmbReintents(url3D, 3);
+        if (tdData) {
+            tdNom = nom3DTrobat;
+        } else if (!nom3DTrobat.startsWith(base)) {
+            // Fallback: potser ja portava el path (per si de cas) — reprovem tal qual
+            tdData = await carregarFitxerAmbReintents(nom3DTrobat, 3);
+            if (tdData) tdNom = nom3DTrobat;
+        }
+    }
+
     const variables = {};
-    if (sfc) Object.assign(variables, tipificarVariables(sfc.variables));
-    if (td) Object.assign(variables, tipificarVariables(td.variables));
-    escalarVariablesMitjana(variables);
+    if (sfcData && sfcData.variables) {
+        Object.assign(variables, tipificarVariables(sfcData.variables));
+    }
+    if (tdData && tdData.variables) {
+        Object.assign(variables, tipificarVariables(tdData.variables));
+    }
 
     if (Object.keys(variables).length === 0) {
-        console.warn(`[carregarUnStep] Hora ${p}: variables buides`);
+        console.warn(`[carregar] ❌ Step ${i}: variables buides`);
         return null;
     }
 
+    escalarVariablesMitjana(variables);
     calcularVelocitatVent(variables);
 
     const data = {
-        ...base_d, variables,
-        coordenadas: sfc ? sfc.coordenadas : td.coordenadas,
-        coordenadas_3d: td ? td.coordenadas : (sfc ? sfc.coordenadas : null),
-        _te3d: !!td,
+        ...sfcData,
+        variables,
+        coordenadas: sfcData.coordenadas,
+        coordenadas_3d: tdData ? tdData.coordenadas : sfcData.coordenadas,
+        _te3d: !!tdData,
+        _nomSFC: sfcNom,
+        _nom3D: tdNom,
     };
-    return { step: data.step, dateObj: new Date(data.hora_utc + 'Z'), data };
+
+    console.log(`[carregar] ✅ Step ${i} carregat: ${sfcNom}${tdNom ? ` + ${tdNom}` : ''}`);
+
+    return { step: i, dateObj: new Date(data.hora_utc + 'Z'), data };
 }
 
 // ═══════════════════════════════════════════════════════════════════════
 //  CÀRREGA SOTA DEMANDA — SENSE MANIFEST
 //  Detecta automàticament quantes hores hi ha disponibles provant-les
-//  seqüencialment (sense descarregar dades pesades, només confirmant
-//  que el fitxer existeix). Un cop sabem el rang, construïm esquelets
-//  i només es descarrega de veritat la hora que l'usuari clica.
+//  seqüencialment. Un cop sabem el rang, construïm esquelets i NOMÉS
+//  es descarrega de veritat la hora que l'usuari clica. Una hora ja
+//  carregada (item.data existeix) mai es torna a descarregar.
 // ═══════════════════════════════════════════════════════════════════════
 
 function _marcarUsSfc(idx) {
@@ -3132,6 +2933,7 @@ async function assegurarHoraCarregada(idx, ambDades3d) {
     const teSfc = item.data && item.data.variables;
     const te3d = item.data && item.data._te3d;
 
+    // ── Ja tenim el que fa falta a memòria: no es torna a descarregar ──
     if (teSfc && (!ambDades3d || te3d)) {
         _marcarUsSfc(idx);
         return true;
@@ -3168,64 +2970,159 @@ async function assegurarHoraCarregada(idx, ambDades3d) {
     }
 }
 
-function inicialitzarSistema3D() {
-    crearNotificacio3D();
-
-    setTimeout(() => {
-        afegirBotoCarga3D();
-        // ❌ ELIMINAR estas líneas:
-        // if (!SISTEMA_3D.complet && !SISTEMA_3D.carregant) {
-        //     console.log('[3D] Iniciando carga automática...');
-        //     iniciarCarga3D();
-        // }
-    }, 500);
-
-    // ❌ ELIMINAR este event listener
-    // document.addEventListener('mapa-dades-llestes', (e) => {
-    //     ...
-    // });
-}
+// ═══════════════════════════════════════════════════════════════════════
+//  DETECTAR HORES DISPONIBLES - NOMÉS LES QUE REALMENT EXISTEIXEN
+// ═══════════════════════════════════════════════════════════════════════
 
 async function detectarHoresDisponibles() {
     const steps = [];
-    let fallsConsecutius = 0;
-    const MAX_FALLS_CONSECUTIUS = 2;
+    const horesTrobades = [];
 
-    for (let i = 0; i < MAX_STEPS && fallsConsecutius < MAX_FALLS_CONSECUTIUS; i++) {
-        const p = String(i).padStart(2, '0');
-        let existeix = false;
-        
-        // 🔧 FIX: Gestionar errors 404 silenciosament
-try {
-    const r1 = await fetch(ambCacheBusterDades('web_data_NE/sfc_' + p + '.msgpack.gz'), { method: 'HEAD', cache: 'no-store' });
-    if (r1.ok) existeix = true;
-} catch (e) {
-    // Silenciós - el fitxer no existeix
-}
-        
-        if (!existeix) {
-            try {
-                const r2 = await fetch(ambCacheBusterDades('web_data_NE/3d_' + p + '.msgpack.gz'), { method: 'HEAD', cache: 'no-store' });
-                if (r2.ok) existeix = true;
-            } catch (e) {
-                // Silenciós - el fitxer no existeix
+    console.log('[detectar] 🔍 Buscant fitxers disponibles...');
+
+    // ═══════════════════════════════════════════════════════════════════
+    //  MÈTODE 1: Llegir el directori (MÉS RÀPID)
+    // ═══════════════════════════════════════════════════════════════════
+    try {
+        const response = await fetch('web_data_NE/');
+        if (response.ok) {
+            const text = await response.text();
+            const regex = /(sfc|3d)_(\d{2})_(avui|ahir|dema|dema_passat|\d{4})\.msgpack\.gz/g;
+            let match;
+            const fitxersTrobats = new Set();
+
+            while ((match = regex.exec(text)) !== null) {
+                const tipus = match[1];
+                const hora = parseInt(match[2]);
+                const dia = match[3];
+                fitxersTrobats.add(`${tipus}_${hora}_${dia}`);
+            }
+
+            if (fitxersTrobats.size > 0) {
+                console.log(`[detectar] ✅ Trobats ${fitxersTrobats.size} fitxers al directori`);
+
+                // Extraure hores úniques
+                const horesUniques = new Map();
+                for (const fitxer of fitxersTrobats) {
+                    const parts = fitxer.split('_');
+                    const hora = parseInt(parts[1]);
+                    const dia = parts[2];
+                    const clau = `${hora}_${dia}`;
+
+                    if (!horesUniques.has(clau)) {
+                        horesUniques.set(clau, { hora, dia });
+                    }
+                }
+
+                // 🔥 ORDENAR per dia i hora — respecta l'ordre real generat pels scripts Python
+                //     (ahir queda sempre abans que avui)
+                const ordreDia = { ahir: -1, avui: 0, dema: 1, dema_passat: 2 };
+                const horesOrdenades = Array.from(horesUniques.values())
+                    .sort((a, b) => {
+                        const diffDia = (ordreDia[a.dia] ?? 99) - (ordreDia[b.dia] ?? 99);
+                        if (diffDia !== 0) return diffDia;
+                        return a.hora - b.hora;
+                    });
+
+                // Assignar steps consecutius respectant aquest ordre
+                let stepCounter = 0;
+                for (const { hora, dia } of horesOrdenades) {
+                    const horaStr = String(hora).padStart(2, '0');
+                    const teSFC = fitxersTrobats.has(`sfc_${horaStr}_${dia}`);
+                    const te3D = fitxersTrobats.has(`3d_${horaStr}_${dia}`);
+
+                    if (teSFC) {
+                        steps.push(stepCounter);
+                        horesTrobades.push({
+                            step: stepCounter,
+                            hora: hora,
+                            dia: dia,
+                            horaStr: `${horaStr}:00`,
+                            diaStr: dia,
+                            teSFC: teSFC,
+                            te3D: te3D,
+                            // 🔧 FIX: incloure sempre la carpeta 'web_data_NE/' al nom
+                            // per evitar el 404 previ al fallback en carregarUnStep.
+                            nomSFC: `web_data_NE/sfc_${horaStr}_${dia}.msgpack.gz`,
+                            nom3D: te3D ? `web_data_NE/3d_${horaStr}_${dia}.msgpack.gz` : null,
+                        });
+                        stepCounter++;
+                    }
+                }
+
+                window._horesDisponibles = horesTrobades;
+                console.log(`[detectar] ✅ Trobades ${steps.length} hores:`,
+                    horesTrobades.map(h => `${h.hora}h ${h.dia} ${h.te3D ? '📡' : ''}`).join(', '));
+                return steps;
             }
         }
+    } catch (e) {
+        console.log('[detectar] No es pot llistar el directori');
+    }
 
-        if (existeix) {
-            steps.push(i);
-            fallsConsecutius = 0;
-        } else {
-            fallsConsecutius++;
+    // ═══════════════════════════════════════════════════════════════════
+    //  MÈTODE 2: Provar només les hores conegudes (fallback)
+    // ═══════════════════════════════════════════════════════════════════
+
+    const horesConegudes = [14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
+
+    console.log('[detectar] 🔍 Comprovant hores conegudes...');
+    let stepCounter = 0;
+
+    const dies = ['ahir', 'avui', 'dema', 'dema_passat'];
+
+    for (const dia of dies) {
+        for (const hora of horesConegudes) {
+            const horaStr = String(hora).padStart(2, '0');
+            const nomSFC = `web_data_NE/sfc_${horaStr}_${dia}.msgpack.gz`;
+
+            try {
+                const r = await fetch(ambCacheBusterDades(nomSFC), { method: 'HEAD', cache: 'no-store' });
+                if (r.ok) {
+                    const nom3D = `web_data_NE/3d_${horaStr}_${dia}.msgpack.gz`;
+                    let te3D = false;
+                    try {
+                        const r3 = await fetch(ambCacheBusterDades(nom3D), { method: 'HEAD', cache: 'no-store' });
+                        te3D = r3.ok;
+                    } catch (e) {}
+
+                    steps.push(stepCounter);
+                    horesTrobades.push({
+                        step: stepCounter,
+                        hora: hora,
+                        dia: dia,
+                        horaStr: `${horaStr}:00`,
+                        diaStr: dia,
+                        teSFC: true,
+                        te3D: te3D,
+                        nomSFC: nomSFC,
+                        nom3D: te3D ? nom3D : null,
+                    });
+                    stepCounter++;
+                    console.log(`[detectar] ✅ Trobat: ${nomSFC} ${te3D ? '(+3D)' : ''}`);
+                }
+            } catch (e) {
+                // Silenciós - no existeix
+            }
         }
     }
+
+    window._horesDisponibles = horesTrobades;
+    console.log(`[detectar] ✅ Trobades ${steps.length} hores totals:`,
+        horesTrobades.map(h => `${h.hora}h ${h.dia}`).join(', '));
+
     return steps;
 }
+
+// ═══════════════════════════════════════════════════════════════════════
+//  INICIALITZACIÓ - NOMÉS LA PRIMERA HORA (SENSE CÀRREGUES AUTOMÀTIQUES)
+// ═══════════════════════════════════════════════════════════════════════
 
 async function inicialitzarCarregaSotaDemanda() {
     const TIEMPO_INICIO = Date.now();
     const TIEMPO_MINIMO = 800;
 
+    // 1️⃣ Detectar quines hores existeixen (només HEAD, sense descarregar)
     const steps = await detectarHoresDisponibles();
 
     if (steps.length === 0) {
@@ -3238,18 +3135,29 @@ async function inicialitzarCarregaSotaDemanda() {
         return;
     }
 
+    // 2️⃣ Crear els esquelets (sense dades)
     totesLesHores = steps.map(s => ({ step: s, dateObj: null, data: null }));
     window.totesLesHores = totesLesHores;
 
-    
-
+    // 3️⃣ Construir la graella (mostra totes les hores, però sense dades)
     construirGraellaHores();
+    construirPanellParametres();
 
-    // Carreguem NOMÉS la primera hora real
-    const primerItem = await carregarUnStep(totesLesHores[0].step, false);
+    // 4️⃣ CARREGAR NOMÉS LA PRIMERA HORA
+    console.log('[Càrrega] 📥 Carregant primera hora...');
+    const primerItem = await carregarUnStep(totesLesHores[0].step, true);
     if (primerItem) {
         totesLesHores[0].dateObj = primerItem.dateObj;
         totesLesHores[0].data = primerItem.data;
+    }
+
+    // 5️⃣ Mostrar la primera hora
+    if (totesLesHores[0].data) {
+        curIdx = 0;
+        canvasLayer._needsRedraw = true;
+        canvasLayer.setData(totesLesHores[0].data);
+        actualitzarUIHora(0);
+        resaltarHoraEnGrid(0);
     }
 
     const tempsPassat = Date.now() - TIEMPO_INICIO;
@@ -3257,14 +3165,10 @@ async function inicialitzarCarregaSotaDemanda() {
         await new Promise(resolve => setTimeout(resolve, TIEMPO_MINIMO - tempsPassat));
     }
 
-    construirPanellParametres();
-    construirGraellaHores();
-    if (totesLesHores[0].data) mostrarHora(0);
-
     const loadingOverlay = document.getElementById('loading_overlay');
     if (loadingOverlay) loadingOverlay.classList.add('hidden');
 
-    
+    console.log('[Càrrega] ✅ Inicialització completada. Carregant només sota demanda...');
 }
 
 function actualitzarBarraProgress(carregats, total) {
@@ -3274,9 +3178,62 @@ function actualitzarBarraProgress(carregats, total) {
     if (barra) barra.style.width = pct + '%';
     if (text) text.textContent = carregats + ' / ' + total + ' hores (' + pct + '%)';
 }
-// ─── REEMPLAZA la función mostrarHora original con esta ─────────────
-let _cargaHoraEnProgreso = false;
 
+// ═══════════════════════════════════════════════════════════════════════
+//  MOSTRAR HORA - CARREGA NOMÉS L'HORA CLICADA (SENSE CASCADA)
+// ═══════════════════════════════════════════════════════════════════════
+
+let _cargaHoraEnProgreso = false;
+let loadingOverlayTimeout = null;
+
+function mostrarLoadingOverlay(horaStr, diaStr) {
+    const overlay = document.getElementById('loadingHourOverlay');
+    const text = document.getElementById('loadingHourText');
+    const detail = document.getElementById('loadingHourDetail');
+
+    if (!overlay) return;
+
+    if (text) text.textContent = '⏳ Carregant hora...';
+    if (detail) detail.textContent = `${horaStr} - ${diaStr || 'avui'}`;
+
+    if (loadingOverlayTimeout) {
+        clearTimeout(loadingOverlayTimeout);
+        loadingOverlayTimeout = null;
+    }
+
+    overlay.classList.remove('hidden');
+    overlay.classList.add('visible');
+    overlay.style.display = 'flex';
+    void overlay.offsetHeight;
+    overlay.style.opacity = '1';
+}
+
+function amagarLoadingOverlay() {
+    const overlay = document.getElementById('loadingHourOverlay');
+    if (!overlay) return;
+
+    overlay.style.opacity = '0';
+
+    if (loadingOverlayTimeout) {
+        clearTimeout(loadingOverlayTimeout);
+    }
+    loadingOverlayTimeout = setTimeout(() => {
+        overlay.classList.remove('visible');
+        overlay.classList.add('hidden');
+        overlay.style.display = 'none';
+        loadingOverlayTimeout = null;
+    }, 350);
+}
+
+/**
+ * Mostra l'hora `idx`.
+ * - Si ja estava carregada (item.data existeix amb variables), NO torna
+ *   a descarregar res: només canvia la variable activa al canvas.
+ * - Si no estava carregada, descarrega NOMÉS aquesta hora (SFC + 3D si
+ *   n'hi ha), la desa a `totesLesHores[idx].data` i ja queda en caché
+ *   per sempre (mentre no es recarregui la pàgina).
+ * - No dispara cap càrrega d'altres hores en segon pla.
+ */
 async function mostrarHora(idx) {
     if (idx < 0 || idx >= totesLesHores.length) return;
     if (_cargaHoraEnProgreso) return;
@@ -3287,35 +3244,68 @@ async function mostrarHora(idx) {
         return;
     }
 
+    let horaMostrar = '...';
+    let diaMostrar = '';
+    const item = totesLesHores[idx];
+
+    if (window._horesDisponibles && window._horesDisponibles[idx]) {
+        const info = window._horesDisponibles[idx];
+        horaMostrar = `${String(info.hora).padStart(2, '0')}:00`;
+        diaMostrar = info.dia || 'avui';
+    }
+
+    const jaEstavaCarregada = !!(item.data && item.data.variables && Object.keys(item.data.variables).length > 0);
+
+    // Només mostrem l'overlay de càrrega si REALMENT cal descarregar
+    if (!jaEstavaCarregada) {
+        mostrarLoadingOverlay(horaMostrar, diaMostrar);
+    }
+
     _cargaHoraEnProgreso = true;
     const idxSeleccionada = idx;
     curIdx = idx;
     window.skewtHourIndex = idx;
 
-    // ✅ Resaltar inmediatamente
     resaltarHoraEnGrid(idx);
 
-    // ✅ Mostrar "Carregant..."
     const label = document.getElementById('current_time_label');
-    const textoOriginal = label?.textContent || '';
-    if (label) label.textContent = '⏳ Carregant...';
+    if (label && !jaEstavaCarregada) label.textContent = '⏳ Carregant...';
 
     try {
-        if (!totesLesHores[idx].dateObj || !totesLesHores[idx].data) {
-            const nou = await carregarUnStep(totesLesHores[idx].step, true);
+        if (!jaEstavaCarregada) {
+            console.log(`[mostrarHora] 📥 Carregant hora ${idx} sota demanda...`);
+
+            const text = document.getElementById('loadingHourText');
+            if (text) text.textContent = `📥 Descarregant dades...`;
+
+            // Descarrega NOMÉS aquesta hora (SFC + 3D si existeix)
+            const nou = await carregarUnStep(item.step, true);
             if (nou) {
-                totesLesHores[idx].dateObj = nou.dateObj;
-                totesLesHores[idx].data = nou.data;
+                item.dateObj = nou.dateObj;
+                item.data = nou.data;
+
+                // Actualitzar la graella per mostrar que ja està carregada
                 construirGraellaHores();
+
+                const text2 = document.getElementById('loadingHourText');
+                if (text2) text2.textContent = `🔄 Processant dades...`;
+            } else {
+                console.warn(`[mostrarHora] ❌ No s'ha pogut carregar l'hora ${idx}`);
+                amagarLoadingOverlay();
+                _cargaHoraEnProgreso = false;
+                return;
             }
+        } else {
+            console.log(`[mostrarHora] ✅ Hora ${idx} ja carregada a memòria cau (no cal tornar a descarregar)`);
         }
 
         if (curIdx !== idxSeleccionada) {
+            amagarLoadingOverlay();
             _cargaHoraEnProgreso = false;
             return;
         }
 
-        const item = totesLesHores[idx];
+        // Mostrar les dades (siguin noves o ja cachejades)
         if (item?.data) {
             canvasLayer._needsRedraw = true;
             canvasLayer.setData(item.data);
@@ -3326,9 +3316,16 @@ async function mostrarHora(idx) {
 
     } catch (e) {
         console.error('[mostrarHora]', e);
+        const text = document.getElementById('loadingHourText');
+        if (text) text.textContent = '❌ Error carregant';
+        setTimeout(() => amagarLoadingOverlay(), 1000);
     } finally {
         _cargaHoraEnProgreso = false;
-        // Restaurar label
+
+        setTimeout(() => {
+            amagarLoadingOverlay();
+        }, jaEstavaCarregada ? 0 : 400);
+
         if (label && totesLesHores[idx]?.dateObj) {
             const d = new Date(totesLesHores[idx].dateObj.toLocaleString('en-US', { timeZone: 'Europe/Madrid' }));
             label.textContent = d.toLocaleString('es-ES', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' });
@@ -3336,7 +3333,7 @@ async function mostrarHora(idx) {
     }
 }
 
-// ─── FUNCIÓN AUXILIAR para resaltar ──────────────────────────────────
+// ─── Resaltar hora activa a la graella ───────────────────────────────
 function resaltarHoraEnGrid(idx) {
     document.querySelectorAll('.fh-item').forEach((el, i) => {
         el.classList.toggle('active', i === idx);
@@ -3348,7 +3345,9 @@ function resaltarHoraEnGrid(idx) {
     if (target) target.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
 }
 
-
+// ═══════════════════════════════════════════════════════════════════════
+//  CONSTRUIR GRAELLA D'HORES — AMB L'HORA REAL DEL FITXER (avui/dema/...)
+// ═══════════════════════════════════════════════════════════════════════
 
 function construirGraellaHores() {
     const grid = document.getElementById('fh_grid');
@@ -3372,47 +3371,84 @@ function construirGraellaHores() {
         curIdx = 0;
     }
 
+    // Mapa per trobar ràpidament l'hora real (ve directament dels fitxers Python)
+    const horesMap = {};
+    if (window._horesDisponibles) {
+        for (const h of window._horesDisponibles) {
+            horesMap[h.step] = h;
+        }
+    }
+
     totesLesHores.forEach((item, i) => {
         const teDataReal = !!item.dateObj && !!item.data && !!item.data.variables;
-        
-        let horaStr = '';
-        let minStr = '';
-
-        // 🔥 DETECTAR si l'hora està REALMENT carregada (té dades)
         const estaCarregada = teDataReal && Object.keys(item.data.variables).length > 0;
 
-let dataStr = '';
-if (teDataReal) {
-    try {
-        const madridTime = new Date(item.dateObj.toLocaleString('en-US', { timeZone: 'Europe/Madrid' }));
-        const horas = String(madridTime.getHours()).padStart(2, '0');
-        const minutos = String(madridTime.getMinutes()).padStart(2, '0');
-        
-        // 🔥 Si NO està carregada, afegir "+" al davant
-        horaStr = (estaCarregada ? '' : '+') + horas + 'h';
-        minStr = minutos;
-        dataStr = String(madridTime.getDate()).padStart(2, '0') + '/' + String(madridTime.getMonth() + 1).padStart(2, '0');
-    } catch (e) {
-        const step = item.step;
-        const horaStep = Math.floor(step / 2);
-        const minutosStep = (step % 2) * 30;
-        horaStr = (estaCarregada ? '' : '+') + String(horaStep).padStart(2, '0') + 'h';
-        minStr = String(minutosStep).padStart(2, '0');
-        dataStr = '';
-    }
-} else {
+        let horaMostrar = '';
+        let diaMostrar = '';
+        let minMostrar = '00';
+
+        // 1️⃣ Prioritat: hora real que ve del nom del fitxer (Python)
+        if (horesMap[i]) {
+            const info = horesMap[i];
+            horaMostrar = String(info.hora).padStart(2, '0');
+            diaMostrar = info.dia;
+            minMostrar = '00';
+        }
+        // 2️⃣ Si no, extreure de la data ja carregada
+        else if (teDataReal && item.dateObj) {
+            try {
+                const madridTime = new Date(item.dateObj.toLocaleString('en-US', { timeZone: 'Europe/Madrid' }));
+                horaMostrar = String(madridTime.getHours()).padStart(2, '0');
+                minMostrar = String(madridTime.getMinutes()).padStart(2, '0');
+
+                const ara = new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/Madrid' }));
+                const avui = new Date(ara);
+                avui.setHours(0, 0, 0, 0);
+                const dataStep = new Date(madridTime);
+                dataStep.setHours(0, 0, 0, 0);
+                const diffDies = Math.round((dataStep - avui) / (1000 * 60 * 60 * 24));
+
+                if (diffDies === 0) diaMostrar = 'avui';
+                else if (diffDies === 1) diaMostrar = 'dema';
+                else if (diffDies === 2) diaMostrar = 'dema_passat';
+                else if (diffDies === -1) diaMostrar = 'ahir';
+                else diaMostrar = String(madridTime.getDate()).padStart(2, '0') + '/' + String(madridTime.getMonth() + 1).padStart(2, '0');
+            } catch (e) {
+                const step = item.step;
+                const horaStep = Math.floor(step / 2);
+                horaMostrar = String(horaStep).padStart(2, '0');
+                minMostrar = String((step % 2) * 30).padStart(2, '0');
+                diaMostrar = '';
+            }
+        }
+        // 3️⃣ Fallback final: step
+        else {
             const step = item.step;
             const horaStep = Math.floor(step / 2);
-            const minutosStep = (step % 2) * 30;
-            // Sense dades → sempre "+"
-            horaStr = '+' + String(horaStep).padStart(2, '0') + 'h';
-            minStr = String(minutosStep).padStart(2, '0');
+            horaMostrar = String(horaStep).padStart(2, '0');
+            minMostrar = String((step % 2) * 30).padStart(2, '0');
+            diaMostrar = '';
+        }
+
+        let estilDia = '';
+        let textDia = '';
+        if (diaMostrar === 'ahir') {
+            estilDia = 'color:#8899bb;';
+            textDia = 'ahir';
+        } else if (diaMostrar === 'avui') {
+            estilDia = 'color:#FFD700;';
+            textDia = 'avui';
+        } else if (diaMostrar === 'dema') {
+            estilDia = 'color:#FFA500;';
+            textDia = 'dema';
+        } else if (diaMostrar === 'dema_passat') {
+            estilDia = 'color:#FF6B6B;';
+            textDia = 'd+2';
         }
 
         const isActive = (i === curIdx);
-        const horaLliure = (i % 3 === 0);
         const userAra = window._firebaseUser || null;
-        const itemBloquejatVisual = !userAra && !horaLliure;
+        const itemBloquejatVisual = !userAra && (i % 3 !== 0);
 
         const cell = document.createElement('div');
         cell.className = 'fh-item' + (isActive ? ' active' : '');
@@ -3435,33 +3471,48 @@ if (teDataReal) {
             user-select: none;
             font-family: 'Segoe UI', Tahoma, sans-serif;
             line-height: 1.2;
-            opacity: ${itemBloquejatVisual ? '0.3' : (teDataReal ? '1' : '0.55')};
+            opacity: ${itemBloquejatVisual ? '0.3' : (estaCarregada ? '1' : '0.55')};
         `;
 
-        // 🔥 Si NO està carregada, posar el "+" en color diferent
-        const prefixStyle = estaCarregada ? '' : 'color:#FFA500;';
+        if (itemBloquejatVisual) {
+            cell.title = 'Inicia sessió per desbloquejar';
+            cell.innerHTML = `
+                <span style="font-size:12px;font-weight:700;display:block;${estilDia}">${horaMostrar}h</span>
+                <span style="font-size:7px;color:#3a4a5a;display:block;margin-top:-1px;">${minMostrar}</span>
+                <span style="font-size:7px;${estilDia}display:block;margin-top:-1px;">${textDia}</span>
+                <span style="position:absolute;top:-2px;right:-1px;font-size:7px;color:#FF6B35;"><i class="fas fa-lock"></i></span>
+            `;
+        } else {
+            cell.innerHTML = `
+                <span style="font-size:12px;font-weight:700;display:block;${estilDia}">${horaMostrar}h</span>
+                <span style="font-size:7px;color:#3a4a5a;display:block;margin-top:-1px;">${minMostrar}</span>
+                <span style="font-size:7px;${estilDia}display:block;margin-top:-1px;">${textDia}</span>
+            `;
+        }
 
-if (itemBloquejatVisual) {
-    cell.title = 'Inicia sessió per desbloquejar';
-    cell.innerHTML = `
-        <span style="font-size:12px;font-weight:600;display:block;${prefixStyle}">${horaStr}</span>
-        <span style="font-size:7px;color:#3a4a5a;display:block;margin-top:-1px;">${minStr}</span>
-        <span style="font-size:7px;color:#7f9bb3;display:block;margin-top:-1px;">${dataStr}</span>
-        <span style="position:absolute;top:-2px;right:-1px;font-size:7px;color:#FF6B35;"><i class="fas fa-lock"></i></span>
-    `;
-} else {
-    cell.innerHTML = `
-        <span style="font-size:12px;font-weight:600;display:block;${prefixStyle}">${horaStr}</span>
-        <span style="font-size:7px;color:#3a4a5a;display:block;margin-top:-1px;">${minStr}</span>
-        <span style="font-size:7px;color:#7f9bb3;display:block;margin-top:-1px;">${dataStr}</span>
-    `;
-}
+        // Indicador de si té 3D
+        if (item.data && item.data._te3d) {
+            const badge = document.createElement('span');
+            badge.style.cssText = `
+                position: absolute;
+                bottom: -2px;
+                right: -2px;
+                font-size: 6px;
+                color: #43e97b;
+                background: rgba(0,0,0,0.7);
+                border-radius: 3px;
+                padding: 0px 3px;
+                font-weight: 700;
+            `;
+            badge.textContent = '3D';
+            cell.appendChild(badge);
+        }
 
         cell.addEventListener('click', function(e) {
             e.stopPropagation();
             const idx = parseInt(this.dataset.idx);
             if (isNaN(idx)) return;
-            
+
             const lliure = (idx % 3 === 0);
             const userActual = window._firebaseUser || null;
 
@@ -3471,7 +3522,7 @@ if (itemBloquejatVisual) {
                 }
                 return;
             }
-            
+
             if (typeof mostrarHora === 'function') {
                 mostrarHora(idx);
             }
@@ -3512,16 +3563,13 @@ if (itemBloquejatVisual) {
 function netejarGridEvents() {
     const grid = document.getElementById('fh_grid');
     if (!grid) return;
-    
-    // Eliminar tots els listeners clonats (si n'hi ha)
+
     const items = grid.querySelectorAll('.fh-item');
     items.forEach(item => {
-        // Clonar i substituir per eliminar listeners antics
         const nouItem = item.cloneNode(true);
         item.parentNode.replaceChild(nouItem, item);
     });
 }
-
 
 function tancarTotsAcordions(excepteClauBase) {
     document.querySelectorAll('.param-acordio-cap').forEach(capcal => {
@@ -3536,7 +3584,7 @@ function tancarTotsAcordions(excepteClauBase) {
         }
     });
 }
- 
+
 function ordenarClausPerNivell(claus) {
     return claus.slice().sort((a, b) => {
         const na = parseFloat(a.split('_').pop());
@@ -3544,13 +3592,13 @@ function ordenarClausPerNivell(claus) {
         return nb - na;
     });
 }
- 
+
 const estatAcordio = {};
 function construirPanellParametres() {
     const cont = document.getElementById('parameter_selection');
     if (!cont || !totesLesHores[0]) return;
     cont.innerHTML = '';
- 
+
     const totesVariables = new Set();
     const infoVariables = {};
     totesLesHores.forEach(hora => {
@@ -3562,18 +3610,18 @@ function construirPanellParametres() {
             });
         }
     });
- 
+
     const clausUsades = new Set();
     const crearRow = (clau, className = 'param-row') => {
         const info = infoVariables[clau];
         if (!info) return null;
- 
+
         const esPremium = typeof esParametrePremium === 'function' && esParametrePremium(clau);
- 
+
         const row = document.createElement('div');
         row.className = className;
         row.dataset.clau = clau;
- 
+
         const teAccesInicial = verificarAccesVariable(clau);
         if (!teAccesInicial && esPremium) {
             row.style.opacity = '0.35';
@@ -3583,17 +3631,17 @@ function construirPanellParametres() {
         } else {
             row.style.cursor = 'pointer';
         }
- 
+
         const pal = getPaleta(clau);
         const unitat = (info.unidades && info.unidades.trim() !== '') ? info.unidades : (pal.unitat || '');
         const nomBackend = info.nombre || '';
         const semblaClauCrua = /^[A-Z0-9_]+$/.test(nomBackend) && nomBackend.length > 6;
         const nom = semblaClauCrua ? pal.titol : (nomBackend || pal.titol);
- 
+
         const iconaCandau = (!teAccesInicial && esPremium) ? ' ' : '';
- 
+
         row.innerHTML = `<div class="param-link">${nom} <span class="param-unit">(${unitat})</span>${iconaCandau}</div>`;
- 
+
         row.onclick = () => {
             const teAccesAra = verificarAccesVariable(clau);
             if (teAccesAra) {
@@ -3612,10 +3660,10 @@ function construirPanellParametres() {
                 }
             }
         };
- 
+
         return row;
     };
- 
+
     window.tancarBloqueig = function() {
         const overlay = document.getElementById('mapLockOverlay');
         if (overlay) overlay.style.display = 'none';
@@ -3625,25 +3673,25 @@ function construirPanellParametres() {
             mapa.style.pointerEvents = 'auto';
         }
     };
- 
+
     const crearSeparador = () => {
         const sep = document.createElement('div');
         sep.className = 'param-separador';
         sep.style.cssText = 'border-top:1px solid rgba(255,255,255,0.08);margin:6px 12px;';
         return sep;
     };
- 
+
     const crearTitolGrup = (nom, count) => {
         const h3 = document.createElement('h3');
         h3.className = 'param-group-title';
         h3.textContent = `${nom} (${count})`;
         return h3;
     };
- 
+
     // PART SUPERIOR - GRUP PRINCIPAL
     const principals = GRUP_PRINCIPAL
         .filter(clau => totesVariables.has(clau) && !esVariableAmagada(clau));
- 
+
     if (principals.length > 0) {
         principals.forEach(clau => {
             const row = crearRow(clau, 'param-row param-row-principal');
@@ -3654,17 +3702,17 @@ function construirPanellParametres() {
         });
         cont.appendChild(crearSeparador());
     }
- 
+
     // GRUPS SIMPLES
     Object.entries(GRUPS_SIMPLES).forEach(([nomGrup, clausGrup]) => {
         const entrades = [];
- 
+
         clausGrup.forEach(clauB => {
             if (totesVariables.has(clauB) && !esVariableAmagada(clauB) && !clausUsades.has(clauB)) {
                 entrades.push(clauB);
             }
         });
- 
+
         totesVariables.forEach(clau => {
             if (clausUsades.has(clau)) return;
             for (const clauB of clausGrup) {
@@ -3674,10 +3722,10 @@ function construirPanellParametres() {
                 }
             }
         });
- 
+
         entrades.sort((a, b) => a.localeCompare(b));
         if (entrades.length === 0) return;
- 
+
         cont.appendChild(crearTitolGrup(nomGrup, entrades.length));
         entrades.forEach(clau => {
             const row = crearRow(clau);
@@ -3687,7 +3735,7 @@ function construirPanellParametres() {
             }
         });
     });
- 
+
     // GRUPS ACORDIÓ
     Object.entries(GRUPS_ACORDIO).forEach(([nomGrupTitol, clausBase]) => {
         clausBase.forEach(clauB => {
@@ -3698,15 +3746,15 @@ function construirPanellParametres() {
                     nivellsClaus.push(clau);
                 }
             });
- 
+
             if (nivellsClaus.length === 0) return;
- 
+
             const nivellsOrdenats = ordenarClausPerNivell(nivellsClaus);
             const paletaBase = PALETES[clauB];
             const nomBase = paletaBase ? paletaBase.titol : clauB;
             const clauEstat = `acordio_${clauB}`;
             if (!(clauEstat in estatAcordio)) estatAcordio[clauEstat] = false;
- 
+
             const capcal = document.createElement('div');
             capcal.className = 'param-acordio-cap';
             capcal.dataset.clauBase = clauB;
@@ -3716,11 +3764,11 @@ function construirPanellParametres() {
                 <span class="param-unit">(${nivellsOrdenats.length} nivells)</span>
             `;
             cont.appendChild(capcal);
- 
+
             const cosContenidor = document.createElement('div');
             cosContenidor.className = 'param-acordio-cos';
             cosContenidor.style.display = estatAcordio[clauEstat] ? 'block' : 'none';
- 
+
             nivellsOrdenats.forEach(clau => {
                 const row = crearRow(clau, 'param-row param-row-nivell');
                 if (row) {
@@ -3728,9 +3776,9 @@ function construirPanellParametres() {
                     clausUsades.add(clau);
                 }
             });
- 
+
             cont.appendChild(cosContenidor);
- 
+
             capcal.addEventListener('click', () => {
                 const obert = estatAcordio[clauEstat];
                 tancarTotsAcordions(clauB);
@@ -3740,12 +3788,12 @@ function construirPanellParametres() {
             });
         });
     });
- 
+
     // PART INFERIOR - ALTRES
     const sobrants = [...totesVariables]
         .filter(c => !clausUsades.has(c) && !esVariableAmagada(c))
         .sort((a, b) => a.localeCompare(b));
- 
+
     if (sobrants.length > 0) {
         cont.appendChild(crearSeparador());
         cont.appendChild(crearTitolGrup('Altres', sobrants.length));
@@ -3754,12 +3802,13 @@ function construirPanellParametres() {
             if (row) cont.appendChild(row);
         });
     }
- 
+
     seleccionarVariable('st', true);
 }
+
 async function seleccionarVariable(clau, silenciós) {
     if (variableActiva === clau && !silenciós) return;
- 
+
     if (typeof window.verificarAccesVariable === 'function') {
         const acces = window.verificarAccesVariable(clau);
         if (!acces) {
@@ -3767,16 +3816,15 @@ async function seleccionarVariable(clau, silenciós) {
             return;
         }
     }
- 
-    // Guardar la variable anterior para detectar cambio de nivel
+
     const variableAnterior = variableActiva;
     variableActiva = clau;
     window._currentParameter = clau;
- 
+
     document.querySelectorAll('.param-row').forEach(el => {
         el.classList.toggle('param-selected', el.dataset.clau === clau);
     });
- 
+
     const base = clauBase(clau);
     const clauEstat = `acordio_${base}`;
     if (clauEstat in estatAcordio && !estatAcordio[clauEstat] && clau !== base) {
@@ -3789,60 +3837,36 @@ async function seleccionarVariable(clau, silenciós) {
             if (cos && cos.classList.contains('param-acordio-cos')) cos.style.display = 'block';
         }
     }
- 
-    // 🔥 NUEVO: Notificar a Vent que ha cambiado la variable
+
+    // Notificar a Vent que ha canviat la variable
     if (typeof Vent !== 'undefined' && Vent.notificarCanviVariable) {
-        // Detectar si ha cambiado el nivel de presión
         const baseAnterior = variableAnterior ? clauBase(variableAnterior) : null;
         const baseNova = clauBase(clau);
-        
-        // Si cambia la base o es un nivel diferente, reiniciar partículas
+
         if (baseAnterior !== baseNova || variableAnterior !== clau) {
             Vent.notificarCanviVariable(clau);
         }
     }
- 
+
     canvasLayer._needsRedraw = true;
     canvasLayer._render();
- 
+
     if (!silenciós) {
         const actiu = document.querySelector('.param-row.param-selected');
         if (actiu) actiu.scrollIntoView({ block: 'nearest' });
     }
- 
+
     actualitzarCapcaleraParametre();
 }
- 
-function actualitzarCapcaleraParametre() {
-    const pal = getPaleta(variableActiva);
-    const label = document.getElementById('parameter_menu_link');
-    if (label) label.textContent = pal.titol + ' (' + pal.unitat + ')';
-}
- 
 
 function actualitzarCapcaleraParametre() {
     const pal = getPaleta(variableActiva);
     const label = document.getElementById('parameter_menu_link');
     if (label) label.textContent = pal.titol + ' (' + pal.unitat + ')';
 }
+
 // ═══════════════════════════════════════════════════════════════════════
-//  PARCHE: PERSISTÈNCIA EN localStorage PER AL PANELL D'AJUSTOS DE VENT
-//  Aplica aquests canvis sobre el fitxer que ja et vaig passar
-//  (el que vas enganxar dins de crearPanellAjustos() a mapa.js)
-// ═══════════════════════════════════════════════════════════════════════
-//
-//  RESUM DELS CANVIS:
-//  1. Nova clau de storage + funcions carregarAjustosVent() / desarAjustosVent()
-//  2. A l'inici de crearPanellAjustos(): carregar valors guardats i aplicar-los
-//     als inputs ABANS d'afegir els listeners
-//  3. Dins de cada listener que ja tens: cridar desarAjustosVent() al final
-//
-//  Pots aplicar-ho de dues maneres:
-//    A) Substituir tota la funció crearPanellAjustos() per la versió
-//       d'aquest fitxer (està completa, no cal barrejar res).
-//    B) Si ja has fet altres canvis manuals, mira els comentaris
-//       "// ← NOU" per localitzar exactament què s'ha afegit.
-//
+//  PERSISTÈNCIA EN localStorage PER AL PANELL D'AJUSTOS DE VENT
 // ═══════════════════════════════════════════════════════════════════════
 
 const CLAU_STORAGE_AJUSTOS_VENT = 'tempestescat_ajustos_vent_v1';
@@ -3869,7 +3893,7 @@ function desarAjustosVent(valors) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-//  FUNCIÓ COMPLETA — substitueix la crearPanellAjustos() que ja tens
+//  PANELL D'AJUSTOS DE VENT I MAPA
 // ═══════════════════════════════════════════════════════════════════════
 function crearPanellAjustos() {
 
@@ -3968,7 +3992,7 @@ function crearPanellAjustos() {
 
             <div class="aj-separador"></div>
 
-                      <div class="aj-titol-seccio">Contorn del mapa</div>
+            <div class="aj-titol-seccio">Contorn del mapa</div>
 
             <div class="aj-fila">
                 <span class="aj-label">Color de la vora</span>
@@ -4034,7 +4058,7 @@ function crearPanellAjustos() {
     const filesLinies = panell.querySelectorAll('.aj-fila-linies');
 
     const inputContornColor = panell.querySelector('#ajContornColor');
-        const btnCapaGironaOn = panell.querySelector('#ajCapaGironaOn');
+    const btnCapaGironaOn = panell.querySelector('#ajCapaGironaOn');
     const inputCapaGironaOpacitat = panell.querySelector('#ajCapaGironaOpacitat');
     const filaCapaGirona = panell.querySelector('.aj-fila-girona');
     const inputContornOpacitat = panell.querySelector('#ajContornOpacitat');
@@ -4094,13 +4118,11 @@ function crearPanellAjustos() {
 
     // Aplicar-ho tot de seguida al motor de vent / streamlines / mapa
     function aplicarTotElsAjustosGuardats() {
-        // Streamlines
         if (typeof wCfg !== 'undefined') {
             wCfg.streamlineColor = A.ventColor;
             wCfg.streamlineOpacity = A.ventOpacitat / 100;
             wCfg.streamlineWidth = Number(A.ventGruix);
         }
-        // Partícules
         if (typeof Vent !== 'undefined') {
             const baseVida = 40, baseVidaMax = 110;
             const factorEstela = Number(A.ventEstela);
@@ -4115,7 +4137,6 @@ function crearPanellAjustos() {
             });
         }
 
-        // Apagar SEMPRE els dos motors abans de decidir quin engegar
         window.ventEnabled = false;
         if (typeof canvasVent !== 'undefined' && canvasVent && typeof ctxVent !== 'undefined' && ctxVent) {
             ctxVent.clearRect(0, 0, canvasVent.width, canvasVent.height);
@@ -4124,7 +4145,6 @@ function crearPanellAjustos() {
             Vent.aturar();
         }
 
-        // Ara sí, engegar només el motor que toca (si estava actiu)
         if (A.ventActiu) {
             if (A.ventMode === 'particles' && typeof Vent !== 'undefined') {
                 Vent.iniciar();
@@ -4134,12 +4154,10 @@ function crearPanellAjustos() {
             }
         }
 
-        // Capa de dades
         if (typeof canvasLayer !== 'undefined' && canvasLayer && canvasLayer._canvas) {
             canvasLayer._canvas.style.opacity = (A.capaOpacitat / 100).toString();
         }
 
-        // Contorn
         aplicarEstilContornDesat();
     }
 
@@ -4161,7 +4179,6 @@ function crearPanellAjustos() {
     }
 
     // Exposar-la globalment perquè inicialitzarGeojson() pugui cridar-la
-    // un cop les capes es carreguin de forma asíncrona
     window.aplicarEstatCapesGeojsonDesat = function() {
         aplicarEstilContornDesat();
         const capaGirona = capaInstancies['girona_comarques'];
@@ -4340,8 +4357,7 @@ function crearPanellAjustos() {
         desarAjustosVent({ contornGruix: parseFloat(inputContornGruix.value) });
     });
 
-
-        // ─── Capa de comarques de Girona (on/off + opacitat pròpia) ─────────
+    // ─── Capa de comarques de Girona (on/off + opacitat pròpia) ─────────
     btnCapaGironaOn.addEventListener('click', () => {
         const araActiu = btnCapaGironaOn.classList.contains('actiu');
         const noviActiu = !araActiu;
@@ -4361,8 +4377,6 @@ function crearPanellAjustos() {
                 map.removeLayer(capaGirona);
             }
         }
-        // Si encara no s'ha carregat (petit marge de temps just a l'inici),
-        // window.aplicarEstatCapesGeojsonDesat() la mostrarà en acabar de carregar.
 
         desarAjustosVent({ capaGironaActiva: noviActiu });
     });
@@ -4398,18 +4412,13 @@ function crearPanellAjustos() {
         actualitzarVisibilitatFilesMode();
         actualitzarBotoOnOff();
     }
-    
+
     function tancarPanellAjustos() {
         panell.style.transform = 'translateX(-105%)';
     }
 
     btnTancar.addEventListener('click', tancarPanellAjustos);
 
-    // ❌ ELIMINADES les obertes automàtiques amb sidebar
-    // document.addEventListener('sidebar:obert', obrirPanellAjustos);
-    // document.addEventListener('sidebar:tancat', tancarPanellAjustos);
-
-    // ✅ NOMÉS el botó de configuració obre el panell
     const btnConfigGeneral = document.getElementById('btnObrirAjustosVent');
     if (btnConfigGeneral) {
         btnConfigGeneral.addEventListener('click', (e) => {
@@ -4423,14 +4432,12 @@ function crearPanellAjustos() {
         });
     }
 
-    // Tancar amb Escape
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             tancarPanellAjustos();
         }
     });
 
-    // Clic fora tanca
     document.addEventListener('click', function(e) {
         if (panell.style.transform === 'translateX(0)') {
             if (!panell.contains(e.target) && e.target.id !== 'btnObrirAjustosVent') {
@@ -4443,8 +4450,6 @@ function crearPanellAjustos() {
     actualitzarBotoOnOff();
 }
 
-// injectarEstilsPanellAjustos() es manté EXACTAMENT igual que abans,
-// no cal tocar-la.
 function injectarEstilsPanellAjustos() {
     if (document.getElementById('estils-panell-ajustos-vent')) return;
     const style = document.createElement('style');
@@ -4560,9 +4565,9 @@ function injectarEstilsPanellAjustos() {
 // ═══════════════════════════════════════════════════════════════════════
 //  ESDEVENIMENTS LOGIN/LOGOUT
 // ═══════════════════════════════════════════════════════════════════════
- 
+
 window.addEventListener('tc:login', function(e) {
-    
+
     if (totesLesHores && totesLesHores.length > 0) {
         construirGraellaHores();
         construirPanellParametres();
@@ -4572,7 +4577,7 @@ window.addEventListener('tc:login', function(e) {
         window.amagarOverlay();
     }
 });
- 
+
 window.addEventListener('tc:logout', function() {
     console.log('[mapa.js] Usuari desloguejat');
     if (totesLesHores && totesLesHores.length > 0) {
@@ -4588,13 +4593,12 @@ window.addEventListener('tc:logout', function() {
     }
 });
 
-
 // ═══════════════════════════════════════════════════════════════════════
 //  CURSOR PERSONALITZAT (CREU)
 // ═══════════════════════════════════════════════════════════════════════
 (function() {
     const mapContainer = map.getContainer();
- 
+
     const cursorSVG = `
         <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
             <line x1="6" y1="24" x2="42" y2="24" stroke="#030303" stroke-width="2" stroke-linecap="round"/>
@@ -4605,22 +4609,22 @@ window.addEventListener('tc:logout', function() {
             <circle cx="24" cy="24" r="1.5" fill="#fcf9f9"/>
         </svg>
     `;
- 
+
     const encodedSVG = encodeURIComponent(cursorSVG);
     const cursorURL = `data:image/svg+xml,${encodedSVG}`;
- 
+
     mapContainer.style.cursor = `url('${cursorURL}') 24 24, crosshair`;
- 
+
     mapContainer.addEventListener('mouseover', function(e) {
         mapContainer.style.cursor = `url('${cursorURL}') 24 24, crosshair`;
     });
- 
+
     mapContainer.addEventListener('mouseout', function(e) {
         if (!mapContainer.contains(e.relatedTarget)) {
             mapContainer.style.cursor = '';
         }
     });
- 
+
     const style = document.createElement('style');
     style.textContent = `
         #map, #map * {
@@ -4635,14 +4639,12 @@ window.addEventListener('tc:logout', function() {
         }
     `;
     document.head.appendChild(style);
- 
-    
 })();
- 
+
 // ═══════════════════════════════════════════════════════════════════════
 //  FONS NEGRE NOMÉS FORA DE LA ZONA lon/lat DEFINIDA
 // ═══════════════════════════════════════════════════════════════════════
- 
+
 (function() {
     const ZONA_VISIBLE = {
         lon_min: -5.0,
@@ -4650,89 +4652,6 @@ window.addEventListener('tc:logout', function() {
         lat_min: 37.5,
         lat_max: 44.5,
     };
- 
-    function aplicarOverride() {
-        if (!window._canvasLayer) {
-            setTimeout(aplicarOverride, 200);
-            return;
-        }
- 
-        const layer = window._canvasLayer;
-        const renderOriginal = layer._render;
-        map.off('moveend zoomend', renderOriginal, layer);
- 
-        function renderAmbNegre() {
-            if (!layer._data || !layer._map) return;
-            if (layer._needsRedraw) layer._drawOffscreen();
- 
-            const m = layer._map;
-            const size = m.getSize();
-            const canvas = layer._canvas;
-            canvas.width = size.x;
-            canvas.height = size.y;
-            const ctx = canvas.getContext('2d');
-            L.DomUtil.setPosition(canvas, m.containerPointToLayerPoint([0, 0]));
- 
-            const nwZona = m.latLngToContainerPoint(L.latLng(ZONA_VISIBLE.lat_max, ZONA_VISIBLE.lon_min));
-            const seZona = m.latLngToContainerPoint(L.latLng(ZONA_VISIBLE.lat_min, ZONA_VISIBLE.lon_max));
-            const zx = nwZona.x, zy = nwZona.y, zw = seZona.x - nwZona.x, zh = seZona.y - nwZona.y;
- 
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
- 
-            ctx.fillStyle = '#000000';
-            ctx.fillRect(0, 0, canvas.width, Math.max(0, zy));
-            ctx.fillRect(0, zy + zh, canvas.width, canvas.height - (zy + zh));
-            ctx.fillRect(0, zy, Math.max(0, zx), zh);
-            ctx.fillRect(zx + zw, zy, canvas.width - (zx + zw), zh);
- 
-            const coords = getCoordenadesPer(layer._data, variableActiva);
-            const lats = coords.lat;
-            const lons = coords.lon;
-            const latMax = Math.max(lats[0], lats[lats.length - 1]);
-            const latMin = Math.min(lats[0], lats[lats.length - 1]);
-            const lonMin = Math.min(lons[0], lons[lons.length - 1]);
-            const lonMax = Math.max(lons[0], lons[lons.length - 1]);
- 
-            const nw = m.latLngToContainerPoint(L.latLng(latMax, lonMin));
-            const se = m.latLngToContainerPoint(L.latLng(latMin, lonMax));
-            const x = nw.x, y = nw.y, w = se.x - nw.x, h = se.y - nw.y;
- 
-            if (layer._offscreen && w > 0 && h > 0) {
-                ctx.save();
-                ctx.imageSmoothingEnabled = true;
-                ctx.imageSmoothingQuality = 'high';
-                ctx.drawImage(layer._offscreen, x, y, w, h);
-                ctx.restore();
-            }
- 
-            layer._drawLegend(ctx, getPaleta(variableActiva));
-            actualitzarCapcaleraParametre();
-            redibuixarVent();
-        }
- 
-        layer._render = renderAmbNegre;
-        map.off('move', renderAmbNegre);
-        map.on('move moveend zoomend', renderAmbNegre);
- 
-        layer._needsRedraw = true;
-        renderAmbNegre();
- 
-        
-    }
- 
-    aplicarOverride();
-})();
-// ═══════════════════════════════════════════════════════════════════════
-//  FONS NEGRE NOMÉS FORA DE LA ZONA lon/lat DEFINIDA
-// ═══════════════════════════════════════════════════════════════════════
-
-(function() {
-const ZONA_VISIBLE = {
-    lon_min: -5.0,   // Més a l'oest (per tallar la costa Est)
-    lon_max: 4.7,    // Talla la costa Est (València, Balears)
-    lat_min: 37.5,   // Fins al sud (Múrcia)
-    lat_max: 44.5,   // Fins al nord (Cantàbria)
-};
 
     function aplicarOverride() {
         if (!window._canvasLayer) {
@@ -4799,16 +4718,10 @@ const ZONA_VISIBLE = {
 
         layer._needsRedraw = true;
         renderAmbNegre();
-
-       
     }
 
     aplicarOverride();
 })();
-
-// ═══════════════════════════════════════════════════════════════════════
-//  INICIALITZACIÓ
-// ═══════════════════════════════════════════════════════════════════════
 
 // ═══════════════════════════════════════════════════════════════════════
 //  INICIALITZACIÓ
@@ -4817,15 +4730,14 @@ const ZONA_VISIBLE = {
 inicialitzarCanvasVent();
 crearPanellAjustos();
 
-// Espera a que el DOM esté listo
 document.addEventListener('DOMContentLoaded', function() {
-    // Carga el GeoJSON cuando la página esté lista
     setTimeout(() => {
         inicialitzarGeojson();
     }, 500);
 });
 
 inicialitzarCarregaSotaDemanda();
+
 // Estat global: indica si el panell de Skew-T està obert.
 window.sondeigObert = false;
 
@@ -4834,388 +4746,4 @@ function actualitzarBloqueigMapa() {
     // La funció es defineix a accesvariable.js
 }
 
-
-
-// ═══════════════════════════════════════════════════════════════════════
-//  SISTEMA DE CARGA 3D CON FEEDBACK VISUAL
-// ═══════════════════════════════════════════════════════════════════════
-
-// ─── Estado del sistema ──────────────────────────────────────────────
-const SISTEMA_3D = {
-    carregant: false,
-    complet: false,
-    total: 0,
-    carregats: 0,
-    progress: 0,
-    callbacks: [],
-    iniciCarga: null,
-};
-
-// ─── Notificación de carga 3D ────────────────────────────────────────
-let notificacio3D = null;
-
-function crearNotificacio3D() {
-    if (notificacio3D) return;
-
-    const div = document.createElement('div');
-    div.id = 'notificacio-3d';
-    div.style.cssText = `
-        position: fixed;
-        bottom: 5px;
-        left: 70%;
-        transform: translateX(-50%);
-        background: rgba(10, 16, 26, 0.92);
-        backdrop-filter: blur(8px);
-        border: 1px solid rgba(255, 215, 0, 0.2);
-        border-radius: 8px;
-        padding: 12px 24px;
-        font-family: 'Segoe UI', Tahoma, sans-serif;
-        color: #cfe0ee;
-        font-size: 13px;
-        z-index: 9998;
-        display: none;
-        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
-        min-width: 280px;
-        text-align: center;
-        transition: opacity 0.3s ease;
-        pointer-events: none;
-    `;
-    div.innerHTML = `
-        <div style="display:flex;align-items:center;gap:5px;justify-content:center;">
-            <div style="width:10px;height:10px;border:5px solid rgba(255,215,0,0.2);border-top:5px solid #ffd90095;border-radius:50%;animation:spin-3d 0.8s linear infinite;"></div>
-            <div>
-                <div style="font-weight:600;color:#FFD700;">Carregant dades esperi</div>
-                <div id="notificacio-3d-progress" style="font-size:1px;color:#7f9bb3;">0%</div>
-            </div>
-        </div>
-        <div style="margin-top:6px;font-size:10px;color:#556680;">
-            <span id="notificacio-3d-comptador">0 / 0</span> hores
-        </div>
-        <style>
-            @keyframes spin-3d {
-                to { transform: rotate(360deg); }
-            }
-        </style>
-    `;
-    document.body.appendChild(div);
-    notificacio3D = div;
-}
-
-function mostrarNotificacio3D(mostrar = true) {
-    if (!notificacio3D) crearNotificacio3D();
-    notificacio3D.style.display = mostrar ? 'block' : 'none';
-    if (mostrar) {
-        notificacio3D.style.opacity = '1';
-    }
-}
-
-function actualitzarNotificacio3D(progress, carregats, total) {
-    if (!notificacio3D) return;
-    const pct = Math.round(progress * 100);
-    const bar = notificacio3D.querySelector('#notificacio-3d-progress');
-    const comptador = notificacio3D.querySelector('#notificacio-3d-comptador');
-    if (bar) bar.textContent = pct + '%';
-    if (comptador) comptador.textContent = carregats + ' / ' + total;
-}
-
-function amagarNotificacio3D() {
-    if (notificacio3D) {
-        notificacio3D.style.opacity = '0';
-        setTimeout(() => {
-            notificacio3D.style.display = 'none';
-        }, 300);
-    }
-}
-
-// ─── Función para comprobar si una hora tiene datos 3D ──────────────
-function horaTe3D(idx) {
-    if (idx < 0 || idx >= totesLesHores.length) return false;
-    const item = totesLesHores[idx];
-    return item && item.data && item.data._te3d && item.data.coordenadas_3d;
-}
-
-// ─── Función para comprobar si todos los parámetros 3D están listos ──
-function tots3DCarregats() {
-    if (!totesLesHores || totesLesHores.length === 0) return false;
-    return totesLesHores.every(item => {
-        return item && item.data && item.data._te3d;
-    });
-}
-
-// ─── Carga masiva de 3D con feedback ────────────────────────────────
-async function carregarTots3DAmbFeedback() {
-    if (SISTEMA_3D.carregant || SISTEMA_3D.complet) {
-        console.log('[3D] Ya está cargando o ya está completo.');
-        return;
-    }
-
-    const total = totesLesHores.length;
-    if (total === 0) {
-        console.warn('[3D] No hay horas para cargar.');
-        return;
-    }
-
-    // Contar cuántas ya tienen 3D
-    let jaTenen3D = 0;
-    const perCarregar = [];
-    for (let i = 0; i < total; i++) {
-        if (horaTe3D(i)) {
-            jaTenen3D++;
-        } else {
-            perCarregar.push(i);
-        }
-    }
-
-    if (perCarregar.length === 0) {
-        SISTEMA_3D.complet = true;
-        console.log('[3D] Todas las horas ya tienen datos 3D.');
-        return;
-    }
-
-    SISTEMA_3D.carregant = true;
-    SISTEMA_3D.total = perCarregar.length;
-    SISTEMA_3D.carregats = 0;
-    SISTEMA_3D.progress = 0;
-    SISTEMA_3D.iniciCarga = Date.now();
-
-    // Mostrar notificación
-    crearNotificacio3D();
-    mostrarNotificacio3D(true);
-    actualitzarNotificacio3D(0, 0, perCarregar.length);
-
-    console.log(`[3D] Iniciando carga de ${perCarregar.length} horas 3D...`);
-
-    // Ordenar: primero la hora actual y las cercanas
-    const centre = curIdx || 0;
-    perCarregar.sort((a, b) => {
-        const distA = Math.abs(a - centre);
-        const distB = Math.abs(b - centre);
-        return distA - distB;
-    });
-
-    const CONCURRENCIA_3D_CARREGA = 2;
-    let cursor = 0;
-    let errors = 0;
-
-    async function worker3D() {
-        while (cursor < perCarregar.length) {
-            const idx = perCarregar[cursor++];
-            try {
-                const ok = await assegurarHoraCarregada(idx, true);
-                if (ok) {
-                    SISTEMA_3D.carregats++;
-                } else {
-                    errors++;
-                    console.warn(`[3D] Error carregant hora ${idx}`);
-                }
-            } catch (e) {
-                errors++;
-                console.warn(`[3D] Excepción carregant hora ${idx}:`, e);
-            }
-
-            // Actualizar progreso
-            const completats = SISTEMA_3D.carregats + (perCarregar.length - cursor);
-            SISTEMA_3D.progress = completats / perCarregar.length;
-            actualitzarNotificacio3D(SISTEMA_3D.progress, SISTEMA_3D.carregats, perCarregar.length);
-
-            // Si hay un cambio visible, actualizar el panel
-            if (SISTEMA_3D.carregats % 3 === 0 || cursor === perCarregar.length) {
-                // Actualizar el grid de horas para mostrar 3D disponible
-                construirGraellaHores();
-
-                // Si la hora actual ahora tiene 3D, refrescar el mapa
-                if (horaTe3D(curIdx) && canvasLayer) {
-                    const item = totesLesHores[curIdx];
-                    if (item && item.data) {
-                        canvasLayer.setData(item.data);
-                        if (window.ventEnabled && typeof redibuixarVent === 'function') redibuixarVent();
-                    }
-                }
-            }
-
-            // Pequeña pausa para no saturar
-            await new Promise(r => setTimeout(r, 10));
-        }
-    }
-
-    // Lanzar workers
-    const workers = [];
-    for (let w = 0; w < CONCURRENCIA_3D_CARREGA; w++) {
-        workers.push(worker3D());
-    }
-    await Promise.all(workers);
-
-    SISTEMA_3D.carregant = false;
-    SISTEMA_3D.complet = true;
-
-    const temps = ((Date.now() - SISTEMA_3D.iniciCarga) / 1000).toFixed(1);
-    console.log(`[3D] Carga completada: ${SISTEMA_3D.carregats} horas en ${temps}s. Errors: ${errors}`);
-
-    // Ocultar notificación después de un momento
-    setTimeout(() => {
-        amagarNotificacio3D();
-        // Si hay algún error notable, mostrar aviso
-        if (errors > 0) {
-            const div = document.createElement('div');
-            div.style.cssText = `
-                position: fixed;
-                bottom: 140px;
-                left: 50%;
-                transform: translateX(-50%);
-                background: rgba(255, 60, 60, 0.85);
-                color: white;
-                padding: 8px 16px;
-                border-radius: 6px;
-                font-size: 12px;
-                z-index: 9999;
-                font-family: 'Segoe UI', Tahoma, sans-serif;
-                backdrop-filter: blur(4px);
-                border: 1px solid rgba(255,255,255,0.1);
-                text-align: center;
-            `;
-            div.textContent = `⚠️ ${errors} hores 3D no s'han pogut carregar. Torna a provar més tard.`;
-            document.body.appendChild(div);
-            setTimeout(() => {
-                div.style.transition = 'opacity 0.5s';
-                div.style.opacity = '0';
-                setTimeout(() => div.remove(), 500);
-            }, 5000);
-        }
-
-        // Reconstruir el panel de parámetros para mostrar los nuevos 3D
-        construirPanellParametres();
-
-        // Si la hora actual tiene 3D, actualizar
-        if (horaTe3D(curIdx)) {
-            const item = totesLesHores[curIdx];
-            if (item && item.data) {
-                canvasLayer._needsRedraw = true;
-                canvasLayer._render();
-            }
-        }
-
-        // Disparar evento
-        document.dispatchEvent(new CustomEvent('mapa-3d-llest', {
-            detail: { total: SISTEMA_3D.carregats, errors }
-        }));
-
-    }, 500);
-
-    return { carregats: SISTEMA_3D.carregats, errors };
-}
-
-// ─── Función para iniciar la carga 3D desde el exterior ─────────────
-function iniciarCarga3D() {
-    if (SISTEMA_3D.carregant) {
-        console.log('[3D] Ya está en marcha una carga.');
-        return;
-    }
-    if (SISTEMA_3D.complet) {
-        console.log('[3D] Ya está todo cargado.');
-        return;
-    }
-    carregarTots3DAmbFeedback();
-}
-
-// ─── Interceptar cambios de hora para priorizar carga 3D ────────────
-const _mostrarHoraOriginal = mostrarHora;
-
-mostrarHora = async function(idx) {
-    if (idx < 0 || idx >= totesLesHores.length) return;
-
-    // Llamar al original
-    await _mostrarHoraOriginal(idx);
-
-    // Si la hora seleccionada no tiene 3D, iniciar carga prioritaria
-    if (!horaTe3D(idx) && !SISTEMA_3D.carregant && !SISTEMA_3D.complet) {
-        // Mostrar notificación
-        crearNotificacio3D();
-        mostrarNotificacio3D(true);
-        actualitzarNotificacio3D(0, 0, 1);
-
-        // Cargar solo esta hora primero
-        try {
-            const ok = await assegurarHoraCarregada(idx, true);
-            if (ok) {
-                // Si la hora actual sigue siendo la misma, actualizar
-                if (curIdx === idx) {
-                    const item = totesLesHores[idx];
-                    if (item && item.data) {
-                        canvasLayer._needsRedraw = true;
-                        canvasLayer._render();
-                        construirGraellaHores();
-                        construirPanellParametres();
-                    }
-                }
-            }
-        } catch (e) {
-            console.warn('[3D] Error cargando hora prioritaria:', e);
-        }
-
-        // Ocultar notificación
-        setTimeout(() => amagarNotificacio3D(), 500);
-
-        // Si no está completa la carga total, iniciarla en background
-        if (!SISTEMA_3D.complet && !SISTEMA_3D.carregant) {
-            setTimeout(() => iniciarCarga3D(), 100);
-        }
-    }
-
-    // Si hay 3D cargando y no está completa, iniciar en background
-    if (!SISTEMA_3D.complet && !SISTEMA_3D.carregant && !horaTe3D(idx)) {
-        setTimeout(() => iniciarCarga3D(), 500);
-    }
-};
-
-function afegirBotoCarga3D() {
-    // ❌ No añadir el botón o desactivarlo
-  
-}
-
-// ─── Inicializar el sistema ──────────────────────────────────────────
-function inicialitzarSistema3D() {
-    crearNotificacio3D();
-
-    setTimeout(() => {
-        afegirBotoCarga3D();
-        // 🔧 FIX: ya NO se llama a iniciarCarga3D() automáticamente aquí.
-        // El usuario decide cuándo cargar el 3D pulsando el botón,
-        // o se carga solo bajo demanda cuando selecciona una variable 3D.
-    }, 500);
-
-    // Escuchar evento de horas cargadas
-    document.addEventListener('mapa-dades-llestes', (e) => {
-        const { totesLesHores: novesHores } = e.detail || {};
-        if (novesHores && novesHores.length > 0 && !SISTEMA_3D.complet && !SISTEMA_3D.carregant) {
-            setTimeout(() => {
-                if (!SISTEMA_3D.complet && !SISTEMA_3D.carregant) {
-                    console.log('[3D] Iniciando carga automática tras carga SFC...');
-                    iniciarCarga3D();
-                }
-            }, 2000);
-        }
-    });
-}
-
-
-
-
-
-// ─── Exponer funciones globalmente ───────────────────────────────────
-window.iniciarCarga3D = iniciarCarga3D;
-window.carregarTots3DAmbFeedback = carregarTots3DAmbFeedback;
-window.SISTEMA_3D = SISTEMA_3D;
-window.horaTe3D = horaTe3D;
-
-// ─── Inicializar al cargar ──────────────────────────────────────────
-if (document.readyState === 'complete' || document.readyState === 'interactive') {
-    
-} else {
-    document.addEventListener('DOMContentLoaded', inicialitzarSistema3D);
-}
-
-
-
-console.log('✅ Tot bé!');
-
-
+console.log('✅ mapa.js carregat — cada hora es descarrega només quan es clica, sense càrrega 3D en cascada.');

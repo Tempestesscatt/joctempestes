@@ -4286,7 +4286,83 @@ setTimeout(() => {
 
 </script>
 
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!--  OVERLAY DE CÀRREGA PER CANVI D'HORA                                     -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<div id="loadingHourOverlay" style="
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+">
+    <div style="
+        background: rgba(10, 16, 26, 0.85);
+        border-radius: 16px;
+        padding: 30px 40px;
+        border: 1px solid rgba(255, 215, 0, 0.2);
+        box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6);
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+    ">
+        <!-- Cercle de càrrega -->
+        <div style="
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 215, 0, 0.15);
+            border-top: 4px solid #FFD700;
+            border-radius: 50%;
+            animation: spinLoading 0.8s linear infinite;
+        "></div>
+        
+        <!-- Text -->
+        <div style="
+            color: #cfe0ee;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            font-size: 16px;
+            font-weight: 500;
+        ">
+            <span id="loadingHourText"> Carregant hora...</span>
+        </div>
+        
+        <!-- Hora que s'està carregant -->
+        <div style="
+            color: #7f9bb3;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            font-size: 13px;
+        ">
+            <span id="loadingHourDetail">14:00 - avui</span>
+        </div>
+    </div>
+</div>
 
+<style>
+    @keyframes spinLoading {
+        to { transform: rotate(360deg); }
+    }
+    
+    #loadingHourOverlay.visible {
+        display: flex !important;
+        opacity: 1;
+    }
+    
+    #loadingHourOverlay.hidden {
+        opacity: 0;
+        pointer-events: none;
+    }
+</style>
 
 
 </body>
