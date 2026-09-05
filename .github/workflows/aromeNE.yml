@@ -299,12 +299,12 @@ jobs:
         retention-days: 5
 
   # ════════════════════════════════════════════════════════════════
-  #  JOB 5: MANIFEST - Genera manifest.json amb les hores disponibles
+  #  JOB 5: MANIFEST - Genera manifest.json (NOMÉS DESPRÉS de status)
   # ════════════════════════════════════════════════════════════════
   manifest:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [arome_sfc, arome_3d]
+    needs: status
     if: always()
     steps:
     - uses: actions/checkout@v4
@@ -321,7 +321,7 @@ jobs:
         python-version: '3.11'
 
     - name: Descarregar artifact - SFC
-      if: needs.arome_sfc.result == 'success'
+      if: needs.status.result == 'success'
       uses: actions/download-artifact@v4
       with:
         name: dades-sfc
@@ -329,7 +329,7 @@ jobs:
       continue-on-error: true
 
     - name: Descarregar artifact - 3D
-      if: needs.arome_3d.result == 'success'
+      if: needs.status.result == 'success'
       uses: actions/download-artifact@v4
       with:
         name: dades-3d
@@ -355,7 +355,7 @@ jobs:
         retention-days: 5
 
   # ════════════════════════════════════════════════════════════════
-  #  JOB FINAL: deploy
+  #  JOB FINAL: deploy (NOMÉS DESPRÉS de manifest)
   # ════════════════════════════════════════════════════════════════
   deploy:
     needs: [arome_sfc, arome_3d, ones, status, manifest]
