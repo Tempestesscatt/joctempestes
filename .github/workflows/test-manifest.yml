@@ -1,0 +1,67 @@
+name: TEST - Generar manifest i deploy
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  deployments: write
+
+jobs:
+  manifest_i_deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.PRIVATE_REPO_TOKEN }}
+
+    - name: Clonar private-scripts
+      run: |
+        rm -rf private-scripts-new
+        git clone https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/Tempestesscatt/Scripts.git private-scripts-new
+
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Descarregar dades ja publicades (branca 'data')
+      run: |
+        mkdir -p meu-mapa/public/web_data_NE meu-mapa/public/webdata_waves meu-mapa/public/js
+        git clone --depth 1 --branch data https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/Tempestesscatt/joctempestes.git dades-actuals
+        cp -r dades-actuals/web_data_NE/* meu-mapa/public/web_data_NE/ 2>/dev/null || echo "web_data_NE buit o inexistent"
+        cp -r dades-actuals/webdata_waves/* meu-mapa/public/webdata_waves/ 2>/dev/null || echo "webdata_waves buit o inexistent"
+        cp -r dades-actuals/js/* meu-mapa/public/js/ 2>/dev/null || echo "js buit o inexistent"
+        echo "=== Fitxers descarregats a web_data_NE ==="
+        ls meu-mapa/public/web_data_NE/ | head -20
+        echo "Total fitxers: $(ls meu-mapa/public/web_data_NE/ | wc -l)"
+
+    - name: Executar generar_manifest.py
+      run: |
+        cd private-scripts-new
+        python3 generar_manifest.py
+
+    - name: Mostrar manifest.json generat
+      run: |
+        echo "=== manifest.json generat ==="
+        cat meu-mapa/public/web_data_NE/manifest.json 2>/dev/null || echo "No s'ha trobat manifest.json"
+
+    - name: Deploy a Cloudflare
+      run: |
+        cd meu-mapa
+        npm install -g wrangler
+        wrangler pages deploy public --project-name=tempestes-cat --branch=main --commit-dirty=true
+      env:
+        CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+    - name: Publicar dades (amb manifest) a la branca 'data'
+      run: |
+        cd meu-mapa/public
+        rm -rf .git
+        git init -q
+        git checkout -q -b data
+        git add web_data_NE webdata_waves js
+        git -c user.name="bot-dades" -c user.email="bot@tempestes-cat" commit -q -m "manifest test $(date -u +'%Y-%m-%d %H:%M UTC')"
+        git push --force "https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/Tempestesscatt/joctempestes.git" data
+        echo "✅ Dades (amb manifest) publicades a la branca 'data'"

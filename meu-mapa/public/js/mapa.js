@@ -3130,82 +3130,60 @@ async function trobarRangHoresPerCercaBinaria() {
 
     return { inici, fi };
 }
-
 async function detectarHoresDisponibles() {
     const steps = [];
     const horesTrobades = [];
 
-    // 1️⃣ Cache instantània (si és recent, la fem servir sense tocar la xarxa)
-    const cachejat = llegirCacheHores();
-    if (cachejat) {
-        console.log(`[detectar] ⚡ Hores carregades de cache instantània (${cachejat.length}h)`);
-        window._horesDisponibles = cachejat.map((h, i) => ({ ...h, step: i }));
-        for (let i = 0; i < cachejat.length; i++) steps.push(i);
+    console.log('[detectar] 🔍 Llegint manifest.json...');
 
-        // Refresquem en segon pla sense bloquejar la UI (no esperem aquesta promesa)
-        refrescarHoresEnSegonPla();
+    try {
+        const r = await fetch(ambCacheBusterDades('web_data_NE/manifest.json'), { cache: 'no-store' });
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+
+        const ct = r.headers.get('content-type') || '';
+        if (ct.includes('text/html')) {
+            throw new Error('manifest.json no existeix (el servidor retorna la SPA en fallback)');
+        }
+
+        const manifest = await r.json();
+        const ordreDia = { ahir: -1, avui: 0, dema: 1, dema_passat: 2 };
+
+        const horesOrdenades = Object.values(manifest.hores || {})
+            .filter(h => h.sfc)
+            .sort((a, b) => {
+                const diffDia = (ordreDia[a.dia] ?? 99) - (ordreDia[b.dia] ?? 99);
+                if (diffDia !== 0) return diffDia;
+                return a.hora - b.hora;
+            });
+
+        let stepCounter = 0;
+        for (const h of horesOrdenades) {
+            steps.push(stepCounter);
+            horesTrobades.push({
+                step: stepCounter,
+                hora: h.hora,
+                dia: h.dia,
+                horaStr: `${String(h.hora).padStart(2, '0')}:00`,
+                diaStr: h.dia,
+                teSFC: true,
+                te3D: !!h['3d'],
+                nomSFC: `web_data_NE/${h.sfc}`,
+                nom3D: h['3d'] ? `web_data_NE/${h['3d']}` : null,
+            });
+            stepCounter++;
+        }
+
+        window._horesDisponibles = horesTrobades;
+        console.log(`[detectar] ✅ ${steps.length} hores llegides del manifest (instantani):`,
+            horesTrobades.map(h => `${h.hora}h ${h.dia}${h.te3D ? ' 📡' : ''}`).join(', '));
         return steps;
+
+    } catch (e) {
+        console.error('[detectar] ❌ No s\'ha pogut llegir manifest.json:', e.message);
+        console.error('[detectar] Executa generar_manifest.py per crear-lo dins de web_data_NE/');
+        window._horesDisponibles = [];
+        return steps; // buit
     }
-
-    console.log('[detectar] 🔍 Sense cache vàlida — cercant hores (cerca binària ràpida)...');
-
-    const rang = await trobarRangHoresPerCercaBinaria();
-
-    let candidatsIdx = [];
-    if (rang) {
-        for (let idx = rang.inici; idx <= rang.fi; idx++) candidatsIdx.push(idx);
-        console.log(`[detectar] ✅ Rang consecutiu trobat: ${candidatsIdx.length} hores (cerca binària, ~${Math.ceil(Math.log2(96))*2} peticions)`);
-    } else {
-        // Fallback de seguretat: si l'assumpció de consecutivitat falla,
-        // comprovem totes les 96 combinacions en paral·lel per lots.
-        console.warn('[detectar] ⚠️ El rang no sembla consecutiu — fent cerca completa en paral·lel');
-        for (let i = 0; i < 96; i++) candidatsIdx.push(i);
-    }
-
-    const MIDA_LOT = 24;
-    const trobatsSFC = [];
-    for (let i = 0; i < candidatsIdx.length; i += MIDA_LOT) {
-        const lot = candidatsIdx.slice(i, i + MIDA_LOT);
-        const resultats = await Promise.all(lot.map(async idx => {
-            const { dia, hora } = fromIdxLineal(idx);
-            const ok = await existeixFitxerDeVeritat(nomSfc(dia, hora));
-            return { idx, dia, hora, ok };
-        }));
-        trobatsSFC.push(...resultats.filter(r => r.ok));
-    }
-
-    trobatsSFC.sort((a, b) => a.idx - b.idx);
-
-    // 🔧 FIX: construïm ja la llista d'hores AMB SFC confirmat però SENSE
-    // esperar la comprovació del 3D. Això permet mostrar la graella
-    // immediatament; el badge "3D" de cada cel·la s'afegeix més tard,
-    // en segon pla, sense bloquejar la UI.
-    let stepCounter = 0;
-    for (const c of trobatsSFC) {
-        steps.push(stepCounter);
-        horesTrobades.push({
-            step: stepCounter,
-            hora: c.hora,
-            dia: c.dia,
-            horaStr: `${String(c.hora).padStart(2, '0')}:00`,
-            diaStr: c.dia,
-            teSFC: true,
-            te3D: false, // es confirma després, en segon pla
-            nomSFC: nomSfc(c.dia, c.hora),
-            nom3D: nom3d(c.dia, c.hora), // el guardem igualment; es farà servir si es confirma
-        });
-        stepCounter++;
-    }
-
-    window._horesDisponibles = horesTrobades;
-    console.log(`[detectar] ✅ SFC confirmat per ${steps.length} hores (3D es confirma en segon pla)`);
-
-    // Comprovació del 3D en segon pla, per lots, SENSE bloquejar el retorn
-    confirmar3DEnSegonPla(horesTrobades);
-
-    desarCacheHores(horesTrobades); // es torna a desar quan el 3D es confirmi (veure funció següent)
-
-    return steps;
 }
 
 // Comprova quines hores tenen 3D disponible DESPRÉS de mostrar la graella,
