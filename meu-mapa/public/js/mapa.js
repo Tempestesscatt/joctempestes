@@ -4758,10 +4758,10 @@ window.addEventListener('tc:logout', function() {
 
 (function() {
     const ZONA_VISIBLE = {
-        lon_min: -5.0,
-        lon_max: 4.7,
-        lat_min: 37.5,
-        lat_max: 44.5,
+    "lat_min": 37.5,
+    "lat_max": 43.9,
+    "lon_min": -9.6,
+    "lon_max": 4.8
     };
 
     function aplicarOverride() {
