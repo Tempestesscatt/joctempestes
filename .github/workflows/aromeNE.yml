@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   # ════════════════════════════════════════════════════════════════
-  #  JOB 0: NETEJA - Borra carpetes abans de començar
+  #  JOB 0: NETEJA
   # ════════════════════════════════════════════════════════════════
   neteja:
     runs-on: ubuntu-latest
@@ -142,11 +142,6 @@ jobs:
         python3 -m pip install numpy requests tifffile scipy python-dotenv lxml xarray cfgrib meteofetch matplotlib msgpack
       continue-on-error: true
 
-    - name: Netejar web_data_NE (3d)
-      run: |
-        mkdir -p meu-mapa/public/web_data_NE
-        echo "preparat"
-
     - name: Executar arome_3d.py
       run: |
         cd private-scripts-new
@@ -173,13 +168,13 @@ jobs:
         retention-days: 5
 
   # ════════════════════════════════════════════════════════════════
-  #  JOB 3: ONES (ones.py) - OPCIONAL (si falla, es continua)
+  #  JOB 3: ONES (ones.py) - OPCIONAL
   # ════════════════════════════════════════════════════════════════
   ones:
     runs-on: ubuntu-latest
     timeout-minutes: 120
     needs: neteja
-    continue-on-error: true  # 🔧 SI FALLA, CONTINUA
+    continue-on-error: true
     steps:
     - uses: actions/checkout@v4
       with:
@@ -217,7 +212,7 @@ jobs:
         done
         echo "ERROR tots els 3 intents han fallat." && exit 1
       timeout-minutes: 110
-      continue-on-error: true  # 🔧 SI FALLA, CONTINUA
+      continue-on-error: true
 
     - name: Mostrar log si falla
       if: failure()
@@ -233,14 +228,14 @@ jobs:
         retention-days: 5
 
   # ════════════════════════════════════════════════════════════════
-  #  JOB 4: STATUS (status.py) - GENERA status.js - OPCIONAL
+  #  JOB 4: STATUS (status.py) - DEPÈN DE SFC I 3D
   # ════════════════════════════════════════════════════════════════
   status:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs: [arome_sfc, arome_3d, ones]
     if: always()
-    continue-on-error: true  # 🔧 SI FALLA, CONTINUA
+    continue-on-error: true
     steps:
     - uses: actions/checkout@v4
       with:
@@ -259,7 +254,7 @@ jobs:
       run: |
         python3 -m pip install --upgrade pip
 
-    - name: Descarregar artifact - SFC (per si cal)
+    - name: Descarregar artifact - SFC
       if: needs.arome_sfc.result == 'success'
       uses: actions/download-artifact@v4
       with:
@@ -267,7 +262,7 @@ jobs:
         path: meu-mapa/public/web_data_NE/
       continue-on-error: true
 
-    - name: Descarregar artifact - 3D (per si cal)
+    - name: Descarregar artifact - 3D
       if: needs.arome_3d.result == 'success'
       uses: actions/download-artifact@v4
       with:
@@ -275,7 +270,7 @@ jobs:
         path: meu-mapa/public/web_data_NE/
       continue-on-error: true
 
-    - name: Descarregar artifact - ONES (per si cal)
+    - name: Descarregar artifact - ONES
       if: needs.ones.result == 'success'
       uses: actions/download-artifact@v4
       with:
@@ -288,7 +283,7 @@ jobs:
         cd private-scripts-new
         python3 status.py
       timeout-minutes: 5
-      continue-on-error: true  # 🔧 SI FALLA, CONTINUA
+      continue-on-error: true
 
     - name: Mostrar status.js generat
       run: |
@@ -304,7 +299,7 @@ jobs:
         retention-days: 5
 
   # ════════════════════════════════════════════════════════════════
-  #  JOB 5: GENERAR MANIFEST.json (NOMÉS SI SFC I 3D HAN ANAT BÉ)
+  #  JOB 5: GENERAR MANIFEST.json - DEPÈN DE SFC I 3D
   # ════════════════════════════════════════════════════════════════
   generar_manifest:
     runs-on: ubuntu-latest
@@ -375,10 +370,10 @@ jobs:
         retention-days: 5
 
   # ════════════════════════════════════════════════════════════════
-  #  JOB FINAL: DEPLOY (NOMÉS SI SFC I 3D HAN ANAT BÉ)
+  #  JOB FINAL: DEPLOY - NOMÉS SI SFC I 3D HAN ANAT BÉ
   # ════════════════════════════════════════════════════════════════
   deploy:
-    needs: [arome_sfc, arome_3d, generar_manifest]
+    needs: [arome_sfc, arome_3d, ones, status, generar_manifest]
     if: needs.arome_sfc.result == 'success' && needs.arome_3d.result == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -390,11 +385,12 @@ jobs:
       with:
         token: ${{ secrets.PRIVATE_REPO_TOKEN }}
 
-    - name: Comprovar resultat dels jobs (ONES i STATUS poden fallar)
+    - name: Comprovar resultat dels jobs opcionals
       run: |
         FALLITS=""
         if [ "${{ needs.ones.result }}" != "success" ]; then FALLITS="$FALLITS ones"; fi
         if [ "${{ needs.status.result }}" != "success" ]; then FALLITS="$FALLITS status"; fi
+        if [ "${{ needs.generar_manifest.result }}" != "success" ]; then FALLITS="$FALLITS manifest"; fi
         if [ -n "$FALLITS" ]; then
           echo "⚠️ Jobs opcionals que han fallat (es continua igualment):$FALLITS"
           echo "SCRIPTS_FALLITS=$FALLITS" >> "$GITHUB_ENV"
@@ -436,16 +432,15 @@ jobs:
         name: dades-manifest
         path: meu-mapa/public/web_data_NE/
 
-    - name: Comprovar mida de fitxers (limit 25 MiB de Cloudflare Pages)
+    - name: Comprovar mida de fitxers (limit 25 MiB)
       run: |
-        echo "Fitxers per sobre de 25 MiB a tot public/ (fallarien el deploy):"
+        echo "Fitxers per sobre de 25 MiB a tot public/:"
         find meu-mapa/public -type f -size +25M -exec ls -lh {} \; || echo "✅ Cap fitxer supera el limit"
 
     - name: Verificar manifest.json existeix
       run: |
         if [ -f meu-mapa/public/web_data_NE/manifest.json ]; then
           echo "✅ manifest.json existeix"
-          cat meu-mapa/public/web_data_NE/manifest.json | head -20
         else
           echo "❌ manifest.json NO existeix - Abortant!"
           exit 1
@@ -481,7 +476,7 @@ jobs:
         CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
-    - name: 📤 Publicar dades a la branca 'data'
+    - name: Publicar dades a la branca 'data'
       run: |
         cd meu-mapa/public
         mkdir -p web_data_NE webdata_waves js
