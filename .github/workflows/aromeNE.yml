@@ -1,4 +1,4 @@
-name: CAT + ONES + MSGPACK
+name: CAT + ONES + MSGPACK + MANIFEST
 
 on:
   workflow_dispatch:
@@ -299,10 +299,85 @@ jobs:
         retention-days: 5
 
   # ════════════════════════════════════════════════════════════════
-  #  JOB FINAL: deploy
+  #  JOB 5: GENERAR MANIFEST.json (ABANS DEL DEPLOY)
+  # ════════════════════════════════════════════════════════════════
+  generar_manifest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [arome_sfc, arome_3d, ones, status]
+    if: always()
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.PRIVATE_REPO_TOKEN }}
+
+    - name: Clonar private-scripts
+      run: |
+        rm -rf private-scripts-new
+        git clone https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/Tempestesscatt/Scripts.git private-scripts-new
+
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Descarregar artifact - SFC
+      if: needs.arome_sfc.result == 'success'
+      uses: actions/download-artifact@v4
+      with:
+        name: dades-sfc
+        path: meu-mapa/public/web_data_NE/
+      continue-on-error: true
+
+    - name: Descarregar artifact - 3D
+      if: needs.arome_3d.result == 'success'
+      uses: actions/download-artifact@v4
+      with:
+        name: dades-3d
+        path: meu-mapa/public/web_data_NE/
+      continue-on-error: true
+
+    - name: Descarregar artifact - ONES
+      if: needs.ones.result == 'success'
+      uses: actions/download-artifact@v4
+      with:
+        name: dades-ones
+        path: meu-mapa/public/webdata_waves/
+      continue-on-error: true
+
+    - name: Descarregar artifact - STATUS
+      if: needs.status.result == 'success'
+      uses: actions/download-artifact@v4
+      with:
+        name: dades-status
+        path: meu-mapa/public/js/
+      continue-on-error: true
+
+    - name: Executar generar_manifest.py
+      run: |
+        cd private-scripts-new
+        python3 generar_manifest.py
+      timeout-minutes: 5
+
+    - name: Mostrar manifest.json generat
+      run: |
+        echo "=== manifest.json generat ==="
+        cat meu-mapa/public/web_data_NE/manifest.json 2>/dev/null || echo "No s'ha trobat manifest.json"
+        echo ""
+        echo "=== Contingut de web_data_NE ==="
+        ls -la meu-mapa/public/web_data_NE/ 2>/dev/null | head -20
+
+    - name: Pujar manifest.json com a artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: dades-manifest
+        path: meu-mapa/public/web_data_NE/manifest.json
+        retention-days: 5
+
+  # ════════════════════════════════════════════════════════════════
+  #  JOB FINAL: DEPLOY (ara amb manifest.json inclòs)
   # ════════════════════════════════════════════════════════════════
   deploy:
-    needs: [arome_sfc, arome_3d, ones, status]
+    needs: [arome_sfc, arome_3d, ones, status, generar_manifest]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -321,6 +396,7 @@ jobs:
         if [ "${{ needs.arome_3d.result }}" != "success" ]; then FALLITS="$FALLITS 3d"; fi
         if [ "${{ needs.ones.result }}" != "success" ]; then FALLITS="$FALLITS ones"; fi
         if [ "${{ needs.status.result }}" != "success" ]; then FALLITS="$FALLITS status"; fi
+        if [ "${{ needs.generar_manifest.result }}" != "success" ]; then FALLITS="$FALLITS manifest"; fi
         if [ -n "$FALLITS" ]; then
           echo "ATTENCIO: Jobs que NO han acabat en exit:$FALLITS (es continua igualment)"
           echo "SCRIPTS_FALLITS=$FALLITS" >> "$GITHUB_ENV"
@@ -360,16 +436,33 @@ jobs:
         path: meu-mapa/public/js/
       continue-on-error: true
 
+    - name: Descarregar artifact - MANIFEST
+      if: needs.generar_manifest.result == 'success'
+      uses: actions/download-artifact@v4
+      with:
+        name: dades-manifest
+        path: meu-mapa/public/web_data_NE/
+      continue-on-error: true
+
     - name: Comprovar mida de fitxers (limit 25 MiB de Cloudflare Pages)
       run: |
         echo "Fitxers per sobre de 25 MiB a tot public/ (fallarien el deploy):"
         find meu-mapa/public -type f -size +25M -exec ls -lh {} \; || echo "Cap fitxer supera el limit OK"
 
+    - name: Verificar manifest.json existeix
+      run: |
+        if [ -f meu-mapa/public/web_data_NE/manifest.json ]; then
+          echo "✅ manifest.json existeix"
+          cat meu-mapa/public/web_data_NE/manifest.json | head -20
+        else
+          echo "⚠️ manifest.json NO existeix - es continuarà igualment"
+        fi
+
     - name: Dades generades (resum)
       run: |
         cd meu-mapa
         echo "Dades meteorologiques generades correctament."
-        echo "--- web_data_NE (sfc + 3d) ---"
+        echo "--- web_data_NE (sfc + 3d + manifest) ---"
         ls public/web_data_NE/ 2>/dev/null | wc -l || echo "buit"
         echo "--- webdata_waves ---"
         ls public/webdata_waves/ 2>/dev/null | wc -l || echo "buit"
@@ -422,7 +515,7 @@ jobs:
     - name: Comprovar si algun job ha fallat
       run: |
         FALLITS="${{ env.SCRIPTS_FALLITS }}"
-        if [ "$FALLITS" = " sfc 3d ones status" ] || [ "$FALLITS" = " 3d sfc ones status" ] || [ "$FALLITS" = " ones sfc 3d status" ]; then
+        if [ "$FALLITS" = " sfc 3d ones status manifest" ] || [ "$FALLITS" = " 3d sfc ones status manifest" ] || [ "$FALLITS" = " ones sfc 3d status manifest" ]; then
           echo "ERROR: Tots els jobs han fallat ($FALLITS)"
           exit 1
         elif [ -n "$FALLITS" ]; then
@@ -434,8 +527,9 @@ jobs:
     - name: Completat
       run: |
         echo "============================================"
-        echo "  OK TOT COMPLETAT (sfc + 3d + ones + status)!"
+        echo "  OK TOT COMPLETAT (sfc + 3d + ones + status + manifest)!"
         echo "  Dades desplegades a Cloudflare Pages"
         echo "  Dades publicades a la branca 'data'"
+        echo "  manifest.json generat correctament"
         echo "  status.js generat correctament"
         echo "============================================"

@@ -3972,6 +3972,10 @@ function actualitzarCapcaleraParametre() {
     if (label) label.textContent = pal.titol + ' (' + pal.unitat + ')';
 }
 
+
+
+
+
 // ═══════════════════════════════════════════════════════════════════════
 //  PERSISTÈNCIA EN localStorage PER AL PANELL D'AJUSTOS DE VENT
 // ═══════════════════════════════════════════════════════════════════════
@@ -4829,6 +4833,100 @@ window.addEventListener('tc:logout', function() {
 
     aplicarOverride();
 })();
+
+
+
+// ═══════════════════════════════════════════════════════════════════════
+//  CERCA DE PARÀMETRES EN TEMPS REAL
+// ═══════════════════════════════════════════════════════════════════════
+
+function inicialitzarCercaParametres() {
+    const input = document.getElementById('parameter_search');
+    if (!input) return;
+
+    input.addEventListener('input', function() {
+        const text = this.value.toLowerCase().trim();
+        const container = document.getElementById('parameter_selection');
+        if (!container) return;
+
+        // Tots els elements que volem filtrar
+        const items = container.querySelectorAll('.param-row, .param-group-title, .param-separador, .param-acordio-cap, .param-acordio-cos');
+
+        if (!text) {
+            items.forEach(el => el.style.display = '');
+            // Tancar tots els acordions per defecte
+            document.querySelectorAll('.param-acordio-cos').forEach(cos => {
+                cos.style.display = 'none';
+            });
+            document.querySelectorAll('.param-acordio-cap .param-acordio-fletxa').forEach(f => {
+                f.textContent = '▸';
+            });
+            return;
+        }
+
+        // Primer: amagar tots els separadors i títols
+        items.forEach(el => {
+            if (el.classList.contains('param-separador') || el.classList.contains('param-group-title')) {
+                el.style.display = 'none';
+            }
+        });
+
+        // Filtrar files individuals
+        const rows = container.querySelectorAll('.param-row');
+        let hiHaCoincidencies = false;
+
+        rows.forEach(row => {
+            const textRow = row.textContent.toLowerCase();
+            const clau = row.dataset.clau || '';
+            if (textRow.includes(text) || clau.includes(text)) {
+                row.style.display = '';
+                hiHaCoincidencies = true;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        // Gestionar acordions: obrir els que continguin resultats
+        const caps = container.querySelectorAll('.param-acordio-cap');
+        caps.forEach(cap => {
+            const cos = cap.nextElementSibling;
+            if (!cos || !cos.classList.contains('param-acordio-cos')) return;
+
+            const teResultats = cos.querySelectorAll('.param-row[style*="display:"]:not([style*="display:none"])').length > 0;
+            
+            if (teResultats) {
+                cap.style.display = '';
+                cos.style.display = 'block';
+                cap.querySelector('.param-acordio-fletxa').textContent = '▾';
+            } else {
+                cap.style.display = 'none';
+                cos.style.display = 'none';
+            }
+        });
+
+        // Mostrar missatge si no hi ha resultats
+        let msg = container.querySelector('.cerca-buit');
+        if (!hiHaCoincidencies) {
+            if (!msg) {
+                msg = document.createElement('div');
+                msg.className = 'cerca-buit';
+                msg.style.cssText = 'color:#556680;padding:20px 16px;text-align:center;font-size:13px;';
+                container.appendChild(msg);
+            }
+            msg.textContent = '🔍 No s\'han trobat paràmetres amb "' + text + '"';
+            msg.style.display = '';
+        } else if (msg) {
+            msg.style.display = 'none';
+        }
+    });
+}
+
+// Inicialitzar després de construir el panell
+const originalBuild = construirPanellParametres;
+construirPanellParametres = function() {
+    originalBuild.call(this);
+    setTimeout(inicialitzarCercaParametres, 100);
+};
 
 // ═══════════════════════════════════════════════════════════════════════
 //  INICIALITZACIÓ
