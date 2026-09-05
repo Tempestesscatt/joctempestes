@@ -3225,15 +3225,7 @@ function amagarLoadingOverlay() {
     }, 350);
 }
 
-/**
- * Mostra l'hora `idx`.
- * - Si ja estava carregada (item.data existeix amb variables), NO torna
- *   a descarregar res: només canvia la variable activa al canvas.
- * - Si no estava carregada, descarrega NOMÉS aquesta hora (SFC + 3D si
- *   n'hi ha), la desa a `totesLesHores[idx].data` i ja queda en caché
- *   per sempre (mentre no es recarregui la pàgina).
- * - No dispara cap càrrega d'altres hores en segon pla.
- */
+
 async function mostrarHora(idx) {
     if (idx < 0 || idx >= totesLesHores.length) return;
     if (_cargaHoraEnProgreso) return;
@@ -3269,14 +3261,14 @@ async function mostrarHora(idx) {
     resaltarHoraEnGrid(idx);
 
     const label = document.getElementById('current_time_label');
-    if (label && !jaEstavaCarregada) label.textContent = '⏳ Carregant...';
+    if (label && !jaEstavaCarregada) label.textContent = ' Carregant...';
 
     try {
         if (!jaEstavaCarregada) {
-            console.log(`[mostrarHora] 📥 Carregant hora ${idx} sota demanda...`);
+            console.log(`[mostrarHora] Carregant hora ${idx} sota demanda...`);
 
             const text = document.getElementById('loadingHourText');
-            if (text) text.textContent = `📥 Descarregant dades...`;
+            if (text) text.textContent = ` Descarregant dades...`;
 
             // Descarrega NOMÉS aquesta hora (SFC + 3D si existeix)
             const nou = await carregarUnStep(item.step, true);
@@ -3287,16 +3279,23 @@ async function mostrarHora(idx) {
                 // Actualitzar la graella per mostrar que ja està carregada
                 construirGraellaHores();
 
+                // 🔧 FIX: reconstruir el panell de paràmetres perquè inclogui
+                // les variables d'aquesta hora acabada de carregar. Sense
+                // això, el panell es queda buit per sempre si la primera
+                // crida (a inicialitzarCarregaSotaDemanda) es va fer abans
+                // que hi hagués cap dada, ja que mai més es tornava a cridar.
+                construirPanellParametres();
+
                 const text2 = document.getElementById('loadingHourText');
-                if (text2) text2.textContent = `🔄 Processant dades...`;
+                if (text2) text2.textContent = ` Processant dades...`;
             } else {
-                console.warn(`[mostrarHora] ❌ No s'ha pogut carregar l'hora ${idx}`);
+                console.warn(`[mostrarHora]  No s'ha pogut carregar l'hora ${idx}`);
                 amagarLoadingOverlay();
                 _cargaHoraEnProgreso = false;
                 return;
             }
         } else {
-            console.log(`[mostrarHora] ✅ Hora ${idx} ja carregada a memòria cau (no cal tornar a descarregar)`);
+            console.log(`[mostrarHora]  Hora ${idx} ja carregada a memòria cau (no cal tornar a descarregar)`);
         }
 
         if (curIdx !== idxSeleccionada) {
@@ -3317,7 +3316,7 @@ async function mostrarHora(idx) {
     } catch (e) {
         console.error('[mostrarHora]', e);
         const text = document.getElementById('loadingHourText');
-        if (text) text.textContent = '❌ Error carregant';
+        if (text) text.textContent = ' Error carregant';
         setTimeout(() => amagarLoadingOverlay(), 1000);
     } finally {
         _cargaHoraEnProgreso = false;
