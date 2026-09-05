@@ -3904,7 +3904,13 @@ function construirPanellParametres() {
         });
     }
 
-    seleccionarVariable('st', true);
+    // 🔧 FIX: no resetejar sempre a temperatura en reconstruir el panell
+    // (passa cada cop que es carrega una hora nova). Mantenim la variable
+    // que l'usuari ja tenia seleccionada, si segueix existint a les dades
+    // d'aquesta hora; només caiem a 'st' la primera vegada o si la variable
+    // ja no existeix.
+    const clauAMantenir = (variableActiva && totesVariables.has(variableActiva)) ? variableActiva : 'st';
+    seleccionarVariable(clauAMantenir, true);
 }
 
 async function seleccionarVariable(clau, silenciós) {
