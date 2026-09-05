@@ -54,7 +54,7 @@ jobs:
         echo "✓ Neteja completada"
 
   # ════════════════════════════════════════════════════════════════
-  #  JOB 1: SFC (arome_sfc.py)
+  #  JOB 1: SFC (arome_sfc.py) - OBLIGATORI
   # ════════════════════════════════════════════════════════════════
   arome_sfc:
     runs-on: ubuntu-latest
@@ -114,7 +114,7 @@ jobs:
         retention-days: 5
 
   # ════════════════════════════════════════════════════════════════
-  #  JOB 2: 3D (arome_3d.py)
+  #  JOB 2: 3D (arome_3d.py) - OBLIGATORI
   # ════════════════════════════════════════════════════════════════
   arome_3d:
     runs-on: ubuntu-latest
@@ -173,12 +173,13 @@ jobs:
         retention-days: 5
 
   # ════════════════════════════════════════════════════════════════
-  #  JOB 3: ONES (ones.py)
+  #  JOB 3: ONES (ones.py) - OPCIONAL (si falla, es continua)
   # ════════════════════════════════════════════════════════════════
   ones:
     runs-on: ubuntu-latest
     timeout-minutes: 120
     needs: neteja
+    continue-on-error: true  # 🔧 SI FALLA, CONTINUA
     steps:
     - uses: actions/checkout@v4
       with:
@@ -216,6 +217,7 @@ jobs:
         done
         echo "ERROR tots els 3 intents han fallat." && exit 1
       timeout-minutes: 110
+      continue-on-error: true  # 🔧 SI FALLA, CONTINUA
 
     - name: Mostrar log si falla
       if: failure()
@@ -223,6 +225,7 @@ jobs:
         find meu-mapa/public/webdata_waves/logs -name "*.log" -type f -exec cat {} \; 2>/dev/null || echo "No s'ha trobat cap log"
 
     - name: Pujar Ones com a artifact
+      if: success() || failure()
       uses: actions/upload-artifact@v4
       with:
         name: dades-ones
@@ -230,13 +233,14 @@ jobs:
         retention-days: 5
 
   # ════════════════════════════════════════════════════════════════
-  #  JOB 4: STATUS (status.py) - GENERA status.js
+  #  JOB 4: STATUS (status.py) - GENERA status.js - OPCIONAL
   # ════════════════════════════════════════════════════════════════
   status:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs: [arome_sfc, arome_3d, ones]
     if: always()
+    continue-on-error: true  # 🔧 SI FALLA, CONTINUA
     steps:
     - uses: actions/checkout@v4
       with:
@@ -254,7 +258,6 @@ jobs:
     - name: Instal·lar dependencies (bàsiques)
       run: |
         python3 -m pip install --upgrade pip
-        # status.py només necessita Python estàndard
 
     - name: Descarregar artifact - SFC (per si cal)
       if: needs.arome_sfc.result == 'success'
@@ -285,6 +288,7 @@ jobs:
         cd private-scripts-new
         python3 status.py
       timeout-minutes: 5
+      continue-on-error: true  # 🔧 SI FALLA, CONTINUA
 
     - name: Mostrar status.js generat
       run: |
@@ -292,6 +296,7 @@ jobs:
         cat meu-mapa/public/js/status.js 2>/dev/null || echo "No s'ha trobat status.js"
 
     - name: Pujar status.js com a artifact
+      if: success() || failure()
       uses: actions/upload-artifact@v4
       with:
         name: dades-status
@@ -299,13 +304,13 @@ jobs:
         retention-days: 5
 
   # ════════════════════════════════════════════════════════════════
-  #  JOB 5: GENERAR MANIFEST.json (ABANS DEL DEPLOY)
+  #  JOB 5: GENERAR MANIFEST.json (NOMÉS SI SFC I 3D HAN ANAT BÉ)
   # ════════════════════════════════════════════════════════════════
   generar_manifest:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [arome_sfc, arome_3d, ones, status]
-    if: always()
+    needs: [arome_sfc, arome_3d]
+    if: needs.arome_sfc.result == 'success' && needs.arome_3d.result == 'success'
     steps:
     - uses: actions/checkout@v4
       with:
@@ -321,22 +326,18 @@ jobs:
         python-version: '3.11'
 
     - name: Descarregar artifact - SFC
-      if: needs.arome_sfc.result == 'success'
       uses: actions/download-artifact@v4
       with:
         name: dades-sfc
         path: meu-mapa/public/web_data_NE/
-      continue-on-error: true
 
     - name: Descarregar artifact - 3D
-      if: needs.arome_3d.result == 'success'
       uses: actions/download-artifact@v4
       with:
         name: dades-3d
         path: meu-mapa/public/web_data_NE/
-      continue-on-error: true
 
-    - name: Descarregar artifact - ONES
+    - name: Descarregar artifact - ONES (si existeix)
       if: needs.ones.result == 'success'
       uses: actions/download-artifact@v4
       with:
@@ -344,7 +345,7 @@ jobs:
         path: meu-mapa/public/webdata_waves/
       continue-on-error: true
 
-    - name: Descarregar artifact - STATUS
+    - name: Descarregar artifact - STATUS (si existeix)
       if: needs.status.result == 'success'
       uses: actions/download-artifact@v4
       with:
@@ -374,11 +375,11 @@ jobs:
         retention-days: 5
 
   # ════════════════════════════════════════════════════════════════
-  #  JOB FINAL: DEPLOY (ara amb manifest.json inclòs)
+  #  JOB FINAL: DEPLOY (NOMÉS SI SFC I 3D HAN ANAT BÉ)
   # ════════════════════════════════════════════════════════════════
   deploy:
-    needs: [arome_sfc, arome_3d, ones, status, generar_manifest]
-    if: always()
+    needs: [arome_sfc, arome_3d, generar_manifest]
+    if: needs.arome_sfc.result == 'success' && needs.arome_3d.result == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
@@ -389,38 +390,31 @@ jobs:
       with:
         token: ${{ secrets.PRIVATE_REPO_TOKEN }}
 
-    - name: Comprovar resultat dels jobs anteriors
+    - name: Comprovar resultat dels jobs (ONES i STATUS poden fallar)
       run: |
         FALLITS=""
-        if [ "${{ needs.arome_sfc.result }}" != "success" ]; then FALLITS="$FALLITS sfc"; fi
-        if [ "${{ needs.arome_3d.result }}" != "success" ]; then FALLITS="$FALLITS 3d"; fi
         if [ "${{ needs.ones.result }}" != "success" ]; then FALLITS="$FALLITS ones"; fi
         if [ "${{ needs.status.result }}" != "success" ]; then FALLITS="$FALLITS status"; fi
-        if [ "${{ needs.generar_manifest.result }}" != "success" ]; then FALLITS="$FALLITS manifest"; fi
         if [ -n "$FALLITS" ]; then
-          echo "ATTENCIO: Jobs que NO han acabat en exit:$FALLITS (es continua igualment)"
+          echo "⚠️ Jobs opcionals que han fallat (es continua igualment):$FALLITS"
           echo "SCRIPTS_FALLITS=$FALLITS" >> "$GITHUB_ENV"
         else
-          echo "OK Tots els jobs han acabat en exit"
+          echo "✅ Tots els jobs opcionals han anat bé"
         fi
 
     - name: Descarregar artifact - SFC
-      if: needs.arome_sfc.result == 'success'
       uses: actions/download-artifact@v4
       with:
         name: dades-sfc
         path: meu-mapa/public/web_data_NE/
-      continue-on-error: true
 
     - name: Descarregar artifact - 3D
-      if: needs.arome_3d.result == 'success'
       uses: actions/download-artifact@v4
       with:
         name: dades-3d
         path: meu-mapa/public/web_data_NE/
-      continue-on-error: true
 
-    - name: Descarregar artifact - ONES
+    - name: Descarregar artifact - ONES (si existeix)
       if: needs.ones.result == 'success'
       uses: actions/download-artifact@v4
       with:
@@ -428,7 +422,7 @@ jobs:
         path: meu-mapa/public/webdata_waves/
       continue-on-error: true
 
-    - name: Descarregar artifact - STATUS
+    - name: Descarregar artifact - STATUS (si existeix)
       if: needs.status.result == 'success'
       uses: actions/download-artifact@v4
       with:
@@ -437,17 +431,15 @@ jobs:
       continue-on-error: true
 
     - name: Descarregar artifact - MANIFEST
-      if: needs.generar_manifest.result == 'success'
       uses: actions/download-artifact@v4
       with:
         name: dades-manifest
         path: meu-mapa/public/web_data_NE/
-      continue-on-error: true
 
     - name: Comprovar mida de fitxers (limit 25 MiB de Cloudflare Pages)
       run: |
         echo "Fitxers per sobre de 25 MiB a tot public/ (fallarien el deploy):"
-        find meu-mapa/public -type f -size +25M -exec ls -lh {} \; || echo "Cap fitxer supera el limit OK"
+        find meu-mapa/public -type f -size +25M -exec ls -lh {} \; || echo "✅ Cap fitxer supera el limit"
 
     - name: Verificar manifest.json existeix
       run: |
@@ -455,7 +447,17 @@ jobs:
           echo "✅ manifest.json existeix"
           cat meu-mapa/public/web_data_NE/manifest.json | head -20
         else
-          echo "⚠️ manifest.json NO existeix - es continuarà igualment"
+          echo "❌ manifest.json NO existeix - Abortant!"
+          exit 1
+        fi
+
+    - name: Verificar SFC existeix
+      run: |
+        if [ -n "$(find meu-mapa/public/web_data_NE -name 'sfc_*.msgpack.gz' 2>/dev/null | head -1)" ]; then
+          echo "✅ SFC trobat"
+        else
+          echo "❌ No hi ha fitxers SFC - Abortant!"
+          exit 1
         fi
 
     - name: Dades generades (resum)
@@ -479,7 +481,7 @@ jobs:
         CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
-    - name: 📤 Publicar dades a la branca 'data' (force-push, sense historial)
+    - name: 📤 Publicar dades a la branca 'data'
       run: |
         cd meu-mapa/public
         mkdir -p web_data_NE webdata_waves js
@@ -512,24 +514,16 @@ jobs:
         fi
       continue-on-error: true
 
-    - name: Comprovar si algun job ha fallat
-      run: |
-        FALLITS="${{ env.SCRIPTS_FALLITS }}"
-        if [ "$FALLITS" = " sfc 3d ones status manifest" ] || [ "$FALLITS" = " 3d sfc ones status manifest" ] || [ "$FALLITS" = " ones sfc 3d status manifest" ]; then
-          echo "ERROR: Tots els jobs han fallat ($FALLITS)"
-          exit 1
-        elif [ -n "$FALLITS" ]; then
-          echo "AVIS: Algun job ha fallat:$FALLITS (es continua)"
-        else
-          echo "OK Tots els jobs han acabat en exit"
-        fi
-
     - name: Completat
       run: |
         echo "============================================"
-        echo "  OK TOT COMPLETAT (sfc + 3d + ones + status + manifest)!"
+        echo "  ✅ TOT COMPLETAT (sfc + 3d + manifest)!"
         echo "  Dades desplegades a Cloudflare Pages"
         echo "  Dades publicades a la branca 'data'"
         echo "  manifest.json generat correctament"
-        echo "  status.js generat correctament"
+        if [ -n "${{ env.SCRIPTS_FALLITS }}" ]; then
+          echo "  ⚠️ Scripts opcionals fallats: ${{ env.SCRIPTS_FALLITS }}"
+        else
+          echo "  ✅ Tots els scripts opcionals han anat bé"
+        fi
         echo "============================================"
