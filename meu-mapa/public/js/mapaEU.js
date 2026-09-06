@@ -207,6 +207,61 @@ map.getPane('paneGeojson').style.pointerEvents = 'auto';
 
 let capaMapaBase = L.tileLayer(MAPES_BASE[mapaBaseActiva].url, MAPES_BASE[mapaBaseActiva].opts).addTo(map);
 
+
+// ═══════════════════════════════════════════════════════════════════════
+//  OVERLAY DE FRONTERES (PNG generat amb Cartopy)
+//  Afegeix aquest bloc JUST DESPRÉS de:
+//      let capaMapaBase = L.tileLayer(...).addTo(map);
+//      function canviarMapaBase(clau) { ... }
+//  al teu mapa.js
+// ═══════════════════════════════════════════════════════════════════════
+
+// Bounding box EXACTE fet servir per generar el PNG (lat_min, lat_max, lon_min, lon_max)
+const BBOX_FRONTERES = {
+    lat_min: 37.3,
+    lat_max: 55.0,
+    lon_min: -10.0,
+    lon_max: 15.0
+};
+
+const boundsFronteres = L.latLngBounds(
+    [BBOX_FRONTERES.lat_min, BBOX_FRONTERES.lon_min],  // cantonada SW
+    [BBOX_FRONTERES.lat_max, BBOX_FRONTERES.lon_max]   // cantonada NE
+);
+
+// Pane nou: per sobre del mapa base (zIndex per defecte ~200) i per sobre
+// de paneDades (400) i paneVent (500), però per sota de paneGeojson (650)
+// perquè els teus contorns de Catalunya/comarques (si en tens) quedin
+// per damunt si mai els actives de nou.
+map.createPane('paneFronteres');
+map.getPane('paneFronteres').style.zIndex = 620;
+map.getPane('paneFronteres').style.pointerEvents = 'none';
+
+const capaFronteres = L.imageOverlay('dades/mapa_fronteres.png', boundsFronteres, {
+    pane: 'paneFronteres',
+    opacity: 1,
+    interactive: false,
+    className: 'overlay-fronteres'
+}).addTo(map);
+
+window._capaFronteres = capaFronteres;
+
+// Opcional: funció per activar/desactivar l'overlay de fronteres
+window.toggleFronteres = function() {
+    if (map.hasLayer(capaFronteres)) {
+        map.removeLayer(capaFronteres);
+        return false;
+    } else {
+        capaFronteres.addTo(map);
+        return true;
+    }
+};
+
+// Opcional: canviar opacitat de l'overlay de fronteres (0..1)
+window.setOpacitatFronteres = function(v) {
+    capaFronteres.setOpacity(Math.min(1, Math.max(0, v)));
+};
+
 function canviarMapaBase(clau) {
     const def = MAPES_BASE[clau];
     if (!def) return;
@@ -2294,7 +2349,7 @@ const GEOJSON_CAPES = [
     {
         id: 'catalunya',
         nom: 'Catalunya',
-        arxiu: 'spain.geojson',
+        arxiu: 'mapa_fronteres.png',
         color: '#040400',
         gruix: 2.5,
         visiblePerDefecte: true
@@ -2798,7 +2853,7 @@ async function carregarFitxerAmbReintents(url, maxIntents = 3) {
 // ═══════════════════════════════════════════════════════════════════════
 
 async function carregarUnStep(i, ambDades3d) {
-    const base = 'web_data_NE/';
+    const base = 'web_data_EU/';
     const p = String(i).padStart(2, '0');
 
     let horaReal = null;
@@ -2872,7 +2927,7 @@ async function carregarUnStep(i, ambDades3d) {
     let tdNom = null;
 
     if (ambDades3d && nom3DTrobat) {
-        // 🔧 FIX: nom3DTrobat ve sense la carpeta (només 'web_data_NE/' fa
+        // 🔧 FIX: nom3DTrobat ve sense la carpeta (només 'web_data_EU/' fa
         // falta afegir-la). Provem primer amb el path complet i, si falla,
         // caiem al mateix mecanisme de fallback que ja fem servir pel SFC.
         const url3D = nom3DTrobat.startsWith(base) ? nom3DTrobat : (base + nom3DTrobat);
@@ -3046,11 +3101,11 @@ function fromIdxLineal(idx) {
 }
 function nomSfc(dia, hora) {
     const hs = String(hora).padStart(2, '0');
-    return `web_data_NE/sfc_${hs}_${dia}.msgpack.gz`;
+    return `web_data_EU/sfc_${hs}_${dia}.msgpack.gz`;
 }
 function nom3d(dia, hora) {
     const hs = String(hora).padStart(2, '0');
-    return `web_data_NE/3d_${hs}_${dia}.msgpack.gz`;
+    return `web_data_EU/3d_${hs}_${dia}.msgpack.gz`;
 }
 
 // Comprova un únic índex lineal, amb cache de resultats dins la mateixa passada
@@ -3137,7 +3192,7 @@ async function detectarHoresDisponibles() {
     console.log('[detectar] 🔍 Llegint manifest.json...');
 
     try {
-        const r = await fetch(ambCacheBusterDades('web_data_NE/manifest.json'), { cache: 'no-store' });
+        const r = await fetch(ambCacheBusterDades('web_data_EU/manifest.json'), { cache: 'no-store' });
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
 
         const ct = r.headers.get('content-type') || '';
@@ -3167,8 +3222,8 @@ async function detectarHoresDisponibles() {
                 diaStr: h.dia,
                 teSFC: true,
                 te3D: !!h['3d'],
-                nomSFC: `web_data_NE/${h.sfc}`,
-                nom3D: h['3d'] ? `web_data_NE/${h['3d']}` : null,
+                nomSFC: `web_data_EU/${h.sfc}`,
+                nom3D: h['3d'] ? `web_data_EU/${h['3d']}` : null,
             });
             stepCounter++;
         }
@@ -3180,7 +3235,7 @@ async function detectarHoresDisponibles() {
 
     } catch (e) {
         console.error('[detectar] ❌ No s\'ha pogut llegir manifest.json:', e.message);
-        console.error('[detectar] Executa generar_manifest.py per crear-lo dins de web_data_NE/');
+        console.error('[detectar] Executa generar_manifest.py per crear-lo dins de web_data_EU/');
         window._horesDisponibles = [];
         return steps; // buit
     }
@@ -4758,10 +4813,10 @@ window.addEventListener('tc:logout', function() {
 
 (function() {
     const ZONA_VISIBLE = {
-   lon_min: -4.5,
-lon_max: 4.8,
-lat_min: 38.0,
-lat_max: 44.5,
+  "lat_min": 37.3,
+    "lat_max": 55.0,
+    "lon_min": -10.0,
+    "lon_max": 15.0
     };
 
     function aplicarOverride() {

@@ -1,0 +1,4371 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="utf-8">
+    <title>AROME Catalunya · Model Meteorològic</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QDWCZ0Z9XF"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-QDWCZ0Z9XF');
+    </script>
+
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1675456750465139"
+         crossorigin="anonymous"></script>
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.0.4/pako.min.js"></script>
+    <link rel="stylesheet" href="css/estilcat.css" />
+    <link rel="icon" type="image/png/ico" href="img/Tempestes_cat.ico" />
+    <script src="https://unpkg.com/@msgpack/msgpack@2.8.0/dist.umd.min.js"></script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <style>
+
+
+
+/* ===== ESTILS GENERALS ===== */
+* {
+    box-sizing: border-box;
+}
+body {
+    margin: 0;
+    font-family: 'Segoe UI', 'Tahoma', sans-serif;
+    background: #0d1a2b;
+    color: #e0e8f0;
+    overflow: hidden;
+    height: 100vh;
+}
+#app {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+/* ===== TOPNAV ===== */
+#topnav {
+    background: #0d1a2b;
+    padding: 0 8px;
+    display: flex;
+    align-items: center;
+    height: 44px;
+    border-bottom: 2px solid #FFD700;
+    flex-shrink: 0;
+    gap: 4px;
+    z-index: 100;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+}
+#topnav::-webkit-scrollbar {
+    height: 2px;
+}
+#topnav::-webkit-scrollbar-thumb {
+    background: #FFD700;
+}
+
+
+/* ─── Botó Restaurar valors per defecte ────────────────────────────── */
+#ajResetDefectes {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 10px 18px;
+    margin-top: 4px;
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.08), rgba(255, 215, 0, 0.02));
+    border: 1px solid rgba(255, 215, 0, 0.15);
+    border-radius: 8px;
+    color: #FFD700;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    letter-spacing: 0.3px;
+    backdrop-filter: blur(4px);
+    position: relative;
+    overflow: hidden;
+}
+
+#ajResetDefectes i {
+    font-size: 13px;
+    transition: transform 0.4s ease;
+}
+
+#ajResetDefectes::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), transparent);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+#ajResetDefectes:hover {
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 215, 0, 0.05));
+    border-color: rgba(255, 215, 0, 0.4);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 20px rgba(255, 215, 0, 0.15);
+}
+
+#ajResetDefectes:hover::before {
+    opacity: 1;
+}
+
+#ajResetDefectes:hover i {
+    transform: rotate(-180deg);
+}
+
+#ajResetDefectes:active {
+    transform: scale(0.97) translateY(0);
+    box-shadow: 0 2px 10px rgba(255, 215, 0, 0.1);
+}
+
+#ajResetDefectes:focus-visible {
+    outline: 2px solid #FFD700;
+    outline-offset: 2px;
+}
+
+/* ─── Animació de confirmació ────────────────────────────────────── */
+#ajResetDefectes.confirmat {
+    background: linear-gradient(135deg, rgba(67, 233, 123, 0.15), rgba(67, 233, 123, 0.05)) !important;
+    border-color: rgba(67, 233, 123, 0.4) !important;
+    color: #43e97b !important;
+    animation: confirmPulse 0.6s ease;
+}
+
+#ajResetDefectes.confirmat i {
+    transform: rotate(0deg) !important;
+}
+
+@keyframes confirmPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+}
+
+/* ─── Separador anterior ──────────────────────────────────────────── */
+#panellAjustosVent .aj-separador:last-of-type {
+    margin-bottom: 14px;
+}
+.brand {
+    font-size: 14px;
+    font-weight: 800;
+    color: #FFF;
+    white-space: nowrap;
+    margin-right: 4px;
+}
+.brand span {
+    color: #FFD700;
+}
+
+/* BOTONS VISORS */
+.topnav-visors {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    flex-shrink: 0;
+}
+.topnav-visor-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 4px;
+    color: #8899bb;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    height: 26px;
+    white-space: nowrap;
+}
+.topnav-visor-btn:hover {
+    background: rgba(255, 215, 0, 0.15);
+    border-color: #FFD700;
+    color: #FFD700;
+}
+.topnav-visor-btn.active {
+    background: rgba(255, 215, 0, 0.2);
+    border-color: #FFD700;
+    color: #FFD700;
+}
+.topnav-visor-btn i {
+    font-size: 10px;
+}
+.topnav-visor-separator {
+    color: rgba(255, 255, 255, 0.1);
+    user-select: none;
+}
+
+/* DRETA: LOGIN + XAT */
+.topnav-right {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+.topnav-login-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 4px;
+    color: #8899bb;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    height: 26px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+    font-family: inherit;
+}
+.topnav-login-btn:hover {
+    background: rgba(255, 215, 0, 0.15);
+    border-color: #FFD700;
+    color: #FFD700;
+}
+.topnav-login-btn.google-btn {
+    background: rgba(255, 255, 255, 0.9);
+    color: #333;
+    border-color: rgba(255, 255, 255, 0.3);
+}
+.topnav-login-btn.google-btn:hover {
+    background: #FFF;
+    color: #000;
+}
+.topnav-login-btn.google-btn i {
+    color: #DB4437;
+}
+.topnav-login-btn.xat-btn {
+    background: rgba(255, 215, 0, 0.1);
+    border-color: rgba(255, 215, 0, 0.2);
+    color: #FFD700;
+}
+.topnav-login-btn.xat-btn:hover {
+    background: rgba(255, 215, 0, 0.2);
+}
+.topnav-user {
+    display: none;
+    align-items: center;
+    gap: 5px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 2px 8px 2px 2px;
+    cursor: pointer;
+    height: 26px;
+    transition: background 0.2s;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+.topnav-user:hover {
+    background: rgba(255,255,255,0.15);
+}
+.topnav-user-avatar {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: 700;
+    color: #0d1a2b;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+.topnav-user-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.topnav-user-name {
+    font-size: 10px;
+    font-weight: 600;
+    color: #FFF;
+    max-width: 60px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* BOTÓ RADAR */
+.topnav-radar-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    background: #142338;
+    color: #6fc3ff;
+    border: 1px solid #2a4361;
+    font-size: 10px;
+    cursor: pointer;
+    text-decoration: none;
+    font-weight: 500;
+    height: 26px;
+    white-space: nowrap;
+}
+.topnav-radar-btn:hover {
+    background: #1c3350;
+}
+.topnav-radar-btn i {
+    font-size: 10px;
+}
+
+/* ===== BODY ROW ===== */
+#body-row {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+}
+
+/* ===== PANELL LATERAL ===== */
+#side-panel {
+    width: 240px;
+    min-width: 180px;
+    max-width: 280px;
+    background: #0d1a2b;
+    border-right: 1px solid rgba(255,255,255,0.06);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    flex-shrink: 0;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    z-index: 50;
+}
+#side-panel.collapsed {
+    transform: translateX(-100%);
+    width: 0;
+    min-width: 0;
+    border-right: none;
+}
+
+/* Botó per mostrar/amagar panell (3 punts) */
+#side-panel-toggle {
+    display: none;
+    position: absolute;
+    left: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 60;
+    background: rgba(13, 26, 43, 0.92);
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    border-radius: 6px;
+    color: #FFD700;
+    padding: 8px 10px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 700;
+    backdrop-filter: blur(6px);
+    transition: all 0.2s;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+    line-height: 1;
+    letter-spacing: 2px;
+}
+#side-panel-toggle:hover {
+    background: rgba(255, 215, 0, 0.15);
+    border-color: #FFD700;
+    transform: translateY(-50%) scale(1.05);
+}
+#side-panel-toggle i {
+    display: block;
+}
+#side-panel-toggle .dots {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-items: center;
+}
+#side-panel-toggle .dot {
+    width: 4px;
+    height: 4px;
+    background: #FFD700;
+    border-radius: 50%;
+}
+
+/* Quan el panell està obert, el botó es mou */
+#side-panel:not(.collapsed) ~ #side-panel-toggle {
+    left: 248px;
+}
+
+#side-panel-header {
+    padding: 8px 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    flex-shrink: 0;
+}
+#side-panel-header .label {
+    font-size: 9px;
+    font-weight: 700;
+    color: #556680;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 3px;
+}
+#side-panel-header input {
+    width: 100%;
+    padding: 5px 8px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 4px;
+    color: #e0e8f0;
+    font-size: 11px;
+    font-family: inherit;
+    outline: none;
+}
+#side-panel-header input::placeholder {
+    color: #556680;
+}
+#side-panel-header input:focus {
+    border-color: #FFD700;
+}
+#parameter_selection {
+    flex: 1;
+    overflow-y: auto;
+    padding: 4px 0;
+}
+#parameter_selection::-webkit-scrollbar {
+    width: 3px;
+}
+#parameter_selection::-webkit-scrollbar-thumb {
+    background: #FFD700;
+    border-radius: 4px;
+}
+
+/* ===== MAIN AREA ===== */
+#main-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #0d1a2b;
+    min-width: 0;
+    position: relative;
+}
+
+/* ===== FH VALID ===== */
+#fh_valid_outer {
+    display: flex;
+    align-items: center;
+    padding: 3px 10px;
+    background: rgba(0,0,0,0.3);
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    font-size: 10px;
+    color: #8899bb;
+    flex-shrink: 0;
+    gap: 6px;
+    flex-wrap: wrap;
+    min-height: 26px;
+}
+#fh_valid_outer .lbl {
+    color: #556680;
+    font-weight: 600;
+}
+#fh_validtime {
+    color: #e0e8f0;
+    font-weight: 600;
+}
+#fh_valid_outer .status-badge {
+    margin-left: auto;
+}
+
+/* ===== MAPA ===== */
+#map-wrapper {
+    flex: 1;
+    position: relative;
+    min-height: 0;
+    background: #0a1520;
+}
+#map {
+    width: 100%;
+    height: 100%;
+    background: #0a1520;
+}
+
+/* ===== LEGENDA - MÉS PETITA I NO TAPA ===== */
+#map .leaflet-control-zoom {
+    margin-bottom: 50px !important;
+}
+#map .leaflet-bottom.leaflet-right {
+    bottom: 60px !important;
+}
+
+/* LEGENDA DINS DEL MAPA (més petita) */
+.leaflet-control-layers,
+.leaflet-control-zoom {
+    z-index: 20 !important;
+}
+
+/* La llegenda del canvasLayer es dibuixa amb opacitat reduïda */
+#map canvas + canvas {
+    opacity: 0.6 !important;
+}
+
+/* ===== BLOQUEIG MAPA ===== */
+.map-lock-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(10, 20, 35, 0.85);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    backdrop-filter: blur(8px);
+    padding: 20px;
+    text-align: center;
+}
+.map-lock-overlay.visible {
+    display: flex;
+}
+.lock-content {
+    max-width: 320px;
+    width: 100%;
+    background: linear-gradient(145deg, rgba(20, 40, 70, 0.95), rgba(10, 20, 35, 0.98));
+    border-radius: 14px;
+    padding: 24px 18px 20px;
+    border: 1px solid rgba(255, 215, 0, 0.2);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    animation: lockFadeIn 0.4s ease;
+}
+@keyframes lockFadeIn {
+    from { opacity: 0; transform: translateY(20px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.lock-icon-wrapper {
+    width: 50px;
+    height: 50px;
+    margin: 0 auto 10px;
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 215, 0, 0.05));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid rgba(255, 215, 0, 0.3);
+}
+.lock-icon-wrapper i {
+    font-size: 22px;
+    color: #FFD700;
+}
+.map-lock-overlay h3 {
+    color: #FFF;
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+.map-lock-overlay p {
+    color: #aac;
+    font-size: 12px;
+    line-height: 1.5;
+    margin-bottom: 12px;
+}
+.map-lock-overlay p strong {
+    color: #FFD700;
+}
+.lock-features {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 8px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin-bottom: 14px;
+    text-align: left;
+}
+.lock-features span {
+    font-size: 10px;
+    color: #8899bb;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.lock-features span i {
+    font-size: 10px;
+    width: 14px;
+    text-align: center;
+}
+.lock-features span i.fa-check-circle {
+    color: #28a745;
+}
+.lock-features span i.fa-lock {
+    color: #FF6B35;
+}
+.btn-unlock {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 20px;
+    background: linear-gradient(135deg, #FFD700, #F5A623);
+    border: none;
+    border-radius: 8px;
+    color: #0d1a2b;
+    font-weight: 700;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    font-family: inherit;
+    box-shadow: 0 4px 20px rgba(255, 215, 0, 0.3);
+    width: 100%;
+    justify-content: center;
+}
+.btn-unlock:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 30px rgba(255, 215, 0, 0.4);
+}
+.btn-unlock i {
+    font-size: 14px;
+}
+.lock-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+}
+.btn-continue {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 20px;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    color: #8899bb;
+    font-weight: 600;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    font-family: inherit;
+    width: 100%;
+    justify-content: center;
+}
+.btn-continue:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: #e0e8f0;
+}
+
+#overlay {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(0,0,0,0.6);
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 10px;
+    color: #8899bb;
+    pointer-events: none;
+    z-index: 10;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+#overlay-date {
+    color: #e0e8f0;
+    font-weight: 600;
+}
+#overlay .small {
+    font-size: 9px;
+    color: #556680;
+}
+
+/* ===== LOADING OVERLAY ===== */
+#loading_overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(10, 20, 35, 0.92);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(8px);
+    transition: opacity 0.8s ease;
+}
+#loading_overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+.loading-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+}
+.loading-bg img {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 1.8s ease;
+}
+.loading-bg img.visible {
+    opacity: 0.12;
+}
+.loading-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+#loading_overlay .spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid rgba(255, 215, 0, 0.1);
+    border-top-color: #FFD700;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+#loading_overlay .txt {
+    margin-top: 12px;
+    color: #c8d8e8;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+    max-width: 90%;
+}
+.loading-progress {
+    margin-top: 12px;
+    width: 200px;
+    max-width: 80%;
+    background: rgba(255,255,255,0.06);
+    border-radius: 8px;
+    overflow: hidden;
+    height: 3px;
+    position: relative;
+}
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #FFD700, #FFA500);
+    border-radius: 8px;
+    width: 0%;
+    transition: width 0.5s ease;
+}
+.progress-text {
+    position: absolute;
+    right: -34px;
+    top: -6px;
+    font-size: 9px;
+    color: #556680;
+    font-weight: 600;
+}
+#loading_overlay .loading-sub {
+    margin-top: 6px;
+    color: #556680;
+    font-size: 10px;
+}
+#loading_overlay .loading-dots {
+    margin-top: 4px;
+    color: #556680;
+    font-size: 14px;
+    letter-spacing: 2px;
+    min-height: 16px;
+}
+
+/* ===== FH PANEL (HORITZONTAL) ===== */
+#fh-panel {
+    background: #0d1a2b;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    padding: 4px 6px 6px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+#fh_grid {
+    display: flex;
+    gap: 3px;
+    overflow-x: auto;
+    padding: 2px 0 4px;
+    flex-wrap: nowrap;
+    scrollbar-width: thin;
+    scrollbar-color: #FFD700 transparent;
+}
+#fh_grid::-webkit-scrollbar {
+    height: 3px;
+}
+#fh_grid::-webkit-scrollbar-track {
+    background: transparent;
+}
+#fh_grid::-webkit-scrollbar-thumb {
+    background: #FFD700;
+    border-radius: 4px;
+}
+.fh-item {
+    flex: 0 0 auto;
+    padding: 3px 8px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 9px;
+    color: #556680;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+    text-align: center;
+    min-width: 34px;
+    position: relative;
+}
+.fh-item:hover {
+    background: rgba(255,255,255,0.08);
+    color: #e0e8f0;
+}
+.fh-item.active {
+    background: rgba(255, 215, 0, 0.15);
+    border-color: #FFD700;
+    color: #FFD700;
+}
+.fh-item.locked {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+.fh-item .fh-val {
+    font-size: 11px;
+    font-weight: 700;
+    display: block;
+}
+.fh-item .fh-label {
+    font-size: 7px;
+    color: #3a4a5a;
+    display: block;
+    margin-top: -1px;
+}
+.fh-item.active .fh-label {
+    color: #FFD700;
+}
+.fh-item .fh-lock {
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    font-size: 7px;
+    color: #FF6B35;
+}
+
+/* CONTROLS */
+#controls {
+    display: flex;
+    gap: 3px;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+}
+#controls button {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 3px;
+    color: #8899bb;
+    font-size: 9px;
+    padding: 2px 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+    height: 22px;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    white-space: nowrap;
+}
+#controls button:hover {
+    background: rgba(255,215,0,0.1);
+    border-color: rgba(255,215,0,0.2);
+    color: #FFD700;
+}
+#controls button.active {
+    background: rgba(255,215,0,0.15);
+    border-color: #FFD700;
+    color: #FFD700;
+}
+#controls button i {
+    font-size: 9px;
+}
+
+/* ===== MODAL XAT ===== */
+.xat-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 10000;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+}
+.xat-modal-overlay.active {
+    display: flex;
+}
+.xat-modal {
+    background: #0d1a2b;
+    border-radius: 10px;
+    width: 100%;
+    max-width: 400px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid rgba(255,215,0,0.15);
+    box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+}
+.xat-modal-header {
+    padding: 10px 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+}
+.xat-modal-header h3 {
+    color: #FFF;
+    font-size: 13px;
+    margin: 0;
+}
+.xat-modal-header h3 i {
+    color: #FFD700;
+    margin-right: 6px;
+}
+.xat-modal-close {
+    background: none;
+    border: none;
+    color: #556680;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 0 4px;
+}
+.xat-modal-close:hover {
+    color: #FFF;
+}
+.xat-modal-body {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    padding: 10px 12px 0;
+}
+.xat-modal-msgs {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 4px 0 10px;
+    min-height: 150px;
+    max-height: 240px;
+}
+.xat-modal-msgs::-webkit-scrollbar {
+    width: 3px;
+}
+.xat-modal-msgs::-webkit-scrollbar-thumb {
+    background: #FFD700;
+    border-radius: 4px;
+}
+.xat-modal-msg {
+    display: flex;
+    flex-direction: column;
+}
+.xat-modal-msg-header {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 1px;
+    flex-wrap: wrap;
+}
+.xat-modal-msg-avatar {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8px;
+    font-weight: 700;
+    color: #FFF;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+.xat-modal-msg-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.xat-modal-msg-name {
+    font-weight: 600;
+    font-size: 10px;
+    color: #FFD700;
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 2px;
+}
+.xat-modal-msg-time {
+    font-size: 8px;
+    color: #556680;
+    margin-left: auto;
+}
+.xat-modal-msg-bubble {
+    background: rgba(255,255,255,0.06);
+    padding: 4px 10px;
+    border-radius: 10px;
+    max-width: 90%;
+    word-break: break-word;
+    font-size: 11px;
+    line-height: 1.4;
+    color: #c8d8e8;
+}
+.xat-modal-msg.system .xat-modal-msg-bubble {
+    background: transparent;
+    color: #556680;
+    font-style: italic;
+    text-align: center;
+    padding: 2px 0;
+}
+.xat-modal-footer {
+    padding: 8px 12px 12px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    flex-shrink: 0;
+    display: flex;
+    gap: 6px;
+}
+.xat-modal-footer input {
+    flex: 1;
+    padding: 5px 12px;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    background: rgba(255,255,255,0.04);
+    color: #e0e8f0;
+    font-size: 11px;
+    font-family: inherit;
+    outline: none;
+}
+.xat-modal-footer input::placeholder {
+    color: #556680;
+}
+.xat-modal-footer input:focus {
+    border-color: #FFD700;
+}
+.xat-modal-footer button {
+    padding: 5px 14px;
+    background: #FFD700;
+    border: none;
+    border-radius: 16px;
+    color: #0d1a2b;
+    font-weight: 700;
+    font-size: 11px;
+    cursor: pointer;
+    transition: background 0.2s;
+    font-family: inherit;
+}
+.xat-modal-footer button:hover {
+    background: #e6c200;
+}
+.xat-modal-footer button:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+/* ===== MODAL PERFIL ===== */
+.profile-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 11000;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+}
+.profile-modal-overlay.active {
+    display: flex;
+}
+.profile-modal {
+    background: #0d1a2b;
+    border-radius: 10px;
+    width: 100%;
+    max-width: 320px;
+    border: 1px solid rgba(255,215,0,0.15);
+}
+.profile-modal-header {
+    padding: 10px 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.profile-modal-header span {
+    color: #FFF;
+    font-size: 14px;
+    font-weight: 700;
+}
+.profile-modal-header button {
+    background: none;
+    border: none;
+    color: #556680;
+    font-size: 16px;
+    cursor: pointer;
+}
+.profile-modal-header button:hover {
+    color: #FFF;
+}
+.profile-modal-body {
+    padding: 14px 16px 16px;
+}
+.profile-field {
+    margin-bottom: 10px;
+}
+.profile-field label {
+    display: block;
+    font-size: 10px;
+    font-weight: 600;
+    color: #8899bb;
+    margin-bottom: 3px;
+}
+.profile-field input {
+    width: 100%;
+    padding: 5px 10px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 4px;
+    color: #e0e8f0;
+    font-size: 12px;
+    font-family: inherit;
+    outline: none;
+}
+.profile-field input:focus {
+    border-color: #FFD700;
+}
+.profile-field input:disabled {
+    color: #556680;
+}
+.profile-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+}
+.profile-actions button {
+    flex: 1;
+    padding: 7px;
+    border-radius: 4px;
+    font-weight: 700;
+    font-size: 11px;
+    cursor: pointer;
+    font-family: inherit;
+    border: none;
+    transition: all 0.2s;
+}
+.profile-actions .btn-save {
+    background: #FFD700;
+    color: #0d1a2b;
+}
+.profile-actions .btn-save:hover {
+    background: #e6c200;
+}
+.profile-actions .btn-logout {
+    background: transparent;
+    color: #cc4444;
+    border: 1px solid #cc4444;
+}
+.profile-actions .btn-logout:hover {
+    background: rgba(204,68,68,0.1);
+}
+.avis-nom {
+    margin-top: 6px;
+    padding: 6px 10px;
+    background: rgba(255,140,0,0.1);
+    border: 1px solid rgba(255,140,0,0.3);
+    border-radius: 4px;
+    color: #FF8C00;
+    font-size: 10px;
+    animation: fadeIn 0.3s ease;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== MODAL RADAR ===== */
+.radar-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.65);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+}
+.radar-modal-overlay.active {
+    display: flex;
+}
+.radar-modal {
+    background: #0b1420;
+    border: 1px solid #223247;
+    border-radius: 10px;
+    width: min(1100px, 96vw);
+    height: min(750px, 92vh);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+}
+.radar-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: #101d2e;
+    border-bottom: 1px solid #223247;
+    flex-shrink: 0;
+}
+.radar-modal-header h3 {
+    margin: 0;
+    font-size: 12px;
+    color: #e6edf3;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.radar-modal-header h3 i {
+    color: #3ea6ff;
+}
+.radar-modal-close {
+    background: transparent;
+    border: none;
+    color: #9fb0c3;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 4px;
+    line-height: 1;
+}
+.radar-modal-close:hover {
+    background: #1a2a3d;
+    color: #fff;
+}
+.radar-modal-body {
+    flex: 1;
+    position: relative;
+    background: #000;
+}
+.radar-modal-body iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+}
+.radar-modal-loading {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #9fb0c3;
+    font-size: 12px;
+    background: #0b1420;
+}
+.radar-modal-loading.hidden {
+    display: none;
+}
+
+/* ===== PANELL DE PARÀMETRES ===== */
+.param-group-title {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #2aa3e8;
+    font-weight: 700;
+    padding: 8px 12px 3px;
+    margin-top: 3px;
+    border-top: 1px solid rgba(255,255,255,0.04);
+}
+.param-group-title:first-of-type {
+    border-top: none;
+    margin-top: 0;
+}
+.param-row {
+    padding: 1px 12px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+.param-link {
+    padding: 4px 6px;
+    border-radius: 3px;
+    font-size: 11px;
+    color: #8899bb;
+    transition: all 0.12s;
+    line-height: 1.3;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.param-unit {
+    color: #556680;
+    font-size: 9px;
+    font-weight: 400;
+    margin-left: auto;
+}
+.param-row:hover .param-link {
+    background: rgba(255,255,255,0.05);
+    color: #e0e8f0;
+}
+.param-row.param-selected .param-link {
+    background: rgba(30, 136, 199, 0.15);
+    color: #fff;
+    font-weight: 600;
+    border-left: 2px solid #2aa3e8;
+    padding-left: 10px;
+}
+.param-row.param-selected .param-unit {
+    color: #7f9bb3;
+}
+.param-row-principal {
+    padding: 2px 12px 2px 12px !important;
+}
+.param-row-principal .param-link {
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    color: #e0e8f0 !important;
+    background: rgba(255, 215, 0, 0.04) !important;
+    border-left: 2px solid #FFD700 !important;
+    padding-left: 10px !important;
+    border-radius: 3px !important;
+}
+.param-row-principal:hover .param-link {
+    background: rgba(255, 215, 0, 0.1) !important;
+    color: #fff !important;
+}
+.param-row-principal.param-selected .param-link {
+    background: rgba(255, 215, 0, 0.15) !important;
+    color: #FFD700 !important;
+    border-left-color: #FFD700 !important;
+}
+.param-row-principal .param-unit {
+    color: #7f9bb3 !important;
+    font-weight: 400 !important;
+}
+.param-row-principal.param-selected .param-unit {
+    color: #FFD700 !important;
+}
+.param-separador {
+    border-top: 1px solid rgba(255,255,255,0.06);
+    margin: 3px 10px 4px;
+}
+.param-acordio-cap {
+    padding: 5px 12px 3px;
+    cursor: pointer;
+    font-size: 10.5px;
+    font-weight: 600;
+    color: #8899bb;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    user-select: none;
+}
+.param-acordio-cap:hover {
+    color: #e0e8f0;
+}
+.param-acordio-cap .param-acordio-fletxa {
+    font-size: 10px;
+    color: #556680;
+    transition: transform 0.2s;
+}
+.param-acordio-cap .param-unit {
+    font-size: 9px;
+    color: #556680;
+    font-weight: 400;
+    margin-left: auto;
+}
+.param-acordio-cos {
+    padding-left: 10px;
+}
+.param-row-nivell {
+    padding-left: 16px !important;
+}
+.param-row-nivell .param-link {
+    font-size: 10px !important;
+    color: #6a7f95 !important;
+    padding-left: 6px !important;
+    border-left: none !important;
+}
+.param-row-nivell:hover .param-link {
+    background: rgba(255,255,255,0.04) !important;
+    color: #c8d8e8 !important;
+}
+.param-row-nivell.param-selected .param-link {
+    background: rgba(30, 136, 199, 0.12) !important;
+    color: #fff !important;
+    border-left: 2px solid #2aa3e8 !important;
+    padding-left: 10px !important;
+}
+.param-row-nivell .param-unit {
+    font-size: 8.5px !important;
+}
+.param-row-premium-bloquejat {
+    opacity: 0.35 !important;
+    filter: grayscale(0.8) !important;
+    cursor: not-allowed !important;
+}
+.param-row-premium-bloquejat .param-link {
+    color: #667788 !important;
+}
+.param-row-premium-bloquejat .param-unit {
+    color: #445566 !important;
+}
+.param-row-premium-bloquejat:hover {
+    background: rgba(255,255,255,0.02) !important;
+}
+
+/* ===== POPUP ===== */
+.popup-minimal .leaflet-popup-content-wrapper {
+    background: transparent;
+    box-shadow: none;
+    border-radius: 4px;
+    padding: 0;
+}
+.popup-minimal .leaflet-popup-content {
+    margin: 0;
+}
+.popup-minimal .leaflet-popup-tip {
+    background: rgba(0, 0, 0, 0.75);
+    box-shadow: none;
+}
+.popup-clic .leaflet-popup-content-wrapper {
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(6px);
+    border-radius: 6px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+    padding: 4px;
+}
+.popup-clic .leaflet-popup-content {
+    margin: 0;
+    padding: 0 4px 0 0;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    line-height: 1;
+}
+.popup-clic .leaflet-popup-tip-container {
+    margin-top: -2px;
+}
+.popup-clic .leaflet-popup-tip {
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow: none;
+}
+.popup-clic .leaflet-popup-close-button {
+    top: 4px !important;
+    right: 6px !important;
+    width: 16px !important;
+    height: 16px !important;
+    font-size: 14px !important;
+    font-weight: 300 !important;
+    color: #8a9aaa !important;
+    line-height: 16px !important;
+}
+.popup-clic .leaflet-popup-close-button:hover {
+    color: #333 !important;
+}
+.popup-meteo {
+    padding: 6px 8px;
+    min-width: 80px;
+}
+.popup-meteo-header {
+    font-size: 9px;
+    font-weight: 500;
+    color: #5a6a7a;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+    padding-right: 14px;
+}
+.popup-meteo-value {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+}
+.popup-meteo-number {
+    font-size: 22px;
+    font-weight: 600;
+    color: #111;
+    line-height: 1;
+}
+.popup-meteo-unit {
+    font-size: 11px;
+    font-weight: 400;
+    color: #6b7b8b;
+}
+
+/* ===== STATUS BADGE ===== */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    font-size: 10px;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-weight: 450;
+    color: #bcc8d4;
+    cursor: default;
+    margin-right: 6px;
+    white-space: nowrap;
+    transition: all 0.25s ease;
+    backdrop-filter: blur(4px);
+}
+.status-badge:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.12);
+    transform: translateY(-1px);
+}
+.status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+.status-dot.status-ok {
+    background: #43e97b;
+    box-shadow: 0 0 8px rgba(67, 233, 123, 0.5);
+    animation: pulse-ok 2.5s infinite;
+}
+.status-dot.status-warning {
+    background: #ffaa2b;
+    box-shadow: 0 0 8px rgba(255, 170, 43, 0.4);
+}
+.status-dot.status-old {
+    background: #ff5e5e;
+    box-shadow: 0 0 8px rgba(255, 94, 94, 0.4);
+    animation: pulse-old 2s infinite;
+}
+.status-dot.status-error {
+    background: #6b7280;
+    box-shadow: none;
+}
+@keyframes pulse-ok {
+    0%, 100% { box-shadow: 0 0 6px rgba(67, 233, 123, 0.4); }
+    50% { box-shadow: 0 0 12px rgba(67, 233, 123, 0.7); }
+}
+@keyframes pulse-old {
+    0%, 100% { box-shadow: 0 0 6px rgba(255, 94, 94, 0.3); }
+    50% { box-shadow: 0 0 12px rgba(255, 94, 94, 0.6); }
+}
+
+/* ===== MAP CONTEXT MENU ===== */
+.map-context-menu {
+    display: none;
+    position: fixed;
+    z-index: 5000;
+    background: #0a101a;
+    border: 1px solid #33475b;
+    border-radius: 6px;
+    padding: 4px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.5);
+    min-width: 140px;
+    font-family: Arial, sans-serif;
+}
+.map-context-item {
+    padding: 6px 10px;
+    font-size: 12px;
+    color: #cfe0ee;
+    cursor: pointer;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+}
+.map-context-item i {
+    color: #FFD700;
+    width: 14px;
+    text-align: center;
+}
+.map-context-item:hover {
+    background: rgba(255, 215, 0, 0.1);
+}
+
+/* ===== RESPONSIVE ===== */
+
+/* --- Tablets --- */
+@media (max-width: 1024px) {
+    #side-panel {
+        width: 200px;
+        min-width: 160px;
+    }
+}
+
+/* --- Mòbils --- */
+@media (max-width: 768px) {
+    #topnav {
+        height: 38px;
+        padding: 0 6px;
+        gap: 3px;
+    }
+    .brand {
+        font-size: 12px;
+    }
+    .topnav-visor-btn {
+        font-size: 8px;
+        padding: 2px 5px;
+        height: 20px;
+    }
+    .topnav-visor-btn i {
+        font-size: 8px;
+    }
+    .topnav-login-btn {
+        font-size: 8px;
+        padding: 2px 5px;
+        height: 20px;
+    }
+    .topnav-login-btn span {
+        display: none;
+    }
+    .topnav-user {
+        height: 22px;
+        padding: 2px 5px 2px 2px;
+    }
+    .topnav-user-avatar {
+        width: 16px;
+        height: 16px;
+        font-size: 7px;
+    }
+    .topnav-user-name {
+        font-size: 8px;
+        max-width: 35px;
+    }
+    .topnav-radar-btn {
+        font-size: 8px;
+        padding: 2px 5px;
+        height: 20px;
+    }
+    .topnav-radar-btn i {
+        font-size: 8px;
+    }
+
+    /* Panell lateral colapsable amb 3 punts */
+    #side-panel {
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 210px;
+        min-width: 170px;
+        max-width: 250px;
+        transform: translateX(-100%);
+        border-right: 1px solid rgba(255,215,0,0.15);
+        z-index: 60;
+        box-shadow: 4px 0 30px rgba(0,0,0,0.5);
+    }
+    #side-panel.open {
+        transform: translateX(0);
+    }
+    #side-panel.collapsed {
+        transform: translateX(-100%);
+    }
+    
+    #side-panel-toggle {
+        display: block;
+        left: 4px;
+        padding: 10px 8px;
+    }
+    #side-panel-toggle .dot {
+        width: 5px;
+        height: 5px;
+    }
+    /* Quan el panell està obert, el botó es queda a la vora */
+    #side-panel:not(.collapsed) ~ #side-panel-toggle {
+        left: 4px;
+    }
+
+    #fh_valid_outer {
+        font-size: 9px;
+        padding: 2px 8px;
+        min-height: 22px;
+    }
+    .fh-item {
+        padding: 2px 5px;
+        min-width: 28px;
+        font-size: 8px;
+    }
+    .fh-item .fh-val {
+        font-size: 9px;
+    }
+    .fh-item .fh-label {
+        font-size: 6px;
+    }
+    #controls button {
+        font-size: 8px;
+        padding: 2px 6px;
+        height: 20px;
+    }
+    #controls button i {
+        font-size: 8px;
+    }
+    
+    #overlay {
+        font-size: 8px;
+        padding: 3px 6px;
+        top: 4px;
+        right: 4px;
+    }
+    #overlay-date {
+        font-size: 8px;
+    }
+    #overlay .small {
+        font-size: 7px;
+    }
+
+    .xat-modal {
+        max-width: 95%;
+        max-height: 80vh;
+    }
+    .xat-modal-msgs {
+        max-height: 160px;
+        min-height: 100px;
+    }
+    .xat-modal-footer input {
+        font-size: 10px;
+        padding: 4px 10px;
+    }
+    .xat-modal-footer button {
+        font-size: 10px;
+        padding: 4px 12px;
+    }
+
+    .radar-modal {
+        width: 98vw;
+        height: 90vh;
+    }
+    .radar-modal-header h3 {
+        font-size: 10px;
+    }
+
+    .lock-content {
+        padding: 18px 14px 16px;
+        max-width: 280px;
+    }
+    .lock-icon-wrapper {
+        width: 42px;
+        height: 42px;
+    }
+    .lock-icon-wrapper i {
+        font-size: 18px;
+    }
+    .map-lock-overlay h3 {
+        font-size: 15px;
+    }
+    .map-lock-overlay p {
+        font-size: 11px;
+    }
+    .lock-features {
+        grid-template-columns: 1fr;
+        gap: 3px;
+        padding: 6px 10px;
+    }
+    .lock-features span {
+        font-size: 10px;
+    }
+    .btn-unlock {
+        font-size: 11px;
+        padding: 8px 16px;
+    }
+
+    .profile-modal {
+        max-width: 95%;
+    }
+
+    #loading_overlay .txt {
+        font-size: 11px;
+    }
+    .loading-progress {
+        width: 160px;
+    }
+    #loading_overlay .spinner {
+        width: 28px;
+        height: 28px;
+    }
+    #loading_overlay .loading-sub {
+        font-size: 10px;
+    }
+    .loading-bg img {
+        object-fit: cover;
+    }
+
+    /* LEGENDA MÉS PETITA EN MÒBIL */
+    #map .leaflet-control-zoom {
+        margin-bottom: 40px !important;
+    }
+    #map .leaflet-bottom.leaflet-right {
+        bottom: 50px !important;
+    }
+}
+
+/* --- Mòbils petits --- */
+@media (max-width: 480px) {
+    #side-panel {
+        width: 170px;
+        min-width: 140px;
+    }
+    #side-panel-header .label {
+        font-size: 8px;
+    }
+    #side-panel-header input {
+        font-size: 9px;
+        padding: 3px 6px;
+    }
+    .param-group-title {
+        font-size: 8px;
+        padding: 5px 8px 2px;
+    }
+    .param-link {
+        font-size: 9px;
+        padding: 3px 5px;
+    }
+    .param-unit {
+        font-size: 8px;
+    }
+    .param-row-principal .param-link {
+        font-size: 10px !important;
+    }
+    .param-acordio-cap {
+        font-size: 9px;
+        padding: 4px 8px 2px;
+    }
+    .param-row-nivell .param-link {
+        font-size: 8.5px !important;
+    }
+    .topnav-visor-separator {
+        display: none;
+    }
+    .topnav-visor-btn {
+        font-size: 7px;
+        padding: 1px 4px;
+        height: 18px;
+    }
+    .topnav-login-btn {
+        font-size: 7px;
+        padding: 1px 4px;
+        height: 18px;
+    }
+    .topnav-radar-btn {
+        font-size: 7px;
+        padding: 1px 4px;
+        height: 18px;
+    }
+    .brand {
+        font-size: 11px;
+    }
+    .loading-progress {
+        width: 120px;
+    }
+    #loading_overlay .txt {
+        font-size: 10px;
+    }
+    #loading_overlay .spinner {
+        width: 24px;
+        height: 24px;
+    }
+    .popup-meteo-number {
+        font-size: 16px;
+    }
+    .popup-meteo-unit {
+        font-size: 9px;
+    }
+    .status-badge {
+        padding: 2px 5px;
+        font-size: 8px;
+        margin-right: 3px;
+    }
+    .status-dot {
+        width: 5px;
+        height: 5px;
+    }
+    #side-panel-toggle {
+        padding: 8px 6px;
+        font-size: 14px;
+        left: 2px;
+    }
+    #side-panel-toggle .dot {
+        width: 4px;
+        height: 4px;
+        gap: 3px;
+    }
+}
+
+/* --- Orientació horitzontal en mòbil --- */
+@media (max-width: 768px) and (orientation: landscape) {
+    #side-panel {
+        width: 170px;
+        min-width: 140px;
+    }
+    .xat-modal-msgs {
+        max-height: 120px;
+        min-height: 80px;
+    }
+    .radar-modal {
+        height: 85vh;
+    }
+    #loading_overlay .txt {
+        font-size: 11px;
+    }
+    .loading-progress {
+        width: 140px;
+    }
+    #topnav {
+        height: 34px;
+    }
+    #fh_valid_outer {
+        min-height: 20px;
+        font-size: 8px;
+    }
+    .fh-item {
+        min-width: 24px;
+        padding: 1px 4px;
+    }
+    .fh-item .fh-val {
+        font-size: 8px;
+    }
+    #controls button {
+        height: 18px;
+        font-size: 7px;
+        padding: 1px 5px;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   MENÚ LATERAL DE VARIABLES
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.menu-variables {
+    position: fixed;
+    top: 0;
+    left: -400px;
+    width: 380px;
+    max-width: 90vw;
+    height: 100vh;
+    background: #0d1826;
+    border-right: 2px solid #2a4361;
+    z-index: 10000;
+    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    box-shadow: 4px 0 20px rgba(0,0,0,0.5);
+}
+
+.menu-variables.active {
+    left: 0;
+}
+
+.menu-variables-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.menu-variables-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.menu-variables-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    background: #1a2a3d;
+    border-bottom: 1px solid #2a4361;
+}
+
+.menu-variables-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #e6edf3;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.menu-variables-title i {
+    color: #FF8C00;
+}
+
+.menu-variables-close {
+    background: none;
+    border: none;
+    color: #9fb0c3;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 5px;
+    transition: color 0.2s;
+}
+
+.menu-variables-close:hover {
+    color: #fff;
+}
+
+.menu-variables-search {
+    position: relative;
+    padding: 15px 20px;
+    border-bottom: 1px solid #2a4361;
+}
+
+.menu-variables-search input {
+    width: 100%;
+    padding: 10px 12px 10px 40px;
+    background: #1a2a3d;
+    border: 1px solid #2a4361;
+    border-radius: 8px;
+    color: #e6edf3;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.menu-variables-search input:focus {
+    border-color: #FF8C00;
+}
+
+.menu-variables-search input::placeholder {
+    color: #556680;
+}
+
+.menu-variables-search i {
+    position: absolute;
+    left: 32px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #556680;
+}
+
+.menu-variables-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px 0;
+}
+
+.menu-variables-loading,
+.menu-variables-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: #556680;
+    font-size: 14px;
+}
+
+.menu-variables-empty i {
+    font-size: 32px;
+    margin-bottom: 10px;
+    display: block;
+}
+
+.menu-variables-category {
+    margin-bottom: 10px;
+}
+
+.menu-variables-category-title {
+    padding: 8px 20px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #FF8C00;
+    background: rgba(255, 140, 0, 0.05);
+    border-top: 1px solid rgba(255, 140, 0, 0.1);
+    border-bottom: 1px solid rgba(255, 140, 0, 0.1);
+}
+
+.menu-variable-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s;
+    width: 100%;
+}
+
+.menu-variable-item:hover {
+    background: rgba(255, 140, 0, 0.08);
+}
+
+.menu-variable-item.active {
+    background: rgba(255, 140, 0, 0.15);
+    border-left: 3px solid #FF8C00;
+}
+
+.menu-variable-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    text-align: left;
+}
+
+.menu-variable-nom {
+    color: #e6edf3;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.menu-variable-desc {
+    color: #556680;
+    font-size: 11px;
+}
+
+.menu-variable-unitats {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.menu-variable-unit {
+    color: #9fb0c3;
+    font-size: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 3px 8px;
+    border-radius: 4px;
+}
+
+.menu-variable-unitats i {
+    color: #4CAF50;
+    font-size: 16px;
+}
+
+
+/* ─── SIDEBAR LLISCANT ──────────────────────────────────────────────── */
+#sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 999;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+#sidebar-overlay.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+#side-panel {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 380px;
+    max-width: 90vw;
+    height: 100vh;
+    background: rgba(10, 16, 26, 0.96);
+    backdrop-filter: blur(16px);
+    border-right: 1px solid rgba(255, 255, 255, 0.06);
+    z-index: 1000;
+    transform: translateX(-105%);
+    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    box-shadow: 4px 0 40px rgba(0, 0, 0, 0.6);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding-top: 12px;
+}
+
+#side-panel.obert {
+    transform: translateX(0);
+}
+
+/* ─── BOTÓ OBRIR SIDEBAR ──────────────────────────────────────────── */
+#sidebar-toggle-btn {
+    position: fixed;
+    top: 72px;
+    left: 16px;
+    z-index: 998;
+    background: rgba(10, 16, 26, 0.88);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    color: #cfe0ee;
+    width: 44px;
+    height: 44px;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+#sidebar-toggle-btn:hover {
+    background: rgba(255, 215, 0, 0.12);
+    border-color: rgba(255, 215, 0, 0.25);
+    transform: scale(1.06);
+    color: #FFD700;
+}
+
+#sidebar-toggle-btn.obert {
+    left: 340px;
+    background: rgba(255, 215, 0, 0.08);
+    border-color: rgba(255, 215, 0, 0.15);
+}
+
+/* ─── CAPÇALERA SIDEBAR ───────────────────────────────────────────── */
+#side-panel-header {
+    padding: 14px 18px 12px 18px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+#side-panel-header .label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #556680;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+#side-panel-header .sidebar-close-btn {
+    background: none;
+    border: none;
+    color: #556680;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 4px;
+    transition: all 0.2s;
+    line-height: 1;
+}
+
+#side-panel-header .sidebar-close-btn:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+#parameter_search {
+    flex: 1;
+    padding: 6px 12px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 6px;
+    color: #cfe0ee;
+    font-size: 13px;
+    outline: none;
+    transition: all 0.3s;
+    min-width: 0;
+}
+
+#parameter_search::placeholder {
+    color: #3a4a5a;
+}
+
+#parameter_search:focus {
+    border-color: rgba(255, 215, 0, 0.25);
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.04);
+}
+
+/* ─── CONTINGUT SIDEBAR (scroll) ──────────────────────────────────── */
+#side-panel .scroll-area {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 6px 10px 20px 10px;
+}
+
+#side-panel .scroll-area::-webkit-scrollbar {
+    width: 3px;
+}
+
+#side-panel .scroll-area::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+#side-panel .scroll-area::-webkit-scrollbar-thumb {
+    background: rgba(255, 215, 0, 0.2);
+    border-radius: 4px;
+}
+
+#side-panel .scroll-area::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 215, 0, 0.35);
+}
+
+/* ─── AJUSTOS PER AL COS PRINCIPAL ────────────────────────────────── */
+#main-area {
+    transition: margin-left 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+#main-area.sidebar-obert {
+    margin-left: 0;
+}
+
+/* ─── RESPONSIVE ───────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+    #side-panel {
+        width: 100%;
+        max-width: 100vw;
+        border-radius: 0;
+    }
+    
+    #sidebar-toggle-btn.obert {
+        left: 12px;
+    }
+}
+
+/* ─── SIDEBAR LLISCANT ──────────────────────────────────────────────── */
+
+/* Overlay de fons */
+#sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(6px);
+    z-index: 999;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.35s ease, visibility 0.35s ease;
+}
+
+#sidebar-overlay.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Panell lateral */
+#side-panel {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 380px !important;
+    max-width: 92vw !important;
+    height: 100vh !important;
+    background: rgba(10, 16, 26, 0.97) !important;
+    backdrop-filter: blur(18px) !important;
+    border-right: 1px solid rgba(255, 215, 0, 0.08) !important;
+    z-index: 1000 !important;
+    transform: translateX(-105%) !important;
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1) !important;
+    box-shadow: 4px 0 50px rgba(0, 0, 0, 0.7) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    padding-top: 0 !important;
+}
+
+#side-panel.obert {
+    transform: translateX(0) !important;
+}
+
+/* Capçalera del sidebar */
+#side-panel-header {
+    padding: 16px 20px 12px 20px !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+    flex-shrink: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 12px !important;
+    background: rgba(10, 16, 26, 0.6) !important;
+}
+
+#side-panel-header .label {
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    color: #FFD700 !important;
+    letter-spacing: 0.3px !important;
+    white-space: nowrap !important;
+}
+
+.sidebar-close-btn {
+    background: none !important;
+    border: none !important;
+    color: #556680 !important;
+    font-size: 20px !important;
+    cursor: pointer !important;
+    padding: 4px 8px !important;
+    border-radius: 6px !important;
+    transition: all 0.25s !important;
+    line-height: 1 !important;
+}
+
+.sidebar-close-btn:hover {
+    color: #fff !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Cercador */
+#side-panel input#parameter_search {
+    width: 100% !important;
+    padding: 8px 14px !important;
+    background: rgba(255, 255, 255, 0.06) !important;
+    border: 1px solid rgba(255, 255, 255, 0.07) !important;
+    border-radius: 8px !important;
+    color: #cfe0ee !important;
+    font-size: 13px !important;
+    outline: none !important;
+    transition: all 0.3s !important;
+}
+
+#side-panel input#parameter_search::placeholder {
+    color: #4a5a6a !important;
+}
+
+#side-panel input#parameter_search:focus {
+    border-color: rgba(255, 215, 0, 0.25) !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 0 24px rgba(255, 215, 0, 0.04) !important;
+}
+
+/* Àrea de scroll */
+#side-panel .scroll-area {
+    flex: 1 !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    padding: 6px 12px 20px 12px !important;
+}
+
+#side-panel .scroll-area::-webkit-scrollbar {
+    width: 4px !important;
+}
+
+#side-panel .scroll-area::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.02) !important;
+}
+
+#side-panel .scroll-area::-webkit-scrollbar-thumb {
+    background: rgba(255, 215, 0, 0.2) !important;
+    border-radius: 4px !important;
+}
+
+#side-panel .scroll-area::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 215, 0, 0.35) !important;
+}
+
+/* ─── BOTÓ HAMBURGUESA ──────────────────────────────────────────────── */
+#sidebar-toggle-btn {
+    position: fixed !important;
+    top: 74px !important;
+    left: 16px !important;
+    z-index: 9999 !important;
+    background: rgba(10, 16, 26, 0.92) !important;
+    backdrop-filter: blur(10px) !important;
+    border: 1.5px solid rgba(255, 215, 0, 0.2) !important;
+    border-radius: 10px !important;
+    color: #FFD700 !important;
+    width: 48px !important;
+    height: 48px !important;
+    font-size: 22px !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5) !important;
+}
+
+#sidebar-toggle-btn:hover {
+    background: rgba(255, 215, 0, 0.12) !important;
+    border-color: rgba(255, 215, 0, 0.4) !important;
+    transform: scale(1.06) !important;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.6), 0 0 30px rgba(255, 215, 0, 0.05) !important;
+}
+
+#sidebar-toggle-btn.obert {
+    left: 340px !important;
+    background: rgba(255, 215, 0, 0.06) !important;
+    border-color: rgba(255, 215, 0, 0.12) !important;
+}
+
+/* ─── AJUSTOS MAIN ──────────────────────────────────────────────────── */
+#main-area {
+    transition: margin-left 0.4s cubic-bezier(0.22, 1, 0.36, 1) !important;
+}
+
+/* ─── RESPONSIVE ────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+    #side-panel {
+        width: 100% !important;
+        max-width: 100vw !important;
+        border-radius: 0 !important;
+    }
+
+    #sidebar-toggle-btn.obert {
+        left: 12px !important;
+        top: 74px !important;
+    }
+    
+    #sidebar-toggle-btn {
+        top: 70px !important;
+        left: 10px !important;
+        width: 42px !important;
+        height: 42px !important;
+        font-size: 18px !important;
+    }
+}
+
+
+    </style>
+</head>
+<body>
+    <div id="app">
+
+
+        <!-- ═══ OVERLAY PER TANCAR SIDEBAR ═══ -->
+<div id="sidebar-overlay"></div>
+
+<!-- ═══ BOTÓ HAMBURGUESA PER OBRIR SIDEBAR ═══ -->
+<button id="sidebar-toggle-btn" title="Obrir menú de paràmetres">
+    <i class="fas fa-bars"></i>
+</button>
+
+        <!-- ═══ TOPNAV ═══ -->
+        <div id="topnav">
+            <div class="brand">TEMPESTES<span>·CAT</span></div>
+
+            <a href="index.html" class="topnav-visor-btn" title="Inici" style="margin-right:12px;">
+    <i class="fas fa-home"></i> Inici
+</a>
+
+<!-- BOTO RADAR EN TEMPS REAL -->
+<button type="button" class="topnav-radar-btn" id="btnRadarLive" title="Radar en temps real, reflectivitat" onclick="obrirRadarModal()" style="margin-right:12px;">
+    <i class="fas fa-satellite-dish"></i> Radar en temps real
+</button>
+
+
+
+            <!-- DRETA: LOGIN + XAT -->
+            <div class="topnav-right">
+                <button class="topnav-login-btn xat-btn" id="btnXat" onclick="toggleXat()">
+                    <i class="fas fa-comment"></i> <span>Xat</span>
+                </button>
+
+                <button class="topnav-login-btn google-btn" id="btnGoogleLogin" onclick="loginWithGoogle()">
+                    <i class="fab fa-google"></i> <span>Entrar</span>
+                </button>
+
+                <div class="topnav-user" id="userPill" onclick="openProfile()" style="display:none;">
+                    <div class="topnav-user-avatar" id="userAvatarFallback">U</div>
+                    <span class="topnav-user-name" id="userDisplayName">Usuari</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ COS ═══ -->
+        <div id="body-row">
+
+            <!-- PANELL LATERAL -->
+<!-- PANELL LATERAL (ara lliscant) -->
+<div id="side-panel">
+<div id="side-panel-header">
+    <span class="label"> Paràmetres</span>
+    <button id="btnObrirAjustosVent" title="Configuració general" style="background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.15);color:#FFD700;font-size:10px;font-weight:600;padding:4px 9px;border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;margin-left:auto;margin-right:8px;">
+        <i class="fas fa-sliders-h"></i> Configuració general
+    </button>
+    <button class="sidebar-close-btn" id="sidebar-close-btn" title="Tancar">
+        <i class="fas fa-times"></i>
+    </button>
+</div>
+    <div style="padding: 0 18px 10px 18px; flex-shrink: 0;">
+        <input type="text" id="parameter_search" placeholder=" Cercar paràmetre..." autocomplete="off" />
+    </div>
+    <div class="scroll-area" id="parameter_selection">
+        <!-- omplert dinàmicament per mapa.js -->
+    </div>
+</div>
+            <!-- MAIN -->
+            <div id="main-area">
+
+                <div id="fh_valid_outer">
+                    <span class="lbl">Data del mapa:</span>
+                    <span id="fh_validtime">—</span>
+                    <span class="lbl" style="margin-left:auto; opacity:0.5;"> Ctrl + Shift + R i clic dret de nou al mapa → Skew-T</span>
+                </div>
+
+                <div id="map-wrapper">
+                    <div id="map"></div>
+
+                    <!-- ═══ LOADING OVERLAY ═══ -->
+                    <div id="loading_overlay" class="visible">
+                        <div class="loading-bg" id="loadingBg">
+                            <img src="img/loading1.jpg" alt="" class="visible" data-index="0">
+                            <img src="img/loading2.jpg" alt="" data-index="1">
+                            <img src="img/loading3.jpg" alt="" data-index="2">
+                            <img src="img/loading4.jpg" alt="" data-index="3">
+                            <img src="img/loading5.jpg" alt="" data-index="4">
+                        </div>
+                        <div class="loading-content">
+                            <div class="spinner"></div>
+                            <div class="txt" id="loading_text">Inicialitzant...Esperi uns 30 segons, són dades de molta resolució</div>
+                            <div class="loading-progress" id="loading_progress">
+                                <div class="progress-bar" id="progress_bar"></div>
+                                <div class="progress-text" id="progress_text">0%</div>
+                            </div>
+                            <div class="loading-sub" id="loading_sub">Connectant amb el servidor...</div>
+                            <div class="loading-dots" id="loading_dots"></div>
+                        </div>
+                    </div>
+
+                    <!-- OVERLAY DE BLOQUEIG -->
+                    <div id="mapLockOverlay" class="map-lock-overlay">
+                        <i class="fas fa-lock"></i>
+                        <h3>Paràmetre bloquejat</h3>
+                        <p>Aquest paràmetre requereix <strong>iniciar sessió</strong> per visualitzar-lo.</p>
+                        <button class="btn-unlock" onclick="loginWithGoogle()">
+                            <i class="fab fa-google"></i> Iniciar sessió
+                        </button>
+                    </div>
+
+                    <div id="overlay">
+                        <div id="overlay-date">--</div>
+                        <div><span id="overlay-local">--:--</span> <span class="small">·</span> <span id="overlay-utc" class="small">--Z</span></div>
+                    </div>
+                </div>
+
+                <!-- FH HORITZONTAL -->
+                <div id="fh-panel">
+                    <div id="fh_grid">
+                        <!-- omplert dinàmicament -->
+                    </div>
+                    <div id="controls">
+                        <button id="btnVent" title="Vent"><i class="fas fa-wind"></i> Vent</button>
+                        
+                        <button id="btnPrev">◀ Anterior</button>
+                        <button id="btnPlay">▶ Animació</button>
+                        <button id="btnNext">Següent ▶</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ MODAL RADAR EN TEMPS REAL (flotant) ═══ -->
+    <div class="radar-modal-overlay" id="radarModal">
+        <div class="radar-modal">
+            <div class="radar-modal-header">
+                <h3><i class="fas fa-satellite-dish"></i> Radar Meteorològic — NE Península Ibèrica</h3>
+                <button class="radar-modal-close" onclick="tancarRadarModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="radar-modal-body">
+                <div class="radar-modal-loading" id="radarModalLoading">Carregant radar en temps real...</div>
+                <iframe id="radarModalIframe" src="" title="Radar en temps real"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ MODAL XAT ═══ -->
+    <div class="xat-modal-overlay" id="xatModal">
+        <div class="xat-modal">
+            <div class="xat-modal-header">
+                <h3><i class="fas fa-comment"></i> Xat en directe</h3>
+                <button class="xat-modal-close" onclick="toggleXat()">✕</button>
+            </div>
+            <div class="xat-modal-body">
+                <div class="xat-modal-msgs" id="xatModalMsgs">
+                    <div style="text-align:center;color:#556680;padding:20px;font-size:13px;">Carregant missatges...</div>
+                </div>
+                <div class="xat-modal-footer">
+                    <input type="text" id="xatInput" placeholder="Escriu un missatge..." maxlength="500" />
+                    <button id="xatSendBtn" onclick="enviarMissatgeXat()" disabled>Enviar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ MODAL PERFIL ═══ -->
+    <div class="profile-modal-overlay" id="profileModal">
+        <div class="profile-modal">
+            <div class="profile-modal-header">
+                <span>El meu perfil</span>
+                <button onclick="closeProfile()">✕</button>
+            </div>
+            <div class="profile-modal-body">
+                <div class="profile-field">
+                    <label>Nom <span style="color:#FF8C00;font-size:11px;">(només es pot canviar una vegada)</span></label>
+                    <input type="text" id="profileName" placeholder="Escriu el teu nom..." />
+                </div>
+                <div class="profile-field">
+                    <label>Email</label>
+                    <input type="email" id="profileEmail" disabled />
+                </div>
+                <div class="profile-actions">
+                    <button class="btn-save" onclick="saveProfile()">Desar nom</button>
+                    <button class="btn-logout" onclick="logoutUser()">Sortir</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════════════
+         SCRIPTS
+    ════════════════════════════════════════════════════════════════ -->
+
+    <!-- PUSHER -->
+    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+
+    <!-- FIREBASE AUTH + FIRESTORE -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+        import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+        import { getFirestore, doc, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+        const fc = {
+            apiKey: "AIzaSyBGcGUk2gsoDaHkg9Yv-nqMJ5_x-QPTMS8",
+            authDomain: "tempestescat.firebaseapp.com",
+            projectId: "tempestescat",
+            storageBucket: "tempestescat.firebasestorage.app",
+            messagingSenderId: "683240351775",
+            appId: "1:683240351775:web:bc65d73249537b9cc28d2a"
+        };
+
+        const app = initializeApp(fc);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        // Exposar db globalment
+        window._db = db;
+
+        window.loginWithGoogle = async () => {
+            try {
+                await signInWithPopup(auth, new GoogleAuthProvider());
+            } catch (e) {
+                console.error(e);
+            }
+        };
+
+        window.logoutUser = async () => {
+            try {
+                await signOut(auth);
+                closeProfile();
+            } catch (e) {
+                console.error(e);
+            }
+        };
+
+        window._firebaseUser = null;
+
+        onAuthStateChanged(auth, user => {
+            window._firebaseUser = user;
+            if (user) {
+                window.dispatchEvent(new CustomEvent('tc:login', { detail: user }));
+            } else {
+                window.dispatchEvent(new CustomEvent('tc:logout'));
+            }
+        });
+
+        window._auth = auth;
+    </script>
+
+    <!-- LEAFLET -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<!-- ANTES de mapa.js -->
+<script src="js/status.js"></script>
+<script src="js/cap.js"></script>
+<script src="js/tutorials.js"></script>
+<script src="js/tour-guiat.js"></script>
+<script src="js/index/traduccions2.js"></script>
+
+<script src="js/vent.js"></script>
+
+<script src="js/premium.js"></script>
+<script src="js/accesvariable.js"></script>
+<script src="js/msgpack.min.js"></script>
+<script src="dades/altitudeEU.js"></script>
+<script src="js/skewt-engine.js"></script>
+<script src="js/mapaEU.js"></script>
+<script src="js/horamapa.js"></script>
+<script src="js/towns_cat.js"></script>
+<script src="js/skewt.js"></script>
+<script src="js/zona-calamarsa.js"></script>
+<script src="js/descarregar-dades.js"></script>
+<script src="js/sars-panell.js"></script>
+<script src="js/notificacions.js"></script>
+<script src="js/noms.js"></script>
+<script src="js/BENVINGUDA.JS"></script>
+<script src="js/statuscheck.js?v=2.0"></script>
+<script src="js/isos.js"></script>
+<script src="js/controls-animació-seguent-enrrere.js"></script>
+
+<script>
+    // ════════════════════════════════════════════════════════════════════
+    //  MODAL RADAR EN TEMPS REAL (flotant, mateixa pestanya)
+    // ════════════════════════════════════════════════════════════════════
+
+    const RADAR_URL = 'https://radar.tempestes.cat/';
+    let radarIframeCarregat = false;
+
+    function obrirRadarModal() {
+        const overlay = document.getElementById('radarModal');
+        const iframe = document.getElementById('radarModalIframe');
+        const loading = document.getElementById('radarModalLoading');
+
+        if (!radarIframeCarregat) {
+            loading.classList.remove('hidden');
+            iframe.src = RADAR_URL;
+            radarIframeCarregat = true;
+        }
+
+        overlay.classList.add('active');
+    }
+
+    function tancarRadarModal() {
+        document.getElementById('radarModal').classList.remove('active');
+    }
+
+    document.getElementById('radarModalIframe').addEventListener('load', function() {
+        document.getElementById('radarModalLoading').classList.add('hidden');
+    });
+
+    document.getElementById('radarModal').addEventListener('click', function(e) {
+        if (e.target === this) tancarRadarModal();
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') tancarRadarModal();
+    });
+
+  // ═══════════════════════════════════════════════════════════════════════
+//  SISTEMA DE CANVI DE NOM - REALTIME DATABASE (NOMÉS UNA VEGADA)
+// ═══════════════════════════════════════════════════════════════════════
+
+async function obtenirNomUsuari(user) {
+    if (!user) return null;
+    
+    // 1. Intentar Realtime Database
+    try {
+        const resposta = await fetch(`https://tempestescat-default-rtdb.firebaseio.com/users/${user.uid}.json`);
+        const dades = await resposta.json();
+        
+        if (dades && dades.nomPersonalitzat) {
+            return dades.nomPersonalitzat;
+        }
+    } catch (e) {
+        console.warn('[Nom] Error llegint RTDB:', e.message);
+    }
+    
+    // 2. Intentar localStorage
+    const nomLocal = localStorage.getItem(`nom_usuari_${user.uid}`);
+    if (nomLocal) {
+        return nomLocal;
+    }
+    
+    // 3. Fallback: nom de Google
+    return user.displayName || (user.email ? user.email.split('@')[0] : 'Usuari');
+}
+
+async function haCanviatNom(user) {
+    if (!user) return false;
+    
+    // 1. Intentar Realtime Database
+    try {
+        const resposta = await fetch(`https://tempestescat-default-rtdb.firebaseio.com/users/${user.uid}.json`);
+        const dades = await resposta.json();
+        
+        if (dades && dades.nomCanviat === true) {
+            return true;
+        }
+    } catch (e) {
+        console.warn('[Nom] Error llegint RTDB:', e.message);
+    }
+    
+    // 2. Intentar localStorage
+    const dadesLocal = localStorage.getItem(`nom_info_${user.uid}`);
+    if (dadesLocal) {
+        try {
+            const info = JSON.parse(dadesLocal);
+            return info.canviat === true;
+        } catch (e) {}
+    }
+    
+    return false;
+}
+
+async function canviarNomUsuari(nouNom) {
+    const user = window._firebaseUser;
+    if (!user) {
+        return { exit: false, error: 'No hi ha usuari connectat' };
+    }
+    
+    const nom = nouNom.trim();
+    if (nom.length < 3) {
+        return { exit: false, error: 'El nom ha de tenir mínim 3 caràcters' };
+    }
+    if (nom.length > 20) {
+        return { exit: false, error: 'El nom ha de tenir màxim 20 caràcters' };
+    }
+    
+    const jaCanviat = await haCanviatNom(user);
+    if (jaCanviat) {
+        return { exit: false, error: 'Ja has canviat el nom. Només es pot canviar una vegada.' };
+    }
+    
+    let guardatRTDB = false;
+    let guardatLocal = false;
+    
+    // 1. Intentar guardar a Realtime Database
+    try {
+        // Obtenir el token de Firebase per autenticació
+        const token = await user.getIdToken();
+        
+        const resposta = await fetch(`https://tempestescat-default-rtdb.firebaseio.com/users/${user.uid}.json?auth=${token}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                uid: user.uid,
+                email: user.email,
+                nomOriginal: user.displayName || user.email,
+                nomPersonalitzat: nom,
+                nomCanviat: true,
+                dataCanvi: new Date().toISOString()
+            })
+        });
+        
+        if (resposta.ok) {
+            guardatRTDB = true;
+            console.log('[Nom] Guardat a Realtime Database');
+        }
+    } catch (e) {
+        console.warn('[Nom] Error RTDB, guardant només a localStorage:', e.message);
+    }
+    
+    // 2. Guardar a localStorage SEMPRE (com a backup)
+    try {
+        localStorage.setItem(`nom_usuari_${user.uid}`, nom);
+        localStorage.setItem(`nom_info_${user.uid}`, JSON.stringify({
+            canviat: true,
+            data: new Date().toISOString()
+        }));
+        guardatLocal = true;
+        console.log('[Nom] Guardat a localStorage');
+    } catch (e) {
+        console.error('[Nom] Error localStorage:', e);
+    }
+    
+    if (guardatRTDB || guardatLocal) {
+        return { exit: true, nom: nom };
+    } else {
+        return { exit: false, error: 'No s\'ha pogut guardar el nom' };
+    }
+}
+
+async function actualitzarNomUI(user) {
+    if (!user) return;
+    
+    const nom = await obtenirNomUsuari(user);
+    
+    const nameEl = document.getElementById('userDisplayName');
+    if (nameEl) {
+        nameEl.textContent = nom;
+    }
+    
+    const avatar = document.getElementById('userAvatarFallback');
+    if (avatar && (!user.photoURL || avatar.querySelector('img') === null)) {
+        avatar.textContent = nom.charAt(0).toUpperCase();
+    }
+}
+
+async function openProfile() {
+    const user = window._firebaseUser;
+    if (!user) {
+        loginWithGoogle();
+        return;
+    }
+    
+    const nom = await obtenirNomUsuari(user);
+    const jaCanviat = await haCanviatNom(user);
+    
+    document.getElementById('profileName').value = nom;
+    document.getElementById('profileEmail').value = user.email || '';
+    
+    const profileName = document.getElementById('profileName');
+    if (profileName) {
+        profileName.disabled = jaCanviat;
+        profileName.style.opacity = jaCanviat ? '0.6' : '1';
+        profileName.style.cursor = jaCanviat ? 'not-allowed' : 'text';
+        profileName.title = jaCanviat ? 'El nom només es pot canviar una vegada' : 'Pots canviar el teu nom una vegada';
+    }
+    
+    // Eliminar avís anterior si existeix
+    const avisAnterior = document.querySelector('.avis-nom');
+    if (avisAnterior) avisAnterior.remove();
+    
+    if (jaCanviat) {
+        // Amagar botó de desar
+        const btnSave = document.querySelector('.btn-save');
+        if (btnSave) btnSave.style.display = 'none';
+        
+        // Afegir avís
+        const avis = document.createElement('div');
+        avis.className = 'avis-nom';
+        avis.textContent = 'El nom ja no es pot canviar';
+        
+        const field = profileName.closest('.profile-field');
+        if (field) field.appendChild(avis);
+    } else {
+        // Mostrar botó de desar
+        const btnSave = document.querySelector('.btn-save');
+        if (btnSave) btnSave.style.display = 'inline-block';
+    }
+    
+    document.getElementById('profileModal').classList.add('active');
+}
+
+function closeProfile() {
+    document.getElementById('profileModal').classList.remove('active');
+}
+
+async function saveProfile() {
+    const user = window._firebaseUser;
+    if (!user) return;
+    
+    const nom = document.getElementById('profileName').value.trim();
+    if (!nom) {
+        alert('Escriu un nom');
+        return;
+    }
+    
+    const resultat = await canviarNomUsuari(nom);
+    
+    if (resultat.exit) {
+        await actualitzarNomUI(user);
+        closeProfile();
+        console.log('[Nom] Nom canviat correctament:', resultat.nom);
+        
+        // Mostrar confirmació
+        alert('Nom canviat correctament!');
+    } else {
+        alert(resultat.error);
+    }
+}
+
+// Exposar funcions
+window.obtenirNomUsuari = obtenirNomUsuari;
+window.haCanviatNom = haCanviatNom;
+window.canviarNomUsuari = canviarNomUsuari;
+window.actualitzarNomUI = actualitzarNomUI;
+window.openProfile = openProfile;
+window.closeProfile = closeProfile;
+window.saveProfile = saveProfile;
+
+
+
+
+
+// ═══════════════════════════════════════════════════════════════════════
+//  SISTEMA DE CANVI DE FOTO DE PERFIL - 3 COPS AL MES
+// ═══════════════════════════════════════════════════════════════════════
+
+const LIMIT_CANVIS_FOTO = 3;
+const PERIODE_FOTO = 30; // dies
+
+async function obtenirCanvisFoto(user) {
+    if (!user) return [];
+    
+    try {
+        const resposta = await fetch(`https://tempestescat-default-rtdb.firebaseio.com/users/${user.uid}/canvisFoto.json`);
+        const dades = await resposta.json();
+        return dades || [];
+    } catch (e) {
+        console.warn('[Foto] Error llegint canvis:', e.message);
+    }
+    
+    // Fallback localStorage
+    const local = localStorage.getItem(`canvis_foto_${user.uid}`);
+    if (local) {
+        try {
+            return JSON.parse(local);
+        } catch (e) {}
+    }
+    
+    return [];
+}
+
+async function quantsCanvisFotoDisponibles(user) {
+    if (!user) return 0;
+    
+    const canvis = await obtenirCanvisFoto(user);
+    const ara = new Date();
+    const fa30Dies = new Date(ara.getTime() - (PERIODE_FOTO * 24 * 60 * 60 * 1000));
+    
+    // Filtrar canvis dels últims 30 dies
+    const canvisRecents = canvis.filter(c => {
+        const dataCanvi = new Date(c.data);
+        return dataCanvi >= fa30Dies;
+    });
+    
+    return Math.max(0, LIMIT_CANVIS_FOTO - canvisRecents.length);
+}
+
+async function potCanviarFoto(user) {
+    const disponibles = await quantsCanvisFotoDisponibles(user);
+    return disponibles > 0;
+}
+
+async function registrarCanviFoto(user, novaFotoURL) {
+    if (!user) return false;
+    
+    const canvis = await obtenirCanvisFoto(user);
+    canvis.push({
+        data: new Date().toISOString(),
+        fotoAnterior: user.photoURL || '',
+        fotoNova: novaFotoURL
+    });
+    
+    // Guardar a Realtime Database
+    try {
+        const token = await user.getIdToken();
+        const resposta = await fetch(`https://tempestescat-default-rtdb.firebaseio.com/users/${user.uid}.json?auth=${token}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                canvisFoto: canvis
+            })
+        });
+        
+        if (resposta.ok) {
+            console.log('[Foto] Canvi registrat a RTDB');
+        }
+    } catch (e) {
+        console.warn('[Foto] Error RTDB:', e.message);
+    }
+    
+    // Guardar a localStorage sempre
+    localStorage.setItem(`canvis_foto_${user.uid}`, JSON.stringify(canvis));
+    
+    return true;
+}
+
+async function canviarFotoPerfil(arxiuImatge) {
+    const user = window._firebaseUser;
+    if (!user) {
+        return { exit: false, error: 'No hi ha usuari connectat' };
+    }
+    
+    // Comprovar si pot canviar
+    const disponibles = await quantsCanvisFotoDisponibles(user);
+    if (disponibles <= 0) {
+        return { 
+            exit: false, 
+            error: 'Has arribat al límit de 3 canvis de foto al mes. Torna-ho a provar el mes vinent.' 
+        };
+    }
+    
+    // Validar arxiu
+    if (!arxiuImatge) {
+        return { exit: false, error: 'Selecciona una imatge' };
+    }
+    
+    if (arxiuImatge.size > 2 * 1024 * 1024) {
+        return { exit: false, error: 'La imatge ha de ser més petita de 2MB' };
+    }
+    
+    const tipusPermesos = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    if (!tipusPermesos.includes(arxiuImatge.type)) {
+        return { exit: false, error: 'Format no permès. Usa JPG, PNG, WEBP o GIF' };
+    }
+    
+    try {
+        // Convertir a base64
+        const base64 = await convertirImatgeBase64(arxiuImatge);
+        
+        // Guardar la foto
+        await registrarCanviFoto(user, base64);
+        
+        // Actualitzar localStorage amb la nova foto
+        localStorage.setItem(`foto_usuari_${user.uid}`, base64);
+        
+        // Actualitzar UI
+        actualitzarFotoUI(user, base64);
+        
+        return { 
+            exit: true, 
+            disponibles: disponibles - 1,
+            missatge: `Foto canviada correctament! Et queden ${disponibles - 1} canvis aquest mes.`
+        };
+    } catch (e) {
+        console.error('[Foto] Error canviant:', e);
+        return { exit: false, error: 'Error canviant la foto' };
+    }
+}
+
+function convertirImatgeBase64(arxiu) {
+    return new Promise((resolve, reject) => {
+        const lector = new FileReader();
+        lector.onload = () => resolve(lector.result);
+        lector.onerror = reject;
+        lector.readAsDataURL(arxiu);
+    });
+}
+
+async function obtenirFotoUsuari(user) {
+    if (!user) return null;
+    
+    // 1. Intentar localStorage (més ràpid)
+    const fotoLocal = localStorage.getItem(`foto_usuari_${user.uid}`);
+    if (fotoLocal) {
+        return fotoLocal;
+    }
+    
+    // 2. Intentar Realtime Database
+    try {
+        const resposta = await fetch(`https://tempestescat-default-rtdb.firebaseio.com/users/${user.uid}.json`);
+        const dades = await resposta.json();
+        if (dades && dades.fotoPerfil) {
+            localStorage.setItem(`foto_usuari_${user.uid}`, dades.fotoPerfil);
+            return dades.fotoPerfil;
+        }
+    } catch (e) {
+        console.warn('[Foto] Error llegint RTDB:', e.message);
+    }
+    
+    // 3. Fallback: foto de Google
+    return user.photoURL || null;
+}
+
+
+const DIES_SETMANA_VALID = ['Diumenge','Dilluns','Dimarts','Dimecres','Dijous','Divendres','Dissabte'];
+
+function actualitzarUIHora(idx) {
+    const label = document.getElementById('fh_validtime');
+    if (!label) return;
+
+    const item = totesLesHores[idx];
+    if (!item || !item.dateObj) {
+        label.textContent = '⏳ Sense dades';
+        return;
+    }
+
+    // Comprovar si REALMENT té dades carregades
+    const teDataReal = !!item.data && !!item.data.variables && Object.keys(item.data.variables).length > 0;
+    const prefix = teDataReal ? '' : '+ ';
+
+    try {
+        const madridTime = new Date(item.dateObj.toLocaleString('en-US', { timeZone: 'Europe/Madrid' }));
+        const diaSetmana = DIES_SETMANA_VALID[madridTime.getDay()];
+        const dia = String(madridTime.getDate()).padStart(2, '0');
+        const mes = String(madridTime.getMonth() + 1).padStart(2, '0');
+        const hores = String(madridTime.getHours()).padStart(2, '0');
+        const minuts = String(madridTime.getMinutes()).padStart(2, '0');
+        const horaStr = `${diaSetmana} ${dia}/${mes} ${hores}:${minuts}`;
+
+        label.textContent = prefix + horaStr;
+        label.style.color = teDataReal ? '#cfe0ee' : '#FFA500';
+
+    } catch (e) {
+        label.textContent = prefix + 'Hora ' + String(item.step).padStart(2, '0') + ':00';
+        label.style.color = teDataReal ? '#cfe0ee' : '#FFA500';
+    }
+}
+
+
+function actualitzarFotoUI(user, fotoURL) {
+    if (!user || !fotoURL) return;
+    
+    // Actualitzar topnav
+    const avatar = document.getElementById('userAvatarFallback');
+    if (avatar) {
+        avatar.innerHTML = '<img src="' + fotoURL + '" alt="">';
+    }
+    
+    // Actualitzar modal de perfil si està obert
+    const profileAvatar = document.getElementById('profileAvatarPreview');
+    if (profileAvatar) {
+        profileAvatar.src = fotoURL;
+    }
+}
+
+// ──────────────────────────────────────────────────────────────
+//  MODAL DE CANVI DE FOTO
+// ──────────────────────────────────────────────────────────────
+
+async function mostrarModalCanviFoto() {
+    const user = window._firebaseUser;
+    if (!user) {
+        loginWithGoogle();
+        return;
+    }
+    
+    const disponibles = await quantsCanvisFotoDisponibles(user);
+    
+    // Crear modal
+    const modal = document.createElement('div');
+    modal.id = 'modalCanviFoto';
+    modal.style.cssText = `
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.8);
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: fadeIn 0.3s ease;
+    `;
+    
+    modal.innerHTML = `
+        <div style="
+            background: #0d1826;
+            border: 1px solid #2a4361;
+            border-radius: 14px;
+            padding: 25px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        ">
+            <h3 style="color:#e6edf3; margin:0 0 15px; font-size:18px;">
+                Canviar foto de perfil
+            </h3>
+            
+            <div style="
+                width: 100px;
+                height: 100px;
+                border-radius: 50%;
+                margin: 0 auto 15px;
+                overflow: hidden;
+                border: 3px solid #FF8C00;
+                background: #1a2a3d;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            ">
+                <img id="previewFotoPerfil" src="${await obtenirFotoUsuari(user) || ''}" alt="Foto" style="
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                ">
+            </div>
+            
+            <p style="color:#9fb0c3; font-size:13px; margin:0 0 15px;">
+                Et queden <strong style="color:#FF8C00;">${disponibles}</strong> canvis aquest mes
+            </p>
+            
+            <input type="file" id="inputFotoPerfil" accept="image/jpeg,image/png,image/webp,image/gif" style="
+                display: block;
+                margin: 0 auto 15px;
+                color: #9fb0c3;
+                font-size: 12px;
+            ">
+            
+            <div style="display: flex; gap: 10px; justify-content: center;">
+                <button id="btnDesarFoto" style="
+                    background: #FF8C00;
+                    color: white;
+                    border: none;
+                    padding: 10px 20px;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    font-size: 13px;
+                    font-weight: 600;
+                " ${disponibles <= 0 ? 'disabled style="opacity:0.5;cursor:not-allowed;"' : ''}>
+                    Desar foto
+                </button>
+                <button onclick="document.getElementById('modalCanviFoto').remove()" style="
+                    background: #1a2a3d;
+                    color: #9fb0c3;
+                    border: 1px solid #2a4361;
+                    padding: 10px 20px;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    font-size: 13px;
+                ">
+                    Cancel·lar
+                </button>
+            </div>
+            
+            ${disponibles <= 0 ? `
+                <p style="color:#ff4444; font-size:11px; margin-top:15px;">
+                    Has arribat al límit de canvis. Disponible de nou en 30 dies.
+                </p>
+            ` : ''}
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Previsualitzar imatge
+    const input = document.getElementById('inputFotoPerfil');
+    const preview = document.getElementById('previewFotoPerfil');
+    
+    input.addEventListener('change', function(e) {
+        const arxiu = e.target.files[0];
+        if (arxiu) {
+            const lector = new FileReader();
+            lector.onload = (event) => {
+                preview.src = event.target.result;
+            };
+            lector.readAsDataURL(arxiu);
+        }
+    });
+    
+    // Desar foto
+    document.getElementById('btnDesarFoto').addEventListener('click', async function() {
+        const arxiu = input.files[0];
+        if (!arxiu) {
+            alert('Selecciona una imatge');
+            return;
+        }
+        
+        const resultat = await canviarFotoPerfil(arxiu);
+        
+        if (resultat.exit) {
+            alert(resultat.missatge);
+            modal.remove();
+        } else {
+            alert(resultat.error);
+        }
+    });
+    
+    // Tancar amb ESC o click fora
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) modal.remove();
+    });
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') modal.remove();
+    });
+}
+
+// Exposar funcions
+window.mostrarModalCanviFoto = mostrarModalCanviFoto;
+window.canviarFotoPerfil = canviarFotoPerfil;
+window.obtenirFotoUsuari = obtenirFotoUsuari;
+window.quantsCanvisFotoDisponibles = quantsCanvisFotoDisponibles;
+    // ════════════════════════════════════════════════════════════════════
+    //  INTERFÍCIE D'USUARI
+    // ════════════════════════════════════════════════════════════════════
+
+    function actualitzarUIUsuari(user) {
+        const pill = document.getElementById('userPill');
+        const loginBtn = document.getElementById('btnGoogleLogin');
+        const avatar = document.getElementById('userAvatarFallback');
+        const nameEl = document.getElementById('userDisplayName');
+
+        if (!user) {
+            pill.style.display = 'none';
+            loginBtn.style.display = 'inline-flex';
+            return;
+        }
+
+        pill.style.display = 'flex';
+        loginBtn.style.display = 'none';
+
+        obtenirNomUsuari(user).then(nom => {
+            nameEl.textContent = nom;
+        });
+
+        if (user.photoURL) {
+            avatar.innerHTML = '<img src="' + user.photoURL + '" alt="">';
+        } else {
+            obtenirNomUsuari(user).then(nom => {
+                avatar.textContent = nom.charAt(0).toUpperCase();
+            });
+        }
+    }
+    
+
+    document.getElementById('profileModal')?.addEventListener('click', function(e) {
+        if (e.target === this) closeProfile();
+    });
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeProfile();
+    });
+
+    // ════════════════════════════════════════════════════════════════════
+    //  XAT - AMB RANG I PUNTS AL COSTAT DEL NOM (VERSIÓ ESTABLE)
+    // ════════════════════════════════════════════════════════════════════
+
+    const PUSHER_KEY = '54b645506c85aed5b62e';
+    const PUSHER_CLUSTER = 'eu';
+    const API_URL_CHAT = 'https://tempestes-cat.pages.dev/api';
+
+    let xatObert = false;
+    let currentUserUid = null;
+    let currentUserEmail = null;
+
+    window.addEventListener('tc:login', function(e) {
+        const user = e.detail;
+        if (user) {
+            currentUserUid = user.uid;
+            currentUserEmail = user.email;
+        }
+    });
+    window.addEventListener('tc:logout', function() {
+        currentUserUid = null;
+        currentUserEmail = null;
+    });
+
+    function toggleXat() {
+        xatObert = !xatObert;
+        const modal = document.getElementById('xatModal');
+        if (modal) {
+            modal.classList.toggle('active', xatObert);
+        }
+        if (xatObert) {
+            carregarMissatgesXat();
+            const input = document.getElementById('xatInput');
+            if (input) {
+                setTimeout(() => input.focus(), 300);
+            }
+            actualitzarEstatBotoXat();
+        }
+    }
+
+    function escHtml(t) {
+        return (t || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function formatTime(ts) {
+        if (!ts) return '';
+        const d = new Date(ts);
+        return d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
+    }
+
+    function getAvatarColor(nom) {
+        const colors = ['#4080c0', '#c04040', '#40a060', '#c08020', '#8040c0', '#20a0a0', '#c04080', '#608020', '#204080', '#806020'];
+        let h = 0;
+        for (let i = 0; i < (nom || '').length; i++) {
+            h = (h * 31 + nom.charCodeAt(i)) & 0xffff;
+        }
+        return colors[h % colors.length];
+    }
+
+    const missatgesVistos = new Set();
+    function afegirMissatgeXat(msg) {
+        const container = document.getElementById('xatModalMsgs');
+        if (!container) return;
+
+        const msgId = msg.id || `${msg.ts}_${msg.nick}_${msg.text?.substring(0,20) || 'empty'}`;
+        
+        if (missatgesVistos.has(msgId)) return;
+        missatgesVistos.add(msgId);
+        
+        if (missatgesVistos.size > 200) {
+            const toRemove = [...missatgesVistos].slice(0, 50);
+            toRemove.forEach(id => missatgesVistos.delete(id));
+        }
+
+        const isSys = msg.type === 'system';
+        const isGif = msg.type === 'gif';
+        const cl = getAvatarColor(msg.nick || 'X');
+        const avatarContent = msg.photo && msg.photo.length < 5000 ?
+            '<img src="' + escHtml(msg.photo) + '" alt="">' :
+            (msg.nick || '?')[0].toUpperCase();
+
+        let content = escHtml(msg.text || '');
+        if (isGif && msg.gifUrl) {
+            content = '<img src="' + escHtml(msg.gifUrl) + '" alt="GIF" style="max-width:100px;max-height:80px;border-radius:4px;">';
+        }
+
+        let rangInfo = '';
+        let puntsInfo = '';
+        
+        if (!isSys && msg.rangNom) {
+            rangInfo = `<span style="
+                font-size: 8px;
+                background: ${msg.rangColor || '#556680'};
+                color: #fff;
+                padding: 0px 7px;
+                border-radius: 10px;
+                font-weight: 700;
+                letter-spacing: 0.2px;
+                margin-left: 4px;
+                display: inline-block;
+                line-height: 1.5;
+                white-space: nowrap;
+            ">${escHtml(msg.rangNom)}</span>`;
+            
+            if (msg.punts !== undefined && msg.punts !== null) {
+                puntsInfo = `<span style="
+                    font-size: 8px;
+                    color: #FFD700;
+                    margin-left: 3px;
+                    white-space: nowrap;
+                ">⭐ ${msg.punts.toLocaleString('ca')}</span>`;
+            }
+        }
+
+        const div = document.createElement('div');
+        div.className = 'xat-modal-msg' + (isSys ? ' system' : '');
+
+        if (isSys) {
+            div.innerHTML = '<div class="xat-modal-msg-bubble">' + escHtml(msg.text) + '</div>';
+        } else {
+            div.innerHTML = `
+                <div class="xat-modal-msg-header">
+                    <div class="xat-modal-msg-avatar" style="background:${cl}">${avatarContent}</div>
+                    <span class="xat-modal-msg-name">${escHtml(msg.nick || 'Anonim')}</span>
+                    ${rangInfo}
+                    ${puntsInfo}
+                    <span class="xat-modal-msg-time">${formatTime(msg.ts)}</span>
+                </div>
+                <div class="xat-modal-msg-bubble">${content}</div>
+            `;
+        }
+
+        container.appendChild(div);
+        
+        while (container.children.length > 50) {
+            container.removeChild(container.firstChild);
+        }
+        
+        container.scrollTop = container.scrollHeight;
+    }
+
+    async function carregarMissatgesXat() {
+        const container = document.getElementById('xatModalMsgs');
+        if (!container) return;
+
+        try {
+            const resp = await fetch(API_URL_CHAT + '/get-messages');
+            const msgs = await resp.json();
+            container.innerHTML = '';
+            missatgesVistos.clear();
+            if (msgs && msgs.length) {
+                msgs.slice(-30).forEach(m => afegirMissatgeXat(m));
+            } else {
+                container.innerHTML = '<div style="text-align:center;color:#556680;padding:20px;font-size:13px;">Encara no hi ha missatges</div>';
+            }
+        } catch (e) {
+            console.error('[Xat] Error carregant:', e);
+            container.innerHTML = '<div style="text-align:center;color:#556680;padding:20px;font-size:13px;">Error carregant xat</div>';
+        }
+    }
+
+    window.enviarMissatgeXat = async function() {
+        const input = document.getElementById('xatInput');
+        const text = input?.value?.trim();
+        
+        if (!text) return;
+
+        const user = window._firebaseUser;
+        if (!user) {
+            alert('Has d\'iniciar sessió per xatejar!');
+            return;
+        }
+
+        const nick = await obtenirNomUsuari(user);
+        const photo = user.photoURL || '';
+        const uid = user.uid || 'anon';
+        
+        let rangNom = '';
+        let rangColor = '#556680';
+        let punts = 0;
+        
+        try {
+            if (window.TempestescatRangs) {
+                const rang = window.TempestescatRangs.obtenirRang();
+                punts = window.TempestescatRangs.obtenirPunts();
+                if (rang && rang.nom) {
+                    rangNom = rang.nom;
+                    rangColor = rang.color || '#556680';
+                }
+            }
+        } catch(e) {
+            console.warn('[Xat] Error obtenint rang:', e);
+        }
+
+        const btn = document.getElementById('xatSendBtn');
+        if (btn) {
+            btn.disabled = true;
+            btn.textContent = '...';
+        }
+
+        try {
+            const resp = await fetch(API_URL_CHAT + '/send-message', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    nick, 
+                    photo, 
+                    uid, 
+                    text,
+                    rangNom: rangNom,
+                    rangColor: rangColor,
+                    punts: Math.round(punts)
+                })
+            });
+            const data = await resp.json();
+            
+            if (data.ok) {
+                if (input) input.value = '';
+                actualitzarEstatBotoXat();
+                if (btn) {
+                    btn.textContent = 'OK';
+                    setTimeout(() => { 
+                        if (btn) btn.textContent = 'Enviar'; 
+                    }, 1000);
+                }
+            } else {
+                alert('Error: ' + (data.error || 'No s\'ha pogut enviar'));
+                if (btn) {
+                    btn.disabled = false;
+                    btn.textContent = 'Enviar';
+                }
+                actualitzarEstatBotoXat();
+            }
+        } catch (e) {
+            console.error('[Xat] Error:', e);
+            alert('Error enviant missatge');
+            if (btn) {
+                btn.disabled = false;
+                btn.textContent = 'Enviar';
+            }
+            actualitzarEstatBotoXat();
+        }
+    };
+
+    function initPusherXat() {
+        try {
+            if (typeof Pusher === 'undefined') {
+                console.warn('[Xat] Pusher no carregat');
+                return;
+            }
+            
+            const pusher = new Pusher(PUSHER_KEY, { cluster: PUSHER_CLUSTER });
+            const channel = pusher.subscribe('chat-channel');
+            
+            channel.bind('new-message', function(msg) {
+                if (xatObert) {
+                    afegirMissatgeXat(msg);
+                }
+            });
+            
+           
+        } catch (e) {
+            console.warn('[Xat] Pusher no disponible:', e);
+        }
+    }
+
+    function actualitzarEstatBotoXat() {
+        const input = document.getElementById('xatInput');
+        const btn = document.getElementById('xatSendBtn');
+        if (!input || !btn) return;
+        
+        const user = window._firebaseUser;
+        const hasText = input.value.trim().length > 0;
+        const estaHabilitat = hasText && user;
+        
+        btn.disabled = !estaHabilitat;
+        btn.style.opacity = estaHabilitat ? '1' : '0.5';
+        btn.style.cursor = estaHabilitat ? 'pointer' : 'not-allowed';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const input = document.getElementById('xatInput');
+        if (input) {
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (this.value.trim().length > 0) {
+                        enviarMissatgeXat();
+                    }
+                }
+            });
+            
+            input.addEventListener('input', function() {
+                actualitzarEstatBotoXat();
+            });
+        }
+        
+        setTimeout(initPusherXat, 1000);
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && xatObert) {
+            toggleXat();
+        }
+    });
+
+    // ════════════════════════════════════════════════════════════════════
+    //  CLIC DRET → MENÚ CONTEXTUAL → SKEW-T
+    // ════════════════════════════════════════════════════════════════════
+
+    function configurarClicDret() {
+        if (typeof map === 'undefined') return;
+        map.off('contextmenu');
+
+        map.on('contextmenu', function(e) {
+            if (e.originalEvent) e.originalEvent.preventDefault();
+
+            const lat = e.latlng.lat;
+            const lng = e.latlng.lng;
+
+            window.lastRightClickPos = { lat: lat, lng: lng };
+            window._skewtSurfacePressure = null;
+
+            const hourIdx = (typeof window.skewtHourIndex === 'number') ?
+                window.skewtHourIndex :
+                (typeof window.curIdx === 'number' ? window.curIdx : 0);
+
+            try {
+                if (window.totesLesHores && window.totesLesHores[hourIdx]) {
+                    const data = window.totesLesHores[hourIdx].data;
+                    const varSp = data.variables['sp'] || data.variables['pressure_msl'];
+                    if (varSp && varSp.datos) {
+                        const lats = data.coordenadas.lat;
+                        const lons = data.coordenadas.lon;
+                        let iBest = 0, jBest = 0;
+                        let bestDist = Infinity;
+                        for (let i = 0; i < lats.length; i++) {
+                            for (let j = 0; j < lons.length; j++) {
+                                const d = Math.hypot(lats[i] - lat, lons[j] - lng);
+                                if (d < bestDist) {
+                                    bestDist = d;
+                                    iBest = i;
+                                    jBest = j;
+                                }
+                            }
+                        }
+                        const Nlat = lats.length;
+                        const filaReal = Nlat - 1 - iBest;
+                        const idx = filaReal * lons.length + jBest;
+                        const sp = varSp.datos[idx];
+                        if (sp != null && !isNaN(sp)) {
+                            window._skewtSurfacePressure = sp;
+                        }
+                    }
+                }
+            } catch (err) {
+                console.warn('[Mapa] Error obtenint pressió:', err);
+            }
+
+            mostrarMenuContextual(e.containerPoint.x, e.containerPoint.y);
+        });
+    }
+
+    let menuContextual = null;
+
+    function crearMenuContextual() {
+        if (menuContextual) return menuContextual;
+
+        const menu = document.createElement('div');
+        menu.id = 'mapContextMenu';
+        menu.className = 'map-context-menu';
+        menu.innerHTML = `
+            <div class="map-context-item" id="ctxSkewt">
+                <i class="fas fa-chart-line"></i> Obrir Skew-T
+            </div>
+        `;
+        document.body.appendChild(menu);
+
+        menu.querySelector('#ctxSkewt').addEventListener('click', function() {
+            amagarMenuContextual();
+            if (typeof window.openSkewtModal === 'function') {
+                window.openSkewtModal();
+            }
+        });
+
+        menuContextual = menu;
+        return menu;
+    }
+
+    function mostrarMenuContextual(x, y) {
+        const menu = crearMenuContextual();
+        const mapWrapper = document.getElementById('map-wrapper');
+        const rect = mapWrapper.getBoundingClientRect();
+
+        let left = rect.left + x;
+        let top = rect.top + y;
+
+        menu.style.display = 'block';
+
+        const menuRect = menu.getBoundingClientRect();
+        if (left + menuRect.width > window.innerWidth) {
+            left = window.innerWidth - menuRect.width - 8;
+        }
+        if (top + menuRect.height > window.innerHeight) {
+            top = window.innerHeight - menuRect.height - 8;
+        }
+
+        menu.style.left = left + 'px';
+        menu.style.top = top + 'px';
+    }
+
+    function amagarMenuContextual() {
+        if (menuContextual) {
+            menuContextual.style.display = 'none';
+        }
+    }
+
+    document.addEventListener('click', function(e) {
+        if (menuContextual && !menuContextual.contains(e.target)) {
+            amagarMenuContextual();
+        }
+    });
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') amagarMenuContextual();
+    });
+
+    // ════════════════════════════════════════════════════════════════════
+    //  GESTIÓ DE LA PANTALLA DE CÀRREGA
+    // ════════════════════════════════════════════════════════════════════
+
+    const loadingOverlay = document.getElementById('loading_overlay');
+    const loadingText = document.getElementById('loading_text');
+    const loadingSub = document.getElementById('loading_sub');
+    const progressBar = document.getElementById('progress_bar');
+    const progressText = document.getElementById('progress_text');
+    const loadingDots = document.getElementById('loading_dots');
+
+    let currentBgIndex = 0;
+    const bgImages = document.querySelectorAll('.loading-bg img');
+    let bgInterval;
+
+    function rotateBackgroundImages() {
+        const total = bgImages.length;
+        bgImages.forEach(img => img.classList.remove('visible'));
+        bgImages[currentBgIndex].classList.add('visible');
+        currentBgIndex = (currentBgIndex + 1) % total;
+    }
+
+    function iniciarRotacioImatges() {
+        bgImages.forEach((img, i) => {
+            img.classList.toggle('visible', i === 0);
+        });
+        currentBgIndex = 1;
+        bgInterval = setInterval(rotateBackgroundImages, 4000);
+    }
+
+    let dotCount = 0;
+
+    function animarDots() {
+        dotCount = (dotCount + 1) % 4;
+        loadingDots.textContent = '.'.repeat(dotCount);
+    }
+
+    function actualitzarProgres(percent, text, subtext) {
+        const p = Math.min(100, Math.max(0, percent));
+        progressBar.style.width = p + '%';
+        progressText.textContent = Math.round(p) + '%';
+        if (text) loadingText.textContent = text;
+        if (subtext) loadingSub.textContent = subtext;
+    }
+
+    // ════════════════════════════════════════════════════════════════════
+    //  INICIALITZACIÓ
+    // ════════════════════════════════════════════════════════════════════
+
+window.addEventListener('tc:login', async function(e) {
+    const user = e.detail;
+    if (!user) return;
+    
+    // Sin timeout — actualiza en cuanto llega el evento
+    actualitzarUIUsuari(user);       // esto ya internamente espera el fetch del nombre
+    // Fuerza refresco del estado de bloqueo del mapa
+    if (typeof mostrarHora === 'function' && typeof curIdx === 'number') {
+        mostrarHora(curIdx);
+    }
+});
+
+    window.addEventListener('tc:logout', function() {
+        actualitzarUIUsuari(null);
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        iniciarRotacioImatges();
+        setInterval(animarDots, 500);
+        setTimeout(initPusherXat, 500);
+
+        setTimeout(() => {
+            if (window._firebaseUser) {
+                actualitzarUIUsuari(window._firebaseUser);
+                actualitzarNomUI(window._firebaseUser);
+            }
+        }, 800);
+
+        configurarClicDret();
+
+        if (typeof map !== 'undefined') {
+            map.on('movestart zoomstart', amagarMenuContextual);
+        }
+
+        
+    });
+
+    // Exposar funcions globalment
+    window.openProfile = openProfile;
+    window.closeProfile = closeProfile;
+    window.saveProfile = saveProfile;
+    window.obtenirNomUsuari = obtenirNomUsuari;
+    window.canviarNomUsuari = canviarNomUsuari;
+    window.haCanviatNom = haCanviatNom;
+    window.toggleXat = toggleXat;
+    window.obrirRadarModal = obrirRadarModal;
+    window.tancarRadarModal = tancarRadarModal;
+
+
+    
+</script>
+
+
+
+
+
+<script>
+(function() {
+    const sidePanel = document.getElementById('side-panel');
+    const toggleBtn = document.getElementById('sidebar-toggle-btn');
+    const closeBtn = document.getElementById('sidebar-close-btn');
+    const overlay = document.getElementById('sidebar-overlay');
+    const mainArea = document.getElementById('main-area');
+
+    let isOpen = false;
+
+    function obrirSidebar() {
+        isOpen = true;
+        sidePanel.classList.add('obert');
+        toggleBtn.classList.add('obert');
+        overlay.classList.add('visible');
+        mainArea?.classList.add('sidebar-obert');
+        toggleBtn.innerHTML = '<i class="fas fa-chevron-left"></i>';
+        document.body.style.overflow = 'hidden';
+        
+        // Disparar event per si cal refrescar
+        document.dispatchEvent(new CustomEvent('sidebar:obert'));
+    }
+
+    function tancarSidebar() {
+        isOpen = false;
+        sidePanel.classList.remove('obert');
+        toggleBtn.classList.remove('obert');
+        overlay.classList.remove('visible');
+        mainArea?.classList.remove('sidebar-obert');
+        toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+        document.body.style.overflow = '';
+        
+        document.dispatchEvent(new CustomEvent('sidebar:tancat'));
+    }
+
+    function toggleSidebar() {
+        isOpen ? tancarSidebar() : obrirSidebar();
+    }
+
+    // ─── Event listeners ──────────────────────────────────────────────
+    toggleBtn.addEventListener('click', toggleSidebar);
+    closeBtn.addEventListener('click', tancarSidebar);
+    overlay.addEventListener('click', tancarSidebar);
+
+    // Tancar amb Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && isOpen) {
+            tancarSidebar();
+        }
+    });
+
+    // Si el panell de paràmetres es reconstrueix, mantenir l'estat
+    const observer = new MutationObserver(() => {
+        if (isOpen) {
+            sidePanel.classList.add('obert');
+        }
+    });
+    
+    const paramSelection = document.getElementById('parameter_selection');
+    if (paramSelection) {
+        observer.observe(paramSelection, { childList: true, subtree: true });
+    }
+
+    // ─── Exposar globalment ───────────────────────────────────────────
+    window.toggleSidebar = toggleSidebar;
+    window.obrirSidebar = obrirSidebar;
+    window.tancarSidebar = tancarSidebar;
+    window.isSidebarOpen = () => isOpen;
+
+    // Obrir automàticament en escriptori si no hi ha cap paràmetre seleccionat
+    if (window.innerWidth > 768) {
+        setTimeout(() => {
+            if (!document.querySelector('.param-row.param-selected')) {
+                obrirSidebar();
+            }
+        }, 1500);
+    }
+
+   
+})();
+
+
+// ═══════════════════════════════════════════════════════════════════════
+//  MONITORITZACIÓ DEL XAT AMB PERSISTÈNCIA (localStorage)
+//  Recorda quins missatges ja has vist entre recàrregues
+//
+//  FIX aplicat (2):
+//  1) S'ha eliminat el filtre "notificacioRecent" que mirava
+//     obtenirNotificacions() (nick + finestra de 2 minuts). Aquest filtre
+//     era la causa que, un cop marcaves una notificació com llegida (sense
+//     eliminar-la), qualsevol usuari actiu al xat quedés "silenciat"
+//     indefinidament: sempre hi havia una notificació seva (llegida o no)
+//     dins els últims 2 minuts a l'array, així que mai tornava a notificar.
+//     L'únic control de duplicats que cal és el de "missatgesVistos" per
+//     msgId, que ja és robust i no depèn de l'estat llegit/no llegit.
+//  2) S'ha ampliat la finestra de "recents" de 10 a 30 missatges, ja que
+//     l'interval de comprovació ha passat d'1s a 30s: amb només 10
+//     missatges de marge, un xat actiu podia superar aquest límit entre
+//     comprovacions i perdre notificacions sense relació amb el bug de
+//     dalt.
+// ═══════════════════════════════════════════════════════════════════════
+
+const XAT_POLLING = {
+    interval: 30000, // 30 segons
+    recentsLimit: 30, // marge de missatges revisats a cada comprovació
+    storageKey: 'xat_missatges_vistos'
+};
+
+// ─── OBTENIR SET DE MISSATGES VISTOS ──────────────────────────────
+
+function obtenirMissatgesVistos() {
+    try {
+        const data = localStorage.getItem(XAT_POLLING.storageKey);
+        if (data) {
+            const array = JSON.parse(data);
+            return new Set(array);
+        }
+    } catch (e) {
+        console.warn('[Xat-Polling] Error llegint localStorage:', e);
+    }
+    return new Set();
+}
+
+// ─── GUARDAR SET DE MISSATGES VISTOS ──────────────────────────────
+
+function guardarMissatgesVistos(set) {
+    try {
+        // Convertir Set a Array per JSON
+        const array = Array.from(set);
+        localStorage.setItem(XAT_POLLING.storageKey, JSON.stringify(array));
+    } catch (e) {
+        console.warn('[Xat-Polling] Error guardant localStorage:', e);
+    }
+}
+
+// ─── COMPROVAR MISSATGES NOUS ──────────────────────────────────────
+
+async function comprovarMissatgesXat() {
+    try {
+        const API_URL_CHAT = 'https://tempestes-cat.pages.dev/api';
+        const resp = await fetch(API_URL_CHAT + '/get-messages');
+        if (!resp.ok) return;
+        
+        const missatges = await resp.json();
+        if (!missatges || missatges.length === 0) return;
+        
+        // Carregar els IDs ja vistos
+        const missatgesVistos = obtenirMissatgesVistos();
+        
+        // Agafar els últims N missatges (marge ampliat perquè l'interval és de 30s)
+        const recents = missatges.slice(-XAT_POLLING.recentsLimit);
+        let hiHaNous = false;
+        
+        recents.forEach(msg => {
+            // Saltar missatges del sistema
+            if (msg.type === 'system') return;
+            
+            // Generar ID únic per al missatge
+            const msgId = msg.id || `${msg.ts}_${msg.uid || msg.nick}_${msg.text?.substring(0,20) || 'empty'}`;
+            
+            // Si ja l'hem vist, saltar (aquest és l'ÚNIC control anti-duplicats que cal)
+            if (missatgesVistos.has(msgId)) return;
+            
+            // Marcar com a vist
+            missatgesVistos.add(msgId);
+            hiHaNous = true;
+            
+            // Limitar memòria (màxim 500 IDs)
+            if (missatgesVistos.size > 500) {
+                const toRemove = [...missatgesVistos].slice(0, 100);
+                toRemove.forEach(id => missatgesVistos.delete(id));
+            }
+            
+            // Excloure el propi usuari
+            const user = window._firebaseUser;
+            if (user && msg.uid === user.uid) return;
+            
+            // Comprovar si el xat està obert
+            const xatObert = document.getElementById('xatModal')?.classList?.contains('active') || false;
+            if (xatObert) return;
+            
+            // 🔥 ELIMINAT: el filtre "notificacioRecent" (nick + 2 min sobre
+            // obtenirNotificacions()). Era la causa del bug de notificacions
+            // que deixaven d'arribar. El control de duplicats real ja el fa
+            // "missatgesVistos" per msgId, just a sobre.
+            
+            if (msg.nick && msg.text) {
+                const tempsRelatiu = formatarTempsRelatiu2(new Date(msg.ts).getTime());
+                const preview = msg.text.length > 40 ? msg.text.substring(0, 40) + '…' : msg.text;
+                
+                if (window.crearNotificacio) {
+                    window.crearNotificacio(
+                        `${msg.nick} ha enviat un missatge al xat`,
+                        `"${preview}" · ${tempsRelatiu}`,
+                        'info'
+                    );
+                }
+            }
+        });
+        
+        // Si hi ha hagut canvis, guardar
+        if (hiHaNous) {
+            guardarMissatgesVistos(missatgesVistos);
+        }
+        
+    } catch (e) {
+        console.warn('[Xat-Polling] Error:', e);
+    }
+}
+
+// ─── FORMATAR TEMPS RELATIU ────────────────────────────────────────
+
+function formatarTempsRelatiu2(timestamp) {
+    const ara = Date.now();
+    const diff = ara - timestamp;
+
+}
+
+// ─── NETEGAR MISSATGES VISTOS (per si cal) ─────────────────────────
+
+function netejarMissatgesVistos() {
+    try {
+        localStorage.removeItem(XAT_POLLING.storageKey);
+        console.log('[Xat-Polling] Missatges vistos netejats');
+    } catch (e) {
+        console.warn('[Xat-Polling] Error netejant:', e);
+    }
+}
+
+// ─── INICIAR MONITORITZACIÓ ─────────────────────────────────────────
+
+let intervalXatPolling = null;
+
+function iniciarMonitoritzacioXatPolling() {
+    // Comprovar immediatament
+    comprovarMissatgesXat();
+    
+    // Configurar interval
+    if (intervalXatPolling) {
+        clearInterval(intervalXatPolling);
+    }
+    intervalXatPolling = setInterval(comprovarMissatgesXat, XAT_POLLING.interval);
+    
+    
+}
+
+// ─── EXPOSAR FUNCIONS ──────────────────────────────────────────────
+
+window.netejarMissatgesVistos = netejarMissatgesVistos;
+window.iniciarMonitoritzacioXatPolling = iniciarMonitoritzacioXatPolling;
+window.comprovarMissatgesXat = comprovarMissatgesXat;
+
+// Iniciar automàticament
+setTimeout(() => {
+    iniciarMonitoritzacioXatPolling();
+}, 5000);
+
+
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!--  OVERLAY DE CÀRREGA PER CANVI D'HORA                                     -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<div id="loadingHourOverlay" style="
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+">
+    <div style="
+        background: rgba(10, 16, 26, 0.85);
+        border-radius: 16px;
+        padding: 30px 40px;
+        border: 1px solid rgba(255, 215, 0, 0.2);
+        box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6);
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+    ">
+        <!-- Cercle de càrrega -->
+        <div style="
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 215, 0, 0.15);
+            border-top: 4px solid #FFD700;
+            border-radius: 50%;
+            animation: spinLoading 0.8s linear infinite;
+        "></div>
+        
+        <!-- Text -->
+        <div style="
+            color: #cfe0ee;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            font-size: 16px;
+            font-weight: 500;
+        ">
+            <span id="loadingHourText"> Carregant hora...</span>
+        </div>
+        
+        <!-- Hora que s'està carregant -->
+        <div style="
+            color: #7f9bb3;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            font-size: 13px;
+        ">
+            <span id="loadingHourDetail">14:00 - avui</span>
+        </div>
+    </div>
+</div>
+
+<style>
+    @keyframes spinLoading {
+        to { transform: rotate(360deg); }
+    }
+    
+    #loadingHourOverlay.visible {
+        display: flex !important;
+        opacity: 1;
+    }
+    
+    #loadingHourOverlay.hidden {
+        opacity: 0;
+        pointer-events: none;
+    }
+</style>
+
+
+</body>
+
+
+</html>
