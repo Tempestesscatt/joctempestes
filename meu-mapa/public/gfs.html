@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Mapa interactiu del model GFS per a Europa i Atlàntic Nord. Predicció meteorològica amb temperatura i vent a 850, 500 i 300 hPa." />
+    <title>GFS · Model Meteorològic</title>
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QDWCZ0Z9XF"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){ dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-QDWCZ0Z9XF');
+    </script>
+
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1675456750465139" crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0b0e17;
+            color: #b0b8c8;
+            overflow: hidden;
+            height: 100vh;
+            user-select: none;
+        }
+        #map {
+            width: 100vw;
+            height: 100vh;
+            background: #0b0e17;
+            z-index: 1;
+        }
+        #topbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(11, 14, 23, 0.92);
+            backdrop-filter: blur(12px);
+            padding: 6px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 40px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+        #topbar .logo {
+            font-weight: 500;
+            color: #e8edf5;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+        #topbar .logo i { color: #4fc3f7; font-size: 14px; }
+        #topbar .logo span { color: #4fc3f7; font-weight: 600; }
+        #topbar .info {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+            color: #8892a8;
+            flex-wrap: wrap;
+        }
+        #topbar .badge {
+            background: rgba(79, 195, 247, 0.08);
+            padding: 2px 10px;
+            border-radius: 3px;
+            color: #4fc3f7;
+            font-weight: 500;
+            font-size: 10px;
+        }
+        #topbar select {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            color: #b0b8c8;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-family: inherit;
+            cursor: pointer;
+            outline: none;
+            transition: border-color 0.2s;
+            appearance: none;
+            -webkit-appearance: none;
+            min-width: 48px;
+        }
+        #topbar select:focus { border-color: rgba(79, 195, 247, 0.3); }
+        #topbar select option { background: #151e2f; color: #b0b8c8; }
+
+        .btn-var {
+            background: transparent;
+            border: none;
+            color: #5a6378;
+            padding: 3px 10px;
+            border-radius: 3px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 400;
+        }
+        .btn-var.active { color: #4fc3f7; background: rgba(79, 195, 247, 0.08); }
+        .btn-var:hover { color: #e8edf5; background: rgba(255, 255, 255, 0.04); }
+
+        .btn-animate {
+            background: rgba(79, 195, 247, 0.06);
+            border: 1px solid rgba(79, 195, 247, 0.1);
+            color: #4fc3f7;
+            padding: 2px 12px;
+            border-radius: 3px;
+            font-size: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+            font-family: inherit;
+        }
+        .btn-animate:hover { background: rgba(79, 195, 247, 0.12); border-color: rgba(79, 195, 247, 0.2); }
+        .btn-animate.stop {
+            background: rgba(239, 83, 80, 0.06);
+            border-color: rgba(239, 83, 80, 0.1);
+            color: #ef5350;
+        }
+        .btn-animate.stop:hover { background: rgba(239, 83, 80, 0.12); border-color: rgba(239, 83, 80, 0.2); }
+        .btn-animate i { font-size: 10px; margin-right: 4px; }
+        .btn-animate.active-loop { background: rgba(46, 204, 113, 0.15); border-color: rgba(46, 204, 113, 0.2); color: #2ecc71; }
+
+        #validTimeDisplay {
+            font-size: 10px;
+            font-weight: 400;
+            color: #8892a8;
+            white-space: nowrap;
+            min-width: 140px;
+        }
+        #loadingIndicator {
+            font-size: 10px;
+            color: #5a6378;
+            white-space: nowrap;
+            display: none;
+        }
+        #loadingIndicator.active { display: inline-flex; align-items: center; gap: 6px; }
+        #loadingIndicator .mini-spinner {
+            width: 10px;
+            height: 10px;
+            border: 2px solid rgba(79, 195, 247, 0.15);
+            border-top-color: #4fc3f7;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        #loading {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: #0b0e17;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.6s;
+            text-align: center;
+            padding: 20px;
+        }
+        #loading.hidden { opacity: 0; pointer-events: none; }
+        #loading .spinner {
+            width: 32px;
+            height: 32px;
+            border: 2px solid rgba(79, 195, 247, 0.1);
+            border-top-color: #4fc3f7;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 14px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        #loading .text { color: #5a6378; font-size: 12px; font-weight: 300; }
+        #loading .error-text { color: #ef5350; font-size: 12px; max-width: 500px; margin-top: 10px; display: none; font-family: monospace; }
+
+        #toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(239, 83, 80, 0.92);
+            color: #fff;
+            padding: 6px 16px;
+            border-radius: 3px;
+            font-size: 11px;
+            z-index: 2000;
+            display: none;
+            max-width: 80vw;
+            backdrop-filter: blur(8px);
+        }
+        #progress {
+            position: fixed;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            background: rgba(11, 14, 23, 0.88);
+            backdrop-filter: blur(8px);
+            padding: 4px 14px;
+            border-radius: 3px;
+            font-size: 11px;
+            color: #4fc3f7;
+            border: 1px solid rgba(79, 195, 247, 0.06);
+            display: none;
+            font-weight: 300;
+        }
+        #progress.active { display: block; }
+        #progress .num { font-weight: 500; color: #e8edf5; }
+
+        /* Selector velocitat */
+        .speed-selector {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 9px;
+            color: #5a6378;
+        }
+        .speed-selector input[type="range"] {
+            width: 60px;
+            height: 2px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: rgba(79, 195, 247, 0.2);
+            border-radius: 2px;
+            outline: none;
+            cursor: pointer;
+        }
+        .speed-selector input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #4fc3f7;
+            cursor: pointer;
+        }
+        .speed-selector input[type="range"]::-moz-range-thumb {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #4fc3f7;
+            cursor: pointer;
+            border: none;
+        }
+        .speed-label {
+            min-width: 30px;
+            text-align: center;
+            color: #4fc3f7;
+            font-size: 9px;
+        }
+
+        .leaflet-pane-paneBands { z-index: 350 !important; }
+        .leaflet-pane-paneLines { z-index: 400 !important; }
+        .leaflet-pane-paneBarbs { z-index: 450 !important; }
+
+        @media (max-width: 820px) {
+            #topbar .logo { font-size: 11px; }
+            #topbar .info { font-size: 9px; gap: 3px; }
+            .btn-var { font-size: 9px; padding: 2px 6px; }
+            .btn-animate { font-size: 9px; padding: 2px 8px; }
+            #validTimeDisplay { font-size: 9px; min-width: auto; }
+            #topbar select { font-size: 9px; padding: 2px 4px; min-width: 36px; }
+            #topbar { padding: 4px 8px; }
+            .speed-selector input[type="range"] { width: 40px; }
+        }
+        @media (max-width: 480px) {
+            #topbar { padding: 3px 4px; gap: 2px; }
+            #topbar .info { gap: 2px; }
+            .btn-animate i { margin-right: 2px; }
+            .speed-selector input[type="range"] { width: 30px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loading" role="status">
+        <div class="spinner" id="spinner"></div>
+        <div class="text" id="loadingText">Carregant model GFS...</div>
+        <div class="error-text" id="loadingError"></div>
+    </div>
+
+    <div id="toast" role="alert"></div>
+
+    <div id="progress" aria-live="polite">
+        <span id="progressDia" class="num">1</span> · <span id="progressHora" class="num">00</span>:00 UTC
+    </div>
+
+    <main id="map" role="application" aria-label="Mapa interactiu GFS"></main>
+
+    <header id="topbar">
+        <div class="logo">
+            <i class="fas fa-cloud-sun" aria-hidden="true"></i>
+            <span>GFS</span> · 24h
+        </div>
+        <nav class="info" aria-label="Controls del mapa">
+            <span class="badge" id="levelBadge">850 hPa</span>
+
+            <button class="btn-var active" id="btnTemp">Temp</button>
+            <button class="btn-var" id="btnWind">Wind</button>
+
+            <select id="levelSelect">
+                <option value="850">850</option>
+                <option value="500">500</option>
+                <option value="300">300</option>
+            </select>
+
+            <select id="diaSelect">
+                <option value="1">D1</option>
+                <option value="2">D2</option>
+                <option value="3">D3</option>
+            </select>
+
+            <select id="horaSelect">
+                <option value="0">00</option><option value="1">01</option>
+                <option value="2">02</option><option value="3">03</option>
+                <option value="4">04</option><option value="5">05</option>
+                <option value="6">06</option><option value="7">07</option>
+                <option value="8">08</option><option value="9">09</option>
+                <option value="10">10</option><option value="11">11</option>
+                <option value="12">12</option><option value="13">13</option>
+                <option value="14">14</option><option value="15">15</option>
+                <option value="16">16</option><option value="17">17</option>
+                <option value="18">18</option><option value="19">19</option>
+                <option value="20">20</option><option value="21">21</option>
+                <option value="22">22</option><option value="23">23</option>
+            </select>
+
+            <!-- BOTONS ANIMACIÓ -->
+            <button class="btn-animate" id="btnPlayHours"><i class="fas fa-play"></i> Hours</button>
+            <button class="btn-animate" id="btnPlayDays"><i class="fas fa-play"></i> Days</button>
+            <button class="btn-animate" id="btnPlayAll"><i class="fas fa-play"></i> All</button>
+            <button class="btn-animate stop" id="btnStop" style="display:none;"><i class="fas fa-stop"></i> Stop</button>
+            
+            <!-- BOTÓ BUCLE -->
+            <button class="btn-animate" id="btnLoop"><i class="fas fa-sync"></i> Loop</button>
+            
+            <!-- SELECTOR VELOCITAT -->
+            <div class="speed-selector">
+                <i class="fas fa-tachometer-alt" style="color:#5a6378;font-size:10px;"></i>
+                <input type="range" id="speedSlider" min="100" max="2000" step="50" value="500">
+                <span class="speed-label" id="speedLabel">500</span>
+            </div>
+
+            <span id="validTimeDisplay">—</span>
+            <span id="loadingIndicator"><span class="mini-spinner"></span></span>
+        </nav>
+    </header>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@msgpack/msgpack@2.8.0/dist.es5+umd/msgpack.min.js"></script>
+    <script src="js/mapa-gfs.js"></script>
+
+    <script>
+        // ─── CONFIG ──────────────────────────────────────────────
+        var MAX_DIES = 3;
+        var MAX_HORES = 23;
+
+        // ─── HELPERS ─────────────────────────────────────────────
+        function showLoadingError(msg) {
+            var spinner = document.getElementById('spinner');
+            if (spinner) spinner.style.display = 'none';
+            var loadingText = document.getElementById('loadingText');
+            if (loadingText) loadingText.textContent = 'Error carregant el mapa';
+            var errEl = document.getElementById('loadingError');
+            if (errEl) {
+                errEl.textContent = msg;
+                errEl.style.display = 'block';
+            }
+            console.error('[GFS]', msg);
+        }
+
+        function showToast(msg, ms) {
+            ms = ms || 4000;
+            var t = document.getElementById('toast');
+            if (!t) return;
+            t.textContent = msg;
+            t.style.display = 'block';
+            clearTimeout(showToast._timer);
+            showToast._timer = setTimeout(function() { if (t) t.style.display = 'none'; }, ms);
+        }
+
+        function setBusy(isBusy) {
+            var indicator = document.getElementById('loadingIndicator');
+            if (indicator) indicator.classList.toggle('active', isBusy);
+            var levelSelect = document.getElementById('levelSelect');
+            var diaSelect = document.getElementById('diaSelect');
+            var horaSelect = document.getElementById('horaSelect');
+            if (levelSelect) levelSelect.disabled = isBusy;
+            if (diaSelect) diaSelect.disabled = isBusy;
+            if (horaSelect) horaSelect.disabled = isBusy;
+        }
+
+        function updateProgress(dia, hora) {
+            var el = document.getElementById('progress');
+            if (!el) return;
+            if (dia !== undefined && hora !== undefined) {
+                var diaEl = document.getElementById('progressDia');
+                var horaEl = document.getElementById('progressHora');
+                if (diaEl) diaEl.textContent = dia;
+                if (horaEl) horaEl.textContent = String(hora).padStart(2, '0');
+                el.classList.add('active');
+            } else {
+                el.classList.remove('active');
+            }
+        }
+
+        function formatValidTimeLocal(iso) {
+            if (!iso) return '—';
+            var d = new Date(iso);
+            if (isNaN(d.getTime())) return iso;
+            var dies = ['Dg', 'Dl', 'Dt', 'Dc', 'Dj', 'Dv', 'Ds'];
+            var mesos = ['Gen', 'Feb', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Oct', 'Nov', 'Des'];
+            var hh = String(d.getUTCHours()).padStart(2, '0');
+            var mm = String(d.getUTCMinutes()).padStart(2, '0');
+            return dies[d.getUTCDay()] + ' ' + d.getUTCDate() + ' ' + mesos[d.getUTCMonth()] + ' · ' + hh + ':' + mm + ' UTC';
+        }
+
+        // ─── INICIALITZACIÓ ──────────────────────────────────────
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof L === 'undefined') {
+                showLoadingError('Leaflet no carregat (revisa CDN).');
+                return;
+            }
+            if (typeof MessagePack === 'undefined') {
+                showLoadingError('MessagePack no carregat (revisa CDN).');
+                return;
+            }
+            if (typeof MapaGFS === 'undefined') {
+                showLoadingError('mapa-gfs.js no carregat. Comprova la ruta.');
+                return;
+            }
+
+            var mapa;
+            try {
+                mapa = new MapaGFS('map', {
+                    dataUrlTemplate: 'web_data_EU/gfs_{level}hpa_d{dia:02d}_h{hora:02d}.msgpack.gz',
+                    bordersUrl: 'dades/fronteres_paisos.geojson',
+                    initialCenter: [30, 0],
+                    initialZoom: 3,
+                    maxDays: MAX_DIES,
+                    maxHours: MAX_HORES,
+                    onValidTimeChange: function(iso) {
+                        var display = document.getElementById('validTimeDisplay');
+                        if (display) display.textContent = formatValidTimeLocal(iso);
+                    }
+                });
+                window.mapaGFS = mapa;
+
+                mapa.load(850, 1, 0, 'temp').then(function() {
+                    var loading = document.getElementById('loading');
+                    if (loading) loading.classList.add('hidden');
+                }).catch(function(err) {
+                    showLoadingError(err.message || String(err));
+                });
+
+            } catch (err) {
+                showLoadingError(err.message || String(err));
+                return;
+            }
+
+            // ─── UI BINDINGS ──────────────────────────────────────
+
+            // Variables
+            var btnTemp = document.getElementById('btnTemp');
+            var btnWind = document.getElementById('btnWind');
+            
+            if (btnTemp) {
+                btnTemp.addEventListener('click', function() {
+                    mapa.setVariable('temp');
+                    this.classList.add('active');
+                    if (btnWind) btnWind.classList.remove('active');
+                });
+            }
+            if (btnWind) {
+                btnWind.addEventListener('click', function() {
+                    mapa.setVariable('wind');
+                    this.classList.add('active');
+                    if (btnTemp) btnTemp.classList.remove('active');
+                });
+            }
+
+            // Selectors
+            function carregarSeleccio() {
+                var levelSelect = document.getElementById('levelSelect');
+                var diaSelect = document.getElementById('diaSelect');
+                var horaSelect = document.getElementById('horaSelect');
+                if (!levelSelect || !diaSelect || !horaSelect) return;
+                
+                var level = parseInt(levelSelect.value);
+                var dia = parseInt(diaSelect.value);
+                var hora = parseInt(horaSelect.value);
+                setBusy(true);
+                mapa.load(level, dia, hora, mapa.currentVariable).then(function() {
+                    var badge = document.getElementById('levelBadge');
+                    if (badge) badge.textContent = level + ' hPa';
+                }).catch(function(err) {
+                    showToast('Error: ' + err.message);
+                    console.error(err);
+                }).finally(function() {
+                    setBusy(false);
+                });
+            }
+
+            var levelSelect = document.getElementById('levelSelect');
+            var diaSelect = document.getElementById('diaSelect');
+            var horaSelect = document.getElementById('horaSelect');
+            if (levelSelect) levelSelect.addEventListener('change', carregarSeleccio);
+            if (diaSelect) diaSelect.addEventListener('change', carregarSeleccio);
+            if (horaSelect) horaSelect.addEventListener('change', carregarSeleccio);
+
+            // ─── VELOCITAT ────────────────────────────────────────
+
+            var speedSlider = document.getElementById('speedSlider');
+            var speedLabel = document.getElementById('speedLabel');
+            
+            if (speedSlider && speedLabel) {
+                speedSlider.addEventListener('input', function() {
+                    var val = parseInt(this.value);
+                    speedLabel.textContent = val;
+                    mapa.setSpeed(val);
+                });
+            }
+
+            // ─── BOTONS ANIMACIÓ ──────────────────────────────────
+
+            var btnPlayHours = document.getElementById('btnPlayHours');
+            var btnPlayDays = document.getElementById('btnPlayDays');
+            var btnPlayAll = document.getElementById('btnPlayAll');
+            var btnStop = document.getElementById('btnStop');
+            var btnLoop = document.getElementById('btnLoop');
+            var loopActive = false;
+
+            if (btnLoop) {
+                btnLoop.addEventListener('click', function() {
+                    loopActive = !loopActive;
+                    this.classList.toggle('active-loop');
+                    if (loopActive) {
+                        this.innerHTML = '<i class="fas fa-sync"></i> Loop ON';
+                    } else {
+                        this.innerHTML = '<i class="fas fa-sync"></i> Loop';
+                    }
+                    showToast(loopActive ? 'Bucle activat' : 'Bucle desactivat', 1000);
+                });
+            }
+
+            function getSpeed() {
+                var slider = document.getElementById('speedSlider');
+                return slider ? parseInt(slider.value) : 500;
+            }
+
+            function showPlayButtons() {
+                if (btnPlayHours) btnPlayHours.style.display = 'inline-block';
+                if (btnPlayDays) btnPlayDays.style.display = 'inline-block';
+                if (btnPlayAll) btnPlayAll.style.display = 'inline-block';
+                if (btnStop) btnStop.style.display = 'none';
+            }
+
+            function hidePlayButtons() {
+                if (btnPlayHours) btnPlayHours.style.display = 'none';
+                if (btnPlayDays) btnPlayDays.style.display = 'none';
+                if (btnPlayAll) btnPlayAll.style.display = 'none';
+                if (btnStop) btnStop.style.display = 'inline-block';
+            }
+
+            // Animar HORES (amb bucle)
+            if (btnPlayHours) {
+                btnPlayHours.addEventListener('click', function() {
+                    if (mapa._isAnimating) return;
+                    var dia = parseInt(document.getElementById('diaSelect').value);
+                    hidePlayButtons();
+                    updateProgress(dia, 0);
+
+                    mapa.animateHours(dia, 0, 23, getSpeed(), function(d, h) {
+                        var horaSel = document.getElementById('horaSelect');
+                        if (horaSel) horaSel.value = h;
+                        updateProgress(d, h);
+                    }, loopActive).catch(function(err) {
+                        showToast('Error: ' + err.message);
+                    }).finally(function() {
+                        if (!mapa._isAnimating) {
+                            showPlayButtons();
+                            updateProgress(null);
+                        }
+                    });
+                });
+            }
+
+            // Animar DIES (amb bucle)
+            if (btnPlayDays) {
+                btnPlayDays.addEventListener('click', function() {
+                    if (mapa._isAnimating) return;
+                    var hora = parseInt(document.getElementById('horaSelect').value);
+                    hidePlayButtons();
+                    updateProgress(1, hora);
+
+                    mapa.animateDays(1, MAX_DIES, hora, getSpeed(), function(d, h) {
+                        var diaSel = document.getElementById('diaSelect');
+                        if (diaSel) diaSel.value = d;
+                        updateProgress(d, h);
+                    }, loopActive).catch(function(err) {
+                        showToast('Error: ' + err.message);
+                    }).finally(function() {
+                        if (!mapa._isAnimating) {
+                            showPlayButtons();
+                            updateProgress(null);
+                        }
+                    });
+                });
+            }
+
+            // Animar TOTS (amb bucle)
+            if (btnPlayAll) {
+                btnPlayAll.addEventListener('click', function() {
+                    if (mapa._isAnimating) return;
+                    hidePlayButtons();
+                    updateProgress(1, 0);
+
+                    mapa.animateAll(1, MAX_DIES, 0, 23, getSpeed(), function(d, h) {
+                        var diaSel = document.getElementById('diaSelect');
+                        var horaSel = document.getElementById('horaSelect');
+                        if (diaSel) diaSel.value = d;
+                        if (horaSel) horaSel.value = h;
+                        updateProgress(d, h);
+                    }, loopActive).catch(function(err) {
+                        showToast('Error: ' + err.message);
+                    }).finally(function() {
+                        if (!mapa._isAnimating) {
+                            showPlayButtons();
+                            updateProgress(null);
+                        }
+                    });
+                });
+            }
+
+            // Aturar
+            if (btnStop) {
+                btnStop.addEventListener('click', function() {
+                    mapa.stopAnimation();
+                    showPlayButtons();
+                    updateProgress(null);
+                    showToast('Aturat', 1500);
+                });
+            }
+
+            // ─── TECLES ──────────────────────────────────────────
+
+            document.addEventListener('keydown', function(e) {
+                if (e.target.tagName === 'SELECT' || e.target.tagName === 'INPUT') return;
+                if (e.key === ' ' || e.key === 'Space') {
+                    e.preventDefault();
+                    if (mapa._isAnimating) {
+                        if (btnStop) btnStop.click();
+                    } else {
+                        if (btnPlayHours) btnPlayHours.click();
+                    }
+                }
+                if (e.key === 'h' || e.key === 'H') {
+                    e.preventDefault();
+                    if (!mapa._isAnimating && btnPlayHours) btnPlayHours.click();
+                }
+                if (e.key === 'd' || e.key === 'D') {
+                    e.preventDefault();
+                    if (!mapa._isAnimating && btnPlayDays) btnPlayDays.click();
+                }
+                if (e.key === 'a' || e.key === 'A') {
+                    e.preventDefault();
+                    if (!mapa._isAnimating && btnPlayAll) btnPlayAll.click();
+                }
+                if (e.key === 'l' || e.key === 'L') {
+                    e.preventDefault();
+                    if (btnLoop) btnLoop.click();
+                }
+            });
+
+            console.log('GFS iniciat. ' + MAX_DIES + ' dies × 24h.');
+            console.log('Tecles: [Espai] Play/Stop | [H] Hores | [D] Dies | [A] Tots | [L] Bucle');
+        });
+    </script>
+
+</body>
+</html>

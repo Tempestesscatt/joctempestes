@@ -4951,4 +4951,298 @@ function actualitzarBloqueigMapa() {
     // La funció es defineix a accesvariable.js
 }
 
+// ═══════════════════════════════════════════════════════════════════════
+//  ANIMACIÓ D'HORES — SENSE CONFLICTES AMB animació.js
+// ═══════════════════════════════════════════════════════════════════════
+
+(function() {
+    'use strict';
+
+    // Variables locals (no globals) per evitar conflictes
+    let _animacioActiva = false;
+    let _intervalAnimacio = null;
+    let _velocitatAnimacio = 1500;
+    let _tempsIniciHora = null;
+    let _intervalTempsRestant = null;
+
+    // Opcions de velocitat
+    const VELOCITATS = {
+        'Súper megaràpid': 50,
+        'Súper megaràpid': 100,
+        'Molt ràpid': 250,
+        'Ràpid': 800,
+        'Normal': 1500,
+        'Lent': 2500,
+        'Molt lent': 4000,
+    };
+
+    // ─── Selector de velocitat ──────────────────────────────────────
+
+    function afegirSelectorVelocitat() {
+        const controls = document.getElementById('controls');
+        if (!controls) return;
+        if (document.getElementById('velocitatAnimacio')) return;
+
+        const container = document.createElement('div');
+        container.style.cssText = `
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-left: 4px;
+            padding: 0 4px;
+            border-left: 1px solid rgba(255,255,255,0.06);
+        `;
+
+        const icona = document.createElement('span');
+        icona.innerHTML = '<i class="fas fa-tachometer-alt" style="font-size:9px;color:#556680;"></i>';
+        icona.style.cssText = 'font-size:9px;color:#556680;';
+        container.appendChild(icona);
+
+        const select = document.createElement('select');
+        select.id = 'velocitatAnimacio';
+        select.style.cssText = `
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 3px;
+            color: #8899bb;
+            font-size: 8px;
+            padding: 2px 4px;
+            cursor: pointer;
+            font-family: inherit;
+            height: 20px;
+            outline: none;
+            transition: all 0.2s;
+        `;
+
+        Object.entries(VELOCITATS).forEach(([nom, valor]) => {
+            const option = document.createElement('option');
+            option.value = valor;
+            option.textContent = nom;
+            if (valor === _velocitatAnimacio) {
+                option.selected = true;
+            }
+            select.appendChild(option);
+        });
+
+        select.addEventListener('change', function() {
+            _velocitatAnimacio = parseInt(this.value);
+            if (_animacioActiva) {
+                reiniciarInterval();
+            }
+            try {
+                localStorage.setItem('tempestescat_velocitat_animacio', _velocitatAnimacio);
+            } catch (e) {}
+        });
+
+        container.appendChild(select);
+
+        const btnPlay = document.getElementById('btnPlay');
+        if (btnPlay) {
+            btnPlay.after(container);
+        } else {
+            controls.appendChild(container);
+        }
+    }
+
+    // ─── Reiniciar interval ──────────────────────────────────────────
+
+    function reiniciarInterval() {
+        if (_intervalAnimacio) {
+            clearInterval(_intervalAnimacio);
+            _intervalAnimacio = null;
+        }
+        if (_animacioActiva) {
+            _intervalAnimacio = setInterval(avancarHora, _velocitatAnimacio);
+        }
+    }
+
+    // ─── Avançar hora ──────────────────────────────────────────────
+
+    function avancarHora() {
+        _tempsIniciHora = Date.now();
+
+        let nextIdx = curIdx + 1;
+        if (nextIdx >= totesLesHores.length) {
+            nextIdx = 0;
+        }
+
+        if (typeof mostrarHora === 'function') {
+            mostrarHora(nextIdx);
+        }
+
+        actualitzarTempsRestant();
+    }
+
+    // ─── Temps restant ──────────────────────────────────────────────
+
+    function actualitzarTempsRestant() {
+        const label = document.getElementById('tempsRestantAnimacio');
+        if (!label) return;
+
+        if (!_animacioActiva) {
+            label.textContent = '';
+            return;
+        }
+
+        const ara = Date.now();
+        const tempsTranscorregut = ara - (_tempsIniciHora || ara);
+        const restant = Math.max(0, Math.round((_velocitatAnimacio - tempsTranscorregut) / 1000));
+        
+        label.textContent = restant > 0 ? `⏱ ${restant}s` : ' ...';
+    }
+
+    // ─── Mostrar temps restant UI ──────────────────────────────────
+
+    function mostrarTempsRestantUI() {
+        const labelExistent = document.getElementById('tempsRestantAnimacio');
+        if (labelExistent) labelExistent.remove();
+
+        const btnPlay = document.getElementById('btnPlay');
+        if (!btnPlay) return;
+
+        const label = document.createElement('span');
+        label.id = 'tempsRestantAnimacio';
+        label.style.cssText = `
+            font-size: 8px;
+            color: #FFD700;
+            font-weight: 600;
+            margin-left: 4px;
+            min-width: 35px;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            opacity: 0.7;
+        `;
+        label.textContent = '⏱ 0s';
+
+        btnPlay.after(label);
+
+        if (_intervalTempsRestant) {
+            clearInterval(_intervalTempsRestant);
+        }
+        _intervalTempsRestant = setInterval(actualitzarTempsRestant, 500);
+    }
+
+    // ─── Toggle animació ────────────────────────────────────────────
+
+    function toggleAnimacio() {
+        const btnPlay = document.getElementById('btnPlay');
+        if (!btnPlay) return;
+
+        // Comprovar que tenim dades
+        if (!window.totesLesHores || window.totesLesHores.length === 0) {
+            console.warn('[Animació] No hi ha hores per reproduir');
+            return;
+        }
+
+        if (_animacioActiva) {
+            // ─── ATURAR ──────────────────────────────────────────────
+            if (_intervalAnimacio) {
+                clearInterval(_intervalAnimacio);
+                _intervalAnimacio = null;
+            }
+            if (_intervalTempsRestant) {
+                clearInterval(_intervalTempsRestant);
+                _intervalTempsRestant = null;
+            }
+            _animacioActiva = false;
+            _tempsIniciHora = null;
+
+            btnPlay.innerHTML = '▶ Animació';
+            btnPlay.style.background = 'rgba(255,255,255,0.04)';
+            btnPlay.style.color = '#8899bb';
+            btnPlay.title = 'Reproduir animació d\'hores';
+
+            const label = document.getElementById('tempsRestantAnimacio');
+            if (label) label.textContent = '';
+
+            return;
+        }
+
+        // ─── INICIAR ──────────────────────────────────────────────────
+        _animacioActiva = true;
+        _tempsIniciHora = Date.now();
+
+        btnPlay.innerHTML = '⏹ Aturar';
+        btnPlay.style.background = 'rgba(255,215,0,0.15)';
+        btnPlay.style.color = '#FFD700';
+        btnPlay.title = 'Aturar animació';
+
+        // Iniciar interval
+        if (_intervalAnimacio) clearInterval(_intervalAnimacio);
+        _intervalAnimacio = setInterval(avancarHora, _velocitatAnimacio);
+
+        // Mostrar temps restant
+        mostrarTempsRestantUI();
+
+        // Avançar a la següent hora
+        setTimeout(() => {
+            if (_animacioActiva) {
+                avancarHora();
+            }
+        }, 100);
+    }
+
+    // ─── Carregar velocitat guardada ────────────────────────────────
+
+    function carregarVelocitatGuardada() {
+        try {
+            const guardada = localStorage.getItem('tempestescat_velocitat_animacio');
+            if (guardada) {
+                const valor = parseInt(guardada);
+                if (Object.values(VELOCITATS).includes(valor)) {
+                    _velocitatAnimacio = valor;
+                }
+            }
+        } catch (e) {}
+    }
+
+    // ─── Inicialitzar ────────────────────────────────────────────────
+
+    function inicialitzarAnimacio() {
+        carregarVelocitatGuardada();
+
+        // Esperar que el DOM estigui llest
+        if (!document.getElementById('btnPlay')) {
+            setTimeout(inicialitzarAnimacio, 200);
+            return;
+        }
+
+        afegirSelectorVelocitat();
+
+        const btnPlay = document.getElementById('btnPlay');
+        if (btnPlay) {
+            // Reemplaçar per evitar duplicats d'events
+            const nouBtn = btnPlay.cloneNode(true);
+            btnPlay.parentNode.replaceChild(nouBtn, btnPlay);
+            nouBtn.addEventListener('click', toggleAnimacio);
+        }
+
+        console.log('[Animació] Inicialitzada amb velocitat:', _velocitatAnimacio + 'ms');
+    }
+
+    // ─── Exposar funcions globalment (sense conflictes) ──────────────
+
+    window._animacio = {
+        toggle: toggleAnimacio,
+        setVelocitat: function(v) {
+            _velocitatAnimacio = v;
+            if (_animacioActiva) reiniciarInterval();
+            try {
+                localStorage.setItem('tempestescat_velocitat_animacio', v);
+            } catch (e) {}
+        },
+        estaActiva: function() { return _animacioActiva; },
+        getVelocitat: function() { return _velocitatAnimacio; }
+    };
+
+    // ─── Iniciar ──────────────────────────────────────────────────────
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', inicialitzarAnimacio);
+    } else {
+        setTimeout(inicialitzarAnimacio, 500);
+    }
+
+})();
+
 console.log('✅ mapa.js carregat — cada hora es descarrega només quan es clica, sense càrrega 3D en cascada.');
