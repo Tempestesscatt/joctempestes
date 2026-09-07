@@ -1,0 +1,312 @@
+{
+  "generat_utc": "2026-09-07T05:36:25",
+  "total_hores": 51,
+  "hores": {
+    "02_avui": {
+      "hora": 2,
+      "dia": "avui",
+      "sfc": "sfc_02_avui.msgpack.gz",
+      "3d": "3d_02_avui.msgpack.gz"
+    },
+    "03_avui": {
+      "hora": 3,
+      "dia": "avui",
+      "sfc": "sfc_03_avui.msgpack.gz",
+      "3d": "3d_03_avui.msgpack.gz"
+    },
+    "04_avui": {
+      "hora": 4,
+      "dia": "avui",
+      "sfc": "sfc_04_avui.msgpack.gz",
+      "3d": "3d_04_avui.msgpack.gz"
+    },
+    "05_avui": {
+      "hora": 5,
+      "dia": "avui",
+      "sfc": "sfc_05_avui.msgpack.gz",
+      "3d": "3d_05_avui.msgpack.gz"
+    },
+    "06_avui": {
+      "hora": 6,
+      "dia": "avui",
+      "sfc": "sfc_06_avui.msgpack.gz",
+      "3d": "3d_06_avui.msgpack.gz"
+    },
+    "07_avui": {
+      "hora": 7,
+      "dia": "avui",
+      "sfc": "sfc_07_avui.msgpack.gz",
+      "3d": "3d_07_avui.msgpack.gz"
+    },
+    "08_avui": {
+      "hora": 8,
+      "dia": "avui",
+      "sfc": "sfc_08_avui.msgpack.gz",
+      "3d": "3d_08_avui.msgpack.gz"
+    },
+    "09_avui": {
+      "hora": 9,
+      "dia": "avui",
+      "sfc": "sfc_09_avui.msgpack.gz",
+      "3d": "3d_09_avui.msgpack.gz"
+    },
+    "10_avui": {
+      "hora": 10,
+      "dia": "avui",
+      "sfc": "sfc_10_avui.msgpack.gz",
+      "3d": "3d_10_avui.msgpack.gz"
+    },
+    "11_avui": {
+      "hora": 11,
+      "dia": "avui",
+      "sfc": "sfc_11_avui.msgpack.gz",
+      "3d": "3d_11_avui.msgpack.gz"
+    },
+    "12_avui": {
+      "hora": 12,
+      "dia": "avui",
+      "sfc": "sfc_12_avui.msgpack.gz",
+      "3d": "3d_12_avui.msgpack.gz"
+    },
+    "13_avui": {
+      "hora": 13,
+      "dia": "avui",
+      "sfc": "sfc_13_avui.msgpack.gz",
+      "3d": "3d_13_avui.msgpack.gz"
+    },
+    "14_avui": {
+      "hora": 14,
+      "dia": "avui",
+      "sfc": "sfc_14_avui.msgpack.gz",
+      "3d": "3d_14_avui.msgpack.gz"
+    },
+    "15_avui": {
+      "hora": 15,
+      "dia": "avui",
+      "sfc": "sfc_15_avui.msgpack.gz",
+      "3d": "3d_15_avui.msgpack.gz"
+    },
+    "16_avui": {
+      "hora": 16,
+      "dia": "avui",
+      "sfc": "sfc_16_avui.msgpack.gz",
+      "3d": "3d_16_avui.msgpack.gz"
+    },
+    "17_avui": {
+      "hora": 17,
+      "dia": "avui",
+      "sfc": "sfc_17_avui.msgpack.gz",
+      "3d": "3d_17_avui.msgpack.gz"
+    },
+    "18_avui": {
+      "hora": 18,
+      "dia": "avui",
+      "sfc": "sfc_18_avui.msgpack.gz",
+      "3d": "3d_18_avui.msgpack.gz"
+    },
+    "19_avui": {
+      "hora": 19,
+      "dia": "avui",
+      "sfc": "sfc_19_avui.msgpack.gz",
+      "3d": "3d_19_avui.msgpack.gz"
+    },
+    "20_avui": {
+      "hora": 20,
+      "dia": "avui",
+      "sfc": "sfc_20_avui.msgpack.gz",
+      "3d": "3d_20_avui.msgpack.gz"
+    },
+    "21_avui": {
+      "hora": 21,
+      "dia": "avui",
+      "sfc": "sfc_21_avui.msgpack.gz",
+      "3d": "3d_21_avui.msgpack.gz"
+    },
+    "22_avui": {
+      "hora": 22,
+      "dia": "avui",
+      "sfc": "sfc_22_avui.msgpack.gz",
+      "3d": "3d_22_avui.msgpack.gz"
+    },
+    "23_avui": {
+      "hora": 23,
+      "dia": "avui",
+      "sfc": "sfc_23_avui.msgpack.gz",
+      "3d": "3d_23_avui.msgpack.gz"
+    },
+    "00_dema": {
+      "hora": 0,
+      "dia": "dema",
+      "sfc": "sfc_00_dema.msgpack.gz",
+      "3d": "3d_00_dema.msgpack.gz"
+    },
+    "01_dema": {
+      "hora": 1,
+      "dia": "dema",
+      "sfc": "sfc_01_dema.msgpack.gz",
+      "3d": "3d_01_dema.msgpack.gz"
+    },
+    "02_dema": {
+      "hora": 2,
+      "dia": "dema",
+      "sfc": "sfc_02_dema.msgpack.gz",
+      "3d": "3d_02_dema.msgpack.gz"
+    },
+    "03_dema": {
+      "hora": 3,
+      "dia": "dema",
+      "sfc": "sfc_03_dema.msgpack.gz",
+      "3d": "3d_03_dema.msgpack.gz"
+    },
+    "04_dema": {
+      "hora": 4,
+      "dia": "dema",
+      "sfc": "sfc_04_dema.msgpack.gz",
+      "3d": "3d_04_dema.msgpack.gz"
+    },
+    "05_dema": {
+      "hora": 5,
+      "dia": "dema",
+      "sfc": "sfc_05_dema.msgpack.gz",
+      "3d": "3d_05_dema.msgpack.gz"
+    },
+    "06_dema": {
+      "hora": 6,
+      "dia": "dema",
+      "sfc": "sfc_06_dema.msgpack.gz",
+      "3d": "3d_06_dema.msgpack.gz"
+    },
+    "07_dema": {
+      "hora": 7,
+      "dia": "dema",
+      "sfc": "sfc_07_dema.msgpack.gz",
+      "3d": "3d_07_dema.msgpack.gz"
+    },
+    "08_dema": {
+      "hora": 8,
+      "dia": "dema",
+      "sfc": "sfc_08_dema.msgpack.gz",
+      "3d": "3d_08_dema.msgpack.gz"
+    },
+    "09_dema": {
+      "hora": 9,
+      "dia": "dema",
+      "sfc": "sfc_09_dema.msgpack.gz",
+      "3d": "3d_09_dema.msgpack.gz"
+    },
+    "10_dema": {
+      "hora": 10,
+      "dia": "dema",
+      "sfc": "sfc_10_dema.msgpack.gz",
+      "3d": "3d_10_dema.msgpack.gz"
+    },
+    "11_dema": {
+      "hora": 11,
+      "dia": "dema",
+      "sfc": "sfc_11_dema.msgpack.gz",
+      "3d": "3d_11_dema.msgpack.gz"
+    },
+    "12_dema": {
+      "hora": 12,
+      "dia": "dema",
+      "sfc": "sfc_12_dema.msgpack.gz",
+      "3d": "3d_12_dema.msgpack.gz"
+    },
+    "13_dema": {
+      "hora": 13,
+      "dia": "dema",
+      "sfc": "sfc_13_dema.msgpack.gz",
+      "3d": "3d_13_dema.msgpack.gz"
+    },
+    "14_dema": {
+      "hora": 14,
+      "dia": "dema",
+      "sfc": "sfc_14_dema.msgpack.gz",
+      "3d": "3d_14_dema.msgpack.gz"
+    },
+    "15_dema": {
+      "hora": 15,
+      "dia": "dema",
+      "sfc": "sfc_15_dema.msgpack.gz",
+      "3d": "3d_15_dema.msgpack.gz"
+    },
+    "16_dema": {
+      "hora": 16,
+      "dia": "dema",
+      "sfc": "sfc_16_dema.msgpack.gz",
+      "3d": "3d_16_dema.msgpack.gz"
+    },
+    "17_dema": {
+      "hora": 17,
+      "dia": "dema",
+      "sfc": "sfc_17_dema.msgpack.gz",
+      "3d": "3d_17_dema.msgpack.gz"
+    },
+    "18_dema": {
+      "hora": 18,
+      "dia": "dema",
+      "sfc": "sfc_18_dema.msgpack.gz",
+      "3d": "3d_18_dema.msgpack.gz"
+    },
+    "19_dema": {
+      "hora": 19,
+      "dia": "dema",
+      "sfc": "sfc_19_dema.msgpack.gz",
+      "3d": "3d_19_dema.msgpack.gz"
+    },
+    "20_dema": {
+      "hora": 20,
+      "dia": "dema",
+      "sfc": "sfc_20_dema.msgpack.gz",
+      "3d": "3d_20_dema.msgpack.gz"
+    },
+    "21_dema": {
+      "hora": 21,
+      "dia": "dema",
+      "sfc": "sfc_21_dema.msgpack.gz",
+      "3d": "3d_21_dema.msgpack.gz"
+    },
+    "22_dema": {
+      "hora": 22,
+      "dia": "dema",
+      "sfc": "sfc_22_dema.msgpack.gz",
+      "3d": "3d_22_dema.msgpack.gz"
+    },
+    "23_dema": {
+      "hora": 23,
+      "dia": "dema",
+      "sfc": "sfc_23_dema.msgpack.gz",
+      "3d": "3d_23_dema.msgpack.gz"
+    },
+    "00_dema_passat": {
+      "hora": 0,
+      "dia": "dema_passat",
+      "sfc": "sfc_00_dema_passat.msgpack.gz",
+      "3d": "3d_00_dema_passat.msgpack.gz"
+    },
+    "01_dema_passat": {
+      "hora": 1,
+      "dia": "dema_passat",
+      "sfc": "sfc_01_dema_passat.msgpack.gz",
+      "3d": "3d_01_dema_passat.msgpack.gz"
+    },
+    "02_dema_passat": {
+      "hora": 2,
+      "dia": "dema_passat",
+      "sfc": "sfc_02_dema_passat.msgpack.gz",
+      "3d": "3d_02_dema_passat.msgpack.gz"
+    },
+    "03_dema_passat": {
+      "hora": 3,
+      "dia": "dema_passat",
+      "sfc": "sfc_03_dema_passat.msgpack.gz",
+      "3d": "3d_03_dema_passat.msgpack.gz"
+    },
+    "04_dema_passat": {
+      "hora": 4,
+      "dia": "dema_passat",
+      "sfc": "sfc_04_dema_passat.msgpack.gz",
+      "3d": "3d_04_dema_passat.msgpack.gz"
+    }
+  }
+}
