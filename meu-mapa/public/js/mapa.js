@@ -902,16 +902,27 @@ const STOPS_SHEAR = [
 //  PALETES WCS 2D
 // ═══════════════════════════════════════════════════════════════════════
 
+// ═══════════════════════════════════════════════════════════════════════
+//  PALETA NEU MILLORADA — lila fort → groc → vermell → morat → blanc
+//  Transparent només a 0, després opacitat total
+// ═══════════════════════════════════════════════════════════════════════
+
 const STOPS_NEU = [
-    {v:0, r:255, g:255, b:255, a:0},
-    {v:1, r:200, g:230, b:255, a:80},
-    {v:5, r:150, g:200, b:255, a:120},
-    {v:10, r:100, g:170, b:255, a:160},
-    {v:20, r:50, g:130, b:255, a:190},
-    {v:50, r:0, g:80, b:200, a:220},
-    {v:100, r:0, g:30, b:150, a:240},
-    {v:200, r:0, g:0, b:100, a:255},
-    {v:500, r:0, g:0, b:50, a:255},
+    {v:0,    r:180, g:80,  b:220, a:0},    // transparent
+    {v:0.01, r:180, g:80,  b:220, a:255},  // lila fort
+    {v:0.3,  r:160, g:70,  b:210, a:255},  // lila intens
+    {v:0.5,  r:140, g:60,  b:200, a:255},  // lila
+    {v:1,    r:200, g:120, b:60,  a:255},  // taronja (transició)
+    {v:2,    r:230, g:180, b:30,  a:255},  // groc
+    {v:3,    r:240, g:150, b:20,  a:255},  // groc-taronja
+    {v:4,    r:235, g:100, b:15,  a:255},  // taronja
+    {v:6,    r:220, g:50,  b:10,  a:255},  // vermell-taronja
+    {v:8,    r:200, g:20,  b:5,   a:255},  // vermell
+    {v:10,   r:160, g:40,  b:120, a:255},  // morat
+    {v:12,   r:130, g:60,  b:160, a:255},  // morat intens
+    {v:15,   r:180, g:140, b:220, a:255},  // lila clar
+    {v:18,   r:220, g:200, b:240, a:255},  // lila molt clar
+    {v:20,   r:245, g:240, b:255, a:255}   // blanc
 ];
 
 const STOPS_PRECIP_TYPE = [
@@ -1591,16 +1602,6 @@ function escalarVariablesMitjana(variables) {
         for (let i = 0; i < vals.length; i++) escalats[i] = vals[i];
         variables['TPW_MITJANA'].datos = escalats;
     }
-
-    // ─── AFEGEIX AQUÍ ──────────────────────────────────────────
-    if (variables['SNOW_DEPTH__GROUND_OR_WATER_SURFACE']?.datos) {
-        const vals = variables['SNOW_DEPTH__GROUND_OR_WATER_SURFACE'].datos;
-        const escalats = new Float32Array(vals.length);
-        for (let i = 0; i < vals.length; i++) escalats[i] = vals[i] * 1000; // m → mm
-        variables['SNOW_DEPTH__GROUND_OR_WATER_SURFACE'].datos = escalats;
-    }
-    // ─────────────────────────────────────────────────────────
-
     return variables;
 }
 
