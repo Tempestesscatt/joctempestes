@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Mapa interactiu del model GFS per a Europa i Atlàntic Nord. Predicció meteorològica amb temperatura i vent a 850, 500 i 300 hPa." />
+    <meta name="description" content="Mapa interactiu del model GFS per a Europa i Atlàntic Nord. Predicció meteorològica amb temperatura i vent a 850, 700, 500 i 300 hPa, i pressió/pluja en superfície." />
     <title>GFS · Model Meteorològic</title>
 
     <!-- Google Analytics -->
@@ -98,6 +98,7 @@
         }
         #topbar select:focus { border-color: rgba(79, 195, 247, 0.3); }
         #topbar select option { background: #151e2f; color: #b0b8c8; }
+        #topbar select.hidden-control { display: none; }
 
         .btn-var {
             background: transparent;
@@ -265,6 +266,17 @@
         .leaflet-pane-paneLines { z-index: 400 !important; }
         .leaflet-pane-paneBarbs { z-index: 450 !important; }
 
+        /* Avís de sondeig (clic dret) */
+        #soundingHint {
+            font-size: 9px;
+            color: #5a6378;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        #soundingHint i { color: #4fc3f7; font-size: 9px; }
+
         @media (max-width: 820px) {
             #topbar .logo { font-size: 11px; }
             #topbar .info { font-size: 9px; gap: 3px; }
@@ -274,6 +286,7 @@
             #topbar select { font-size: 9px; padding: 2px 4px; min-width: 36px; }
             #topbar { padding: 4px 8px; }
             .speed-selector input[type="range"] { width: 40px; }
+            #soundingHint { display: none; } /* al mòbil el clic dret no existeix (llarga pulsació) */
         }
         @media (max-width: 480px) {
             #topbar { padding: 3px 4px; gap: 2px; }
@@ -309,9 +322,11 @@
 
             <button class="btn-var active" id="btnTemp">Temp</button>
             <button class="btn-var" id="btnWind">Wind</button>
+            <button class="btn-var" id="btnSurface">Superfície</button>
 
             <select id="levelSelect">
                 <option value="850">850</option>
+                <option value="700">700</option>
                 <option value="500">500</option>
                 <option value="300">300</option>
             </select>
@@ -342,16 +357,21 @@
             <button class="btn-animate" id="btnPlayDays"><i class="fas fa-play"></i> Days</button>
             <button class="btn-animate" id="btnPlayAll"><i class="fas fa-play"></i> All</button>
             <button class="btn-animate stop" id="btnStop" style="display:none;"><i class="fas fa-stop"></i> Stop</button>
-            
+
             <!-- BOTÓ BUCLE -->
             <button class="btn-animate" id="btnLoop"><i class="fas fa-sync"></i> Loop</button>
-            
+
             <!-- SELECTOR VELOCITAT -->
             <div class="speed-selector">
                 <i class="fas fa-tachometer-alt" style="color:#5a6378;font-size:10px;"></i>
                 <input type="range" id="speedSlider" min="100" max="2000" step="50" value="500">
                 <span class="speed-label" id="speedLabel">500</span>
             </div>
+
+            <!-- AVÍS SONDEIG -->
+            <span id="soundingHint" title="Clic dret sobre el mapa per obrir el sondeig Skew-T en aquest punt">
+                <i class="fas fa-chart-line"></i> Clic dret: Sondeig
+            </span>
 
             <span id="validTimeDisplay">—</span>
             <span id="loadingIndicator"><span class="mini-spinner"></span></span>
@@ -360,6 +380,13 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@msgpack/msgpack@2.8.0/dist.es5+umd/msgpack.min.js"></script>
+
+    <!-- Motor termodinàmic del Skew-T i modal: han d'anar ABANS de
+         mapa-gfs.js, ja que aquest crida window.SkewtEngine i
+         window.openSkewtModal en respondre al clic dret sobre el mapa. -->
+    <script src="js/skewt-engine.js"></script>
+    <script src="js/skew-t_gfs.js"></script>
+
     <script src="js/mapa-gfs.js"></script>
 
     <script>
@@ -390,6 +417,9 @@
             clearTimeout(showToast._timer);
             showToast._timer = setTimeout(function() { if (t) t.style.display = 'none'; }, ms);
         }
+        // Exposada globalment perquè mapa-gfs.js pugui mostrar errors
+        // del sondeig (clic dret) amb el mateix toast que la resta de UI.
+        window.showToast = showToast;
 
         function setBusy(isBusy) {
             var indicator = document.getElementById('loadingIndicator');
@@ -441,11 +471,21 @@
                 showLoadingError('mapa-gfs.js no carregat. Comprova la ruta.');
                 return;
             }
+            if (typeof window.SkewtEngine === 'undefined') {
+                console.warn('[GFS] skewt-engine.js no carregat: el sondeig (clic dret) no funcionarà.');
+            }
+            if (typeof window.openSkewtModal !== 'function') {
+                console.warn('[GFS] skewt-modal.js no carregat: el sondeig (clic dret) no funcionarà.');
+            }
 
             var mapa;
             try {
                 mapa = new MapaGFS('map', {
                     dataUrlTemplate: 'web_data_EU/gfs_{level}hpa_d{dia:02d}_h{hora:02d}.msgpack.gz',
+                    surfacePrmslUrlTemplate: 'web_data_EU/gfs_prmsl_d{dia:02d}_h{hora:02d}.msgpack.gz',
+                    surfaceApcpUrlTemplate: 'web_data_EU/gfs_apcp_d{dia:02d}_h{hora:02d}.msgpack.gz',
+                    soundingUrlTemplate: 'web_data_EU/gfs_sounding_d{dia:02d}_h{hora:02d}.msgpack.gz',
+                    enableSoundingOnRightClick: true,
                     bordersUrl: 'dades/fronteres_paisos.geojson',
                     initialCenter: [30, 0],
                     initialZoom: 3,
@@ -475,37 +515,90 @@
             // Variables
             var btnTemp = document.getElementById('btnTemp');
             var btnWind = document.getElementById('btnWind');
-            
+            var btnSurface = document.getElementById('btnSurface');
+            var levelSelect = document.getElementById('levelSelect');
+            var levelBadge = document.getElementById('levelBadge');
+
+            function clearVarButtons() {
+                if (btnTemp) btnTemp.classList.remove('active');
+                if (btnWind) btnWind.classList.remove('active');
+                if (btnSurface) btnSurface.classList.remove('active');
+            }
+
+            // Mostra/amaga el selector de nivell segons el mode.
+            // En mode "surface" no té sentit triar 850/700/500/300.
+            function setLevelSelectorVisible(visible) {
+                if (!levelSelect) return;
+                levelSelect.classList.toggle('hidden-control', !visible);
+            }
+
+            function markActive(btn) {
+                if (btn) btn.classList.add('active');
+            }
+
             if (btnTemp) {
                 btnTemp.addEventListener('click', function() {
-                    mapa.setVariable('temp');
-                    this.classList.add('active');
-                    if (btnWind) btnWind.classList.remove('active');
+                    setBusy(true);
+                    var level = parseInt(levelSelect.value) || 850;
+                    mapa.load(level, mapa.currentDia || 1, mapa.currentHora || 0, 'temp').then(function() {
+                        clearVarButtons();
+                        markActive(btnTemp);
+                        setLevelSelectorVisible(true);
+                        if (levelBadge) levelBadge.textContent = level + ' hPa';
+                    }).catch(function(err) {
+                        showToast('Error: ' + err.message);
+                    }).finally(function() { setBusy(false); });
                 });
             }
             if (btnWind) {
                 btnWind.addEventListener('click', function() {
-                    mapa.setVariable('wind');
-                    this.classList.add('active');
-                    if (btnTemp) btnTemp.classList.remove('active');
+                    setBusy(true);
+                    var level = parseInt(levelSelect.value) || 850;
+                    mapa.load(level, mapa.currentDia || 1, mapa.currentHora || 0, 'wind').then(function() {
+                        clearVarButtons();
+                        markActive(btnWind);
+                        setLevelSelectorVisible(true);
+                        if (levelBadge) levelBadge.textContent = level + ' hPa';
+                    }).catch(function(err) {
+                        showToast('Error: ' + err.message);
+                    }).finally(function() { setBusy(false); });
+                });
+            }
+            if (btnSurface) {
+                btnSurface.addEventListener('click', function() {
+                    setBusy(true);
+                    mapa.loadSurface(mapa.currentDia || 1, mapa.currentHora || 0).then(function() {
+                        clearVarButtons();
+                        markActive(btnSurface);
+                        setLevelSelectorVisible(false);
+                        if (levelBadge) levelBadge.textContent = 'Superfície';
+                    }).catch(function(err) {
+                        showToast('Error: ' + err.message);
+                    }).finally(function() { setBusy(false); });
                 });
             }
 
             // Selectors
             function carregarSeleccio() {
-                var levelSelect = document.getElementById('levelSelect');
                 var diaSelect = document.getElementById('diaSelect');
                 var horaSelect = document.getElementById('horaSelect');
-                if (!levelSelect || !diaSelect || !horaSelect) return;
-                
-                var level = parseInt(levelSelect.value);
+                if (!diaSelect || !horaSelect) return;
+
                 var dia = parseInt(diaSelect.value);
                 var hora = parseInt(horaSelect.value);
                 setBusy(true);
-                mapa.load(level, dia, hora, mapa.currentVariable).then(function() {
-                    var badge = document.getElementById('levelBadge');
-                    if (badge) badge.textContent = level + ' hPa';
-                }).catch(function(err) {
+
+                var promise;
+                if (mapa.currentVariable === 'surface') {
+                    promise = mapa.loadSurface(dia, hora);
+                } else {
+                    var level = parseInt(levelSelect.value);
+                    promise = mapa.load(level, dia, hora, mapa.currentVariable).then(function() {
+                        if (levelBadge) levelBadge.textContent = level + ' hPa';
+                    });
+                }
+
+                promise.catch(function(err) {
                     showToast('Error: ' + err.message);
                     console.error(err);
                 }).finally(function() {
@@ -513,7 +606,6 @@
                 });
             }
 
-            var levelSelect = document.getElementById('levelSelect');
             var diaSelect = document.getElementById('diaSelect');
             var horaSelect = document.getElementById('horaSelect');
             if (levelSelect) levelSelect.addEventListener('change', carregarSeleccio);
@@ -524,7 +616,7 @@
 
             var speedSlider = document.getElementById('speedSlider');
             var speedLabel = document.getElementById('speedLabel');
-            
+
             if (speedSlider && speedLabel) {
                 speedSlider.addEventListener('input', function() {
                     var val = parseInt(this.value);
@@ -682,10 +774,15 @@
                     e.preventDefault();
                     if (btnLoop) btnLoop.click();
                 }
+                if (e.key === 's' || e.key === 'S') {
+                    e.preventDefault();
+                    if (btnSurface) btnSurface.click();
+                }
             });
 
             console.log('GFS iniciat. ' + MAX_DIES + ' dies × 24h.');
-            console.log('Tecles: [Espai] Play/Stop | [H] Hores | [D] Dies | [A] Tots | [L] Bucle');
+            console.log('Tecles: [Espai] Play/Stop | [H] Hores | [D] Dies | [A] Tots | [L] Bucle | [S] Superfície');
+            console.log('Clic dret sobre el mapa: obre el sondeig Skew-T en aquest punt.');
         });
     </script>
 

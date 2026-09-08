@@ -1591,6 +1591,16 @@ function escalarVariablesMitjana(variables) {
         for (let i = 0; i < vals.length; i++) escalats[i] = vals[i];
         variables['TPW_MITJANA'].datos = escalats;
     }
+
+    // ─── AFEGEIX AQUÍ ──────────────────────────────────────────
+    if (variables['SNOW_DEPTH__GROUND_OR_WATER_SURFACE']?.datos) {
+        const vals = variables['SNOW_DEPTH__GROUND_OR_WATER_SURFACE'].datos;
+        const escalats = new Float32Array(vals.length);
+        for (let i = 0; i < vals.length; i++) escalats[i] = vals[i] * 1000; // m → mm
+        variables['SNOW_DEPTH__GROUND_OR_WATER_SURFACE'].datos = escalats;
+    }
+    // ─────────────────────────────────────────────────────────
+
     return variables;
 }
 
@@ -2796,6 +2806,8 @@ async function carregarFitxerAmbReintents(url, maxIntents = 3) {
 // ═══════════════════════════════════════════════════════════════════════
 //  CÀRREGA D'UN STEP - NOMÉS UNA HORA (NO MÉS)
 // ═══════════════════════════════════════════════════════════════════════
+
+
 
 async function carregarUnStep(i, ambDades3d) {
     const base = 'web_data_NE/';

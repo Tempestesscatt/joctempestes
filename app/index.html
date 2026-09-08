@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Risc de calamarsa — Catalunya</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+
+<!-- Decodificador MessagePack minim, escrit a ma i inclos directament aqui
+     (NO depen de cap CDN extern), per evitar problemes de xarxa amb
+     paquets com @msgpack/msgpack que poden fallar a carregar en alguns
+     entorns. Nomes fa DECODE (prou per llegir els .msgpack.gz), no encode. -->
+<script>
+  var MessagePack = (function () {
+    function Decoder(buf) {
+      this.view = new DataView(buf.buffer, buf.byteOffset, buf.byteLength);
+      this.bytes = buf;
+      this.pos = 0;
+    }
+
+    Decoder.prototype.decode = function () {
+      var b = this.bytes[this.pos];
+
+      // positive fixint
+      if (b <= 0x7f) { this.pos += 1; return b; }
+      // fixmap
+      if ((b & 0xf0) === 0x80) { this.pos += 1; return this._map(b & 0x0f); }
+      // fixarray
+      if ((b & 0xf0) === 0x90) { this.pos += 1; return this._array(b & 0x0f); }
+      // fixstr
+      if ((b & 0xe0) === 0xa0) { this.pos += 1; return this._str(b & 0x1f); }
+      // negative fixint
+      if (b >= 0xe0) { this.pos += 1; return b - 256; }
+
+      switch (b) {
+        case 0xc0: this.pos += 1; return null;
+        case 0xc2: this.pos += 1; return false;
+        case 0xc3: this.pos += 1; return true;
+
+        case 0xc4: { this.pos += 1; var l = this._u8(); return this._bin(l); }
+        case 0xc5: { this.pos += 1; var l2 = this._u16(); return this._bin(l2); }
+        case 0xc6: { this.pos += 1; var l3 = this._u32(); return this._bin(l3); }
+
+        case 0xca: { this.pos += 1; var f = this.view.getFloat32(this.pos, false); this.pos += 4; return f; }
+        case 0xcb: { this.pos += 1; var d = this.view.getFloat64(this.pos, false); this.pos += 8; return d; }
+
+        case 0xcc: { this.pos += 1; return this._u8(); }
+        case 0xcd: { this.pos += 1; return this._u16(); }
+        case 0xce: { this.pos += 1; return this._u32(); }
+        case 0xcf: { this.pos += 1; return this._u64(); }
+
+        case 0xd0: { this.pos += 1; var i8 = this.view.getInt8(this.pos); this.pos += 1; return i8; }
+        case 0xd1: { this.pos += 1; var i16 = this.view.getInt16(this.pos, false); this.pos += 2; return i16; }
+        case 0xd2: { this.pos += 1; var i32 = this.view.getInt32(this.pos, false); this.pos += 4; return i32; }
+        case 0xd3: { this.pos += 1; var i64 = this._i64(); return i64; }
+
+        case 0xd9: { this.pos += 1; var sl = this._u8(); return this._str(sl); }
+        case 0xda: { this.pos += 1; var sl2 = this._u16(); return this._str(sl2); }
+        case 0xdb: { this.pos += 1; var sl3 = this._u32(); return this._str(sl3); }
+
+        case 0xdc: { this.pos += 1; var al = this._u16(); return this._array(al); }
+        case 0xdd: { this.pos += 1; var al2 = this._u32(); return this._array(al2); }
+
+        case 0xde: { this.pos += 1; var ml = this._u16(); return this._map(ml); }
+        case 0xdf: { this.pos += 1; var ml2 = this._u32(); return this._map(ml2); }
+
+        default:
+          throw new Error("MessagePack: tipus no suportat 0x" + b.toString(16));
+      }
+    };
+
+    Decoder.prototype._u8 = function () { var v = this.bytes[this.pos]; this.pos += 1; return v; };
+    Decoder.prototype._u16 = function () { var v = this.view.getUint16(this.pos, false); this.pos += 2; return v; };
+    Decoder.prototype._u32 = function () { var v = this.view.getUint32(this.pos, false); this.pos += 4; return v; };
+    Decoder.prototype._u64 = function () {
+      var hi = this.view.getUint32(this.pos, false);
+      var lo = this.view.getUint32(this.pos + 4, false);
+      this.pos += 8;
+      return hi * 4294967296 + lo;
+    };
+    Decoder.prototype._i64 = function () {
+      var hi = this.view.getInt32(this.pos, false);
+      var lo = this.view.getUint32(this.pos + 4, false);
+      this.pos += 8;
+      return hi * 4294967296 + lo;
+    };
+
+    Decoder.prototype._str = function (len) {
+      var slice = this.bytes.subarray(this.pos, this.pos + len);
+      this.pos += len;
+      return new TextDecoder("utf-8").decode(slice);
+    };
+
+    Decoder.prototype._bin = function (len) {
+      var slice = this.bytes.slice(this.pos, this.pos + len);
+      this.pos += len;
+      return slice;
+    };
+
+    Decoder.prototype._array = function (len) {
+      var out = new Array(len);
+      for (var i = 0; i < len; i++) out[i] = this.decode();
+      return out;
+    };
+
+    Decoder.prototype._map = function (len) {
+      var out = {};
+      for (var i = 0; i < len; i++) {
+        var k = this.decode();
+        var v = this.decode();
+        out[k] = v;
+      }
+      return out;
+    };
+
+    return {
+      decode: function (uint8arr) {
+        var dec = new Decoder(uint8arr);
+        return dec.decode();
+      },
+    };
+  })();
+</script>
+
+<!-- IMPORTANT: js/mapa.js (MapaGrele) es carrega al FINAL del body,
+     no aqui al head, perque necessita que 'L' (Leaflet) ja existeixi
+     abans que s'executi el constructor new MapaGrele(...). -->
+
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: #0b0e17;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+
+  #mapa {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+
+  #controls {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 1000;
+    background: rgba(11, 14, 23, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 6px;
+    padding: 12px 14px;
+    color: #e8edf5;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(8px);
+    width: 240px;
+  }
+
+  #controls h1 {
+    font-size: 13px;
+    font-weight: 500;
+    margin: 0 0 10px 0;
+    color: #e8edf5;
+    letter-spacing: 0.2px;
+  }
+
+  .control-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .control-row label {
+    font-size: 11px;
+    color: #9aa3b5;
+    min-width: 40px;
+  }
+
+  .control-row select,
+  .control-row input[type="range"] {
+    flex: 1;
+  }
+
+  select {
+    background: #1a1f2e;
+    color: #e8edf5;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 4px;
+    padding: 3px 6px;
+    font-size: 12px;
+  }
+
+  input[type="range"] {
+    accent-color: #4fc3f7;
+  }
+
+  .hora-valor {
+    font-size: 11px;
+    color: #4fc3f7;
+    min-width: 32px;
+    text-align: right;
+  }
+
+  #btns {
+    display: flex;
+    gap: 6px;
+    margin-top: 10px;
+  }
+
+  #btns button {
+    flex: 1;
+    background: #1a1f2e;
+    color: #e8edf5;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 4px;
+    padding: 6px 4px;
+    font-size: 11px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  #btns button:hover {
+    background: #262c40;
+  }
+
+  #btns button.actiu {
+    background: #4fc3f7;
+    color: #0b0e17;
+    font-weight: 600;
+    border-color: #4fc3f7;
+  }
+
+  #estat {
+    margin-top: 10px;
+    font-size: 10px;
+    color: #5a6378;
+    min-height: 14px;
+  }
+
+  #estat.error {
+    color: #ff6b6b;
+  }
+</style>
+</head>
+<body>
+
+<div id="mapa"></div>
+
+<div id="controls">
+  <h1>Risc de calamarsa — Catalunya</h1>
+
+  <div class="control-row">
+    <label for="selDia">Dia</label>
+    <select id="selDia">
+      <option value="1">Dia 1</option>
+      <option value="2" selected>Dia 2</option>
+      <option value="3">Dia 3</option>
+      <option value="4">Dia 4</option>
+    </select>
+  </div>
+
+  <div class="control-row">
+    <label for="sliderHora">Hora</label>
+    <input type="range" id="sliderHora" min="0" max="23" step="1" value="3" />
+    <span class="hora-valor" id="horaValor">03h</span>
+  </div>
+
+  <div id="btns">
+    <button id="btnPlay">▶ Animar</button>
+    <button id="btnStop">■ Aturar</button>
+  </div>
+
+  <div id="estat"></div>
+</div>
+
+<!-- IMPORTANT: es carrega AQUI, al final del body, DESPRES de Leaflet
+     i msgpack, perque necessita que 'L' (Leaflet) ja existeixi abans
+     que s'executi el constructor new MapaGrele(...) mes avall. -->
+<script src="js/mapa.js"></script>
+<script>
+  var estatDiv = document.getElementById("estat");
+  var selDia = document.getElementById("selDia");
+  var sliderHora = document.getElementById("sliderHora");
+  var horaValor = document.getElementById("horaValor");
+  var btnPlay = document.getElementById("btnPlay");
+  var btnStop = document.getElementById("btnStop");
+
+  function mostrarEstat(text, esError) {
+    estatDiv.textContent = text || "";
+    estatDiv.className = esError ? "error" : "";
+  }
+
+  var mapa = new MapaGrele("mapa", {
+    geojsonUrl: "geosjon/girona_comarques.geojson",
+    dataUrlTemplate: "dades_anim/grele_d{dia:02d}_h{hora:02d}.msgpack.gz",
+    initialCenter: [41.9, 2.6],
+    initialZoom: 8,
+    maxDia: 4,
+    maxHora: 23,
+    onValidTimeChange: function (validTime) {
+      mostrarEstat(validTime ? "Vàlid: " + validTime : "");
+    },
+  });
+
+  async function carregarActual() {
+    var dia = parseInt(selDia.value, 10);
+    var hora = parseInt(sliderHora.value, 10);
+    horaValor.textContent = String(hora).padStart(2, "0") + "h";
+    mostrarEstat("Carregant dia " + dia + ", " + hora + "h...");
+    try {
+      await mapa.load(dia, hora);
+      mostrarEstat("");
+    } catch (err) {
+      console.error(err);
+      mostrarEstat("Sense dades per aquesta hora (" + err.message + ")", true);
+    }
+  }
+
+  selDia.addEventListener("change", carregarActual);
+
+  sliderHora.addEventListener("input", function () {
+    horaValor.textContent = String(sliderHora.value).padStart(2, "0") + "h";
+  });
+  sliderHora.addEventListener("change", carregarActual);
+
+  btnPlay.addEventListener("click", function () {
+    btnPlay.classList.add("actiu");
+    var dia = parseInt(selDia.value, 10);
+    mapa.animateHours(dia, 0, 23, 700, function (d, h) {
+      sliderHora.value = h;
+      horaValor.textContent = String(h).padStart(2, "0") + "h";
+    }, true); // loop = true
+  });
+
+  btnStop.addEventListener("click", function () {
+    mapa.stopAnimation();
+    btnPlay.classList.remove("actiu");
+  });
+
+  // Carrega inicial
+  carregarActual();
+</script>
+
+</body>
+</html>
