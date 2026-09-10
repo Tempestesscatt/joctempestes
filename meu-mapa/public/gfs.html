@@ -481,10 +481,10 @@
             var mapa;
             try {
                 mapa = new MapaGFS('map', {
-                    dataUrlTemplate: 'web_data_EU/gfs_{level}hpa_d{dia:02d}_h{hora:02d}.msgpack.gz',
-                    surfacePrmslUrlTemplate: 'web_data_EU/gfs_prmsl_d{dia:02d}_h{hora:02d}.msgpack.gz',
-                    surfaceApcpUrlTemplate: 'web_data_EU/gfs_apcp_d{dia:02d}_h{hora:02d}.msgpack.gz',
-                    soundingUrlTemplate: 'web_data_EU/gfs_sounding_d{dia:02d}_h{hora:02d}.msgpack.gz',
+                    dataUrlTemplate: 'web_data_GLOBAL/gfs_{level}hpa_d{dia:02d}_h{hora:02d}.msgpack.gz',
+                    surfacePrmslUrlTemplate: 'web_data_GLOBAL/gfs_prmsl_d{dia:02d}_h{hora:02d}.msgpack.gz',
+                    surfaceApcpUrlTemplate: 'web_data_GLOBAL/gfs_apcp_d{dia:02d}_h{hora:02d}.msgpack.gz',
+                    soundingUrlTemplate: 'web_data_GLOBAL/gfs_sounding_d{dia:02d}_h{hora:02d}.msgpack.gz',
                     enableSoundingOnRightClick: true,
                     bordersUrl: 'dades/fronteres_paisos.geojson',
                     initialCenter: [30, 0],

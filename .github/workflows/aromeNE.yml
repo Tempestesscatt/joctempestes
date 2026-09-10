@@ -2,6 +2,11 @@ name: CAT + ONES + MSGPACK
 
 on:
   workflow_dispatch:
+  schedule:
+    # AROME publica cada 3h (~00:20, 03:20, 06:20, 09:20, 12:20, 15:20, 18:20, 21:20 UTC)
+    # Disparamos 30 min después de cada publicación, para dar margen.
+    # Esto es un respaldo independiente de Cloudflare mientras su Cron Triggers esté caído.
+    - cron: '50 0,3,6,9,12,15,18,21 * * *'
 
 permissions:
   contents: write
@@ -9,11 +14,44 @@ permissions:
 
 jobs:
   # ════════════════════════════════════════════════════════════════
+  #  JOB -1: CHECK - Decideix si s'executa segons el flag intern
+  # ════════════════════════════════════════════════════════════════
+  check_schedule:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    outputs:
+      should_run: ${{ steps.gate.outputs.should_run }}
+    steps:
+    - name: Gate - activa/desactiva el schedule intern
+      id: gate
+      run: |
+        # ══════════════════════════════════════════════════════
+        # INTERRUPTOR MANUAL:
+        #   true  -> el schedule intern SÍ s'executa (backup propi, Cloudflare no fiable)
+        #   false -> el schedule intern NO s'executa (Cloudflare ja funciona, s'encarrega ell)
+        # Els disparaments manuals (workflow_dispatch) SEMPRE s'executen, ignorant aquest flag.
+        # ══════════════════════════════════════════════════════
+        USE_INTERNAL_SCHEDULE=true
+
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          echo "Disparat manualment -> s'executa sempre"
+          echo "should_run=true" >> "$GITHUB_OUTPUT"
+        elif [ "$USE_INTERNAL_SCHEDULE" = "true" ]; then
+          echo "Schedule intern ACTIU -> s'executa"
+          echo "should_run=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "Schedule intern DESACTIVAT (Cloudflare s'encarrega) -> NO s'executa"
+          echo "should_run=false" >> "$GITHUB_OUTPUT"
+        fi
+
+  # ════════════════════════════════════════════════════════════════
   #  JOB 0: NETEJA - Borra carpetes abans de començar
   # ════════════════════════════════════════════════════════════════
   neteja:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    needs: check_schedule
+    if: needs.check_schedule.outputs.should_run == 'true'
     steps:
     - uses: actions/checkout@v4
       with:
@@ -59,7 +97,8 @@ jobs:
   arome_sfc:
     runs-on: ubuntu-latest
     timeout-minutes: 250
-    needs: neteja
+    needs: [check_schedule, neteja]
+    if: needs.check_schedule.outputs.should_run == 'true'
     steps:
     - uses: actions/checkout@v4
       with:
@@ -119,7 +158,8 @@ jobs:
   arome_3d:
     runs-on: ubuntu-latest
     timeout-minutes: 250
-    needs: neteja
+    needs: [check_schedule, neteja]
+    if: needs.check_schedule.outputs.should_run == 'true'
     steps:
     - uses: actions/checkout@v4
       with:
@@ -178,7 +218,8 @@ jobs:
   ones:
     runs-on: ubuntu-latest
     timeout-minutes: 120
-    needs: neteja
+    needs: [check_schedule, neteja]
+    if: needs.check_schedule.outputs.should_run == 'true'
     steps:
     - uses: actions/checkout@v4
       with:
@@ -235,8 +276,8 @@ jobs:
   status:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [arome_sfc, arome_3d, ones]
-    if: always()
+    needs: [check_schedule, arome_sfc, arome_3d, ones]
+    if: always() && needs.check_schedule.outputs.should_run == 'true'
     steps:
     - uses: actions/checkout@v4
       with:
@@ -304,8 +345,8 @@ jobs:
   manifest:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: status
-    if: always()
+    needs: [check_schedule, status]
+    if: always() && needs.check_schedule.outputs.should_run == 'true'
     steps:
     - uses: actions/checkout@v4
       with:
@@ -358,8 +399,8 @@ jobs:
   #  JOB FINAL: deploy (NOMÉS DESPRÉS de manifest)
   # ════════════════════════════════════════════════════════════════
   deploy:
-    needs: [arome_sfc, arome_3d, ones, status, manifest]
-    if: always()
+    needs: [check_schedule, arome_sfc, arome_3d, ones, status, manifest]
+    if: always() && needs.check_schedule.outputs.should_run == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:

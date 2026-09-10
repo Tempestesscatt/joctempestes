@@ -1,5 +1,5 @@
 // ============================================================
-// TRADUCCIONS - Català / Castellà (COMPLET - TOT)
+// TRADUCCIONES - Catalán / Castellano (COMPLETO - TODO)
 // ============================================================
 
 let idiomaActual = localStorage.getItem('tempestes_idioma') || 
@@ -29,9 +29,8 @@ const traduccions = {
     "Usuari": "Usuario",
     "obrir visor": "Abrir visor",
     
-
-        // ============================================================
-    // OUTBREAK / AVISOS (COMPLET)
+    // ============================================================
+    // OUTBREAK / AVISOS (COMPLETO)
     // ============================================================
     "Outbreak · Avís de tempestes severes": "Outbreak · Aviso de tormentas severas",
     "Mapa de risc màxim (14h-18h)": "Mapa de riesgo máximo (14h-18h)",
@@ -49,9 +48,8 @@ const traduccions = {
     "14h i 18h": "14h y 18h",
     "Carregant data...": "Cargando fecha...",
 
-
     // ============================================================
-    // ARTICLES (secció)
+    // ARTÍCULOS (sección)
     // ============================================================
     "Articles meteorològics": "Artículos meteorológicos",
     "15 articles": "15 artículos",
@@ -59,7 +57,7 @@ const traduccions = {
     "5 min": "5 min",
 
     // ============================================================
-    // TÍTOLS DELS ARTICLES (15)
+    // TÍTULOS DE LOS ARTÍCULOS (15)
     // ============================================================
     "Com es formen les tempestes: els ingredients de la convecció?": "¿Cómo se forman las tormentas? Los ingredientes de la convección",
     "Vents en superfície: com predir-los i interpretar-los?": "Vientos en superficie: ¿cómo predecirlos e interpretarlos?",
@@ -78,7 +76,7 @@ const traduccions = {
     "La previsió de tempestes per a caçadors de tempestes": "La previsión de tormentas para cazatormentas",
 
     // ============================================================
-    // CATEGORIES DELS ARTICLES
+    // CATEGORÍAS DE LOS ARTÍCULOS
     // ============================================================
     "Tempestes": "Tormentas",
     "Vent": "Viento",
@@ -95,7 +93,7 @@ const traduccions = {
     "Caçatempestes": "Cazatormentas",
 
     // ============================================================
-    // EXCERPTS DELS ARTICLES
+    // EXTRACTOS DE LOS ARTÍCULOS
     // ============================================================
     "Descobreix els tres ingredients bàsics per a la formació de tempestes: humitat, inestabilitat i mecanisme d'ascens.": "Descubre los tres ingredientes básicos para la formación de tormentas: humedad, inestabilidad y mecanismo de ascenso.",
     "Aprèn a interpretar els mapes de vent a 10 metres i a entendre la circulació atmosfèrica a nivell de terra.": "Aprende a interpretar los mapas de viento a 10 metros y a entender la circulación atmosférica a nivel de suelo.",
@@ -114,12 +112,10 @@ const traduccions = {
     "Consells i eines per als que volen caçar tempestes a Catalunya.": "Consejos y herramientas para los que quieren cazar tormentas en Cataluña.",
 
     // ============================================================
-    // ============================================================
-    // CONTINGUT COMPLET DELS ARTICLES (TOT EL TEXT)
-    // ============================================================
+    // CONTENIDO COMPLETO DE LOS ARTÍCULOS (TODO EL TEXTO)
     // ============================================================
 
-    // ----- ARTICLE 1: TEMPESTES -----
+    // ----- ARTÍCULO 1: TORMENTAS -----
     "Com es formen les tempestes: els ingredients de la convecció": "Cómo se forman las tormentas: los ingredientes de la convección",
     "La convecció: el motor de les tempestes": "La convección: el motor de las tormentas",
     "La convecció és el procés pel qual l'aire càlid i menys dens ascendeix a través de l'atmosfera. Aquest moviment vertical és el motor que alimenta les tempestes. Quan l'aire ascendeix, es refreda i, si conté prou humitat, es condensa formant núvols de gran desenvolupament vertical: els cumulonimbus.": "La convección es el proceso por el cual el aire caliente y menos denso asciende a través de la atmósfera. Este movimiento vertical es el motor que alimenta las tormentas. Cuando el aire asciende, se enfría y, si contiene suficiente humedad, se condensa formando nubes de gran desarrollo vertical: los cumulonimbus.",
@@ -140,7 +136,7 @@ const traduccions = {
     "Si hi ha avís de tempesta, evita refugiar-te sota arbres, no utilitzis aparells connectats a la xarxa elèctrica i cerca un edifici segur. Si ets a la muntanya, baixa ràpidament.": "Si hay aviso de tormenta, evita refugiarte bajo árboles, no utilices aparatos conectados a la red eléctrica y busca un edificio seguro. Si estás en la montaña, baja rápidamente.",
     "Les tempestes poden ser molt perilloses. Els llamps poden caure a terra i causar incendis o lesions. Les pluges intenses poden provocar inundacions i lliscaments de terra. És important estar informat i seguir les recomanacions de Protecció Civil.": "Las tormentas pueden ser muy peligrosas. Los rayos pueden caer al suelo y causar incendios o lesiones. Las lluvias intensas pueden provocar inundaciones y deslizamientos de tierra. Es importante estar informado y seguir las recomendaciones de Protección Civil.",
 
-    // ----- ARTICLE 2: VENT -----
+    // ----- ARTÍCULO 2: VIENTO -----
     "Vents en superfície: com predir-los i interpretar-los": "Vientos en superficie: cómo predecirlos e interpretarlos",
     "Què és el vent en superfície?": "¿Qué es el viento en superficie?",
     "El vent en superfície és el moviment de l'aire a la capa més propera al terra, normalment mesurat a 10 metres d'altura. És el vent que sentim al nostre dia a dia i que afecta directament les activitats humanes, l'agricultura, la navegació i la seguretat.": "El viento en superficie es el movimiento del aire en la capa más cercana al suelo, normalmente medido a 10 metros de altura. Es el viento que sentimos en nuestro día a día y que afecta directamente las actividades humanas, la agricultura, la navegación y la seguridad.",
@@ -161,7 +157,7 @@ const traduccions = {
     "Consulta sempre la previsió de vent abans de fer activitats a l'aire lliure, especialment si tens previst navegar, volar o fer excursions a la muntanya.": "Consulta siempre la previsión de viento antes de hacer actividades al aire libre, especialmente si tienes previsto navegar, volar o hacer excursiones a la montaña.",
     "El vent pot ser perillós en activitats com la vela, el caiac o l'escalada. Una ratxa inesperada pot tombar una embarcació o fer caure un escalador. La informació actualitzada és la millor eina per a la seguretat.": "El viento puede ser peligroso en actividades como la vela, el kayak o la escalada. Una racha inesperada puede volcar una embarcación o hacer caer a un escalador. La información actualizada es la mejor herramienta para la seguridad.",
 
-    // ----- ARTICLE 3: SEVERITAT -----
+    // ----- ARTÍCULO 3: SEVERIDAD -----
     "Paràmetres de severitat: CAPE, CIN, cisallament i helicitat": "Parámetros de severidad: CAPE, CIN, cizallamiento y helicidad",
     "Què és una tempesta severa?": "¿Qué es una tormenta severa?",
     "Una tempesta severa és aquella que produeix un o més dels següents fenòmens: calamarsa de més de 2 cm de diàmetre, ratxes de vent superiors a 90 km/h, o tornados. La seva predicció requereix l'anàlisi de diversos paràmetres atmosfèrics.": "Una tormenta severa es aquella que produce uno o más de los siguientes fenómenos: granizo de más de 2 cm de diámetro, ráfagas de viento superiores a 90 km/h, o tornados. Su predicción requiere el análisis de varios parámetros atmosféricos.",
@@ -182,7 +178,7 @@ const traduccions = {
     "Utilitzem les sortides d'AROME per obtenir mapes de CAPE, CIN, cisallament i helicitat. Això ens permet identificar les zones amb més probabilitat de tempestes severes i la seva intensitat potencial.": "Utilizamos las salidas de AROME para obtener mapas de CAPE, CIN, cizallamiento y helicidad. Esto nos permite identificar las zonas con más probabilidad de tormentas severas y su intensidad potencial.",
     "A TEMPESTES.CAT oferim mapes de tots aquests paràmetres per a Catalunya. Aquesta informació és essencial per a la previsió de tempestes severes i per a la seguretat de la població.": "En TEMPESTES.CAT ofrecemos mapas de todos estos parámetros para Cataluña. Esta información es esencial para la previsión de tormentas severas y para la seguridad de la población.",
 
-    // ----- ARTICLE 4: GRANIZO -----
+    // ----- ARTÍCULO 4: GRANIZO -----
     "La calamarsa: com es forma i com predir-la": "El granizo: cómo se forma y cómo predecirlo",
     "Què és el granizo?": "¿Qué es el granizo?",
     "La calamarsa és una precipitació sòlida formada per boles o blocs de gel que cauen d'un núvol de tempesta. La seva mida pot variar des d'uns pocs mil·límetres fins a més de 10 cm de diàmetre en casos extrems.": "El granizo es una precipitación sólida formada por bolas o bloques de hielo que caen de una nube de tormenta. Su tamaño puede variar desde unos pocos milímetros hasta más de 10 cm de diámetro en casos extremos.",
@@ -203,7 +199,7 @@ const traduccions = {
     "En cas de risc de granizo, busca refugi sota un sostre sòlid. No et refugiïs sota arbres o estructures febles. Protegeix els vehicles i els animals.": "En caso de riesgo de granizo, busca refugio bajo un techo sólido. No te refugies bajo árboles o estructuras débiles. Protege los vehículos y los animales.",
     "La calamarsa pot causar lesions greus. Si ets a l'aire lliure i comença a caure granizo, protegeix-te el cap i busca un refugi ràpidament.": "El granizo puede causar lesiones graves. Si estás al aire libre y comienza a caer granizo, protégete la cabeza y busca un refugio rápidamente.",
 
-    // ----- ARTICLE 5: ANÀLISI -----
+    // ----- ARTÍCULO 5: ANÁLISIS -----
     "Com fer un anàlisi meteorològic professional pas a pas": "Cómo hacer un análisis meteorológico profesional paso a paso",
     "1. Observació de satèl·lit i radar": "1. Observación de satélite y radar",
     "El primer pas de qualsevol anàlisi meteorològic és l'observació de les imatges de satèl·lit i del radar. El satèl·lit ens mostra l'estructura dels núvols, mentre que el radar ens mostra on està plovent.": "El primer paso de cualquier análisis meteorológico es la observación de las imágenes de satélite y del radar. El satélite nos muestra la estructura de las nubes, mientras que el radar nos muestra dónde está lloviendo.",
@@ -224,7 +220,7 @@ const traduccions = {
     "Mantén una rutina d'anàlisi diària. Utilitza sempre les mateixes fonts d'informació per a poder comparar. I, sobretot, no et fiïs mai d'un sol model o d'una sola font.": "Mantén una rutina de análisis diaria. Utiliza siempre las mismas fuentes de información para poder comparar. Y, sobre todo, no te fíes nunca de un solo modelo o de una sola fuente.",
     "La meteorologia és una ciència en constant evolució. L'experiència i la pràctica són clau per millorar l'anàlisi i la previsió.": "La meteorología es una ciencia en constante evolución. La experiencia y la práctica son clave para mejorar el análisis y la previsión.",
 
-    // ----- ARTICLE 6: AROME -----
+    // ----- ARTÍCULO 6: AROME -----
     "AROME 1.3km: el model que revoluciona la previsió a Catalunya": "AROME 1.3km: el modelo que revoluciona la previsión en Cataluña",
     "Què és el model AROME?": "¿Qué es el modelo AROME?",
     "AROME (Application of Research to Operations at Mesoscale) és un model numèric de previsió meteorològica desenvolupat per Meteo-France. La seva versió de 1.3km és la més detallada disponible per a Catalunya.": "AROME (Application of Research to Operations at Mesoscale) es un modelo numérico de previsión meteorológica desarrollado por Meteo-France. Su versión de 1.3km es la más detallada disponible para Cataluña.",
@@ -245,7 +241,7 @@ const traduccions = {
     "A TEMPESTES.CAT mostrem mapes de precipitació, vent, temperatura i índex de convecció. Els usuaris avançats poden consultar els nivells d'altura i els diagrams skew-T.": "En TEMPESTES.CAT mostramos mapas de precipitación, viento, temperatura e índice de convección. Los usuarios avanzados pueden consultar los niveles de altura y los diagramas skew-T.",
     "Les sortides d'AROME es presenten en forma de mapes. Cada mapa mostra una variable concreta: precipitació acumulada, velocitat del vent a 10 metres, temperatura a 2 metres, etc. També oferim mapes de CAPE i CIN per a la previsió de tempestes.": "Las salidas de AROME se presentan en forma de mapas. Cada mapa muestra una variable concreta: precipitación acumulada, velocidad del viento a 10 metros, temperatura a 2 metros, etc. También ofrecemos mapas de CAPE y CIN para la previsión de tormentas.",
 
-    // ----- ARTICLE 7: RADAR -----
+    // ----- ARTÍCULO 7: RADAR -----
     "El radar meteorològic: com funciona i com l'interpretem": "El radar meteorológico: cómo funciona y cómo lo interpretamos",
     "Què és un radar meteorològic?": "¿Qué es un radar meteorológico?",
     "El radar meteorològic és un instrument que emet ones de ràdio i detecta les gotes d'aigua i els cristalls de gel a l'atmosfera. Ens permet veure les precipitacions en temps real.": "El radar meteorológico es un instrumento que emite ondas de radio y detecta las gotas de agua y los cristales de hielo en la atmósfera. Nos permite ver las precipitaciones en tiempo real.",
@@ -266,7 +262,7 @@ const traduccions = {
     "El radar és una eina excel·lent per veure on plou ara, però no substitueix la previsió. Combina el radar amb els models per saber cap a on es mouen les tempestes.": "El radar es una herramienta excelente para ver dónde llueve ahora, pero no sustituye la previsión. Combina el radar con los modelos para saber hacia dónde se mueven las tormentas.",
     "El radar et diu on està plovent ara mateix. Per saber cap a on es mou la pluja i si afectarà la teva zona, cal combinar el radar amb els models de previsió (AROME, GFS). A TEMPESTES.CAT oferim una visió integrada perquè puguis fer les teves pròpies prediccions.": "El radar te dice dónde está lloviendo ahora mismo. Para saber hacia dónde se mueve la lluvia y si afectará tu zona, hay que combinar el radar con los modelos de previsión (AROME, GFS). En TEMPESTES.CAT ofrecemos una visión integrada para que puedas hacer tus propias predicciones.",
 
-    // ----- ARTICLE 8: ENSEMBLES -----
+    // ----- ARTÍCULO 8: ENSEMBLES -----
     "Els ensembles: per què hi ha tantes previsions diferents?": "Los ensembles: ¿por qué hay tantas previsiones diferentes?",
     "Què és un ensemble?": "¿Qué es un ensemble?",
     "Un ensemble és un conjunt de múltiples simulacions del mateix model, amb petites variacions en les condicions inicials. Això permet veure la incertesa de la previsió.": "Un ensemble es un conjunto de múltiples simulaciones del mismo modelo, con pequeñas variaciones en las condiciones iniciales. Esto permite ver la incertidumbre de la previsión.",
@@ -286,8 +282,8 @@ const traduccions = {
     "No et fixis només en una previsió. Mira els ensembles i la probabilitat. Si la probabilitat de pluja és del 60%, hi ha 6 de cada 10 possibilitats que plogui.": "No te fijes solo en una previsión. Mira los ensembles y la probabilidad. Si la probabilidad de lluvia es del 60%, hay 6 de cada 10 posibilidades de que llueva.",
     "La previsió determinista (un sol número) és només una part de la història. Per prendre decisions, cal mirar la probabilitat. Si la probabilitat de pluja és del 60%, hi ha més probabilitat que plogui que no pas que no plogui. Això t'ajudarà a prendre decisions més informades.": "La previsión determinista (un solo número) es solo una parte de la historia. Para tomar decisiones, hay que mirar la probabilidad. Si la probabilidad de lluvia es del 60%, hay más probabilidad de que llueva que de que no llueva. Esto te ayudará a tomar decisiones más informadas.",
 
-        // ============================================================
-    // ARTICLE 9: CANVI CLIMÀTIC
+    // ============================================================
+    // ARTÍCULO 9: CAMBIO CLIMÁTICO
     // ============================================================
     "El canvi climàtic i les tempestes a la Mediterrània": "El cambio climático y las tormentas en el Mediterráneo",
     "Com afecta l'escalfament a la Mediterrània?": "¿Cómo afecta el calentamiento al Mediterráneo?",
@@ -310,7 +306,7 @@ const traduccions = {
     "A TEMPESTES.CAT ens comprometem a oferir la millor informació meteorològica possible. Per això millorem constantment els nostres models i la difusió dels avisos. Volem ser una eina per a la societat en l'adaptació al canvi climàtic.": "En TEMPESTES.CAT nos comprometemos a ofrecer la mejor información meteorológica posible. Por eso mejoramos constantemente nuestros modelos y la difusión de los avisos. Queremos ser una herramienta para la sociedad en la adaptación al cambio climático.",
 
     // ============================================================
-    // ARTICLE 10: FOEHN
+    // ARTÍCULO 10: FOEHN
     // ============================================================
     "L'efecte Foehn: per què fa calor a l'Empordà quan neva al Pirineu": "El efecto Foehn: ¿por qué hace calor en el Empordà cuando nieva en el Pirineo?",
     "Què és l'efecte Foehn?": "¿Qué es el efecto Foehn?",
@@ -333,7 +329,7 @@ const traduccions = {
     "L'aire sec del Foehn pot ser perillós. Augmenta el risc d'incendis, per la qual cosa cal extremar la precaució. També pot afectar persones amb problemes respiratoris, per la sequedat de l'aire. Es recomana beure aigua en abundància.": "El aire seco del Foehn puede ser peligroso. Aumenta el riesgo de incendios, por lo que hay que extremar la precaución. También puede afectar a personas con problemas respiratorios, por la sequedad del aire. Se recomienda beber agua en abundancia.",
 
     // ============================================================
-    // ARTICLE 11: ESTACIONS METEOROLÒGIQUES
+    // ARTÍCULO 11: ESTACIONES METEOROLÓGICAS
     // ============================================================
     "Les estacions meteorològiques: com mesurem el temps": "Las estaciones meteorológicas: cómo medimos el tiempo",
     "Què és una estació meteorològica?": "¿Qué es una estación meteorológica?",
@@ -356,7 +352,7 @@ const traduccions = {
     "A TEMPESTES.CAT utilitzem dades de diferents xarxes d'estacions: l'AEMET (xarxa oficial espanyola), Meteo-Cat (xarxa oficial catalana) i xarxes privades de particulars. Aquestes dades s'utilitzen per calibrar els models i validar les previsions.": "En TEMPESTES.CAT utilizamos datos de diferentes redes de estaciones: la AEMET (red oficial española), Meteo-Cat (red oficial catalana) y redes privadas de particulares. Estos datos se utilizan para calibrar los modelos y validar las previsiones.",
 
     // ============================================================
-    // ARTICLE 12: BORRASQUES
+    // ARTÍCULO 12: BORRASCAS
     // ============================================================
     "Les borrasques mediterrànies: com es formen i com ens afecten": "Las borrascas mediterráneas: cómo se forman y cómo nos afectan",
     "Què és una borrasca mediterrània?": "¿Qué es una borrasca mediterránea?",
@@ -379,7 +375,7 @@ const traduccions = {
     "Les borrasques poden ser perilloses, especialment si van acompanyades de pluges intenses. És important estar informat i seguir les recomanacions de Protecció Civil. Evita zones inundables i no circulis per carreteres amb risc de lliscament de terra.": "Las borrascas pueden ser peligrosas, especialmente si van acompañadas de lluvias intensas. Es importante estar informado y seguir las recomendaciones de Protección Civil. Evita zonas inundables y no circules por carreteras con riesgo de deslizamiento de tierra.",
 
     // ============================================================
-    // ARTICLE 13: MUNTANYES
+    // ARTÍCULO 13: MONTAÑAS
     // ============================================================
     "L'efecte de les muntanyes en el clima català": "El efecto de las montañas en el clima catalán",
     "El Pirineu: barrera climàtica": "El Pirineo: barrera climática",
@@ -399,8 +395,10 @@ const traduccions = {
     "AROME, amb la seva resolució de 1.3 km, és capaç de capturar els efectes locals de les muntanyes. Això ens permet fer previsions molt concretes per a cada comarca, tenint en compte les particularitats del relleu.": "AROME, con su resolución de 1.3 km, es capaz de capturar los efectos locales de las montañas. Esto nos permite hacer previsiones muy concretas para cada comarca, teniendo en cuenta las particularidades del relieve.",
     "Consells per a cada zona": "Consejos para cada zona",
     "Si vius a prop del mar, prepara't per a tempestes més freqüents. Si vius a l'interior, les pluges seran menys intenses però més irregulars. Consulta les previsions específiques.": "Si vives cerca del mar, prepárate para tormentas más frecuentes. Si vives en el interior, las lluvias serán menos intensas pero más irregulares. Consulta las previsiones específicas.",
-    "Cada zona de Catalunya té les seves particularitats. Si vius a la costa, prepara't per a tempestes més freqüents i precipitacions més intenses. Si vius a l'interior, les pluges seran menys intenses però més irregulars.": "Cada zona de Cataluña tiene sus particularidades. Si vives en la costa, prepárate para tormentas más frecuentes y precipitaciones más intensas. Si vives en el interior, las lluvias serán menos intensas pero más irregulares.",    // ============================================================
-    // ARTICLE 14: PRECIPITACIÓ
+    "Cada zona de Catalunya té les seves particularitats. Si vius a la costa, prepara't per a tempestes més freqüents i precipitacions més intenses. Si vius a l'interior, les pluges seran menys intenses però més irregulars.": "Cada zona de Cataluña tiene sus particularidades. Si vives en la costa, prepárate para tormentas más frecuentes y precipitaciones más intensas. Si vives en el interior, las lluvias serán menos intensas pero más irregulares.",
+
+    // ============================================================
+    // ARTÍCULO 14: PRECIPITACIÓN
     // ============================================================
     "Com interpretar un mapa de precipitació?": "¿Cómo interpretar un mapa de precipitación?",
     "Com interpretar un mapa de precipitació de AROME": "Cómo interpretar un mapa de precipitación de AROME",
@@ -423,7 +421,7 @@ const traduccions = {
     "Per interpretar correctament un mapa de precipitació, no et fixis només en el color més intens. Mira l'evolució temporal: cap a on es mouen les precipitacions? S'intensifiquen o es debiliten? Això et donarà una idea de què passarà.": "Para interpretar correctamente un mapa de precipitación, no te fijes solo en el color más intenso. Mira la evolución temporal: ¿hacia dónde se mueven las precipitaciones? ¿Se intensifican o se debilitan? Esto te dará una idea de qué pasará.",
 
     // ============================================================
-    // ARTICLE 15: CAÇADORS DE TEMPESTES
+    // ARTÍCULO 15: CAZATORMENTAS
     // ============================================================
     "La previsió de tempestes per a caçadors de tempestes": "La previsión de tormentas para cazatormentas",
     "Què és un caçador de tempestes?": "¿Qué es un cazatormentas?",
@@ -444,8 +442,9 @@ const traduccions = {
     "El codi ètic del caçador": "El código ético del cazador",
     "Respecta les propietats i les persones. No obstaculitzis el trànsit. Comparteix les teves fotos i dades amb la comunitat per millorar la ciència. A TEMPESTES.CAT donem suport a aquesta comunitat.": "Respeta las propiedades y las personas. No obstaculices el tráfico. Comparte tus fotos y datos con la comunidad para mejorar la ciencia. En TEMPESTES.CAT damos apoyo a esta comunidad.",
     "Els caçadors de tempestes tenen un codi ètic: respectar les propietats i les persones, no obstaculitzar el trànsit i compartir les fotos i les dades amb la comunitat. A TEMPESTES.CAT donem suport a aquesta comunitat, oferint eines i difonent les seves imatges.": "Los cazatormentas tienen un código ético: respetar las propiedades y las personas, no obstaculizar el tráfico y compartir las fotos y los datos con la comunidad. En TEMPESTES.CAT damos apoyo a esta comunidad, ofreciendo herramientas y difundiendo sus imágenes.",
+
     // ============================================================
-    // POLÍTICA DE PRIVACITAT - TEXTOS DEL HTML
+    // POLÍTICA DE PRIVACIDAD - TEXTOS DEL HTML
     // ============================================================
     "Política de privacitat de TEMPESTES.CAT": "Política de privacidad de TEMPESTES.CAT",
     "Responsable del tractament:": "Responsable del tratamiento:",
@@ -469,8 +468,9 @@ const traduccions = {
     "4. Cookies": "4. Cookies",
     "Utilitzem cookies pròpies i de tercers (Google Analytics, AdSense) per analitzar el trànsit i mostrar anuncis. Pots gestionar les cookies des del teu navegador o mitjançant el nostre panell de cookies.": "Utilizamos cookies propias y de terceros (Google Analytics, AdSense) para analizar el tráfico y mostrar anuncios. Puedes gestionar las cookies desde tu navegador o mediante nuestro panel de cookies.",
     "Última actualització: 26 d'agost de 2026": "Última actualización: 26 de agosto de 2026",
+
     // ============================================================
-    // CONTACTE (COMPLET)
+    // CONTACTO (COMPLETO)
     // ============================================================
     "Tens alguna pregunta o suggeriment? Escriu-nos!": "¿Tienes alguna pregunta o sugerencia? ¡Escríbenos!",
     "El teu nom": "Tu nombre",
@@ -484,7 +484,7 @@ const traduccions = {
     "Ja has enviat un missatge recentment. Pots tornar a enviar en": "Ya has enviado un mensaje recientemente. Puedes volver a enviar en",
 
     // ============================================================
-    // SECTORS (COMPLET)
+    // SECTORES (COMPLETO)
     // ============================================================
     "Qui fa servir TEMPESTES.CAT?": "¿Quién usa TEMPESTES.CAT?",
     "Agricultura": "Agricultura",
@@ -495,7 +495,7 @@ const traduccions = {
     "Caçatempestes": "Cazatormentas",
 
     // ============================================================
-    // FOOTER (COMPLET)
+    // FOOTER (COMPLETO)
     // ============================================================
     "Avís legal": "Aviso legal",
     "Dades de Meteo-France, NOAA i ECMWF. Mapes i dades elaborats per": "Datos de Meteo-France, NOAA y ECMWF. Mapas y datos elaborados por",
@@ -504,14 +504,14 @@ const traduccions = {
     "Política de Cookies": "Política de Cookies",
 
     // ============================================================
-    // COOKIES BANNER (COMPLET)
+    // COOKIES BANNER (COMPLETO)
     // ============================================================
     "Utilitzem cookies pròpies i de tercers per millorar la navegació, analitzar el trànsit i mostrar anuncis rellevants. Pots acceptar-les o rebutjar-les. Més informació a la": "Utilizamos cookies propias y de terceros para mejorar la navegación, analizar el tráfico y mostrar anuncios relevantes. Puedes aceptarlas o rechazarlas. Más información en la",
     "Acceptar": "Aceptar",
     "Rebutjar": "Rechazar",
 
     // ============================================================
-    // MODAL PERFIL (COMPLET)
+    // MODAL PERFIL (COMPLETO)
     // ============================================================
     "El meu perfil": "Mi perfil",
     "Nom": "Nombre",
@@ -520,7 +520,7 @@ const traduccions = {
     "Sortir": "Salir",
 
     // ============================================================
-    // SIDE PANEL (COMPLET)
+    // SIDE PANEL (COMPLETO)
     // ============================================================
     "AROME": "AROME",
     "Alta resolució 1.3km, nivells, skew-T i convecció.": "Alta resolución 1.3km, niveles, skew-T y convección.",
@@ -534,7 +534,7 @@ const traduccions = {
     "Reflectivitat en temps real cada 10 min.": "Reflectividad en tiempo real cada 10 min.",
 
     // ============================================================
-    // QUI SOM (COMPLET)
+    // QUIÉNES SOMOS (COMPLETO)
     // ============================================================
     "Qui som": "Quiénes somos",
     "Coneix l'equip de TEMPESTES.CAT": "Conoce el equipo de TEMPESTES.CAT",
@@ -550,16 +550,16 @@ const traduccions = {
     "Visitar Lameteo.cat": "Visitar Lameteo.cat",
 
     // ============================================================
-    // QUI SOM - DESCRIPCIONS COMPLETES
+    // QUIÉNES SOMOS - DESCRIPCIONES COMPLETAS
     // ============================================================
     "Des de ben petit, pràcticament des dels 6 anys, he sentit una fascinació absoluta per la meteorologia. Em passava hores mirant el cel, meravellat pels canvis de temps i per tota la força de la natura. Va ser l'any 2022 quan vaig decidir fer un pas ferm. Ja no em conformava a ser un simple espectador; volia entendre què s'amagava darrere del que veia, més enllà de simples núvols o llamps llunyans. A poc a poc, amb moltes hores d'aprenentatge, interpretant mapes i amb molta pràctica diària, vaig començar a entendre com funciona l'atmosfera. Avui dia, ja puc interpretar el cel amb criteri propi i tenir una idea clara de si avui plourà o no.": "Desde pequeño, prácticamente desde los 6 años, he sentido una fascinación absoluta por la meteorología. Pasaba horas mirando el cielo, maravillado por los cambios de tiempo y por toda la fuerza de la naturaleza. Fue en 2022 cuando decidí dar un paso firme. Ya no me conformaba con ser un simple espectador; quería entender qué se escondía detrás de lo que veía, más allá de simples nubes o rayos lejanos. Poco a poco, con muchas horas de aprendizaje, interpretando mapas y con mucha práctica diaria, empecé a entender cómo funciona la atmósfera. Hoy en día, ya puedo interpretar el cielo con criterio propio y tener una idea clara de si hoy lloverá o no.",
 
     "Vaig Fundadar MeteoVigilància i una de les peces més importants de Tempestes.cat. Vam començar junts en aquest món durant l'estiu de 2024, compartint la passió per la meteorologia, les tempestes i la caça de fenòmens extrems. Des d'aleshores, hem anat creixent i aprenent plegats dins d'aquest projecte. És el fundador de MeteoVigilància, una aplicació que permet situar i compartir avisos de fenòmens meteorològics severs arreu de Catalunya, ajudant a entendre en quines zones poden estar causant més afectacions.": "Fundé MeteoVigilància y soy una de las piezas más importantes de Tempestes.cat. Empezamos juntos en este mundo durante el verano de 2024, compartiendo la pasión por la meteorología, las tormentas y la caza de fenómenos extremos. Desde entonces, hemos ido creciendo y aprendiendo juntos dentro de este proyecto. Soy el fundador de MeteoVigilància, una aplicación que permite situar y compartir avisos de fenómenos meteorológicos severos en toda Cataluña, ayudando a entender en qué zonas pueden estar causando más afectaciones.",
 
-    "M'agrada molt programar i m'he especialitzat en la visualització de dades meteorològiques. Treballo diàriament amb informació a gran escala i petita, transformant dades complexes en entorns visuals senzills d'entendre. La meva passió és agafar tota aquesta complexitat atmosfèrica i fer-la totalment accessible. Per aconseguir-ho, em dedico a crear moltes eines digitals i visors interactius d'alta precisió. El meu objectiu principal és que els usuaris puguin entendre l'evolució del temps d'un sol cop d'ull. A través d'interfícies ben dissenyades i intuïtives com appstore i applestore i PC, faig possible que tota aquesta densa informació sigui sempre una experiència molt clara i útil.": "Me gusta mucho programar y me he especializado en la visualización de datos meteorológicos. Trabajo diariamente con información a gran escala y pequeña, transformando datos complejos en entornos visuales sencillos de entender. Mi pasión es coger toda esta complejidad atmosférica y hacerla totalmente accesible. Para conseguirlo, me dedico a crear muchas herramientas digitales y visores interactivos de alta precisión. Mi objetivo principal es que los usuarios puedan entender la evolución del tiempo de un solo vistazo. A través de interfaces bien diseñadas e intuitivas como appstore y applestore y PC, hago posible que toda esta densa información sea siempre una experiencia muy clara y útil.",
+    "Estic especialitzat en el desenvolupament i la visualització de dades meteorològiques, transformant grans volums d’informació atmosfèrica en mapes, aplicacions i eines digitals clares i fàcils d’interpretar. Treballo en la creació de visors interactius i sistemes de consulta meteorològica, combinant programació, tractament de dades i disseny d’interfícies. L’objectiu és facilitar la comprensió de l’evolució del temps i presentar informació complexa d’una manera visual, intuitiva i útil. Desenvolupo solucions per a web, mòbil i ordinador, amb especial atenció a la precisió de les dades, l’experiència d’usuari i la qualitat visual.": "Estoy especializado en el desarrollo y la visualización de datos meteorológicos, transformando grandes volúmenes de información atmosférica en mapas, aplicaciones y herramientas digitales claras y fáciles de interpretar. Trabajo en la creación de visores interactivos y sistemas de consulta meteorológica, combinando programación, tratamiento de datos y diseño de interfaces. El objetivo es facilitar la comprensión de la evolución del tiempo y presentar información compleja de una manera visual, intuitiva y útil. Desarrollo soluciones para web, móvil y ordenador, con especial atención a la precisión de los datos, la experiencia del usuario y la calidad visual.",
 
     // ============================================================
-    // ALTRES TEXTOS QUE PODEN APARÈIXER
+    // OTROS TEXTOS QUE PUEDEN APARECER
     // ============================================================
     "Castellano": "Castellano",
     "Català": "Català",
@@ -571,7 +571,7 @@ const traduccions = {
     "TEMPESTES.CAT": "TEMPESTES.CAT",
 
     // ============================================================
-    // ETIQUETES DELS CAÇADORS (per l'article 15)
+    // ETIQUETAS DE LOS CAZADORES (para el artículo 15)
     // ============================================================
     "@Meteo.Felix": "@Meteo.Felix",
     "@Meteo_nordeste": "@Meteo_nordeste",
@@ -579,7 +579,7 @@ const traduccions = {
     "@ruben.aibar.martinez": "@ruben.aibar.martinez",
 
     // ============================================================
-    // MISSATGES DE CONTACTE (feedback)
+    // MENSAJES DE CONTACTO (feedback)
     // ============================================================
     "✅ Missatge enviat correctament! Et respondrem en 24h.": "✅ ¡Mensaje enviado correctamente! Te responderemos en 24h.",
     "❌ Error en enviar el missatge. Prova de nou més tard.": "❌ Error al enviar el mensaje. Inténtalo de nuevo más tarde.",
@@ -588,10 +588,8 @@ const traduccions = {
     "Si us plau, introdueix un correu electrònic vàlid.": "Por favor, introduce un correo electrónico válido.",
     "Ja has enviat un missatge avui. Pots tornar a enviar en": "Ya has enviado un mensaje hoy. Puedes volver a enviar en",
 
-
-
-        // ============================================================
-    // VISOR AROME (COMPLET)
+    // ============================================================
+    // VISOR AROME (COMPLETO)
     // ============================================================
     "Visor AROME · Alta resolució": "Visor AROME · Alta resolución",
     "1.3km - 2.5km": "1.3km - 2.5km",
@@ -608,7 +606,7 @@ const traduccions = {
     "Ensembles": "Ensamble",
 
     // ============================================================
-    // RADAR (COMPLET)
+    // RADAR (COMPLETO)
     // ============================================================
     "Radar meteorològic en viu": "Radar meteorológico en vivo",
     "Temps real": "Tiempo real",
@@ -631,13 +629,13 @@ const traduccions = {
     "Entrar al radar en viu": "Entrar al radar en vivo",
     "Interactiu": "Interactivo",
 
-// ============================================================
-// OUTBREAK / AVISOS - FRASE COMPLETA
-// ============================================================
-"Risc de tempestes severes amb calamarsa de gran tamany, vents forts (>90 km/h) i possible tornado en zones de l'interior i el litoral.": "Riesgo de tormentas severas con granizo de gran tamaño, vientos fuertes (>90 km/h) y posible tornado en zonas del interior y el litoral.",
+    // ============================================================
+    // OUTBREAK / AVISOS - FRASE COMPLETA
+    // ============================================================
+    "Risc de tempestes severes amb calamarsa de gran tamany, vents forts (>90 km/h) i possible tornado en zones de l'interior i el litoral.": "Riesgo de tormentas severas con granizo de gran tamaño, vientos fuertes (>90 km/h) y posible tornado en zonas del interior y el litoral.",
 
-        // ============================================================
-    // QUI SOM - TRUST BADGES (COMPLET)
+    // ============================================================
+    // QUIÉNES SOMOS - TRUST BADGES (COMPLETO)
     // ============================================================
     "Més de 2 anys": "Más de 2 años",
     "Estem construint-nos com mai! I seguirem molts més anys i millorant!": "¡Nos estamos construyendo como nunca! ¡Y seguiremos muchos más años y mejorando!",
@@ -649,9 +647,8 @@ const traduccions = {
     "Validació diària de les dades": "Validación diaria de los datos",
 };
 
-
 // ============================================================
-// FUNCIÓ PER TRADUIR (només textos, sense tocar HTML)
+// FUNCIÓN PARA TRADUCIR (solo textos, sin tocar HTML)
 // ============================================================
 
 function traduirPagina() {
@@ -704,7 +701,7 @@ function traduirPagina() {
 }
 
 // ============================================================
-// FUNCIÓ PER CANVIAR IDIOMA
+// FUNCIÓN PARA CAMBIAR IDIOMA
 // ============================================================
 
 function canviarIdioma(idioma) {
@@ -718,7 +715,7 @@ function canviarIdioma(idioma) {
 }
 
 // ============================================================
-// ACTUALITZAR BOTÓ D'IDIOMA
+// ACTUALIZAR BOTÓN DE IDIOMA
 // ============================================================
 
 function actualitzarBotoIdioma() {
@@ -735,7 +732,7 @@ function actualitzarBotoIdioma() {
 }
 
 // ============================================================
-// INICIALITZACIÓ
+// INICIALIZACIÓN
 // ============================================================
 
 function initIdioma() {
