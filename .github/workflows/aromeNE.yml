@@ -31,7 +31,7 @@ jobs:
         #   false -> el schedule intern NO s'executa (Cloudflare ja funciona, s'encarrega ell)
         # Els disparaments manuals (workflow_dispatch) SEMPRE s'executen, ignorant aquest flag.
         # ══════════════════════════════════════════════════════
-        USE_INTERNAL_SCHEDULE=true
+        USE_INTERNAL_SCHEDULE=false
 
         if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
           echo "Disparat manualment -> s'executa sempre"
