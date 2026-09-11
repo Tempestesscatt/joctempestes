@@ -1387,6 +1387,7 @@ const ALIES_CLAUS = {
     'TPW__ISOBARIC_700': 'tpw_700',
     'TPW__ISOBARIC_850': 'tpw_850',
     'THETAV__ISOBARIC_850': 'thetav_850',
+    'WIND_SPEED_GUST__SPECIFIC_HEIGHT_LEVEL_ABOVE_GROUND': 'wind_gust',
 };
 
 const CLAU_REAL = {};
@@ -1395,7 +1396,11 @@ Object.entries(ALIES_CLAUS).forEach(([crua, curta]) => {
 });
 
 function normalitzarClau(clauOriginal) {
-    return ALIES_CLAUS[clauOriginal] || clauOriginal;
+    if (ALIES_CLAUS[clauOriginal]) return ALIES_CLAUS[clauOriginal];
+    if (typeof clauOriginal === 'string' && clauOriginal.startsWith('WIND_SPEED_GUST')) {
+        return 'wind_gust';
+    }
+    return clauOriginal;
 }
 
 function clauRealPerLlegir(clauCurta) {
@@ -1475,6 +1480,10 @@ const PALETES = {
     geopotencial_500:{titol:'Geopotencial 500hPa',     unitat:'dam',      stops:STOPS_GEO500},
     temperatura_500:{titol:'Temperatura 500hPa',       unitat:'°C',       stops:STOPS_T500},
     altitud:        {titol:'Altitud',                  unitat:'m',        stops:STOPS_ALTURA_CL},
+    wind_gust:      {titol:'Ratxa 10m (WCS)',          unitat:'km/h',      stops:STOPS_RATXA},
+'WIND_SPEED_GUST__SPECIFIC_HEIGHT_LEVEL_ABOVE_GROUND': {
+    titol: 'Ratxa 10m (WCS)', unitat: 'km/h', stops: STOPS_RATXA
+},
 
     'SNOW_DEPTH__GROUND_OR_WATER_SURFACE': {
         titol: 'Gruix de neu', unitat: 'm', stops: STOPS_NEU
@@ -1609,7 +1618,17 @@ function escalarVariablesMitjana(variables) {
 //  GRUPS DEL PANELL DE PARÀMETRES
 // ═══════════════════════════════════════════════════════════════════════
 
-const GRUP_PRINCIPAL = ['st', 'feels_like',  'temp_min2m', 'temp_max2m','sd', 'srh', 'wind_speed_10m', 'wind_gust'];
+const GRUP_PRINCIPAL = [
+    'st',
+    'feels_like',
+    'temp_min2m',
+    'temp_max2m',
+    'sd',
+    'srh',
+    'wind_speed_10m',
+    'wind_gust',
+    'WIND_SPEED_GUST__SPECIFIC_HEIGHT_LEVEL_ABOVE_GROUND', 
+];
 
 const GRUPS_SIMPLES = {
 
@@ -3715,11 +3734,14 @@ function construirPanellParametres() {
 
     const totesVariables = new Set();
     const infoVariables = {};
-    totesLesHores.forEach(hora => {
-        if (hora.data && hora.data.variables) {
-            Object.keys(hora.data.variables).forEach(clauOriginal => {
-                const clau = normalitzarClau(clauOriginal);
-                totesVariables.add(clau);
+totesLesHores.forEach(hora => {
+    if (hora.data && hora.data.variables) {
+        Object.keys(hora.data.variables).forEach(clauOriginal => {
+            const clau = normalitzarClau(clauOriginal);
+            if (clauOriginal.includes('WIND_SPEED_GUST') || clauOriginal.includes('gust')) {
+                console.log('[DEBUG ratxa]', clauOriginal, '→', clau);
+            }
+            totesVariables.add(clau);
                 if (!infoVariables[clau]) infoVariables[clau] = hora.data.variables[clauOriginal];
             });
         }

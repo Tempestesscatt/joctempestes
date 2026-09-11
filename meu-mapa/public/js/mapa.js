@@ -1,1 +1,5302 @@
-const _0x1ec428=_0x4863;(function(_0x5889ff,_0x501b1a){const _0x185a93=_0x4863,_0x142248=_0x5889ff();while(!![]){try{const _0x98005c=-parseInt(_0x185a93(0x371))/0x1*(parseInt(_0x185a93(0x3e1))/0x2)+parseInt(_0x185a93(0x875))/0x3+-parseInt(_0x185a93(0x54a))/0x4*(-parseInt(_0x185a93(0xec))/0x5)+-parseInt(_0x185a93(0x17e))/0x6+parseInt(_0x185a93(0x873))/0x7+parseInt(_0x185a93(0x6e7))/0x8*(-parseInt(_0x185a93(0x810))/0x9)+-parseInt(_0x185a93(0x2a2))/0xa*(parseInt(_0x185a93(0x67b))/0xb);if(_0x98005c===_0x501b1a)break;else _0x142248['push'](_0x142248['shift']());}catch(_0xcbca03){_0x142248['push'](_0x142248['shift']());}}}(_0x56e3,0x7fa15));const _0x2c8988=(function(){let _0x32bfb6=!![];return function(_0x2fd49b,_0xa5fb52){const _0x2474d7=_0x4863;if('vLbob'==='vLbob'){const _0x55befc=_0x32bfb6?function(){const _0x5ba6bf=_0x4863;if(_0x5ba6bf(0x413)!==_0x5ba6bf(0x413))_0x2dfada['log'](_0x5ba6bf(0x17c)+_0x5ba6bf(0x1bb)+_0x2c203f+(_0x5ba6bf(0x1c4)+'ada\x20a\x20memò'+_0x5ba6bf(0x441)+'o\x20cal\x20torn'+_0x5ba6bf(0x5d7)+_0x5ba6bf(0x4fd)));else{if(_0xa5fb52){const _0x52a027=_0xa5fb52[_0x5ba6bf(0xc4)](_0x2fd49b,arguments);return _0xa5fb52=null,_0x52a027;}}}:function(){};return _0x32bfb6=![],_0x55befc;}else{_0x5dd458['warn']('[Descompre'+_0x2474d7(0x7a2)+_0x2474d7(0x4a3)+_0x2474d7(0x2c8),_0x1c3eea[_0x2474d7(0x13c)]);throw new _0x4661(_0x2474d7(0x54c)+'descomprim'+_0x2474d7(0xd6)+'ir\x20com\x20a\x20J'+'SON');}};}()),_0x53f07a=_0x2c8988(this,function(){const _0x2b5e95=_0x4863;if(_0x53f07a[_0x2b5e95(0x654)]()[_0x2b5e95(0x633)]()[_0x2b5e95(0x7d4)]('\x0a')!==-0x1)return;return _0x53f07a['toString']()['search'](_0x2b5e95(0x4ca)+'+$')[_0x2b5e95(0x633)]()[_0x2b5e95(0x393)+'r'](_0x53f07a)[_0x2b5e95(0x861)](_0x2b5e95(0x4ca)+'+$');});_0x53f07a();const REGION={'name':_0x1ec428(0x226),'lon_min':0.1,'lon_max':3.6,'lat_min':40.4,'lat_max':42.95},MAX_STEPS=0x34;function ambCacheBusterDades(_0x12123f){const _0x48c3fd=_0x1ec428,_0x5c66dd=_0x12123f['includes']('?')?'&':'?';return _0x12123f+_0x5c66dd+_0x48c3fd(0x4df)+Date[_0x48c3fd(0x76b)]();}const DADES_PATH='dades',VARS_SENSE_VENT=[_0x1ec428(0x752),_0x1ec428(0x49e),_0x1ec428(0x32a),'graupel','tp','tgrp',_0x1ec428(0x591),'precip_wat'+'er',_0x1ec428(0x742)+'OUND','NEIGE__GRO'+'UND',_0x1ec428(0x3d3)+_0x1ec428(0x335)+'R_WATER_SU'+_0x1ec428(0x48e),'WATER_EQUI'+'VALENT_ACC'+_0x1ec428(0x4ef)+_0x1ec428(0x26d)+_0x1ec428(0x1a9)+'_SURFACE','HTEURNEIGE'+_0x1ec428(0x646),_0x1ec428(0x5b5)+_0x1ec428(0x692),_0x1ec428(0x58d)+_0x1ec428(0x646),_0x1ec428(0x879)+'E__GROUND',_0x1ec428(0x76c)+_0x1ec428(0x88a)+_0x1ec428(0x4f0)+_0x1ec428(0x737)+_0x1ec428(0x21d),_0x1ec428(0x434)+_0x1ec428(0x17a)+_0x1ec428(0x5e5)+'IN__GROUND'+'_OR_WATER_'+_0x1ec428(0x83d),_0x1ec428(0x76c)+_0x1ec428(0x12d)+_0x1ec428(0x32c)+_0x1ec428(0x737)+_0x1ec428(0x21d),_0x1ec428(0x434)+'CIPITATION'+'_TYPE_15_M'+_0x1ec428(0xb0)+_0x1ec428(0x7b0)+_0x1ec428(0x83d),_0x1ec428(0x5d9)+'IPITATION_'+_0x1ec428(0x35d)+'ND_OR_WATE'+_0x1ec428(0x672),_0x1ec428(0x1ee)+_0x1ec428(0x2d7),_0x1ec428(0x174)+_0x1ec428(0x540),_0x1ec428(0x1fd)+_0x1ec428(0xc0),_0x1ec428(0x1ba)+_0x1ec428(0x7f2)+_0x1ec428(0x1b4)+_0x1ec428(0x4b2)+'CE',_0x1ec428(0x55d)+_0x1ec428(0x646),'PLAFOND__G'+'ROUND','P__BASE_CB',_0x1ec428(0x9d),_0x1ec428(0x1f2)+'sl','sp',_0x1ec428(0x67a),_0x1ec428(0x4da)+_0x1ec428(0x7ed)+_0x1ec428(0x21f)+_0x1ec428(0x84a),_0x1ec428(0x186),'temp_max2m',_0x1ec428(0x3ba),_0x1ec428(0x29b),_0x1ec428(0x176),_0x1ec428(0x206)+'ex','scp','scp_wcs',_0x1ec428(0x3b4),_0x1ec428(0x166),_0x1ec428(0x5b9),_0x1ec428(0x376)+_0x1ec428(0x335)+_0x1ec428(0x398)+_0x1ec428(0x48e),_0x1ec428(0x376)+'__GROUND',_0x1ec428(0x10b)+_0x1ec428(0x692),_0x1ec428(0x887),_0x1ec428(0x5d6),_0x1ec428(0x4e8)+'ff',_0x1ec428(0x184),_0x1ec428(0x30a),_0x1ec428(0x2ae),_0x1ec428(0x568),_0x1ec428(0x83c),'BT__CHANNE'+_0x1ec428(0x818),_0x1ec428(0x2c2)+_0x1ec428(0x7c7),'radar_dbz',_0x1ec428(0x172)+_0x1ec428(0x281),'lightning',_0x1ec428(0x7a6)+'1h',_0x1ec428(0x597)+'TY_MAX__GR'+_0x1ec428(0x518)+_0x1ec428(0x185)+'E',_0x1ec428(0x597)+'TY_MAX_DBZ'+_0x1ec428(0x335)+_0x1ec428(0x398)+'RFACE',_0x1ec428(0x3d8),'spbl',_0x1ec428(0x730)+_0x1ec428(0x793),_0x1ec428(0x1c7)+_0x1ec428(0xf8)+_0x1ec428(0x518)+_0x1ec428(0x185)+'E',_0x1ec428(0x100)+_0x1ec428(0x52c)+_0x1ec428(0x1c3)+_0x1ec428(0x4fa)+_0x1ec428(0x21f)+'URFACE',_0x1ec428(0xc3)+_0x1ec428(0x445),'ALTITUDE_I'+'SOTERMA_M1'+'0C',_0x1ec428(0x673)+_0x1ec428(0x2e4)+'5',_0x1ec428(0x673)+_0x1ec428(0x83f)+_0x1ec428(0x3f3),'ALTITUDE__'+'ISO_TPW_27'+_0x1ec428(0xbd),'ALTITUDE__'+_0x1ec428(0x83f)+_0x1ec428(0x5eb),_0x1ec428(0x323),_0x1ec428(0x7af),_0x1ec428(0x72b)+_0x1ec428(0x56e)+_0x1ec428(0x472)+_0x1ec428(0x68b)+_0x1ec428(0x429),_0x1ec428(0x20a)+'A',_0x1ec428(0x439),_0x1ec428(0x76a)+'50','CIWC_MITJA'+'NA',_0x1ec428(0x6f6)+'ITJANA',_0x1ec428(0x1fe)+'AL_PV1500',_0x1ec428(0x1fe)+_0x1ec428(0x456),_0x1ec428(0x7f9)+'00',_0x1ec428(0x394)+'00',_0x1ec428(0x7c0),_0x1ec428(0x732),_0x1ec428(0x3dc),'V_PV2000',_0x1ec428(0x2e6)+'0',_0x1ec428(0x869)+'0',_0x1ec428(0x294)+_0x1ec428(0x330),_0x1ec428(0x294)+_0x1ec428(0x4ff),'VISIBILITY'+'_MINI_60MI'+_0x1ec428(0x39f)+_0x1ec428(0x21f)+_0x1ec428(0x84a),_0x1ec428(0x2ed)+_0x1ec428(0x192)+'IP_60MIN__'+_0x1ec428(0x472)+_0x1ec428(0x68b)+_0x1ec428(0x429),_0x1ec428(0x2ed)+_0x1ec428(0x45f)+'N__GROUND_'+'OR_WATER_S'+_0x1ec428(0x84a),_0x1ec428(0x2ed)+'_MINI_PREC'+_0x1ec428(0x864)+_0x1ec428(0x472)+'WATER_SURF'+_0x1ec428(0x429),_0x1ec428(0x84c)+_0x1ec428(0x728)];window[_0x1ec428(0x212)+'d']=!![],window[_0x1ec428(0x370)]=_0x1ec428(0x7bc)+'s';const wCfg={'streamlineColor':_0x1ec428(0x709),'streamlineOpacity':0.7,'streamlineWidth':1.2},MAPES_BASE={'osm':{'url':_0x1ec428(0x62e)+_0x1ec428(0x667)+_0x1ec428(0x195)+_0x1ec428(0x97)+'unya/mapa-'+_0x1ec428(0x162)+_0x1ec428(0x65c)+'t/MON3857N'+_0x1ec428(0x106)+_0x1ec428(0x391),'opts':{'attribution':_0x1ec428(0x3e0)+'nStreetMap'+_0x1ec428(0xe1)+_0x1ec428(0x18b),'maxZoom':0x13},'nom':'\x20Mapa\x20orog'+_0x1ec428(0x500)}};let mapaBaseActiva=_0x1ec428(0x5ed);const map=L[_0x1ec428(0x31d)]('map',{'crs':L['CRS']['EPSG3857'],'zoomControl':![],'attributionControl':![],'preferCanvas':!![],'minZoom':0x6,'maxZoom':0x13})['setView']([41.8,1.8],0x8);L[_0x1ec428(0x257)](MAPES_BASE[mapaBaseActiva]['url'],MAPES_BASE[mapaBaseActiva][_0x1ec428(0x33c)])['addTo'](map),map['createPane']('paneDades'),map[_0x1ec428(0x38f)]('paneDades')[_0x1ec428(0x5c7)][_0x1ec428(0x88c)]=0x190,map['getPane']('paneDades')[_0x1ec428(0x5c7)]['pointerEve'+_0x1ec428(0x26e)]=_0x1ec428(0x238),map[_0x1ec428(0x6a9)](_0x1ec428(0x6f9)),map['getPane']('paneVent')[_0x1ec428(0x5c7)][_0x1ec428(0x88c)]=0x1f4,map[_0x1ec428(0x38f)](_0x1ec428(0x6f9))[_0x1ec428(0x5c7)][_0x1ec428(0x1e6)+'nts']=_0x1ec428(0x238),map[_0x1ec428(0x6a9)](_0x1ec428(0x355)+'n'),map[_0x1ec428(0x38f)](_0x1ec428(0x355)+'n')['style'][_0x1ec428(0x88c)]=0x28a,map[_0x1ec428(0x38f)](_0x1ec428(0x355)+'n')[_0x1ec428(0x5c7)][_0x1ec428(0x1e6)+'nts']=_0x1ec428(0x2ef);let capaMapaBase=L[_0x1ec428(0x257)](MAPES_BASE[mapaBaseActiva][_0x1ec428(0x362)],MAPES_BASE[mapaBaseActiva]['opts'])[_0x1ec428(0x3e3)](map);function canviarMapaBase(_0x773551){const _0x514498=_0x1ec428,_0x22fa0b=MAPES_BASE[_0x773551];if(!_0x22fa0b)return;map['removeLaye'+'r'](capaMapaBase),capaMapaBase=L[_0x514498(0x257)](_0x22fa0b[_0x514498(0x362)],_0x22fa0b[_0x514498(0x33c)])[_0x514498(0x3e3)](map),capaMapaBase['bringToBac'+'k'](),mapaBaseActiva=_0x773551;}const STOPS_TEMP=[{'v':-0x18,'r':0x2d,'g':0x0,'b':0x4b},{'v':-0x14,'r':0x82,'g':0x0,'b':0xa0},{'v':-0xf,'r':0x41,'g':0x0,'b':0x73},{'v':-0xa,'r':0x0,'g':0x0,'b':0xff},{'v':-0x5,'r':0x0,'g':0x87,'b':0xff},{'v':0x0,'r':0x0,'g':0xeb,'b':0xff},{'v':0x2,'r':0x0,'g':0xff,'b':0x96},{'v':0x5,'r':0x0,'g':0xc8,'b':0x0},{'v':0x8,'r':0x78,'g':0xff,'b':0x0},{'v':0xb,'r':0xff,'g':0xff,'b':0x0},{'v':0xe,'r':0xff,'g':0xff,'b':0xaa},{'v':0x11,'r':0xff,'g':0xeb,'b':0x64},{'v':0x14,'r':0xff,'g':0xc8,'b':0x0},{'v':0x17,'r':0xff,'g':0x8c,'b':0x0},{'v':0x1a,'r':0xff,'g':0x46,'b':0x0},{'v':0x1d,'r':0xff,'g':0x0,'b':0x0},{'v':0x20,'r':0xb4,'g':0x0,'b':0x0},{'v':0x23,'r':0x5a,'g':0x0,'b':0x0},{'v':0x26,'r':0x96,'g':0x0,'b':0x96},{'v':0x2a,'r':0xff,'g':0x0,'b':0xff},{'v':0x2e,'r':0xff,'g':0xb9,'b':0xff}],STOPS_TEMP_ALT=[{'v':-0x46,'r':0x2d,'g':0x0,'b':0x4b},{'v':-0x37,'r':0x41,'g':0x0,'b':0x73},{'v':-0x28,'r':0x0,'g':0x0,'b':0xff},{'v':-0x1e,'r':0x0,'g':0x87,'b':0xff},{'v':-0x14,'r':0x0,'g':0xeb,'b':0xff},{'v':-0xa,'r':0x0,'g':0xff,'b':0x96},{'v':0x0,'r':0x0,'g':0xc8,'b':0x0},{'v':0x5,'r':0x78,'g':0xff,'b':0x0},{'v':0xa,'r':0xff,'g':0xff,'b':0x0},{'v':0xf,'r':0xff,'g':0xc8,'b':0x0},{'v':0x14,'r':0xff,'g':0x8c,'b':0x0},{'v':0x19,'r':0xff,'g':0x46,'b':0x0},{'v':0x1e,'r':0xff,'g':0x0,'b':0x0},{'v':0x26,'r':0x96,'g':0x0,'b':0x96}],STOPS_VENT=[{'v':0x0,'r':0xc8,'g':0xc8,'b':0xff},{'v':0x5,'r':0x96,'g':0xc8,'b':0xff},{'v':0xa,'r':0x64,'g':0xb4,'b':0xff},{'v':0xf,'r':0x0,'g':0x96,'b':0xff},{'v':0x14,'r':0x0,'g':0xc8,'b':0xdc},{'v':0x19,'r':0x0,'g':0xdc,'b':0xb4},{'v':0x1e,'r':0x0,'g':0xff,'b':0x64},{'v':0x23,'r':0x32,'g':0xff,'b':0x0},{'v':0x28,'r':0x96,'g':0xff,'b':0x0},{'v':0x2d,'r':0xdc,'g':0xff,'b':0x0},{'v':0x32,'r':0xff,'g':0xff,'b':0x0},{'v':0x37,'r':0xff,'g':0xe6,'b':0x0},{'v':0x3c,'r':0xff,'g':0xc8,'b':0x0},{'v':0x41,'r':0xff,'g':0xaa,'b':0x0},{'v':0x46,'r':0xff,'g':0x8c,'b':0x0},{'v':0x4b,'r':0xff,'g':0x6e,'b':0x0},{'v':0x50,'r':0xff,'g':0x50,'b':0x0},{'v':0x55,'r':0xff,'g':0x32,'b':0x0},{'v':0x5a,'r':0xff,'g':0x14,'b':0x0},{'v':0x5f,'r':0xff,'g':0x0,'b':0x0},{'v':0x64,'r':0xe6,'g':0x0,'b':0x0},{'v':0x6e,'r':0xd2,'g':0x0,'b':0x0},{'v':0x78,'r':0xbe,'g':0x0,'b':0x1e},{'v':0x82,'r':0xaa,'g':0x0,'b':0x3c},{'v':0x8c,'r':0x96,'g':0x0,'b':0x64},{'v':0x96,'r':0x82,'g':0x0,'b':0x8c},{'v':0xa0,'r':0xb4,'g':0x0,'b':0xb4},{'v':0xaa,'r':0xc8,'g':0x0,'b':0xc8},{'v':0xb4,'r':0xdc,'g':0x14,'b':0xdc},{'v':0xbe,'r':0xf0,'g':0x32,'b':0xf0},{'v':0xc8,'r':0xfa,'g':0x64,'b':0xfa},{'v':0xdc,'r':0xff,'g':0x96,'b':0xff},{'v':0xf0,'r':0xff,'g':0xc8,'b':0xff},{'v':0x104,'r':0xff,'g':0xdc,'b':0xff},{'v':0x118,'r':0xff,'g':0xf0,'b':0xff},{'v':0x12c,'r':0xff,'g':0xff,'b':0xff}],STOPS_VENT_UV=[{'v':-0x3c,'r':0xff,'g':0x0,'b':0xff},{'v':-0x28,'r':0xc8,'g':0x0,'b':0xc8},{'v':-0x14,'r':0x64,'g':0x0,'b':0xc8},{'v':-0xa,'r':0x0,'g':0x64,'b':0xff},{'v':0x0,'r':0xff,'g':0xff,'b':0xff},{'v':0xa,'r':0xff,'g':0x64,'b':0x0},{'v':0x14,'r':0xc8,'g':0x0,'b':0x64},{'v':0x28,'r':0xc8,'g':0x0,'b':0x0},{'v':0x3c,'r':0x64,'g':0x0,'b':0x0}],STOPS_HUMITAT=[{'v':0x0,'r':0xc8,'g':0xbe,'b':0x96,'a':0xff},{'v':0x3,'r':0xc3,'g':0xbe,'b':0x91,'a':0xff},{'v':0x5,'r':0xbe,'g':0xbe,'b':0x8c,'a':0xff},{'v':0x8,'r':0xb9,'g':0xc0,'b':0x87,'a':0xff},{'v':0xa,'r':0xb4,'g':0xc3,'b':0x82,'a':0xff},{'v':0xc,'r':0xaf,'g':0xc6,'b':0x80,'a':0xff},{'v':0xf,'r':0xaa,'g':0xc8,'b':0x7d,'a':0xff},{'v':0x12,'r':0xa5,'g':0xcb,'b':0x7a,'a':0xff},{'v':0x14,'r':0x9e,'g':0xd0,'b':0x76,'a':0xff},{'v':0x17,'r':0x96,'g':0xd4,'b':0x73,'a':0xff},{'v':0x19,'r':0x8e,'g':0xd8,'b':0x70,'a':0xff},{'v':0x1c,'r':0x86,'g':0xdc,'b':0x6e,'a':0xff},{'v':0x1e,'r':0x7e,'g':0xe0,'b':0x6c,'a':0xff},{'v':0x21,'r':0x76,'g':0xe4,'b':0x6e,'a':0xff},{'v':0x23,'r':0x6e,'g':0xe6,'b':0x73,'a':0xff},{'v':0x26,'r':0x66,'g':0xe8,'b':0x7a,'a':0xff},{'v':0x28,'r':0x5e,'g':0xea,'b':0x82,'a':0xff},{'v':0x2a,'r':0x56,'g':0xea,'b':0x8c,'a':0xff},{'v':0x2d,'r':0x4e,'g':0xea,'b':0x96,'a':0xff},{'v':0x30,'r':0x46,'g':0xea,'b':0xa2,'a':0xff},{'v':0x32,'r':0x40,'g':0xe8,'b':0xae,'a':0xff},{'v':0x34,'r':0x3a,'g':0xe6,'b':0xba,'a':0xff},{'v':0x37,'r':0x34,'g':0xe2,'b':0xc4,'a':0xff},{'v':0x39,'r':0x30,'g':0xdc,'b':0xce,'a':0xff},{'v':0x3c,'r':0x2c,'g':0xd6,'b':0xd8,'a':0xff},{'v':0x3e,'r':0x2a,'g':0xce,'b':0xe0,'a':0xff},{'v':0x41,'r':0x28,'g':0xc4,'b':0xe6,'a':0xff},{'v':0x44,'r':0x26,'g':0xb8,'b':0xec,'a':0xff},{'v':0x46,'r':0x24,'g':0xac,'b':0xf0,'a':0xff},{'v':0x48,'r':0x24,'g':0x9e,'b':0xf4,'a':0xff},{'v':0x4b,'r':0x26,'g':0x90,'b':0xf8,'a':0xff},{'v':0x4e,'r':0x28,'g':0x82,'b':0xf8,'a':0xff},{'v':0x50,'r':0x2c,'g':0x74,'b':0xf8,'a':0xff},{'v':0x53,'r':0x32,'g':0x66,'b':0xf8,'a':0xff},{'v':0x55,'r':0x3a,'g':0x58,'b':0xf6,'a':0xff},{'v':0x58,'r':0x42,'g':0x4a,'b':0xf4,'a':0xff},{'v':0x5a,'r':0x4c,'g':0x3e,'b':0xf0,'a':0xff},{'v':0x5c,'r':0x58,'g':0x34,'b':0xec,'a':0xff},{'v':0x5e,'r':0x64,'g':0x2c,'b':0xe6,'a':0xff},{'v':0x5f,'r':0x70,'g':0x26,'b':0xe0,'a':0xff},{'v':0x60,'r':0x7c,'g':0x22,'b':0xda,'a':0xff},{'v':0x61,'r':0x88,'g':0x1e,'b':0xd2,'a':0xff},{'v':0x62,'r':0x94,'g':0x1c,'b':0xc8,'a':0xff},{'v':0x63,'r':0x9e,'g':0x1c,'b':0xbe,'a':0xff},{'v':0x64,'r':0xa8,'g':0x1e,'b':0xb2,'a':0xff}],STOPS_PRESSIO=[{'v':0x3d4,'r':0x0,'g':0x0,'b':0xc8},{'v':0x3de,'r':0x0,'g':0x64,'b':0xff},{'v':0x3e3,'r':0x0,'g':0xc8,'b':0xff},{'v':0x3e8,'r':0x64,'g':0xff,'b':0xc8},{'v':0x3ed,'r':0xff,'g':0xff,'b':0x96},{'v':0x3f2,'r':0xff,'g':0xc8,'b':0x64},{'v':0x3f7,'r':0xff,'g':0x96,'b':0x32},{'v':0x3fc,'r':0xff,'g':0x50,'b':0x0},{'v':0x401,'r':0xc8,'g':0x1e,'b':0x0},{'v':0x406,'r':0x96,'g':0x0,'b':0x0},{'v':0x410,'r':0x64,'g':0x0,'b':0x32}],STOPS_CAPE=[{'v':0x0,'r':0x4f,'g':0xc3,'b':0xf7,'a':0xff},{'v':0x64,'r':0x32,'g':0xaa,'b':0xf0,'a':0xff},{'v':0x12c,'r':0x0,'g':0x8c,'b':0xff,'a':0xff},{'v':0x1f4,'r':0x0,'g':0xc8,'b':0xff,'a':0xff},{'v':0x2bc,'r':0x0,'g':0xff,'b':0xc8,'a':0xff},{'v':0x384,'r':0x78,'g':0xff,'b':0x50,'a':0xff},{'v':0x44c,'r':0xdc,'g':0xff,'b':0x0,'a':0xff},{'v':0x514,'r':0xff,'g':0xff,'b':0x0,'a':0xff},{'v':0x5dc,'r':0xff,'g':0xc8,'b':0x0,'a':0xff},{'v':0x708,'r':0xff,'g':0x8c,'b':0x0,'a':0xff},{'v':0x834,'r':0xff,'g':0x3c,'b':0x0,'a':0xff},{'v':0x960,'r':0xff,'g':0x0,'b':0x0,'a':0xff},{'v':0xaf0,'r':0xff,'g':0x0,'b':0x8c,'a':0xff},{'v':0xc80,'r':0xff,'g':0x0,'b':0xdc,'a':0xff},{'v':0xed8,'r':0xc8,'g':0x0,'b':0xff,'a':0xff}],STOPS_RADAR=[{'v':-0xa,'r':0x0,'g':0x0,'b':0x0,'a':0x0},{'v':-0x5,'r':0x0,'g':0x0,'b':0x0,'a':0x0},{'v':0x0,'r':0x0,'g':0x0,'b':0x0,'a':0x0},{'v':0x5,'r':0x0,'g':0xec,'b':0xec,'a':0xc8},{'v':0xa,'r':0x0,'g':0xa0,'b':0xf6,'a':0xd7},{'v':0xf,'r':0x0,'g':0x0,'b':0xf6,'a':0xe1},{'v':0x14,'r':0x0,'g':0xff,'b':0x0,'a':0xe6},{'v':0x19,'r':0x0,'g':0xc8,'b':0x0,'a':0xeb},{'v':0x1e,'r':0x0,'g':0x8c,'b':0x0,'a':0xee},{'v':0x23,'r':0xff,'g':0xff,'b':0x0,'a':0xf0},{'v':0x28,'r':0xff,'g':0xc8,'b':0x0,'a':0xf2},{'v':0x2d,'r':0xff,'g':0x78,'b':0x0,'a':0xf5},{'v':0x32,'r':0xff,'g':0x0,'b':0x0,'a':0xf8},{'v':0x37,'r':0xc8,'g':0x0,'b':0x0,'a':0xfa},{'v':0x3c,'r':0xff,'g':0x0,'b':0xff,'a':0xfc},{'v':0x41,'r':0xb4,'g':0x0,'b':0xdc,'a':0xfe},{'v':0x46,'r':0x64,'g':0x0,'b':0xc8,'a':0xff},{'v':0x4b,'r':0xff,'g':0xff,'b':0xff,'a':0xff}],STOPS_BT108=[{'v':-0x50,'r':0xb4,'g':0x0,'b':0x0},{'v':-0x4b,'r':0xd2,'g':0x0,'b':0x0},{'v':-0x48,'r':0xf0,'g':0x0,'b':0x0},{'v':-0x46,'r':0xff,'g':0x0,'b':0x0},{'v':-0x44,'r':0xff,'g':0x1e,'b':0x0},{'v':-0x42,'r':0xff,'g':0x3c,'b':0x0},{'v':-0x41,'r':0xff,'g':0x5a,'b':0x0},{'v':-0x3f,'r':0xff,'g':0x78,'b':0x0},{'v':-0x3d,'r':0xff,'g':0x96,'b':0x0},{'v':-0x3c,'r':0xff,'g':0xb4,'b':0x0},{'v':-0x3a,'r':0xff,'g':0xc8,'b':0x0},{'v':-0x37,'r':0xff,'g':0xdc,'b':0x0},{'v':-0x35,'r':0xf0,'g':0xdc,'b':0x32},{'v':-0x32,'r':0xdc,'g':0xd7,'b':0x64},{'v':-0x30,'r':0xc8,'g':0xd2,'b':0x8c},{'v':-0x2d,'r':0xb4,'g':0xcd,'b':0xaa},{'v':-0x2a,'r':0xa0,'g':0xc8,'b':0xbe},{'v':-0x28,'r':0x91,'g':0xc3,'b':0xc8},{'v':-0x26,'r':0x82,'g':0xbe,'b':0xcd},{'v':-0x23,'r':0x73,'g':0xb9,'b':0xd2},{'v':-0x20,'r':0x64,'g':0xb4,'b':0xd2},{'v':-0x1d,'r':0x5a,'g':0xaa,'b':0xc8},{'v':-0x1a,'r':0x50,'g':0xa0,'b':0xbe},{'v':-0x17,'r':0x46,'g':0x96,'b':0xb4},{'v':-0x14,'r':0x3c,'g':0x8c,'b':0xaa},{'v':-0x11,'r':0x37,'g':0x82,'b':0xa0},{'v':-0xe,'r':0x32,'g':0x78,'b':0x96},{'v':-0xb,'r':0x2d,'g':0x6e,'b':0x8c},{'v':-0x8,'r':0x28,'g':0x64,'b':0x82},{'v':-0x5,'r':0x26,'g':0x5a,'b':0x78},{'v':-0x2,'r':0x23,'g':0x50,'b':0x6e},{'v':0x0,'r':0xc8,'g':0xc8,'b':0xc8},{'v':0x2,'r':0xbe,'g':0xbe,'b':0xbe},{'v':0x4,'r':0xb4,'g':0xb4,'b':0xb4},{'v':0x6,'r':0xaa,'g':0xaa,'b':0xaa},{'v':0x8,'r':0xa0,'g':0xa0,'b':0xa0},{'v':0xa,'r':0x96,'g':0x96,'b':0x96},{'v':0xc,'r':0x8c,'g':0x8c,'b':0x8c},{'v':0xe,'r':0x82,'g':0x82,'b':0x82},{'v':0x10,'r':0x78,'g':0x78,'b':0x78},{'v':0x12,'r':0x6e,'g':0x6e,'b':0x6e},{'v':0x14,'r':0x64,'g':0x64,'b':0x64},{'v':0x16,'r':0x5a,'g':0x5a,'b':0x5a},{'v':0x18,'r':0x50,'g':0x50,'b':0x50},{'v':0x1a,'r':0x46,'g':0x46,'b':0x46},{'v':0x1c,'r':0x3c,'g':0x3c,'b':0x3c},{'v':0x1e,'r':0x37,'g':0x37,'b':0x37},{'v':0x20,'r':0x32,'g':0x32,'b':0x32},{'v':0x23,'r':0x2d,'g':0x2d,'b':0x2d},{'v':0x26,'r':0x28,'g':0x28,'b':0x28},{'v':0x28,'r':0x23,'g':0x23,'b':0x23},{'v':0x2a,'r':0x1e,'g':0x1e,'b':0x1e},{'v':0x2d,'r':0x19,'g':0x19,'b':0x19},{'v':0x30,'r':0x14,'g':0x14,'b':0x14},{'v':0x32,'r':0xf,'g':0xf,'b':0xf}],STOPS_BT62=[{'v':0x14,'r':0x0,'g':0x0,'b':0x0},{'v':0xf,'r':0xf,'g':0xf,'b':0xf},{'v':0xa,'r':0x20,'g':0x20,'b':0x20},{'v':0x5,'r':0x34,'g':0x34,'b':0x34},{'v':0x0,'r':0x4b,'g':0x4b,'b':0x4b},{'v':-0x5,'r':0x62,'g':0x62,'b':0x62},{'v':-0xa,'r':0x78,'g':0x78,'b':0x78},{'v':-0xf,'r':0x8e,'g':0x8e,'b':0x8e},{'v':-0x14,'r':0xa3,'g':0xa3,'b':0xa3},{'v':-0x19,'r':0xb6,'g':0xb6,'b':0xb6},{'v':-0x1e,'r':0xc8,'g':0xc8,'b':0xc8},{'v':-0x23,'r':0xd8,'g':0xd8,'b':0xd8},{'v':-0x28,'r':0xe6,'g':0xe6,'b':0xe6},{'v':-0x2d,'r':0xf4,'g':0xf4,'b':0xf4},{'v':-0x32,'r':0xff,'g':0xff,'b':0xff},{'v':-0x35,'r':0xff,'g':0xff,'b':0xff},{'v':-0x37,'r':0xff,'g':0xff,'b':0x0},{'v':-0x39,'r':0xff,'g':0xdc,'b':0x0},{'v':-0x3b,'r':0xff,'g':0xb4,'b':0x0},{'v':-0x3d,'r':0xff,'g':0x8c,'b':0x0},{'v':-0x3f,'r':0xff,'g':0x64,'b':0x0},{'v':-0x41,'r':0xff,'g':0x3c,'b':0x0},{'v':-0x44,'r':0xff,'g':0x14,'b':0x0},{'v':-0x47,'r':0xe6,'g':0x0,'b':0x0},{'v':-0x4b,'r':0xc8,'g':0x0,'b':0x0},{'v':-0x50,'r':0xa0,'g':0x0,'b':0x14},{'v':-0x55,'r':0x78,'g':0x0,'b':0x28}],STOPS_EHI=[{'v':0x0,'r':0xff,'g':0xff,'b':0xff,'a':0x1e},{'v':0.5,'r':0xc8,'g':0xdc,'b':0xff,'a':0x50},{'v':0x1,'r':0x96,'g':0xc8,'b':0xff,'a':0x78},{'v':0x2,'r':0x50,'g':0xb4,'b':0xff,'a':0xa0},{'v':0x3,'r':0x0,'g':0x96,'b':0xff,'a':0xbe},{'v':0x4,'r':0x0,'g':0xc8,'b':0xff,'a':0xd2},{'v':0x5,'r':0x0,'g':0xf0,'b':0xc8,'a':0xdc},{'v':0x7,'r':0x0,'g':0xff,'b':0x64,'a':0xe6},{'v':0x9,'r':0x64,'g':0xff,'b':0x0,'a':0xeb},{'v':0xb,'r':0xc8,'g':0xff,'b':0x0,'a':0xf0},{'v':0xd,'r':0xff,'g':0xff,'b':0x0,'a':0xf2},{'v':0x10,'r':0xff,'g':0xc8,'b':0x0,'a':0xf5},{'v':0x14,'r':0xff,'g':0x8c,'b':0x0,'a':0xf8},{'v':0x19,'r':0xff,'g':0x50,'b':0x0,'a':0xfa},{'v':0x1e,'r':0xff,'g':0x14,'b':0x0,'a':0xfc},{'v':0x28,'r':0xdc,'g':0x0,'b':0x3c,'a':0xfe},{'v':0x32,'r':0xb4,'g':0x0,'b':0x8c,'a':0xff},{'v':0x46,'r':0x8c,'g':0x0,'b':0xc8,'a':0xff},{'v':0x64,'r':0x64,'g':0x0,'b':0xff,'a':0xff}],STOPS_STP=[{'v':0x0,'r':0xff,'g':0xff,'b':0xff,'a':0xff},{'v':0.57,'r':0xd2,'g':0xe9,'b':0xff,'a':0xff},{'v':1.16,'r':0x75,'g':0xba,'b':0xff,'a':0xff},{'v':1.74,'r':0x4,'g':0x82,'b':0xff,'a':0xff},{'v':2.33,'r':0x0,'g':0x69,'b':0xd2,'a':0xff},{'v':2.93,'r':0x0,'g':0x36,'b':0x7f,'a':0xff},{'v':3.51,'r':0x14,'g':0x8f,'b':0x1b,'a':0xff},{'v':4.11,'r':0x63,'g':0xed,'b':0x7,'a':0xff},{'v':4.7,'r':0xff,'g':0xf4,'b':0x2b,'a':0xff},{'v':5.28,'r':0xe8,'g':0xdc,'b':0x0,'a':0xff},{'v':5.88,'r':0xff,'g':0x7f,'b':0x27,'a':0xff},{'v':6.46,'r':0xf7,'g':0x1e,'b':0x54,'a':0xff},{'v':7.06,'r':0x88,'g':0x0,'b':0x0,'a':0xff},{'v':7.65,'r':0x64,'g':0x0,'b':0x7f,'a':0xff},{'v':8.24,'r':0xc2,'g':0x0,'b':0xfb,'a':0xff},{'v':8.83,'r':0xdd,'g':0x66,'b':0xff,'a':0xff},{'v':9.41,'r':0xeb,'g':0xa6,'b':0xff,'a':0xff},{'v':0xa,'r':0xf5,'g':0xc8,'b':0xff,'a':0xff}],STOPS_GEL=[{'v':0x0,'r':0xff,'g':0xff,'b':0xff,'a':0x0},{'v':0.01,'r':0xf0,'g':0xf5,'b':0xff,'a':0x1e},{'v':0.05,'r':0xdc,'g':0xeb,'b':0xff,'a':0x3c},{'v':0.1,'r':0xc8,'g':0xdc,'b':0xff,'a':0x5a},{'v':0.2,'r':0xaa,'g':0xc8,'b':0xff,'a':0x78},{'v':0.3,'r':0x8c,'g':0xb4,'b':0xff,'a':0x96},{'v':0.5,'r':0x64,'g':0x96,'b':0xff,'a':0xb4},{'v':0.7,'r':0x3c,'g':0x78,'b':0xff,'a':0xc8},{'v':0x1,'r':0x0,'g':0x50,'b':0xff,'a':0xd7},{'v':1.5,'r':0x0,'g':0x28,'b':0xe6,'a':0xe6},{'v':0x2,'r':0x0,'g':0x0,'b':0xc8,'a':0xf0},{'v':0x3,'r':0x3c,'g':0x0,'b':0xc8,'a':0xf8},{'v':0x5,'r':0x8c,'g':0x0,'b':0xc8,'a':0xfc},{'v':0x8,'r':0xc8,'g':0x0,'b':0xb4,'a':0xff},{'v':0xc,'r':0xff,'g':0x0,'b':0x8c,'a':0xff},{'v':0x14,'r':0xff,'g':0x0,'b':0x3c,'a':0xff},{'v':0x1e,'r':0xc8,'g':0x0,'b':0x0,'a':0xff}],STOPS_TPW=[{'v':0x0,'r':0xff,'g':0xff,'b':0xff},{'v':0x2,'r':0xc8,'g':0xff,'b':0xc8},{'v':0x4,'r':0x64,'g':0xff,'b':0x64},{'v':0x6,'r':0x0,'g':0xff,'b':0x32},{'v':0x8,'r':0x0,'g':0xff,'b':0x0},{'v':0xa,'r':0x96,'g':0xff,'b':0x0},{'v':0xc,'r':0xff,'g':0xff,'b':0x0},{'v':0xe,'r':0xff,'g':0xe6,'b':0x0},{'v':0x10,'r':0xff,'g':0xc8,'b':0x0},{'v':0x12,'r':0xff,'g':0xaa,'b':0x0},{'v':0x14,'r':0xff,'g':0x8c,'b':0x0},{'v':0x16,'r':0xff,'g':0x6e,'b':0x0},{'v':0x18,'r':0xff,'g':0x50,'b':0x0},{'v':0x1a,'r':0xff,'g':0x32,'b':0x0},{'v':0x1c,'r':0xff,'g':0x14,'b':0x0},{'v':0x1e,'r':0xff,'g':0x0,'b':0x0},{'v':0x20,'r':0xf0,'g':0x0,'b':0x14},{'v':0x22,'r':0xdc,'g':0x0,'b':0x32},{'v':0x24,'r':0xc8,'g':0x0,'b':0x50},{'v':0x26,'r':0xb4,'g':0x0,'b':0x6e},{'v':0x28,'r':0xa0,'g':0x0,'b':0x8c},{'v':0x2a,'r':0x8c,'g':0x0,'b':0xaa},{'v':0x2c,'r':0x78,'g':0x0,'b':0xc8},{'v':0x2e,'r':0x64,'g':0x0,'b':0xe6},{'v':0x30,'r':0x50,'g':0x0,'b':0xff},{'v':0x32,'r':0x3c,'g':0x14,'b':0xff},{'v':0x34,'r':0x28,'g':0x28,'b':0xe6},{'v':0x36,'r':0x14,'g':0x3c,'b':0xc8},{'v':0x38,'r':0x0,'g':0x50,'b':0xb4},{'v':0x3a,'r':0x0,'g':0x3c,'b':0x96},{'v':0x3c,'r':0x0,'g':0x28,'b':0x78},{'v':0x3e,'r':0x0,'g':0x14,'b':0x5a},{'v':0x40,'r':0x0,'g':0xa,'b':0x3c},{'v':0x42,'r':0x0,'g':0x0,'b':0x28},{'v':0x46,'r':0x0,'g':0x0,'b':0x14},{'v':0x4b,'r':0x0,'g':0x0,'b':0xa},{'v':0x50,'r':0x0,'g':0x0,'b':0x5}],STOPS_THETAV=[{'v':-0x18,'r':0x2d,'g':0x0,'b':0x4b},{'v':-0x14,'r':0x82,'g':0x0,'b':0xa0},{'v':-0xf,'r':0x41,'g':0x0,'b':0x73},{'v':-0xa,'r':0x0,'g':0x0,'b':0xff},{'v':-0x5,'r':0x0,'g':0x87,'b':0xff},{'v':0x0,'r':0x0,'g':0xeb,'b':0xff},{'v':0x2,'r':0x0,'g':0xff,'b':0x96},{'v':0x5,'r':0x0,'g':0xc8,'b':0x0},{'v':0x8,'r':0x78,'g':0xff,'b':0x0},{'v':0xb,'r':0xff,'g':0xff,'b':0x0},{'v':0xe,'r':0xff,'g':0xff,'b':0xaa},{'v':0x11,'r':0xff,'g':0xeb,'b':0x64},{'v':0x14,'r':0xff,'g':0xc8,'b':0x0},{'v':0x17,'r':0xff,'g':0x8c,'b':0x0},{'v':0x1a,'r':0xff,'g':0x46,'b':0x0},{'v':0x1d,'r':0xff,'g':0x0,'b':0x0},{'v':0x20,'r':0xb4,'g':0x0,'b':0x0},{'v':0x23,'r':0x5a,'g':0x0,'b':0x0},{'v':0x26,'r':0x96,'g':0x0,'b':0x96},{'v':0x2a,'r':0xff,'g':0x0,'b':0xff},{'v':0x2e,'r':0xff,'g':0xb9,'b':0xff}],STOPS_PLUJA=[{'v':0x0,'r':0xff,'g':0xff,'b':0xff,'a':0x0},{'v':0.01,'r':0xf0,'g':0xf8,'b':0xff,'a':0x1e},{'v':0.05,'r':0xdc,'g':0xf0,'b':0xff,'a':0x3c},{'v':0.1,'r':0xc8,'g':0xe6,'b':0xff,'a':0x5a},{'v':0.2,'r':0xaa,'g':0xd2,'b':0xff,'a':0x78},{'v':0.3,'r':0x8c,'g':0xbe,'b':0xff,'a':0x96},{'v':0.5,'r':0x64,'g':0xaa,'b':0xff,'a':0xb4},{'v':0.7,'r':0x32,'g':0xc8,'b':0xff,'a':0xc8},{'v':0x1,'r':0x0,'g':0xdc,'b':0xff,'a':0xd7},{'v':1.5,'r':0x0,'g':0xf0,'b':0xc8,'a':0xe6},{'v':0x2,'r':0x0,'g':0xff,'b':0x8c,'a':0xf0},{'v':0x3,'r':0x64,'g':0xff,'b':0x50,'a':0xf8},{'v':0x4,'r':0xb4,'g':0xff,'b':0x14,'a':0xfc},{'v':0x5,'r':0xff,'g':0xff,'b':0x0,'a':0xff},{'v':0x7,'r':0xff,'g':0xdc,'b':0x0,'a':0xff},{'v':0xa,'r':0xff,'g':0xb4,'b':0x0,'a':0xff},{'v':0xf,'r':0xff,'g':0x8c,'b':0x0,'a':0xff},{'v':0x14,'r':0xff,'g':0x64,'b':0x0,'a':0xff},{'v':0x1e,'r':0xff,'g':0x3c,'b':0x0,'a':0xff},{'v':0x32,'r':0xc8,'g':0x0,'b':0x0,'a':0xff}],STOPS_LLAMPS_V2=[{'v':0x0,'r':0x0,'g':0x0,'b':0x0,'a':0x0},{'v':0.01,'r':0xff,'g':0xff,'b':0xc8,'a':0x50},{'v':0.05,'r':0xff,'g':0xff,'b':0x96,'a':0x78},{'v':0.1,'r':0xff,'g':0xff,'b':0x64,'a':0xa0},{'v':0.2,'r':0xff,'g':0xff,'b':0x32,'a':0xc8},{'v':0.5,'r':0xff,'g':0xff,'b':0x0,'a':0xdc},{'v':0x1,'r':0xff,'g':0xdc,'b':0x0,'a':0xe6},{'v':0x2,'r':0xff,'g':0xb4,'b':0x0,'a':0xeb},{'v':0x5,'r':0xff,'g':0x78,'b':0x0,'a':0xf0},{'v':0xa,'r':0xff,'g':0x3c,'b':0x0,'a':0xf5},{'v':0xf,'r':0xff,'g':0x0,'b':0x0,'a':0xfa},{'v':0x19,'r':0xe6,'g':0x0,'b':0x1e,'a':0xfc},{'v':0x28,'r':0xc8,'g':0x0,'b':0x50,'a':0xfe},{'v':0x3c,'r':0xaa,'g':0x0,'b':0x96,'a':0xff},{'v':0x50,'r':0x8c,'g':0x0,'b':0xc8,'a':0xff},{'v':0x64,'r':0x64,'g':0x0,'b':0xff,'a':0xff},{'v':0x96,'r':0x3c,'g':0x0,'b':0xc8,'a':0xff},{'v':0xc8,'r':0x1e,'g':0x0,'b':0x96,'a':0xff}],STOPS_CIN=[{'v':-0x1f4,'r':0x0,'g':0x0,'b':0xb4},{'v':-0xc8,'r':0x0,'g':0x50,'b':0xff},{'v':-0x64,'r':0x0,'g':0xb4,'b':0xff},{'v':-0x32,'r':0x64,'g':0xdc,'b':0xff},{'v':0x0,'r':0xc8,'g':0xc8,'b':0xc8},{'v':0x32,'r':0xff,'g':0xdc,'b':0x64},{'v':0x64,'r':0xff,'g':0x96,'b':0x0},{'v':0xc8,'r':0xc8,'g':0x32,'b':0x0},{'v':0x1f4,'r':0x96,'g':0x0,'b':0x0}],STOPS_NUVOLS_ALTS=[{'v':0x0,'r':0x0,'g':0x0,'b':0x0,'a':0x0},{'v':0xa,'r':0xff,'g':0xff,'b':0xe6,'a':0xa0},{'v':0x14,'r':0xff,'g':0xff,'b':0xd2,'a':0xaf},{'v':0x1e,'r':0xff,'g':0xff,'b':0xbe,'a':0xbe},{'v':0x28,'r':0xff,'g':0xff,'b':0xa0,'a':0xc8},{'v':0x32,'r':0xff,'g':0xff,'b':0x82,'a':0xd2},{'v':0x3c,'r':0xff,'g':0xff,'b':0x64,'a':0xd7},{'v':0x46,'r':0xff,'g':0xff,'b':0x3c,'a':0xdc},{'v':0x50,'r':0xff,'g':0xff,'b':0x14,'a':0xe6},{'v':0x5a,'r':0xff,'g':0xf5,'b':0x0,'a':0xeb},{'v':0x64,'r':0xff,'g':0xeb,'b':0x0,'a':0xf0}],STOPS_NUVOLS_MITJANS=[{'v':0x0,'r':0x0,'g':0x0,'b':0x0,'a':0x0},{'v':0xa,'r':0xe6,'g':0xd2,'b':0xff,'a':0xa0},{'v':0x14,'r':0xd7,'g':0xbe,'b':0xfa,'a':0xaf},{'v':0x1e,'r':0xc8,'g':0xaa,'b':0xf5,'a':0xbe},{'v':0x28,'r':0xb9,'g':0x91,'b':0xf0,'a':0xc8},{'v':0x32,'r':0xaa,'g':0x78,'b':0xeb,'a':0xd2},{'v':0x3c,'r':0x9b,'g':0x5f,'b':0xe6,'a':0xd7},{'v':0x46,'r':0x8c,'g':0x46,'b':0xe1,'a':0xdc},{'v':0x50,'r':0x7d,'g':0x2d,'b':0xdc,'a':0xe6},{'v':0x5a,'r':0x6e,'g':0x14,'b':0xd7,'a':0xeb},{'v':0x64,'r':0x5f,'g':0x0,'b':0xd2,'a':0xf0}],STOPS_NUVOLS_BAIXOS=[{'v':0x0,'r':0x0,'g':0x0,'b':0x0,'a':0x0},{'v':0xa,'r':0xff,'g':0xc8,'b':0xc8,'a':0xa0},{'v':0x14,'r':0xff,'g':0xaf,'b':0xaf,'a':0xaf},{'v':0x1e,'r':0xff,'g':0x91,'b':0x91,'a':0xbe},{'v':0x28,'r':0xff,'g':0x73,'b':0x73,'a':0xc8},{'v':0x32,'r':0xff,'g':0x50,'b':0x50,'a':0xd2},{'v':0x3c,'r':0xff,'g':0x32,'b':0x32,'a':0xd7},{'v':0x46,'r':0xf0,'g':0x14,'b':0x14,'a':0xdc},{'v':0x50,'r':0xdc,'g':0x0,'b':0x0,'a':0xe6},{'v':0x5a,'r':0xbe,'g':0x0,'b':0x0,'a':0xeb},{'v':0x64,'r':0xa0,'g':0x0,'b':0x0,'a':0xf0}],STOPS_ALTURA_CL=[{'v':0x0,'r':0xa,'g':0xa,'b':0x28,'a':0xff},{'v':0x32,'r':0xf,'g':0x14,'b':0x3c,'a':0xff},{'v':0x64,'r':0x14,'g':0x23,'b':0x5a,'a':0xff},{'v':0x96,'r':0x19,'g':0x37,'b':0x78,'a':0xff},{'v':0xc8,'r':0x1e,'g':0x4b,'b':0x96,'a':0xff},{'v':0xfa,'r':0x28,'g':0x5f,'b':0xb4,'a':0xff},{'v':0x12c,'r':0x37,'g':0x73,'b':0xc8,'a':0xff},{'v':0x15e,'r':0x46,'g':0x87,'b':0xd7,'a':0xff},{'v':0x190,'r':0x55,'g':0x9b,'b':0xe6,'a':0xff},{'v':0x1f4,'r':0x64,'g':0xaf,'b':0xf0,'a':0xff},{'v':0x258,'r':0x73,'g':0xbe,'b':0xf5,'a':0xff},{'v':0x2bc,'r':0x82,'g':0xcd,'b':0xf8,'a':0xff},{'v':0x320,'r':0x91,'g':0xd7,'b':0xfa,'a':0xff},{'v':0x384,'r':0xa0,'g':0xe1,'b':0xfa,'a':0xff},{'v':0x3e8,'r':0xaf,'g':0xe8,'b':0xf8,'a':0xff},{'v':0x4b0,'r':0xbe,'g':0xee,'b':0xf5,'a':0xff},{'v':0x578,'r':0xc8,'g':0xf2,'b':0xf0,'a':0xff},{'v':0x640,'r':0xd2,'g':0xf5,'b':0xeb,'a':0xff},{'v':0x708,'r':0xdc,'g':0xf8,'b':0xe1,'a':0xff},{'v':0x7d0,'r':0xe6,'g':0xfa,'b':0xd2,'a':0xff},{'v':0x898,'r':0xeb,'g':0xf8,'b':0xbe,'a':0xff},{'v':0x960,'r':0xf0,'g':0xf5,'b':0xa5,'a':0xff},{'v':0xa28,'r':0xf5,'g':0xf2,'b':0x8c,'a':0xff},{'v':0xaf0,'r':0xf8,'g':0xee,'b':0x73,'a':0xff},{'v':0xbb8,'r':0xfa,'g':0xe8,'b':0x5a,'a':0xff},{'v':0xdac,'r':0xfc,'g':0xe1,'b':0x41,'a':0xff},{'v':0xfa0,'r':0xff,'g':0xd7,'b':0x28,'a':0xff},{'v':0x1194,'r':0xff,'g':0xc8,'b':0x14,'a':0xff},{'v':0x1388,'r':0xff,'g':0xb9,'b':0xa,'a':0xff},{'v':0x157c,'r':0xff,'g':0xa5,'b':0x0,'a':0xff},{'v':0x1770,'r':0xff,'g':0x91,'b':0x0,'a':0xff},{'v':0x1964,'r':0xff,'g':0x7d,'b':0x0,'a':0xff},{'v':0x1b58,'r':0xff,'g':0x69,'b':0x0,'a':0xff},{'v':0x1d4c,'r':0xff,'g':0x55,'b':0x0,'a':0xff},{'v':0x1f40,'r':0xff,'g':0x41,'b':0x0,'a':0xff},{'v':0x2134,'r':0xf0,'g':0x32,'b':0x0,'a':0xff},{'v':0x2328,'r':0xdc,'g':0x23,'b':0x0,'a':0xff},{'v':0x251c,'r':0xc8,'g':0x19,'b':0x0,'a':0xff},{'v':0x2710,'r':0xb4,'g':0xf,'b':0x0,'a':0xff},{'v':0x2904,'r':0x9b,'g':0xa,'b':0x5,'a':0xff},{'v':0x2af8,'r':0x82,'g':0x5,'b':0xf,'a':0xff},{'v':0x2cec,'r':0x64,'g':0x0,'b':0x1e,'a':0xff},{'v':0x2ee0,'r':0xff,'g':0xff,'b':0xff,'a':0xff}],STOPS_RATXA=[{'v':0x0,'r':0xc8,'g':0xc8,'b':0xff},{'v':0x5,'r':0x96,'g':0xc8,'b':0xff},{'v':0xa,'r':0x64,'g':0xb4,'b':0xff},{'v':0xf,'r':0x0,'g':0x96,'b':0xff},{'v':0x14,'r':0x0,'g':0xc8,'b':0xdc},{'v':0x19,'r':0x0,'g':0xdc,'b':0xb4},{'v':0x1e,'r':0x0,'g':0xff,'b':0x64},{'v':0x23,'r':0x32,'g':0xff,'b':0x0},{'v':0x28,'r':0x96,'g':0xff,'b':0x0},{'v':0x2d,'r':0xdc,'g':0xff,'b':0x0},{'v':0x32,'r':0xff,'g':0xff,'b':0x0},{'v':0x37,'r':0xff,'g':0xe6,'b':0x0},{'v':0x3c,'r':0xff,'g':0xc8,'b':0x0},{'v':0x41,'r':0xff,'g':0xaa,'b':0x0},{'v':0x46,'r':0xff,'g':0x8c,'b':0x0},{'v':0x4b,'r':0xff,'g':0x6e,'b':0x0},{'v':0x50,'r':0xff,'g':0x50,'b':0x0},{'v':0x55,'r':0xff,'g':0x32,'b':0x0},{'v':0x5a,'r':0xff,'g':0x14,'b':0x0},{'v':0x5f,'r':0xff,'g':0x0,'b':0x0},{'v':0x64,'r':0xe6,'g':0x0,'b':0x0},{'v':0x6e,'r':0xd2,'g':0x0,'b':0x0},{'v':0x78,'r':0xbe,'g':0x0,'b':0x1e},{'v':0x82,'r':0xaa,'g':0x0,'b':0x3c},{'v':0x8c,'r':0x96,'g':0x0,'b':0x64},{'v':0x96,'r':0x82,'g':0x0,'b':0x8c},{'v':0xa0,'r':0xb4,'g':0x0,'b':0xb4},{'v':0xaa,'r':0xc8,'g':0x0,'b':0xc8},{'v':0xb4,'r':0xdc,'g':0x14,'b':0xdc},{'v':0xbe,'r':0xf0,'g':0x32,'b':0xf0},{'v':0xc8,'r':0xfa,'g':0x64,'b':0xfa},{'v':0xdc,'r':0xff,'g':0x96,'b':0xff},{'v':0xf0,'r':0xff,'g':0xc8,'b':0xff},{'v':0x104,'r':0xff,'g':0xdc,'b':0xff},{'v':0x118,'r':0xff,'g':0xf0,'b':0xff},{'v':0x12c,'r':0xff,'g':0xff,'b':0xff}],STOPS_PRECIP=[{'v':0x0,'r':0x0,'g':0x0,'b':0x0,'a':0x0},{'v':0.1,'r':0xc8,'g':0xe6,'b':0xff},{'v':0.5,'r':0x64,'g':0xc8,'b':0xff},{'v':0x1,'r':0x0,'g':0x96,'b':0xff},{'v':0x2,'r':0x0,'g':0x64,'b':0xc8},{'v':0x5,'r':0x0,'g':0xc8,'b':0x0},{'v':0xa,'r':0x64,'g':0xff,'b':0x0},{'v':0x14,'r':0xff,'g':0xff,'b':0x0},{'v':0x1e,'r':0xff,'g':0xc8,'b':0x0},{'v':0x32,'r':0xff,'g':0x64,'b':0x0},{'v':0x4b,'r':0xff,'g':0x0,'b':0x0},{'v':0x64,'r':0xc8,'g':0x0,'b':0xc8}],STOPS_VEL_VERT=[{'v':-0x5,'r':0xc8,'g':0x0,'b':0x0},{'v':-0x2,'r':0xff,'g':0x78,'b':0x0},{'v':-0.5,'r':0xff,'g':0xdc,'b':0x96},{'v':0x0,'r':0xe6,'g':0xe6,'b':0xe6},{'v':0.5,'r':0x96,'g':0xdc,'b':0xff},{'v':0x2,'r':0x0,'g':0x96,'b':0xff},{'v':0x5,'r':0x0,'g':0x0,'b':0xc8}],STOPS_VORT_POT=[{'v':-0xa,'r':0x0,'g':0x0,'b':0xc8},{'v':-0x3,'r':0x0,'g':0x96,'b':0xff},{'v':0x0,'r':0xdc,'g':0xdc,'b':0xdc},{'v':0x3,'r':0xff,'g':0xb4,'b':0x0},{'v':0xa,'r':0xc8,'g':0x0,'b':0x0}],STOPS_DBZ=[{'v':0x0,'r':0xff,'g':0xff,'b':0xff,'a':0x0},{'v':0x2,'r':0xf5,'g':0xf8,'b':0xff,'a':0x1e},{'v':0x4,'r':0xeb,'g':0xf2,'b':0xff,'a':0x3c},{'v':0x6,'r':0xdc,'g':0xeb,'b':0xff,'a':0x5a},{'v':0x8,'r':0xcd,'g':0xe4,'b':0xff,'a':0x78},{'v':0xa,'r':0xbe,'g':0xdc,'b':0xff,'a':0x96},{'v':0xc,'r':0xaa,'g':0xd7,'b':0xff,'a':0xaa},{'v':0xe,'r':0x96,'g':0xd2,'b':0xff,'a':0xb9},{'v':0x10,'r':0x82,'g':0xcd,'b':0xff,'a':0xc3},{'v':0x12,'r':0x6e,'g':0xcd,'b':0xf8,'a':0xcd},{'v':0x14,'r':0x5f,'g':0xd2,'b':0xf0,'a':0xd4},{'v':0x16,'r':0x55,'g':0xda,'b':0xe4,'a':0xda},{'v':0x18,'r':0x50,'g':0xe2,'b':0xd7,'a':0xde},{'v':0x1a,'r':0x55,'g':0xea,'b':0xc6,'a':0xe2},{'v':0x1c,'r':0x5f,'g':0xf0,'b':0xb2,'a':0xe6},{'v':0x1e,'r':0x6e,'g':0xf5,'b':0x9e,'a':0xea},{'v':0x20,'r':0x82,'g':0xf8,'b':0x8a,'a':0xee},{'v':0x22,'r':0x9b,'g':0xfa,'b':0x76,'a':0xf0},{'v':0x24,'r':0xb4,'g':0xfa,'b':0x62,'a':0xf2},{'v':0x26,'r':0xcd,'g':0xf8,'b':0x4e,'a':0xf4},{'v':0x28,'r':0xe1,'g':0xf5,'b':0x3a,'a':0xf6},{'v':0x2a,'r':0xf0,'g':0xf0,'b':0x28,'a':0xf8},{'v':0x2c,'r':0xfa,'g':0xe8,'b':0x19,'a':0xfa},{'v':0x2e,'r':0xff,'g':0xdc,'b':0xa,'a':0xfc},{'v':0x30,'r':0xff,'g':0xcd,'b':0x0,'a':0xfd},{'v':0x32,'r':0xff,'g':0xb9,'b':0x0,'a':0xfe},{'v':0x34,'r':0xff,'g':0xa0,'b':0x0,'a':0xff},{'v':0x36,'r':0xff,'g':0x87,'b':0x0,'a':0xff},{'v':0x38,'r':0xff,'g':0x6e,'b':0x0,'a':0xff},{'v':0x3a,'r':0xff,'g':0x55,'b':0x0,'a':0xff},{'v':0x3c,'r':0xff,'g':0x3c,'b':0x0,'a':0xff},{'v':0x3e,'r':0xff,'g':0x28,'b':0x14,'a':0xff},{'v':0x40,'r':0xf0,'g':0x19,'b':0x32,'a':0xff},{'v':0x42,'r':0xdc,'g':0xf,'b':0x50,'a':0xff},{'v':0x44,'r':0xc8,'g':0xa,'b':0x6e,'a':0xff},{'v':0x46,'r':0xb4,'g':0xa,'b':0x8c,'a':0xff},{'v':0x48,'r':0x9b,'g':0x14,'b':0xaa,'a':0xff},{'v':0x4a,'r':0x82,'g':0x28,'b':0xc3,'a':0xff},{'v':0x4b,'r':0xff,'g':0xff,'b':0xff,'a':0xff}],STOPS_LLAMPS=[{'v':0x0,'r':0x0,'g':0x0,'b':0x0,'a':0x0},{'v':0.1,'r':0xff,'g':0xff,'b':0xb4},{'v':0.5,'r':0xff,'g':0xff,'b':0x78},{'v':0x1,'r':0xff,'g':0xff,'b':0x0},{'v':0x2,'r':0xff,'g':0xd2,'b':0x0},{'v':0x5,'r':0xff,'g':0xaa,'b':0x0},{'v':0xa,'r':0xff,'g':0x78,'b':0x0},{'v':0x14,'r':0xff,'g':0x3c,'b':0x0},{'v':0x23,'r':0xe6,'g':0x0,'b':0x0},{'v':0x32,'r':0xb4,'g':0x0,'b':0x3c},{'v':0x4b,'r':0x96,'g':0x0,'b':0x8c},{'v':0x64,'r':0x82,'g':0x0,'b':0xc8}],STOPS_LI=[{'v':-0xa,'r':0xb4,'g':0x0,'b':0x0},{'v':-0x6,'r':0xff,'g':0x3c,'b':0x0},{'v':-0x3,'r':0xff,'g':0x96,'b':0x0},{'v':0x0,'r':0xff,'g':0xff,'b':0x96},{'v':0x3,'r':0x96,'g':0xdc,'b':0xff},{'v':0x6,'r':0x0,'g':0x96,'b':0xff},{'v':0xa,'r':0x0,'g':0x0,'b':0xb4}],STOPS_GEO500=[{'v':0x1d6,'r':0x0,'g':0x0,'b':0xc8},{'v':0x1ea,'r':0x0,'g':0x64,'b':0xff},{'v':0x1fe,'r':0x0,'g':0xc8,'b':0xff},{'v':0x212,'r':0x0,'g':0xff,'b':0xc8},{'v':0x21c,'r':0x0,'g':0xff,'b':0x0},{'v':0x226,'r':0x64,'g':0xff,'b':0x0},{'v':0x230,'r':0xdc,'g':0xff,'b':0x0},{'v':0x23a,'r':0xff,'g':0xff,'b':0x0},{'v':0x244,'r':0xff,'g':0xc8,'b':0x0},{'v':0x24e,'r':0xff,'g':0x78,'b':0x0},{'v':0x258,'r':0xff,'g':0x3c,'b':0x0},{'v':0x262,'r':0xff,'g':0x0,'b':0x0},{'v':0x276,'r':0xc8,'g':0x0,'b':0x64},{'v':0x28a,'r':0x96,'g':0x0,'b':0x96}],STOPS_T500=[{'v':-0x32,'r':0x0,'g':0x0,'b':0x96},{'v':-0x28,'r':0x0,'g':0x32,'b':0xc8},{'v':-0x23,'r':0x0,'g':0x64,'b':0xff},{'v':-0x1e,'r':0x0,'g':0xa0,'b':0xff},{'v':-0x19,'r':0x0,'g':0xd2,'b':0xff},{'v':-0x14,'r':0x0,'g':0xff,'b':0xff},{'v':-0xf,'r':0x0,'g':0xff,'b':0xc8},{'v':-0xa,'r':0x0,'g':0xff,'b':0x64},{'v':-0x5,'r':0x64,'g':0xff,'b':0x0},{'v':0x0,'r':0xdc,'g':0xff,'b':0x0},{'v':0x5,'r':0xff,'g':0xff,'b':0x0},{'v':0xa,'r':0xff,'g':0xdc,'b':0x0},{'v':0xf,'r':0xff,'g':0xb4,'b':0x0},{'v':0x14,'r':0xff,'g':0x78,'b':0x0},{'v':0x19,'r':0xff,'g':0x3c,'b':0x0},{'v':0x1e,'r':0xff,'g':0x0,'b':0x0},{'v':0x23,'r':0xc8,'g':0x0,'b':0x0},{'v':0x28,'r':0x96,'g':0x0,'b':0x32}],STOPS_SRH=[{'v':-0x5dc,'r':0x0,'g':0x0,'b':0x28},{'v':-0x3e8,'r':0x0,'g':0x0,'b':0x78},{'v':-0x320,'r':0x14,'g':0x0,'b':0xb4},{'v':-0x258,'r':0x3c,'g':0x0,'b':0xc8},{'v':-0x1f4,'r':0x64,'g':0x0,'b':0x8c},{'v':-0x190,'r':0x8c,'g':0x0,'b':0x50},{'v':-0x15e,'r':0xaa,'g':0x0,'b':0x1e},{'v':-0x12c,'r':0xc8,'g':0x0,'b':0x0},{'v':-0x113,'r':0xe6,'g':0x0,'b':0x0},{'v':-0xfa,'r':0xff,'g':0x1e,'b':0x0},{'v':-0xe1,'r':0xff,'g':0x50,'b':0x0},{'v':-0xc8,'r':0xff,'g':0x82,'b':0x0},{'v':-0xaf,'r':0xff,'g':0xb4,'b':0x0},{'v':-0x96,'r':0xff,'g':0xdc,'b':0x0},{'v':-0x7d,'r':0xff,'g':0xff,'b':0x0},{'v':-0x64,'r':0xc8,'g':0xff,'b':0x0},{'v':-0x4b,'r':0x0,'g':0xff,'b':0x0},{'v':-0x32,'r':0x64,'g':0xff,'b':0x64},{'v':-0x19,'r':0xb4,'g':0xff,'b':0xb4},{'v':0x0,'r':0xff,'g':0xff,'b':0xff},{'v':0x19,'r':0xb4,'g':0xff,'b':0xb4},{'v':0x32,'r':0x64,'g':0xff,'b':0x64},{'v':0x4b,'r':0x0,'g':0xff,'b':0x0},{'v':0x64,'r':0xc8,'g':0xff,'b':0x0},{'v':0x7d,'r':0xff,'g':0xff,'b':0x0},{'v':0x96,'r':0xff,'g':0xdc,'b':0x0},{'v':0xaf,'r':0xff,'g':0xb4,'b':0x0},{'v':0xc8,'r':0xff,'g':0x82,'b':0x0},{'v':0xe1,'r':0xff,'g':0x50,'b':0x0},{'v':0xfa,'r':0xff,'g':0x1e,'b':0x0},{'v':0x113,'r':0xe6,'g':0x0,'b':0x0},{'v':0x12c,'r':0xc8,'g':0x0,'b':0x0},{'v':0x15e,'r':0xaa,'g':0x0,'b':0x1e},{'v':0x190,'r':0x8c,'g':0x0,'b':0x50},{'v':0x1f4,'r':0x64,'g':0x0,'b':0x8c},{'v':0x258,'r':0x3c,'g':0x0,'b':0xc8},{'v':0x320,'r':0x14,'g':0x0,'b':0xb4},{'v':0x3e8,'r':0x0,'g':0x0,'b':0x78},{'v':0x5dc,'r':0x0,'g':0x0,'b':0x28}],STOPS_SHEAR=[{'v':0x0,'r':0x0,'g':0x0,'b':0xff},{'v':0x2,'r':0x0,'g':0xc8,'b':0xff},{'v':0x4,'r':0x0,'g':0xff,'b':0xc8},{'v':0x6,'r':0x0,'g':0xff,'b':0x64},{'v':0x8,'r':0x0,'g':0xff,'b':0x0},{'v':0xa,'r':0x96,'g':0xff,'b':0x0},{'v':0xc,'r':0xdc,'g':0xff,'b':0x0},{'v':0xe,'r':0xff,'g':0xff,'b':0x0},{'v':0x10,'r':0xff,'g':0xdc,'b':0x0},{'v':0x12,'r':0xff,'g':0xb4,'b':0x0},{'v':0x14,'r':0xff,'g':0x8c,'b':0x0},{'v':0x16,'r':0xff,'g':0x5a,'b':0x0},{'v':0x18,'r':0xff,'g':0x28,'b':0x0},{'v':0x1a,'r':0xff,'g':0x0,'b':0x0},{'v':0x1c,'r':0xe6,'g':0x0,'b':0x1e},{'v':0x1e,'r':0xd2,'g':0x0,'b':0x50},{'v':0x20,'r':0xb4,'g':0x0,'b':0x8c},{'v':0x22,'r':0x96,'g':0x0,'b':0xc8},{'v':0x24,'r':0x78,'g':0x0,'b':0xf0},{'v':0x26,'r':0x50,'g':0x0,'b':0xff},{'v':0x28,'r':0x28,'g':0x0,'b':0xff},{'v':0x2c,'r':0x0,'g':0x0,'b':0xdc},{'v':0x30,'r':0x0,'g':0x0,'b':0xb4},{'v':0x34,'r':0x14,'g':0x0,'b':0x82},{'v':0x38,'r':0x28,'g':0x0,'b':0x50},{'v':0x3c,'r':0x3c,'g':0x0,'b':0x0},{'v':0x46,'r':0x0,'g':0x0,'b':0x0}],STOPS_NEU=[{'v':0x0,'r':0xb4,'g':0x50,'b':0xdc,'a':0x0},{'v':0.01,'r':0xb4,'g':0x50,'b':0xdc,'a':0xff},{'v':0.3,'r':0xa0,'g':0x46,'b':0xd2,'a':0xff},{'v':0.5,'r':0x8c,'g':0x3c,'b':0xc8,'a':0xff},{'v':0x1,'r':0xc8,'g':0x78,'b':0x3c,'a':0xff},{'v':0x2,'r':0xe6,'g':0xb4,'b':0x1e,'a':0xff},{'v':0x3,'r':0xf0,'g':0x96,'b':0x14,'a':0xff},{'v':0x4,'r':0xeb,'g':0x64,'b':0xf,'a':0xff},{'v':0x6,'r':0xdc,'g':0x32,'b':0xa,'a':0xff},{'v':0x8,'r':0xc8,'g':0x14,'b':0x5,'a':0xff},{'v':0xa,'r':0xa0,'g':0x28,'b':0x78,'a':0xff},{'v':0xc,'r':0x82,'g':0x3c,'b':0xa0,'a':0xff},{'v':0xf,'r':0xb4,'g':0x8c,'b':0xdc,'a':0xff},{'v':0x12,'r':0xdc,'g':0xc8,'b':0xf0,'a':0xff},{'v':0x14,'r':0xf5,'g':0xf0,'b':0xff,'a':0xff}],STOPS_PRECIP_TYPE=[{'v':0x0,'r':0xff,'g':0xff,'b':0xff,'a':0x0},{'v':0x1,'r':0x0,'g':0x96,'b':0xff,'a':0xc8},{'v':0x2,'r':0xff,'g':0xff,'b':0xff,'a':0xdc},{'v':0x3,'r':0xff,'g':0x0,'b':0xff,'a':0xdc},{'v':0x4,'r':0xb4,'g':0x0,'b':0xdc,'a':0xc8}],STOPS_REFLECTIVITAT=[{'v':0x0,'r':0x0,'g':0x0,'b':0x0,'a':0x0},{'v':0x5,'r':0x0,'g':0xec,'b':0xec,'a':0x96},{'v':0xa,'r':0x1,'g':0xa0,'b':0xf6,'a':0xc8},{'v':0xf,'r':0x0,'g':0x0,'b':0xf6,'a':0xd2},{'v':0x14,'r':0x0,'g':0xec,'b':0x0,'a':0xdc},{'v':0x19,'r':0x0,'g':0xb4,'b':0x0,'a':0xdc},{'v':0x1e,'r':0x0,'g':0x64,'b':0x0,'a':0xdc},{'v':0x23,'r':0xff,'g':0x90,'b':0x0,'a':0xe6},{'v':0x28,'r':0xff,'g':0x0,'b':0x0,'a':0xf0},{'v':0x2d,'r':0xc0,'g':0x0,'b':0x0,'a':0xf0},{'v':0x32,'r':0x78,'g':0x0,'b':0x0,'a':0xf0},{'v':0x37,'r':0xff,'g':0x0,'b':0xff,'a':0xfa},{'v':0x3c,'r':0xa0,'g':0x20,'b':0xf0,'a':0xfa},{'v':0x41,'r':0x50,'g':0x0,'b':0x82,'a':0xff},{'v':0x46,'r':0xc8,'g':0xc8,'b':0xc8,'a':0xff},{'v':0x4b,'r':0xff,'g':0xff,'b':0xff,'a':0xff}],STOPS_VISIBILITAT=[{'v':0x0,'r':0x0,'g':0x0,'b':0x0,'a':0xff},{'v':0x64,'r':0xff,'g':0x0,'b':0x0,'a':0xe6},{'v':0x1f4,'r':0xff,'g':0x64,'b':0x0,'a':0xc8},{'v':0x3e8,'r':0xff,'g':0xff,'b':0x0,'a':0xb4},{'v':0x7d0,'r':0x0,'g':0xff,'b':0x0,'a':0xa0},{'v':0x1388,'r':0x0,'g':0xc8,'b':0xff,'a':0x8c},{'v':0x2710,'r':0x64,'g':0x96,'b':0xff,'a':0x64},{'v':0x4e20,'r':0xc8,'g':0xc8,'b':0xff,'a':0x50},{'v':0xc350,'r':0xff,'g':0xff,'b':0xff,'a':0x3c}],STOPS_TPW_WCS=[{'v':0x0,'r':0xff,'g':0xff,'b':0xff,'a':0x0},{'v':0x2,'r':0xc8,'g':0xff,'b':0xc8,'a':0x50},{'v':0x5,'r':0x64,'g':0xff,'b':0x64,'a':0x78},{'v':0xa,'r':0x0,'g':0xff,'b':0x0,'a':0xa0},{'v':0xf,'r':0xff,'g':0xff,'b':0x0,'a':0xbe},{'v':0x14,'r':0xff,'g':0xc8,'b':0x0,'a':0xd2},{'v':0x19,'r':0xff,'g':0x8c,'b':0x0,'a':0xdc},{'v':0x1e,'r':0xff,'g':0x50,'b':0x0,'a':0xeb},{'v':0x28,'r':0xff,'g':0x0,'b':0x0,'a':0xf8},{'v':0x32,'r':0xc8,'g':0x0,'b':0x32,'a':0xff},{'v':0x3c,'r':0x96,'g':0x0,'b':0x64,'a':0xff},{'v':0x50,'r':0x64,'g':0x0,'b':0x96,'a':0xff}],STOPS_TEMP_SFC_MODEL=[{'v':-0x32,'r':0x2d,'g':0x0,'b':0x4b},{'v':-0x28,'r':0x82,'g':0x0,'b':0xa0},{'v':-0x1e,'r':0x0,'g':0x0,'b':0xff},{'v':-0x14,'r':0x0,'g':0x87,'b':0xff},{'v':-0xa,'r':0x0,'g':0xeb,'b':0xff},{'v':0x0,'r':0x0,'g':0xff,'b':0x96},{'v':0x5,'r':0x0,'g':0xc8,'b':0x0},{'v':0xa,'r':0x78,'g':0xff,'b':0x0},{'v':0xf,'r':0xff,'g':0xff,'b':0x0},{'v':0x14,'r':0xff,'g':0xff,'b':0xaa},{'v':0x19,'r':0xff,'g':0xeb,'b':0x64},{'v':0x1e,'r':0xff,'g':0xc8,'b':0x0},{'v':0x23,'r':0xff,'g':0x8c,'b':0x0},{'v':0x28,'r':0xff,'g':0x46,'b':0x0},{'v':0x2d,'r':0xff,'g':0x0,'b':0x0},{'v':0x32,'r':0xb4,'g':0x0,'b':0x0}],STOPS_TOTAL_CLOUD=[{'v':0x0,'r':0x0,'g':0x0,'b':0x0,'a':0x0},{'v':0xa,'r':0x32,'g':0x32,'b':0x32,'a':0x50},{'v':0x14,'r':0x64,'g':0x64,'b':0x64,'a':0x78},{'v':0x1e,'r':0x96,'g':0x96,'b':0x96,'a':0x96},{'v':0x28,'r':0xc8,'g':0xc8,'b':0xc8,'a':0xaa},{'v':0x32,'r':0xdc,'g':0xdc,'b':0xdc,'a':0xb4},{'v':0x3c,'r':0xf0,'g':0xf0,'b':0xf0,'a':0xbe},{'v':0x46,'r':0xfa,'g':0xfa,'b':0xfa,'a':0xc8},{'v':0x50,'r':0xff,'g':0xff,'b':0xff,'a':0xd2},{'v':0x5a,'r':0xff,'g':0xff,'b':0xff,'a':0xdc},{'v':0x64,'r':0xff,'g':0xff,'b':0xff,'a':0xe6}],STOPS_CAPE_MITJANA=[{'v':0x0,'r':0x4f,'g':0xc3,'b':0xf7,'a':0xff},{'v':0x64,'r':0x32,'g':0xaa,'b':0xf0,'a':0xff},{'v':0x12c,'r':0x0,'g':0x8c,'b':0xff,'a':0xff},{'v':0x1f4,'r':0x0,'g':0xc8,'b':0xff,'a':0xff},{'v':0x2bc,'r':0x0,'g':0xff,'b':0xc8,'a':0xff},{'v':0x384,'r':0x78,'g':0xff,'b':0x50,'a':0xff},{'v':0x44c,'r':0xdc,'g':0xff,'b':0x0,'a':0xff},{'v':0x514,'r':0xff,'g':0xff,'b':0x0,'a':0xff},{'v':0x5dc,'r':0xff,'g':0xc8,'b':0x0,'a':0xff},{'v':0x708,'r':0xff,'g':0x8c,'b':0x0,'a':0xff},{'v':0x834,'r':0xff,'g':0x3c,'b':0x0,'a':0xff},{'v':0x960,'r':0xff,'g':0x0,'b':0x0,'a':0xff},{'v':0xaf0,'r':0xff,'g':0x0,'b':0x8c,'a':0xff},{'v':0xc80,'r':0xff,'g':0x0,'b':0xdc,'a':0xff},{'v':0xed8,'r':0xc8,'g':0x0,'b':0xff,'a':0xff}],STOPS_PRECIP_RATE=[{'v':0x0,'r':0x0,'g':0x0,'b':0x0,'a':0x0},{'v':0.1,'r':0xc8,'g':0xe6,'b':0xff,'a':0x50},{'v':0.5,'r':0x64,'g':0xc8,'b':0xff,'a':0x78},{'v':0x1,'r':0x0,'g':0x96,'b':0xff,'a':0xa0},{'v':0x2,'r':0x0,'g':0x64,'b':0xc8,'a':0xbe},{'v':0x5,'r':0x0,'g':0xc8,'b':0x0,'a':0xd2},{'v':0xa,'r':0x64,'g':0xff,'b':0x0,'a':0xdc},{'v':0x14,'r':0xff,'g':0xff,'b':0x0,'a':0xe6},{'v':0x1e,'r':0xff,'g':0xc8,'b':0x0,'a':0xf0},{'v':0x32,'r':0xff,'g':0x64,'b':0x0,'a':0xf8},{'v':0x4b,'r':0xff,'g':0x0,'b':0x0,'a':0xfc},{'v':0x64,'r':0xc8,'g':0x0,'b':0xc8,'a':0xff}],STOPS_CIWC_MITJANA=[{'v':0x0,'r':0xff,'g':0xff,'b':0xff,'a':0x0},{'v':0.000001,'r':0xdc,'g':0xe6,'b':0xff,'a':0x1e},{'v':0.000002,'r':0xc8,'g':0xdc,'b':0xff,'a':0x32},{'v':0.000005,'r':0xb4,'g':0xd2,'b':0xff,'a':0x46},{'v':0.00001,'r':0xa0,'g':0xc8,'b':0xff,'a':0x5a},{'v':0.00002,'r':0x8c,'g':0xbe,'b':0xff,'a':0x6e},{'v':0.00003,'r':0x78,'g':0xb4,'b':0xff,'a':0x82},{'v':0.00004,'r':0x64,'g':0xaa,'b':0xff,'a':0x91},{'v':0.00005,'r':0x50,'g':0xa0,'b':0xff,'a':0x9b},{'v':0.00006,'r':0x3c,'g':0x96,'b':0xff,'a':0xa5},{'v':0.00007,'r':0x28,'g':0x8c,'b':0xff,'a':0xaf},{'v':0.00008,'r':0x14,'g':0x82,'b':0xff,'a':0xb9},{'v':0.00009,'r':0x0,'g':0x78,'b':0xff,'a':0xbe},{'v':0.0001,'r':0x0,'g':0x6e,'b':0xfa,'a':0xc3},{'v':0.0002,'r':0x0,'g':0x64,'b':0xf5,'a':0xc8},{'v':0.0003,'r':0x0,'g':0x5a,'b':0xf0,'a':0xcd},{'v':0.0004,'r':0x0,'g':0x50,'b':0xeb,'a':0xd2},{'v':0.0005,'r':0x0,'g':0x46,'b':0xe6,'a':0xd7},{'v':0.0006,'r':0x0,'g':0x3c,'b':0xe1,'a':0xdc},{'v':0.0007,'r':0x0,'g':0x32,'b':0xdc,'a':0xe1},{'v':0.0008,'r':0x0,'g':0x28,'b':0xd7,'a':0xe6},{'v':0.0009,'r':0x0,'g':0x1e,'b':0xd2,'a':0xeb},{'v':0.001,'r':0x0,'g':0x14,'b':0xcd,'a':0xf0},{'v':0.002,'r':0x0,'g':0xa,'b':0xc8,'a':0xf5},{'v':0.003,'r':0x0,'g':0x0,'b':0xc3,'a':0xf8},{'v':0.004,'r':0xa,'g':0x0,'b':0xbe,'a':0xfa},{'v':0.005,'r':0x14,'g':0x0,'b':0xb9,'a':0xfc},{'v':0.006,'r':0x1e,'g':0x0,'b':0xb4,'a':0xfd},{'v':0.007,'r':0x28,'g':0x0,'b':0xaf,'a':0xfe},{'v':0.008,'r':0x32,'g':0x0,'b':0xaa,'a':0xff},{'v':0.009,'r':0x3c,'g':0x0,'b':0xa5,'a':0xff},{'v':0.01,'r':0x46,'g':0x0,'b':0xa0,'a':0xff},{'v':0.02,'r':0x50,'g':0x0,'b':0x9b,'a':0xff},{'v':0.03,'r':0x5a,'g':0x0,'b':0x96,'a':0xff},{'v':0.04,'r':0x64,'g':0x0,'b':0x91,'a':0xff},{'v':0.05,'r':0x6e,'g':0x0,'b':0x8c,'a':0xff},{'v':0.06,'r':0x78,'g':0x0,'b':0x87,'a':0xff},{'v':0.07,'r':0x82,'g':0x0,'b':0x82,'a':0xff},{'v':0.08,'r':0x8c,'g':0x0,'b':0x7d,'a':0xff},{'v':0.09,'r':0x96,'g':0x0,'b':0x78,'a':0xff},{'v':0.1,'r':0xa0,'g':0x0,'b':0x73,'a':0xff},{'v':0.15,'r':0xaa,'g':0x0,'b':0x6e,'a':0xff},{'v':0.2,'r':0xb4,'g':0x14,'b':0x69,'a':0xff},{'v':0.25,'r':0xbe,'g':0x28,'b':0x64,'a':0xff},{'v':0.3,'r':0xc8,'g':0x3c,'b':0x5f,'a':0xff},{'v':0.4,'r':0xd2,'g':0x50,'b':0x5a,'a':0xff},{'v':0.5,'r':0xdc,'g':0x64,'b':0x55,'a':0xff},{'v':0.6,'r':0xe6,'g':0x78,'b':0x50,'a':0xff},{'v':0.7,'r':0xeb,'g':0x8c,'b':0x4b,'a':0xff},{'v':0.8,'r':0xf0,'g':0xa0,'b':0x46,'a':0xff},{'v':0.9,'r':0xf5,'g':0xb4,'b':0x41,'a':0xff},{'v':0x1,'r':0xfa,'g':0xc8,'b':0x3c,'a':0xff},{'v':1.2,'r':0xfc,'g':0xd2,'b':0x37,'a':0xff},{'v':1.4,'r':0xfe,'g':0xdc,'b':0x32,'a':0xff},{'v':1.6,'r':0xff,'g':0xe6,'b':0x2d,'a':0xff},{'v':1.8,'r':0xff,'g':0xeb,'b':0x28,'a':0xff},{'v':0x2,'r':0xff,'g':0xf0,'b':0x23,'a':0xff},{'v':2.5,'r':0xff,'g':0xf5,'b':0x1e,'a':0xff},{'v':0x3,'r':0xff,'g':0xfa,'b':0x19,'a':0xff},{'v':0x4,'r':0xff,'g':0xfc,'b':0x14,'a':0xff},{'v':0x5,'r':0xff,'g':0xfe,'b':0xf,'a':0xff},{'v':0x7,'r':0xff,'g':0xff,'b':0xa,'a':0xff},{'v':0xa,'r':0xff,'g':0xff,'b':0xff,'a':0xff},{'v':0xf,'r':0xff,'g':0xfa,'b':0xf0,'a':0xff},{'v':0x14,'r':0xff,'g':0xff,'b':0xff,'a':0xff}],STOPS_CLD_RAIN_MITJANA=[{'v':0x0,'r':0x19,'g':0x1c,'b':0x28,'a':0xdc},{'v':0.000001,'r':0xa,'g':0x28,'b':0x78,'a':0xe6},{'v':0.000005,'r':0x0,'g':0x46,'b':0xbe,'a':0xeb},{'v':0.00001,'r':0x0,'g':0x6e,'b':0xf0,'a':0xf0},{'v':0.00002,'r':0x0,'g':0xa0,'b':0xff,'a':0xf2},{'v':0.00003,'r':0x0,'g':0xc8,'b':0xff,'a':0xf5},{'v':0.00004,'r':0x0,'g':0xe6,'b':0xdc,'a':0xf8},{'v':0.00005,'r':0x0,'g':0xff,'b':0xb4,'a':0xfa},{'v':0.0001,'r':0x32,'g':0xff,'b':0x78,'a':0xfc},{'v':0.0002,'r':0x82,'g':0xff,'b':0x46,'a':0xfd},{'v':0.0005,'r':0xd2,'g':0xff,'b':0x14,'a':0xfe},{'v':0.001,'r':0xff,'g':0xff,'b':0x0,'a':0xff},{'v':0.002,'r':0xff,'g':0xdc,'b':0x0,'a':0xff},{'v':0.003,'r':0xff,'g':0xb4,'b':0x0,'a':0xff},{'v':0.005,'r':0xff,'g':0x8c,'b':0x0,'a':0xff},{'v':0.01,'r':0xff,'g':0x64,'b':0x0,'a':0xff},{'v':0.02,'r':0xff,'g':0x3c,'b':0x0,'a':0xff},{'v':0.03,'r':0xff,'g':0x14,'b':0x0,'a':0xff},{'v':0.05,'r':0xe6,'g':0x0,'b':0x32,'a':0xff},{'v':0.1,'r':0xc8,'g':0x0,'b':0x78,'a':0xff},{'v':0.2,'r':0xa0,'g':0x0,'b':0xc8,'a':0xff},{'v':0.5,'r':0x78,'g':0x0,'b':0xf0,'a':0xff},{'v':0x1,'r':0x50,'g':0x0,'b':0xdc,'a':0xff},{'v':0x2,'r':0x28,'g':0x0,'b':0xb4,'a':0xff},{'v':0x5,'r':0xc8,'g':0xc8,'b':0xff,'a':0xff},{'v':0xa,'r':0xff,'g':0xff,'b':0xff,'a':0xff}],STOPS_TPW_MITJANA=[{'v':0x0,'r':0x1e,'g':0x20,'b':0x2d,'a':0xdc},{'v':0x1,'r':0xc8,'g':0xdc,'b':0xff,'a':0xc8},{'v':0x2,'r':0xb4,'g':0xd2,'b':0xff,'a':0xd2},{'v':0x4,'r':0x96,'g':0xc3,'b':0xff,'a':0xd7},{'v':0x6,'r':0x78,'g':0xb4,'b':0xff,'a':0xdc},{'v':0x8,'r':0x5a,'g':0xa5,'b':0xff,'a':0xe1},{'v':0xa,'r':0x3c,'g':0x91,'b':0xff,'a':0xe6},{'v':0xc,'r':0x1e,'g':0x7d,'b':0xff,'a':0xeb},{'v':0xe,'r':0x0,'g':0x69,'b':0xf5,'a':0xf0},{'v':0x10,'r':0x0,'g':0x91,'b':0xe6,'a':0xf2},{'v':0x11,'r':0x0,'g':0xb4,'b':0xd2,'a':0xf4},{'v':0x12,'r':0x0,'g':0xd2,'b':0xb9,'a':0xf6},{'v':0x13,'r':0x32,'g':0xe6,'b':0x9b,'a':0xf8},{'v':0x14,'r':0x64,'g':0xf5,'b':0x78,'a':0xfa},{'v':0x15,'r':0xa0,'g':0xfa,'b':0x50,'a':0xfc},{'v':0x16,'r':0xd2,'g':0xfa,'b':0x28,'a':0xfd},{'v':0x17,'r':0xf5,'g':0xf5,'b':0x0,'a':0xfe},{'v':0x18,'r':0xff,'g':0xdc,'b':0x0,'a':0xff},{'v':0x19,'r':0xff,'g':0xc3,'b':0x0,'a':0xff},{'v':0x1a,'r':0xff,'g':0xa5,'b':0x0,'a':0xff},{'v':0x1b,'r':0xff,'g':0x87,'b':0x0,'a':0xff},{'v':0x1c,'r':0xff,'g':0x69,'b':0x0,'a':0xff},{'v':0x1d,'r':0xff,'g':0x4b,'b':0x0,'a':0xff},{'v':0x1e,'r':0xff,'g':0x2d,'b':0x0,'a':0xff},{'v':0x20,'r':0xff,'g':0x14,'b':0x0,'a':0xff},{'v':0x22,'r':0xe6,'g':0x0,'b':0x0,'a':0xff},{'v':0x24,'r':0xc8,'g':0x0,'b':0x0,'a':0xff},{'v':0x26,'r':0xaa,'g':0x0,'b':0x0,'a':0xff},{'v':0x28,'r':0x8c,'g':0x0,'b':0x0,'a':0xff},{'v':0x2d,'r':0x64,'g':0x0,'b':0x0,'a':0xff},{'v':0x32,'r':0x46,'g':0x0,'b':0x0,'a':0xff},{'v':0x3c,'r':0x28,'g':0x0,'b':0x0,'a':0xff}],STOPS_GEO_PV=[{'v':0x1d6,'r':0x0,'g':0x0,'b':0xc8},{'v':0x1ea,'r':0x0,'g':0x64,'b':0xff},{'v':0x1fe,'r':0x0,'g':0xc8,'b':0xff},{'v':0x212,'r':0x0,'g':0xff,'b':0xc8},{'v':0x21c,'r':0x0,'g':0xff,'b':0x0},{'v':0x226,'r':0x64,'g':0xff,'b':0x0},{'v':0x230,'r':0xdc,'g':0xff,'b':0x0},{'v':0x23a,'r':0xff,'g':0xff,'b':0x0},{'v':0x244,'r':0xff,'g':0xc8,'b':0x0},{'v':0x24e,'r':0xff,'g':0x78,'b':0x0},{'v':0x258,'r':0xff,'g':0x3c,'b':0x0},{'v':0x262,'r':0xff,'g':0x0,'b':0x0},{'v':0x276,'r':0xc8,'g':0x0,'b':0x64},{'v':0x28a,'r':0x96,'g':0x0,'b':0x96}],STOPS_THETA_PV=[{'v':-0x1e,'r':0x0,'g':0x0,'b':0xc8},{'v':-0x14,'r':0x0,'g':0x64,'b':0xff},{'v':-0xa,'r':0x0,'g':0xc8,'b':0xff},{'v':0x0,'r':0x0,'g':0xff,'b':0xc8},{'v':0xa,'r':0x0,'g':0xff,'b':0x64},{'v':0x14,'r':0x64,'g':0xff,'b':0x0},{'v':0x1e,'r':0xff,'g':0xff,'b':0x0},{'v':0x28,'r':0xff,'g':0xc8,'b':0x0},{'v':0x32,'r':0xff,'g':0x78,'b':0x0},{'v':0x3c,'r':0xff,'g':0x3c,'b':0x0},{'v':0x46,'r':0xff,'g':0x0,'b':0x0},{'v':0x50,'r':0xc8,'g':0x0,'b':0x64},{'v':0x5a,'r':0x96,'g':0x0,'b':0x96}],STOPS_VENT_PV=[{'v':-0x64,'r':0xff,'g':0x0,'b':0xff},{'v':-0x3c,'r':0xc8,'g':0x0,'b':0xc8},{'v':-0x1e,'r':0x64,'g':0x0,'b':0xc8},{'v':-0xa,'r':0x0,'g':0x64,'b':0xff},{'v':0x0,'r':0xff,'g':0xff,'b':0xff},{'v':0xa,'r':0xff,'g':0x64,'b':0x0},{'v':0x1e,'r':0xc8,'g':0x0,'b':0x64},{'v':0x3c,'r':0xc8,'g':0x0,'b':0x0},{'v':0x64,'r':0x64,'g':0x0,'b':0x0}],STOPS_WIND_PV=[{'v':0x0,'r':0xc8,'g':0xc8,'b':0xff},{'v':0x5,'r':0x96,'g':0xc8,'b':0xff},{'v':0xa,'r':0x64,'g':0xb4,'b':0xff},{'v':0xf,'r':0x0,'g':0x96,'b':0xff},{'v':0x14,'r':0x0,'g':0xc8,'b':0xdc},{'v':0x1e,'r':0x0,'g':0xff,'b':0x64},{'v':0x28,'r':0x96,'g':0xff,'b':0x0},{'v':0x32,'r':0xff,'g':0xff,'b':0x0},{'v':0x3c,'r':0xff,'g':0xc8,'b':0x0},{'v':0x46,'r':0xff,'g':0x8c,'b':0x0},{'v':0x50,'r':0xff,'g':0x50,'b':0x0},{'v':0x5a,'r':0xff,'g':0x14,'b':0x0},{'v':0x64,'r':0xff,'g':0x0,'b':0x0},{'v':0x78,'r':0xbe,'g':0x0,'b':0x1e},{'v':0x96,'r':0x82,'g':0x0,'b':0x8c},{'v':0xc8,'r':0xfa,'g':0x64,'b':0xfa},{'v':0xfa,'r':0xff,'g':0xc8,'b':0xff},{'v':0x12c,'r':0xff,'g':0xff,'b':0xff}],STOPS_ISOTERMA=[{'v':0x0,'r':0x0,'g':0x0,'b':0x0,'a':0x0},{'v':0x1f4,'r':0xc8,'g':0xc8,'b':0xff,'a':0x50},{'v':0x3e8,'r':0x64,'g':0xb4,'b':0xff,'a':0x78},{'v':0x5dc,'r':0x0,'g':0xc8,'b':0xc8,'a':0xa0},{'v':0x7d0,'r':0x0,'g':0xff,'b':0x64,'a':0xbe},{'v':0x9c4,'r':0x64,'g':0xff,'b':0x0,'a':0xd2},{'v':0xbb8,'r':0xff,'g':0xff,'b':0x0,'a':0xdc},{'v':0xdac,'r':0xff,'g':0xc8,'b':0x0,'a':0xe6},{'v':0xfa0,'r':0xff,'g':0x96,'b':0x0,'a':0xf0},{'v':0x1194,'r':0xff,'g':0x50,'b':0x0,'a':0xf8},{'v':0x1388,'r':0xff,'g':0x0,'b':0x0,'a':0xfc},{'v':0x1770,'r':0xc8,'g':0x0,'b':0x32,'a':0xff},{'v':0x1f40,'r':0x96,'g':0x0,'b':0x64,'a':0xff},{'v':0x2ee0,'r':0x64,'g':0x0,'b':0x96,'a':0xff}],STOPS_SCP=[{'v':0x0,'r':0xdc,'g':0xdc,'b':0xdc,'a':0x14},{'v':0.1,'r':0xc8,'g':0xd2,'b':0xdc,'a':0x32},{'v':0.2,'r':0xb4,'g':0xc8,'b':0xdc,'a':0x50},{'v':0.3,'r':0xa0,'g':0xbe,'b':0xdc,'a':0x6e},{'v':0.4,'r':0x8c,'g':0xb4,'b':0xdc,'a':0x8c},{'v':0.5,'r':0x78,'g':0xaa,'b':0xdc,'a':0xa0},{'v':0.7,'r':0x64,'g':0xb4,'b':0xdc,'a':0xaf},{'v':0.9,'r':0x50,'g':0xc3,'b':0xdc,'a':0xbe},{'v':1.1,'r':0x3c,'g':0xd2,'b':0xd7,'a':0xc8},{'v':1.3,'r':0x3c,'g':0xdc,'b':0xc8,'a':0xd2},{'v':1.5,'r':0x50,'g':0xe6,'b':0xb4,'a':0xd7},{'v':1.8,'r':0x6e,'g':0xeb,'b':0x9b,'a':0xe1},{'v':0x2,'r':0x96,'g':0xf0,'b':0x82,'a':0xe6},{'v':2.3,'r':0xb9,'g':0xf5,'b':0x69,'a':0xeb},{'v':2.6,'r':0xd7,'g':0xf8,'b':0x50,'a':0xf0},{'v':2.9,'r':0xeb,'g':0xf8,'b':0x37,'a':0xf2},{'v':3.2,'r':0xf8,'g':0xf5,'b':0x23,'a':0xf5},{'v':3.5,'r':0xff,'g':0xf0,'b':0x14,'a':0xf8},{'v':0x4,'r':0xff,'g':0xeb,'b':0xa,'a':0xfa},{'v':4.5,'r':0xff,'g':0xe1,'b':0x0,'a':0xfc},{'v':0x5,'r':0xff,'g':0xd7,'b':0x0,'a':0xfd},{'v':5.5,'r':0xff,'g':0xc8,'b':0x0,'a':0xfe},{'v':0x6,'r':0xff,'g':0xb4,'b':0x0,'a':0xff},{'v':6.5,'r':0xff,'g':0xa0,'b':0x0,'a':0xff},{'v':0x7,'r':0xff,'g':0x8c,'b':0x0,'a':0xff},{'v':7.5,'r':0xff,'g':0x78,'b':0x0,'a':0xff},{'v':0x8,'r':0xff,'g':0x64,'b':0x0,'a':0xff},{'v':8.5,'r':0xff,'g':0x50,'b':0x0,'a':0xff},{'v':0x9,'r':0xff,'g':0x3c,'b':0x0,'a':0xff},{'v':9.5,'r':0xff,'g':0x28,'b':0x0,'a':0xff},{'v':0xa,'r':0xff,'g':0x14,'b':0x0,'a':0xff},{'v':10.5,'r':0xff,'g':0xa,'b':0xa,'a':0xff},{'v':0xb,'r':0xf0,'g':0x0,'b':0x1e,'a':0xff},{'v':11.5,'r':0xdc,'g':0x0,'b':0x3c,'a':0xff},{'v':0xc,'r':0xc8,'g':0x0,'b':0x5a,'a':0xff},{'v':12.5,'r':0xb4,'g':0x0,'b':0x78,'a':0xff},{'v':0xd,'r':0xa0,'g':0x0,'b':0x96,'a':0xff},{'v':13.5,'r':0x8c,'g':0x14,'b':0xaf,'a':0xff},{'v':0xe,'r':0x78,'g':0x28,'b':0xc3,'a':0xff},{'v':14.5,'r':0x64,'g':0x3c,'b':0xd7,'a':0xff},{'v':0xf,'r':0x50,'g':0x50,'b':0xeb,'a':0xff},{'v':0x10,'r':0x3c,'g':0x64,'b':0xf5,'a':0xff},{'v':0x11,'r':0x50,'g':0x82,'b':0xf8,'a':0xff},{'v':0x12,'r':0x78,'g':0xaa,'b':0xf8,'a':0xff},{'v':0x13,'r':0xb4,'g':0xd2,'b':0xfa,'a':0xff},{'v':0x14,'r':0xff,'g':0xff,'b':0xff,'a':0xff}],STOPS_HAIL=[{'v':0x0,'r':0xff,'g':0xff,'b':0xff,'a':0x0},{'v':0.1,'r':0xdc,'g':0xf0,'b':0xff,'a':0x3c},{'v':0.2,'r':0xc8,'g':0xe1,'b':0xff,'a':0x64},{'v':0.3,'r':0xb4,'g':0xd2,'b':0xff,'a':0x82},{'v':0.4,'r':0xa0,'g':0xc3,'b':0xff,'a':0x9b},{'v':0.5,'r':0x8c,'g':0xb4,'b':0xff,'a':0xaf},{'v':0.6,'r':0x78,'g':0xa5,'b':0xff,'a':0xbe},{'v':0.7,'r':0x64,'g':0x96,'b':0xff,'a':0xc8},{'v':0.8,'r':0x50,'g':0x87,'b':0xff,'a':0xd2},{'v':0.9,'r':0x3c,'g':0x78,'b':0xff,'a':0xda},{'v':0x1,'r':0x28,'g':0x69,'b':0xff,'a':0xe1},{'v':1.2,'r':0x14,'g':0x5a,'b':0xff,'a':0xeb},{'v':1.4,'r':0x0,'g':0x4b,'b':0xf5,'a':0xf2},{'v':1.6,'r':0x0,'g':0x3c,'b':0xe6,'a':0xf8},{'v':1.8,'r':0x0,'g':0x2d,'b':0xd7,'a':0xfc},{'v':0x2,'r':0x0,'g':0x1e,'b':0xc8,'a':0xff},{'v':2.5,'r':0x0,'g':0x3c,'b':0xb4,'a':0xff},{'v':0x3,'r':0x0,'g':0x64,'b':0xa0,'a':0xff},{'v':3.5,'r':0x0,'g':0x96,'b':0x8c,'a':0xff},{'v':0x4,'r':0x0,'g':0xc8,'b':0x78,'a':0xff},{'v':4.5,'r':0x32,'g':0xe6,'b':0x64,'a':0xff},{'v':0x5,'r':0x64,'g':0xfa,'b':0x50,'a':0xff},{'v':5.5,'r':0x96,'g':0xff,'b':0x3c,'a':0xff},{'v':0x6,'r':0xc8,'g':0xff,'b':0x28,'a':0xff},{'v':6.5,'r':0xe6,'g':0xff,'b':0x14,'a':0xff},{'v':0x7,'r':0xff,'g':0xff,'b':0x0,'a':0xff},{'v':7.5,'r':0xff,'g':0xe6,'b':0x0,'a':0xff},{'v':0x8,'r':0xff,'g':0xc8,'b':0x0,'a':0xff},{'v':8.5,'r':0xff,'g':0xaa,'b':0x0,'a':0xff},{'v':0x9,'r':0xff,'g':0x8c,'b':0x0,'a':0xff},{'v':9.5,'r':0xff,'g':0x6e,'b':0x0,'a':0xff},{'v':0xa,'r':0xff,'g':0x50,'b':0x0,'a':0xff},{'v':0xb,'r':0xff,'g':0x3c,'b':0x0,'a':0xff},{'v':0xc,'r':0xff,'g':0x28,'b':0x0,'a':0xff},{'v':0xd,'r':0xff,'g':0x14,'b':0x0,'a':0xff},{'v':0xe,'r':0xff,'g':0x0,'b':0x0,'a':0xff},{'v':0xf,'r':0xf0,'g':0x0,'b':0x0,'a':0xff},{'v':0x10,'r':0xdc,'g':0x0,'b':0x14,'a':0xff},{'v':0x11,'r':0xc8,'g':0x0,'b':0x28,'a':0xff},{'v':0x12,'r':0xb4,'g':0x0,'b':0x3c,'a':0xff},{'v':0x13,'r':0xa0,'g':0x0,'b':0x50,'a':0xff},{'v':0x14,'r':0x8c,'g':0x0,'b':0x64,'a':0xff},{'v':0x15,'r':0x78,'g':0x0,'b':0x78,'a':0xff},{'v':0x16,'r':0x64,'g':0x0,'b':0x8c,'a':0xff},{'v':0x17,'r':0x50,'g':0x0,'b':0xa0,'a':0xff},{'v':0x18,'r':0x3c,'g':0x0,'b':0xb4,'a':0xff},{'v':0x19,'r':0x28,'g':0x0,'b':0xc8,'a':0xff},{'v':0x1a,'r':0x3c,'g':0x14,'b':0xd2,'a':0xff},{'v':0x1b,'r':0x50,'g':0x28,'b':0xdc,'a':0xff},{'v':0x1c,'r':0x64,'g':0x3c,'b':0xe6,'a':0xff},{'v':0x1d,'r':0x78,'g':0x50,'b':0xf0,'a':0xff},{'v':0x1e,'r':0xff,'g':0xff,'b':0xff,'a':0xff}],ALIES_CLAUS={'BRIGHTNESS_TEMPERATURE__GROUND_OR_WATER_SURFACE':_0x1ec428(0x568),'BRIGHTNESS_TEMPERATURE_62__GROUND_OR_WATER_SURFACE':_0x1ec428(0x83c),'BT__CHANNELS_108':_0x1ec428(0x568),'BT__CHANNELS_62':_0x1ec428(0x83c),'DIAG_EHI__GROUND':_0x1ec428(0x166),'CIN__GROUND':_0x1ec428(0x153),'DIAG_SCP__GROUND':_0x1ec428(0x1a8),'DIAG_STP__GROUND':_0x1ec428(0x3b4),'ALTITUDE__GROUND':_0x1ec428(0x3d8),'CIWC__ISOBARIC_500':_0x1ec428(0x439),'CLD_RAIN__ISOBARIC_850':_0x1ec428(0x76a)+'50','TPW__ISOBARIC_700':_0x1ec428(0x323),'TPW__ISOBARIC_850':_0x1ec428(0x7af),'THETAV__ISOBARIC_850':'thetav_850'},CLAU_REAL={};Object[_0x1ec428(0x86a)](ALIES_CLAUS)[_0x1ec428(0x25d)](([_0x13d9de,_0x43e163])=>{CLAU_REAL[_0x43e163]=_0x13d9de;});function normalitzarClau(_0x49dac0){return ALIES_CLAUS[_0x49dac0]||_0x49dac0;}function clauRealPerLlegir(_0x22018d){return CLAU_REAL[_0x22018d]||_0x22018d;}const PALETES={'st':{'titol':_0x1ec428(0x22d)+_0x1ec428(0xf1),'unitat':'°C','stops':STOPS_TEMP},'sd':{'titol':_0x1ec428(0x25a)+_0x1ec428(0xf1),'unitat':'°C','stops':STOPS_TEMP},'srh':{'titol':_0x1ec428(0x78c),'unitat':'%','stops':STOPS_HUMITAT},'temp_min2m':{'titol':_0x1ec428(0x235)+_0x1ec428(0xa7),'unitat':'°C','stops':STOPS_TEMP},'temp_max2m':{'titol':_0x1ec428(0x18f)+_0x1ec428(0xa7),'unitat':'°C','stops':STOPS_TEMP},'su':{'titol':_0x1ec428(0x24b),'unitat':'m/s','stops':STOPS_VENT_UV},'sv':{'titol':_0x1ec428(0x1bc),'unitat':_0x1ec428(0x482),'stops':STOPS_VENT_UV},'wind_speed_10m':{'titol':'Vent\x2010m','unitat':_0x1ec428(0x7b9),'stops':STOPS_RATXA},'wind_gust_real':{'titol':_0x1ec428(0x2bf),'unitat':_0x1ec428(0x7b9),'stops':STOPS_RATXA},'sp':{'titol':_0x1ec428(0x3c4)+'perf.','unitat':_0x1ec428(0x4f8),'stops':STOPS_PRESSIO},'pressure_msl':{'titol':_0x1ec428(0x1aa)+'L','unitat':'hPa','stops':STOPS_PRESSIO},'cape':{'titol':_0x1ec428(0x746),'unitat':_0x1ec428(0x2b1),'stops':STOPS_CAPE},'cin':{'titol':_0x1ec428(0x6ae),'unitat':'J/kg','stops':STOPS_CIN},'spbl':{'titol':_0x1ec428(0x786),'unitat':'m','stops':STOPS_ALTURA_CL},'radar_dbz':{'titol':'Radar\x20simu'+_0x1ec428(0x2aa),'unitat':_0x1ec428(0xa4),'stops':STOPS_RADAR},'REFLECTIVITY_MAX_DBZ__GROUND_OR_WATER_SURFACE':{'titol':_0x1ec428(0x5c9)+_0x1ec428(0xea),'unitat':_0x1ec428(0xa4),'stops':STOPS_REFLECTIVITAT},'lightning_1h':{'titol':_0x1ec428(0xd8),'unitat':_0x1ec428(0x427),'stops':STOPS_LLAMPS_V2},'low_cloud_cover':{'titol':_0x1ec428(0x6d9)+_0x1ec428(0x2c5),'unitat':'%','stops':STOPS_NUVOLS_BAIXOS},'medium_cloud_cover':{'titol':_0x1ec428(0x55a)+_0x1ec428(0x112),'unitat':'%','stops':STOPS_NUVOLS_MITJANS},'high_cloud_cover':{'titol':'Núvols\x20alt'+'s','unitat':'%','stops':STOPS_NUVOLS_ALTS},'tp':{'titol':_0x1ec428(0x836)+'tal\x20acum.','unitat':'mm','stops':STOPS_PRECIP},'tsnowp':{'titol':_0x1ec428(0x53a)+_0x1ec428(0x566),'unitat':'mm','stops':STOPS_PRECIP},'bt108':{'titol':_0x1ec428(0x2d0),'unitat':'°C','stops':STOPS_BT108},'bt62':{'titol':_0x1ec428(0x513)+'vapor)','unitat':'°C','stops':STOPS_BT62},'t':{'titol':_0x1ec428(0x22d)+'a','unitat':'°C','stops':STOPS_TEMP_ALT},'u':{'titol':_0x1ec428(0x292),'unitat':_0x1ec428(0x482),'stops':STOPS_VENT_UV},'v':{'titol':_0x1ec428(0x488),'unitat':_0x1ec428(0x482),'stops':STOPS_VENT_UV},'wind_speed':{'titol':'Vent','unitat':_0x1ec428(0x7b9),'stops':STOPS_RATXA},'r':{'titol':_0x1ec428(0x6dc),'unitat':'%','stops':STOPS_HUMITAT},'w':{'titol':_0x1ec428(0x6e2)+_0x1ec428(0x3cd),'unitat':_0x1ec428(0x92),'stops':STOPS_VEL_VERT},'dpt':{'titol':_0x1ec428(0x25a)+'a','unitat':'°C','stops':STOPS_TEMP_ALT},'pv':{'titol':_0x1ec428(0x11d)+_0x1ec428(0x2ba),'unitat':'PVU','stops':STOPS_VORT_POT},'lcl_m':{'titol':_0x1ec428(0x2fc)+'a)','unitat':'m','stops':STOPS_ALTURA_CL},'lfc_m':{'titol':'LFC\x20(alçad'+'a)','unitat':'m','stops':STOPS_ALTURA_CL},'lifted_index':{'titol':_0x1ec428(0xb4)+'ex','unitat':'°C','stops':STOPS_LI},'el_m':{'titol':_0x1ec428(0x170)+_0x1ec428(0x15c),'unitat':'m','stops':STOPS_ALTURA_CL},'scp':{'titol':'SCP\x20(càlcu'+_0x1ec428(0x69d),'unitat':'Index','stops':STOPS_SCP},'scp_wcs':{'titol':_0x1ec428(0x5b1)+_0x1ec428(0x107),'unitat':_0x1ec428(0x75c),'stops':STOPS_SCP},'stp':{'titol':_0x1ec428(0x1ce)+_0x1ec428(0x107),'unitat':_0x1ec428(0x75c),'stops':STOPS_STP},'hail_cm':{'titol':'Calamarsa\x20'+_0x1ec428(0x73e)+_0x1ec428(0x404),'unitat':'cm','stops':STOPS_HAIL},'ehi':{'titol':_0x1ec428(0x30f)+_0x1ec428(0x725),'unitat':_0x1ec428(0x3f9),'stops':STOPS_EHI},'srh_01':{'titol':'SRH\x200-1km','unitat':_0x1ec428(0x3f9),'stops':STOPS_SRH},'srh_03':{'titol':_0x1ec428(0x37c),'unitat':'m²/s²','stops':STOPS_SRH},'shear_03':{'titol':'Shear\x200-3k'+'m','unitat':_0x1ec428(0x482),'stops':STOPS_SHEAR},'shear_06':{'titol':_0x1ec428(0x681)+'m','unitat':'m/s','stops':STOPS_SHEAR},'ciwc_500':{'titol':_0x1ec428(0x1c1)+'\x20500hPa','unitat':_0x1ec428(0x105),'stops':STOPS_GEL},'cld_rain_850':{'titol':'Pluja\x20núvo'+_0x1ec428(0x7fa),'unitat':_0x1ec428(0x105),'stops':STOPS_PLUJA},'tpw_700':{'titol':_0x1ec428(0x3a9)+'ip.\x20@700hP'+'a','unitat':_0x1ec428(0x6f2),'stops':STOPS_TPW},'tpw_850':{'titol':_0x1ec428(0x3a9)+'ip.\x20@850hP'+'a','unitat':'mm','stops':STOPS_TPW},'thetav_850':{'titol':'Theta\x20virt'+_0x1ec428(0x6b0),'unitat':'°C','stops':STOPS_THETAV},'geopotencial_500':{'titol':_0x1ec428(0xc6)+_0x1ec428(0x221),'unitat':'dam','stops':STOPS_GEO500},'temperatura_500':{'titol':_0x1ec428(0x22d)+'a\x20500hPa','unitat':'°C','stops':STOPS_T500},'altitud':{'titol':_0x1ec428(0x1b8),'unitat':'m','stops':STOPS_ALTURA_CL},'SNOW_DEPTH__GROUND_OR_WATER_SURFACE':{'titol':_0x1ec428(0x7d9)+'eu','unitat':'m','stops':STOPS_NEU},'WATER_EQUIVALENT_ACCUMULATED_SNOW__GROUND_OR_WATER_SURFACE':{'titol':_0x1ec428(0x251)+_0x1ec428(0x3ee),'unitat':'m','stops':STOPS_NEU},'PRECIPITATION_TYPE_60_MIN__GROUND_OR_WATER_SURFACE':{'titol':_0x1ec428(0x101)+_0x1ec428(0x538),'unitat':_0x1ec428(0x15d),'stops':STOPS_PRECIP_TYPE},'SEVERE_PRECIPITATION_TYPE_60_MIN__GROUND_OR_WATER_SURFACE':{'titol':'Tipus\x20prec'+_0x1ec428(0xbc)+_0x1ec428(0x74a),'unitat':'categ.','stops':STOPS_PRECIP_TYPE},'REFLECTIVITY_MAX__GROUND_OR_WATER_SURFACE':{'titol':_0x1ec428(0x5c9)+'tat\x20màxima','unitat':_0x1ec428(0xa4),'stops':STOPS_REFLECTIVITAT},'VISIBILITY_MINI_60MIN__GROUND_OR_WATER_SURFACE':{'titol':'Visibilita'+'t\x2060min','unitat':'m','stops':STOPS_VISIBILITAT},'VISIBILITY_MINI_PRECIP_60MIN__GROUND_OR_WATER_SURFACE':{'titol':_0x1ec428(0x491)+_0x1ec428(0x795)+_0x1ec428(0x78b),'unitat':'m','stops':STOPS_VISIBILITAT},'PRECIPITABLE_WATER__GROUND_OR_WATER_SURFACE':{'titol':'Aigua\x20prec'+'ipitable\x20('+_0x1ec428(0x7e4),'unitat':_0x1ec428(0x6f2),'stops':STOPS_TPW_WCS},'TEMPERATURE__GROUND_OR_WATER_SURFACE':{'titol':_0x1ec428(0x22d)+_0x1ec428(0x543)+_0x1ec428(0x61f),'unitat':'°C','stops':STOPS_TEMP_SFC_MODEL},'TOTAL_CLOUD_COVER__GROUND_OR_WATER_SURFACE':{'titol':_0x1ec428(0x823)+_0x1ec428(0x189),'unitat':'%','stops':STOPS_TOTAL_CLOUD},'MEAN_LAYER_CAPE__GROUND_OR_WATER_SURFACE':{'titol':_0x1ec428(0x1ae)+'na','unitat':'J/kg','stops':STOPS_CAPE_MITJANA},'DIAG_GRELE__GROUND_OR_WATER_SURFACE':{'titol':_0x1ec428(0x641)+_0x1ec428(0x4a6),'unitat':'Index','stops':STOPS_HAIL},'PRECIPITATION_TYPE_15_MIN__GROUND_OR_WATER_SURFACE':{'titol':_0x1ec428(0x101)+_0x1ec428(0x880),'unitat':'categ.','stops':STOPS_PRECIP_TYPE},'SEVERE_PRECIPITATION_TYPE_15_MIN__GROUND_OR_WATER_SURFACE':{'titol':'Tipus\x20prec'+_0x1ec428(0xbc)+_0x1ec428(0x24d),'unitat':_0x1ec428(0x15d),'stops':STOPS_PRECIP_TYPE},'TOTAL_PRECIPITATION_RATE__GROUND_OR_WATER_SURFACE':{'titol':_0x1ec428(0x5e6)+_0x1ec428(0xff),'unitat':'mm/h','stops':STOPS_PRECIP_RATE},'VISIBILITY_MINI_15MIN__GROUND_OR_WATER_SURFACE':{'titol':_0x1ec428(0x491)+'t\x2015min','unitat':'m','stops':STOPS_VISIBILITAT},'VISIBILITY_MINI_PRECIP_15MIN__GROUND_OR_WATER_SURFACE':{'titol':_0x1ec428(0x491)+'t\x20sota\x20pre'+'cip.\x2015min','unitat':'m','stops':STOPS_VISIBILITAT},'CIWC_MITJANA':{'titol':_0x1ec428(0x1c1)+_0x1ec428(0x32d),'unitat':_0x1ec428(0x7be),'stops':STOPS_CIWC_MITJANA},'CLD_RAIN_MITJANA':{'titol':_0x1ec428(0x126)+'ls\x20(mitjan'+'a)','unitat':_0x1ec428(0x7be),'stops':STOPS_CLD_RAIN_MITJANA},'TPW_MITJANA':{'titol':_0x1ec428(0x3a9)+_0x1ec428(0x6c3)+_0x1ec428(0x98),'unitat':'mm','stops':STOPS_TPW_MITJANA},'GEOPOTENTIAL_PV1500':{'titol':_0x1ec428(0xc6)+_0x1ec428(0x56d),'unitat':'dam','stops':STOPS_GEO_PV},'GEOPOTENTIAL_PV2000':{'titol':_0x1ec428(0xc6)+_0x1ec428(0x39a),'unitat':'dam','stops':STOPS_GEO_PV},'THETA_PV1500':{'titol':'Theta\x20PV=1'+'.5','unitat':'°C','stops':STOPS_THETA_PV},'THETA_PV2000':{'titol':_0x1ec428(0x11f)+'.0','unitat':'°C','stops':STOPS_THETA_PV},'U_PV1500':{'titol':_0x1ec428(0x748)+_0x1ec428(0x7cd),'unitat':'m/s','stops':STOPS_VENT_PV},'U_PV2000':{'titol':_0x1ec428(0x748)+_0x1ec428(0x86d),'unitat':'m/s','stops':STOPS_VENT_PV},'V_PV1500':{'titol':_0x1ec428(0x5f2)+'1.5','unitat':_0x1ec428(0x482),'stops':STOPS_VENT_PV},'V_PV2000':{'titol':'Vent\x20V\x20PV='+_0x1ec428(0x86d),'unitat':_0x1ec428(0x482),'stops':STOPS_VENT_PV},'WIND_PV1500':{'titol':'Vent\x20total'+_0x1ec428(0x454),'unitat':_0x1ec428(0x482),'stops':STOPS_WIND_PV},'WIND_PV2000':{'titol':_0x1ec428(0x57d)+_0x1ec428(0x44d),'unitat':_0x1ec428(0x482),'stops':STOPS_WIND_PV},'ALTITUDE_ISOTERMA_0C':{'titol':_0x1ec428(0xb8)+_0x1ec428(0x148),'unitat':'m','stops':STOPS_ISOTERMA},'ALTITUDE_ISOTERMA_M10C':{'titol':'Altitud\x20is'+_0x1ec428(0x410)+'°C','unitat':'m','stops':STOPS_ISOTERMA},'ALTITUDE__ISO_T_27315':{'titol':_0x1ec428(0x7a0)+'°C','unitat':'m','stops':STOPS_ISOTERMA},'ALTITUDE__ISO_TPW_27315':{'titol':'Iso\x20TPW\x200°'+'C','unitat':'m','stops':STOPS_ISOTERMA},'ALTITUDE__ISO_TPW_27415':{'titol':'Iso\x20TPW\x20+1'+'°C','unitat':'m','stops':STOPS_ISOTERMA},'ALTITUDE__ISO_TPW_27465':{'titol':_0x1ec428(0x724)+_0x1ec428(0x693),'unitat':'m','stops':STOPS_ISOTERMA},'BASE_NUAGE__GROUND':{'titol':_0x1ec428(0x7fd)+'s','unitat':'m','stops':STOPS_ALTURA_CL},'PLAFOND__GROUND':{'titol':_0x1ec428(0x411)+_0x1ec428(0x450),'unitat':'m','stops':STOPS_ALTURA_CL},'P__BASE_CB':{'titol':'Base\x20Cumul'+_0x1ec428(0x745),'unitat':'m','stops':STOPS_ALTURA_CL},'P__TOP_CB':{'titol':_0x1ec428(0x272)+_0x1ec428(0x152),'unitat':'m','stops':STOPS_ALTURA_CL},'HTEURNEIGE__GROUND':{'titol':_0x1ec428(0x279),'unitat':'mm','stops':STOPS_NEU},'NEIGE_SC__GROUND':{'titol':'Neu\x20superf'+_0x1ec428(0x268),'unitat':'mm','stops':STOPS_NEU},'RESR_NEIGE__GROUND':{'titol':_0x1ec428(0x1fb)+'u','unitat':'mm','stops':STOPS_NEU},'RR_SOL_GELE__GROUND':{'titol':_0x1ec428(0x2ea)+'da','unitat':'mm','stops':STOPS_PRECIP},'PRECIP__GROUND':{'titol':'Precipitac'+_0x1ec428(0x812),'unitat':'mm','stops':STOPS_PRECIP},'NEIGE__GROUND':{'titol':_0x1ec428(0x302),'unitat':'mm','stops':STOPS_NEU},'DIAG_GRELE__GROUND':{'titol':_0x1ec428(0x641)+_0x1ec428(0x33b)+')','unitat':_0x1ec428(0x75c),'stops':STOPS_HAIL},'FF__ISO_TP_1500':{'titol':_0x1ec428(0x2b6)+_0x1ec428(0x86f),'unitat':'m/s','stops':STOPS_VENT_PV},'FF__ISO_TP_2000':{'titol':_0x1ec428(0x6b6)+'0\x20(WCS)','unitat':_0x1ec428(0x482),'stops':STOPS_VENT_PV},'HELICITE__GROUND':{'titol':'Helicitat','unitat':_0x1ec428(0x3f9),'stops':STOPS_SRH},'T__GROUND':{'titol':_0x1ec428(0x22d)+'a\x20superfíc'+'ie','unitat':'°C','stops':STOPS_TEMP_SFC_MODEL}};!PALETES[_0x1ec428(0xfa)+_0x1ec428(0x1d6)]&&(PALETES[_0x1ec428(0xfa)+_0x1ec428(0x1d6)]={'titol':_0x1ec428(0xde),'unitat':_0x1ec428(0x7b9),'stops':STOPS_RATXA});function escalarVariablesMitjana(_0x1e9914){const _0x187f16=_0x1ec428;if(_0x1e9914[_0x187f16(0x423)+'NA']?.[_0x187f16(0x557)]){const _0x372ee9=_0x1e9914[_0x187f16(0x423)+'NA'][_0x187f16(0x557)],_0x8b8208=new Float32Array(_0x372ee9[_0x187f16(0x526)]);for(let _0x3802c7=0x0;_0x3802c7<_0x372ee9[_0x187f16(0x526)];_0x3802c7++)_0x8b8208[_0x3802c7]=_0x372ee9[_0x3802c7]*0x3e8;_0x1e9914['CIWC_MITJA'+'NA'][_0x187f16(0x557)]=_0x8b8208;}if(_0x1e9914[_0x187f16(0x6f6)+_0x187f16(0x733)]?.[_0x187f16(0x557)]){const _0x15e78f=_0x1e9914[_0x187f16(0x6f6)+_0x187f16(0x733)][_0x187f16(0x557)],_0x9d3308=new Float32Array(_0x15e78f[_0x187f16(0x526)]);for(let _0x4fcde6=0x0;_0x4fcde6<_0x15e78f['length'];_0x4fcde6++)_0x9d3308[_0x4fcde6]=_0x15e78f[_0x4fcde6]*0x64;_0x1e9914[_0x187f16(0x6f6)+_0x187f16(0x733)]['datos']=_0x9d3308;}if(_0x1e9914[_0x187f16(0x20a)+'A']?.['datos']){const _0x4404c7=_0x1e9914[_0x187f16(0x20a)+'A'][_0x187f16(0x557)],_0x5aef3f=new Float32Array(_0x4404c7[_0x187f16(0x526)]);for(let _0x25ee3a=0x0;_0x25ee3a<_0x4404c7[_0x187f16(0x526)];_0x25ee3a++)_0x5aef3f[_0x25ee3a]=_0x4404c7[_0x25ee3a];_0x1e9914[_0x187f16(0x20a)+'A']['datos']=_0x5aef3f;}return _0x1e9914;}const GRUP_PRINCIPAL=['st',_0x1ec428(0x1b2),_0x1ec428(0x186),_0x1ec428(0x630),'sd','srh',_0x1ec428(0xfa)+'_10m',_0x1ec428(0x6c9)],GRUPS_SIMPLES={'Ratxes\x20de\x20vent':[_0x1ec428(0xfa)+_0x1ec428(0x1d6),_0x1ec428(0x6c9)],'Temperatura\x20i\x20Humitat':['st','sd',_0x1ec428(0x186),'temp_max2m','TEMPERATUR'+'E__GROUND_'+'OR_WATER_S'+_0x1ec428(0x84a),'T__GROUND'],'Pressió':[_0x1ec428(0x1f2)+'sl','sp','PRESSURE__'+_0x1ec428(0x472)+_0x1ec428(0x68b)+'ACE',_0x1ec428(0x4d5)+_0x1ec428(0x7f7)+_0x1ec428(0x77c)],'Vent\x20en\x20nivells\x20(3D)':['wind_speed'+_0x1ec428(0x55b),_0x1ec428(0xfa)+_0x1ec428(0x874),'wind_speed'+_0x1ec428(0x512),_0x1ec428(0xfa)+_0x1ec428(0x7d8),_0x1ec428(0xfa)+'_875',_0x1ec428(0xfa)+_0x1ec428(0x1c9),'wind_speed'+'_800',_0x1ec428(0xfa)+_0x1ec428(0x2b9),_0x1ec428(0xfa)+_0x1ec428(0x507),_0x1ec428(0xfa)+_0x1ec428(0x5b4),_0x1ec428(0xfa)+_0x1ec428(0x9b),_0x1ec428(0xfa)+_0x1ec428(0x5be),_0x1ec428(0xfa)+'_500',_0x1ec428(0xfa)+_0x1ec428(0x780),_0x1ec428(0xfa)+_0x1ec428(0x536),_0x1ec428(0xfa)+_0x1ec428(0x79f),_0x1ec428(0xfa)+_0x1ec428(0x816),_0x1ec428(0xfa)+_0x1ec428(0x5d8),_0x1ec428(0xfa)+_0x1ec428(0x545),'wind_speed'+'_150',_0x1ec428(0xfa)+'_100'],'Velocitat\x20vertical':['w_925',_0x1ec428(0xb3),'w_700',_0x1ec428(0x2d8),_0x1ec428(0x26a)],'Shear\x20i\x20SRH':[_0x1ec428(0x887),_0x1ec428(0x5d6),_0x1ec428(0x184),'srh_03','srh',_0x1ec428(0x6e9)],'Precipitació':['tp',_0x1ec428(0x591),_0x1ec428(0x5d9)+_0x1ec428(0x734)+_0x1ec428(0x35d)+_0x1ec428(0x651)+_0x1ec428(0x672),_0x1ec428(0x70c)+_0x1ec428(0xbb)+_0x1ec428(0x895)+_0x1ec428(0x453)+_0x1ec428(0x2b4)+_0x1ec428(0x14f),_0x1ec428(0x76c)+_0x1ec428(0x88a)+'0_MIN__GRO'+_0x1ec428(0x737)+_0x1ec428(0x21d),_0x1ec428(0x434)+'CIPITATION'+_0x1ec428(0x5e5)+_0x1ec428(0xb0)+_0x1ec428(0x7b0)+'SURFACE',_0x1ec428(0x76c)+_0x1ec428(0x12d)+_0x1ec428(0x32c)+'UND_OR_WAT'+_0x1ec428(0x21d),'SEVERE_PRE'+_0x1ec428(0x17a)+'_TYPE_15_M'+_0x1ec428(0xb0)+_0x1ec428(0x7b0)+_0x1ec428(0x83d),_0x1ec428(0x20a)+'A',_0x1ec428(0x72b)+'LE_WATER__'+_0x1ec428(0x472)+'WATER_SURF'+_0x1ec428(0x429),'tpw_700','tpw_850',_0x1ec428(0x742)+_0x1ec428(0x5bc)],'Neu':[_0x1ec428(0x3d3)+_0x1ec428(0x335)+_0x1ec428(0x398)+_0x1ec428(0x48e),'WATER_EQUI'+'VALENT_ACC'+'UMULATED_S'+'NOW__GROUN'+'D_OR_WATER'+_0x1ec428(0x34e),_0x1ec428(0x608)+_0x1ec428(0x646),'NEIGE_SC__'+'GROUND','RESR_NEIGE'+_0x1ec428(0x646),_0x1ec428(0x879)+_0x1ec428(0x353),_0x1ec428(0x1a3)+_0x1ec428(0x342)],'Visibilitat':[_0x1ec428(0x2ed)+_0x1ec428(0x3c1)+_0x1ec428(0x39f)+'OR_WATER_S'+_0x1ec428(0x84a),_0x1ec428(0x2ed)+'_MINI_PREC'+_0x1ec428(0x678)+_0x1ec428(0x472)+_0x1ec428(0x68b)+'ACE','VISIBILITY'+_0x1ec428(0x45f)+_0x1ec428(0x39f)+_0x1ec428(0x21f)+_0x1ec428(0x84a),_0x1ec428(0x2ed)+_0x1ec428(0x192)+_0x1ec428(0x864)+_0x1ec428(0x472)+_0x1ec428(0x68b)+_0x1ec428(0x429)],'Inestabilitat\x20i\x20Convecció':[_0x1ec428(0x893),_0x1ec428(0x153),'MEAN_LAYER'+_0x1ec428(0x4c6)+_0x1ec428(0x737)+_0x1ec428(0x21d),'lifted_ind'+'ex','lcl_m','lfc_m',_0x1ec428(0x3ba),'thetav_850'],'Tornados\x20i\x20Supercèl·lules':[_0x1ec428(0x4bd),'scp_wcs','stp',_0x1ec428(0x166),_0x1ec428(0x5b9),_0x1ec428(0x376)+_0x1ec428(0x335)+_0x1ec428(0x398)+_0x1ec428(0x48e),_0x1ec428(0x376)+_0x1ec428(0x646),_0x1ec428(0x10b)+_0x1ec428(0x692)],'Cumulonimbus':['P__BASE_CB',_0x1ec428(0x9d)],'Reflectivitat\x20(Radar)':['radar_dbz','REFLECTIVI'+_0x1ec428(0x2e1)+'OUND_OR_WA'+_0x1ec428(0x185)+'E',_0x1ec428(0x597)+_0x1ec428(0x38e)+'__GROUND_O'+_0x1ec428(0x398)+'RFACE'],'Núvols':[_0x1ec428(0x1ee)+'cover',_0x1ec428(0x174)+_0x1ec428(0x540),_0x1ec428(0x1fd)+_0x1ec428(0xc0),_0x1ec428(0x1ba)+_0x1ec428(0x7f2)+_0x1ec428(0x1b4)+_0x1ec428(0x4b2)+'CE',_0x1ec428(0x423)+'NA','CLD_RAIN_M'+_0x1ec428(0x733),'ciwc_500',_0x1ec428(0x76a)+'50',_0x1ec428(0x55d)+_0x1ec428(0x646),'PLAFOND__G'+'ROUND'],'Satèl·lit':[_0x1ec428(0x568),_0x1ec428(0x83c)],'Geometria\x20i\x20Altitud':[_0x1ec428(0x3d8),_0x1ec428(0x1c7)+_0x1ec428(0xf8)+_0x1ec428(0x518)+'TER_SURFAC'+'E',_0x1ec428(0x66a),'PLANETARY_'+_0x1ec428(0x52c)+_0x1ec428(0x1c3)+_0x1ec428(0x4fa)+_0x1ec428(0x21f)+_0x1ec428(0x84a),'ALTITUDE_I'+'SOTERMA_0C',_0x1ec428(0xc3)+'SOTERMA_M1'+'0C',_0x1ec428(0x673)+_0x1ec428(0x2e4)+'5',_0x1ec428(0x673)+_0x1ec428(0x83f)+_0x1ec428(0x3f3),_0x1ec428(0x673)+_0x1ec428(0x83f)+_0x1ec428(0xbd),_0x1ec428(0x673)+'ISO_TPW_27'+_0x1ec428(0x5eb)],'PV\x20Superfícies':[_0x1ec428(0x198),_0x1ec428(0x480),_0x1ec428(0x5df),_0x1ec428(0x5d5),_0x1ec428(0x314),_0x1ec428(0x1e9),'GEOPOTENTI'+'AL_PV1500','GEOPOTENTI'+_0x1ec428(0x456),'THETA_PV15'+'00','THETA_PV20'+'00','U_PV1500',_0x1ec428(0x732),_0x1ec428(0x3dc),_0x1ec428(0x38c),_0x1ec428(0x2e6)+'0',_0x1ec428(0x869)+'0',_0x1ec428(0x294)+_0x1ec428(0x330),_0x1ec428(0x294)+_0x1ec428(0x4ff)]},GRUPS_ACORDIO={'Temperatura':['t'],'Punt\x20rosada':[_0x1ec428(0x29a)],'Humitat':['r'],'Vent\x20(nivells)':['wind_speed'],'Vel.\x20vertical':['w'],'Vort.\x20potencial':['pv']},CLAUS_3D=new Set(['t','u','v','r','w',_0x1ec428(0x29a),'pv',_0x1ec428(0xfa)]),VARIABLES_AMAGADES=new Set(['su','sv','u','v',_0x1ec428(0x6e9),_0x1ec428(0x531),'shear_06_e'+'ff',_0x1ec428(0x5c6),'sp',_0x1ec428(0x663),_0x1ec428(0x172)+_0x1ec428(0x281),_0x1ec428(0x752),_0x1ec428(0x7e5)+'er',_0x1ec428(0x291),_0x1ec428(0x655),_0x1ec428(0x4bd),_0x1ec428(0x83c),_0x1ec428(0x785)+_0x1ec428(0x449)+_0x1ec428(0x737)+_0x1ec428(0x21d),_0x1ec428(0x137)+'UD_COVER__'+_0x1ec428(0x472)+_0x1ec428(0x68b)+'ACE','HIGH_CLOUD'+_0x1ec428(0x774)+_0x1ec428(0x518)+'TER_SURFAC'+'E','TOTAL_CLOU'+_0x1ec428(0x7f2)+_0x1ec428(0x1b4)+'ATER_SURFA'+'CE','CONVECTIVE'+'_AVAILABLE'+_0x1ec428(0x248)+_0x1ec428(0x552)+'ROUND_OR_W'+_0x1ec428(0x4b2)+'CE',_0x1ec428(0x70c)+_0x1ec428(0x4d8)+_0x1ec428(0x39f)+'OR_WATER_S'+'URFACE',_0x1ec428(0x67f)+'D',_0x1ec428(0x6d5)+'_CAPE__GRO'+'UND_OR_WAT'+'ER_SURFACE',_0x1ec428(0x100)+_0x1ec428(0x52c)+_0x1ec428(0x1c3)+_0x1ec428(0x4fa)+_0x1ec428(0x21f)+_0x1ec428(0x84a),_0x1ec428(0x72b)+_0x1ec428(0x56e)+_0x1ec428(0x472)+_0x1ec428(0x68b)+_0x1ec428(0x429),'TEMPERATUR'+'E__GROUND_'+_0x1ec428(0x21f)+_0x1ec428(0x84a),'PRESSURE__'+_0x1ec428(0x472)+_0x1ec428(0x68b)+_0x1ec428(0x429),_0x1ec428(0x4d5)+_0x1ec428(0x7f7)+_0x1ec428(0x77c),'GEOMETRIC_'+_0x1ec428(0xf8)+_0x1ec428(0x518)+_0x1ec428(0x185)+'E']);function esVariableAmagada(_0x5463aa){const _0x3dd66a=_0x1ec428;if(VARIABLES_AMAGADES[_0x3dd66a(0x19e)](_0x5463aa))return!![];const _0x41c294=_0x5463aa[_0x3dd66a(0x4f6)](/^(.+)_(-?\d+)$/);if(_0x41c294&&VARIABLES_AMAGADES[_0x3dd66a(0x19e)](_0x41c294[0x1]))return!![];return![];}function esVariable3D(_0x15ac5c){const _0x2c9417=_0x1ec428;return CLAUS_3D[_0x2c9417(0x19e)](clauBase(_0x15ac5c));}function getCoordenadesPer(_0x32ddc5,_0x9d09c9){const _0xa85afb=_0x1ec428;if(esVariable3D(_0x9d09c9)&&_0x32ddc5[_0xa85afb(0x3d4)+_0xa85afb(0x1dd)])return _0x32ddc5[_0xa85afb(0x3d4)+_0xa85afb(0x1dd)];return _0x32ddc5[_0xa85afb(0x3d4)+'s'];}let variableActiva='st';window[_0x1ec428(0x6a2)+_0x1ec428(0x16e)]='st';function clauBase(_0x3dfc63){const _0x2b50e5=_0x1ec428;if(PALETES[_0x3dfc63])return _0x3dfc63;if(ALIES_CLAUS[_0x3dfc63]&&PALETES[ALIES_CLAUS[_0x3dfc63]])return ALIES_CLAUS[_0x3dfc63];const _0xb0f3fe=_0x3dfc63[_0x2b50e5(0x4f6)](/^(.+)_(-?\d+)$/);return _0xb0f3fe&&PALETES[_0xb0f3fe[0x1]]?_0xb0f3fe[0x1]:'st';}function getPaleta(_0x2c510d){return PALETES[clauBase(_0x2c510d)]||PALETES['st'];}function _0x4863(_0x5565db,_0x261f9c){_0x5565db=_0x5565db-0x90;const _0x4a57a6=_0x56e3();let _0x53f07a=_0x4a57a6[_0x5565db];return _0x53f07a;}function getColor(_0x13f7e6,_0xd42bfd){const _0xe70ce4=_0x1ec428,_0x14f6ca=_0x13f7e6['stops'];if(_0xd42bfd===null||_0xd42bfd===undefined||isNaN(_0xd42bfd))return{'r':0x0,'g':0x0,'b':0x0,'a':0x0};if(_0xd42bfd<=_0x14f6ca[0x0]['v'])return{'r':_0x14f6ca[0x0]['r'],'g':_0x14f6ca[0x0]['g'],'b':_0x14f6ca[0x0]['b'],'a':_0x14f6ca[0x0]['a']??0xdc};if(_0xd42bfd>=_0x14f6ca[_0x14f6ca[_0xe70ce4(0x526)]-0x1]['v'])return{'r':_0x14f6ca[_0x14f6ca['length']-0x1]['r'],'g':_0x14f6ca[_0x14f6ca[_0xe70ce4(0x526)]-0x1]['g'],'b':_0x14f6ca[_0x14f6ca[_0xe70ce4(0x526)]-0x1]['b'],'a':_0x14f6ca[_0x14f6ca[_0xe70ce4(0x526)]-0x1]['a']??0xdc};for(let _0x166974=0x0;_0x166974<_0x14f6ca[_0xe70ce4(0x526)]-0x1;_0x166974++){if(_0xe70ce4(0x560)===_0xe70ce4(0x560)){if(_0xd42bfd>=_0x14f6ca[_0x166974]['v']&&_0xd42bfd<=_0x14f6ca[_0x166974+0x1]['v']){const _0x443ac4=(_0xd42bfd-_0x14f6ca[_0x166974]['v'])/(_0x14f6ca[_0x166974+0x1]['v']-_0x14f6ca[_0x166974]['v']),_0x37e7a3=(_0x4894ec,_0x400a5c)=>Math[_0xe70ce4(0x7a7)](_0x4894ec+(_0x400a5c-_0x4894ec)*_0x443ac4);return{'r':_0x37e7a3(_0x14f6ca[_0x166974]['r'],_0x14f6ca[_0x166974+0x1]['r']),'g':_0x37e7a3(_0x14f6ca[_0x166974]['g'],_0x14f6ca[_0x166974+0x1]['g']),'b':_0x37e7a3(_0x14f6ca[_0x166974]['b'],_0x14f6ca[_0x166974+0x1]['b']),'a':_0x37e7a3(_0x14f6ca[_0x166974]['a']??0xdc,_0x14f6ca[_0x166974+0x1]['a']??0xdc)};}}else{_0x1975e3(_0x1ecc84),_0x2eb9e5[_0x3bc32f]=!![];const _0x491b3c=_0x48fb46[_0xe70ce4(0x847)+'tor'](_0xe70ce4(0x65e)+_0xe70ce4(0x6ce)+_0xe70ce4(0x1f8)+_0xe70ce4(0x240)+_0x454f7e+'\x22]');if(_0x491b3c){_0x491b3c[_0xe70ce4(0x847)+_0xe70ce4(0x36b)](_0xe70ce4(0x65e)+'rdio-fletx'+'a')[_0xe70ce4(0x615)+'t']='▾';const _0x3fb949=_0x491b3c[_0xe70ce4(0x771)+_0xe70ce4(0x2bc)];if(_0x3fb949&&_0x3fb949[_0xe70ce4(0x6bb)][_0xe70ce4(0x288)](_0xe70ce4(0x7f5)+_0xe70ce4(0x71b)))_0x3fb949['style'][_0xe70ce4(0x108)]=_0xe70ce4(0x59a);}}}return{'r':0x0,'g':0x0,'b':0x0,'a':0x0};}function calcularVelocitatVent(_0x583ba2){const _0x44deb0=_0x1ec428;if(_0x583ba2['su']&&_0x583ba2['sv']){const _0x432679=_0x583ba2['su'][_0x44deb0(0x557)],_0x4ffa47=_0x583ba2['sv'][_0x44deb0(0x557)];if(_0x432679[_0x44deb0(0x526)]===_0x4ffa47[_0x44deb0(0x526)]){const _0x2729ce=_0x432679[_0x44deb0(0x31d)]((_0x179f34,_0x5e9648)=>{const _0x14a081=_0x44deb0;if(_0x179f34===null||_0x4ffa47[_0x5e9648]===null||isNaN(_0x179f34)||isNaN(_0x4ffa47[_0x5e9648]))return null;return Math[_0x14a081(0x7a7)](Math[_0x14a081(0x7e6)](_0x179f34*_0x179f34+_0x4ffa47[_0x5e9648]*_0x4ffa47[_0x5e9648])*3.6*0xa)/0xa;});_0x583ba2[_0x44deb0(0xfa)+'_10m']={'nombre':_0x44deb0(0xde),'unidades':_0x44deb0(0x7b9),'datos':_0x2729ce};}}const _0x1a96ae=new Set();Object[_0x44deb0(0x7fe)](_0x583ba2)['forEach'](_0x55ba2b=>{const _0x35484c=_0x44deb0,_0x1cfe0c=_0x55ba2b[_0x35484c(0x4f6)](/^[uv]_(\d+)$/);if(_0x1cfe0c)_0x1a96ae['add'](parseInt(_0x1cfe0c[0x1]));}),_0x1a96ae[_0x44deb0(0x25d)](_0x178676=>{const _0x3687a3=_0x44deb0,_0x167c82='u_'+_0x178676,_0x57adaf='v_'+_0x178676;if(_0x583ba2[_0x167c82]&&_0x583ba2[_0x57adaf]){const _0x33d437=_0x583ba2[_0x167c82][_0x3687a3(0x557)],_0x54e7a2=_0x583ba2[_0x57adaf]['datos'];if(_0x33d437[_0x3687a3(0x526)]===_0x54e7a2['length']){const _0x1f3e18=_0x33d437[_0x3687a3(0x31d)]((_0x3ac849,_0x1e3a17)=>{const _0x4185c3=_0x3687a3;if(_0x3ac849===null||_0x54e7a2[_0x1e3a17]===null||isNaN(_0x3ac849)||isNaN(_0x54e7a2[_0x1e3a17]))return null;return Math['round'](Math[_0x4185c3(0x7e6)](_0x3ac849*_0x3ac849+_0x54e7a2[_0x1e3a17]*_0x54e7a2[_0x1e3a17])*3.6*0xa)/0xa;});_0x583ba2['wind_speed'+'_'+_0x178676]={'nombre':_0x3687a3(0x140)+_0x178676+_0x3687a3(0x4f8),'unidades':_0x3687a3(0x7b9),'datos':_0x1f3e18};}}});}let canvasVent=null,ctxVent=null;function _hauriaDeDibuixarVent(){const _0x27a991=_0x1ec428;if(!window[_0x27a991(0x212)+'d'])return![];const _0x3a0c60=clauBase(variableActiva);for(const _0x548e16 of VARS_SENSE_VENT){if('pIZBX'===_0x27a991(0xc1)){if(_0x3a0c60===_0x548e16)return![];if(variableActiva[_0x27a991(0x354)](_0x548e16+'_'))return![];}else _0x1c3e25();}const _0x3ac2fc=totesLesHores[curIdx];if(!_0x3ac2fc||!_0x3ac2fc[_0x27a991(0x5b6)]||!_0x3ac2fc[_0x27a991(0x5b6)][_0x27a991(0x86c)])return![];const _0x17eb02=_0x3ac2fc['data'];return!!(_0x17eb02[_0x27a991(0x86c)]['su']||_0x17eb02[_0x27a991(0x86c)]['u']);}function obtenirVentPerStreamlines(_0x19ca11,_0x190345){const _0x3aead8=_0x1ec428,_0x2a5376=getCoordenadesPer(_0x19ca11,_0x190345),_0x4f9e60=_0x2a5376[_0x3aead8(0x2aa)],_0x2600f1=_0x2a5376['lon'],_0x88927f=_0x4f9e60['length'],_0x522e5a=_0x2600f1[_0x3aead8(0x526)];let _0x3815df,_0x64dee5;const _0x4f3f9c=clauBase(_0x190345),_0xee94=['st','sd',_0x3aead8(0x2ae),'sp','pressure_m'+'sl',_0x3aead8(0x893),_0x3aead8(0x153),_0x3aead8(0x66a),_0x3aead8(0x752),_0x3aead8(0x49e),_0x3aead8(0x32a),_0x3aead8(0x6c4),'tp','tgrp','tsnowp',_0x3aead8(0x7e5)+'er',_0x3aead8(0x1ee)+_0x3aead8(0x2d7),_0x3aead8(0x174)+_0x3aead8(0x540),_0x3aead8(0x1fd)+_0x3aead8(0xc0),_0x3aead8(0x172)+'ty_dbz',_0x3aead8(0x663),_0x3aead8(0xfa)+'_10m',_0x3aead8(0x6c9),_0x3aead8(0x29b),_0x3aead8(0x176),_0x3aead8(0x206)+'ex','el_m',_0x3aead8(0x186),_0x3aead8(0x630),_0x3aead8(0x4bd),'scp_wcs',_0x3aead8(0x3b4),'hail_cm',_0x3aead8(0x166),'bt108','bt62',_0x3aead8(0x439),'cld_rain_8'+'50',_0x3aead8(0x323),'tpw_850',_0x3aead8(0x2ce),_0x3aead8(0x3d8)];if(_0xee94['includes'](_0x4f3f9c)||_0xee94['includes'](_0x190345))_0x3815df='su',_0x64dee5='sv';else{if(_0x4f3f9c===_0x3aead8(0xfa)){const _0x15400c=_0x190345['match'](/_(\d+)$/);_0x15400c&&(_0x3815df='u_'+_0x15400c[0x1],_0x64dee5='v_'+_0x15400c[0x1]);}else{const _0x1308fb=_0x190345[_0x3aead8(0x4f6)](/_(\d+)$/);_0x1308fb?(_0x3815df='u_'+_0x1308fb[0x1],_0x64dee5='v_'+_0x1308fb[0x1]):(_0x3815df='su',_0x64dee5='sv');}}const _0x2f4881=_0x19ca11['variables'][_0x3815df],_0x242dde=_0x19ca11[_0x3aead8(0x86c)][_0x64dee5];if(!_0x2f4881||!_0x242dde)return null;if(_0x2f4881[_0x3aead8(0x557)][_0x3aead8(0x526)]!==_0x88927f*_0x522e5a||_0x242dde[_0x3aead8(0x557)][_0x3aead8(0x526)]!==_0x88927f*_0x522e5a)return null;const _0x27a706=new Float32Array(_0x88927f*_0x522e5a),_0x3d6b86=new Float32Array(_0x88927f*_0x522e5a);for(let _0x13ce9d=0x0;_0x13ce9d<_0x88927f;_0x13ce9d++){const _0x33f4d8=_0x88927f-0x1-_0x13ce9d;for(let _0x44bb22=0x0;_0x44bb22<_0x522e5a;_0x44bb22++){const _0x452635=_0x33f4d8*_0x522e5a+_0x44bb22,_0x5600d4=_0x2f4881['datos'][_0x452635],_0x1269b7=_0x242dde[_0x3aead8(0x557)][_0x452635];if(_0x5600d4===null||_0x1269b7===null||isNaN(_0x5600d4)||isNaN(_0x1269b7))_0x27a706[_0x13ce9d*_0x522e5a+_0x44bb22]=0x0,_0x3d6b86[_0x13ce9d*_0x522e5a+_0x44bb22]=0x0;else{const _0x3699e1=Math[_0x3aead8(0x7e6)](_0x5600d4*_0x5600d4+_0x1269b7*_0x1269b7)*3.6;let _0x19ddf6=Math[_0x3aead8(0x689)](_0x1269b7,_0x5600d4)*0xb4/Math['PI'];_0x19ddf6=(0x10e-_0x19ddf6)%0x168;if(_0x19ddf6<0x0)_0x19ddf6+=0x168;_0x27a706[_0x13ce9d*_0x522e5a+_0x44bb22]=_0x3699e1,_0x3d6b86[_0x13ce9d*_0x522e5a+_0x44bb22]=_0x19ddf6;}}}return{'lats':_0x4f9e60,'lons':_0x2600f1,'Nlat':_0x88927f,'Nlon':_0x522e5a,'speed':_0x27a706,'dir':_0x3d6b86,'extent':[Math[_0x3aead8(0x5ac)](..._0x2600f1),Math['max'](..._0x2600f1),Math[_0x3aead8(0x5ac)](..._0x4f9e60),Math['max'](..._0x4f9e60)]};}function _dibuixarStreamlines(){const _0x11e805=_0x1ec428;if(!canvasVent)return;const _0x355310=ctxVent,_0x3e9b01=canvasVent['width'],_0x11fa99=canvasVent[_0x11e805(0x408)];_0x355310[_0x11e805(0x784)](0x0,0x0,_0x3e9b01,_0x11fa99);if(!_hauriaDeDibuixarVent())return;if(window['ventMode']!==_0x11e805(0x7bc)+'s')return;const _0x3f24e3=totesLesHores[curIdx];if(!_0x3f24e3||!_0x3f24e3[_0x11e805(0x5b6)])return;const _0x2b568d=_0x3f24e3[_0x11e805(0x5b6)],_0x2655c1=obtenirVentPerStreamlines(_0x2b568d,variableActiva);if(!_0x2655c1)return;const {Nlat:_0x2c8266,Nlon:_0x195f77,speed:_0x16675c,dir:_0x381ab7,extent:_0x50ba0f}=_0x2655c1;function _0x30da4b(_0x48daa7,_0x2f6e24){const _0x56c8f6=_0x11e805;if(_0x56c8f6(0x87d)===_0x56c8f6(0x4c5))return _0x44ca8a['parse'](_0x3828e7);else{if(_0x48daa7<0x0||_0x48daa7>_0x3e9b01||_0x2f6e24<0x0||_0x2f6e24>_0x11fa99)return null;const _0x1f167c=map[_0x56c8f6(0x3fd)+_0x56c8f6(0x78d)+'ng']([_0x48daa7,_0x2f6e24]),_0x245ca0=(_0x1f167c[_0x56c8f6(0x57c)]-_0x50ba0f[0x0])/(_0x50ba0f[0x1]-_0x50ba0f[0x0])*(_0x195f77-0x1),_0xa3fa26=(_0x50ba0f[0x3]-_0x1f167c[_0x56c8f6(0x2aa)])/(_0x50ba0f[0x3]-_0x50ba0f[0x2])*(_0x2c8266-0x1);if(_0x245ca0<0x0||_0x245ca0>=_0x195f77-0x1||_0xa3fa26<0x0||_0xa3fa26>=_0x2c8266-0x1)return null;const _0x3902e3=_0x245ca0|0x0,_0x16cd76=_0xa3fa26|0x0,_0xbbefef=_0x245ca0-_0x3902e3,_0x5d88d2=_0xa3fa26-_0x16cd76,_0x263942=Math[_0x56c8f6(0x5ac)](_0x3902e3+0x1,_0x195f77-0x1),_0x29e2cd=Math['min'](_0x16cd76+0x1,_0x2c8266-0x1),_0xc6f02f=(_0x2c20f1,_0x50e1bf)=>{const _0x28f11e=_0x56c8f6;if(_0x28f11e(0x735)===_0x28f11e(0x7db))_0x6e623d[_0x28f11e(0x7bc)+_0x28f11e(0x31a)]=_0xf5b168,_0xe14987();else{const _0x4d863e=_0x50e1bf*_0x195f77+_0x2c20f1,_0x40e278=_0x16675c[_0x4d863e],_0x1981a9=(0x10e-_0x381ab7[_0x4d863e])*0.01745329252;return{'u':_0x40e278*Math[_0x28f11e(0x366)](_0x1981a9),'v':_0x40e278*Math['sin'](_0x1981a9)};}},_0x32db00=_0xc6f02f(_0x3902e3,_0x16cd76),_0x52cb87=_0xc6f02f(_0x263942,_0x16cd76),_0x5080a1=_0xc6f02f(_0x3902e3,_0x29e2cd),_0x3eacac=_0xc6f02f(_0x263942,_0x29e2cd);return{'u':(0x1-_0x5d88d2)*((0x1-_0xbbefef)*_0x32db00['u']+_0xbbefef*_0x52cb87['u'])+_0x5d88d2*((0x1-_0xbbefef)*_0x5080a1['u']+_0xbbefef*_0x3eacac['u']),'v':(0x1-_0x5d88d2)*((0x1-_0xbbefef)*_0x32db00['v']+_0xbbefef*_0x52cb87['v'])+_0x5d88d2*((0x1-_0xbbefef)*_0x5080a1['v']+_0xbbefef*_0x3eacac['v'])};}}const _0x804261=0x1c,_0x4ceca7=2.5,_0x2f396b=0x2d,_0x40a180=0x8,_0x122cdc=Math[_0x11e805(0x1a7)](_0x3e9b01/_0x40a180)+0x1,_0x55c114=Math[_0x11e805(0x1a7)](_0x11fa99/_0x40a180)+0x1,_0x3e24bd=new Uint8Array(_0x122cdc*_0x55c114),_0x262fdf=wCfg[_0x11e805(0x7bc)+_0x11e805(0x31a)]===_0x11e805(0x2e5)?_0x11e805(0x523)+_0x11e805(0x229)+wCfg[_0x11e805(0x7bc)+'Opacity']+')':'rgba(0,\x200,'+_0x11e805(0x52f)+wCfg['streamline'+'Opacity']+')';function _0x3956a5(_0x277ab2,_0x93c38b){const _0x306c1e=_0x11e805;if(_0x277ab2===_0x306c1e(0x2e5))return _0x306c1e(0x523)+_0x306c1e(0x229)+_0x93c38b+')';if(_0x277ab2===_0x306c1e(0x709))return'rgba(0,\x200,'+_0x306c1e(0x52f)+_0x93c38b+')';const _0x3d949f=/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i[_0x306c1e(0x42f)](_0x277ab2||'');if(!_0x3d949f)return'rgba(0,\x200,'+'\x200,\x20'+_0x93c38b+')';const _0x4b3c33=parseInt(_0x3d949f[0x1],0x10),_0x46edf8=parseInt(_0x3d949f[0x2],0x10),_0x2ec0b7=parseInt(_0x3d949f[0x3],0x10);return'rgba('+_0x4b3c33+',\x20'+_0x46edf8+',\x20'+_0x2ec0b7+',\x20'+_0x93c38b+')';}_0x355310[_0x11e805(0x638)](),_0x355310[_0x11e805(0x3a5)]=_0x11e805(0x7a7),_0x355310['lineJoin']=_0x11e805(0x7a7),_0x355310[_0x11e805(0x7b5)]=wCfg[_0x11e805(0x7bc)+'Width'],_0x355310[_0x11e805(0x2ee)+'e']=_0x262fdf,_0x355310[_0x11e805(0x59c)]=0x0;for(let _0x269f1e=0x0;_0x269f1e<_0x11fa99;_0x269f1e+=_0x804261){for(let _0x178818=0x0;_0x178818<_0x3e9b01;_0x178818+=_0x804261){let _0x49a6f3=_0x178818+(Math[_0x11e805(0x57f)]()-0.5)*_0x804261*0.6,_0x41d32d=_0x269f1e+(Math['random']()-0.5)*_0x804261*0.6;const _0x412bb0=Math[_0x11e805(0x1a7)](_0x49a6f3/_0x40a180),_0x2c8df2=Math[_0x11e805(0x1a7)](_0x41d32d/_0x40a180);if(_0x2c8df2<0x0||_0x2c8df2>=_0x55c114||_0x412bb0<0x0||_0x412bb0>=_0x122cdc)continue;if(_0x3e24bd[_0x2c8df2*_0x122cdc+_0x412bb0])continue;const _0x157382=[],_0x576a16=[];let _0x5cd95d=_0x49a6f3,_0x1bb704=_0x41d32d;for(let _0x7d1f98=0x0;_0x7d1f98<_0x2f396b;_0x7d1f98++){const _0x412460=_0x30da4b(_0x5cd95d,_0x1bb704);if(!_0x412460)break;const _0x2a8f0b=Math[_0x11e805(0x79c)](_0x412460['u'],_0x412460['v']);if(_0x2a8f0b<0.2)break;_0x5cd95d+=_0x412460['u']/_0x2a8f0b*_0x4ceca7,_0x1bb704-=_0x412460['v']/_0x2a8f0b*_0x4ceca7;const _0x1dffce=Math['floor'](_0x5cd95d/_0x40a180),_0x177d68=Math[_0x11e805(0x1a7)](_0x1bb704/_0x40a180);if(_0x177d68<0x0||_0x177d68>=_0x55c114||_0x1dffce<0x0||_0x1dffce>=_0x122cdc)break;if(_0x3e24bd[_0x177d68*_0x122cdc+_0x1dffce])break;_0x157382[_0x11e805(0x3d2)]([_0x5cd95d,_0x1bb704]);}_0x5cd95d=_0x49a6f3,_0x1bb704=_0x41d32d;for(let _0x4c16a0=0x0;_0x4c16a0<_0x2f396b;_0x4c16a0++){const _0x161ebe=_0x30da4b(_0x5cd95d,_0x1bb704);if(!_0x161ebe)break;const _0xe9181d=Math[_0x11e805(0x79c)](_0x161ebe['u'],_0x161ebe['v']);if(_0xe9181d<0.2)break;_0x5cd95d-=_0x161ebe['u']/_0xe9181d*_0x4ceca7,_0x1bb704+=_0x161ebe['v']/_0xe9181d*_0x4ceca7;const _0x55baa7=Math[_0x11e805(0x1a7)](_0x5cd95d/_0x40a180),_0xe6c7a=Math['floor'](_0x1bb704/_0x40a180);if(_0xe6c7a<0x0||_0xe6c7a>=_0x55c114||_0x55baa7<0x0||_0x55baa7>=_0x122cdc)break;if(_0x3e24bd[_0xe6c7a*_0x122cdc+_0x55baa7])break;_0x576a16[_0x11e805(0x3d2)]([_0x5cd95d,_0x1bb704]);}const _0x48e566=[..._0x576a16['reverse'](),[_0x49a6f3,_0x41d32d],..._0x157382];if(_0x48e566['length']<=0xc)continue;for(let _0x3b8496=0x0;_0x3b8496<_0x48e566[_0x11e805(0x526)];_0x3b8496+=0x3){if(_0x11e805(0x756)!=='iLQSQ'){const _0x337ae2=Math['floor'](_0x48e566[_0x3b8496][0x0]/_0x40a180),_0x410561=Math['floor'](_0x48e566[_0x3b8496][0x1]/_0x40a180);if(_0x410561>=0x0&&_0x410561<_0x55c114&&_0x337ae2>=0x0&&_0x337ae2<_0x122cdc)_0x3e24bd[_0x410561*_0x122cdc+_0x337ae2]=0x1;}else{const _0x2c5a58=_0x2e7ac5(_0x38a84a['value']);_0x236e79['querySelec'+_0x11e805(0x36b)](_0x11e805(0x561)+'da')['textConten'+'t']=_0x2c5a58[_0x11e805(0x695)](0x1);if(typeof _0x527bf2!=='undefined')_0x53e769['configurar']({'midaParticula':_0x2c5a58});_0x5b7412({'ventMida':_0x2c5a58});}}_0x355310[_0x11e805(0x4ad)](),_0x355310['moveTo'](_0x48e566[0x0][0x0],_0x48e566[0x0][0x1]);for(let _0x4b083d=0x1;_0x4b083d<_0x48e566[_0x11e805(0x526)]-0x1;_0x4b083d++){const _0x247633=(_0x48e566[_0x4b083d][0x0]+_0x48e566[_0x4b083d+0x1][0x0])/0x2,_0x8f1ad3=(_0x48e566[_0x4b083d][0x1]+_0x48e566[_0x4b083d+0x1][0x1])/0x2;_0x355310['quadraticC'+'urveTo'](_0x48e566[_0x4b083d][0x0],_0x48e566[_0x4b083d][0x1],_0x247633,_0x8f1ad3);}_0x355310['stroke']();if(_0x48e566[_0x11e805(0x526)]>0x19){if('uyWzD'===_0x11e805(0x565)){const _0x1e2032=Math['floor'](_0x48e566['length']/0x4);for(let _0x331e68=_0x1e2032;_0x331e68<_0x48e566['length']-0x3;_0x331e68+=_0x1e2032){const _0x211434=_0x48e566[_0x331e68],_0x249124=_0x48e566[_0x331e68+0x2];if(_0x211434&&_0x249124){const _0x510190=Math[_0x11e805(0x689)](_0x249124[0x1]-_0x211434[0x1],_0x249124[0x0]-_0x211434[0x0]);_0x355310['beginPath'](),_0x355310[_0x11e805(0x205)](_0x211434[0x0],_0x211434[0x1]),_0x355310[_0x11e805(0x1ec)](_0x211434[0x0]-0x4*Math[_0x11e805(0x366)](_0x510190-0.6),_0x211434[0x1]-0x4*Math[_0x11e805(0x3e8)](_0x510190-0.6)),_0x355310[_0x11e805(0x205)](_0x211434[0x0],_0x211434[0x1]),_0x355310['lineTo'](_0x211434[0x0]-0x4*Math[_0x11e805(0x366)](_0x510190+0.6),_0x211434[0x1]-0x4*Math[_0x11e805(0x3e8)](_0x510190+0.6)),_0x355310[_0x11e805(0xf5)]();}}}else _0x47871c='u_'+_0x46cfdb[0x1],_0x212f1b='v_'+_0x250fb8[0x1];}}}_0x355310[_0x11e805(0x61c)]();}function inicialitzarCanvasVent(){const _0x52aed2=_0x1ec428;if(canvasVent)return;canvasVent=document[_0x52aed2(0x1d2)+_0x52aed2(0x493)]('canvas'),canvasVent[_0x52aed2(0x5c7)]['cssText']=_0x52aed2(0x179)+_0x52aed2(0x2dd)+_0x52aed2(0x6d1)+_0x52aed2(0x81a)+'vents:none'+';',map[_0x52aed2(0x38f)](_0x52aed2(0x6f9))[_0x52aed2(0x575)+'d'](canvasVent),ctxVent=canvasVent[_0x52aed2(0x587)]('2d'),map['on'](_0x52aed2(0x462),_redibuixarCanvasVent),map['on'](_0x52aed2(0x82c),_redibuixarCanvasVent),_redibuixarCanvasVent();}function _redibuixarCanvasVent(){const _0x4d38dd=_0x1ec428;if(!canvasVent)return;const _0x5c2545=map['getSize']();canvasVent[_0x4d38dd(0x3af)]=_0x5c2545['x'],canvasVent[_0x4d38dd(0x408)]=_0x5c2545['y'],L[_0x4d38dd(0xa2)][_0x4d38dd(0x888)+'n'](canvasVent,map[_0x4d38dd(0x3fd)+_0x4d38dd(0x80b)+_0x4d38dd(0x814)]([0x0,0x0])),_dibuixarStreamlines();}function redibuixarVent(){_redibuixarCanvasVent();}window[_0x1ec428(0x35a)]=function(){const _0x4cac71=_0x1ec428;window[_0x4cac71(0x212)+'d']=!window['ventEnable'+'d'];const _0x593bfb=document[_0x4cac71(0x7b2)+_0x4cac71(0x51e)](_0x4cac71(0x821));_0x593bfb&&(_0x593bfb[_0x4cac71(0x615)+'t']=window['ventEnable'+'d']?_0x4cac71(0x6fe):_0x4cac71(0x783),_0x593bfb[_0x4cac71(0x5c7)][_0x4cac71(0x846)]=window[_0x4cac71(0x212)+'d']?'#2a5a8a':_0x4cac71(0x204));!window[_0x4cac71(0x212)+'d']&&canvasVent&&ctxVent[_0x4cac71(0x784)](0x0,0x0,canvasVent['width'],canvasVent['height']);if(window[_0x4cac71(0x212)+'d'])_redibuixarCanvasVent();return window[_0x4cac71(0x212)+'d'];},window['toggleVent'+'Mode']=function(){const _0x61264e=_0x1ec428;return window[_0x61264e(0x370)]=window['ventMode']==='streamline'+'s'?_0x61264e(0x417):'streamline'+'s',window[_0x61264e(0x370)]!==_0x61264e(0x7bc)+'s'&&canvasVent&&(_0x61264e(0x755)===_0x61264e(0x755)?ctxVent[_0x61264e(0x784)](0x0,0x0,canvasVent[_0x61264e(0x3af)],canvasVent['height']):(_0x14ae6a&&_0x51ae45['length']>0x0&&(_0x5aa756(),_0x12c91e(),_0x456f5d(_0x3fc53b)),typeof _0x419066[_0x61264e(0x5dd)+_0x61264e(0x498)]===_0x61264e(0x223)&&_0x4e754a[_0x61264e(0x5dd)+_0x61264e(0x498)]())),_redibuixarCanvasVent(),window['ventMode'];},window['setStreaml'+_0x1ec428(0x2b7)]=function(_0x272020){const _0x524f05=_0x1ec428;wCfg[_0x524f05(0x7bc)+_0x524f05(0x31a)]=_0x272020,_redibuixarCanvasVent();},window['setStreaml'+_0x1ec428(0x228)+'x']=function(_0x5a6fde){const _0x3d4190=_0x1ec428;wCfg[_0x3d4190(0x7bc)+_0x3d4190(0x31a)]=_0x5a6fde,_redibuixarCanvasVent();},window[_0x1ec428(0x51f)+_0x1ec428(0x131)]=function(_0x20d6f0){const _0x96e79=_0x1ec428;wCfg[_0x96e79(0x7bc)+_0x96e79(0x5fd)]=Math[_0x96e79(0x5ac)](0x3,Math['max'](0.5,_0x20d6f0)),_redibuixarCanvasVent();},window[_0x1ec428(0x51f)+'ineOpacity']=function(_0x96b0c5){const _0x1ab657=_0x1ec428;wCfg[_0x1ab657(0x7bc)+_0x1ab657(0x559)]=Math[_0x1ab657(0x5ac)](0x1,Math[_0x1ab657(0x7a4)](0.1,_0x96b0c5)),_redibuixarCanvasVent();};const CanvasLayer=L[_0x1ec428(0x46d)][_0x1ec428(0x848)]({'initialize':function(){const _0x83ac67=_0x1ec428;this[_0x83ac67(0x42c)]=null,this['_data']=null,this[_0x83ac67(0x3ff)]=null,this[_0x83ac67(0x1df)+'aw']=!![];},'onAdd':function(_0x4c3825){const _0x368cab=_0x1ec428;this[_0x368cab(0x463)]=_0x4c3825;const _0x1ab923=document[_0x368cab(0x1d2)+'ent'](_0x368cab(0x4a8));_0x1ab923[_0x368cab(0x5c7)]['cssText']=_0x368cab(0x179)+_0x368cab(0x2dd)+'p:0;left:0'+_0x368cab(0x81a)+_0x368cab(0x3a8)+';',_0x4c3825[_0x368cab(0x38f)](_0x368cab(0x47f))[_0x368cab(0x575)+'d'](_0x1ab923),this[_0x368cab(0x42c)]=_0x1ab923,_0x4c3825['on'](_0x368cab(0x81b)+_0x368cab(0x1b7),this[_0x368cab(0x471)],this),this[_0x368cab(0x471)]();},'onRemove':function(_0x5bbd56){const _0x5963b4=_0x1ec428;_0x5bbd56[_0x5963b4(0x38f)](_0x5963b4(0x47f))[_0x5963b4(0x349)+'d'](this[_0x5963b4(0x42c)]),_0x5bbd56['off'](_0x5963b4(0x81b)+_0x5963b4(0x1b7),this['_render'],this);},'setData':function(_0x3ecfcb){const _0x4c319d=_0x1ec428;this[_0x4c319d(0x3a7)]=_0x3ecfcb,this['_needsRedr'+'aw']=!![],this[_0x4c319d(0x471)]();},'_drawOffscreen':function(){const _0x25b324=_0x1ec428;if(!this[_0x25b324(0x3a7)])return;const _0x49759a=getCoordenadesPer(this[_0x25b324(0x3a7)],variableActiva),_0x567f2b=_0x49759a[_0x25b324(0x2aa)],_0x346ed0=_0x49759a[_0x25b324(0x2c7)],_0x2f6aac=_0x567f2b[_0x25b324(0x526)],_0x5150c9=_0x346ed0['length'],_0x3fcb65=clauRealPerLlegir(variableActiva),_0x27b868=this['_data'][_0x25b324(0x86c)][_0x3fcb65]||this[_0x25b324(0x3a7)][_0x25b324(0x86c)][variableActiva];if(!_0x27b868||!_0x27b868[_0x25b324(0x557)]){if(this[_0x25b324(0x3ff)]){const _0x3976ff=this[_0x25b324(0x3ff)][_0x25b324(0x587)]('2d');_0x3976ff[_0x25b324(0x784)](0x0,0x0,this[_0x25b324(0x3ff)][_0x25b324(0x3af)],this[_0x25b324(0x3ff)][_0x25b324(0x408)]);}this[_0x25b324(0x1df)+'aw']=![];return;}const _0x5d6386=_0x27b868[_0x25b324(0x557)];if(_0x5d6386[_0x25b324(0x526)]!==_0x2f6aac*_0x5150c9){if('vsihG'==='qPvpg'){const _0x35e6d3=this[_0x25b324(0x3ff)]['getContext']('2d');_0x35e6d3['clearRect'](0x0,0x0,this[_0x25b324(0x3ff)]['width'],this[_0x25b324(0x3ff)][_0x25b324(0x408)]);}else{if(this[_0x25b324(0x3ff)]){if(_0x25b324(0x20b)!==_0x25b324(0x3cf)){const _0x3a9924=this[_0x25b324(0x3ff)][_0x25b324(0x587)]('2d');_0x3a9924['clearRect'](0x0,0x0,this[_0x25b324(0x3ff)]['width'],this['_offscreen'][_0x25b324(0x408)]);}else{if(_0x401032<0x0||_0x301943>_0x177b85||_0x142bbc<0x0||_0x1548ab>_0x48f87f)return null;const _0x244a52=_0x3df038[_0x25b324(0x3fd)+'ointToLatL'+'ng']([_0x5de466,_0x1dee26]),_0x50242b=(_0x244a52[_0x25b324(0x57c)]-_0x259b9b[0x0])/(_0x574cb5[0x1]-_0x59cdf6[0x0])*(_0x40d9ef-0x1),_0x1c4f42=(_0x4c7d34[0x3]-_0x244a52[_0x25b324(0x2aa)])/(_0x306bf9[0x3]-_0x2bb339[0x2])*(_0x37b2a8-0x1);if(_0x50242b<0x0||_0x50242b>=_0x88e878-0x1||_0x1c4f42<0x0||_0x1c4f42>=_0x40478b-0x1)return null;const _0x40b7ea=_0x50242b|0x0,_0x469ea7=_0x1c4f42|0x0,_0x211b1c=_0x50242b-_0x40b7ea,_0x351bda=_0x1c4f42-_0x469ea7,_0x4827b2=_0x4d4508['min'](_0x40b7ea+0x1,_0x723a96-0x1),_0x5e28c0=_0x3a2bad[_0x25b324(0x5ac)](_0x469ea7+0x1,_0x117f86-0x1),_0x474215=(_0x21de4a,_0x2b9a25)=>{const _0xb443c8=_0x25b324,_0x2c73af=_0x2b9a25*_0x33e9ab+_0x21de4a,_0x1436ed=_0x579356[_0x2c73af],_0x56e53e=(0x10e-_0x271d47[_0x2c73af])*0.01745329252;return{'u':_0x1436ed*_0x2ced4e[_0xb443c8(0x366)](_0x56e53e),'v':_0x1436ed*_0x551f6c[_0xb443c8(0x3e8)](_0x56e53e)};},_0x3213b8=_0x474215(_0x40b7ea,_0x469ea7),_0x1f483c=_0x474215(_0x4827b2,_0x469ea7),_0x4415a4=_0x474215(_0x40b7ea,_0x5e28c0),_0x45c479=_0x474215(_0x4827b2,_0x5e28c0);return{'u':(0x1-_0x351bda)*((0x1-_0x211b1c)*_0x3213b8['u']+_0x211b1c*_0x1f483c['u'])+_0x351bda*((0x1-_0x211b1c)*_0x4415a4['u']+_0x211b1c*_0x45c479['u']),'v':(0x1-_0x351bda)*((0x1-_0x211b1c)*_0x3213b8['v']+_0x211b1c*_0x1f483c['v'])+_0x351bda*((0x1-_0x211b1c)*_0x4415a4['v']+_0x211b1c*_0x45c479['v'])};}}this[_0x25b324(0x1df)+'aw']=![];return;}}const _0x5839be=getPaleta(variableActiva);(!this[_0x25b324(0x3ff)]||this[_0x25b324(0x3ff)][_0x25b324(0x3af)]!==_0x5150c9||this['_offscreen'][_0x25b324(0x408)]!==_0x2f6aac)&&(this['_offscreen']=document[_0x25b324(0x1d2)+_0x25b324(0x493)](_0x25b324(0x4a8)),this[_0x25b324(0x3ff)]['width']=_0x5150c9,this['_offscreen'][_0x25b324(0x408)]=_0x2f6aac);const _0x1846df=this[_0x25b324(0x3ff)]['getContext']('2d'),_0xa06099=_0x1846df[_0x25b324(0x23d)+_0x25b324(0x219)](_0x5150c9,_0x2f6aac),_0x2503fa=_0xa06099['data'],_0x1634a1=['st','sd','t',_0x25b324(0x29a),_0x25b324(0x186),'temp_max2m'],_0x4d985e=clauBase(variableActiva),_0x124d2f=_0x1634a1[_0x25b324(0x337)](_0x4d985e);for(let _0x32959a=0x0;_0x32959a<_0x2f6aac;_0x32959a++){const _0x4208bc=_0x2f6aac-0x1-_0x32959a;for(let _0x2bef15=0x0;_0x2bef15<_0x5150c9;_0x2bef15++){let _0x202a74=_0x5d6386[_0x4208bc*_0x5150c9+_0x2bef15];_0x124d2f&&_0x202a74!==null&&!isNaN(_0x202a74)&&_0x202a74>0x64&&(_0x202a74=_0x202a74-273.15);const _0xed9655=(_0x32959a*_0x5150c9+_0x2bef15)*0x4;if(_0x202a74===null||isNaN(_0x202a74)){if(_0x25b324(0x77e)===_0x25b324(0x136))return;else _0x2503fa[_0xed9655+0x3]=0x0;}else{const _0x36ba23=getColor(_0x5839be,_0x202a74);_0x2503fa[_0xed9655]=_0x36ba23['r'],_0x2503fa[_0xed9655+0x1]=_0x36ba23['g'],_0x2503fa[_0xed9655+0x2]=_0x36ba23['b'],_0x2503fa[_0xed9655+0x3]=_0x36ba23['a'];}}}_0x1846df[_0x25b324(0x2a1)+'ta'](_0xa06099,0x0,0x0),this[_0x25b324(0x1df)+'aw']=![];},'_render':function(){const _0x3be0b7=_0x1ec428;if(!this[_0x3be0b7(0x3a7)]||!this['_map'])return;if(this[_0x3be0b7(0x1df)+'aw'])this[_0x3be0b7(0x644)+'reen']();const _0x2e479d=this[_0x3be0b7(0x463)],_0x469cab=_0x2e479d['getSize'](),_0x278904=this[_0x3be0b7(0x42c)];_0x278904[_0x3be0b7(0x3af)]=_0x469cab['x'],_0x278904['height']=_0x469cab['y'];const _0x35f912=_0x278904[_0x3be0b7(0x587)]('2d');_0x35f912[_0x3be0b7(0x784)](0x0,0x0,_0x278904[_0x3be0b7(0x3af)],_0x278904[_0x3be0b7(0x408)]),L['DomUtil']['setPositio'+'n'](_0x278904,_0x2e479d[_0x3be0b7(0x3fd)+_0x3be0b7(0x80b)+'rPoint']([0x0,0x0]));const _0x52233e=getCoordenadesPer(this[_0x3be0b7(0x3a7)],variableActiva),_0x2bd19b=_0x52233e[_0x3be0b7(0x2aa)],_0x29ccf8=_0x52233e[_0x3be0b7(0x2c7)],_0x178c82=Math[_0x3be0b7(0x7a4)](_0x2bd19b[0x0],_0x2bd19b[_0x2bd19b[_0x3be0b7(0x526)]-0x1]),_0x4fdd8b=Math[_0x3be0b7(0x5ac)](_0x2bd19b[0x0],_0x2bd19b[_0x2bd19b[_0x3be0b7(0x526)]-0x1]),_0xd5b086=Math[_0x3be0b7(0x5ac)](_0x29ccf8[0x0],_0x29ccf8[_0x29ccf8[_0x3be0b7(0x526)]-0x1]),_0x287b8a=Math[_0x3be0b7(0x7a4)](_0x29ccf8[0x0],_0x29ccf8[_0x29ccf8[_0x3be0b7(0x526)]-0x1]),_0x25ff1f=_0x2e479d[_0x3be0b7(0xcd)+'ntainerPoi'+'nt'](L[_0x3be0b7(0x96)](_0x178c82,_0xd5b086)),_0x537752=_0x2e479d[_0x3be0b7(0xcd)+_0x3be0b7(0x59f)+'nt'](L['latLng'](_0x4fdd8b,_0x287b8a)),_0x291876=_0x25ff1f['x'],_0x5707a4=_0x25ff1f['y'],_0xee1f15=_0x537752['x']-_0x25ff1f['x'],_0x5f87e0=_0x537752['y']-_0x25ff1f['y'];this[_0x3be0b7(0x3ff)]&&_0xee1f15>0x0&&_0x5f87e0>0x0&&(_0x35f912[_0x3be0b7(0x638)](),_0x35f912['imageSmoot'+'hingEnable'+'d']=!![],_0x35f912[_0x3be0b7(0x73f)+'hingQualit'+'y']=_0x3be0b7(0x24c),_0x35f912[_0x3be0b7(0x63c)](this[_0x3be0b7(0x3ff)],_0x291876,_0x5707a4,_0xee1f15,_0x5f87e0),_0x35f912[_0x3be0b7(0x61c)]()),this[_0x3be0b7(0x46e)+'d'](_0x35f912,getPaleta(variableActiva)),actualitzarCapcaleraParametre(),redibuixarVent();},'_drawLegend':function(_0x4d59b6,_0x16fc5b){const _0x11d9e4=_0x1ec428,_0x3c0e2f=_0x16fc5b[_0x11d9e4(0x327)],_0xca5efb=_0x4d59b6[_0x11d9e4(0x4a8)][_0x11d9e4(0x3af)],_0x2eae1a=_0x4d59b6[_0x11d9e4(0x4a8)][_0x11d9e4(0x408)],_0x12ac7b=0x19,_0x3999d7=_0xca5efb-_0x12ac7b-0xf,_0x25ced5=_0x2eae1a-_0x3c0e2f[_0x11d9e4(0x526)]*0x3-0x19;_0x4d59b6[_0x11d9e4(0xb5)]=_0x11d9e4(0x5aa)+_0x11d9e4(0x83e),_0x4d59b6[_0x11d9e4(0x659)](_0x3999d7-0x5,_0x25ced5-0x12,_0x12ac7b+0xa,_0x3c0e2f['length']*0x3+0x16),_0x3c0e2f[_0x11d9e4(0x25d)]((_0x5de2ea,_0x3190f6)=>{const _0x553b92=_0x11d9e4;_0x4d59b6[_0x553b92(0xb5)]=_0x553b92(0x35e)+_0x5de2ea['r']+','+_0x5de2ea['g']+','+_0x5de2ea['b']+')',_0x4d59b6['fillRect'](_0x3999d7,_0x25ced5+_0x3190f6*0x3,_0x12ac7b,0x3);}),_0x4d59b6[_0x11d9e4(0xb5)]=_0x11d9e4(0x157),_0x4d59b6['font']='9px\x20Arial',_0x4d59b6[_0x11d9e4(0x58e)]=_0x11d9e4(0x20d);const _0x3d8a47=_0x25047e=>Math[_0x11d9e4(0x56f)](_0x25047e)>=0x2710||Math[_0x11d9e4(0x56f)](_0x25047e)<0.01&&_0x25047e!==0x0?_0x25047e[_0x11d9e4(0x3cc)+'ial'](0x1):_0x25047e;_0x4d59b6[_0x11d9e4(0x7e0)](_0x3d8a47(_0x3c0e2f[_0x3c0e2f['length']-0x1]['v']),_0x3999d7-0x3,_0x25ced5+0xa),_0x4d59b6[_0x11d9e4(0x7e0)](_0x3d8a47(_0x3c0e2f[0x0]['v']),_0x3999d7-0x3,_0x25ced5+_0x3c0e2f[_0x11d9e4(0x526)]*0x3+0x2);}}),canvasLayer=new CanvasLayer();canvasLayer[_0x1ec428(0x3e3)](map),window[_0x1ec428(0x12b)+'er']=canvasLayer;const GEOJSON_CAPES=[{'id':'catalunya','nom':_0x1ec428(0x226),'arxiu':_0x1ec428(0x5db)+'son','color':_0x1ec428(0x698),'gruix':2.5,'visiblePerDefecte':!![]},{'id':'girona_com'+_0x1ec428(0x660),'nom':'Comarques\x20'+_0x1ec428(0x3a2),'arxiu':_0x1ec428(0x809)+_0x1ec428(0x286)+_0x1ec428(0x2f8),'color':'#040400','gruix':2.5,'visiblePerDefecte':![]}],capaInstancies={},capaOpacitats={};function estilCapa(_0x23bf18){const _0x2cd7bc=_0x1ec428;return{'pane':_0x2cd7bc(0x355)+'n','color':_0x23bf18[_0x2cd7bc(0x4a0)],'weight':_0x23bf18[_0x2cd7bc(0x6da)],'opacity':0x1,'fill':![]};}async function carregarCapaGeojson(_0x3d6071){const _0x207a7a=_0x1ec428;let _0x3cad85=RETARD_INICIAL;const _0x86087e=0x4;for(let _0x440f93=0x1;_0x440f93<=_0x86087e;_0x440f93++){try{const _0xbddab7=await fetch(ambCacheBuster(DADES_PATH+'/'+_0x3d6071[_0x207a7a(0x539)]),{'cache':_0x207a7a(0x132)});if(!_0xbddab7['ok'])throw new Error(_0x207a7a(0x885)+_0xbddab7['status']);const _0x13d367=await _0xbddab7[_0x207a7a(0x2f8)](),_0x5cbd00=L[_0x207a7a(0x49f)](_0x13d367,{'pane':_0x207a7a(0x355)+'n','style':()=>estilCapa(_0x3d6071)});capaInstancies[_0x3d6071['id']]=_0x5cbd00,_0x5cbd00[_0x207a7a(0x3e3)](map);return;}catch(_0x22da1c){if(_0x440f93===_0x86087e){console[_0x207a7a(0xc9)](_0x207a7a(0x217)+_0x3d6071[_0x207a7a(0x5e9)]+(_0x207a7a(0x882)+_0x207a7a(0x278)+_0x207a7a(0x67d))+_0x22da1c[_0x207a7a(0x13c)]);return;}console['warn'](_0x207a7a(0x796)+_0x3d6071[_0x207a7a(0x5e9)]+(_0x207a7a(0x2dc)+'\x20')+_0x440f93+'/'+_0x86087e+_0x207a7a(0x19b)+_0x3cad85+_0x207a7a(0x339)),await esperar(_0x3cad85),_0x3cad85*=0x2;}}}async function inicialitzarGeojson(){const _0x3715ee=_0x1ec428;for(const _0x47ff3 of GEOJSON_CAPES){try{const _0x15259d=_0x3715ee(0x14b)+_0x47ff3[_0x3715ee(0x539)],_0x24382c=await fetch(_0x15259d);if(!_0x24382c['ok'])throw new Error(_0x3715ee(0x885)+_0x24382c[_0x3715ee(0x3c2)]);const _0x31cc86=await _0x24382c['json'](),_0x4b3e06=L[_0x3715ee(0x49f)](_0x31cc86,{'pane':_0x3715ee(0x355)+'n','style':()=>({'color':_0x47ff3['color']||_0x3715ee(0x619),'weight':_0x47ff3[_0x3715ee(0x6da)]||2.5,'opacity':0.9,'fill':![],'fillOpacity':0.1,'fillColor':_0x47ff3[_0x3715ee(0x4a0)]||_0x3715ee(0x619)})});capaInstancies[_0x47ff3['id']]=_0x4b3e06,capaOpacitats[_0x47ff3['id']]=0x64,_0x47ff3['visiblePer'+_0x3715ee(0x145)]&&_0x4b3e06[_0x3715ee(0x3e3)](map),map[_0x3715ee(0x70f)+_0x3715ee(0x77d)]();}catch(_0xa81df4){console[_0x3715ee(0x282)]('❌\x20Error\x20ca'+_0x3715ee(0x6b3)+_0x47ff3[_0x3715ee(0x5e9)]+':',_0xa81df4);}}typeof aplicarEstatCapesGeojsonDesat===_0x3715ee(0x223)&&aplicarEstatCapesGeojsonDesat();}function trobarIndexMesProper(_0x1afa1e,_0x46c1b6){const _0x529361=_0x1ec428;let _0x43ae96=0x0,_0x480db8=Infinity;for(let _0x45cba9=0x0;_0x45cba9<_0x1afa1e[_0x529361(0x526)];_0x45cba9++){const _0x3ea123=Math[_0x529361(0x56f)](_0x1afa1e[_0x45cba9]-_0x46c1b6);_0x3ea123<_0x480db8&&(_0x480db8=_0x3ea123,_0x43ae96=_0x45cba9);}return _0x43ae96;}let marcadorClic=null;map['on'](_0x1ec428(0x490),function(_0x1ebfe8){const _0x5e3e31=_0x1ec428,{lat:_0xb6edf5,lng:_0x555a1d}=_0x1ebfe8[_0x5e3e31(0x63f)],_0xcb0b69=totesLesHores[curIdx];if(!_0xcb0b69||!_0xcb0b69[_0x5e3e31(0x5b6)])return;const _0x4eb226=_0xcb0b69[_0x5e3e31(0x5b6)],_0xed7f95=getCoordenadesPer(_0x4eb226,variableActiva),_0x1967bf=_0xed7f95[_0x5e3e31(0x2aa)],_0x3ba066=_0xed7f95[_0x5e3e31(0x2c7)],_0x318522=clauRealPerLlegir(variableActiva),_0x108258=_0x4eb226['variables'][_0x318522]||_0x4eb226['variables'][variableActiva];if(!_0x108258||!_0x108258[_0x5e3e31(0x557)])return;const _0x18aa7a=Math['min'](_0x1967bf[0x0],_0x1967bf[_0x1967bf[_0x5e3e31(0x526)]-0x1]),_0x47614a=Math[_0x5e3e31(0x7a4)](_0x1967bf[0x0],_0x1967bf[_0x1967bf[_0x5e3e31(0x526)]-0x1]),_0x44b7dd=Math[_0x5e3e31(0x5ac)](_0x3ba066[0x0],_0x3ba066[_0x3ba066[_0x5e3e31(0x526)]-0x1]),_0x28be04=Math['max'](_0x3ba066[0x0],_0x3ba066[_0x3ba066[_0x5e3e31(0x526)]-0x1]);if(_0xb6edf5<_0x18aa7a||_0xb6edf5>_0x47614a||_0x555a1d<_0x44b7dd||_0x555a1d>_0x28be04)return;const _0x3dbdd3=trobarIndexMesProper(_0x1967bf,_0xb6edf5),_0x410567=trobarIndexMesProper(_0x3ba066,_0x555a1d),_0x1d3612=_0x3ba066['length'];if(_0x108258[_0x5e3e31(0x557)][_0x5e3e31(0x526)]!==_0x1967bf['length']*_0x1d3612)return;const _0x59ac3a=_0x1967bf[0x0]>_0x1967bf[_0x1967bf[_0x5e3e31(0x526)]-0x1],_0x620726=_0x59ac3a?_0x1967bf['length']-0x1-_0x3dbdd3:_0x3dbdd3;let _0x219da0=_0x108258[_0x5e3e31(0x557)][_0x620726*_0x1d3612+_0x410567];const _0x5ecbd6=['st','sd','t',_0x5e3e31(0x29a),'temp_min2m',_0x5e3e31(0x630)],_0x5dd4a5=clauBase(variableActiva);_0x5ecbd6['includes'](_0x5dd4a5)&&_0x219da0!==null&&!isNaN(_0x219da0)&&_0x219da0>0x64&&(_0x219da0=_0x219da0-273.15);const _0x4c2d64=getPaleta(variableActiva);function _0x388e94(_0x376465){const _0x57bb82=_0x5e3e31;if(_0x376465===null||_0x376465===undefined||isNaN(_0x376465))return'—';const _0x370e16=Math[_0x57bb82(0x56f)](_0x376465);if(_0x370e16<0.001&&_0x370e16>0x0)return _0x376465[_0x57bb82(0x695)](0x6);if(_0x370e16>=0x2710)return _0x376465[_0x57bb82(0x3cc)+_0x57bb82(0x3ab)](0x2);if(Number[_0x57bb82(0x6a6)](_0x376465))return _0x376465['toString']();return _0x376465['toFixed'](0x2);}const _0x1c869e=_0x388e94(_0x219da0),_0x2a398d=_0x5e3e31(0x825)+_0x5e3e31(0x827)+_0x5e3e31(0x621)+_0x5e3e31(0x2fd)+_0x5e3e31(0x40e)+_0x5e3e31(0x40d)+'\x20\x20\x20\x20\x20\x20back'+_0x5e3e31(0x30e)+_0x5e3e31(0x1fc)+_0x5e3e31(0x532)+_0x5e3e31(0x2a4)+_0x5e3e31(0x7f0)+_0x5e3e31(0x824)+_0x5e3e31(0xa6)+'\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20'+_0x5e3e31(0x6b1)+_0x5e3e31(0x6ba)+'gba(255,\x202'+_0x5e3e31(0x605)+_0x5e3e31(0x6ad)+'\x20\x20\x20\x20\x20\x20\x20\x20bo'+_0x5e3e31(0x25f)+_0x5e3e31(0x635)+_0x5e3e31(0x2a4)+_0x5e3e31(0x4cf)+_0x5e3e31(0x584)+_0x5e3e31(0x415)+'\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20'+_0x5e3e31(0x3d9)+'lex;\x0a\x20\x20\x20\x20\x20'+'\x20\x20\x20\x20\x20\x20\x20ali'+'gn-items:\x20'+'center;\x0a\x20\x20'+'\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20'+_0x5e3e31(0x604)+_0x5e3e31(0x2a4)+_0x5e3e31(0x761)+_0x5e3e31(0x662)+_0x5e3e31(0x803)+'\x27Segoe\x20UI\x27'+_0x5e3e31(0x74d)+_0x5e3e31(0x82e)+_0x5e3e31(0x3d6)+_0x5e3e31(0x4b7)+_0x5e3e31(0x65d)+'ba(0,\x200,\x200'+_0x5e3e31(0x4d9)+_0x5e3e31(0x2a4)+_0x5e3e31(0x722)+_0x5e3e31(0x4ce)+_0x5e3e31(0x70b)+_0x5e3e31(0x800)+_0x5e3e31(0x164)+'wrap;\x0a\x20\x20\x20\x20'+_0x5e3e31(0x88b)+_0x5e3e31(0x27f)+_0x5e3e31(0x827)+_0x5e3e31(0x621)+_0x5e3e31(0x442)+_0x5e3e31(0x600)+_0x5e3e31(0x529)+'\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20'+_0x5e3e31(0x788)+_0x5e3e31(0x13e)+_0x5e3e31(0x2a4)+_0x5e3e31(0x75e)+_0x5e3e31(0x1b3)+_0x5e3e31(0x2a4)+_0x5e3e31(0x31b)+_0x5e3e31(0x6cc)+_0x5e3e31(0x1e4)+_0x5e3e31(0x2a4)+_0x5e3e31(0x3c6)+'transform:'+_0x5e3e31(0x284)+_0x5e3e31(0x40a)+_0x5e3e31(0x86e)+_0x5e3e31(0x789)+_0x5e3e31(0x522)+_0x5e3e31(0x386)+_0xb6edf5[_0x5e3e31(0x695)](0x2)+'°'+(_0xb6edf5>=0x0?'N':'S')+_0x5e3e31(0x150)+_0x555a1d['toFixed'](0x2)+'°'+(_0x555a1d>=0x0?'E':'W')+(_0x5e3e31(0x178)+'\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20'+'<div\x20style'+_0x5e3e31(0x457)+'\x20\x20\x20\x20\x20\x20\x20\x20\x20f'+_0x5e3e31(0x9f)+_0x5e3e31(0x299)+_0x5e3e31(0x2a4)+'\x20\x20font-wei'+_0x5e3e31(0x25e)+'\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20'+_0x5e3e31(0x731)+_0x5e3e31(0xf7)+';\x0a\x20\x20\x20\x20\x20\x20\x20\x20'+_0x5e3e31(0x86e)+_0x5e3e31(0x789)+_0x5e3e31(0x74e)+_0x5e3e31(0x3b0))+_0x1c869e+('<span\x20styl'+_0x5e3e31(0xfd)+'ze:9px;col'+_0x5e3e31(0x855)+_0x5e3e31(0x155)+_0x5e3e31(0x2c6)+_0x5e3e31(0x547)+'px;\x22>')+_0x4c2d64[_0x5e3e31(0x28a)]+(_0x5e3e31(0x1b9)+_0x5e3e31(0x77b)+_0x5e3e31(0x1c0)+_0x5e3e31(0x6a1)+_0x5e3e31(0x167)+'cadorClic)'+'{map.remov'+_0x5e3e31(0x378)+_0x5e3e31(0x21b)+';marcadorC'+_0x5e3e31(0x15f)+_0x5e3e31(0x401)+_0x5e3e31(0x2a4)+_0x5e3e31(0x1b5)+_0x5e3e31(0x6f1)+_0x5e3e31(0x7ea)+'\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20'+'\x20\x20top:\x203px'+_0x5e3e31(0x40a)+_0x5e3e31(0x3ed)+_0x5e3e31(0x792)+_0x5e3e31(0x2a4)+_0x5e3e31(0x1f4)+_0x5e3e31(0x525)+_0x5e3e31(0xe0)+'\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20'+'\x20\x20\x20\x20\x20\x20\x20bor'+_0x5e3e31(0x1e5)+_0x5e3e31(0x44e)+_0x5e3e31(0xa0)+_0x5e3e31(0x387)+_0x5e3e31(0x6be)+_0x5e3e31(0x777)+'ont-size:\x20'+'12px;\x0a\x20\x20\x20\x20'+'\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20'+_0x5e3e31(0x3f8)+_0x5e3e31(0x4e3)+_0x5e3e31(0x2a4)+_0x5e3e31(0x715)+'height:\x201;'+_0x5e3e31(0x44e)+_0x5e3e31(0x437)+'ding:\x202px;'+_0x5e3e31(0x44e)+'\x20\x20\x20\x22\x20onmou'+_0x5e3e31(0x4cd)+_0x5e3e31(0x3fa)+'olor=\x27#fff'+'fff\x27\x22\x20onmo'+_0x5e3e31(0x6b4)+_0x5e3e31(0x3fa)+_0x5e3e31(0x510)+_0x5e3e31(0x844)+_0x5e3e31(0xf6)+'\x20\x20\x20\x20\x20</div'+'>\x0a\x20\x20\x20\x20');if(marcadorClic)map['removeLaye'+'r'](marcadorClic);marcadorClic=L[_0x5e3e31(0x460)]({'closeButton':![],'closeOnClick':!![],'className':_0x5e3e31(0x5e8)+_0x5e3e31(0x5b3),'offset':[0x0,-0x8]})[_0x5e3e31(0x41f)](_0x1ebfe8[_0x5e3e31(0x63f)])[_0x5e3e31(0x3bc)](_0x2a398d)[_0x5e3e31(0xc7)](map);}),document[_0x1ec428(0x741)+'stener'](_0x1ec428(0x5fb),function(_0x93204b){_0x93204b['key']==='Escape'&&marcadorClic&&(map['removeLaye'+'r'](marcadorClic),marcadorClic=null);});const MAX_REINTENTS=0x4,RETARD_INICIAL=0x1f4,CONCURRENCIA_CARREGA=0x3,CONCURRENCIA_3D=0x2,MAX_HORES_SFC_CACHE=0x3e7;let totesLesHores=[],curIdx=0x0,_ordreUsSfc=[],_carregantAra=new Map();function aArrayTipat(_0x51697f){const _0x42a455=_0x51697f['length'],_0x462f3b=new Float32Array(_0x42a455);for(let _0x18adc0=0x0;_0x18adc0<_0x42a455;_0x18adc0++){const _0x24a45f=_0x51697f[_0x18adc0];_0x462f3b[_0x18adc0]=_0x24a45f===null||_0x24a45f===undefined?NaN:_0x24a45f;}return _0x462f3b;}function tipificarVariables(_0x150904){const _0x3ebbf3=_0x1ec428;for(const _0x17077c in _0x150904){const _0x2c989f=_0x150904[_0x17077c];_0x2c989f&&Array[_0x3ebbf3(0x760)](_0x2c989f['datos'])&&(_0x2c989f[_0x3ebbf3(0x557)]=aArrayTipat(_0x2c989f[_0x3ebbf3(0x557)]));}return _0x150904;}async function descomprimirGzip(_0x4558ef){const _0x4874ef=_0x1ec428;try{if(typeof DecompressionStream!==_0x4874ef(0x5ca)){const _0x227c35=new DecompressionStream(_0x4874ef(0x5dc)),_0x516e4c=_0x4558ef[_0x4874ef(0x64b)][_0x4874ef(0x350)+'h'](_0x227c35)[_0x4874ef(0x6f4)](),_0x4afe57=[];while(!![]){const {value:_0x4296d,done:_0x244c4f}=await _0x516e4c[_0x4874ef(0x677)]();if(_0x244c4f)break;_0x4afe57[_0x4874ef(0x3d2)](_0x4296d);}const _0x34ed02=new Blob(_0x4afe57),_0x4bd4bd=await _0x34ed02[_0x4874ef(0x799)]();return JSON[_0x4874ef(0x7e8)](_0x4bd4bd);}else{if(typeof pako!==_0x4874ef(0x5ca)){const _0x230cc8=await _0x4558ef[_0x4874ef(0x642)+'r'](),_0x284e2b=pako[_0x4874ef(0x3e5)](new Uint8Array(_0x230cc8),{'to':'string'});return JSON[_0x4874ef(0x7e8)](_0x284e2b);}return await _0x4558ef[_0x4874ef(0x2f8)]();}}catch(_0x4b72f7){throw new Error('Error\x20desc'+'omprimint:'+'\x20'+_0x4b72f7[_0x4874ef(0x13c)]);}}function comprovarHoresFallades(){const _0x57175a=_0x1ec428,_0x1ea193=totesLesHores['length'],_0x39cae4=totesLesHores[_0x57175a(0x69a)](_0x34e4e8=>_0x34e4e8[_0x57175a(0x5b6)]===null)[_0x57175a(0x526)],_0x1ea84b=_0x1ea193>0x0?_0x39cae4/_0x1ea193*0x64:0x0;if(_0x1ea84b>0x1e){const _0x3be5f9=document['getElement'+_0x57175a(0x51e)](_0x57175a(0x871));if(_0x3be5f9)_0x3be5f9['style'][_0x57175a(0x108)]=_0x57175a(0x59a),_0x3be5f9['textConten'+'t']='⚠️\x20'+_0x39cae4+_0x57175a(0x4a4)+_0x1ea193+(_0x57175a(0x37a)+'s\x27han\x20pogu'+'t\x20carregar'+_0x57175a(0x1d4)+'\x20la\x20teva\x20c'+_0x57175a(0x503)+_0x57175a(0xfc));else{if(_0x57175a(0x44a)===_0x57175a(0x44a)){const _0x54b2a6=document[_0x57175a(0x1d2)+_0x57175a(0x493)](_0x57175a(0x308));_0x54b2a6['id']='avis_xarxa',_0x54b2a6[_0x57175a(0x5c7)][_0x57175a(0x599)]=_0x57175a(0x44e)+_0x57175a(0x6d6)+'ition:\x20fix'+_0x57175a(0x63b)+_0x57175a(0x2a4)+'bottom:\x2020'+'px;\x0a\x20\x20\x20\x20\x20\x20'+_0x57175a(0x2a4)+_0x57175a(0x82f)+_0x57175a(0x44e)+_0x57175a(0x3a3)+'nsform:\x20tr'+'anslateX(-'+'50%);\x0a\x20\x20\x20\x20'+'\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20'+'\x20\x20backgrou'+_0x57175a(0x90)+'55,\x2060,\x2060'+_0x57175a(0x7ad)+_0x57175a(0x2a4)+_0x57175a(0x316)+_0x57175a(0x134)+'\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20'+_0x57175a(0x6c6)+_0x57175a(0x42a)+'px;\x0a\x20\x20\x20\x20\x20\x20'+_0x57175a(0x2a4)+_0x57175a(0x878)+_0x57175a(0x5cb)+_0x57175a(0x2a4)+'\x20\x20\x20\x20\x20\x20font'+_0x57175a(0x63a)+_0x57175a(0xe9)+'-serif;\x0a\x20\x20'+_0x57175a(0x2a4)+_0x57175a(0x4de)+_0x57175a(0x3dd)+_0x57175a(0x44e)+_0x57175a(0x6e8)+_0x57175a(0x826)+_0x57175a(0x40a)+'\x20\x20\x20\x20\x20\x20\x20\x20ma'+_0x57175a(0xba)+'0%;\x0a\x20\x20\x20\x20\x20\x20'+_0x57175a(0x2a4)+_0x57175a(0x271)+_0x57175a(0x2e2)+_0x57175a(0x2a4)+_0x57175a(0x479)+_0x57175a(0x842)+'4px\x2012px\x20r'+_0x57175a(0x891)+_0x57175a(0x581)+_0x57175a(0x2a4)+'\x20\x20backdrop'+_0x57175a(0x582)+_0x57175a(0x3fe)+_0x57175a(0x2a4)+'\x20\x20\x20\x20\x20\x20bord'+'er:\x201px\x20so'+_0x57175a(0x2e3)+_0x57175a(0x359)+_0x57175a(0x22c)+'\x20\x20\x20\x20\x20\x20\x20\x20\x20',_0x54b2a6[_0x57175a(0x615)+'t']=_0x57175a(0x492)+_0x39cae4+_0x57175a(0x4a4)+_0x1ea193+('\x20hores\x20no\x20'+_0x57175a(0x295)+'t\x20carregar'+_0x57175a(0x1d4)+'\x20la\x20teva\x20c'+'onnexió\x20a\x20'+'internet.'),document['body'][_0x57175a(0x575)+'d'](_0x54b2a6),setTimeout(()=>{const _0x53c098=_0x57175a;_0x54b2a6['style'][_0x53c098(0x6b5)]=_0x53c098(0x3a0)+'5s',_0x54b2a6[_0x53c098(0x5c7)][_0x53c098(0x5c5)]='0',setTimeout(()=>_0x54b2a6[_0x53c098(0x515)](),0x1f4);},0x1f40);}else{const _0x1923a7=_0x406715(_0x21d2f3,_0x496a49);_0x56c67f[_0x2f5542]=_0x1923a7['r'],_0x1550ef[_0x397979+0x1]=_0x1923a7['g'],_0x3d3327[_0x2e7986+0x2]=_0x1923a7['b'],_0xd18828[_0x3884f4+0x3]=_0x1923a7['a'];}}}}function esperar(_0x373b5d){return new Promise(_0x26c10f=>setTimeout(_0x26c10f,_0x373b5d));}async function descomprimirGzipAmbFallback(_0x2d7d13,_0x5898bc){const _0x2c9cfa=_0x1ec428;try{if(_0x2c9cfa(0x720)!=='ezBCU'){_0x506345[_0x2c9cfa(0x474)+_0x2c9cfa(0x6a7)]();const _0x2bc89f=_0x558eb2(this[_0x2c9cfa(0x65a)][_0x2c9cfa(0x75d)]);if(_0x8b1efc(_0x2bc89f))return;const _0x30e884=_0x2bc89f%0x3===0x0,_0x5bc6e0=_0xa68632['_firebaseU'+_0x2c9cfa(0x775)]||null;if(!_0x5bc6e0&&!_0x30e884){typeof _0x46a390==='function'&&_0x4f69a8();return;}typeof _0x339c44==='function'&&_0x833555(_0x2bc89f);}else{if(typeof DecompressionStream!==_0x2c9cfa(0x5ca)){if(_0x2c9cfa(0x48a)===_0x2c9cfa(0x48a)){const _0x389ea0=new DecompressionStream(_0x2c9cfa(0x5dc)),_0x57dbe5=_0x2d7d13[_0x2c9cfa(0x64b)][_0x2c9cfa(0x350)+'h'](_0x389ea0)[_0x2c9cfa(0x6f4)](),_0x2c840a=[];let _0x25b7ba=![];try{if('gAClH'!==_0x2c9cfa(0x6bc))_0x4aad65[_0x2c9cfa(0x557)]=_0x2cf5bd(_0x32c9f6[_0x2c9cfa(0x557)]);else while(!![]){const {value:_0x35a942,done:_0x2dc337}=await _0x57dbe5[_0x2c9cfa(0x677)]();if(_0x2dc337)break;_0x2c840a[_0x2c9cfa(0x3d2)](_0x35a942);}}catch(_0x2716d0){_0x2c9cfa(0x877)!==_0x2c9cfa(0x6ca)?(_0x25b7ba=!![],console[_0x2c9cfa(0xc9)](_0x2c9cfa(0xf0)+'ssió]\x20Erro'+_0x2c9cfa(0x301)+_0x2c9cfa(0x79a)+_0x2c9cfa(0x406),_0x2716d0[_0x2c9cfa(0x13c)])):(_0xfa2d5a=_0x5deea7,_0x522ef2=_0x5eb9da);}if(!_0x25b7ba&&_0x2c840a[_0x2c9cfa(0x526)]>0x0){const _0x366dad=new Blob(_0x2c840a),_0x52be2d=await _0x366dad[_0x2c9cfa(0x799)]();try{return JSON[_0x2c9cfa(0x7e8)](_0x52be2d);}catch(_0x49c21a){console[_0x2c9cfa(0xc9)](_0x2c9cfa(0xf0)+'ssió]\x20JSON'+_0x2c9cfa(0x36f)+':',_0x49c21a[_0x2c9cfa(0x13c)]);throw new Error(_0x2c9cfa(0x682)+_0x2c9cfa(0x31e));}}}else _0x33aea5[_0x2c9cfa(0x741)+_0x2c9cfa(0x452)](_0x2c9cfa(0x490),_0x53b940=>{const _0x5c8647=_0x2c9cfa;_0x53b940[_0x5c8647(0x474)+_0x5c8647(0x6a7)]();const _0x251dc3=_0x3a726c['style'][_0x5c8647(0x85e)]==='translateX'+_0x5c8647(0x315);_0x251dc3?_0x2a5844():_0xd9481b();});}if(typeof pako!=='undefined'){if(_0x2c9cfa(0x524)!==_0x2c9cfa(0x613))try{if('jwxDK'!==_0x2c9cfa(0x209)){const _0x230d07=await _0x2d7d13[_0x2c9cfa(0x642)+'r'](),_0x2346ba=pako[_0x2c9cfa(0x3e5)](new Uint8Array(_0x230d07),{'to':_0x2c9cfa(0x60c)});try{return JSON[_0x2c9cfa(0x7e8)](_0x2346ba);}catch(_0x46b817){console[_0x2c9cfa(0xc9)](_0x2c9cfa(0xf0)+_0x2c9cfa(0x43b)+_0x2c9cfa(0x36f)+_0x2c9cfa(0x4e2),_0x46b817[_0x2c9cfa(0x13c)]);throw new Error('JSON\x20malfo'+_0x2c9cfa(0x31e));}}else!_0xe865a0['contains'](_0x80c706['relatedTar'+'get'])&&(_0x72e525['style']['cursor']='');}catch(_0x57d3c1){console['warn'](_0x2c9cfa(0xf0)+'ssió]\x20Erro'+_0x2c9cfa(0x10f)+':',_0x57d3c1['message']);throw _0x57d3c1;}else{const _0x4d9707=_0x9739e6(_0x5b227c),_0x53e89a=_0x25d108[_0x2c9cfa(0x7b2)+_0x2c9cfa(0x51e)](_0x2c9cfa(0x6d2)+_0x2c9cfa(0x7ab));if(_0x53e89a)_0x53e89a[_0x2c9cfa(0x615)+'t']=_0x4d9707[_0x2c9cfa(0x571)]+'\x20('+_0x4d9707[_0x2c9cfa(0x28a)]+')';}}try{const _0x2140bd=await _0x2d7d13['text']();return JSON[_0x2c9cfa(0x7e8)](_0x2140bd);}catch(_0x33ef62){console['warn']('[Descompre'+_0x2c9cfa(0x7a2)+'s\x20JSON\x20vàl'+_0x2c9cfa(0x2c8),_0x33ef62[_0x2c9cfa(0x13c)]);throw new Error(_0x2c9cfa(0x54c)+_0x2c9cfa(0x358)+_0x2c9cfa(0xd6)+_0x2c9cfa(0x33e)+_0x2c9cfa(0x298));}}}catch(_0x4ec2f6){try{const _0x12296c=await _0x2d7d13[_0x2c9cfa(0x799)]();if(_0x12296c[_0x2c9cfa(0x354)]('{')||_0x12296c[_0x2c9cfa(0x354)]('['))return JSON[_0x2c9cfa(0x7e8)](_0x12296c);}catch(_0x560dfd){}throw new Error('Error\x20desc'+_0x2c9cfa(0x622)+'\x20'+_0x4ec2f6[_0x2c9cfa(0x13c)]);}}async function descomprimirMsgPackGz(_0x1e1690){const _0x461a3f=_0x1ec428;try{const _0x256285=await _0x1e1690['arrayBuffe'+'r'](),_0x4c5ee1=new Uint8Array(_0x256285),_0x12fe09=_0x4c5ee1[_0x461a3f(0x526)]>=0x2&&_0x4c5ee1[0x0]===0x1f&&_0x4c5ee1[0x1]===0x8b;let _0x2358a0;if(_0x12fe09){const _0x5dd85d=new DecompressionStream('gzip'),_0x1bb3ef=new Blob([_0x256285]),_0x4b0bad=_0x1bb3ef[_0x461a3f(0x7bf)]()[_0x461a3f(0x350)+'h'](_0x5dd85d),_0x2d42ab=_0x4b0bad[_0x461a3f(0x6f4)](),_0xa03a3=[];while(!![]){const {value:_0x4d429b,done:_0x28c72a}=await _0x2d42ab[_0x461a3f(0x677)]();if(_0x28c72a)break;_0xa03a3['push'](_0x4d429b);}const _0x1ece6e=_0xa03a3[_0x461a3f(0x35c)]((_0x22f42d,_0x54092f)=>_0x22f42d+_0x54092f[_0x461a3f(0x526)],0x0);_0x2358a0=new Uint8Array(_0x1ece6e);let _0x3d3ea8=0x0;for(const _0x12a966 of _0xa03a3){_0x2358a0[_0x461a3f(0x863)](_0x12a966,_0x3d3ea8),_0x3d3ea8+=_0x12a966[_0x461a3f(0x526)];}}else _0x2358a0=_0x4c5ee1;if(typeof MessagePack!==_0x461a3f(0x5ca))return MessagePack[_0x461a3f(0x856)](_0x2358a0);try{const _0x1d7f8d=new TextDecoder()[_0x461a3f(0x856)](_0x2358a0);return JSON[_0x461a3f(0x7e8)](_0x1d7f8d);}catch(_0x42347a){throw new Error(_0x461a3f(0x54c)+_0x461a3f(0x358)+_0x461a3f(0xd6)+_0x461a3f(0x33e)+_0x461a3f(0x53e)+_0x461a3f(0x307)+_0x461a3f(0x21a));}}catch(_0x54c180){if('bWAxR'!=='bWAxR')return null;else{console[_0x461a3f(0xc9)](_0x461a3f(0x84d)+_0x461a3f(0x5ff)+_0x461a3f(0x690),_0x54c180['message']);throw _0x54c180;}}}async function carregarFitxerAmbReintents(_0x55a336,_0x19643b=0x3){const _0x2441b5=_0x1ec428;let _0x402c4d=RETARD_INICIAL,_0x56b8ae=null;for(let _0x57ab5f=0x1;_0x57ab5f<=_0x19643b;_0x57ab5f++){try{const _0x4bdd87=await fetch(ambCacheBusterDades(_0x55a336),{'cache':_0x2441b5(0x132)});if(_0x4bdd87[_0x2441b5(0x3c2)]===0x194)return console['log'](_0x2441b5(0x606)+_0x55a336+(_0x2441b5(0x2db)+_0x2441b5(0x71a))),null;if(!_0x4bdd87['ok'])throw new Error(_0x2441b5(0x885)+_0x4bdd87[_0x2441b5(0x3c2)]+':\x20'+_0x4bdd87[_0x2441b5(0x74f)]);try{if(_0x2441b5(0x227)==='dimmL'){_0x368025[_0x2441b5(0x847)+_0x2441b5(0x6d7)](_0x2441b5(0x113))[_0x2441b5(0x25d)]((_0x35b095,_0xc0b044)=>{const _0x19cc9b=_0x2441b5;_0x35b095[_0x19cc9b(0x6bb)][_0x19cc9b(0x197)]('active',_0xc0b044===_0x1a74a2),_0x35b095[_0x19cc9b(0x5c7)][_0x19cc9b(0x846)]=_0xc0b044===_0x470681?_0x19cc9b(0x424)+'15,0,0.12)':_0x19cc9b(0x424)+'55,255,0.0'+'3)',_0x35b095[_0x19cc9b(0x5c7)][_0x19cc9b(0x4a0)]=_0xc0b044===_0x59ffb4?_0x19cc9b(0x619):_0x19cc9b(0x79e),_0x35b095['style'][_0x19cc9b(0x3ce)]=_0xc0b044===_0x56ddb3?_0x19cc9b(0x857)+_0x19cc9b(0x424)+_0x19cc9b(0x407):_0x19cc9b(0x857)+_0x19cc9b(0x425)+'t';});const _0x34dfb4=_0x31f485[_0x2441b5(0x847)+'tor'](_0x2441b5(0x3e7)+'ata-idx=\x22'+_0x432955+'\x22]');if(_0x34dfb4)_0x34dfb4[_0x2441b5(0x75a)+_0x2441b5(0x143)]({'behavior':'smooth','block':'nearest','inline':_0x2441b5(0x550)});}else{if(_0x55a336[_0x2441b5(0x337)](_0x2441b5(0x766)+'z')){const _0x22e17d=await descomprimirMsgPackGz(_0x4bdd87);return _0x22e17d;}else{const _0x94d7a6=await descomprimirGzipAmbFallback(_0x4bdd87,_0x55a336);return _0x94d7a6;}}}catch(_0x4a2cbd){if(_0x4a2cbd['message'][_0x2441b5(0x337)]('incorrect\x20'+'header\x20che'+'ck')||_0x4a2cbd['message'][_0x2441b5(0x337)]('corrupted')||_0x4a2cbd[_0x2441b5(0x13c)][_0x2441b5(0x337)]('header\x20che'+'ck'))return console[_0x2441b5(0xc9)](_0x2441b5(0x37e)+'rrupte]\x20'+_0x55a336+(_0x2441b5(0x6eb)+'ot\x20recuper'+_0x2441b5(0xad)),_0x4a2cbd[_0x2441b5(0x13c)]),null;throw _0x4a2cbd;}}catch(_0xd10791){_0x56b8ae=_0xd10791;if(_0x57ab5f===_0x19643b)return console[_0x2441b5(0xc9)](_0x2441b5(0x606)+_0x55a336+(_0x2441b5(0x779)+_0x2441b5(0x5f4))+_0x19643b+_0x2441b5(0xb2),_0xd10791['message']),null;if(_0xd10791['message'][_0x2441b5(0x337)](_0x2441b5(0x360)+_0x2441b5(0x4ab)+'D')||_0xd10791['message'][_0x2441b5(0x337)](_0x2441b5(0x4f4))||_0xd10791['message']['includes'](_0x2441b5(0x2cd))){console[_0x2441b5(0xc9)](_0x2441b5(0x63e)+_0x57ab5f+'/'+_0x19643b+']\x20'+_0x55a336+(_0x2441b5(0x5d2)+_0x2441b5(0x4f7))+_0xd10791[_0x2441b5(0x13c)]+(_0x2441b5(0x433)+'ant\x20en\x20')+_0x402c4d+_0x2441b5(0x339)),await esperar(_0x402c4d),_0x402c4d*=0x2;continue;}return console[_0x2441b5(0xc9)](_0x2441b5(0x606)+_0x55a336+(_0x2441b5(0x11a)+_0x2441b5(0x50a)+_0x2441b5(0x61d)),_0xd10791[_0x2441b5(0x13c)]),null;}}return null;}async function carregarUnStep(_0x493a1a,_0x35754c){const _0x32a0a8=_0x1ec428,_0x4f199b='web_data_N'+'E/',_0x31142f=String(_0x493a1a)[_0x32a0a8(0x444)](0x2,'0');let _0x258b65=null,_0x323a7a='avui',_0x592bb9=null,_0x54ddb0=null;if(window['_horesDisp'+_0x32a0a8(0x225)]&&window[_0x32a0a8(0x614)+'onibles'][_0x493a1a]){if('koKUW'!==_0x32a0a8(0x5bf))_0xd7ebd6[_0x32a0a8(0x741)+_0x32a0a8(0x452)](_0x32a0a8(0x686)+_0x32a0a8(0x572),_0x3b3c8f);else{const _0x552ae3=window['_horesDisp'+'onibles'][_0x493a1a];_0x258b65=String(_0x552ae3[_0x32a0a8(0x69b)])['padStart'](0x2,'0'),_0x323a7a=_0x552ae3[_0x32a0a8(0x33d)],_0x592bb9=_0x552ae3[_0x32a0a8(0x661)],_0x54ddb0=_0x552ae3['nom3D'],console[_0x32a0a8(0x73a)](_0x32a0a8(0x254)+'\x20📍\x20Step\x20'+_0x493a1a+_0x32a0a8(0x569)+_0x258b65+'h\x20'+_0x323a7a);}}else{const _0x580c71=new Date(new Date()[_0x32a0a8(0x576)+_0x32a0a8(0x87f)](_0x32a0a8(0x467),{'timeZone':_0x32a0a8(0x6df)+_0x32a0a8(0x497)})),_0x492c66=_0x580c71[_0x32a0a8(0x520)]();let _0x5b4be8=_0x492c66+_0x493a1a,_0x473650=_0x32a0a8(0x5a4);_0x5b4be8>=0x18&&(_0x5b4be8-=0x18,_0x473650=_0x32a0a8(0x726)),_0x5b4be8>=0x30&&(_0x5b4be8-=0x30,_0x473650=_0x32a0a8(0x86b)+'t'),_0x5b4be8<0x0&&(_0x5b4be8+=0x18,_0x473650=_0x32a0a8(0x750)),_0x258b65=String(_0x5b4be8)[_0x32a0a8(0x444)](0x2,'0'),_0x323a7a=_0x473650;}let _0x5956f5=null,_0x349e14=null;if(_0x592bb9){console['log'](_0x32a0a8(0x254)+_0x32a0a8(0x242)+_0x32a0a8(0x27e)+_0x592bb9),_0x5956f5=await carregarFitxerAmbReintents(_0x592bb9,0x3);if(_0x5956f5)_0x349e14=_0x592bb9;}if(!_0x5956f5){const _0x686bbe=[_0x32a0a8(0x50e)+_0x258b65+'_'+_0x323a7a+(_0x32a0a8(0x766)+'z'),_0x32a0a8(0x50e)+_0x258b65+('_avui.msgp'+_0x32a0a8(0x6f3)),_0x32a0a8(0x50e)+_0x258b65+('_ahir.msgp'+_0x32a0a8(0x6f3)),_0x32a0a8(0x50e)+_0x258b65+(_0x32a0a8(0x832)+_0x32a0a8(0x6f3)),_0x32a0a8(0x50e)+_0x258b65+(_0x32a0a8(0x6d8)+'at.msgpack'+_0x32a0a8(0x300)),_0x32a0a8(0x50e)+_0x258b65+('.msgpack.g'+'z'),_0x32a0a8(0x50e)+_0x31142f+(_0x32a0a8(0x766)+'z')];for(const _0x146a0e of _0x686bbe){const _0x958a57=_0x4f199b+_0x146a0e;try{const _0x6989a9=await fetch(ambCacheBusterDades(_0x958a57),{'method':_0x32a0a8(0x840),'cache':_0x32a0a8(0x132)});if(_0x6989a9['ok']){console[_0x32a0a8(0x73a)](_0x32a0a8(0x254)+'\x20📥\x20Carrega'+'nt\x20SFC:\x20'+_0x146a0e),_0x5956f5=await carregarFitxerAmbReintents(_0x958a57,0x3);if(_0x5956f5){_0x349e14=_0x146a0e;break;}}}catch(_0x21bfbf){}}}if(!_0x5956f5)return console[_0x32a0a8(0xc9)]('[carregar]'+_0x32a0a8(0x674)+'\x20pogut\x20car'+'regar\x20SFC\x20'+'per\x20step\x20'+_0x493a1a+'\x20('+(_0x592bb9||_0x32a0a8(0x50e)+_0x258b65+'_'+_0x323a7a)+(').\x20No\x20es\x20f'+'a\x20servir\x20c'+_0x32a0a8(0x60e)+_0x32a0a8(0x464)+_0x32a0a8(0x867))),null;let _0x3ffbd8=null,_0x2f0686=null;if(_0x35754c&&_0x54ddb0){if(_0x32a0a8(0x336)!==_0x32a0a8(0x336))_0x28e751[_0x32a0a8(0x5c7)][_0x32a0a8(0x108)]=_0x32a0a8(0x59a),_0x4fec38[_0x32a0a8(0x615)+'t']=_0x32a0a8(0x492)+_0xa095ad+_0x32a0a8(0x4a4)+_0x1712e5+(_0x32a0a8(0x37a)+'s\x27han\x20pogu'+_0x32a0a8(0x754)+_0x32a0a8(0x1d4)+_0x32a0a8(0x19c)+_0x32a0a8(0x503)+_0x32a0a8(0xfc));else{const _0x1b8e81=_0x54ddb0[_0x32a0a8(0x354)](_0x4f199b)?_0x54ddb0:_0x4f199b+_0x54ddb0;console['log'](_0x32a0a8(0x254)+_0x32a0a8(0x242)+_0x32a0a8(0x82b)+_0x1b8e81),_0x3ffbd8=await carregarFitxerAmbReintents(_0x1b8e81,0x3);if(_0x3ffbd8)_0x2f0686=_0x54ddb0;else{if(!_0x54ddb0[_0x32a0a8(0x354)](_0x4f199b)){_0x3ffbd8=await carregarFitxerAmbReintents(_0x54ddb0,0x3);if(_0x3ffbd8)_0x2f0686=_0x54ddb0;}}}}const _0x376949={};_0x5956f5&&_0x5956f5[_0x32a0a8(0x86c)]&&Object['assign'](_0x376949,tipificarVariables(_0x5956f5[_0x32a0a8(0x86c)]));_0x3ffbd8&&_0x3ffbd8[_0x32a0a8(0x86c)]&&Object[_0x32a0a8(0x375)](_0x376949,tipificarVariables(_0x3ffbd8[_0x32a0a8(0x86c)]));if(Object[_0x32a0a8(0x7fe)](_0x376949)[_0x32a0a8(0x526)]===0x0)return console['warn'](_0x32a0a8(0x254)+'\x20❌\x20Step\x20'+_0x493a1a+(':\x20variable'+'s\x20buides')),null;escalarVariablesMitjana(_0x376949),calcularVelocitatVent(_0x376949);const _0x9547ea={..._0x5956f5,'variables':_0x376949,'coordenadas':_0x5956f5[_0x32a0a8(0x3d4)+'s'],'coordenadas_3d':_0x3ffbd8?_0x3ffbd8[_0x32a0a8(0x3d4)+'s']:_0x5956f5[_0x32a0a8(0x3d4)+'s'],'_te3d':!!_0x3ffbd8,'_nomSFC':_0x349e14,'_nom3D':_0x2f0686};return console[_0x32a0a8(0x73a)](_0x32a0a8(0x254)+_0x32a0a8(0x4aa)+_0x493a1a+('\x20carregat:'+'\x20')+_0x349e14+(_0x2f0686?_0x32a0a8(0x1f5)+_0x2f0686:'')),{'step':_0x493a1a,'dateObj':new Date(_0x9547ea[_0x32a0a8(0x4af)]+'Z'),'data':_0x9547ea};}function _marcarUsSfc(_0x3afe86){const _0x5c6cb6=_0x1ec428,_0xac3f5d=_ordreUsSfc['indexOf'](_0x3afe86);if(_0xac3f5d!==-0x1)_ordreUsSfc[_0x5c6cb6(0x3da)](_0xac3f5d,0x1);_ordreUsSfc[_0x5c6cb6(0x3d2)](_0x3afe86);}async function assegurarHoraCarregada(_0x4c0f07,_0x4494a7){const _0x494adf=_0x1ec428;if(_0x4c0f07<0x0||_0x4c0f07>=totesLesHores[_0x494adf(0x526)])return![];const _0x2a5941=totesLesHores[_0x4c0f07],_0x292b50=_0x2a5941['data']&&_0x2a5941[_0x494adf(0x5b6)][_0x494adf(0x86c)],_0x1d0c0a=_0x2a5941[_0x494adf(0x5b6)]&&_0x2a5941['data'][_0x494adf(0x77a)];if(_0x292b50&&(!_0x4494a7||_0x1d0c0a))return _marcarUsSfc(_0x4c0f07),!![];const _0x48e1ad=_0x4c0f07+'_'+(_0x4494a7?'3d':'sfc');if(_carregantAra[_0x494adf(0x19e)](_0x48e1ad))return await _carregantAra[_0x494adf(0x324)](_0x48e1ad);const _0x4de1eb=((async()=>{const _0x1570ca=_0x494adf,_0x575cc7=totesLesHores[_0x4c0f07]['step'],_0x38f265=await carregarUnStep(_0x575cc7,_0x4494a7);if(!_0x38f265)return![];const _0x5b2d6b=totesLesHores[_0x4c0f07];return _0x5b2d6b[_0x1570ca(0x866)]=_0x38f265['dateObj'],_0x5b2d6b[_0x1570ca(0x5b6)]&&_0x5b2d6b[_0x1570ca(0x5b6)][_0x1570ca(0x86c)]&&!_0x4494a7?Object['assign'](_0x5b2d6b[_0x1570ca(0x5b6)][_0x1570ca(0x86c)],_0x38f265['data'][_0x1570ca(0x86c)]):_0x5b2d6b[_0x1570ca(0x5b6)]=_0x38f265[_0x1570ca(0x5b6)],_marcarUsSfc(_0x4c0f07),!![];})());_carregantAra[_0x494adf(0x863)](_0x48e1ad,_0x4de1eb);try{if('xizPu'===_0x494adf(0x110)){_0xe25655=_0x28af15;if(_0x5844a3)_0x20aae8();try{_0x2314b8[_0x494adf(0x6aa)](_0x494adf(0x648)+_0x494adf(0x191)+'at_animaci'+'o',_0x34e41c);}catch(_0x197eff){}}else return await _0x4de1eb;}finally{_carregantAra[_0x494adf(0x71f)](_0x48e1ad);}}async function existeixFitxerDeVeritat(_0x2dc3fa){const _0x3afc48=_0x1ec428;try{const _0x3d5f9e=await fetch(ambCacheBusterDades(_0x2dc3fa),{'method':'GET','cache':'no-store'});if(!_0x3d5f9e['ok'])return![];const _0x2798f6=_0x3d5f9e[_0x3afc48(0x1c5)][_0x3afc48(0x324)](_0x3afc48(0x23e)+'pe')||'';if(_0x2798f6[_0x3afc48(0x337)](_0x3afc48(0x9c)))return![];const _0x5c70ba=await _0x3d5f9e[_0x3afc48(0x642)+'r'](),_0x24ca5f=new Uint8Array(_0x5c70ba);if(_0x24ca5f[_0x3afc48(0x526)]<0x4)return![];if(_0x24ca5f[0x0]===0x3c)return![];return!![];}catch(_0x249123){return![];}}const CLAU_CACHE_HORES=_0x1ec428(0x648)+_0x1ec428(0x7ec)+_0x1ec428(0x574)+_0x1ec428(0x390),CACHE_HORES_VALID_MS=0xf*0x3c*0x3e8;function llegirCacheHores(){const _0x2e318c=_0x1ec428;try{const _0x13bd4b=localStorage['getItem'](CLAU_CACHE_HORES);if(!_0x13bd4b)return null;const _0x482ff2=JSON[_0x2e318c(0x7e8)](_0x13bd4b);if(!_0x482ff2['timestamp']||Date[_0x2e318c(0x76b)]()-_0x482ff2['timestamp']>CACHE_HORES_VALID_MS)return null;if(!Array[_0x2e318c(0x760)](_0x482ff2['hores'])||_0x482ff2[_0x2e318c(0x2b2)][_0x2e318c(0x526)]===0x0)return null;return _0x482ff2['hores'];}catch(_0x5d2bcb){return null;}}function desarCacheHores(_0x17f9d6){const _0x7f48e=_0x1ec428;try{localStorage[_0x7f48e(0x6aa)](CLAU_CACHE_HORES,JSON[_0x7f48e(0x4c1)]({'timestamp':Date[_0x7f48e(0x76b)](),'hores':_0x17f9d6}));}catch(_0x351bcc){}}const DIES_SEQ=[_0x1ec428(0x750),'avui',_0x1ec428(0x726),_0x1ec428(0x86b)+'t'];function idxLineal(_0x341e27,_0x17400b){return _0x341e27*0x18+_0x17400b;}function fromIdxLineal(_0x2060ad){const _0x2bbbc8=_0x1ec428,_0x430c6e=Math[_0x2bbbc8(0x1a7)](_0x2060ad/0x18),_0x161446=_0x2060ad%0x18;return{'dia':DIES_SEQ[_0x430c6e],'hora':_0x161446};}function nomSfc(_0x236094,_0x3983d8){const _0x132658=_0x1ec428,_0x5335ae=String(_0x3983d8)[_0x132658(0x444)](0x2,'0');return _0x132658(0x5b7)+_0x132658(0x7b6)+_0x5335ae+'_'+_0x236094+(_0x132658(0x766)+'z');}function nom3d(_0x60c11,_0x4eb025){const _0x11f994=_0x1ec428,_0x3beb76=String(_0x4eb025)[_0x11f994(0x444)](0x2,'0');return _0x11f994(0x5b7)+_0x11f994(0x380)+_0x3beb76+'_'+_0x60c11+(_0x11f994(0x766)+'z');}async function comprovarIdx(_0x219d6e,_0x672ff0){const _0x1ec402=_0x1ec428;if(_0x672ff0['has'](_0x219d6e))return _0x672ff0['get'](_0x219d6e);const {dia:_0xb27512,hora:_0x12690a}=fromIdxLineal(_0x219d6e),_0x367e16=await existeixFitxerDeVeritat(nomSfc(_0xb27512,_0x12690a));return _0x672ff0[_0x1ec402(0x863)](_0x219d6e,_0x367e16),_0x367e16;}async function trobarRangHoresPerCercaBinaria(){const _0x1f5801=_0x1ec428,_0x2eb3b7=DIES_SEQ[_0x1f5801(0x526)]*0x18,_0x4b671d=new Map(),_0x9b48db=new Date(new Date()['toLocaleSt'+'ring'](_0x1f5801(0x467),{'timeZone':_0x1f5801(0x6df)+_0x1f5801(0x497)})),_0x2fe3c0=idxLineal(0x1,_0x9b48db[_0x1f5801(0x520)]());if(!await comprovarIdx(_0x2fe3c0,_0x4b671d))return null;let _0x236605=0x0,_0x481329=_0x2fe3c0;while(_0x236605<_0x481329){const _0x9be3e9=Math[_0x1f5801(0x66d)]((_0x236605+_0x481329)/0x2);if(await comprovarIdx(_0x9be3e9,_0x4b671d))_0x236605=_0x9be3e9;else{if('LKwQR'!==_0x1f5801(0x28d))_0x481329=_0x9be3e9-0x1;else try{const _0x56e81f=_0x5e614d['getItem'](_0x57dcbe);if(!_0x56e81f)return null;return _0x3ca851[_0x1f5801(0x7e8)](_0x56e81f);}catch(_0x526c0c){return _0x83ff1d[_0x1f5801(0xc9)](_0x1f5801(0x567)+'nt]\x20Error\x20'+_0x1f5801(0x21c)+'calStorage'+':',_0x526c0c[_0x1f5801(0x13c)]),null;}}}let _0x22a38e=_0x2fe3c0;{let _0x11aa17=0x0,_0x301f06=_0x2fe3c0;while(_0x11aa17<_0x301f06){const _0x5100ba=Math[_0x1f5801(0x1a7)]((_0x11aa17+_0x301f06)/0x2);await comprovarIdx(_0x5100ba,_0x4b671d)?_0x301f06=_0x5100ba:_0x11aa17=_0x5100ba+0x1;}_0x22a38e=_0x11aa17;}let _0x20ddfb=_0x2fe3c0;{if(_0x1f5801(0x601)!==_0x1f5801(0x601)){const _0x90be58=_0x34dc0f[_0x12d1f9];_0x3aa3b9[_0x17cecd]=_0x90be58===null||_0x90be58===_0x3815c2?_0x3981e0:_0x90be58;}else{let _0x58afac=_0x2fe3c0,_0xffcd77=_0x2eb3b7-0x1;while(_0x58afac<_0xffcd77){if(_0x1f5801(0x428)===_0x1f5801(0x5ad))_0x53b0d1[_0x1f5801(0x29c)+_0x1f5801(0x392)+'le'](_0x268dda);else{const _0xd87790=Math[_0x1f5801(0x66d)]((_0x58afac+_0xffcd77)/0x2);await comprovarIdx(_0xd87790,_0x4b671d)?_0x58afac=_0xd87790:_0xffcd77=_0xd87790-0x1;}}_0x20ddfb=_0x58afac;}}const _0x189032=0x6;for(let _0x3c22e2=0x0;_0x3c22e2<_0x189032;_0x3c22e2++){if('OWryr'==='hJZmD')_0x57a8ac['key']===_0x1f5801(0x5f3)&&_0x3788c6();else{const _0x43cfc6=_0x22a38e+Math['floor'](Math[_0x1f5801(0x57f)]()*(_0x20ddfb-_0x22a38e+0x1));if(!await comprovarIdx(_0x43cfc6,_0x4b671d))return null;}}return{'inici':_0x22a38e,'fi':_0x20ddfb};}async function detectarHoresDisponibles(){const _0x23e079=_0x1ec428,_0x34b65e=[],_0x3bfc43=[];console[_0x23e079(0x73a)](_0x23e079(0x625)+_0x23e079(0x2a0)+_0x23e079(0x141)+_0x23e079(0x50b));try{const _0x47660c=await fetch(ambCacheBusterDades(_0x23e079(0x5b7)+_0x23e079(0x58f)+_0x23e079(0x29e)),{'cache':'no-store'});if(!_0x47660c['ok'])throw new Error(_0x23e079(0x885)+_0x47660c[_0x23e079(0x3c2)]);const _0xfab071=_0x47660c[_0x23e079(0x1c5)][_0x23e079(0x324)]('content-ty'+'pe')||'';if(_0xfab071[_0x23e079(0x337)](_0x23e079(0x9c)))throw new Error(_0x23e079(0x481)+_0x23e079(0x80a)+_0x23e079(0x787)+_0x23e079(0x22e)+_0x23e079(0x2ec)+_0x23e079(0x4db)+'lback)');const _0x4bb43c=await _0x47660c['json'](),_0x3ff478={'ahir':-0x1,'avui':0x0,'dema':0x1,'dema_passat':0x2},_0x262b48=Object['values'](_0x4bb43c['hores']||{})['filter'](_0x29bc4b=>_0x29bc4b[_0x23e079(0x6b8)])[_0x23e079(0x325)]((_0x1b355a,_0x4d82e)=>{const _0x19bfef=_0x23e079,_0x2da861=(_0x3ff478[_0x1b355a[_0x19bfef(0x33d)]]??0x63)-(_0x3ff478[_0x4d82e[_0x19bfef(0x33d)]]??0x63);if(_0x2da861!==0x0)return _0x2da861;return _0x1b355a['hora']-_0x4d82e[_0x19bfef(0x69b)];});let _0xbfeb37=0x0;for(const _0x19bf4c of _0x262b48){_0x34b65e[_0x23e079(0x3d2)](_0xbfeb37),_0x3bfc43[_0x23e079(0x3d2)]({'step':_0xbfeb37,'hora':_0x19bf4c[_0x23e079(0x69b)],'dia':_0x19bf4c[_0x23e079(0x33d)],'horaStr':String(_0x19bf4c[_0x23e079(0x69b)])[_0x23e079(0x444)](0x2,'0')+_0x23e079(0x3f4),'diaStr':_0x19bf4c[_0x23e079(0x33d)],'teSFC':!![],'te3D':!!_0x19bf4c['3d'],'nomSFC':'web_data_N'+'E/'+_0x19bf4c[_0x23e079(0x6b8)],'nom3D':_0x19bf4c['3d']?'web_data_N'+'E/'+_0x19bf4c['3d']:null}),_0xbfeb37++;}return window[_0x23e079(0x614)+_0x23e079(0x225)]=_0x3bfc43,console[_0x23e079(0x73a)](_0x23e079(0x625)+_0x23e079(0x47c)+_0x34b65e[_0x23e079(0x526)]+(_0x23e079(0x851)+_0x23e079(0x347)+_0x23e079(0x7a5)+_0x23e079(0x3ae)+'):'),_0x3bfc43['map'](_0x4f9e07=>_0x4f9e07['hora']+'h\x20'+_0x4f9e07[_0x23e079(0x33d)]+(_0x4f9e07[_0x23e079(0x6c0)]?'\x20📡':''))[_0x23e079(0x247)](',\x20')),_0x34b65e;}catch(_0x59b0d7){return console['error'](_0x23e079(0x625)+_0x23e079(0x674)+_0x23e079(0x280)+_0x23e079(0x807)+_0x23e079(0xf4),_0x59b0d7[_0x23e079(0x13c)]),console[_0x23e079(0x282)](_0x23e079(0x625)+_0x23e079(0x7df)+_0x23e079(0x258)+_0x23e079(0x6c7)+'er\x20crear-l'+_0x23e079(0x1c2)+_0x23e079(0x5b7)+'E/'),window[_0x23e079(0x614)+_0x23e079(0x225)]=[],_0x34b65e;}}async function confirmar3DEnSegonPla(_0x4db409){const _0x276750=_0x1ec428,_0x1b7795=0x18;for(let _0x295e3a=0x0;_0x295e3a<_0x4db409[_0x276750(0x526)];_0x295e3a+=_0x1b7795){const _0x5ae3d1=_0x4db409[_0x276750(0x68f)](_0x295e3a,_0x295e3a+_0x1b7795);await Promise[_0x276750(0x14d)](_0x5ae3d1[_0x276750(0x31d)](async _0x2928bf=>{const _0x2e6c67=_0x276750,_0x480b8b=await existeixFitxerDeVeritat(_0x2928bf[_0x2e6c67(0x321)]);_0x2928bf[_0x2e6c67(0x6c0)]=_0x480b8b;if(!_0x480b8b)_0x2928bf['nom3D']=null;}));if(typeof construirGraellaHores==='function')construirGraellaHores();}desarCacheHores(window[_0x276750(0x614)+'onibles']),console[_0x276750(0x73a)](_0x276750(0x625)+'\x20✅\x20Confirm'+_0x276750(0x801)+'mpletada\x20e'+_0x276750(0x389)+'a');}async function refrescarHoresEnSegonPla(){const _0x181de5=_0x1ec428;try{if(_0x181de5(0x69e)===_0x181de5(0x69e)){const _0x1771f0=new Date(new Date()[_0x181de5(0x576)+'ring'](_0x181de5(0x467),{'timeZone':_0x181de5(0x6df)+'rid'})),_0x435aa9=_0x181de5(0x5a4),_0x27dcb0=_0x1771f0[_0x181de5(0x520)](),_0x1cf149=await existeixFitxerDeVeritat(nomSfc(_0x435aa9,_0x27dcb0));!_0x1cf149&&(console['log'](_0x181de5(0x625)+_0x181de5(0x35f)+_0x181de5(0x764)+_0x181de5(0x501)+_0x181de5(0x51a)+_0x181de5(0x2ad)+_0x181de5(0x5d1)+_0x181de5(0x6f7)+'per\x20al\x20pro'+'per\x20load'),localStorage[_0x181de5(0x541)](CLAU_CACHE_HORES));}else return null;}catch(_0x3e0fec){}}async function inicialitzarCarregaSotaDemanda(){const _0x2cd052=_0x1ec428,_0x5f2a59=await detectarHoresDisponibles();if(_0x5f2a59['length']===0x0){console[_0x2cd052(0xc9)]('[Càrrega]\x20'+_0x2cd052(0x828)+_0x2cd052(0x3b9)+_0x2cd052(0x769)+'ible.'),totesLesHores=[],window[_0x2cd052(0x264)+'res']=totesLesHores,construirGraellaHores();const _0x27d573=document[_0x2cd052(0x7b2)+_0x2cd052(0x51e)]('loading_ov'+'erlay');if(_0x27d573)_0x27d573[_0x2cd052(0x6bb)][_0x2cd052(0x4e7)](_0x2cd052(0x819));return;}totesLesHores=_0x5f2a59[_0x2cd052(0x31d)](_0x4749fb=>({'step':_0x4749fb,'dateObj':null,'data':null})),window[_0x2cd052(0x264)+_0x2cd052(0x381)]=totesLesHores,construirGraellaHores(),construirPanellParametres();const _0x4bfd97=document[_0x2cd052(0x7b2)+_0x2cd052(0x51e)]('loading_ov'+_0x2cd052(0x7c1));if(_0x4bfd97)_0x4bfd97['classList'][_0x2cd052(0x4e7)](_0x2cd052(0x819));console[_0x2cd052(0x73a)](_0x2cd052(0xd3)+'📥\x20Carregan'+_0x2cd052(0x400)+'hora\x20(en\x20s'+_0x2cd052(0x652)+'..');const _0x1a3d2f=await carregarUnStep(totesLesHores[0x0][_0x2cd052(0x556)],!![]);_0x1a3d2f&&(totesLesHores[0x0][_0x2cd052(0x866)]=_0x1a3d2f[_0x2cd052(0x866)],totesLesHores[0x0][_0x2cd052(0x5b6)]=_0x1a3d2f['data'],curIdx===0x0&&(canvasLayer[_0x2cd052(0x1df)+'aw']=!![],canvasLayer[_0x2cd052(0x27c)](totesLesHores[0x0]['data']),actualitzarUIHora(0x0),resaltarHoraEnGrid(0x0),construirPanellParametres())),console[_0x2cd052(0x73a)](_0x2cd052(0xd3)+_0x2cd052(0x58a)+_0x2cd052(0x7de)+_0x2cd052(0x751)+_0x2cd052(0xe4)+_0x2cd052(0x56a)+_0x2cd052(0x23c));}function actualitzarBarraProgress(_0x3ece9b,_0x5ba1e5){const _0x14c462=_0x1ec428,_0x1be431=Math[_0x14c462(0x7a7)](_0x3ece9b/_0x5ba1e5*0x64),_0x34ba7f=document['getElement'+_0x14c462(0x51e)](_0x14c462(0x797)+_0x14c462(0x115)),_0x5009eb=document[_0x14c462(0x7b2)+_0x14c462(0x51e)]('loading_pr'+'ogress_tex'+'t');if(_0x34ba7f)_0x34ba7f['style'][_0x14c462(0x3af)]=_0x1be431+'%';if(_0x5009eb)_0x5009eb[_0x14c462(0x615)+'t']=_0x3ece9b+_0x14c462(0x637)+_0x5ba1e5+_0x14c462(0x4be)+_0x1be431+'%)';}let _cargaHoraEnProgreso=![],loadingOverlayTimeout=null;function mostrarLoadingOverlay(_0x401ecf,_0x4fef55){const _0x14f2a7=_0x1ec428,_0x666175=document['getElement'+_0x14f2a7(0x51e)](_0x14f2a7(0x385)+_0x14f2a7(0x3d5)),_0x7aa528=document[_0x14f2a7(0x7b2)+_0x14f2a7(0x51e)](_0x14f2a7(0x385)+'rText'),_0x1cf789=document[_0x14f2a7(0x7b2)+_0x14f2a7(0x51e)](_0x14f2a7(0x385)+'rDetail');if(!_0x666175)return;if(_0x7aa528)_0x7aa528[_0x14f2a7(0x615)+'t']=_0x14f2a7(0x4c4)+'t\x20hora...';if(_0x1cf789)_0x1cf789[_0x14f2a7(0x615)+'t']=_0x401ecf+_0x14f2a7(0x312)+(_0x4fef55||_0x14f2a7(0x5a4));loadingOverlayTimeout&&(clearTimeout(loadingOverlayTimeout),loadingOverlayTimeout=null),_0x666175['classList']['remove'](_0x14f2a7(0x819)),_0x666175[_0x14f2a7(0x6bb)][_0x14f2a7(0x4e7)]('visible'),_0x666175['style']['display']='flex',void _0x666175[_0x14f2a7(0x23a)+'ht'],_0x666175[_0x14f2a7(0x5c7)][_0x14f2a7(0x5c5)]='1';}function amagarLoadingOverlay(){const _0x518d4b=_0x1ec428,_0x113e90=document['getElement'+_0x518d4b(0x51e)](_0x518d4b(0x385)+_0x518d4b(0x3d5));if(!_0x113e90)return;_0x113e90[_0x518d4b(0x5c7)][_0x518d4b(0x5c5)]='0',loadingOverlayTimeout&&clearTimeout(loadingOverlayTimeout),loadingOverlayTimeout=setTimeout(()=>{const _0x5e3404=_0x518d4b;_0x113e90[_0x5e3404(0x6bb)][_0x5e3404(0x515)](_0x5e3404(0x542)),_0x113e90[_0x5e3404(0x6bb)]['add'](_0x5e3404(0x819)),_0x113e90[_0x5e3404(0x5c7)]['display']='none',loadingOverlayTimeout=null;},0x15e);}async function mostrarHora(_0x2695ee){const _0x1102bc=_0x1ec428;if(_0x2695ee<0x0||_0x2695ee>=totesLesHores[_0x1102bc(0x526)])return;if(_cargaHoraEnProgreso)return;const _0x37da94=window[_0x1102bc(0x631)+_0x1102bc(0x775)]||null;if(!_0x37da94&&_0x2695ee%0x3!==0x0){if(typeof loginWithGoogle===_0x1102bc(0x223))loginWithGoogle();return;}let _0x1323cb=_0x1102bc(0x738),_0x2f626f='';const _0x1d70de=totesLesHores[_0x2695ee];if(window[_0x1102bc(0x614)+_0x1102bc(0x225)]&&window[_0x1102bc(0x614)+'onibles'][_0x2695ee]){const _0x9823b8=window[_0x1102bc(0x614)+_0x1102bc(0x225)][_0x2695ee];_0x1323cb=String(_0x9823b8['hora'])[_0x1102bc(0x444)](0x2,'0')+_0x1102bc(0x3f4),_0x2f626f=_0x9823b8[_0x1102bc(0x33d)]||_0x1102bc(0x5a4);}const _0x4446a3=!!(_0x1d70de[_0x1102bc(0x5b6)]&&_0x1d70de[_0x1102bc(0x5b6)]['variables']&&Object['keys'](_0x1d70de['data']['variables'])[_0x1102bc(0x526)]>0x0);!_0x4446a3&&mostrarLoadingOverlay(_0x1323cb,_0x2f626f);_cargaHoraEnProgreso=!![];const _0x311ac0=_0x2695ee;curIdx=_0x2695ee,window[_0x1102bc(0x890)+_0x1102bc(0x852)]=_0x2695ee,resaltarHoraEnGrid(_0x2695ee);const _0x21ab10=document[_0x1102bc(0x7b2)+_0x1102bc(0x51e)](_0x1102bc(0x2cb)+_0x1102bc(0x18c));if(_0x21ab10&&!_0x4446a3)_0x21ab10[_0x1102bc(0x615)+'t']='\x20Carregant'+_0x1102bc(0x738);try{if(!_0x4446a3){console[_0x1102bc(0x73a)](_0x1102bc(0x17c)+_0x1102bc(0x13d)+_0x1102bc(0x4d7)+_0x2695ee+(_0x1102bc(0x6ea)+_0x1102bc(0x499)));const _0x5429f0=document[_0x1102bc(0x7b2)+_0x1102bc(0x51e)](_0x1102bc(0x385)+_0x1102bc(0x521));if(_0x5429f0)_0x5429f0[_0x1102bc(0x615)+'t']='\x20Descarreg'+_0x1102bc(0x66b)+'..';const _0x2ba95f=await carregarUnStep(_0x1d70de[_0x1102bc(0x556)],!![]);if(_0x2ba95f){_0x1d70de['dateObj']=_0x2ba95f[_0x1102bc(0x866)],_0x1d70de[_0x1102bc(0x5b6)]=_0x2ba95f[_0x1102bc(0x5b6)],construirGraellaHores(),construirPanellParametres();const _0x4e253b=document['getElement'+'ById']('loadingHou'+_0x1102bc(0x521));if(_0x4e253b)_0x4e253b[_0x1102bc(0x615)+'t']=_0x1102bc(0x66c)+'t\x20dades...';}else{console[_0x1102bc(0xc9)]('[mostrarHo'+_0x1102bc(0x4dc)+_0x1102bc(0x440)+'arregar\x20l\x27'+_0x1102bc(0x61b)+_0x2695ee),amagarLoadingOverlay(),_cargaHoraEnProgreso=![];return;}}else console['log'](_0x1102bc(0x17c)+_0x1102bc(0x1bb)+_0x2695ee+('\x20ja\x20carreg'+_0x1102bc(0x563)+_0x1102bc(0x441)+_0x1102bc(0x7e7)+'ar\x20a\x20desca'+_0x1102bc(0x4fd)));if(curIdx!==_0x311ac0){amagarLoadingOverlay(),_cargaHoraEnProgreso=![];return;}if(_0x1d70de?.[_0x1102bc(0x5b6)]){canvasLayer[_0x1102bc(0x1df)+'aw']=!![],canvasLayer[_0x1102bc(0x27c)](_0x1d70de[_0x1102bc(0x5b6)]);if(window[_0x1102bc(0x212)+'d']&&typeof redibuixarVent===_0x1102bc(0x223))redibuixarVent();}actualitzarUIHora(_0x2695ee);}catch(_0x502e3d){console[_0x1102bc(0x282)](_0x1102bc(0x17c)+_0x1102bc(0xbf),_0x502e3d);const _0x551428=document[_0x1102bc(0x7b2)+_0x1102bc(0x51e)]('loadingHou'+_0x1102bc(0x521));if(_0x551428)_0x551428[_0x1102bc(0x615)+'t']=_0x1102bc(0x870)+_0x1102bc(0x2a6);setTimeout(()=>amagarLoadingOverlay(),0x3e8);}finally{_cargaHoraEnProgreso=![],setTimeout(()=>{amagarLoadingOverlay();},_0x4446a3?0x0:0x190);if(_0x21ab10&&totesLesHores[_0x2695ee]?.[_0x1102bc(0x866)]){const _0x4183a4=new Date(totesLesHores[_0x2695ee][_0x1102bc(0x866)]['toLocaleSt'+_0x1102bc(0x87f)](_0x1102bc(0x467),{'timeZone':'Europe/Mad'+'rid'}));_0x21ab10[_0x1102bc(0x615)+'t']=_0x4183a4[_0x1102bc(0x576)+'ring'](_0x1102bc(0x781),{'hour':'2-digit','minute':_0x1102bc(0x6e5),'day':_0x1102bc(0x6e5),'month':_0x1102bc(0x2b0)});}}}function resaltarHoraEnGrid(_0xea39b8){const _0x517958=_0x1ec428;document[_0x517958(0x847)+_0x517958(0x6d7)](_0x517958(0x113))[_0x517958(0x25d)]((_0x36fa03,_0x33e8c7)=>{const _0x2b1bef=_0x517958;_0x36fa03[_0x2b1bef(0x6bb)]['toggle'](_0x2b1bef(0x6ef),_0x33e8c7===_0xea39b8),_0x36fa03[_0x2b1bef(0x5c7)][_0x2b1bef(0x846)]=_0x33e8c7===_0xea39b8?'rgba(255,2'+_0x2b1bef(0x782):_0x2b1bef(0x424)+'55,255,0.0'+'3)',_0x36fa03[_0x2b1bef(0x5c7)]['color']=_0x33e8c7===_0xea39b8?_0x2b1bef(0x619):'#556680',_0x36fa03[_0x2b1bef(0x5c7)]['border']=_0x33e8c7===_0xea39b8?_0x2b1bef(0x857)+_0x2b1bef(0x424)+'15,0,0.3)':_0x2b1bef(0x857)+_0x2b1bef(0x425)+'t';});const _0x438111=document[_0x517958(0x847)+_0x517958(0x36b)](_0x517958(0x3e7)+'ata-idx=\x22'+_0xea39b8+'\x22]');if(_0x438111)_0x438111['scrollInto'+'View']({'behavior':'smooth','block':_0x517958(0x446),'inline':_0x517958(0x550)});}function _0x56e3(){const _0xec08c8=['after','text','mpressionS','x;\x20}\x0a\x0a\x20\x20\x20\x20','hypot','mode','#556680','_350','Isoterma\x200','ransition:','ssió]\x20No\x20é','\x20es\x20descar','max','manifest\x20(','lightning_','round','.0x</span>','ss=\x22aj-lab','nt]\x20Error\x20','menu_link','\x20\x20\x20transit',',\x200.9);\x0a\x20\x20','are','tpw_850','_OR_WATER_','arAjustosV','getElement','▶\x20Animació','animació\x20d','lineWidth','E/sfc_','nt\x20.aj-seg','\x20id=\x22ajRes','km/h','.param-row','h:34px;hei','streamline','ding:\x200px\x20','g/m²','stream','U_PV1500','erlay','fas\x20fa-rot',')</span>','10px;\x0a\x20\x20\x20\x20','WvuQC','not-allowe','LS_62','\x20style=\x22fl','e\x22>\x0a\x20\x20\x20\x20\x20\x20','ize:18px;c','ly:\x20\x27Segoe','\x20color:\x20#F','1.5','pIEGM','s\x20premium','fh-grid-co','bar-thumb\x20','\x22display:n','stroke=\x22#f','indexOf','r\x20vent</sp','9bb;','ass=\x22aj-fi','_900','Gruix\x20de\x20n','5,255,255,','WXuVw','v\x20class=\x22a','1;\x22>\x0a\x20\x20\x20\x20\x20','tzació\x20com','\x20Executa\x20g','fillText','lex;\x0a\x20\x20\x20\x20\x20','entDensita','a-lock\x22></','WCS)','precip_wat','sqrt','o\x20cal\x20torn','parse',',\x2026,\x200.97','lute;\x0a\x20\x20\x20\x20','[Grid]\x20Ele','at_hores_d','E__GROUND_','ap\x20a\x20*\x20{\x0a\x20','gba(255,25','\x20backdrop-','play:\x20flex','D_COVER__G','tton\x20data-','test','param-acor','s\x20{\x0a\x20\x20\x20\x20\x20\x20','MEAN_SEA_L','sLbQc','THETA_PV15','ls\x20850hPa','ut\x20type=\x22r','<circle\x20cx','Base\x20núvol','keys',',\x20.param-s','\x20\x20\x20\x20\x20white','ació\x203D\x20co','zier(0.22,','ier\x20New\x27,\x20',':\x206px;\x0a\x20\x20\x20','nsitat','ke-linecap','gir\x20manife',':\x20#8899bb;','girona_com','son\x20no\x20exi','ointToLaye','#ajCapaGir','⏱\x200s','</div>','cUVoQ','807012HgBCDq','\x220.1\x22\x20valu','ió\x201h',',255,0.06)','rPoint','ght:\x20600;\x0a','_300','\x20\x20\x20\x20\x20\x20}\x0a\x20\x20','LS_108','hidden',';pointer-e','moveend\x20zo','\x20\x20\x20\x20\x20\x20\x20#ma','\x20aj-fila-v','\x20\x20\x20\x20\x20\x20alig','ss=\x22param-','\x20padding:\x20','btnVent','r:\x201px\x20sol','Nuvolosita','filter:\x20bl','\x0a\x20\x20\x20\x20\x20\x20\x20\x20<','ndex:\x209999','div\x20style=','No\x20s\x27ha\x20tr','\x20\x20\x20\x20\x20<line','⏹\x20Aturar','nt\x203D:\x20','zoomend','\x22>(','e;\x0a\x20\x20\x20\x20\x20\x20\x20','left:\x2050%;','ex:1;overf','6\x22\x20step=\x220','_dema.msgp','#ajVentMod','0.1);\x0a\x20\x20\x20\x20',';display:f','Precip.\x20to','ba(255,255','j-range\x20{\x0a','th:\x20300px;','r-select:\x20','\x20\x20\x20\x20height','bt62','SURFACE',',26,0.75)','ISO_TPW_27','HEAD','ell-ajusto','shadow:\x200\x20','rega\x20només','9aa\x27\x22>✕</b','8e8;\x0a\x20\x20\x20\x20\x20','background','querySelec','extend','pan>\x0a\x20\x20\x20\x20\x20','URFACE','cursor','temperatur','[descompri','OqtFt','cJMGn','\x22valVentVe','\x20hores\x20lle','ndex','ventVeloci','nter;gap:8','or:#667788','decode','1px\x20solid\x20','getItem','/span>\x0a\x20\x20\x20','margin-top','clau','15,\x200,\x200.1','llAjustosV','transform','ades...</d','articules','search','.fh-item.a','set','IP_15MIN__','und:#fffff','dateObj','re\x20dia.','reproduir','WIND_PV200','entries','dema_passa','variables','2.0','\x20\x20\x20\x20\x20\x20\x20\x20li','5\x20(WCS)','\x20Error\x20car','avis_xarxa','0.35','7295351joJexN','_950','2934027gWAYyg','weight:700','akvgy','border-rad','RR_SOL_GEL','-btn\x22>✦\x20Pa','></i>\x20Ajus','r-radius:\x20','oeKgZ','10\x22\x20max=\x221','ring','ip.\x2015min','px;font-si',':\x20fallada\x20','(255,255,2','i>\x20Activat','HTTP\x20','radius:\x204p','shear_03','setPositio','border-top','ION_TYPE_6','\x20\x20\x20\x20\x22>\x0a\x20\x20\x20','zIndex','ock;margin','d\x20rgba(255','00\x22\x20value=','skewtHourI','gba(0,0,0,','fh_grid','cape','flow-x:aut','TION_RATE_','bBwUG','nd:\x20rgba(2','\x20.scroll-a','Pa/s','\x22\x20y2=\x2242\x22\x20','\x20\x20\x20\x20border','\x20\x20\x20\x20font-w','latLng','rvei/catal','mitjana)','fas\x20fa-tac','\x20\x20\x20\x20\x20\x20disp','_600','text/html','P__TOP_CB','enter;\x0a\x20\x20\x20','ont-size:\x20','\x20\x20\x20\x20\x20\x20\x20col','bkbLa','DomUtil','cf9f9\x22/>\x0a\x20','dBZ','f\x22></span>','ur(4px);\x0a\x20','\x202m','it;\x0a\x20\x20\x20\x20\x20\x20','lon_max','\x20Línies</b','ter;paddin','NCLSN','ar:','\x20rgba(255,','nt-size:7p','IN__GROUND','kmWVd','\x20intents:','w_850','Lifted\x20Ind','fillStyle','argin-left','\x20\x20\x20\x20\x20opaci','Altitud\x20is','#000000','x-width:\x209','_PRECIPITA','ip.\x20severa','415','#ajVentCol','ra]','_cover','pIZBX','\x20\x20\x20\x20\x20\x20\x20\x20\x20','ALTITUDE_I','apply','00\x22\x20step=\x22','Geopotenci','openOn','ax-width:\x20','warn','#valCapaOp','ZOhBx','reen','latLngToCo','>Capa\x20de\x20d','ustosVent','ter;\x0a\x20\x20\x20\x20\x20','\x20<i\x20class=','jBCOV','[Càrrega]\x20','\x20span:hove','color\x22\x20id=','ir\x20ni\x20lleg','ma,\x20sans-s','Llamps\x201h','VentVeloci','05%);\x0a\x20\x20\x20\x20','\x20\x27Segoe\x20UI','\x20\x20\x20\x20cursor','nslateX(-1','Vent\x2010m','Gruix','ansparent;','\x20contribut','flex','lex;align-','arregant\x20n','tancarBloq','toLowerCas','capaOpacit','\x20-2px;\x0a\x20\x20\x20','rial,\x20sans','tat\x20dBZ','font-weigh','2230cqHnBB','\x20\x20\x20\x20top:\x200','bel\x22>Opaci','style=\x22fon','[Descompre','a\x202m','!important','#valVentOp','st.json:','stroke','utton>\x0a\x20\x20\x20','r:\x20#ffffff','HEIGHT__GR','\x20\x20\x20flex-di','wind_speed','irona','internet.','e=\x22font-si','\x20\x20\x20\x20','\x20precip.','PLANETARY_','Tipus\x20prec','n-items:ce','SaTgA','35px;\x0a\x20\x20\x20\x20','g/kg','W/{z}/{x}/','-France)','display','#valVentGr','ion:\x20all\x200','HELICITE__','te-space:\x20','-separador','-btn\x20{\x0a\x20\x20\x20','r\x20amb\x20pako','ocazg','#ajResetDe','jans','.fh-item','ylUdU','ogress_bar','translateX','\x22\x20y2=\x2224\x22\x20','cula\x20<span','atches\x22\x20id','\x20-\x20Error\x20n','55,255,0.0','n></span>\x0a','Vort.\x20pote','-fila\x22>\x0a\x20\x20','Theta\x20PV=2','[Mapa]\x20Acc','at_animaci','#btnTancar','mació','i\x20class=\x22\x22','split','Pluja\x20núvo',':none\x22])','aj-swatche','\x20active','\x20#map\x20.lea','_canvasLay','tornGruix\x22','ION_TYPE_1','estils-pan','\x27)\x2024\x2024,\x20','\x20\x20\x20\x20<div\x20c','ineWidth','no-store','getMinutes','\x20white;\x0a\x20\x20','fila\x20aj-fi','UVUiH','MEDIUM_CLO','g:\x205px\x2012p','=\x22100\x22\x20cla','-1px;font-','[style*=\x22d','message','ra]\x20Carreg','cccc;\x0a\x20\x20\x20\x20','\x20Variable\x20','Vent\x20@\x20','\x20manifest.','reload','View','nospace;\x0a\x20','Defecte','1=\x2224\x22\x20y1=','segmented\x22','oterma\x200°C','ze:\x208px;\x0a\x20','#map\x20butto','dades/','pup,\x0a\x20\x20\x20\x20\x20','all','ght:26px;b','FACE','<br>','-bottom:1p','nimbus','cin','unidades',';font-weig','gKPmg','#fff','\x20\x20\x20gap:\x2010','ZWQRq','ventColor','gn:center;','m\x20Level','categ.','EgjyV','lic=null;}','actiu','2aa3e8;\x0a\x20\x20','base/wmts/','\x201,\x200.36,\x20','-space:\x20no','ointer\x20!im','ehi','ck=\x22if(mar',':\x202px\x204px;','\x20\x20\x20display','uix\x20vora\x20<','ol,\x20#map\x20.','hWshu','OeZVN','rameter','\x20\x20\x20margin:','Equilibriu','ventEstela','reflectivi','\x20<circle\x20c','medium_clo','és\x20denegat','lfc_m','4px\x2018px\x202','</div>\x0a\x0a\x20\x20','position:a','CIPITATION','\x20\x20\x20<input\x20','[mostrarHo','_vent_v1','6252576kDybTV','g:\x200.5px;\x0a','\x20\x20\x20\x20\x20\x20\x20\x20\x20b','t\x20i\x20mapa\x0a\x20','lay:block;','order:none','srh_01','TER_SURFAC','temp_min2m','#ajContorn','13px;','t\x20total','at\x22>100%</','ors','me_label','size:13px;','\x20\x20\x20\x20\x20posit','Temp.\x20màx.','getContain','at_velocit','_MINI_PREC','#panellAju','ntAnimacio','cgc.cat/se','.6\x22\x20class=','toggle','pv_925','tempsResta','</i>\x20Resta','\x20en\x20','\x20la\x20teva\x20c','getSize','has','btn.actiu\x20','param-row-','\x20}\x0a\x20\x20\x20\x20\x20\x20\x20','f;\x0a\x20\x20\x20\x20\x20\x20\x20','NEIGE__GRO','ocitat','p-title','\x22\x20style=\x22b','floor','scp_wcs','D_OR_WATER','Pressió\x20MS','onaOn','\x20opacity:\x20','\x22valVentDe','CAPE\x20mitja','per\x20membre','zGVXU','\x221\x22\x20stroke','feels_like','ght:\x20400;\x0a','ROUND_OR_W','\x20\x20\x20\x20\x20\x20posi','\x20\x20\x20font-we','omend','Altitud','</span></d','TOTAL_CLOU','ra]\x20\x20Hora\x20','Vent\x20V\x2010m','\x20\x20\x20<span\x20c','\x22>Gruix\x20lí','\x20step=\x220.1','\x20\x20\x20\x20\x20\x20\x20<bu','Gel\x20núvols','o\x20dins\x20de\x20','AYER_HEIGH','\x20ja\x20carreg','headers','\x27,\x20Tahoma,','GEOMETRIC_','les\x22\x20style','_850','px;border:','ursor:poin','5\x22\x20max=\x224\x22','head','STP\x20(Météo','1\x22\x20value=\x22','\x22padding:1','aturar','createElem','ventGruix','.\x20Comprova','size:\x2011px','_10m','\x20\x20}\x0a\x20\x20\x20\x20','r;gap:8px;','\x20\x20\x20font-si','obWVB','an>\x0a\x20\x20\x20\x20\x20\x20','in-bottom:','s_3d','\x20\x20#panellA','_needsRedr','ont-weight','ora</span>','.1\x22\x20value=','-scrollbar',':\x200.3px;\x0a\x20','der:\x20none;','pointerEve','700;','el\x22>Mostra','pv_200','ineOpacity','\x20\x20\x20\x20\x20\x20\x20\x20di','lineTo','rdio-cos','low_cloud_','\x20type=\x22ran','x\x20solid\x20rg','</span>\x0a\x20\x20','pressure_m','1=\x226\x22\x20y1=\x22','\x20\x20\x20\x20\x20\x20back','\x20+\x20','\x20nivells)<','1.2\x22\x20class','ata-clau-b','ight:\x20500;','30px;\x0a\x20\x20\x20\x20','Reserva\x20ne','ba(0,\x200,\x200','high_cloud','GEOPOTENTI','tivat\x0a\x20\x20\x20\x20','\x20\x20\x20\x20\x20\x20\x20use','=\x22aj-val\x22\x20','\x20(max-widt','rlay','#141c2a','moveTo','lifted_ind',':flex;alig','8f8\x22\x20strok','jHLeo','TPW_MITJAN','bQWca','selected','right','mapLockOve','ms:center;','=\x22aj-label','0.8)','ventEnable','anellAjust','nsition:\x20a','span\x20class','FVyiB','[GeoJSON]\x20','ex;gap:3px','eData','ck)','cadorClic)','llegint\x20lo','ER_SURFACE','citat\x22\x20min','OR_WATER_S','iu\x20{\x0a\x20\x20\x20\x20\x20','al\x20500hPa','/svg+xml,','function','span\x20data-','onibles','Catalunya','fYgHB','ineColorHe','255,\x20255,\x20','er-color:\x20','tat',',0.1);\x0a\x20\x20\x20','Temperatur','servidor\x20r','Vent\x20.aj-s','ila-linies','input\x20type','ada.','sitat','\x20quan\x20es\x20c','Temp.\x20mín.','ila\x22>\x0a\x20\x20\x20\x20','\x20...','none','0.55','offsetHeig','urar\x20valor','demanda...','createImag','content-ty','12px;font-','ase=\x22','%;\x0a\x20\x20\x20\x20\x20\x20\x20','\x20📥\x20Carrega','3D\x20en\x20casc','bEKGq','dio-fletxa','tat\x20capa\x20<','join','_POTENTIAL','\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20','000/svg\x22\x20w','Vent\x20U\x2010m','high','\x2015min','smooth','aOpacitat\x22','x;text-ali','Equivalent','IWCie','\x20\x20outline:','[carregar]','56680;padd','tent:\x20spac','tileLayer','enerar_man','contornCol','Punt\x20rosad','ggle-btn\x22>','osition:\x20f','forEach','ght:\x20700;\x0a','rder-radiu','n\x20{\x0a\x20\x20\x20\x20\x20\x20','lpCdX','padding:2p','readyState','totesLesHo','Reproduir\x20','tc:logout','\x20\x20\x20\x20\x20\x20\x20<di','ície','[Animació]','w_300','[Accés]\x20Va','controls','NOW__GROUN','nts','px;backgro','}\x0a\x20\x20\x20\x20\x20\x20\x20\x20','text-align','Cim\x20Cumulo','eppqZ','x\x22>1.2</sp','\x20<button\x20i','order:\x20non','e-width=\x221','definitiva','Altura\x20neu','Activa','\x20\x20<div\x20cla','setData','alVentEste','nt\x20SFC:\x20','\x20\x20\x20\x20\x20\x20\x20\x20\x20<','\x20pogut\x20lle','ty_dbz','error','\x20\x20\x20\x20\x20paddi','\x20uppercase','an></span>','arques.geo','an\x20style=\x22','contains','\x202px;\x0a\x20\x20\x20\x20','unitat','display:fl','=\x2224\x22\x20x2=\x22','KOsuB','ound:\x20rgba','rdio-cap,\x20','1);\x0a\x20\x20\x20\x20\x20\x20','group','Vent\x20U','\x20\x20\x20\x20\x20\x20\x20\x20bo','FF__ISO_TP','s\x27han\x20pogu','color:#556','className','SON','20px;\x0a\x20\x20\x20\x20','dpt','lcl_m','notificarC','tion:\x20all\x20','.json','>100%</spa','\x20🔍\x20Llegint','putImageDa','5391510ErLkLU','\x20\x20font-siz','\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20','localeComp','regant','itat\x22\x20min=',':\x204px;\x0a\x20\x20\x20','\x20\x20\x20\x20\x20\x20\x20\x20\x20m','lat','l\x20mapa</di','configurar','tual\x20no\x20tr','srh','\x20<span\x20cla','short','J/kg','hores','und\x22\x20opaci','_WATER_SUR','loguejat','Vent\x20PV=1.','ineColor','\x20\x20\x20\x20\x20\x20</di','_750','ncial','fh-item','tSibling','\x20\x20\x20\x20\x20\x20\x20\x20\x20t','ce:\x20nowrap','Ratxa\x2010m','low:\x20hidde','\x22aj-range\x22','BT__CHANNE','{\x0a\x20\x20\x20\x20\x20\x20\x20\x20','enter;widt','xos','ht:400;mar','lon','id:','Aturar\x20ani','guardant\x20a','current_ti','setHours','timeout','thetav_850','hometer-al','BT\x2010.8µm','2px\x208px;\x0a\x20','param-unit','tems:cente','\x2014px;\x0a\x20\x20\x20','-linecap=\x22','Opacitat\x20v','cover','w_500','=\x223\x22\x20step=','iANwt','\x20no\x20existe',']\x20Reintent','bsolute;to','-fila-part',':\x20rgba(255','\x220\x200\x2048\x2048','TY_MAX__GR',':\x20center;\x0a','lid\x20rgba(2','ISO_T_2731','white','WIND_PV150','ex;\x0a\x20\x20\x20\x20\x20\x20','ba(67,\x20233','\x20\x20\x20\x20</div>','Pluja\x20gela','orUSv','etorna\x20la\x20','VISIBILITY','strokeStyl','auto','=\x22range\x22\x20i','.7);\x0a\x20\x20\x20\x20\x20','round\x22\x20opa','rdio-cap\x20.','Mida\x20partí','ejada:','<i\x20class=\x22','30303\x22\x20str','json','btnPlay','removeLaye','t\x22\x20style=\x22','LCL\x20(alçad','\x20\x20\x20\x20positi','xt-align:c','n-items:\x20c','.gz','r\x20amb\x20Deco','Neu\x201h','param-row\x20','\x20\x20\x20\x20\x20color','0.3','fckkj','\x20MessagePa','div','500;\x0a\x20\x20\x20\x20\x20','srh_03','\x20UI\x27,\x20Taho','eparador,\x20','#valCapaGi','ground:\x20rg','EHI\x20(SRH×C','contornGru','riable\x20pre','\x20-\x20','option','pv_300','(0)','\x20\x20\x20\x20color:','move\x20movee','tn\x22></butt','\x20\x20</div>\x0a\x20','Color','\x20\x20\x20\x20\x20\x20lett','sform:\x20tra','map','rmat','on>\x0a\x20\x20\x20\x20\x20\x20','\x20\x20\x20\x20backgr','nom3D','tos\x20de\x20ven','tpw_700','get','sort','>\x0a\x20\x20\x20\x20\x20\x20\x20\x20','stops','VyGpY','acordio_','snow','xt-align:\x20','5_MIN__GRO','\x20(mitjana)','(-105%)','ue=\x22#04040','_1500','DULYK','\x20\x20\x20\x20\x20\x20\x20hei','ht:\x20700;\x0a\x20','\x20\x20\x20\x20\x20\x20\x20\x20te','__GROUND_O','VngbG','includes','ora\x20<span\x20','ms...',':\x20flex;\x0a\x20\x20','(diag.\x20WCS','opts','dia','ir\x20com\x20a\x20J','gin-right:','ursor:\x20poi','font-size:','UND','=\x22backgrou','r\x22></div>\x0a','\x20fill=\x22#07','\x20\x20\x20\x20\x20\x20\x20let','gides\x20del\x20','\x22ajVentGru','removeChil','class=\x22aj-','ss=\x22aj-seg','nimacio','sform\x200.35','_SURFACE','rsor:\x20poin','pipeThroug','olor:#FF6B','erif;\x0a\x20\x20\x20\x20','E__GROUND','startsWith','paneGeojso','div>\x0a\x0a\x20\x20\x20\x20','\x20none;\x0a\x20\x20\x20','descomprim','55,255,255','toggleVent','\x0a\x20\x20\x20\x20\x20\x20\x20\x20p','reduce','RATE__GROU','rgb(','\x20🔄\x20Cache\x20s','NS_BASE_ST','put\x20type=\x22','url','\x20\x20\x20\x20\x20margi','\x20\x20\x20\x20\x20</div','icules\x22\x20st','cos','_ventActiu','ht:\x2020px;\x0a','ss=\x22aj-ran','100\x22\x20value','tor','iniciar','></div>\x0a\x0a\x20','data:image','\x20malformat','ventMode','5569ZNZtMo','Color\x22\x20val','one;\x22>\x0a\x20\x20\x20','svg\x20xmlns=','assign','DIAG_GRELE','lica,\x20sens','eLayer(mar','\x20\x20\x20\x20\x20\x20\x20bac','\x20hores\x20no\x20','[mapa.js]\x20','SRH\x200-3km','dius:\x203px;','[Fitxer\x20co','radius:\x2050','E/3d_','res','en;flex-sh','acitat','\x20\x20\x20flex:\x200','loadingHou','\x20\x20\x20\x20\x20\x20\x20\x20\x22>','or:\x20#8899a','r-top:\x201px','n\x20segon\x20pl','\x20\x20\x20\x20\x20\x20\x20<sp','\x20class=\x22aj','V_PV2000','d+2','TY_MAX_DBZ','getPane','_v1','{y}.png','anviVariab','constructo','THETA_PV20','\x20\x20\x20</div>\x0a','\x20\x20\x20\x20\x20\x20tran','capaGirona','R_WATER_SU','hasLayer','al\x20PV=2.0','e=\x221.0\x22\x20cl','mium\x20bloqu','flet-contr','=\x22ajVentOn','N__GROUND_','opacity\x200.','j-toggle-b','de\x20Girona','\x20\x20\x20\x20\x20\x20\x20tra','or\x20de\x20la\x20v','lineCap','j-titol-se','_data','vents:none','Aigua\x20prec','\x20700;\x0a\x20\x20\x20\x20','ial','\x20\x20</button','#valContor','instantani','width','\x20\x20\x20\x20\x20\x20\x22>','0.2\x22\x20max=\x22','WsjuU','\x20\x20\x20\x20\x20<div\x20','stp','\x20\x20border-r','center;\x0a\x20\x20','stroke=\x22#0','\x20\x20\x20\x20\x20\x20\x20}\x0a\x20','obat\x20cap\x20h','el_m','ass=\x22aj-la','setContent','\x20\x20\x20\x20\x20borde','.5\x22\x20max=\x223','#valVentEs','contornOpa','_MINI_60MI','status','=\x2224\x22\x20cy=\x22','Pressió\x20su','Kmyrc','\x20\x20\x20\x20\x20text-','bel\x20{\x0a\x20\x20\x20\x20','n>\x0a\x20\x20\x20\x20\x20\x20\x20','left:\x200;\x0a\x20','\x20</span>\x0a\x20','\x20<line\x20x1=','toExponent','cal','border','HyjCH','value','button>\x0a\x20\x20','push','SNOW_DEPTH','coordenada','rOverlay','\x20\x20\x20\x20\x20box-s','crosshair\x20','altitud','display:\x20f','splice','wZLmG','V_PV1500','ize:\x2013px;','\x20\x20\x20\x20\x20overf','nia\x20<span\x20','&copy;\x20Ope','58tUwmhP','42\x22\x20y2=\x2224','addTo','rection:\x20c','inflate','15,0,0.15)','.fh-item[d','sin','ase;\x0a\x20\x20\x20\x20\x20','citat','ass=\x22aj-ra',':\x201px\x20soli','\x20\x20\x20\x20\x20\x20\x20\x20ri','\x20aigua\x20neu','splay:\x20inl','08);margin','s-vent','nivell','315',':00','xt-transfo',':\x20100vh;\x0a\x20','nGruix','\x20\x20cursor:\x20','m²/s²','is.style.c','\x20\x20\x20\x20\x20\x20\x20<in','items:\x20cen','containerP','lur(4px);\x0a','_offscreen','t\x20primera\x20','\x22\x20style=\x22\x0a','0\x22\x20max=\x2280','mportant;\x0a','x.)','y2=\x2242\x22\x20st','tream:','15,0,0.3)','height','lock;',';\x0a\x20\x20\x20\x20\x20\x20\x20\x20','roke=\x22#faf','tton\x20*,\x20#m','ve;\x0a\x20\x20\x20\x20\x20\x20','on:\x20relati','\x22>Opacitat','oterma\x20-10','Sostre\x20núv','ty:\x20','sfVfv','DZVKs','x\x2010px;\x0a\x20\x20','s=\x22aj-rang','particles','\x20<div\x20styl','t\x22\x20min=\x2220','\x221.0\x22\x20clas','ent</div>\x0a','eg-btn.act','\x20white-spa','=\x221400\x22\x20cl','setLatLng','yle=\x22font-','nge\x22>\x0a\x20\x20\x20\x20','\x20\x20\x20\x20\x20\x20<inp','CIWC_MITJA','rgba(255,2','transparen','#ajVentDen','fl/m²','ahAQy','ACE','g:\x2010px\x2020','\x20\x20\x20\x20\x20\x20<div','_canvas','\x20\x20\x20\x20}\x0a\x20\x20\x20\x20','fas\x20fa-tog','exec','\x20\x20\x20<line\x20x','style=\x22pos','uix\x22\x20min=\x22','.\x20Reintent','SEVERE_PRE','alContornO','-toggle-bt','\x20\x20\x20\x20\x20\x20\x20pad','e\x20.aj-seg-','ciwc_500','\x204px;\x20}\x0a\x20\x20','ssió]\x20JSON','\x20No\x20hi\x20ha\x20','ackground:','osVent\x20.aj','\x226\x22\x20x2=\x2224','ha\x20pogut\x20c','ria\x20cau\x20(n','\x20\x20\x20\x20\x20\x20\x20\x20fo','valVentMid','padStart','SOTERMA_0C','nearest','ze:\x2010px;\x0a','mb\x20\x22','COVER__GRO','dgKna','\x20\x20\x20\x20<span\x20','\x20\x20\x20bottom:','\x20PV=2.0','\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20','s=\x22aj-tito','ols','BHfBO','stener','_GROUND_OR','\x20PV=1.5','kground:\x20r','AL_PV2000','=\x22\x0a\x20\x20\x20\x20\x20\x20\x20','\x22#3ea6ff\x22\x20','#ajVentSwa','Usuari\x20des','ize:\x2010px;','rea-ajusto','pointer','88vw;\x0a\x20\x20\x20\x20','_MINI_15MI','popup','>\x0a\x0a\x20\x20\x20\x20\x20\x20\x20','moveend','_map','k\x20d\x27un\x20alt','onaOpacita','0%\x20!import','en-US','\x20\x20\x20\x20\x20\x20\x20wid','r:\x20#FFD700','play:none;','t:700;colo','-vent-comu','Layer','_drawLegen','\x20\x20\x20\x20\x20#pane','innerHTML','_render','GROUND_OR_','a-particul','stopPropag','</i>\x20Desac','00</span><','rsor\x200.1s\x20','nt-weight:','\x20\x20\x20\x20\x20\x20box-','padding:0;','cloneNode','\x20✅\x20','35;\x22><i\x20cl','hexqu','paneDades','pv_850','manifest.j','m/s','ze:11px;te','principal','\x20\x20\x20\x20\x20\x20heig','🔍\x20No\x20s\x27han','ant;\x0a\x20\x20\x20\x20\x20','Vent\x20V','ty=\x220.3\x22\x20t','DzIFl','b;\x0a\x20\x20\x20\x20\x20\x20\x20','r:#FFD700;','values','RFACE','s:\x206px;\x0a\x20\x20','click','Visibilita','⚠️\x20','ent','sitat\x20<spa','pacitat\x22>1','#ajVentVel','rid','lay','nda...','separador\x22',':\x20scale(1.','imYpV','la-particu','rain_1h','geoJSON','color','vg>\x0a\x20\x20\x20\x20','select','s\x20JSON\x20vàl','\x20de\x20','none;\x22>\x0a\x20\x20','(WCS)','ContornOpa','canvas','680;paddin','\x20✅\x20Step\x20','REAM_CLOSE','_animacio','beginPath','crosshair','hora_utc','verificarA','pace-betwe','ATER_SURFA','3px;\x0a\x20\x20\x20\x20\x20','55,0.06);\x0a','\x20\x20\x20backgro','ent\x20.aj-la','hadow:\x200\x202','olor\x22\x20id=\x22','.cerca-bui','\x20\x20\x20\x20\x20\x20curs','2px;right:','sbloquejar','scp','\x20hores\x20(','label\x22>Com','d=\x22ajVentE','stringify','\x22>\x0a\x20\x20\x20\x20\x20\x20\x20','\x22>Color</s','⏳\x20Carregan','WNKMY','_CAPE__GRO','\x20\x20\x20\x20\x20\x20\x20\x20<d','title','tosVent','(((.+)+)+)','ràmetres\x20a','oke-width=','seover=\x22th','cing:\x200.3p','padding:\x205','ela','\x20\x20\x20\x20\x20\x20\x20\x20\x20c','=\x22aj-range','cted','ion:\x20relat','PRESSURE__','\x20id=\x22ajVen','ant\x20hora\x20','_INHIBITIO',',\x200.4);\x0a\x20\x20','TEMPERATUR','SPA\x20en\x20fal','ra]\x20\x20No\x20s\x27','ventMida','\x20\x20\x20\x20font-s','_cb=','s::-webkit','in-width:\x20','\x20amb\x20pako:','pointer;\x0a\x20','ected','btnObrirAj','font-famil','add','shear_06_e','#ajCapaOpa','\x20\x20\x20\x20\x20\x20\x20whi','ventDensit','.aj-swatch','replaceChi','low-y:auto','UMULATED_S','0_MIN__GRO','clauBase','OUTQn','n;\x0a\x20\x20\x20\x20\x20\x20\x20','network','BJeqW','match','e\x20xarxa:\x20','hPa','\x20<span\x20dat','T__GROUND_','ange\x22\x20id=\x22','n,\x20#map\x20a,','rregar)','x\x204px;over','_2000','ràfic\x20ICGC','ctualitzad','ntainer','onnexió\x20a\x20','ccesVariab','idth=\x2248\x22\x20','px;\x22>\x0a\x20\x20\x20\x20','_700','0.15s\x20ease',',\x20123,\x200.4','o\x20recupera','json...','\x20cada\x20hora','#ajVentEst','sfc_','ransform=\x22','olor=\x27#889','Cidxa','_925','BT\x206.2µm\x20(','<div\x20style','remove','ll\x200.2s;\x0a\x20','rm:\x20upperc','OUND_OR_WA','ellAjustos','a\x20(hora\x20ac','nk\x22>','ades</div>','ppbdP','ById','setStreaml','getHours','rText','\x201.2;\x0a\x20\x20\x20\x20','rgba(255,\x20','ejIge','ground:\x20tr','length','velocitatA','dius:5px;b','px;\x0a\x20\x20\x20\x20\x20\x20',';height:26','\x20\x20\x20\x20\x20\x20\x20fon','BOUNDARY_L','\x20per:','5);\x0a\x20\x20\x20\x20\x20\x20','\x200,\x20','\x22backgroun','geo_h',',\x200.79);\x0a\x20','\x20\x20\x20border-','l-area-aju','\x0a\x20\x20\x20\x20\x20\x20\x20\x20}','_400','none;curso','ip.\x2060min','arxiu','Neu\x20total\x20','id\x20no\x20trob','uix','tela','SON\x20(falta','an\x20class=\x22','ud_cover','removeItem','visible','a\x20superfíc','gba(10,\x2016','_200','\x20\x20\x20\x20\x20<inpu','gin-left:2','*\x20{\x0a\x20\x20\x20\x20\x20\x20','3px;\x20}\x0a\x20\x20\x20','8644yTgYpJ','9px;color:','No\x20es\x20pot\x20','rdio-cap','\x20border-ra','(67,\x20233,\x20','center','<button\x20id','_ENERGY__G','\x22\x20viewBox=','rdio-fletx','14px;\x0a\x20\x20\x20\x20','step','datos','\x20{\x20width:\x20','Opacity','Núvols\x20mit','_1000','\x20\x20box-shad','BASE_NUAGE','oddBC','sition:\x20cu','WovAu','#valVentMi','ass=\x22fas\x20f','ada\x20a\x20memò','0000\x22/>\x0a\x20\x20','uyWzD','acum.','[AjustosVe','bt108','\x20→\x20hora\x20','omés\x20sota\x20','0.25);\x0a\x20\x20\x20','ing:6px\x2012','al\x20PV=1.5','LE_WATER__','abs','locitat\x22>1','titol','Loaded','ivat','isponibles','appendChil','toLocaleSt','<div\x20class',';border-ra','nd:none;bo','kground:#3','></span>\x0a\x20','lng','Vent\x20total','ent\x20.scrol','random','hingEnable','0.4);\x0a\x20\x20\x20\x20','-filter:\x20b','inies','px\x2022px\x205p','id=\x22valCap','qroUU','getContext','adius:\x204px','ge\x22>\x0a\x20\x20\x20\x20\x20','✅\x20Iniciali','trim','div\x20class=','RESR_NEIGE','textAlign','E/manifest','pPamJ','tsnowp','estaActiu','#c8d8e8','nge\x22\x20id=\x22a','ment\x20fh_gr','NjSpE','REFLECTIVI','\x22\x20step=\x220.','cssText','block','size:7px;c','shadowBlur','er;\x0a\x20\x20\x20\x20\x20\x20','hores\x20per\x20','ntainerPoi','ge\x22\x20id=\x22aj','=\x22aj-titol','ex;align-i','ctive','avui','ut\x20type=\x22c','or:\x20#8899b','\x20#panellAj',':\x20#FFD700;','ur(16px);\x0a','rgba(10,16','t-size:7px','min','YRrEO','change','\x22http://ww','\x20\x20\x20\x20\x20}\x0a\x20\x20\x20','SCP\x20(Météo','style=\x22bac','mal','_650','NEIGE_SC__','data','web_data_N','\x20\x20\x20padding','hail_cm','rtícules</','span></spa','OUND','pop','_550','koKUW','Altres','s=\x22aj-fila','\x22\x20class=\x22a','ggle-off\x22>','\x20\x20\x20\x20\x20\x20\x20\x20#p','opacity','srh_06_eff','style','\x20<div\x20clas','Reflectivi','undefined','ius:\x206px;\x0a','1.5px;\x0a\x20\x20\x20','lute;top:-','=\x22color:#5','display:bl','FzSeM','obada)\x20—\x20i','\x20-\x20Error\x20d','n\x20class=\x22a','off','pv_500','shear_06','ar\x20a\x20desca','_250','TOTAL_PREC','#ajVentGru','spain.geoj','gzip','amagarOver','r-radius:5','pv_700','d=\x22btnTanc','ass=\x22aj-to','ventOpacit',':1px\x20solid','t\x20type=\x22ra','_TYPE_60_M','Intensitat','\x20\x20\x20\x20\x20\x20\x20dis','popup-mini','nom','lass=\x22aj-f','465','\x2224\x22\x20y1=\x226','osm','parentNode','nt-family:','j-swatches','\x22ajContorn','Vent\x20V\x20PV=','Escape','sprés\x20de\x20','\x20\x20\x20\x20\x20\x20\x20\x20\x20d','-top:-1px;','Contorn\x20de','WZhrF','\x20\x20\x20','sondeigObe','keydown','YxWBU','Width','\x20\x20\x20\x20<input','mirMsgPack','nt-size:\x209','JIiCW','-fila\x20aj-f','mes\x22></i>\x0a','gap:\x208px;\x0a','55,\x20255,\x200','[Fitxer]\x20','input','HTEURNEIGE','e:\x206px;\x0a\x20\x20','af8f8\x22\x20str','\x20transform','string','calStorage','ap\x20fallbac','\x22></div>\x0a\x0a','elocitat:','\x20\x20\x20\x20\x20\x20#pan','\x20\x20\x20#map\x20bu','yMZDX','_horesDisp','textConten','tc:login','ive;\x0a\x20\x20\x20\x20\x20','\x20\x20\x20\x20\x20\x20\x20</d','#FFD700','6px\x2018px\x201','hora\x20','restore','ble:','quejada\x20pe','ie\x20model','#ajVentMid','\x22\x0a\x20\x20\x20\x20\x20\x20\x20\x20','omprimint:','key','\x22\x20x2=\x2224\x22\x20','[detectar]','\x20\x20\x20<span\x20d','Opacitat','DupYi','\x20\x20\x20\x20\x20\x20</bu','translate(','cent-color','>\x0a\x20\x20\x20\x20','call','https://ge','#ffffff\x22\x20s','temp_max2m','_firebaseU','\x20\x20\x20gap:\x205p','toString','ronaOn\x22\x20cl','s:\x204px;\x0a\x20\x20','selection','\x20/\x20','save','XhhBo','-family:\x20A','ed;\x0a\x20\x20\x20\x20\x20\x20','drawImage','\x22\x20stroke=\x22','[Reintent\x20','latlng','tn\x20i\x20{\x20mar','Calamarsa\x20','arrayBuffe','ajVentColo','_drawOffsc','val\x22\x20id=\x22v','__GROUND','\x20data-c=\x22#','tempestesc','ixed;\x0a\x20\x20\x20\x20','\x20\x20\x20<div\x20cl','body','lAjustosVe','\x20\x20\x20gap:\x204p','jContornGr','B6B;','gle-off\x22><','ND_OR_WATE','egon\x20pla).','ymLRe','bind','tgrp','c=\x22#FFD700','\x20{\x0a\x20\x20\x20\x20\x20\x20\x20','\x0a\x20\x20\x20\x20\x20\x20\x20\x20#','fillRect','dataset','gle-on\x22></','simplifica','px\x2012px\x20rg','.param-aco','\x20style=\x22fo','arques','nomSFC','ily:\x20\x27Cour','lightning','e\x20càrrega\x20','zada\x20amb\x20v','\x20\x20\x20\x20\x20\x20\x20\x20</','oserveis.i','mouseout','a(255,255,','spbl','ant\x20dades.','\x20Processan','ceil','#8899bb','lat_min','\x20</div>\x0a\x0a\x20','height:\x201.','R_SURFACE','ALTITUDE__','\x20❌\x20No\x20s\x27ha','la\x22>\x0a\x20\x20\x20\x20\x20','param-grou','read','IP_60MIN__','6px;\x0a\x20\x20\x20\x20\x20','T__GROUND','22YDdYli','param-sepa','\x20—\x20','tat\x22\x20min=\x22','CIN__GROUN','\x22\x20stroke-l','Shear\x200-6k','JSON\x20malfo','ila\x20aj-fil','x\x200\x2010px;\x0a','fnWQK','DOMContent','j-val\x22\x20id=','aj-label\x22>','atan2','setStyle','WATER_SURF','locitat','s:\x20center;','jsonDesat','slice','Gz]\x20Error:','ow:\x204px\x200\x20','GROUND','.5°C','troke-widt','toFixed','#valVentVe','nt\x20{\x0a\x20\x20\x20\x20\x20','#040400','\x20\x20\x20\x20\x20font-','filter','hora','ent-comu\x22>','l\x20local)','EZtUy','fectes','ffff\x22\x20styl','tton\x20oncli','_currentPa','width:\x2032p','nowrap;\x0a\x20\x20','ol-seccio\x22','isInteger','ation','e(1,\x201)\x22/>','createPane','setItem','=\x22ajCapaGi','d=\x22ajCapaG','.08);\x0a\x20\x20\x20\x20','CIN','h=\x222\x22\x20stro','ual\x20850hPa','\x20border:\x201','ventActiu','rgando\x20','useout=\x22th','transition','Vent\x20PV=2.','.05);\x0a\x20\x20\x20\x20','sfc','yle=\x22displ','px\x20solid\x20r','classList','gAClH','id=\x22valCon','a;\x0a\x20\x20\x20\x20\x20\x20\x20','ize:\x2011px;','te3D','0,0,0,0.6)','\x20\x20\x20\x20text-a','ipitable\x20(','graupel','cerca-buit','\x20\x20\x20\x20paddin','ifest.py\x20p','255,255,25','wind_gust','QzYGe','#FFD700;\x0a\x20','er-spacing',':\x20#43e97b;','rdio-cap[d','ght:\x2016px;','ine-block;','p:0;left:0','parameter_','-2px;\x0a\x20\x20\x20\x20','grayscale(','MEAN_LAYER','\x20\x20\x20\x20\x20\x20\x20pos','torAll','_dema_pass','Núvols\x20bai','gruix',';align-ite','Humitat','\x22aj-fila\x22>','ronaOpacit','Europe/Mad','FD700;\x0a\x20\x20\x20','=\x22ajVentSw','Vel.\x20verti','DbyHA','5,255,0.06','2-digit','\x20\x20<span\x20st','16plJhnY','\x20\x20\x20\x20\x20\x20\x20z-i','sh2','\x20sota\x20dema','\x20-\x20No\x20es\x20p','ustify-con','g:0;\x22>\x0a\x20\x20\x20','at_ajustos','active','\x0a\x20\x20\x20\x20\x20\x20\x20\x20m','tion:\x20abso','kg/m²','ack.gz','getReader','-val\x22\x20id=\x22','CLD_RAIN_M','nvalidant\x20','nd:\x20#FFD70','paneVent','nOpacitat','items:cent','justosVent','map,\x20#map\x20','\x20Vent\x20ON','lat_max','_ventMode','label\x22>Den',');\x0a\x20\x20\x20\x20\x20\x20\x20','{\x20backgrou','✅\x20mapa.js\x20','\x20\x20\x20\x20\x20\x20\x20#pa','er;justify','h</span>\x0a\x20','\x20\x20\x20cursor:','black','olumn;\x0a\x20\x20\x20','x;\x0a\x20\x20\x20\x20\x20\x20\x20','CONVECTIVE','iv>','sVent\x20.aj-','invalidate','e\x22\x20id=\x22ajV','\x20\x20<span\x20cl','a4a5a;disp','\x20\x20\x20\x20\x20\x20gap:','ajCapaOpac','\x20\x20\x20\x20\x20line-','\x0a\x20\x20\x20\x20\x20\x20\x20\x20','a-girona\x22\x20','ter-spacin','\x20\x20\x20\x20\x20\x20\x20\x20ac','ix\x20(404)','dio-cos','#valVentDe','-color:\x20rg','\x20pointer;\x0a','delete','ezBCU','h:\x20768px)\x20','letter-spa','size:\x208px;','Iso\x20TPW\x20+1','APE)','dema','tosVent\x20.a','a_500','ea6ff\x22></s','move','PRECIPITAB','/i>\x20Desact','stosVent\x20.',';padding:1','range\x22\x20id=','geopotenci','\x20\x20\x20\x20\x20\x20colo','U_PV2000','ITJANA','IPITATION_','lvBgH','\x20\x20\x20\x20align-','UND_OR_WAT','...','aj-fila\x20aj','log','=\x220.3\x22\x20max','r\x20login:','panellAjus','(mida\x20apro','imageSmoot','4px;\x22>\x0a\x0a\x20\x20','addEventLi','PRECIP__GR','jVentOpaci','v>\x0a\x0a\x20\x20\x20\x20\x20\x20','onimbus','CAPE','ound:\x20','Vent\x20U\x20PV=','\x20\x20\x20\x20\x20\x20\x20\x20\x20j','\x2060min','t\x22>\x0a\x20\x20\x20\x20\x20\x20','123,\x200.15)',',\x20monospac','\x201;\x0a\x20\x20\x20\x20\x20\x20','statusText','ahir','pletada.\x20C','rain','\x20\x20\x20\x20\x20\x20bord','t\x20carregar','MbamG','KTTap','xSejH','none;borde','#ffffff','scrollInto','ass=\x22aj-sw','Index','idx','\x20\x20font-wei','\x20\x20}\x0a\x20\x20\x20\x20\x20\x20','isArray','\x20\x20font-fam','a\x22>1.6</sp','SCkKJ','embla\x20desa',':\x20600;\x0a\x20\x20\x20','.msgpack.g','a-c=\x22#ff5e','padding:\x202','ora\x20dispon','cld_rain_8','now','PRECIPITAT','sJNgT','\x20solid\x20rgb','fila\x20{\x0a\x20\x20\x20','p\x20{\x0a\x20\x20\x20\x20\x20\x20','nextElemen','\x20\x20\x20\x20\x20<span','unit\x22>(','_COVER__GR','ser','color:#889','\x20\x20\x20\x20\x20\x20\x20\x20\x20f','n-left:\x204p','\x20fallat\x20de','_te3d','iv>\x0a\x0a\x20\x20\x20\x20\x20','EVEL','Size','cdcoM','FMqty','_450','es-ES','15,0,0.12)','\x20Vent\x20OFF','clearRect','LOW_CLOUD_','Capa\x20límit','steix\x20(el\x20','color:\x20#cc','ne-height:','r\x22\x20value=\x22','cip.\x2060min','Humitat\x202m','ointToLatL',':-1px;\x22>','\x20\x20\x20\x20transi','\x20\x20\x20\x20\x20\x20\x20</s','an\x20data-c=','ght:\x204px;\x0a','al_500','target','t\x20sota\x20pre','[GeoJSON\x20','loading_pr'];_0x56e3=function(){return _0xec08c8;};return _0x56e3();}function construirGraellaHores(){const _0x26319e=_0x1ec428,_0x1434a9=document['getElement'+_0x26319e(0x51e)](_0x26319e(0x892));if(!_0x1434a9){console['warn'](_0x26319e(0x7eb)+_0x26319e(0x595)+_0x26319e(0x53b)+'at');return;}_0x1434a9['innerHTML']='';if(!totesLesHores||totesLesHores[_0x26319e(0x526)]===0x0){_0x1434a9[_0x26319e(0x470)]=_0x26319e(0x514)+_0x26319e(0x5ce)+_0x26319e(0x255)+_0x26319e(0x56c)+_0x26319e(0x881)+_0x26319e(0x483)+_0x26319e(0x2fe)+_0x26319e(0x2c4)+'h:100%;\x22>C'+'arregant\x20d'+_0x26319e(0x85f)+_0x26319e(0x70d);return;}const _0x52ce86=document[_0x26319e(0x1d2)+_0x26319e(0x493)](_0x26319e(0x308));_0x52ce86['className']=_0x26319e(0x7d0)+_0x26319e(0x502),_0x52ce86[_0x26319e(0x5c7)][_0x26319e(0x599)]=_0x26319e(0x28b)+_0x26319e(0x218)+_0x26319e(0x6db)+_0x26319e(0x20f)+_0x26319e(0x262)+_0x26319e(0x4fe)+_0x26319e(0x894)+'o;';curIdx>=totesLesHores[_0x26319e(0x526)]&&(curIdx=0x0);const _0x309287={};if(window[_0x26319e(0x614)+_0x26319e(0x225)])for(const _0xa53496 of window[_0x26319e(0x614)+_0x26319e(0x225)]){_0x309287[_0xa53496[_0x26319e(0x556)]]=_0xa53496;}totesLesHores[_0x26319e(0x25d)]((_0x5ab0d3,_0x1e7102)=>{const _0x7f6978=_0x26319e,_0x3cc943=!!_0x5ab0d3[_0x7f6978(0x866)]&&!!_0x5ab0d3[_0x7f6978(0x5b6)]&&!!_0x5ab0d3[_0x7f6978(0x5b6)][_0x7f6978(0x86c)],_0xbe2dd0=_0x3cc943&&Object['keys'](_0x5ab0d3[_0x7f6978(0x5b6)][_0x7f6978(0x86c)])['length']>0x0;let _0x48db10='',_0x4e1188='',_0x2b4cf8='00';if(_0x309287[_0x1e7102]){const _0x22938a=_0x309287[_0x1e7102];_0x48db10=String(_0x22938a[_0x7f6978(0x69b)])['padStart'](0x2,'0'),_0x4e1188=_0x22938a[_0x7f6978(0x33d)],_0x2b4cf8='00';}else{if(_0x3cc943&&_0x5ab0d3[_0x7f6978(0x866)])try{const _0x17a093=new Date(_0x5ab0d3[_0x7f6978(0x866)][_0x7f6978(0x576)+_0x7f6978(0x87f)](_0x7f6978(0x467),{'timeZone':_0x7f6978(0x6df)+_0x7f6978(0x497)}));_0x48db10=String(_0x17a093[_0x7f6978(0x520)]())[_0x7f6978(0x444)](0x2,'0'),_0x2b4cf8=String(_0x17a093[_0x7f6978(0x133)]())['padStart'](0x2,'0');const _0x19ba63=new Date(new Date()[_0x7f6978(0x576)+'ring'](_0x7f6978(0x467),{'timeZone':_0x7f6978(0x6df)+_0x7f6978(0x497)})),_0x41b082=new Date(_0x19ba63);_0x41b082[_0x7f6978(0x2cc)](0x0,0x0,0x0,0x0);const _0x3a1d4f=new Date(_0x17a093);_0x3a1d4f['setHours'](0x0,0x0,0x0,0x0);const _0x2038df=Math['round']((_0x3a1d4f-_0x41b082)/(0x3e8*0x3c*0x3c*0x18));if(_0x2038df===0x0)_0x4e1188=_0x7f6978(0x5a4);else{if(_0x2038df===0x1)_0x4e1188=_0x7f6978(0x726);else{if(_0x2038df===0x2)_0x4e1188=_0x7f6978(0x86b)+'t';else{if(_0x2038df===-0x1)_0x4e1188=_0x7f6978(0x750);else _0x4e1188=String(_0x17a093['getDate']())[_0x7f6978(0x444)](0x2,'0')+'/'+String(_0x17a093['getMonth']()+0x1)[_0x7f6978(0x444)](0x2,'0');}}}}catch(_0x233f68){const _0x1c03c5=_0x5ab0d3[_0x7f6978(0x556)],_0x13d0ef=Math[_0x7f6978(0x1a7)](_0x1c03c5/0x2);_0x48db10=String(_0x13d0ef)[_0x7f6978(0x444)](0x2,'0'),_0x2b4cf8=String(_0x1c03c5%0x2*0x1e)[_0x7f6978(0x444)](0x2,'0'),_0x4e1188='';}else{const _0x3b86ed=_0x5ab0d3[_0x7f6978(0x556)],_0x32f23d=Math[_0x7f6978(0x1a7)](_0x3b86ed/0x2);_0x48db10=String(_0x32f23d)[_0x7f6978(0x444)](0x2,'0'),_0x2b4cf8=String(_0x3b86ed%0x2*0x1e)[_0x7f6978(0x444)](0x2,'0'),_0x4e1188='';}}let _0x522c9f='',_0x52ce01='';if(_0x4e1188===_0x7f6978(0x750))_0x522c9f=_0x7f6978(0x776)+_0x7f6978(0x7d6),_0x52ce01='ahir';else{if(_0x4e1188===_0x7f6978(0x5a4)){if(_0x7f6978(0x80f)!==_0x7f6978(0x16c))_0x522c9f='color:#FFD'+_0x7f6978(0x1e7),_0x52ce01=_0x7f6978(0x5a4);else throw new _0x4554b2(_0x7f6978(0x885)+_0x3102bb[_0x7f6978(0x3c2)]+':\x20'+_0x279d52[_0x7f6978(0x74f)]);}else{if(_0x4e1188===_0x7f6978(0x726))_0x522c9f='color:#FFA'+'500;',_0x52ce01=_0x7f6978(0x726);else _0x4e1188===_0x7f6978(0x86b)+'t'&&(_0x522c9f='color:#FF6'+_0x7f6978(0x64f),_0x52ce01=_0x7f6978(0x38d));}}const _0x5bab2f=_0x1e7102===curIdx,_0x54b5ea=window['_firebaseU'+_0x7f6978(0x775)]||null,_0x3a136c=!_0x54b5ea&&_0x1e7102%0x3!==0x0,_0x2b85ea=document[_0x7f6978(0x1d2)+'ent'](_0x7f6978(0x308));_0x2b85ea[_0x7f6978(0x297)]=_0x7f6978(0x2bb)+(_0x5bab2f?_0x7f6978(0x129):''),_0x2b85ea[_0x7f6978(0x65a)][_0x7f6978(0x75d)]=_0x1e7102,_0x2b85ea[_0x7f6978(0x5c7)]['cssText']=_0x7f6978(0x44e)+_0x7f6978(0x384)+'\x200\x20auto;\x0a\x20'+_0x7f6978(0x2a4)+_0x7f6978(0x820)+_0x7f6978(0x2d1)+_0x7f6978(0x2a4)+_0x7f6978(0x54e)+'dius:\x203px;'+'\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20'+_0x7f6978(0x708)+'\x20'+(_0x3a136c?_0x7f6978(0x7c6)+'d':_0x7f6978(0x45d))+(_0x7f6978(0x40a)+_0x7f6978(0x4de)+_0x7f6978(0x6bf)+_0x7f6978(0x44e)+'\x20\x20\x20font-we'+_0x7f6978(0x1f9)+_0x7f6978(0x44e)+'\x20\x20\x20color:\x20')+(_0x5bab2f?_0x7f6978(0x619):_0x7f6978(0x79e))+(';\x0a\x20\x20\x20\x20\x20\x20\x20\x20'+_0x7f6978(0x320)+_0x7f6978(0x747))+(_0x5bab2f?_0x7f6978(0x424)+_0x7f6978(0x782):_0x7f6978(0x424)+'55,255,0.0'+'3)')+(_0x7f6978(0x40a)+_0x7f6978(0x94)+':\x20')+(_0x5bab2f?'1px\x20solid\x20'+_0x7f6978(0x424)+_0x7f6978(0x407):_0x7f6978(0x857)+'transparen'+'t')+(_0x7f6978(0x40a)+_0x7f6978(0x78f)+_0x7f6978(0x29d)+_0x7f6978(0x508)+_0x7f6978(0x40a)+_0x7f6978(0x6c2)+'lign:\x20cent'+_0x7f6978(0x59d)+'\x20\x20\x20\x20\x20\x20min-'+_0x7f6978(0x6a3)+_0x7f6978(0x70b)+_0x7f6978(0x18e)+_0x7f6978(0x4d4)+_0x7f6978(0x617)+_0x7f6978(0x200)+_0x7f6978(0x83a)+'none;\x0a\x20\x20\x20\x20'+'\x20\x20\x20\x20\x20\x20\x20\x20fo'+_0x7f6978(0x5ef)+_0x7f6978(0xdb)+_0x7f6978(0x1c6)+'\x20sans-seri'+_0x7f6978(0x1a2)+_0x7f6978(0x715)+_0x7f6978(0x671)+'2;\x0a\x20\x20\x20\x20\x20\x20\x20'+_0x7f6978(0xb7)+_0x7f6978(0x412))+(_0x3a136c?_0x7f6978(0x305):_0xbe2dd0?'1':_0x7f6978(0x239))+_0x7f6978(0x40a);_0x3a136c?(_0x2b85ea[_0x7f6978(0x4c8)]='Inicia\x20ses'+'sió\x20per\x20de'+_0x7f6978(0x4bc),_0x2b85ea[_0x7f6978(0x470)]=_0x7f6978(0x44e)+'\x20\x20\x20\x20\x20\x20\x20<sp'+_0x7f6978(0x287)+_0x7f6978(0x341)+_0x7f6978(0x23f)+_0x7f6978(0x876)+';display:b'+_0x7f6978(0x409)+_0x522c9f+'\x22>'+_0x48db10+(_0x7f6978(0x707)+_0x7f6978(0x2a4)+'\x20\x20\x20\x20\x20<span'+_0x7f6978(0x65f)+_0x7f6978(0xaf)+'x;color:#3'+_0x7f6978(0x712)+_0x7f6978(0x182)+_0x7f6978(0x85a)+_0x7f6978(0x78e))+_0x2b4cf8+('</span>\x0a\x20\x20'+_0x7f6978(0x2a4)+_0x7f6978(0x44b)+_0x7f6978(0xef)+_0x7f6978(0x5ab)+';')+_0x522c9f+(_0x7f6978(0x5cf)+_0x7f6978(0x88d)+'-top:-1px;'+'\x22>')+_0x52ce01+(_0x7f6978(0x1f1)+_0x7f6978(0x2a4)+_0x7f6978(0x44b)+_0x7f6978(0x431)+'ition:abso'+_0x7f6978(0x5cd)+_0x7f6978(0x4bb)+_0x7f6978(0x13a)+_0x7f6978(0x59b)+_0x7f6978(0x351)+_0x7f6978(0x47d)+_0x7f6978(0x562)+_0x7f6978(0x7e3)+'i></span>\x0a'+_0x7f6978(0x2a4)+'\x20\x20')):_0x2b85ea[_0x7f6978(0x470)]=_0x7f6978(0x44e)+'\x20\x20\x20\x20\x20\x20\x20<sp'+'an\x20style=\x22'+'font-size:'+_0x7f6978(0x23f)+_0x7f6978(0x876)+';display:b'+'lock;'+_0x522c9f+'\x22>'+_0x48db10+(_0x7f6978(0x707)+_0x7f6978(0x2a4)+'\x20\x20\x20\x20\x20<span'+'\x20style=\x22fo'+_0x7f6978(0xaf)+'x;color:#3'+_0x7f6978(0x712)+'lay:block;'+_0x7f6978(0x85a)+_0x7f6978(0x78e))+_0x2b4cf8+('</span>\x0a\x20\x20'+'\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20'+_0x7f6978(0x44b)+_0x7f6978(0xef)+_0x7f6978(0x5ab)+';')+_0x522c9f+(_0x7f6978(0x5cf)+_0x7f6978(0x88d)+_0x7f6978(0x5f6)+'\x22>')+_0x52ce01+('</span>\x0a\x20\x20'+'\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20');if(_0x5ab0d3[_0x7f6978(0x5b6)]&&_0x5ab0d3[_0x7f6978(0x5b6)]['_te3d']){const _0x478319=document[_0x7f6978(0x1d2)+_0x7f6978(0x493)]('span');_0x478319[_0x7f6978(0x5c7)][_0x7f6978(0x599)]='\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20'+_0x7f6978(0x6d6)+'ition:\x20abs'+'olute;\x0a\x20\x20\x20'+_0x7f6978(0x2a4)+_0x7f6978(0x44c)+_0x7f6978(0xe8)+_0x7f6978(0x2a4)+'\x20\x20\x20right:\x20'+_0x7f6978(0x6d3)+_0x7f6978(0x2a4)+_0x7f6978(0x2a3)+_0x7f6978(0x609)+'\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20'+_0x7f6978(0x316)+'\x20#43e97b;\x0a'+_0x7f6978(0x2a4)+'\x20\x20\x20\x20\x20\x20back'+'ground:\x20rg'+'ba(0,0,0,0'+_0x7f6978(0x2f1)+_0x7f6978(0x2a4)+_0x7f6978(0x54e)+_0x7f6978(0x37d)+'\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20'+_0x7f6978(0x437)+_0x7f6978(0x7bd)+_0x7f6978(0x4b3)+_0x7f6978(0x2a4)+'\x20font-weig'+_0x7f6978(0x333)+'\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20'+'\x20',_0x478319[_0x7f6978(0x615)+'t']='3D',_0x2b85ea['appendChil'+'d'](_0x478319);}_0x2b85ea[_0x7f6978(0x741)+'stener'](_0x7f6978(0x490),function(_0x234699){const _0x521b72=_0x7f6978;_0x234699[_0x521b72(0x474)+_0x521b72(0x6a7)]();const _0x1d5422=parseInt(this['dataset']['idx']);if(isNaN(_0x1d5422))return;const _0x62c235=_0x1d5422%0x3===0x0,_0x195abb=window[_0x521b72(0x631)+_0x521b72(0x775)]||null;if(!_0x195abb&&!_0x62c235){typeof loginWithGoogle===_0x521b72(0x223)&&loginWithGoogle();return;}typeof mostrarHora===_0x521b72(0x223)&&mostrarHora(_0x1d5422);}),_0x2b85ea[_0x7f6978(0x741)+_0x7f6978(0x452)]('mouseenter',function(){const _0x445bbd=_0x7f6978;!this[_0x445bbd(0x6bb)][_0x445bbd(0x288)](_0x445bbd(0x6ef))&&(this[_0x445bbd(0x5c7)][_0x445bbd(0x846)]=_0x445bbd(0x424)+_0x445bbd(0x11b)+'8)',this['style'][_0x445bbd(0x4a0)]='#c8d8e8');}),_0x2b85ea[_0x7f6978(0x741)+_0x7f6978(0x452)]('mouseleave',function(){const _0x4e2eca=_0x7f6978;if(_0x4e2eca(0x49c)!==_0x4e2eca(0x49c)){_0x59273a=_0x2b931a[_0x4e2eca(0x76b)]();let _0x4c016f=_0x4590f5+0x1;_0x4c016f>=_0x222c28[_0x4e2eca(0x526)]&&(_0x4c016f=0x0),typeof _0x3691db===_0x4e2eca(0x223)&&_0x260010(_0x4c016f),_0x197239();}else!this[_0x4e2eca(0x6bb)][_0x4e2eca(0x288)](_0x4e2eca(0x6ef))&&(this['style']['background']='rgba(255,2'+'55,255,0.0'+'3)',this[_0x4e2eca(0x5c7)][_0x4e2eca(0x4a0)]='#556680');}),_0x52ce86[_0x7f6978(0x575)+'d'](_0x2b85ea);}),_0x1434a9[_0x26319e(0x575)+'d'](_0x52ce86),setTimeout(()=>{const _0x44af4e=_0x26319e;if(_0x44af4e(0xac)!==_0x44af4e(0xac))return{'pane':_0x44af4e(0x355)+'n','color':_0x3e097f[_0x44af4e(0x4a0)],'weight':_0x574f34['gruix'],'opacity':0x1,'fill':![]};else{const _0x32d043=_0x1434a9[_0x44af4e(0x847)+'tor'](_0x44af4e(0x862)+_0x44af4e(0x5a3));if(_0x32d043){if('zGVXU'===_0x44af4e(0x1b0))_0x32d043[_0x44af4e(0x75a)+_0x44af4e(0x143)]({'behavior':_0x44af4e(0x24e),'block':'nearest','inline':_0x44af4e(0x550)});else{_0x16ab7b[_0x44af4e(0x1df)+'aw']=!![],_0xfb75df[_0x44af4e(0x27c)](_0x47cbbf[_0x44af4e(0x5b6)]);if(_0x288a5b[_0x44af4e(0x212)+'d']&&typeof _0x30f419==='function')_0x6d9993();}}}},0x64);}function netejarGridEvents(){const _0x5a56bd=_0x1ec428,_0x247fc6=document[_0x5a56bd(0x7b2)+_0x5a56bd(0x51e)](_0x5a56bd(0x892));if(!_0x247fc6)return;const _0x52dcde=_0x247fc6[_0x5a56bd(0x847)+_0x5a56bd(0x6d7)](_0x5a56bd(0x113));_0x52dcde[_0x5a56bd(0x25d)](_0x43b5bf=>{const _0x4a58bb=_0x5a56bd,_0x449405=_0x43b5bf[_0x4a58bb(0x47b)](!![]);_0x43b5bf['parentNode'][_0x4a58bb(0x4ed)+'ld'](_0x449405,_0x43b5bf);});}function tancarTotsAcordions(_0x4bfe0c){const _0x1f806c=_0x1ec428;document[_0x1f806c(0x847)+_0x1f806c(0x6d7)](_0x1f806c(0x65e)+_0x1f806c(0x54d))[_0x1f806c(0x25d)](_0x3533d5=>{const _0x46b648=_0x1f806c,_0x22ff1a=_0x3533d5[_0x46b648(0x65a)][_0x46b648(0x4f1)];if(_0x22ff1a===_0x4bfe0c)return;const _0x18bcb2=_0x46b648(0x329)+_0x22ff1a;estatAcordio[_0x18bcb2]=![],_0x3533d5[_0x46b648(0x847)+_0x46b648(0x36b)]('.param-aco'+_0x46b648(0x554)+'a')[_0x46b648(0x615)+'t']='▸';const _0x49950b=_0x3533d5[_0x46b648(0x771)+'tSibling'];_0x49950b&&_0x49950b[_0x46b648(0x6bb)][_0x46b648(0x288)](_0x46b648(0x7f5)+_0x46b648(0x71b))&&(_0x49950b[_0x46b648(0x5c7)]['display']=_0x46b648(0x238));});}function ordenarClausPerNivell(_0x2573ad){const _0x16d1f0=_0x1ec428;return _0x2573ad[_0x16d1f0(0x68f)]()[_0x16d1f0(0x325)]((_0x1a5362,_0x37901c)=>{const _0x965736=_0x16d1f0;if(_0x965736(0x3db)===_0x965736(0x3b2))_0x19fbbf['setStreaml'+_0x965736(0x1ea)](_0x231833);else{const _0x3fb680=parseFloat(_0x1a5362[_0x965736(0x125)]('_')['pop']()),_0x2c0f95=parseFloat(_0x37901c[_0x965736(0x125)]('_')['pop']());return _0x2c0f95-_0x3fb680;}});}const estatAcordio={};function construirPanellParametres(){const _0x311778=_0x1ec428,_0x46d372=document[_0x311778(0x7b2)+_0x311778(0x51e)]('parameter_'+_0x311778(0x636));if(!_0x46d372||!totesLesHores[0x0])return;_0x46d372[_0x311778(0x470)]='';const _0x349518=new Set(),_0x3559c9={};totesLesHores['forEach'](_0x45792e=>{const _0x59525c=_0x311778;_0x45792e[_0x59525c(0x5b6)]&&_0x45792e[_0x59525c(0x5b6)][_0x59525c(0x86c)]&&(_0x59525c(0x16d)==='OeZVN'?Object[_0x59525c(0x7fe)](_0x45792e[_0x59525c(0x5b6)][_0x59525c(0x86c)])[_0x59525c(0x25d)](_0x30bcc7=>{const _0x4e8112=_0x59525c,_0x17204f=normalitzarClau(_0x30bcc7);_0x349518[_0x4e8112(0x4e7)](_0x17204f);if(!_0x3559c9[_0x17204f])_0x3559c9[_0x17204f]=_0x45792e['data']['variables'][_0x30bcc7];}):!_0xf91da7[_0x59525c(0x288)](_0x129560[_0x59525c(0x794)])&&_0x44e5c7[_0x59525c(0x794)]['id']!==_0x59525c(0x4e5)+_0x59525c(0xcf)&&_0x507dfe());});const _0x17d2af=new Set(),_0x2b303f=(_0x44af80,_0x207f17='param-row')=>{const _0x42edc6=_0x311778,_0x2f9bee=_0x3559c9[_0x44af80];if(!_0x2f9bee)return null;const _0x3127d8=typeof esParametrePremium===_0x42edc6(0x223)&&esParametrePremium(_0x44af80),_0x59a375=document[_0x42edc6(0x1d2)+_0x42edc6(0x493)](_0x42edc6(0x308));_0x59a375[_0x42edc6(0x297)]=_0x207f17,_0x59a375[_0x42edc6(0x65a)][_0x42edc6(0x85b)]=_0x44af80;const _0x22f59c=verificarAccesVariable(_0x44af80);if(!_0x22f59c&&_0x3127d8)_0x59a375[_0x42edc6(0x5c7)][_0x42edc6(0x5c5)]=_0x42edc6(0x872),_0x59a375[_0x42edc6(0x5c7)]['filter']=_0x42edc6(0x6d4)+_0x42edc6(0x211),_0x59a375[_0x42edc6(0x5c7)][_0x42edc6(0x84b)]='not-allowe'+'d',_0x59a375[_0x42edc6(0x4c8)]=_0x42edc6(0x13f)+'exclusiva\x20'+_0x42edc6(0x1af)+_0x42edc6(0x7cf);else{if(_0x42edc6(0x15e)==='EgjyV')_0x59a375['style'][_0x42edc6(0x84b)]='pointer';else{_0x234dde[_0x42edc6(0x73a)](_0x42edc6(0x120)+'és\x20denegat'+_0x42edc6(0x52d),_0x402a02);return;}}const _0x1d66cf=getPaleta(_0x44af80),_0x14f412=_0x2f9bee[_0x42edc6(0x154)]&&_0x2f9bee['unidades'][_0x42edc6(0x58b)]()!==''?_0x2f9bee[_0x42edc6(0x154)]:_0x1d66cf[_0x42edc6(0x28a)]||'',_0x41122=_0x2f9bee['nombre']||'',_0x19194a=/^[A-Z0-9_]+$/['test'](_0x41122)&&_0x41122[_0x42edc6(0x526)]>0x6,_0x5a60b1=_0x19194a?_0x1d66cf[_0x42edc6(0x571)]:_0x41122||_0x1d66cf[_0x42edc6(0x571)],_0xc04917=!_0x22f59c&&_0x3127d8?'\x20':'';return _0x59a375[_0x42edc6(0x470)]='<div\x20class'+'=\x22param-li'+_0x42edc6(0x51b)+_0x5a60b1+(_0x42edc6(0x2af)+_0x42edc6(0x81f)+_0x42edc6(0x773))+_0x14f412+_0x42edc6(0x7c3)+_0xc04917+_0x42edc6(0x80e),_0x59a375['onclick']=()=>{const _0x20fa30=_0x42edc6,_0x16a7b2=verificarAccesVariable(_0x44af80);if(_0x16a7b2)seleccionarVariable(_0x44af80);else{if(_0x3127d8){if(_0x20fa30(0x328)!==_0x20fa30(0x328))return _0x2d4200[_0x20fa30(0x68f)]()[_0x20fa30(0x325)]((_0x18710e,_0x44f84b)=>{const _0x5e2986=_0x20fa30,_0x306fcf=_0x5e200c(_0x18710e[_0x5e2986(0x125)]('_')[_0x5e2986(0x5bd)]()),_0x4e3674=_0x172a24(_0x44f84b[_0x5e2986(0x125)]('_')[_0x5e2986(0x5bd)]());return _0x4e3674-_0x306fcf;});else typeof mostrarAvisPremium===_0x20fa30(0x223)?mostrarAvisPremium(_0x44af80):console['warn'](_0x20fa30(0x26b)+_0x20fa30(0x311)+'mium\x20bloqu'+'ejada:',_0x44af80);}else{if(typeof mostrarAvisLogin===_0x20fa30(0x223)){if(_0x20fa30(0x5fc)!==_0x20fa30(0x103))mostrarAvisLogin(_0x44af80);else{const _0x32eee8=_0x55a5fb[_0x5dbcb3];_0x27efaf(_0x3c5b5a),_0x41e029[_0x111f3e]=!_0x32eee8,_0x26b4c5['querySelec'+'tor'](_0x20fa30(0x65e)+_0x20fa30(0x554)+'a')['textConten'+'t']=!_0x32eee8?'▾':'▸',_0x3a782e[_0x20fa30(0x5c7)][_0x20fa30(0x108)]=!_0x32eee8?'block':_0x20fa30(0x238);}}else console[_0x20fa30(0xc9)](_0x20fa30(0x26b)+'riable\x20blo'+_0x20fa30(0x61e)+_0x20fa30(0x73c),_0x44af80);}}},_0x59a375;};window[_0x311778(0xe5)+'ueig']=function(){const _0x266acb=_0x311778,_0x41e105=document[_0x266acb(0x7b2)+_0x266acb(0x51e)](_0x266acb(0x20e)+_0x266acb(0x203));if(_0x41e105)_0x41e105['style'][_0x266acb(0x108)]=_0x266acb(0x238);const _0x48cfde=document['getElement'+_0x266acb(0x51e)](_0x266acb(0x31d));_0x48cfde&&(_0x48cfde[_0x266acb(0x5c7)][_0x266acb(0x5c5)]='1',_0x48cfde['style'][_0x266acb(0x1e6)+_0x266acb(0x26e)]='auto');};const _0x52819e=()=>{const _0x210b9d=_0x311778,_0x560aff=document[_0x210b9d(0x1d2)+_0x210b9d(0x493)](_0x210b9d(0x308));return _0x560aff[_0x210b9d(0x297)]=_0x210b9d(0x67c)+'rador',_0x560aff[_0x210b9d(0x5c7)]['cssText']=_0x210b9d(0x889)+_0x210b9d(0x5e3)+_0x210b9d(0xae)+'255,255,0.'+_0x210b9d(0x3f0)+':6px\x2012px;',_0x560aff;},_0x474606=(_0x209a81,_0x36efdc)=>{const _0x1e04be=_0x311778,_0x5b5ccd=document[_0x1e04be(0x1d2)+_0x1e04be(0x493)]('h3');return _0x5b5ccd[_0x1e04be(0x297)]=_0x1e04be(0x676)+_0x1e04be(0x1a5),_0x5b5ccd[_0x1e04be(0x615)+'t']=_0x209a81+'\x20('+_0x36efdc+')',_0x5b5ccd;},_0x58d656=GRUP_PRINCIPAL[_0x311778(0x69a)](_0xc5b24c=>_0x349518[_0x311778(0x19e)](_0xc5b24c)&&!esVariableAmagada(_0xc5b24c));_0x58d656[_0x311778(0x526)]>0x0&&(_0x58d656[_0x311778(0x25d)](_0xaa33b7=>{const _0xd29334=_0x311778;if(_0xd29334(0x273)!==_0xd29334(0xa1)){const _0x4eb996=_0x2b303f(_0xaa33b7,'param-row\x20'+_0xd29334(0x1a0)+_0xd29334(0x484));_0x4eb996&&(_0xd29334(0x3c5)===_0xd29334(0xcb)?_0x16ff94[_0xd29334(0xc9)](_0xd29334(0x26b)+_0xd29334(0x311)+_0xd29334(0x39c)+_0xd29334(0x2f5),_0x3810e8):(_0x46d372['appendChil'+'d'](_0x4eb996),_0x17d2af[_0xd29334(0x4e7)](_0xaa33b7)));}else _0x2efca2['style'][_0xd29334(0x108)]='none';}),_0x46d372[_0x311778(0x575)+'d'](_0x52819e()));Object[_0x311778(0x86a)](GRUPS_SIMPLES)[_0x311778(0x25d)](([_0x5d8c4a,_0x54252f])=>{const _0x3d3378=_0x311778;if(_0x3d3378(0x628)===_0x3d3378(0x511))_0x12bcaf[_0x3d3378(0x375)](_0x14ba95,_0x69f9fb(_0xbeb614[_0x3d3378(0x86c)]));else{const _0x426db4=[];_0x54252f['forEach'](_0x2028a4=>{const _0x234cbe=_0x3d3378;_0x349518[_0x234cbe(0x19e)](_0x2028a4)&&!esVariableAmagada(_0x2028a4)&&!_0x17d2af[_0x234cbe(0x19e)](_0x2028a4)&&_0x426db4[_0x234cbe(0x3d2)](_0x2028a4);}),_0x349518[_0x3d3378(0x25d)](_0xca8b6=>{const _0x24468c=_0x3d3378;if(_0x17d2af['has'](_0xca8b6))return;for(const _0x32c0e4 of _0x54252f){if(_0xca8b6['startsWith'](_0x32c0e4+'_')&&!_0x426db4[_0x24468c(0x337)](_0xca8b6)){_0x426db4[_0x24468c(0x3d2)](_0xca8b6);break;}}}),_0x426db4[_0x3d3378(0x325)]((_0x525c44,_0x274236)=>_0x525c44[_0x3d3378(0x2a5)+_0x3d3378(0x7ae)](_0x274236));if(_0x426db4[_0x3d3378(0x526)]===0x0)return;_0x46d372['appendChil'+'d'](_0x474606(_0x5d8c4a,_0x426db4[_0x3d3378(0x526)])),_0x426db4['forEach'](_0x27acd7=>{const _0x249302=_0x3d3378;if(_0x249302(0x586)!==_0x249302(0x4f2)){const _0x360796=_0x2b303f(_0x27acd7);_0x360796&&(_0x46d372[_0x249302(0x575)+'d'](_0x360796),_0x17d2af[_0x249302(0x4e7)](_0x27acd7));}else _0x29a7e5(_0x45c6a4);});}}),Object['entries'](GRUPS_ACORDIO)[_0x311778(0x25d)](([_0x3220d6,_0x1885f3])=>{_0x1885f3['forEach'](_0x1c2d2d=>{const _0x1c5c73=_0x4863,_0x5c0c50=[];_0x349518[_0x1c5c73(0x25d)](_0x44ffc8=>{const _0x54ecb9=_0x1c5c73;if(_0x17d2af[_0x54ecb9(0x19e)](_0x44ffc8))return;if(_0x44ffc8['startsWith'](_0x1c2d2d+'_')&&/^\d+$/[_0x54ecb9(0x7f4)](_0x44ffc8[_0x54ecb9(0x68f)](_0x1c2d2d[_0x54ecb9(0x526)]+0x1))){if('fckkj'===_0x54ecb9(0x306))_0x5c0c50[_0x54ecb9(0x3d2)](_0x44ffc8);else{const _0x28d06a=_0x452929(_0x47b2cc);_0x1d1a91[_0x54ecb9(0x4e7)](_0x28d06a);if(!_0x2aa114[_0x28d06a])_0x501d00[_0x28d06a]=_0x493d07[_0x54ecb9(0x5b6)][_0x54ecb9(0x86c)][_0x40e0f1];}}});if(_0x5c0c50[_0x1c5c73(0x526)]===0x0)return;const _0x5d7105=ordenarClausPerNivell(_0x5c0c50),_0x2fd56a=PALETES[_0x1c2d2d],_0xe16ccd=_0x2fd56a?_0x2fd56a[_0x1c5c73(0x571)]:_0x1c2d2d,_0x30fd13='acordio_'+_0x1c2d2d;if(!(_0x30fd13 in estatAcordio))estatAcordio[_0x30fd13]=![];const _0x4740a0=document[_0x1c5c73(0x1d2)+_0x1c5c73(0x493)](_0x1c5c73(0x308));_0x4740a0['className']='param-acor'+'dio-cap',_0x4740a0['dataset']['clauBase']=_0x1c2d2d,_0x4740a0[_0x1c5c73(0x470)]='\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20'+_0x1c5c73(0x38a)+_0x1c5c73(0x53f)+_0x1c5c73(0x7f5)+_0x1c5c73(0x245)+'\x22>'+(estatAcordio[_0x30fd13]?'▾':'▸')+('</span>\x0a\x20\x20'+_0x1c5c73(0x2a4)+_0x1c5c73(0xfe))+_0xe16ccd+(_0x1c5c73(0x44e)+'\x20\x20\x20\x20\x20\x20\x20<sp'+_0x1c5c73(0x53f)+_0x1c5c73(0x2d2)+_0x1c5c73(0x82d))+_0x5d7105[_0x1c5c73(0x526)]+(_0x1c5c73(0x1f6)+'/span>\x0a\x20\x20\x20'+_0x1c5c73(0xc2)),_0x46d372[_0x1c5c73(0x575)+'d'](_0x4740a0);const _0x420ec9=document[_0x1c5c73(0x1d2)+_0x1c5c73(0x493)]('div');_0x420ec9[_0x1c5c73(0x297)]=_0x1c5c73(0x7f5)+_0x1c5c73(0x71b),_0x420ec9['style'][_0x1c5c73(0x108)]=estatAcordio[_0x30fd13]?'block':_0x1c5c73(0x238),_0x5d7105['forEach'](_0xb9c952=>{const _0x87f86c=_0x1c5c73,_0x7a106b=_0x2b303f(_0xb9c952,_0x87f86c(0x303)+_0x87f86c(0x1a0)+_0x87f86c(0x3f2));_0x7a106b&&(_0x420ec9[_0x87f86c(0x575)+'d'](_0x7a106b),_0x17d2af[_0x87f86c(0x4e7)](_0xb9c952));}),_0x46d372[_0x1c5c73(0x575)+'d'](_0x420ec9),_0x4740a0[_0x1c5c73(0x741)+_0x1c5c73(0x452)](_0x1c5c73(0x490),()=>{const _0x562efa=_0x1c5c73;if('sLbQc'===_0x562efa(0x7f8)){const _0x222ada=estatAcordio[_0x30fd13];tancarTotsAcordions(_0x1c2d2d),estatAcordio[_0x30fd13]=!_0x222ada,_0x4740a0[_0x562efa(0x847)+'tor'](_0x562efa(0x65e)+_0x562efa(0x554)+'a')[_0x562efa(0x615)+'t']=!_0x222ada?'▾':'▸',_0x420ec9['style'][_0x562efa(0x108)]=!_0x222ada?_0x562efa(0x59a):_0x562efa(0x238);}else{if(this['_offscreen']){const _0x5d3feb=this['_offscreen'][_0x562efa(0x587)]('2d');_0x5d3feb[_0x562efa(0x784)](0x0,0x0,this['_offscreen'][_0x562efa(0x3af)],this[_0x562efa(0x3ff)]['height']);}this[_0x562efa(0x1df)+'aw']=![];return;}});});});const _0x1815d3=[..._0x349518][_0x311778(0x69a)](_0x4d16c4=>!_0x17d2af[_0x311778(0x19e)](_0x4d16c4)&&!esVariableAmagada(_0x4d16c4))[_0x311778(0x325)]((_0x1f57cf,_0x5184c4)=>_0x1f57cf[_0x311778(0x2a5)+_0x311778(0x7ae)](_0x5184c4));if(_0x1815d3[_0x311778(0x526)]>0x0){if('jEQVJ'==='jEQVJ')_0x46d372[_0x311778(0x575)+'d'](_0x52819e()),_0x46d372[_0x311778(0x575)+'d'](_0x474606(_0x311778(0x5c0),_0x1815d3[_0x311778(0x526)])),_0x1815d3[_0x311778(0x25d)](_0x308cc7=>{const _0x3d2fad=_0x311778;if('cJMGn'!==_0x3d2fad(0x84f))this[_0x3d2fad(0x3a7)]=_0x5cd753,this[_0x3d2fad(0x1df)+'aw']=!![],this[_0x3d2fad(0x471)]();else{const _0x2b265b=_0x2b303f(_0x308cc7);if(_0x2b265b)_0x46d372[_0x3d2fad(0x575)+'d'](_0x2b265b);}});else{const _0x6556f8=_0x3e54db(_0x3d78fc);if(_0x6556f8)_0x231b45[_0x311778(0x575)+'d'](_0x6556f8);}}const _0x135615=variableActiva&&_0x349518[_0x311778(0x19e)](variableActiva)?variableActiva:'st';seleccionarVariable(_0x135615,!![]);}async function seleccionarVariable(_0x5317e7,_0x16c94b){const _0x135d9d=_0x1ec428;if(variableActiva===_0x5317e7&&!_0x16c94b)return;if(typeof window['verificarA'+'ccesVariab'+'le']===_0x135d9d(0x223)){const _0x438415=window[_0x135d9d(0x4b0)+_0x135d9d(0x504)+'le'](_0x5317e7);if(!_0x438415){console[_0x135d9d(0x73a)](_0x135d9d(0x120)+_0x135d9d(0x175)+_0x135d9d(0x52d),_0x5317e7);return;}}const _0x4f92aa=variableActiva;variableActiva=_0x5317e7,window['_currentPa'+_0x135d9d(0x16e)]=_0x5317e7,document['querySelec'+_0x135d9d(0x6d7)](_0x135d9d(0x7ba))[_0x135d9d(0x25d)](_0x1b8269=>{const _0x1bf8e4=_0x135d9d;_0x1b8269[_0x1bf8e4(0x6bb)][_0x1bf8e4(0x197)]('param-sele'+_0x1bf8e4(0x4d3),_0x1b8269[_0x1bf8e4(0x65a)][_0x1bf8e4(0x85b)]===_0x5317e7);});const _0x236194=clauBase(_0x5317e7),_0x5778cc=_0x135d9d(0x329)+_0x236194;if(_0x5778cc in estatAcordio&&!estatAcordio[_0x5778cc]&&_0x5317e7!==_0x236194){tancarTotsAcordions(_0x236194),estatAcordio[_0x5778cc]=!![];const _0xbdb09e=document[_0x135d9d(0x847)+'tor'](_0x135d9d(0x65e)+_0x135d9d(0x6ce)+_0x135d9d(0x1f8)+_0x135d9d(0x240)+_0x236194+'\x22]');if(_0xbdb09e){_0xbdb09e[_0x135d9d(0x847)+_0x135d9d(0x36b)](_0x135d9d(0x65e)+_0x135d9d(0x554)+'a')[_0x135d9d(0x615)+'t']='▾';const _0x126e2b=_0xbdb09e[_0x135d9d(0x771)+'tSibling'];if(_0x126e2b&&_0x126e2b[_0x135d9d(0x6bb)]['contains']('param-acor'+_0x135d9d(0x71b)))_0x126e2b[_0x135d9d(0x5c7)]['display']=_0x135d9d(0x59a);}}if(typeof Vent!==_0x135d9d(0x5ca)&&Vent[_0x135d9d(0x29c)+_0x135d9d(0x392)+'le']){const _0x20dd84=_0x4f92aa?clauBase(_0x4f92aa):null,_0x54a9b6=clauBase(_0x5317e7);(_0x20dd84!==_0x54a9b6||_0x4f92aa!==_0x5317e7)&&Vent['notificarC'+'anviVariab'+'le'](_0x5317e7);}canvasLayer[_0x135d9d(0x1df)+'aw']=!![],canvasLayer[_0x135d9d(0x471)]();if(!_0x16c94b){const _0x3c6429=document[_0x135d9d(0x847)+_0x135d9d(0x36b)]('.param-row'+'.param-sel'+_0x135d9d(0x4e4));if(_0x3c6429)_0x3c6429[_0x135d9d(0x75a)+_0x135d9d(0x143)]({'block':_0x135d9d(0x446)});}actualitzarCapcaleraParametre();}function actualitzarCapcaleraParametre(){const _0xa51893=_0x1ec428,_0x17bed8=getPaleta(variableActiva),_0x2dc0fe=document[_0xa51893(0x7b2)+_0xa51893(0x51e)]('parameter_'+_0xa51893(0x7ab));if(_0x2dc0fe)_0x2dc0fe[_0xa51893(0x615)+'t']=_0x17bed8[_0xa51893(0x571)]+'\x20('+_0x17bed8['unitat']+')';}const CLAU_STORAGE_AJUSTOS_VENT=_0x1ec428(0x648)+_0x1ec428(0x6ee)+_0x1ec428(0x17d);function carregarAjustosVent(){const _0x22b8a1=_0x1ec428;try{const _0x12b87b=localStorage['getItem'](CLAU_STORAGE_AJUSTOS_VENT);if(!_0x12b87b)return null;return JSON[_0x22b8a1(0x7e8)](_0x12b87b);}catch(_0x1e5983){return console['warn']('[AjustosVe'+_0x22b8a1(0x7aa)+_0x22b8a1(0x21c)+_0x22b8a1(0x60d)+':',_0x1e5983[_0x22b8a1(0x13c)]),null;}}function desarAjustosVent(_0x5512da){const _0x94eeca=_0x1ec428;try{if('orUSv'===_0x94eeca(0x2eb)){const _0x94740a=carregarAjustosVent()||{},_0x215c62={..._0x94740a,..._0x5512da};localStorage[_0x94eeca(0x6aa)](CLAU_STORAGE_AJUSTOS_VENT,JSON[_0x94eeca(0x4c1)](_0x215c62));}else{const _0x2415b8=_0x26fc68[_0x94eeca(0x858)](_0x94eeca(0x648)+'at_velocit'+_0x94eeca(0x121)+'o');if(_0x2415b8){const _0x5e6d90=_0x5869fb(_0x2415b8);_0x17e0c8[_0x94eeca(0x48d)](_0x515373)[_0x94eeca(0x337)](_0x5e6d90)&&(_0x4cfb8c=_0x5e6d90);}}}catch(_0x23d6d8){console[_0x94eeca(0xc9)](_0x94eeca(0x567)+_0x94eeca(0x7aa)+_0x94eeca(0x2ca)+'\x20localStor'+'age:',_0x23d6d8['message']);}}function crearPanellAjustos(){const _0x4dfe6e=_0x1ec428,_0x357558=document[_0x4dfe6e(0x1d2)+'ent'](_0x4dfe6e(0x308));_0x357558['id']=_0x4dfe6e(0x73d)+_0x4dfe6e(0x4c9),_0x357558[_0x4dfe6e(0x5c7)][_0x4dfe6e(0x599)]=_0x4dfe6e(0x35b)+_0x4dfe6e(0x25c)+_0x4dfe6e(0x649)+_0x4dfe6e(0xed)+_0x4dfe6e(0x40a)+_0x4dfe6e(0x3c9)+_0x4dfe6e(0x468)+_0x4dfe6e(0x839)+_0x4dfe6e(0x6f0)+_0x4dfe6e(0xc8)+_0x4dfe6e(0x45e)+_0x4dfe6e(0x83b)+_0x4dfe6e(0x3f6)+_0x4dfe6e(0x379)+_0x4dfe6e(0x455)+_0x4dfe6e(0x544)+_0x4dfe6e(0x7e9)+_0x4dfe6e(0x702)+_0x4dfe6e(0x7f0)+_0x4dfe6e(0x824)+_0x4dfe6e(0x5a9)+_0x4dfe6e(0x293)+'rder-right'+_0x4dfe6e(0x3ec)+_0x4dfe6e(0x88e)+',\x20215,\x200,\x20'+_0x4dfe6e(0x834)+'\x20\x20\x20\x20z-inde'+'x:\x20995;\x0a\x20\x20'+_0x4dfe6e(0x396)+_0x4dfe6e(0x31c)+_0x4dfe6e(0xdd)+_0x4dfe6e(0xda)+_0x4dfe6e(0x78f)+'tion:\x20tran'+_0x4dfe6e(0x34d)+'s\x20cubic-be'+_0x4dfe6e(0x802)+_0x4dfe6e(0x163)+_0x4dfe6e(0x290)+_0x4dfe6e(0x55c)+_0x4dfe6e(0x691)+'40px\x20rgba('+_0x4dfe6e(0x6c1)+_0x4dfe6e(0x40a)+_0x4dfe6e(0x3d9)+_0x4dfe6e(0x7e1)+_0x4dfe6e(0xf9)+_0x4dfe6e(0x3e4)+_0x4dfe6e(0x70a)+_0x4dfe6e(0x3de)+_0x4dfe6e(0x2c0)+_0x4dfe6e(0x4f3)+'\x20font-fami'+_0x4dfe6e(0x7cb)+_0x4dfe6e(0x30b)+_0x4dfe6e(0xd7)+_0x4dfe6e(0x352),_0x357558[_0x4dfe6e(0x470)]=_0x4dfe6e(0x825)+'div\x20style='+_0x4dfe6e(0x1d0)+_0x4dfe6e(0x61a)+'2px;border'+_0x4dfe6e(0x151)+_0x4dfe6e(0x1f0)+'ba(255,255'+',255,0.06)'+_0x4dfe6e(0x835)+_0x4dfe6e(0xe3)+_0x4dfe6e(0x6fb)+_0x4dfe6e(0x706)+'-content:s'+_0x4dfe6e(0x4b1)+_0x4dfe6e(0x382)+'rink:0;\x22>\x0a'+'\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20'+_0x4dfe6e(0x6e6)+_0x4dfe6e(0x420)+_0x4dfe6e(0x18d)+_0x4dfe6e(0xeb)+_0x4dfe6e(0x46b)+_0x4dfe6e(0x48c)+'display:fl'+_0x4dfe6e(0x5a2)+_0x4dfe6e(0x2d3)+_0x4dfe6e(0x1d8)+_0x4dfe6e(0x4c2)+'\x20\x20\x20\x20\x20\x20\x20\x20\x20<'+_0x4dfe6e(0x124)+_0x4dfe6e(0x87b)+_0x4dfe6e(0x322)+_0x4dfe6e(0x181)+'\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20'+_0x4dfe6e(0x3ca)+_0x4dfe6e(0x2a4)+_0x4dfe6e(0x275)+_0x4dfe6e(0x5e0)+_0x4dfe6e(0x7b1)+'ent\x22\x20style'+_0x4dfe6e(0x343)+_0x4dfe6e(0x579)+'rder:none;'+_0x4dfe6e(0x296)+'680;font-s'+_0x4dfe6e(0x7ca)+_0x4dfe6e(0x1cb)+'ter;paddin'+'g:4px\x206px;'+_0x4dfe6e(0x878)+'ius:6px;li'+'ne-height:'+_0x4dfe6e(0x7dd)+'\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20'+_0x4dfe6e(0xd1)+'\x22fas\x20fa-ti'+_0x4dfe6e(0x603)+_0x4dfe6e(0x2a4)+_0x4dfe6e(0x3ac)+_0x4dfe6e(0x326)+_0x4dfe6e(0x178)+_0x4dfe6e(0x42b)+_0x4dfe6e(0x7c8)+_0x4dfe6e(0x830)+_0x4dfe6e(0x4ee)+_0x4dfe6e(0x72e)+_0x4dfe6e(0x177)+_0x4dfe6e(0x740)+'\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20'+_0x4dfe6e(0x577)+_0x4dfe6e(0x5a1)+'-seccio\x22>V'+_0x4dfe6e(0x41b)+_0x4dfe6e(0x44e)+_0x4dfe6e(0x64a)+_0x4dfe6e(0x7d7)+_0x4dfe6e(0x675)+'\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20'+'\x20<span\x20cla'+_0x4dfe6e(0x7a9)+_0x4dfe6e(0x1e8)+_0x4dfe6e(0x7d5)+_0x4dfe6e(0x1db)+'\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20'+_0x4dfe6e(0x551)+_0x4dfe6e(0x39e)+_0x4dfe6e(0x5c2)+_0x4dfe6e(0x3a1)+_0x4dfe6e(0x318)+_0x4dfe6e(0x31f)+_0x4dfe6e(0x2b8)+_0x4dfe6e(0x744)+_0x4dfe6e(0x42b)+'\x20class=\x22aj'+_0x4dfe6e(0x11e)+_0x4dfe6e(0x2a4)+_0x4dfe6e(0x44b)+'class=\x22aj-'+'label\x22>Mod'+('e</span>\x0a\x20'+_0x4dfe6e(0x2a4)+'\x20\x20\x20\x20\x20<div\x20'+'class=\x22aj-'+_0x4dfe6e(0x147)+_0x4dfe6e(0x4d6)+'tMode\x22>\x0a\x20\x20'+_0x4dfe6e(0x2a4)+'\x20\x20\x20\x20\x20\x20\x20\x20<b'+'utton\x20data'+'-mode=\x22str'+'eamlines\x22\x20'+_0x4dfe6e(0x34a)+'seg-btn\x22>〜'+_0x4dfe6e(0xaa)+_0x4dfe6e(0xf6)+'\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20'+_0x4dfe6e(0x1c0)+_0x4dfe6e(0x7f3)+'mode=\x22part'+'icles\x22\x20cla'+_0x4dfe6e(0x34b)+_0x4dfe6e(0x87a)+_0x4dfe6e(0x5ba)+_0x4dfe6e(0x3d1)+'\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20'+_0x4dfe6e(0x2e9)+_0x4dfe6e(0x44e)+_0x4dfe6e(0x395)+'\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20'+_0x4dfe6e(0x64a)+_0x4dfe6e(0x7d7)+'la\x20aj-fila'+_0x4dfe6e(0x46c)+'\x22>\x0a\x20\x20\x20\x20\x20\x20\x20'+_0x4dfe6e(0x27f)+_0x4dfe6e(0x215)+_0x4dfe6e(0x210)+_0x4dfe6e(0x4c3)+_0x4dfe6e(0x849)+'\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20'+_0x4dfe6e(0x418)+'e=\x22display'+_0x4dfe6e(0x207)+_0x4dfe6e(0x102)+_0x4dfe6e(0x854)+_0x4dfe6e(0x506)+_0x4dfe6e(0x2a4)+_0x4dfe6e(0x422)+_0x4dfe6e(0x5a5)+_0x4dfe6e(0x4b8)+_0x4dfe6e(0x643)+_0x4dfe6e(0x78a)+_0x4dfe6e(0x62f)+'tyle=\x22widt'+_0x4dfe6e(0x7bb)+_0x4dfe6e(0x14e)+_0x4dfe6e(0x183)+_0x4dfe6e(0x578)+_0x4dfe6e(0x528)+_0x4dfe6e(0x43d)+_0x4dfe6e(0x537)+'r:pointer;'+_0x4dfe6e(0x47a)+_0x4dfe6e(0x4c2)+_0x4dfe6e(0x2a4)+_0x4dfe6e(0x64a)+_0x4dfe6e(0x75b)+_0x4dfe6e(0x119)+_0x4dfe6e(0x6e1)+'atches\x22>\x0a\x20'+_0x4dfe6e(0x2a4)+_0x4dfe6e(0x2a4)+_0x4dfe6e(0x626)+'ata-c=\x22#ff'+_0x4dfe6e(0x6a0)+'e=\x22backgro'+_0x4dfe6e(0x865)+_0x4dfe6e(0xa5)+_0x4dfe6e(0x44e)+_0x4dfe6e(0x2a4)+_0x4dfe6e(0x772)+_0x4dfe6e(0x647)+'000000\x22\x20st'+'yle=\x22backg'+'round:#000'+'000\x22></spa'+_0x4dfe6e(0x3c8)+_0x4dfe6e(0x2a4)+_0x4dfe6e(0x38a)+_0x4dfe6e(0x791)+_0x4dfe6e(0x458)+_0x4dfe6e(0x5b2)+_0x4dfe6e(0x57a)+_0x4dfe6e(0x729)+_0x4dfe6e(0x849)+_0x4dfe6e(0x2a4)+_0x4dfe6e(0x27f)+_0x4dfe6e(0x224)+_0x4dfe6e(0x656))+(_0x4dfe6e(0x1a6)+'ackground:'+'#FFD700\x22><'+'/span>\x0a\x20\x20\x20'+_0x4dfe6e(0x2a4)+'\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20'+_0x4dfe6e(0x4f9)+_0x4dfe6e(0x767)+'5e\x22\x20style='+_0x4dfe6e(0x530)+'d:#ff5e5e\x22'+_0x4dfe6e(0x57b)+_0x4dfe6e(0x2a4)+_0x4dfe6e(0x27f)+'/div>\x0a\x20\x20\x20\x20'+'\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20'+_0x4dfe6e(0x319)+_0x4dfe6e(0x2a4)+_0x4dfe6e(0x670)+_0x4dfe6e(0x2a4)+_0x4dfe6e(0x5c8)+_0x4dfe6e(0x5c1)+_0x4dfe6e(0x81d)+_0x4dfe6e(0x69c)+_0x4dfe6e(0x44e)+'\x20\x20\x20\x20\x20\x20\x20<sp'+_0x4dfe6e(0x53f)+_0x4dfe6e(0x688)+'Opacitat\x20<'+_0x4dfe6e(0x215)+_0x4dfe6e(0x201)+'id=\x22valVen'+'tOpacitat\x22'+'>75%</span'+_0x4dfe6e(0x57b)+_0x4dfe6e(0x2a4)+_0x4dfe6e(0x546)+_0x4dfe6e(0x5e4)+_0x4dfe6e(0x594)+_0x4dfe6e(0x743)+_0x4dfe6e(0x67e)+_0x4dfe6e(0x87e)+_0x4dfe6e(0x88f)+'\x2275\x22\x20class'+_0x4dfe6e(0x4d2)+_0x4dfe6e(0x4c2)+_0x4dfe6e(0x364)+_0x4dfe6e(0x461)+_0x4dfe6e(0x3b3)+'class=\x22aj-'+_0x4dfe6e(0x135)+_0x4dfe6e(0x49d)+_0x4dfe6e(0x1c8)+'=\x22display:'+_0x4dfe6e(0x4a5)+_0x4dfe6e(0x2a4)+_0x4dfe6e(0x44b)+'class=\x22aj-'+_0x4dfe6e(0x701)+_0x4dfe6e(0x494)+_0x4dfe6e(0x5d3)+_0x4dfe6e(0x687)+_0x4dfe6e(0x1ad)+'nsitat\x22>14'+_0x4dfe6e(0x476)+_0x4dfe6e(0x859)+_0x4dfe6e(0x2a4)+_0x4dfe6e(0x17b)+'type=\x22rang'+_0x4dfe6e(0x710)+_0x4dfe6e(0x7e2)+_0x4dfe6e(0x419)+_0x4dfe6e(0x402)+_0x4dfe6e(0xc5)+_0x4dfe6e(0x36a)+_0x4dfe6e(0x41e)+'ass=\x22aj-ra'+'nge\x22>\x0a\x20\x20\x20\x20'+_0x4dfe6e(0x666)+_0x4dfe6e(0x356)+_0x4dfe6e(0x4c7)+'iv\x20class=\x22'+_0x4dfe6e(0x739)+_0x4dfe6e(0x2de)+'icules\x22\x20st'+_0x4dfe6e(0x6b9)+'ay:none;\x22>'+'\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20'+_0x4dfe6e(0x38a)+_0x4dfe6e(0x53f)+_0x4dfe6e(0x688)+'Durada\x20est'+'ela\x20<span\x20'+_0x4dfe6e(0x34a)+_0x4dfe6e(0x645)+_0x4dfe6e(0x27d)+'la\x22>1.0x</'+_0x4dfe6e(0x5bb)+_0x4dfe6e(0x3c8)+_0x4dfe6e(0x27f))+('input\x20type'+_0x4dfe6e(0x2f0)+_0x4dfe6e(0x4c0)+'stela\x22\x20min'+_0x4dfe6e(0x73b)+_0x4dfe6e(0x2d9)+_0x4dfe6e(0x811)+_0x4dfe6e(0x39b)+_0x4dfe6e(0x3eb)+_0x4dfe6e(0x421)+'\x20\x20\x20\x20\x20\x20\x20\x20</'+'div>\x0a\x0a\x20\x20\x20\x20'+'\x20\x20\x20\x20\x20\x20\x20\x20<d'+'iv\x20class=\x22'+_0x4dfe6e(0x739)+_0x4dfe6e(0x2de)+_0x4dfe6e(0x365)+'yle=\x22displ'+'ay:none;\x22>'+_0x4dfe6e(0x44e)+_0x4dfe6e(0x38a)+_0x4dfe6e(0x53f)+'aj-label\x22>'+_0x4dfe6e(0x2f4)+_0x4dfe6e(0x118)+_0x4dfe6e(0x38b)+_0x4dfe6e(0x6f5)+_0x4dfe6e(0x443)+_0x4dfe6e(0x762)+_0x4dfe6e(0x285)+_0x4dfe6e(0x44e)+_0x4dfe6e(0x3fb)+_0x4dfe6e(0x361)+_0x4dfe6e(0x72f)+'\x22ajVentMid'+'a\x22\x20min=\x220.'+_0x4dfe6e(0x1cc)+_0x4dfe6e(0x1bf)+'\x22\x20value=\x221'+_0x4dfe6e(0x196)+_0x4dfe6e(0x2c1)+_0x4dfe6e(0x326)+'\x20\x20\x20\x20</div>'+'\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20'+_0x4dfe6e(0x130)+_0x4dfe6e(0x5ea)+_0x4dfe6e(0x683)+_0x4dfe6e(0x473)+'es\x22\x20style='+_0x4dfe6e(0x7d2)+_0x4dfe6e(0x373)+_0x4dfe6e(0x2a4)+_0x4dfe6e(0x1bd)+'lass=\x22aj-l'+'abel\x22>Velo'+'citat\x20<spa'+'n\x20class=\x22a'+'j-val\x22\x20id='+_0x4dfe6e(0x850)+_0x4dfe6e(0x570)+_0x4dfe6e(0x7a8)+_0x4dfe6e(0x1f1)+_0x4dfe6e(0x2a4)+'\x20\x20\x20\x20<input'+_0x4dfe6e(0x1ef)+_0x4dfe6e(0x5a0)+_0x4dfe6e(0xd9)+'tat\x22\x20min=\x22'+_0x4dfe6e(0x3b1)+'3\x22\x20step=\x220'+'.1\x22\x20value='+_0x4dfe6e(0x41a)+_0x4dfe6e(0x416)+_0x4dfe6e(0x7c9)+_0x4dfe6e(0x2b8)+_0x4dfe6e(0x744)+_0x4dfe6e(0x42b)+_0x4dfe6e(0x38b)+_0x4dfe6e(0x602)+_0x4dfe6e(0x230)+_0x4dfe6e(0x4c2)+'\x20\x20\x20\x20\x20\x20\x20\x20\x20<'+_0x4dfe6e(0x215)+_0x4dfe6e(0x210)+_0x4dfe6e(0x1be)+_0x4dfe6e(0x3df)+_0x4dfe6e(0x34a)+_0x4dfe6e(0x645)+'alVentGrui'+_0x4dfe6e(0x274)+_0x4dfe6e(0x285)+'\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20'+_0x4dfe6e(0x3fb)+_0x4dfe6e(0x361)+_0x4dfe6e(0x72f)+_0x4dfe6e(0x348)+'ix\x22\x20min=\x220'+_0x4dfe6e(0x3be)+_0x4dfe6e(0x598)+_0x4dfe6e(0x1cf))+(_0x4dfe6e(0x1f7)+_0x4dfe6e(0x4d2)+_0x4dfe6e(0x4c2)+'\x20\x20\x20\x20\x20</div'+_0x4dfe6e(0x461)+'\x20\x20\x20\x20\x20<div\x20'+_0x4dfe6e(0x34a)+_0x4dfe6e(0x49a)+_0x4dfe6e(0x36d)+_0x4dfe6e(0x2a4)+'\x20<div\x20clas'+_0x4dfe6e(0x44f)+'l-seccio\x22>'+_0x4dfe6e(0x5f7)+_0x4dfe6e(0x2ab)+'v>\x0a\x0a\x20\x20\x20\x20\x20\x20'+_0x4dfe6e(0x42b)+'\x20class=\x22aj'+_0x4dfe6e(0x11e)+_0x4dfe6e(0x2a4)+_0x4dfe6e(0x44b)+_0x4dfe6e(0x34a)+'label\x22>Col'+_0x4dfe6e(0x3a4)+_0x4dfe6e(0x1e1)+'\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20'+_0x4dfe6e(0x3fb)+_0x4dfe6e(0x361)+_0x4dfe6e(0xd5)+_0x4dfe6e(0x5f1)+_0x4dfe6e(0x372)+_0x4dfe6e(0x32f)+'0\x22\x20style=\x22'+'width:34px'+_0x4dfe6e(0x52a)+_0x4dfe6e(0x1ca)+_0x4dfe6e(0x758)+_0x4dfe6e(0x5de)+_0x4dfe6e(0x26f)+'und:none;c'+'ursor:poin'+_0x4dfe6e(0xab)+_0x4dfe6e(0x6ed)+'\x20\x20\x20\x20\x20\x20\x20\x20\x20<'+'/div>\x0a\x0a\x20\x20\x20'+_0x4dfe6e(0x27f)+_0x4dfe6e(0x58c)+_0x4dfe6e(0x6dd)+_0x4dfe6e(0x44e)+_0x4dfe6e(0x38a)+_0x4dfe6e(0x53f)+_0x4dfe6e(0x688)+_0x4dfe6e(0x2d6)+_0x4dfe6e(0x338)+'class=\x22aj-'+_0x4dfe6e(0x645)+_0x4dfe6e(0x435)+_0x4dfe6e(0x495)+'00%</span>'+_0x4dfe6e(0x1f1)+_0x4dfe6e(0x2a4)+_0x4dfe6e(0x5fe)+_0x4dfe6e(0x1ef)+'ge\x22\x20id=\x22aj'+_0x4dfe6e(0x4a7)+_0x4dfe6e(0x21e)+'=\x220\x22\x20max=\x22'+_0x4dfe6e(0x36a)+_0x4dfe6e(0x139)+_0x4dfe6e(0x369)+_0x4dfe6e(0x589)+_0x4dfe6e(0x618)+_0x4dfe6e(0x77b)+_0x4dfe6e(0x267)+_0x4dfe6e(0x7dc)+'j-fila\x22>\x0a\x20'+_0x4dfe6e(0x2a4)+_0x4dfe6e(0x772)+_0x4dfe6e(0x38b)+'-label\x22>Gr'+_0x4dfe6e(0x16a)+_0x4dfe6e(0x215)+_0x4dfe6e(0x201)+_0x4dfe6e(0x6bd)+_0x4dfe6e(0x12c)+'>2.5</span'+'></span>\x0a\x20'+_0x4dfe6e(0x2a4)+_0x4dfe6e(0x546)+_0x4dfe6e(0x5e4)+_0x4dfe6e(0x594)+_0x4dfe6e(0x64e)+_0x4dfe6e(0x432)+'0.5\x22\x20max=\x22'+_0x4dfe6e(0x831)+_0x4dfe6e(0x1e2)+'\x222.5\x22\x20clas'+_0x4dfe6e(0x416)+_0x4dfe6e(0x7c9)+_0x4dfe6e(0x2b8))+(_0x4dfe6e(0x744)+'\x20\x20\x20\x20\x20\x20<div'+'\x20class=\x22aj'+_0x4dfe6e(0x11e)+_0x4dfe6e(0x2a4)+'\x20\x20\x20\x20<span\x20'+'class=\x22aj-'+_0x4dfe6e(0x4bf)+'arques</sp'+_0x4dfe6e(0x1db)+_0x4dfe6e(0x2a4)+_0x4dfe6e(0x551)+_0x4dfe6e(0x6ab)+_0x4dfe6e(0x634)+_0x4dfe6e(0x5e1)+_0x4dfe6e(0x25b)+_0x4dfe6e(0x44e)+_0x4dfe6e(0x2a4)+'\x20<i\x20class='+'\x22fas\x20fa-to'+_0x4dfe6e(0x5c3)+_0x4dfe6e(0x475)+_0x4dfe6e(0x1ff)+_0x4dfe6e(0x2a4)+_0x4dfe6e(0x3ac)+_0x4dfe6e(0x326)+_0x4dfe6e(0x2e9)+'\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20'+'\x20\x20\x20\x20<div\x20c'+_0x4dfe6e(0x5ea)+_0x4dfe6e(0x683)+_0x4dfe6e(0x717)+'style=\x22dis'+_0x4dfe6e(0x46a)+_0x4dfe6e(0x4c2)+_0x4dfe6e(0x27f)+'span\x20class'+_0x4dfe6e(0x210)+_0x4dfe6e(0x40f)+'\x20capa\x20<spa'+_0x4dfe6e(0x5d3)+'j-val\x22\x20id='+'\x22valCapaGi'+_0x4dfe6e(0x6de)+_0x4dfe6e(0x18a)+'span></spa'+_0x4dfe6e(0x3c8)+_0x4dfe6e(0x27f)+_0x4dfe6e(0x231)+_0x4dfe6e(0x2f0)+_0x4dfe6e(0x6ac)+'ironaOpaci'+'tat\x22\x20min=\x22'+_0x4dfe6e(0x87e)+_0x4dfe6e(0x88f)+'\x22100\x22\x20clas'+_0x4dfe6e(0x416)+_0x4dfe6e(0x7c9)+_0x4dfe6e(0x2b8)+'v>\x0a\x0a\x20\x20\x20\x20\x20\x20'+_0x4dfe6e(0x42b)+_0x4dfe6e(0x38b)+_0x4dfe6e(0x10d)+_0x4dfe6e(0x60f)+'\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20'+_0x4dfe6e(0x27b)+'ss=\x22aj-tit'+_0x4dfe6e(0x6a5)+_0x4dfe6e(0xce)+_0x4dfe6e(0x51c)+_0x4dfe6e(0x249)+_0x4dfe6e(0x130)+_0x4dfe6e(0x5ea)+_0x4dfe6e(0x236)+_0x4dfe6e(0x2a4)+_0x4dfe6e(0x711)+_0x4dfe6e(0x3bb)+_0x4dfe6e(0xee)+_0x4dfe6e(0x246)+_0x4dfe6e(0x215)+'=\x22aj-val\x22\x20'+_0x4dfe6e(0x585)+_0x4dfe6e(0x24f)+_0x4dfe6e(0x29f)+_0x4dfe6e(0x11c)+'\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20'+_0x4dfe6e(0x422)+_0x4dfe6e(0x7fb)+_0x4dfe6e(0x4fb)+_0x4dfe6e(0x714)+_0x4dfe6e(0x2a7)+'\x2210\x22\x20max=\x22'+'100\x22\x20value'+_0x4dfe6e(0x139)+_0x4dfe6e(0x369)+_0x4dfe6e(0x589)+_0x4dfe6e(0x618)+_0x4dfe6e(0x77b)+_0x4dfe6e(0x267)+_0x4dfe6e(0x7dc))+('j-separado'+_0x4dfe6e(0x344)+'\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20'+'\x20\x20\x20<button'+_0x4dfe6e(0x7b8)+'etDefectes'+'\x22\x20class=\x22a'+'j-btn-rese'+_0x4dfe6e(0x74b)+'\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20'+_0x4dfe6e(0x2f6)+_0x4dfe6e(0x7c2)+'ate-left\x22>'+_0x4dfe6e(0x19a)+_0x4dfe6e(0x23b)+'s\x20per\x20defe'+'cte\x0a\x20\x20\x20\x20\x20\x20'+_0x4dfe6e(0x629)+'tton>\x0a\x0a\x20\x20\x20'+_0x4dfe6e(0x364)+_0x4dfe6e(0x62c)),document[_0x4dfe6e(0x64b)][_0x4dfe6e(0x575)+'d'](_0x357558),injectarEstilsPanellAjustos();const _0x510b1e=_0x357558[_0x4dfe6e(0x847)+_0x4dfe6e(0x36b)](_0x4dfe6e(0x122)+'AjustosVen'+'t'),_0x2898b3=_0x357558[_0x4dfe6e(0x847)+_0x4dfe6e(0x36b)]('#ajVentOn'),_0x47017e=_0x357558[_0x4dfe6e(0x847)+'torAll'](_0x4dfe6e(0x833)+_0x4dfe6e(0x438)+'btn'),_0x5b7227=_0x357558['querySelec'+_0x4dfe6e(0x36b)](_0x4dfe6e(0xbe)+'or'),_0x49514b=_0x357558[_0x4dfe6e(0x847)+_0x4dfe6e(0x6d7)](_0x4dfe6e(0x459)+'tches\x20span'),_0x6926fa=_0x357558[_0x4dfe6e(0x847)+_0x4dfe6e(0x36b)]('#ajVentOpa'+'citat'),_0x551b43=_0x357558[_0x4dfe6e(0x847)+_0x4dfe6e(0x36b)](_0x4dfe6e(0x426)+_0x4dfe6e(0x233)),_0x3643d9=_0x357558[_0x4dfe6e(0x847)+'tor'](_0x4dfe6e(0x50d)+_0x4dfe6e(0x4d0)),_0x247b3c=_0x357558[_0x4dfe6e(0x847)+_0x4dfe6e(0x36b)](_0x4dfe6e(0x620)+'a'),_0x4ae0ad=_0x357558['querySelec'+'tor'](_0x4dfe6e(0x496)+_0x4dfe6e(0x1a4)),_0x80f361=_0x357558[_0x4dfe6e(0x847)+'tor'](_0x4dfe6e(0x5da)+'ix'),_0x5ea529=_0x357558['querySelec'+'torAll']('.aj-fila-p'+_0x4dfe6e(0x860)),_0xbc214=_0x357558[_0x4dfe6e(0x847)+_0x4dfe6e(0x6d7)]('.aj-fila-l'+_0x4dfe6e(0x583)),_0x1e68a3=_0x357558[_0x4dfe6e(0x847)+'tor'](_0x4dfe6e(0x187)+'Color'),_0x1f7e2c=_0x357558[_0x4dfe6e(0x847)+_0x4dfe6e(0x36b)]('#ajCapaGir'+_0x4dfe6e(0x1ab)),_0x489f13=_0x357558[_0x4dfe6e(0x847)+_0x4dfe6e(0x36b)](_0x4dfe6e(0x80c)+_0x4dfe6e(0x465)+'t'),_0x1bb06d=_0x357558[_0x4dfe6e(0x847)+_0x4dfe6e(0x36b)]('.aj-fila-g'+_0x4dfe6e(0xfb)),_0x409c02=_0x357558['querySelec'+_0x4dfe6e(0x36b)](_0x4dfe6e(0x187)+_0x4dfe6e(0x627)),_0x59d7e7=_0x357558[_0x4dfe6e(0x847)+_0x4dfe6e(0x36b)](_0x4dfe6e(0x187)+_0x4dfe6e(0xdf)),_0x4fceee=_0x357558[_0x4dfe6e(0x847)+_0x4dfe6e(0x36b)](_0x4dfe6e(0x4e9)+'citat'),_0x45a113=_0x357558[_0x4dfe6e(0x847)+_0x4dfe6e(0x36b)](_0x4dfe6e(0x111)+_0x4dfe6e(0x69f)),_0x26e684={'ventActiu':!![],'ventMode':_0x4dfe6e(0x7bc)+'s','ventColor':_0x4dfe6e(0x759),'ventOpacitat':0x4b,'ventDensitat':0x578,'ventMida':1.6,'ventVelocitat':0x1,'ventEstela':0x1,'ventGruix':1.2,'contornColor':_0x4dfe6e(0x698),'contornOpacitat':0x64,'contornGruix':2.5,'capaOpacitat':0x64,'capaGironaActiva':![],'capaGironaOpacitat':0x64},_0x30e301=carregarAjustosVent()||{},_0x5c0912={..._0x26e684,..._0x30e301};window[_0x4dfe6e(0x700)]=_0x5c0912[_0x4dfe6e(0x370)],window[_0x4dfe6e(0x367)]=_0x5c0912[_0x4dfe6e(0x6b2)],_0x5b7227['value']=_0x5c0912[_0x4dfe6e(0x15a)],_0x6926fa['value']=_0x5c0912[_0x4dfe6e(0x5e2)+'at'],_0x357558[_0x4dfe6e(0x847)+_0x4dfe6e(0x36b)](_0x4dfe6e(0xf3)+_0x4dfe6e(0x383))[_0x4dfe6e(0x615)+'t']=_0x5c0912['ventOpacit'+'at']+'%',_0x551b43[_0x4dfe6e(0x3d0)]=_0x5c0912[_0x4dfe6e(0x4eb)+'at'],_0x357558[_0x4dfe6e(0x847)+'tor'](_0x4dfe6e(0x71c)+_0x4dfe6e(0x805))[_0x4dfe6e(0x615)+'t']=_0x5c0912[_0x4dfe6e(0x4eb)+'at'],_0x247b3c[_0x4dfe6e(0x3d0)]=_0x5c0912[_0x4dfe6e(0x4dd)],_0x357558[_0x4dfe6e(0x847)+_0x4dfe6e(0x36b)](_0x4dfe6e(0x561)+'da')[_0x4dfe6e(0x615)+'t']=Number(_0x5c0912[_0x4dfe6e(0x4dd)])[_0x4dfe6e(0x695)](0x1),_0x4ae0ad['value']=_0x5c0912[_0x4dfe6e(0x853)+_0x4dfe6e(0x22b)],_0x357558[_0x4dfe6e(0x847)+_0x4dfe6e(0x36b)](_0x4dfe6e(0x696)+_0x4dfe6e(0x68c))[_0x4dfe6e(0x615)+'t']=Number(_0x5c0912[_0x4dfe6e(0x853)+_0x4dfe6e(0x22b)])[_0x4dfe6e(0x695)](0x1)+'x',_0x3643d9[_0x4dfe6e(0x3d0)]=_0x5c0912['ventEstela'],_0x357558[_0x4dfe6e(0x847)+_0x4dfe6e(0x36b)](_0x4dfe6e(0x3bf)+'tela')['textConten'+'t']=Number(_0x5c0912[_0x4dfe6e(0x171)])[_0x4dfe6e(0x695)](0x1)+'x',_0x80f361[_0x4dfe6e(0x3d0)]=_0x5c0912[_0x4dfe6e(0x1d3)],_0x357558[_0x4dfe6e(0x847)+_0x4dfe6e(0x36b)](_0x4dfe6e(0x109)+_0x4dfe6e(0x53c))[_0x4dfe6e(0x615)+'t']=Number(_0x5c0912['ventGruix'])['toFixed'](0x1),_0x1e68a3[_0x4dfe6e(0x3d0)]=_0x5c0912[_0x4dfe6e(0x259)+'or'],_0x409c02[_0x4dfe6e(0x3d0)]=_0x5c0912[_0x4dfe6e(0x3c0)+_0x4dfe6e(0x3ea)],_0x357558[_0x4dfe6e(0x847)+_0x4dfe6e(0x36b)]('#valContor'+_0x4dfe6e(0x6fa))[_0x4dfe6e(0x615)+'t']=_0x5c0912[_0x4dfe6e(0x3c0)+_0x4dfe6e(0x3ea)]+'%',_0x59d7e7[_0x4dfe6e(0x3d0)]=_0x5c0912[_0x4dfe6e(0x310)+'ix'],_0x357558[_0x4dfe6e(0x847)+'tor'](_0x4dfe6e(0x3ad)+_0x4dfe6e(0x3f7))[_0x4dfe6e(0x615)+'t']=Number(_0x5c0912[_0x4dfe6e(0x310)+'ix'])[_0x4dfe6e(0x695)](0x1),_0x4fceee['value']=_0x5c0912[_0x4dfe6e(0xe7)+'at'],_0x357558[_0x4dfe6e(0x847)+_0x4dfe6e(0x36b)](_0x4dfe6e(0xca)+_0x4dfe6e(0x383))['textConten'+'t']=_0x5c0912[_0x4dfe6e(0xe7)+'at']+'%';function _0x4d62f2(){const _0x25a786=_0x4dfe6e;typeof wCfg!==_0x25a786(0x5ca)&&(wCfg[_0x25a786(0x7bc)+_0x25a786(0x31a)]=_0x5c0912[_0x25a786(0x15a)],wCfg[_0x25a786(0x7bc)+_0x25a786(0x559)]=_0x5c0912[_0x25a786(0x5e2)+'at']/0x64,wCfg[_0x25a786(0x7bc)+_0x25a786(0x5fd)]=Number(_0x5c0912[_0x25a786(0x1d3)]));if(typeof Vent!=='undefined'){const _0x311128=0x28,_0x3ef475=0x6e,_0x26c193=Number(_0x5c0912[_0x25a786(0x171)]);Vent[_0x25a786(0x2ac)]({'color':_0x5c0912[_0x25a786(0x15a)],'opacitat':_0x5c0912[_0x25a786(0x5e2)+'at']/0x64,'numParticules':Number(_0x5c0912[_0x25a786(0x4eb)+'at']),'midaParticula':Number(_0x5c0912['ventMida']),'velocitatFactor':Number(_0x5c0912['ventVeloci'+_0x25a786(0x22b)]),'vidaMinima':_0x311128*_0x26c193,'vidaMaxima':_0x3ef475*_0x26c193});}window[_0x25a786(0x212)+'d']=![];if(typeof canvasVent!==_0x25a786(0x5ca)&&canvasVent&&typeof ctxVent!==_0x25a786(0x5ca)&&ctxVent){if(_0x25a786(0x5f8)===_0x25a786(0x5f8))ctxVent[_0x25a786(0x784)](0x0,0x0,canvasVent[_0x25a786(0x3af)],canvasVent['height']);else{const _0x31a53c=_0x391d6a[_0x25a786(0x7b2)+_0x25a786(0x51e)](_0x25a786(0x385)+_0x25a786(0x3d5));if(!_0x31a53c)return;_0x31a53c[_0x25a786(0x5c7)][_0x25a786(0x5c5)]='0',_0x4f2317&&_0x3c0c2a(_0x470c03),_0x1f9e06=_0x3bcca5(()=>{const _0x53ae56=_0x25a786;_0x31a53c['classList'][_0x53ae56(0x515)](_0x53ae56(0x542)),_0x31a53c[_0x53ae56(0x6bb)]['add'](_0x53ae56(0x819)),_0x31a53c['style'][_0x53ae56(0x108)]=_0x53ae56(0x238),_0x21e762=null;},0x15e);}}typeof Vent!=='undefined'&&Vent[_0x25a786(0x592)]()&&Vent[_0x25a786(0x1d1)]();if(_0x5c0912[_0x25a786(0x6b2)]){if(_0x5c0912[_0x25a786(0x370)]===_0x25a786(0x417)&&typeof Vent!==_0x25a786(0x5ca))Vent['iniciar']();else{if(_0x5c0912[_0x25a786(0x370)]===_0x25a786(0x7bc)+'s'){window[_0x25a786(0x212)+'d']=!![];if(typeof redibuixarVent===_0x25a786(0x223))redibuixarVent();}}}typeof canvasLayer!==_0x25a786(0x5ca)&&canvasLayer&&canvasLayer[_0x25a786(0x42c)]&&(canvasLayer[_0x25a786(0x42c)][_0x25a786(0x5c7)][_0x25a786(0x5c5)]=(_0x5c0912[_0x25a786(0xe7)+'at']/0x64)[_0x25a786(0x633)]()),_0x20c6b2();}function _0x20c6b2(){const _0xa5ee54=_0x4dfe6e;if(typeof capaInstancies===_0xa5ee54(0x5ca))return;const _0x1d187b=_0x1e68a3['value'],_0x164c76=parseInt(_0x409c02[_0xa5ee54(0x3d0)])/0x64,_0x1bd901=parseFloat(_0x59d7e7[_0xa5ee54(0x3d0)]);Object['entries'](capaInstancies)[_0xa5ee54(0x25d)](([_0x1e051b,_0x24696c])=>{const _0x40030a=_0xa5ee54;if(!_0x24696c||!_0x24696c[_0x40030a(0x68a)])return;let _0x4ef1e7=_0x164c76;if(_0x1e051b===_0x40030a(0x809)+_0x40030a(0x660)){const _0xd7d014=parseInt(_0x489f13['value'])/0x64;_0x4ef1e7=_0x164c76*_0xd7d014;}_0x24696c[_0x40030a(0x68a)]({'color':_0x1d187b,'opacity':_0x4ef1e7,'weight':_0x1bd901});});}window['aplicarEst'+'atCapesGeo'+_0x4dfe6e(0x68e)]=function(){const _0x45f54b=_0x4dfe6e;_0x20c6b2();const _0x837e0f=capaInstancies[_0x45f54b(0x809)+'arques'];if(_0x837e0f){if(_0x5c0912[_0x45f54b(0x397)+_0x45f54b(0x27a)]&&!map[_0x45f54b(0x399)](_0x837e0f))_0x837e0f[_0x45f54b(0x3e3)](map);else!_0x5c0912[_0x45f54b(0x397)+_0x45f54b(0x27a)]&&map[_0x45f54b(0x399)](_0x837e0f)&&map[_0x45f54b(0x2fa)+'r'](_0x837e0f);}},setTimeout(_0x20c6b2,0x4b0),setTimeout(_0x20c6b2,0xbb8),_0x4d62f2();function _0x10a83b(){const _0x33c514=_0x4dfe6e,_0x536c3e=window[_0x33c514(0x700)]===_0x33c514(0x417);_0x5ea529[_0x33c514(0x25d)](_0x4cd527=>_0x4cd527['style'][_0x33c514(0x108)]=_0x536c3e?'flex':_0x33c514(0x238)),_0xbc214[_0x33c514(0x25d)](_0x32d9f1=>_0x32d9f1['style'][_0x33c514(0x108)]=_0x536c3e?_0x33c514(0x238):_0x33c514(0xe2)),_0x47017e[_0x33c514(0x25d)](_0x58b862=>_0x58b862[_0x33c514(0x6bb)][_0x33c514(0x197)]('actiu',_0x58b862[_0x33c514(0x65a)][_0x33c514(0x79d)]===window[_0x33c514(0x700)]));}function _0x119a8c(){const _0x22a6e2=_0x4dfe6e;if(_0x22a6e2(0x7c5)!==_0x22a6e2(0x7c5)){const _0x42dec2=_0x42deb7['textConten'+'t'][_0x22a6e2(0xe6)+'e'](),_0x7b02ef=_0x1ce3dc[_0x22a6e2(0x65a)][_0x22a6e2(0x85b)]||'';_0x42dec2['includes'](_0x29bbe9)||_0x7b02ef['includes'](_0x4f3476)?(_0x659357[_0x22a6e2(0x5c7)][_0x22a6e2(0x108)]='',_0x3e9093=!![]):_0x1fc4cc['style'][_0x22a6e2(0x108)]='none';}else{const _0x31163d=window[_0x22a6e2(0x700)]===_0x22a6e2(0x417)?Vent[_0x22a6e2(0x592)]():!!window[_0x22a6e2(0x212)+'d'];_0x2898b3['classList'][_0x22a6e2(0x197)](_0x22a6e2(0x160),_0x31163d),_0x2898b3[_0x22a6e2(0x470)]=_0x31163d?_0x22a6e2(0x2f6)+_0x22a6e2(0x42e)+_0x22a6e2(0x65b)+_0x22a6e2(0x884):_0x22a6e2(0x2f6)+'fas\x20fa-tog'+'gle-off\x22><'+_0x22a6e2(0x72c)+_0x22a6e2(0x573);}}_0x2898b3['addEventLi'+_0x4dfe6e(0x452)](_0x4dfe6e(0x490),()=>{const _0x25d011=_0x4dfe6e;if(window[_0x25d011(0x700)]===_0x25d011(0x417)){if(typeof Vent===_0x25d011(0x5ca))return;Vent[_0x25d011(0x592)]()?Vent[_0x25d011(0x1d1)]():Vent[_0x25d011(0x36c)]();}else{window[_0x25d011(0x212)+'d']=!window['ventEnable'+'d'];if(window[_0x25d011(0x212)+'d']){if(typeof redibuixarVent===_0x25d011(0x223))redibuixarVent();}else typeof canvasVent!==_0x25d011(0x5ca)&&canvasVent&&typeof ctxVent!==_0x25d011(0x5ca)&&ctxVent&&ctxVent[_0x25d011(0x784)](0x0,0x0,canvasVent[_0x25d011(0x3af)],canvasVent['height']);}_0x119a8c(),desarAjustosVent({'ventActiu':window[_0x25d011(0x700)]===_0x25d011(0x417)?Vent[_0x25d011(0x592)]():!!window[_0x25d011(0x212)+'d']});}),_0x47017e[_0x4dfe6e(0x25d)](_0x4e67ea=>{const _0x5d14cf=_0x4dfe6e;_0x4e67ea['addEventLi'+_0x5d14cf(0x452)](_0x5d14cf(0x490),()=>{const _0x4a7ddd=_0x5d14cf,_0x53e0aa=_0x4e67ea[_0x4a7ddd(0x65a)][_0x4a7ddd(0x79d)];if(_0x53e0aa===window[_0x4a7ddd(0x700)])return;if(window[_0x4a7ddd(0x700)]===_0x4a7ddd(0x417)&&typeof Vent!==_0x4a7ddd(0x5ca))Vent[_0x4a7ddd(0x1d1)]();else window['_ventMode']==='streamline'+'s'&&(window[_0x4a7ddd(0x212)+'d']=![],typeof canvasVent!=='undefined'&&canvasVent&&typeof ctxVent!==_0x4a7ddd(0x5ca)&&ctxVent&&ctxVent[_0x4a7ddd(0x784)](0x0,0x0,canvasVent[_0x4a7ddd(0x3af)],canvasVent[_0x4a7ddd(0x408)]));window[_0x4a7ddd(0x700)]=_0x53e0aa;const _0x4d6b3b=_0x2898b3[_0x4a7ddd(0x6bb)][_0x4a7ddd(0x288)]('actiu');if(_0x4d6b3b){if(_0x53e0aa==='particles'&&typeof Vent!==_0x4a7ddd(0x5ca))'bEKGq'!==_0x4a7ddd(0x244)?_0x1ab17b[_0x4a7ddd(0x1d1)]():Vent['iniciar']();else{if(_0x53e0aa===_0x4a7ddd(0x7bc)+'s'){if(_0x4a7ddd(0x5d0)!==_0x4a7ddd(0x5d0)){const _0x123c60=_0x453b0f['step'],_0x16682d=_0x45550e[_0x4a7ddd(0x1a7)](_0x123c60/0x2);_0x140c40=_0x2e238f(_0x16682d)['padStart'](0x2,'0'),_0x2a61e9=_0xb747ce(_0x123c60%0x2*0x1e)[_0x4a7ddd(0x444)](0x2,'0'),_0x446a84='';}else{window[_0x4a7ddd(0x212)+'d']=!![];if(typeof redibuixarVent===_0x4a7ddd(0x223))redibuixarVent();}}}}_0x10a83b(),_0x119a8c(),desarAjustosVent({'ventMode':_0x53e0aa});});});function _0x2a7a14(_0x4d0256){const _0x4c0351=_0x4dfe6e;_0x5b7227[_0x4c0351(0x3d0)]=_0x4d0256;if(window[_0x4c0351(0x700)]==='particles'&&typeof Vent!==_0x4c0351(0x5ca))_0x4c0351(0x114)!==_0x4c0351(0xb1)?Vent[_0x4c0351(0x2ac)]({'color':_0x4d0256}):_0x525c70(_0x333f25);else{if(typeof window['setStreaml'+_0x4c0351(0x228)+'x']==='function')'pNHjR'===_0x4c0351(0x414)?(_0x574659['removeLaye'+'r'](_0x21f726),_0x2d2933=null):window['setStreaml'+'ineColorHe'+'x'](_0x4d0256);else{if(typeof wCfg!==_0x4c0351(0x5ca)){wCfg[_0x4c0351(0x7bc)+'Color']=_0x4d0256;if(typeof redibuixarVent===_0x4c0351(0x223))redibuixarVent();}}}desarAjustosVent({'ventColor':_0x4d0256});}_0x5b7227[_0x4dfe6e(0x741)+_0x4dfe6e(0x452)](_0x4dfe6e(0x607),()=>_0x2a7a14(_0x5b7227['value'])),_0x49514b[_0x4dfe6e(0x25d)](_0x56f741=>{const _0x2e53de=_0x4dfe6e;_0x56f741[_0x2e53de(0x741)+_0x2e53de(0x452)]('click',()=>_0x2a7a14(_0x56f741[_0x2e53de(0x65a)]['c']));}),_0x6926fa[_0x4dfe6e(0x741)+'stener'](_0x4dfe6e(0x607),()=>{const _0x2392fd=_0x4dfe6e,_0x22ad68=parseInt(_0x6926fa[_0x2392fd(0x3d0)]);_0x357558[_0x2392fd(0x847)+'tor'](_0x2392fd(0xf3)+_0x2392fd(0x383))[_0x2392fd(0x615)+'t']=_0x22ad68+'%';const _0x2b5153=_0x22ad68/0x64;if(window['_ventMode']===_0x2392fd(0x417)&&typeof Vent!==_0x2392fd(0x5ca))Vent['configurar']({'opacitat':_0x2b5153});else typeof window['setStreaml'+'ineOpacity']===_0x2392fd(0x223)&&window[_0x2392fd(0x51f)+_0x2392fd(0x1ea)](_0x2b5153);desarAjustosVent({'ventOpacitat':_0x22ad68});}),_0x551b43['addEventLi'+_0x4dfe6e(0x452)]('input',()=>{const _0x21c0fa=_0x4dfe6e,_0x17c3be=parseInt(_0x551b43[_0x21c0fa(0x3d0)]);_0x357558[_0x21c0fa(0x847)+_0x21c0fa(0x36b)](_0x21c0fa(0x71c)+_0x21c0fa(0x805))[_0x21c0fa(0x615)+'t']=_0x17c3be;if(typeof Vent!=='undefined')Vent[_0x21c0fa(0x2ac)]({'numParticules':_0x17c3be});desarAjustosVent({'ventDensitat':_0x17c3be});}),_0x247b3c[_0x4dfe6e(0x741)+_0x4dfe6e(0x452)](_0x4dfe6e(0x607),()=>{const _0x2bfefe=_0x4dfe6e;if(_0x2bfefe(0x763)===_0x2bfefe(0x763)){const _0x4a572e=parseFloat(_0x247b3c[_0x2bfefe(0x3d0)]);_0x357558[_0x2bfefe(0x847)+_0x2bfefe(0x36b)](_0x2bfefe(0x561)+'da')['textConten'+'t']=_0x4a572e['toFixed'](0x1);if(typeof Vent!==_0x2bfefe(0x5ca))Vent['configurar']({'midaParticula':_0x4a572e});desarAjustosVent({'ventMida':_0x4a572e});}else _0x4bf5f8[_0x2bfefe(0x5c7)][_0x2bfefe(0x84b)]='';}),_0x3643d9['addEventLi'+_0x4dfe6e(0x452)](_0x4dfe6e(0x607),()=>{const _0x387ed5=_0x4dfe6e,_0x26a272=parseFloat(_0x3643d9[_0x387ed5(0x3d0)]);_0x357558[_0x387ed5(0x847)+'tor']('#valVentEs'+_0x387ed5(0x53d))['textConten'+'t']=_0x26a272[_0x387ed5(0x695)](0x1)+'x',typeof Vent!==_0x387ed5(0x5ca)&&Vent[_0x387ed5(0x2ac)]({'vidaMinima':0x28*_0x26a272,'vidaMaxima':0x6e*_0x26a272}),desarAjustosVent({'ventEstela':_0x26a272});}),_0x4ae0ad[_0x4dfe6e(0x741)+'stener']('input',()=>{const _0x2425b3=_0x4dfe6e;if(_0x2425b3(0x451)!==_0x2425b3(0x84e)){const _0x1ecc05=parseFloat(_0x4ae0ad[_0x2425b3(0x3d0)]);_0x357558[_0x2425b3(0x847)+_0x2425b3(0x36b)]('#valVentVe'+_0x2425b3(0x68c))[_0x2425b3(0x615)+'t']=_0x1ecc05[_0x2425b3(0x695)](0x1)+'x';if(typeof Vent!=='undefined')Vent['configurar']({'velocitatFactor':_0x1ecc05});desarAjustosVent({'ventVelocitat':_0x1ecc05});}else{_0x237417(),_0x110f79=![];return;}}),_0x80f361['addEventLi'+_0x4dfe6e(0x452)](_0x4dfe6e(0x607),()=>{const _0xc35f88=_0x4dfe6e,_0x3da6b7=parseFloat(_0x80f361[_0xc35f88(0x3d0)]);_0x357558[_0xc35f88(0x847)+_0xc35f88(0x36b)](_0xc35f88(0x109)+'uix')['textConten'+'t']=_0x3da6b7[_0xc35f88(0x695)](0x1);if(typeof window[_0xc35f88(0x51f)+'ineWidth']==='function')window[_0xc35f88(0x51f)+_0xc35f88(0x131)](_0x3da6b7);desarAjustosVent({'ventGruix':_0x3da6b7});});function _0x260f31(){_0x20c6b2();}_0x1e68a3[_0x4dfe6e(0x741)+'stener'](_0x4dfe6e(0x607),()=>{const _0x1a5e7f=_0x4dfe6e;_0x260f31(),desarAjustosVent({'contornColor':_0x1e68a3[_0x1a5e7f(0x3d0)]});}),_0x409c02['addEventLi'+_0x4dfe6e(0x452)](_0x4dfe6e(0x607),()=>{const _0x29f790=_0x4dfe6e;_0x357558[_0x29f790(0x847)+_0x29f790(0x36b)](_0x29f790(0x3ad)+_0x29f790(0x6fa))[_0x29f790(0x615)+'t']=_0x409c02[_0x29f790(0x3d0)]+'%',_0x260f31(),desarAjustosVent({'contornOpacitat':parseInt(_0x409c02[_0x29f790(0x3d0)])});}),_0x59d7e7[_0x4dfe6e(0x741)+'stener']('input',()=>{const _0x433e09=_0x4dfe6e;if('jWIcB'==='jWIcB')_0x357558[_0x433e09(0x847)+_0x433e09(0x36b)](_0x433e09(0x3ad)+_0x433e09(0x3f7))[_0x433e09(0x615)+'t']=parseFloat(_0x59d7e7['value'])[_0x433e09(0x695)](0x1),_0x260f31(),desarAjustosVent({'contornGruix':parseFloat(_0x59d7e7[_0x433e09(0x3d0)])});else return new _0x433347(_0x3f390f=>_0x3bb84e(_0x3f390f,_0x43cb4f));}),_0x1f7e2c[_0x4dfe6e(0x741)+_0x4dfe6e(0x452)](_0x4dfe6e(0x490),()=>{const _0x3ec220=_0x4dfe6e,_0x516aff=_0x1f7e2c[_0x3ec220(0x6bb)][_0x3ec220(0x288)](_0x3ec220(0x160)),_0x1b2789=!_0x516aff;_0x1f7e2c['classList'][_0x3ec220(0x197)](_0x3ec220(0x160),_0x1b2789),_0x1f7e2c['innerHTML']=_0x1b2789?_0x3ec220(0x2f6)+_0x3ec220(0x42e)+_0x3ec220(0x65b)+_0x3ec220(0x884):_0x3ec220(0x2f6)+_0x3ec220(0x42e)+_0x3ec220(0x650)+_0x3ec220(0x72c)+_0x3ec220(0x573),_0x1bb06d[_0x3ec220(0x5c7)][_0x3ec220(0x108)]=_0x1b2789?_0x3ec220(0xe2):_0x3ec220(0x238);const _0x2c27c1=capaInstancies[_0x3ec220(0x809)+_0x3ec220(0x660)];if(_0x2c27c1){if(_0x3ec220(0x77f)!==_0x3ec220(0x77f)){const _0x2e6f84=_0x124651[_0x3ec220(0x20a)+'A']['datos'],_0x29d309=new _0x599d18(_0x2e6f84['length']);for(let _0x5ea2fc=0x0;_0x5ea2fc<_0x2e6f84[_0x3ec220(0x526)];_0x5ea2fc++)_0x29d309[_0x5ea2fc]=_0x2e6f84[_0x5ea2fc];_0x10c236[_0x3ec220(0x20a)+'A'][_0x3ec220(0x557)]=_0x29d309;}else{if(_0x1b2789&&!map['hasLayer'](_0x2c27c1))_0x3ec220(0x2da)==='QTuAl'?_0x4250e5[_0x3ec220(0x375)](_0x17ceb7[_0x3ec220(0x5b6)][_0x3ec220(0x86c)],_0x4216e7['data'][_0x3ec220(0x86c)]):(_0x2c27c1[_0x3ec220(0x3e3)](map),_0x260f31());else!_0x1b2789&&map[_0x3ec220(0x399)](_0x2c27c1)&&map[_0x3ec220(0x2fa)+'r'](_0x2c27c1);}}desarAjustosVent({'capaGironaActiva':_0x1b2789});}),_0x489f13[_0x4dfe6e(0x741)+_0x4dfe6e(0x452)](_0x4dfe6e(0x607),()=>{const _0x1e76be=_0x4dfe6e;if(_0x1e76be(0x261)!==_0x1e76be(0x1da)){const _0x487d2c=parseInt(_0x489f13[_0x1e76be(0x3d0)]);_0x357558['querySelec'+_0x1e76be(0x36b)](_0x1e76be(0x30d)+_0x1e76be(0x6de)+'at')[_0x1e76be(0x615)+'t']=_0x487d2c+'%',_0x260f31(),desarAjustosVent({'capaGironaOpacitat':_0x487d2c});}else{if(_0x57b3cc[_0x1e76be(0x654)]()[_0x1e76be(0x633)]()[_0x1e76be(0x7d4)]('\x0a')!==-0x1)return;return _0x55d621[_0x1e76be(0x633)]()[_0x1e76be(0x861)](_0x1e76be(0x4ca)+'+$')[_0x1e76be(0x633)]()[_0x1e76be(0x393)+'r'](_0x55e037)[_0x1e76be(0x861)](_0x1e76be(0x4ca)+'+$');}}),_0x4fceee['addEventLi'+'stener'](_0x4dfe6e(0x607),()=>{const _0x48f8cf=_0x4dfe6e;if('cIsAM'!==_0x48f8cf(0x331)){const _0x3cb3ef=parseInt(_0x4fceee['value']);_0x357558[_0x48f8cf(0x847)+_0x48f8cf(0x36b)]('#valCapaOp'+_0x48f8cf(0x383))[_0x48f8cf(0x615)+'t']=_0x3cb3ef+'%',typeof canvasLayer!=='undefined'&&canvasLayer&&canvasLayer[_0x48f8cf(0x42c)]&&(canvasLayer[_0x48f8cf(0x42c)][_0x48f8cf(0x5c7)]['opacity']=(_0x3cb3ef/0x64)['toString']()),desarAjustosVent({'capaOpacitat':_0x3cb3ef});}else{_0x1bd111[_0x48f8cf(0xc9)](_0x48f8cf(0x84d)+_0x48f8cf(0x5ff)+_0x48f8cf(0x690),_0x1c200c[_0x48f8cf(0x13c)]);throw _0x5f24dd;}}),_0x45a113[_0x4dfe6e(0x741)+_0x4dfe6e(0x452)](_0x4dfe6e(0x490),()=>{const _0x432574=_0x4dfe6e;if('BJeqW'!==_0x432574(0x4f5))this[_0x432574(0x5c7)]['background']='rgba(255,2'+_0x432574(0x11b)+'8)',this[_0x432574(0x5c7)]['color']=_0x432574(0x593);else{try{localStorage[_0x432574(0x541)](CLAU_STORAGE_AJUSTOS_VENT);}catch(_0xa1c39f){}location[_0x432574(0x142)]();}});function _0x312d3b(){const _0x36fe05=_0x4dfe6e;_0x36fe05(0x51d)!==_0x36fe05(0x51d)?(_0x40bf63['save'](),_0x5654ec[_0x36fe05(0x73f)+_0x36fe05(0x580)+'d']=!![],_0x279961[_0x36fe05(0x73f)+'hingQualit'+'y']=_0x36fe05(0x24c),_0x2944b6['drawImage'](this[_0x36fe05(0x3ff)],_0x4da386,_0x1e8b48,_0x4eea15,_0x52442b),_0x2bb542[_0x36fe05(0x61c)]()):(_0x357558[_0x36fe05(0x5c7)]['transform']=_0x36fe05(0x116)+_0x36fe05(0x315),_0x10a83b(),_0x119a8c());}function _0x3cfd36(){const _0x175b13=_0x4dfe6e;'UZDwr'!==_0x175b13(0x596)?_0x357558[_0x175b13(0x5c7)][_0x175b13(0x85e)]=_0x175b13(0x116)+_0x175b13(0x32e):typeof _0x103df3===_0x175b13(0x223)?_0x2f3850(_0x732172):_0x2d18db[_0x175b13(0xc9)]('[Accés]\x20Va'+_0x175b13(0x311)+_0x175b13(0x39c)+_0x175b13(0x2f5),_0x4fcdfb);}_0x510b1e[_0x4dfe6e(0x741)+_0x4dfe6e(0x452)](_0x4dfe6e(0x490),_0x3cfd36);const _0x5d9e5a=document[_0x4dfe6e(0x7b2)+'ById'](_0x4dfe6e(0x4e5)+_0x4dfe6e(0xcf));_0x5d9e5a&&_0x5d9e5a[_0x4dfe6e(0x741)+'stener'](_0x4dfe6e(0x490),_0x95f1df=>{const _0x2a33a2=_0x4dfe6e;_0x95f1df[_0x2a33a2(0x474)+_0x2a33a2(0x6a7)]();const _0x2587ae=_0x357558['style'][_0x2a33a2(0x85e)]===_0x2a33a2(0x116)+'(0)';_0x2587ae?_0x3cfd36():_0x312d3b();}),document[_0x4dfe6e(0x741)+_0x4dfe6e(0x452)](_0x4dfe6e(0x5fb),function(_0x39b4c0){const _0x472ea9=_0x4dfe6e;'OvjlR'===_0x472ea9(0x156)?_0x519a08[_0x472ea9(0x71f)](_0x16d745):_0x39b4c0[_0x472ea9(0x623)]===_0x472ea9(0x5f3)&&_0x3cfd36();}),document[_0x4dfe6e(0x741)+'stener']('click',function(_0x4e3199){const _0x397712=_0x4dfe6e;if(_0x357558[_0x397712(0x5c7)][_0x397712(0x85e)]===_0x397712(0x116)+_0x397712(0x315)){if(_0x397712(0x896)!==_0x397712(0x639))!_0x357558[_0x397712(0x288)](_0x4e3199[_0x397712(0x794)])&&_0x4e3199[_0x397712(0x794)]['id']!=='btnObrirAj'+_0x397712(0xcf)&&_0x3cfd36();else{_0x500bee=_0xd1509a(this[_0x397712(0x3d0)]);_0x37c619&&_0xb75f59();try{_0x336728[_0x397712(0x6aa)](_0x397712(0x648)+'at_velocit'+'at_animaci'+'o',_0x5b2418);}catch(_0x26b0ac){}}}}),_0x10a83b(),_0x119a8c();}function injectarEstilsPanellAjustos(){const _0x2f757a=_0x1ec428;if(document[_0x2f757a(0x7b2)+_0x2f757a(0x51e)](_0x2f757a(0x12e)+_0x2f757a(0x841)+_0x2f757a(0x3f1)))return;const _0x17c20e=document[_0x2f757a(0x1d2)+_0x2f757a(0x493)]('style');_0x17c20e['id']=_0x2f757a(0x12e)+_0x2f757a(0x841)+_0x2f757a(0x3f1),_0x17c20e[_0x2f757a(0x615)+'t']='\x0a\x20\x20\x20\x20\x20\x20\x20\x20#'+'panellAjus'+_0x2f757a(0x727)+_0x2f757a(0x3a6)+'ccio\x20{\x0a\x20\x20\x20'+_0x2f757a(0x777)+_0x2f757a(0x9f)+_0x2f757a(0x7c4)+_0x2f757a(0x442)+_0x2f757a(0x478)+_0x2f757a(0x3aa)+_0x2f757a(0x334)+_0x2f757a(0x3f5)+_0x2f757a(0x517)+_0x2f757a(0x3e9)+_0x2f757a(0x346)+_0x2f757a(0x718)+_0x2f757a(0x17f)+_0x2f757a(0x2a4)+'\x20\x20color:\x20#'+_0x2f757a(0x161)+_0x2f757a(0x2a4)+'margin:\x204p'+_0x2f757a(0x684)+'\x20\x20\x20\x20\x20\x20\x20\x20}\x0a'+_0x2f757a(0x5c4)+'anellAjust'+_0x2f757a(0x43e)+_0x2f757a(0x10d)+_0x2f757a(0x657)+'\x20\x20\x20\x20\x20borde'+_0x2f757a(0x388)+_0x2f757a(0x76e)+_0x2f757a(0x669)+'255,0.07);'+_0x2f757a(0x44e)+_0x2f757a(0x16f)+'\x2016px\x200;\x0a\x20'+_0x2f757a(0x3b8)+_0x2f757a(0x705)+'nellAjusto'+_0x2f757a(0x70e)+_0x2f757a(0x76f)+_0x2f757a(0x5f5)+'isplay:\x20fl'+_0x2f757a(0x2e7)+_0x2f757a(0x81e)+_0x2f757a(0x2ff)+_0x2f757a(0x9e)+_0x2f757a(0x749)+_0x2f757a(0x6ec)+_0x2f757a(0x256)+'e-between;'+_0x2f757a(0x44e)+_0x2f757a(0x158)+_0x2f757a(0x529)+'\x20\x20\x20\x20\x20\x20marg'+_0x2f757a(0x1dc)+_0x2f757a(0x2d4)+'\x20\x20\x20\x20\x20}\x0a\x20\x20\x20'+'\x20\x20\x20\x20\x20#pane'+_0x2f757a(0x85d)+_0x2f757a(0x4b6)+_0x2f757a(0x3c7)+_0x2f757a(0x442)+'nt-size:\x201'+_0x2f757a(0x5cc)+'\x20\x20\x20\x20\x20\x20\x20\x20\x20c'+'olor:\x20#c8d'+_0x2f757a(0x845)+_0x2f757a(0x52b)+'t-weight:\x20'+_0x2f757a(0x309)+_0x2f757a(0x5e7)+_0x2f757a(0x7f1)+_0x2f757a(0x40a)+_0x2f757a(0x736)+_0x2f757a(0x3fc)+_0x2f757a(0xd0)+'\x20\x20\x20\x20\x20\x20\x20gap'+_0x2f757a(0x804)+_0x2f757a(0x5b0)+_0x2f757a(0x46f)+'llAjustosV'+'ent\x20.aj-va'+'l\x20{\x0a\x20\x20\x20\x20\x20\x20'+_0x2f757a(0x731)+_0x2f757a(0x469)+_0x2f757a(0x40a)+_0x2f757a(0x4de)+_0x2f757a(0x45b)+_0x2f757a(0x44e)+_0x2f757a(0x1b6)+'ight:\x20700;'+_0x2f757a(0x535)+_0x2f757a(0x658)+'panellAjus'+'tosVent\x20.a'+_0x2f757a(0x838)+_0x2f757a(0x2a4)+('\x20\x20width:\x201'+_0x2f757a(0x1fa)+_0x2f757a(0x719)+_0x2f757a(0x62b)+_0x2f757a(0x5a8)+'\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20'+_0x2f757a(0x708)+_0x2f757a(0x71e)+'\x20\x20\x20\x20\x20\x20\x20\x20}\x0a'+_0x2f757a(0x5c4)+_0x2f757a(0x213)+'osVent\x20.aj'+_0x2f757a(0x436)+_0x2f757a(0x260)+_0x2f757a(0x1f4)+_0x2f757a(0x30e)+_0x2f757a(0x837)+_0x2f757a(0x813)+_0x2f757a(0x40a)+_0x2f757a(0x94)+':\x201px\x20soli'+_0x2f757a(0x88e)+',255,255,0'+'.1);\x0a\x20\x20\x20\x20\x20'+_0x2f757a(0xa0)+_0x2f757a(0x5a6)+_0x2f757a(0x48b)+_0x2f757a(0x699)+_0x2f757a(0x1d5)+_0x2f757a(0x40a)+_0x2f757a(0x95)+'eight:\x20600'+';\x0a\x20\x20\x20\x20\x20\x20\x20\x20'+_0x2f757a(0x6c6)+_0x2f757a(0x138)+_0x2f757a(0x70b)+_0x2f757a(0x3bd)+_0x2f757a(0x87c)+_0x2f757a(0x555)+'\x20\x20\x20\x20\x20\x20\x20\x20cu'+_0x2f757a(0x34f)+_0x2f757a(0xd0)+_0x2f757a(0x3a3)+_0x2f757a(0x214)+_0x2f757a(0x516)+_0x2f757a(0x2a4)+_0x2f757a(0x41d)+_0x2f757a(0x2be)+';\x0a\x20\x20\x20\x20\x20\x20\x20\x20'+'}\x0a\x20\x20\x20\x20\x20\x20\x20\x20'+'#panellAju'+_0x2f757a(0x72d)+'aj-toggle-'+_0x2f757a(0x19f)+_0x2f757a(0x2c3)+_0x2f757a(0x320)+_0x2f757a(0x28e)+_0x2f757a(0x54f)+_0x2f757a(0x74c)+_0x2f757a(0x40a)+'\x20\x20\x20\x20border'+_0x2f757a(0x71d)+_0x2f757a(0x2e8)+_0x2f757a(0x509)+_0x2f757a(0x702)+'\x20\x20\x20\x20\x20color'+_0x2f757a(0x6cd)+_0x2f757a(0x535)+_0x2f757a(0x658)+_0x2f757a(0x73d)+'tosVent\x20.a'+'j-toggle-b'+_0x2f757a(0x640)+_0x2f757a(0x33f)+_0x2f757a(0x43a)+_0x2f757a(0x611)+'ellAjustos'+_0x2f757a(0x22f)+'egmented\x20{'+_0x2f757a(0x44e)+_0x2f757a(0x169)+_0x2f757a(0x33a)+_0x2f757a(0x2a4)+'background'+_0x2f757a(0x2df)+',255,255,0'+_0x2f757a(0x6b7)+_0x2f757a(0x293)+_0x2f757a(0x25f)+_0x2f757a(0x48f)+_0x2f757a(0x2a4)+_0x2f757a(0x768)+_0x2f757a(0x529)+_0x2f757a(0x713)+_0x2f757a(0x289)+'\x20\x20\x20\x20}\x0a\x20\x20\x20\x20'+'\x20\x20\x20\x20#panel'+_0x2f757a(0x64c)+_0x2f757a(0x7b7)+_0x2f757a(0x10e))+(_0x2f757a(0x180)+_0x2f757a(0x43d)+_0x2f757a(0x357)+_0x2f757a(0x180)+_0x2f757a(0x276)+_0x2f757a(0x82e)+_0x2f757a(0x304)+_0x2f757a(0x808)+_0x2f757a(0x44e)+_0x2f757a(0x1d9)+_0x2f757a(0x447)+_0x2f757a(0x2a4)+'\x20\x20font-wei'+_0x2f757a(0x815)+_0x2f757a(0x2a4)+'\x20\x20padding:'+'\x205px\x209px;\x0a'+_0x2f757a(0x2a4)+_0x2f757a(0x3b5)+_0x2f757a(0x588)+_0x2f757a(0x40a)+_0x2f757a(0xdc)+':\x20pointer;'+_0x2f757a(0x44e)+_0x2f757a(0x7ac)+_0x2f757a(0x10a)+'.2s;\x0a\x20\x20\x20\x20\x20'+_0x2f757a(0x4ea)+_0x2f757a(0x10c)+_0x2f757a(0x6a4)+_0x2f757a(0x817)+_0x2f757a(0x611)+_0x2f757a(0x519)+_0x2f757a(0x22f)+_0x2f757a(0x41c)+_0x2f757a(0x220)+_0x2f757a(0x379)+_0x2f757a(0x455)+'gba(255,\x202'+_0x2f757a(0x85c)+_0x2f757a(0x52e)+'\x20\x20\x20\x20\x20\x20colo'+_0x2f757a(0x469)+_0x2f757a(0x40a)+_0x2f757a(0x270)+_0x2f757a(0x193)+_0x2f757a(0x72d)+_0x2f757a(0x128)+_0x2f757a(0x7f6)+_0x2f757a(0x9a)+'lay:\x20flex;'+_0x2f757a(0x44e)+_0x2f757a(0x632)+_0x2f757a(0x70b)+_0x2f757a(0x1a1)+_0x2f757a(0x5a7)+'ustosVent\x20'+_0x2f757a(0x4ec)+'es\x20span\x20{\x0a'+_0x2f757a(0x2a4)+'\x20\x20width:\x201'+_0x2f757a(0x679)+_0x2f757a(0x332)+_0x2f757a(0x6cf)+_0x2f757a(0x44e)+_0x2f757a(0x533)+_0x2f757a(0x37f)+_0x2f757a(0x241)+_0x2f757a(0x3bd)+_0x2f757a(0x822)+'id\x20rgba(25'+_0x2f757a(0x7da)+_0x2f757a(0x56b)+_0x2f757a(0x4d1)+_0x2f757a(0x340)+'nter;\x0a\x20\x20\x20\x20'+_0x2f757a(0x1eb)+_0x2f757a(0x3ef)+_0x2f757a(0x6d0)+_0x2f757a(0x535)+_0x2f757a(0x658)+_0x2f757a(0x73d)+_0x2f757a(0x727)+_0x2f757a(0x5f0)+_0x2f757a(0xd4)+'r\x20{\x0a\x20\x20\x20\x20\x20\x20'+_0x2f757a(0x753)+_0x2f757a(0x22a)+_0x2f757a(0x6cb)+_0x2f757a(0x2a4)+_0x2f757a(0x60b)+_0x2f757a(0x49b)+_0x2f757a(0x290)+_0x2f757a(0x75f)+_0x2f757a(0x1de)+_0x2f757a(0x6fc)+_0x2f757a(0x91)+_0x2f757a(0x45c)+_0x2f757a(0x4e0)+_0x2f757a(0x1e3))+(_0x2f757a(0x558)+_0x2f757a(0x549)+_0x2f757a(0x46f)+_0x2f757a(0x85d)+_0x2f757a(0x57e)+_0x2f757a(0x534)+'stos::-web'+'kit-scroll'+_0x2f757a(0x7d1)+_0x2f757a(0x703)+_0x2f757a(0x6f8)+'0;\x20border-'+_0x2f757a(0x886)+_0x2f757a(0x79b)+'\x20\x20\x20\x20@media'+_0x2f757a(0x202)+_0x2f757a(0x721)+_0x2f757a(0x2c3)+'\x20\x20\x20\x20#panel'+_0x2f757a(0x64c)+_0x2f757a(0x697)+_0x2f757a(0x2a4)+'\x20width:\x2010'+_0x2f757a(0x466)+_0x2f757a(0x487)+_0x2f757a(0x2a4)+'\x20max-width'+':\x20100vw\x20!i'+_0x2f757a(0x403)+_0x2f757a(0x2a4)+_0x2f757a(0x75f)+_0x2f757a(0x1d7)),document[_0x2f757a(0x1cd)][_0x2f757a(0x575)+'d'](_0x17c20e);}window[_0x1ec428(0x741)+_0x1ec428(0x452)](_0x1ec428(0x616),function(_0x1d2e95){const _0x3f4acb=_0x1ec428;totesLesHores&&totesLesHores[_0x3f4acb(0x526)]>0x0&&(construirGraellaHores(),construirPanellParametres(),mostrarHora(curIdx)),typeof window[_0x3f4acb(0x5dd)+_0x3f4acb(0x498)]===_0x3f4acb(0x223)&&window[_0x3f4acb(0x5dd)+_0x3f4acb(0x498)]();}),window[_0x1ec428(0x741)+_0x1ec428(0x452)](_0x1ec428(0x266),function(){const _0x4a2f49=_0x1ec428;console[_0x4a2f49(0x73a)](_0x4a2f49(0x37b)+_0x4a2f49(0x45a)+_0x4a2f49(0x2b5)),totesLesHores&&totesLesHores[_0x4a2f49(0x526)]>0x0&&(construirGraellaHores(),construirPanellParametres(),mostrarHora(0x0)),typeof seleccionarVariable===_0x4a2f49(0x223)&&seleccionarVariable('st',!![]),typeof window[_0x4a2f49(0x5dd)+'lay']==='function'&&window[_0x4a2f49(0x5dd)+_0x4a2f49(0x498)]();}),(function(){const _0x1836fc=_0x1ec428,_0x1fbcd5=map[_0x1836fc(0x190)+'er'](),_0x2bed55=_0x1836fc(0x825)+_0x1836fc(0x374)+_0x1836fc(0x5af)+'w.w3.org/2'+_0x1836fc(0x24a)+_0x1836fc(0x505)+'height=\x2248'+_0x1836fc(0x553)+_0x1836fc(0x2e0)+_0x1836fc(0x4c2)+_0x1836fc(0x829)+'\x20x1=\x226\x22\x20y1'+_0x1836fc(0x28c)+_0x1836fc(0x3e2)+_0x1836fc(0x63d)+'#030303\x22\x20s'+_0x1836fc(0x694)+_0x1836fc(0x6af)+_0x1836fc(0x806)+'=\x22round\x22/>'+_0x1836fc(0x44e)+_0x1836fc(0x430)+_0x1836fc(0x1f3)+'24\x22\x20x2=\x2242'+_0x1836fc(0x117)+_0x1836fc(0x7d3)+_0x1836fc(0x60a)+_0x1836fc(0x4cc)+_0x1836fc(0x1b1)+_0x1836fc(0x2d5)+_0x1836fc(0x2f2)+'city=\x220.3\x22'+_0x1836fc(0x60b)+'=\x22translat'+_0x1836fc(0x6a8)+_0x1836fc(0x44e)+_0x1836fc(0x430)+_0x1836fc(0x146)+_0x1836fc(0x43f)+_0x1836fc(0x93)+_0x1836fc(0x3b7)+_0x1836fc(0x2f7)+_0x1836fc(0x4cc)+'\x222\x22\x20stroke'+'-linecap=\x22'+'round\x22/>\x0a\x20'+_0x1836fc(0x2a4)+_0x1836fc(0x3cb)+_0x1836fc(0x5ec)+_0x1836fc(0x624)+_0x1836fc(0x405)+_0x1836fc(0x40b)+_0x1836fc(0x208)+_0x1836fc(0x277)+_0x1836fc(0x680)+'inecap=\x22ro'+_0x1836fc(0x2b3)+_0x1836fc(0x489)+_0x1836fc(0x50f)+_0x1836fc(0x62a)+'1,\x201)\x22/>\x0a\x20'+_0x1836fc(0x2a4)+_0x1836fc(0x173)+'x=\x2224\x22\x20cy='+'\x2224\x22\x20r=\x223\x22'+_0x1836fc(0x345)+_0x1836fc(0x564)+_0x1836fc(0x2a4)+_0x1836fc(0x7fc)+_0x1836fc(0x3c3)+'24\x22\x20r=\x221.5'+'\x22\x20fill=\x22#f'+_0x1836fc(0xa3)+_0x1836fc(0x790)+_0x1836fc(0x4a1),_0x30733c=encodeURIComponent(_0x2bed55),_0x33242e=_0x1836fc(0x36e)+_0x1836fc(0x222)+_0x30733c;_0x1fbcd5[_0x1836fc(0x5c7)][_0x1836fc(0x84b)]='url(\x27'+_0x33242e+(_0x1836fc(0x12f)+_0x1836fc(0x4ae)),_0x1fbcd5[_0x1836fc(0x741)+_0x1836fc(0x452)]('mouseover',function(_0xb804c7){const _0x54d90d=_0x1836fc;_0x54d90d(0x590)===_0x54d90d(0x7ce)?(_0x2493e0['streamline'+_0x54d90d(0x31a)]=_0x2d28ac,_0xa3a0e0()):_0x1fbcd5[_0x54d90d(0x5c7)][_0x54d90d(0x84b)]='url(\x27'+_0x33242e+(_0x54d90d(0x12f)+_0x54d90d(0x4ae));}),_0x1fbcd5[_0x1836fc(0x741)+'stener'](_0x1836fc(0x668),function(_0x2ce263){const _0x3251a1=_0x1836fc;!_0x1fbcd5[_0x3251a1(0x288)](_0x2ce263['relatedTar'+'get'])&&(_0x1fbcd5['style'][_0x3251a1(0x84b)]='');});const _0x465d1c=document[_0x1836fc(0x1d2)+_0x1836fc(0x493)](_0x1836fc(0x5c7));_0x465d1c[_0x1836fc(0x615)+'t']=_0x1836fc(0x658)+_0x1836fc(0x6fd)+_0x1836fc(0x548)+_0x1836fc(0x4ba)+'or:\x20url(\x27'+_0x33242e+('\x27)\x2024\x2024,\x20'+_0x1836fc(0x3d7)+_0x1836fc(0xf2)+_0x1836fc(0x40a)+'}\x0a\x20\x20\x20\x20\x20\x20\x20\x20'+_0x1836fc(0x14a)+_0x1836fc(0x4fc)+_0x1836fc(0x12a)+_0x1836fc(0x39d)+_0x1836fc(0x16b)+'leaflet-po'+_0x1836fc(0x14c)+_0x1836fc(0x612)+_0x1836fc(0x40c)+_0x1836fc(0x7ee)+'\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20'+'\x20cursor:\x20p'+_0x1836fc(0x165)+'portant;\x0a\x20'+_0x1836fc(0x3b8)+_0x1836fc(0x81c)+_0x1836fc(0x770)+_0x1836fc(0x396)+_0x1836fc(0x55f)+_0x1836fc(0x477)+'ease;\x0a\x20\x20\x20\x20'+_0x1836fc(0x42d)),document[_0x1836fc(0x1cd)][_0x1836fc(0x575)+'d'](_0x465d1c);}()),(function(){const _0x50eb54={'lon_min':-4.5,'lon_max':4.8,'lat_min':0x26,'lat_max':44.5};function _0x6a21bd(){const _0x4997d1=_0x4863;if(!window[_0x4997d1(0x12b)+'er']){if(_0x4997d1(0x47e)!=='hexqu')_0x4f70d1[_0x4997d1(0x784)](0x0,0x0,_0x34eb12[_0x4997d1(0x3af)],_0x50314f[_0x4997d1(0x408)]);else{setTimeout(_0x6a21bd,0xc8);return;}}const _0x2f40bd=window[_0x4997d1(0x12b)+'er'],_0x4b77e7=_0x2f40bd[_0x4997d1(0x471)];map[_0x4997d1(0x5d4)](_0x4997d1(0x81b)+_0x4997d1(0x1b7),_0x4b77e7,_0x2f40bd);function _0x35cf68(){const _0x38c309=_0x4997d1;if(!_0x2f40bd[_0x38c309(0x3a7)]||!_0x2f40bd[_0x38c309(0x463)])return;if(_0x2f40bd[_0x38c309(0x1df)+'aw'])_0x2f40bd[_0x38c309(0x644)+_0x38c309(0xcc)]();const _0x23234d=_0x2f40bd[_0x38c309(0x463)],_0x5e337e=_0x23234d[_0x38c309(0x19d)](),_0x3305ce=_0x2f40bd[_0x38c309(0x42c)];_0x3305ce[_0x38c309(0x3af)]=_0x5e337e['x'],_0x3305ce['height']=_0x5e337e['y'];const _0x46bbac=_0x3305ce[_0x38c309(0x587)]('2d');L[_0x38c309(0xa2)][_0x38c309(0x888)+'n'](_0x3305ce,_0x23234d[_0x38c309(0x3fd)+_0x38c309(0x80b)+_0x38c309(0x814)]([0x0,0x0]));const _0x2b48f5=_0x23234d[_0x38c309(0xcd)+_0x38c309(0x59f)+'nt'](L['latLng'](_0x50eb54[_0x38c309(0x6ff)],_0x50eb54['lon_min'])),_0xb2f5a2=_0x23234d['latLngToCo'+_0x38c309(0x59f)+'nt'](L['latLng'](_0x50eb54[_0x38c309(0x66f)],_0x50eb54[_0x38c309(0xa9)])),_0x5e9597=_0x2b48f5['x'],_0x271958=_0x2b48f5['y'],_0x3fc6bf=_0xb2f5a2['x']-_0x2b48f5['x'],_0x52d178=_0xb2f5a2['y']-_0x2b48f5['y'];_0x46bbac[_0x38c309(0x784)](0x0,0x0,_0x3305ce[_0x38c309(0x3af)],_0x3305ce['height']),_0x46bbac[_0x38c309(0xb5)]=_0x38c309(0xb9),_0x46bbac[_0x38c309(0x659)](0x0,0x0,_0x3305ce[_0x38c309(0x3af)],Math[_0x38c309(0x7a4)](0x0,_0x271958)),_0x46bbac['fillRect'](0x0,_0x271958+_0x52d178,_0x3305ce[_0x38c309(0x3af)],_0x3305ce['height']-(_0x271958+_0x52d178)),_0x46bbac['fillRect'](0x0,_0x271958,Math[_0x38c309(0x7a4)](0x0,_0x5e9597),_0x52d178),_0x46bbac[_0x38c309(0x659)](_0x5e9597+_0x3fc6bf,_0x271958,_0x3305ce[_0x38c309(0x3af)]-(_0x5e9597+_0x3fc6bf),_0x52d178);const _0x210338=getCoordenadesPer(_0x2f40bd['_data'],variableActiva),_0x58329c=_0x210338[_0x38c309(0x2aa)],_0x5af440=_0x210338[_0x38c309(0x2c7)],_0x531507=Math[_0x38c309(0x7a4)](_0x58329c[0x0],_0x58329c[_0x58329c[_0x38c309(0x526)]-0x1]),_0x27483b=Math[_0x38c309(0x5ac)](_0x58329c[0x0],_0x58329c[_0x58329c['length']-0x1]),_0x417e84=Math[_0x38c309(0x5ac)](_0x5af440[0x0],_0x5af440[_0x5af440['length']-0x1]),_0x4d658b=Math[_0x38c309(0x7a4)](_0x5af440[0x0],_0x5af440[_0x5af440[_0x38c309(0x526)]-0x1]),_0xf1b10c=_0x23234d[_0x38c309(0xcd)+_0x38c309(0x59f)+'nt'](L[_0x38c309(0x96)](_0x531507,_0x417e84)),_0xb48ce9=_0x23234d[_0x38c309(0xcd)+_0x38c309(0x59f)+'nt'](L[_0x38c309(0x96)](_0x27483b,_0x4d658b)),_0x548679=_0xf1b10c['x'],_0xb54dd4=_0xf1b10c['y'],_0x2eaf72=_0xb48ce9['x']-_0xf1b10c['x'],_0x4cb354=_0xb48ce9['y']-_0xf1b10c['y'];_0x2f40bd[_0x38c309(0x3ff)]&&_0x2eaf72>0x0&&_0x4cb354>0x0&&(_0x46bbac['save'](),_0x46bbac[_0x38c309(0x73f)+_0x38c309(0x580)+'d']=!![],_0x46bbac[_0x38c309(0x73f)+'hingQualit'+'y']=_0x38c309(0x24c),_0x46bbac[_0x38c309(0x63c)](_0x2f40bd['_offscreen'],_0x548679,_0xb54dd4,_0x2eaf72,_0x4cb354),_0x46bbac[_0x38c309(0x61c)]()),_0x2f40bd[_0x38c309(0x46e)+'d'](_0x46bbac,getPaleta(variableActiva)),actualitzarCapcaleraParametre(),redibuixarVent();}_0x2f40bd[_0x4997d1(0x471)]=_0x35cf68,map[_0x4997d1(0x5d4)](_0x4997d1(0x72a),_0x35cf68),map['on'](_0x4997d1(0x317)+'nd\x20zoomend',_0x35cf68),_0x2f40bd['_needsRedr'+'aw']=!![],_0x35cf68();}_0x6a21bd();}());function inicialitzarCercaParametres(){const _0x5a969c=_0x1ec428,_0xe7afc=document['getElement'+'ById']('parameter_'+_0x5a969c(0x861));if(!_0xe7afc)return;_0xe7afc['addEventLi'+_0x5a969c(0x452)](_0x5a969c(0x607),function(){const _0x6b045b=_0x5a969c,_0x549088=this['value'][_0x6b045b(0xe6)+'e']()['trim'](),_0x3fbd1e=document['getElement'+_0x6b045b(0x51e)](_0x6b045b(0x6d2)+_0x6b045b(0x636));if(!_0x3fbd1e)return;const _0x42bb02=_0x3fbd1e[_0x6b045b(0x847)+'torAll']('.param-row'+',\x20.param-g'+'roup-title'+_0x6b045b(0x7ff)+_0x6b045b(0x30c)+_0x6b045b(0x65e)+_0x6b045b(0x28f)+_0x6b045b(0x65e)+'rdio-cos');if(!_0x549088){if(_0x6b045b(0x6e3)!=='DbyHA')_0x367a10[_0x6b045b(0x25d)](_0x16fd5c=>{const _0x4a5b26=_0x6b045b,_0x4a1b57=_0x2cd09e(_0x16fd5c,'param-row\x20'+_0x4a5b26(0x1a0)+_0x4a5b26(0x484));_0x4a1b57&&(_0x4388d3[_0x4a5b26(0x575)+'d'](_0x4a1b57),_0x16ffc8[_0x4a5b26(0x4e7)](_0x16fd5c));}),_0x521905['appendChil'+'d'](_0x407d3f());else{_0x42bb02[_0x6b045b(0x25d)](_0x543d88=>_0x543d88[_0x6b045b(0x5c7)][_0x6b045b(0x108)]=''),document[_0x6b045b(0x847)+'torAll']('.param-aco'+_0x6b045b(0x1ed))[_0x6b045b(0x25d)](_0x8c552=>{const _0x122b8b=_0x6b045b;_0x122b8b(0x653)===_0x122b8b(0x252)?_0xbff4f0[_0x5e75d9+0x3]=0x0:_0x8c552[_0x122b8b(0x5c7)][_0x122b8b(0x108)]=_0x122b8b(0x238);}),document['querySelec'+'torAll'](_0x6b045b(0x65e)+_0x6b045b(0x2f3)+_0x6b045b(0x7f5)+_0x6b045b(0x245))['forEach'](_0x266e79=>{const _0x14cb25=_0x6b045b;_0x266e79[_0x14cb25(0x615)+'t']='▸';});return;}}_0x42bb02[_0x6b045b(0x25d)](_0x5df240=>{const _0x4778aa=_0x6b045b;(_0x5df240[_0x4778aa(0x6bb)]['contains']('param-sepa'+'rador')||_0x5df240['classList']['contains'](_0x4778aa(0x676)+_0x4778aa(0x1a5)))&&(_0x5df240[_0x4778aa(0x5c7)][_0x4778aa(0x108)]=_0x4778aa(0x238));});const _0x30958c=_0x3fbd1e[_0x6b045b(0x847)+_0x6b045b(0x6d7)]('.param-row');let _0xf941fb=![];_0x30958c[_0x6b045b(0x25d)](_0x5c8fbf=>{const _0x48127d=_0x6b045b,_0x171422=_0x5c8fbf['textConten'+'t'][_0x48127d(0xe6)+'e'](),_0x24c557=_0x5c8fbf[_0x48127d(0x65a)][_0x48127d(0x85b)]||'';if(_0x171422[_0x48127d(0x337)](_0x549088)||_0x24c557[_0x48127d(0x337)](_0x549088)){if(_0x48127d(0x76d)!==_0x48127d(0x55e))_0x5c8fbf[_0x48127d(0x5c7)][_0x48127d(0x108)]='',_0xf941fb=!![];else{if(_0xf7ecdc>=_0x569084[_0x3bc3ce]['v']&&_0xae269d<=_0x43b978[_0x357f1d+0x1]['v']){const _0x5bdcf3=(_0x524113-_0x384e48[_0x3d45e9]['v'])/(_0x30b8c8[_0xd9e2b9+0x1]['v']-_0x3fb3b9[_0x1e530b]['v']),_0x4eb63d=(_0x15c050,_0x4f685b)=>_0xd4507[_0x48127d(0x7a7)](_0x15c050+(_0x4f685b-_0x15c050)*_0x5bdcf3);return{'r':_0x4eb63d(_0x32ab50[_0x25728a]['r'],_0x47c1c4[_0x5ca20a+0x1]['r']),'g':_0x4eb63d(_0x325e9a[_0x4d70e5]['g'],_0x3dff0b[_0x3c037a+0x1]['g']),'b':_0x4eb63d(_0x4f5cb3[_0x36c214]['b'],_0x3dc700[_0x50f5cb+0x1]['b']),'a':_0x4eb63d(_0x272436[_0x14f82a]['a']??0xdc,_0x1c3aaa[_0x5ac3b4+0x1]['a']??0xdc)};}}}else _0x5c8fbf['style'][_0x48127d(0x108)]=_0x48127d(0x238);});const _0x33846d=_0x3fbd1e[_0x6b045b(0x847)+_0x6b045b(0x6d7)](_0x6b045b(0x65e)+_0x6b045b(0x54d));_0x33846d[_0x6b045b(0x25d)](_0x15519f=>{const _0x1dd031=_0x6b045b,_0x331132=_0x15519f[_0x1dd031(0x771)+_0x1dd031(0x2bc)];if(!_0x331132||!_0x331132['classList'][_0x1dd031(0x288)](_0x1dd031(0x7f5)+_0x1dd031(0x71b)))return;const _0x44398f=_0x331132[_0x1dd031(0x847)+_0x1dd031(0x6d7)](_0x1dd031(0x7ba)+_0x1dd031(0x13b)+'isplay:\x22]:'+'not([style'+'*=\x22display'+_0x1dd031(0x127))[_0x1dd031(0x526)]>0x0;_0x44398f?(_0x15519f[_0x1dd031(0x5c7)]['display']='',_0x331132[_0x1dd031(0x5c7)][_0x1dd031(0x108)]=_0x1dd031(0x59a),_0x15519f[_0x1dd031(0x847)+_0x1dd031(0x36b)](_0x1dd031(0x65e)+_0x1dd031(0x554)+'a')[_0x1dd031(0x615)+'t']='▾'):(_0x15519f[_0x1dd031(0x5c7)]['display']='none',_0x331132[_0x1dd031(0x5c7)]['display']=_0x1dd031(0x238));});let _0x452640=_0x3fbd1e[_0x6b045b(0x847)+_0x6b045b(0x36b)](_0x6b045b(0x4b9)+'t');if(!_0xf941fb)!_0x452640&&(_0x6b045b(0x216)==='ekhbc'?_0x2a0136[_0x6b045b(0x3e3)](_0x53bd04):(_0x452640=document[_0x6b045b(0x1d2)+_0x6b045b(0x493)](_0x6b045b(0x308)),_0x452640[_0x6b045b(0x297)]=_0x6b045b(0x6c5),_0x452640[_0x6b045b(0x5c7)][_0x6b045b(0x599)]=_0x6b045b(0x296)+_0x6b045b(0x4a9)+'g:20px\x2016p'+_0x6b045b(0x250)+_0x6b045b(0x15b)+_0x6b045b(0x341)+_0x6b045b(0x188),_0x3fbd1e[_0x6b045b(0x575)+'d'](_0x452640))),_0x452640[_0x6b045b(0x615)+'t']=_0x6b045b(0x486)+'\x20trobat\x20pa'+_0x6b045b(0x4cb)+_0x6b045b(0x448)+_0x549088+'\x22',_0x452640[_0x6b045b(0x5c7)][_0x6b045b(0x108)]='';else _0x452640&&(_0x452640[_0x6b045b(0x5c7)][_0x6b045b(0x108)]=_0x6b045b(0x238));});}const originalBuild=construirPanellParametres;construirPanellParametres=function(){const _0x5778bd=_0x1ec428;originalBuild[_0x5778bd(0x62d)](this),setTimeout(inicialitzarCercaParametres,0x64);},inicialitzarCanvasVent(),crearPanellAjustos(),document[_0x1ec428(0x741)+_0x1ec428(0x452)](_0x1ec428(0x686)+_0x1ec428(0x572),function(){setTimeout(()=>{inicialitzarGeojson();},0x1f4);}),inicialitzarCarregaSotaDemanda(),window[_0x1ec428(0x5fa)+'rt']=![],window[_0x1ec428(0x6a2)+_0x1ec428(0x16e)]=variableActiva||'st';function actualitzarBloqueigMapa(){}(function(){'use strict';const _0x2dd9d2=_0x1ec428;let _0x139761=![],_0x273a67=null,_0x517d5c=0x5dc,_0x4112f4=null,_0x151731=null;const _0x3bc1b6={'Súper\x20megaràpid':0x32,'Súper\x20megaràpid':0x64,'Molt\x20ràpid':0xfa,'Ràpid':0x320,'Normal':0x5dc,'Lent':0x9c4,'Molt\x20lent':0xfa0};function _0x3b858a(){const _0x4f5f76=_0x4863,_0x4e2379=document[_0x4f5f76(0x7b2)+_0x4f5f76(0x51e)](_0x4f5f76(0x26c));if(!_0x4e2379)return;if(document['getElement'+_0x4f5f76(0x51e)](_0x4f5f76(0x527)+'nimacio'))return;const _0xaa7522=document['createElem'+_0x4f5f76(0x493)](_0x4f5f76(0x308));_0xaa7522[_0x4f5f76(0x5c7)][_0x4f5f76(0x599)]=_0x4f5f76(0x44e)+_0x4f5f76(0x169)+':\x20flex;\x0a\x20\x20'+_0x4f5f76(0x2a4)+'align-item'+_0x4f5f76(0x68d)+_0x4f5f76(0x44e)+_0x4f5f76(0x64d)+_0x4f5f76(0x70b)+_0x4f5f76(0x363)+_0x4f5f76(0x778)+_0x4f5f76(0x70b)+_0x4f5f76(0x283)+'ng:\x200\x204px;'+_0x4f5f76(0x44e)+_0x4f5f76(0x533)+'left:\x201px\x20'+'solid\x20rgba'+_0x4f5f76(0x883)+_0x4f5f76(0x4b4)+'\x20\x20\x20\x20\x20\x20\x20\x20';const _0x55cff9=document[_0x4f5f76(0x1d2)+_0x4f5f76(0x493)]('span');_0x55cff9[_0x4f5f76(0x470)]=_0x4f5f76(0x2f6)+_0x4f5f76(0x99)+_0x4f5f76(0x2cf)+_0x4f5f76(0x2fb)+_0x4f5f76(0x341)+_0x4f5f76(0x54b)+'#556680;\x22>'+'</i>',_0x55cff9[_0x4f5f76(0x5c7)]['cssText']=_0x4f5f76(0x341)+_0x4f5f76(0x54b)+'#556680;',_0xaa7522[_0x4f5f76(0x575)+'d'](_0x55cff9);const _0x3fd890=document[_0x4f5f76(0x1d2)+'ent'](_0x4f5f76(0x4a2));_0x3fd890['id']=_0x4f5f76(0x527)+_0x4f5f76(0x34c),_0x3fd890[_0x4f5f76(0x5c7)][_0x4f5f76(0x599)]='\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20'+_0x4f5f76(0x4b5)+'und:\x20rgba('+_0x4f5f76(0x6c8)+'5,0.05);\x0a\x20'+_0x4f5f76(0x2a4)+_0x4f5f76(0x6b1)+_0x4f5f76(0x6ba)+_0x4f5f76(0x7ef)+_0x4f5f76(0x6e4)+_0x4f5f76(0x702)+_0x4f5f76(0x3bd)+_0x4f5f76(0x87c)+_0x4f5f76(0x4b3)+_0x4f5f76(0xa0)+'or:\x20#8899b'+'b;\x0a\x20\x20\x20\x20\x20\x20\x20'+_0x4f5f76(0x699)+_0x4f5f76(0x723)+'\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20'+_0x4f5f76(0x5b8)+_0x4f5f76(0x168)+_0x4f5f76(0x44e)+_0x4f5f76(0x708)+_0x4f5f76(0x71e)+_0x4f5f76(0x2a4)+'\x20\x20font-fam'+'ily:\x20inher'+_0x4f5f76(0xa8)+_0x4f5f76(0x485)+_0x4f5f76(0x368)+_0x4f5f76(0x2a4)+_0x4f5f76(0x253)+_0x4f5f76(0x357)+_0x4f5f76(0x2bd)+_0x4f5f76(0x7a1)+'\x20all\x200.2s;'+_0x4f5f76(0x716),Object[_0x4f5f76(0x86a)](_0x3bc1b6)[_0x4f5f76(0x25d)](([_0x5344f1,_0x15f5fc])=>{const _0x518cf1=_0x4f5f76,_0x52ae94=document['createElem'+_0x518cf1(0x493)](_0x518cf1(0x313));_0x52ae94[_0x518cf1(0x3d0)]=_0x15f5fc,_0x52ae94[_0x518cf1(0x615)+'t']=_0x5344f1,_0x15f5fc===_0x517d5c&&(_0x518cf1(0x757)!=='xSejH'?_0x4c2aac[_0x518cf1(0x42c)]['style'][_0x518cf1(0x5c5)]=(_0x19f78c/0x64)[_0x518cf1(0x633)]():_0x52ae94[_0x518cf1(0x20c)]=!![]),_0x3fd890[_0x518cf1(0x575)+'d'](_0x52ae94);}),_0x3fd890[_0x4f5f76(0x741)+'stener'](_0x4f5f76(0x5ae),function(){const _0x526d1f=_0x4f5f76;_0x517d5c=parseInt(this[_0x526d1f(0x3d0)]);_0x139761&&_0x442c6a();try{_0x526d1f(0xd2)!==_0x526d1f(0xd2)?_0x401d6d():localStorage[_0x526d1f(0x6aa)]('tempestesc'+_0x526d1f(0x191)+_0x526d1f(0x121)+'o',_0x517d5c);}catch(_0x35d749){}}),_0xaa7522['appendChil'+'d'](_0x3fd890);const _0x509255=document[_0x4f5f76(0x7b2)+_0x4f5f76(0x51e)](_0x4f5f76(0x2f9));_0x509255?_0x509255['after'](_0xaa7522):_0x4e2379[_0x4f5f76(0x575)+'d'](_0xaa7522);}function _0x442c6a(){_0x273a67&&(clearInterval(_0x273a67),_0x273a67=null),_0x139761&&(_0x273a67=setInterval(_0x19919a,_0x517d5c));}function _0x19919a(){const _0x5a9b84=_0x4863;_0x4112f4=Date[_0x5a9b84(0x76b)]();let _0xf7558a=curIdx+0x1;_0xf7558a>=totesLesHores[_0x5a9b84(0x526)]&&(_0xf7558a=0x0),typeof mostrarHora===_0x5a9b84(0x223)&&mostrarHora(_0xf7558a),_0x8cc6ac();}function _0x8cc6ac(){const _0x279582=_0x4863,_0x24e655=document[_0x279582(0x7b2)+_0x279582(0x51e)](_0x279582(0x199)+_0x279582(0x194));if(!_0x24e655)return;if(!_0x139761){if('ddfoX'!=='ddfoX')_0x5e6699='su',_0x3bf28d='sv';else{_0x24e655[_0x279582(0x615)+'t']='';return;}}const _0x4708b6=Date[_0x279582(0x76b)](),_0x3c2bb8=_0x4708b6-(_0x4112f4||_0x4708b6),_0x30300f=Math[_0x279582(0x7a4)](0x0,Math[_0x279582(0x7a7)]((_0x517d5c-_0x3c2bb8)/0x3e8));_0x24e655[_0x279582(0x615)+'t']=_0x30300f>0x0?'⏱\x20'+_0x30300f+'s':_0x279582(0x237);}function _0x4db92a(){const _0x3cc08c=_0x4863,_0x45fb24=document[_0x3cc08c(0x7b2)+_0x3cc08c(0x51e)](_0x3cc08c(0x199)+_0x3cc08c(0x194));if(_0x45fb24)_0x45fb24[_0x3cc08c(0x515)]();const _0x21a12b=document[_0x3cc08c(0x7b2)+_0x3cc08c(0x51e)](_0x3cc08c(0x2f9));if(!_0x21a12b)return;const _0x54533d=document['createElem'+_0x3cc08c(0x493)]('span');_0x54533d['id']=_0x3cc08c(0x199)+'ntAnimacio',_0x54533d[_0x3cc08c(0x5c7)][_0x3cc08c(0x599)]=_0x3cc08c(0x44e)+_0x3cc08c(0x1d9)+_0x3cc08c(0x149)+_0x3cc08c(0x2a4)+_0x3cc08c(0x7cc)+_0x3cc08c(0x6e0)+_0x3cc08c(0x777)+_0x3cc08c(0x1e0)+_0x3cc08c(0x765)+_0x3cc08c(0x2a9)+_0x3cc08c(0xb6)+_0x3cc08c(0x2a8)+_0x3cc08c(0x2a9)+_0x3cc08c(0x4e1)+_0x3cc08c(0x104)+'\x20\x20\x20\x20\x20\x20\x20\x20te'+_0x3cc08c(0x32b)+_0x3cc08c(0x3b6)+'\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20'+_0x3cc08c(0x4e6)+'y:\x20\x27Courie'+'r\x20New\x27,\x20mo'+_0x3cc08c(0x144)+_0x3cc08c(0x2a4)+_0x3cc08c(0x1ac)+'0.7;\x0a\x20\x20\x20\x20\x20'+_0x3cc08c(0x5f9),_0x54533d['textConten'+'t']=_0x3cc08c(0x80d),_0x21a12b[_0x3cc08c(0x798)](_0x54533d),_0x151731&&clearInterval(_0x151731),_0x151731=setInterval(_0x8cc6ac,0x1f4);}function _0x317dac(){const _0x474f25=_0x4863,_0x1947b3=document[_0x474f25(0x7b2)+'ById'](_0x474f25(0x2f9));if(!_0x1947b3)return;if(!window[_0x474f25(0x264)+_0x474f25(0x381)]||window['totesLesHo'+_0x474f25(0x381)]['length']===0x0){console[_0x474f25(0xc9)](_0x474f25(0x269)+_0x474f25(0x43c)+_0x474f25(0x59e)+_0x474f25(0x868));return;}if(_0x139761){_0x273a67&&(clearInterval(_0x273a67),_0x273a67=null);_0x151731&&(clearInterval(_0x151731),_0x151731=null);_0x139761=![],_0x4112f4=null,_0x1947b3[_0x474f25(0x470)]=_0x474f25(0x7b3),_0x1947b3[_0x474f25(0x5c7)][_0x474f25(0x846)]=_0x474f25(0x424)+'55,255,0.0'+'4)',_0x1947b3[_0x474f25(0x5c7)]['color']=_0x474f25(0x66e),_0x1947b3[_0x474f25(0x4c8)]=_0x474f25(0x265)+_0x474f25(0x7b4)+'\x27hores';const _0x45faea=document[_0x474f25(0x7b2)+'ById'](_0x474f25(0x199)+'ntAnimacio');if(_0x45faea)_0x45faea['textConten'+'t']='';return;}_0x139761=!![],_0x4112f4=Date['now'](),_0x1947b3[_0x474f25(0x470)]=_0x474f25(0x82a),_0x1947b3[_0x474f25(0x5c7)]['background']=_0x474f25(0x424)+_0x474f25(0x3e6),_0x1947b3['style'][_0x474f25(0x4a0)]='#FFD700',_0x1947b3['title']=_0x474f25(0x2c9)+_0x474f25(0x123);if(_0x273a67)clearInterval(_0x273a67);_0x273a67=setInterval(_0x19919a,_0x517d5c),_0x4db92a(),setTimeout(()=>{const _0x2986bc=_0x474f25;if(_0x139761){if(_0x2986bc(0x685)!==_0x2986bc(0x685)){_0x5a663a[_0x2986bc(0x847)+_0x2986bc(0x36b)]('.param-aco'+'rdio-fletx'+'a')['textConten'+'t']='▾';const _0x503630=_0x860782[_0x2986bc(0x771)+'tSibling'];if(_0x503630&&_0x503630[_0x2986bc(0x6bb)][_0x2986bc(0x288)](_0x2986bc(0x7f5)+'dio-cos'))_0x503630['style'][_0x2986bc(0x108)]=_0x2986bc(0x59a);}else _0x19919a();}},0x64);}function _0x5a42eb(){const _0x39a361=_0x4863;try{const _0x61ef8e=localStorage[_0x39a361(0x858)](_0x39a361(0x648)+_0x39a361(0x191)+_0x39a361(0x121)+'o');if(_0x61ef8e){const _0x4fd304=parseInt(_0x61ef8e);Object[_0x39a361(0x48d)](_0x3bc1b6)[_0x39a361(0x337)](_0x4fd304)&&(_0x517d5c=_0x4fd304);}}catch(_0x46ad9f){}}function _0x3afe50(){const _0x15a3df=_0x4863;_0x5a42eb();if(!document[_0x15a3df(0x7b2)+_0x15a3df(0x51e)](_0x15a3df(0x2f9))){setTimeout(_0x3afe50,0xc8);return;}_0x3b858a();const _0xbc540b=document[_0x15a3df(0x7b2)+_0x15a3df(0x51e)](_0x15a3df(0x2f9));if(_0xbc540b){const _0x30fd29=_0xbc540b[_0x15a3df(0x47b)](!![]);_0xbc540b[_0x15a3df(0x5ee)][_0x15a3df(0x4ed)+'ld'](_0x30fd29,_0xbc540b),_0x30fd29[_0x15a3df(0x741)+_0x15a3df(0x452)]('click',_0x317dac);}console[_0x15a3df(0x73a)]('[Animació]'+'\x20Inicialit'+_0x15a3df(0x665)+_0x15a3df(0x610),_0x517d5c+'ms');}window[_0x2dd9d2(0x4ac)]={'toggle':_0x317dac,'setVelocitat':function(_0x2c5563){const _0x4ee3ac=_0x2dd9d2;if('Kvvxk'!==_0x4ee3ac(0x159)){_0x517d5c=_0x2c5563;if(_0x139761)_0x442c6a();try{localStorage['setItem'](_0x4ee3ac(0x648)+_0x4ee3ac(0x191)+_0x4ee3ac(0x121)+'o',_0x2c5563);}catch(_0x358633){}}else _0x2aba79['push'](_0x2425b5);},'estaActiva':function(){return _0x139761;},'getVelocitat':function(){return _0x517d5c;}},document[_0x2dd9d2(0x263)]==='loading'?document[_0x2dd9d2(0x741)+_0x2dd9d2(0x452)](_0x2dd9d2(0x686)+_0x2dd9d2(0x572),_0x3afe50):setTimeout(_0x3afe50,0x1f4);}()),console[_0x1ec428(0x73a)](_0x1ec428(0x704)+'carregat\x20—'+_0x1ec428(0x50c)+_0x1ec428(0x7a3)+_0x1ec428(0x843)+_0x1ec428(0x234)+_0x1ec428(0x377)+_0x1ec428(0x664)+_0x1ec428(0x243)+_0x1ec428(0x232));
+// ═══════════════════════════════════════════════════════════════════════
+//  mapa.js — VERSIÓ NETEJADA (SENSE CÀRREGA 3D EN CASCADA + SENSE DUPLICATS)
+//  🌪️ + SCP (risc supercèl·lula) + Calamarsa (mida cm)
+//  🔧 Normalització de claus WCS (bt108, ehi, cin, scp_wcs, tpw_700/850, etc.)
+//  🔧 FIX: carrera de condicions a assegurarHoraCarregada (mapa en blanc a 3D)
+//  🔧 FIX: cada hora es carrega NOMÉS quan l'usuari la clica (sota demanda)
+//  🔧 FIX: eliminat el sistema de precàrrega 3D en cascada (causava 30-40MB
+//          de descàrrega de cop en clicar la primera hora sense 3D)
+//  🔧 FIX: eliminades funcions/blocs duplicats (obtenirVentPerStreamlines,
+//          toggleVentMode/setStreamline*, actualitzarCapcaleraParametre,
+//          bloc "fons negre fora de zona")
+// ═══════════════════════════════════════════════════════════════════════
+
+const REGION = {
+    name: "Catalunya",
+    lon_min: 0.10,
+    lon_max: 3.60,
+    lat_min: 40.40,
+    lat_max: 42.95
+};
+
+const MAX_STEPS = 52;
+
+function ambCacheBusterDades(url) {
+    const sep = url.includes('?') ? '&' : '?';
+    return url + sep + '_cb=' + Date.now();
+}
+const DADES_PATH = 'dades';
+
+const VARS_SENSE_VENT = [
+    // ═══════════════════════════════════════════════════════════════
+    // 1. PRECIPITACIÓ I NEU
+    // ═══════════════════════════════════════════════════════════════
+    'rain', 'rain_1h', 'snow', 'graupel',
+    'tp', 'tgrp', 'tsnowp', 'precip_water',
+    'PRECIP__GROUND',
+    'NEIGE__GROUND',
+    'SNOW_DEPTH__GROUND_OR_WATER_SURFACE',
+    'WATER_EQUIVALENT_ACCUMULATED_SNOW__GROUND_OR_WATER_SURFACE',
+    'HTEURNEIGE__GROUND',
+    'NEIGE_SC__GROUND',
+    'RESR_NEIGE__GROUND',
+    'RR_SOL_GELE__GROUND',
+    'PRECIPITATION_TYPE_60_MIN__GROUND_OR_WATER_SURFACE',
+    'SEVERE_PRECIPITATION_TYPE_60_MIN__GROUND_OR_WATER_SURFACE',
+    'PRECIPITATION_TYPE_15_MIN__GROUND_OR_WATER_SURFACE',
+    'SEVERE_PRECIPITATION_TYPE_15_MIN__GROUND_OR_WATER_SURFACE',
+    'TOTAL_PRECIPITATION_RATE__GROUND_OR_WATER_SURFACE',
+
+    // ═══════════════════════════════════════════════════════════════
+    // 2. NÚVOLS
+    // ═══════════════════════════════════════════════════════════════
+    'low_cloud_cover', 'medium_cloud_cover', 'high_cloud_cover',
+    'TOTAL_CLOUD_COVER__GROUND_OR_WATER_SURFACE',
+    'BASE_NUAGE__GROUND',
+    'PLAFOND__GROUND',
+    'P__BASE_CB',
+    'P__TOP_CB',
+
+    // ═══════════════════════════════════════════════════════════════
+    // 3. PRESSIÓ I TEMPERATURA
+    // ═══════════════════════════════════════════════════════════════
+    'pressure_msl', 'sp',
+    'T__GROUND',
+    'TEMPERATURE__GROUND_OR_WATER_SURFACE',
+    'temp_min2m', 'temp_max2m',
+
+    // ═══════════════════════════════════════════════════════════════
+    // 4. INESTABILITAT I CONVECCIÓ
+    // ═══════════════════════════════════════════════════════════════
+    'el_m', 'lcl_m', 'lfc_m', 'lifted_index',
+
+    // ═══════════════════════════════════════════════════════════════
+    // 5. TORNADOS I SUPERCELLES
+    // ═══════════════════════════════════════════════════════════════
+    'scp', 'scp_wcs', 'stp', 'ehi', 'hail_cm',
+    'DIAG_GRELE__GROUND_OR_WATER_SURFACE',
+    'DIAG_GRELE__GROUND',
+    'HELICITE__GROUND',
+
+    // ═══════════════════════════════════════════════════════════════
+    // 6. SHEAR I SRH (NO VENT, SÓN ÍNDEXS)
+    // ═══════════════════════════════════════════════════════════════
+    'shear_03', 'shear_06', 'shear_06_eff',
+    'srh_01', 'srh_03', 'srh',
+
+    // ═══════════════════════════════════════════════════════════════
+    // 7. SATÈL·LIT
+    // ═══════════════════════════════════════════════════════════════
+    'bt108', 'bt62',
+    'BT__CHANNELS_108',
+    'BT__CHANNELS_62',
+
+    // ═══════════════════════════════════════════════════════════════
+    // 8. RADAR I LLAMPS
+    // ═══════════════════════════════════════════════════════════════
+    'radar_dbz', 'reflectivity_dbz', 'lightning', 'lightning_1h',
+    'REFLECTIVITY_MAX__GROUND_OR_WATER_SURFACE',
+    'REFLECTIVITY_MAX_DBZ__GROUND_OR_WATER_SURFACE',
+
+    // ═══════════════════════════════════════════════════════════════
+    // 9. ALTITUD I GEOPOTENCIAL
+    // ═══════════════════════════════════════════════════════════════
+    'altitud', 'spbl',
+    'geopotencial_500',
+    'GEOMETRIC_HEIGHT__GROUND_OR_WATER_SURFACE',
+    'PLANETARY_BOUNDARY_LAYER_HEIGHT__GROUND_OR_WATER_SURFACE',
+
+    // ═══════════════════════════════════════════════════════════════
+    // 10. ISOTERMES (ALTITUD PUNT DE ROSADA)
+    // ═══════════════════════════════════════════════════════════════
+    'ALTITUDE_ISOTERMA_0C',
+    'ALTITUDE_ISOTERMA_M10C',
+    'ALTITUDE__ISO_T_27315',
+    'ALTITUDE__ISO_TPW_27315',
+    'ALTITUDE__ISO_TPW_27415',
+    'ALTITUDE__ISO_TPW_27465',
+
+    // ═══════════════════════════════════════════════════════════════
+    // 11. AIGUA PRECIPITABLE (TPW)
+    // ═══════════════════════════════════════════════════════════════
+    'tpw_700', 'tpw_850',
+    'PRECIPITABLE_WATER__GROUND_OR_WATER_SURFACE',
+    'TPW_MITJANA',
+
+    // ═══════════════════════════════════════════════════════════════
+    // 12. GEL I PLUJA NÚVOLS (WCS 3D)
+    // ═══════════════════════════════════════════════════════════════
+    'ciwc_500',
+    'cld_rain_850',
+    'CIWC_MITJANA',
+    'CLD_RAIN_MITJANA',
+
+    // ═══════════════════════════════════════════════════════════════
+    // 13. PV SURFACES (GEOPOTENCIAL, THETA, VENT PV)
+    // ═══════════════════════════════════════════════════════════════
+    'GEOPOTENTIAL_PV1500',
+    'GEOPOTENTIAL_PV2000',
+    'THETA_PV1500',
+    'THETA_PV2000',
+    'U_PV1500',
+    'U_PV2000',
+    'V_PV1500',
+    'V_PV2000',
+    'WIND_PV1500',
+    'WIND_PV2000',
+    'FF__ISO_TP_1500',
+    'FF__ISO_TP_2000',
+
+    // ═══════════════════════════════════════════════════════════════
+    // 14. VISIBILITAT
+    // ═══════════════════════════════════════════════════════════════
+    'VISIBILITY_MINI_60MIN__GROUND_OR_WATER_SURFACE',
+    'VISIBILITY_MINI_PRECIP_60MIN__GROUND_OR_WATER_SURFACE',
+    'VISIBILITY_MINI_15MIN__GROUND_OR_WATER_SURFACE',
+    'VISIBILITY_MINI_PRECIP_15MIN__GROUND_OR_WATER_SURFACE',
+
+    // ═══════════════════════════════════════════════════════════════
+    // 15. TEMPERATURA 500hPa
+    // ═══════════════════════════════════════════════════════════════
+    'temperatura_500',
+];
+
+// ─── Configuració streamlines ──────────────────────────────────────
+window.ventEnabled = true;
+window.ventMode = 'streamlines';
+
+const wCfg = {
+    streamlineColor: 'black',
+    streamlineOpacity: 0.7,
+    streamlineWidth: 1.2,
+};
+
+// ─── MAPES BASE DISPONIBLES ─────────────────────────────────────────
+const MAPES_BASE = {
+    osm: {
+        url: 'https://geoserveis.icgc.cat/servei/catalunya/mapa-base/wmts/simplificat/MON3857NW/{z}/{x}/{y}.png',
+        opts: { attribution: '&copy; OpenStreetMap contributors', maxZoom: 19 },
+        nom: ' Mapa orogràfic ICGC'
+    },
+};
+let mapaBaseActiva = 'osm';
+
+// ─── MAPA ─────────────────────────────────────────────────────────
+const map = L.map('map', {
+    crs: L.CRS.EPSG3857,
+    zoomControl: false,
+    attributionControl: false,
+    preferCanvas: true,
+    minZoom: 6,
+    maxZoom: 19,
+}).setView([41.8, 1.8], 8)
+
+L.tileLayer(MAPES_BASE[mapaBaseActiva].url, MAPES_BASE[mapaBaseActiva].opts).addTo(map);
+
+map.createPane('paneDades');
+map.getPane('paneDades').style.zIndex = 400;
+map.getPane('paneDades').style.pointerEvents = 'none';
+
+map.createPane('paneVent');
+map.getPane('paneVent').style.zIndex = 500;
+map.getPane('paneVent').style.pointerEvents = 'none';
+
+map.createPane('paneGeojson');
+map.getPane('paneGeojson').style.zIndex = 650;
+map.getPane('paneGeojson').style.pointerEvents = 'auto';
+
+let capaMapaBase = L.tileLayer(MAPES_BASE[mapaBaseActiva].url, MAPES_BASE[mapaBaseActiva].opts).addTo(map);
+
+function canviarMapaBase(clau) {
+    const def = MAPES_BASE[clau];
+    if (!def) return;
+    map.removeLayer(capaMapaBase);
+    capaMapaBase = L.tileLayer(def.url, def.opts).addTo(map);
+    capaMapaBase.bringToBack();
+    mapaBaseActiva = clau;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  PALETES
+// ═══════════════════════════════════════════════════════════════════════
+
+const STOPS_TEMP = [
+    {v:-24,r:45,g:0,b:75},{v:-20,r:130,g:0,b:160},{v:-15,r:65,g:0,b:115},
+    {v:-10,r:0,g:0,b:255},{v:-5,r:0,g:135,b:255},{v:0,r:0,g:235,b:255},
+    {v:2,r:0,g:255,b:150},{v:5,r:0,g:200,b:0},{v:8,r:120,g:255,b:0},
+    {v:11,r:255,g:255,b:0},{v:14,r:255,g:255,b:170},{v:17,r:255,g:235,b:100},
+    {v:20,r:255,g:200,b:0},{v:23,r:255,g:140,b:0},{v:26,r:255,g:70,b:0},
+    {v:29,r:255,g:0,b:0},{v:32,r:180,g:0,b:0},{v:35,r:90,g:0,b:0},
+    {v:38,r:150,g:0,b:150},{v:42,r:255,g:0,b:255},{v:46,r:255,g:185,b:255}
+];
+
+const STOPS_TEMP_ALT = [
+    {v:-70,r:45,g:0,b:75},{v:-55,r:65,g:0,b:115},{v:-40,r:0,g:0,b:255},
+    {v:-30,r:0,g:135,b:255},{v:-20,r:0,g:235,b:255},{v:-10,r:0,g:255,b:150},
+    {v:0,r:0,g:200,b:0},{v:5,r:120,g:255,b:0},{v:10,r:255,g:255,b:0},
+    {v:15,r:255,g:200,b:0},{v:20,r:255,g:140,b:0},{v:25,r:255,g:70,b:0},
+    {v:30,r:255,g:0,b:0},{v:38,r:150,g:0,b:150}
+];
+
+const STOPS_VENT = [
+    {v:0,r:200,g:200,b:255},{v:5,r:150,g:200,b:255},{v:10,r:100,g:180,b:255},
+    {v:15,r:0,g:150,b:255},{v:20,r:0,g:200,b:220},{v:25,r:0,g:220,b:180},
+    {v:30,r:0,g:255,b:100},{v:35,r:50,g:255,b:0},{v:40,r:150,g:255,b:0},
+    {v:45,r:220,g:255,b:0},{v:50,r:255,g:255,b:0},{v:55,r:255,g:230,b:0},
+    {v:60,r:255,g:200,b:0},{v:65,r:255,g:170,b:0},{v:70,r:255,g:140,b:0},
+    {v:75,r:255,g:110,b:0},{v:80,r:255,g:80,b:0},{v:85,r:255,g:50,b:0},
+    {v:90,r:255,g:20,b:0},{v:95,r:255,g:0,b:0},{v:100,r:230,g:0,b:0},
+    {v:110,r:210,g:0,b:0},{v:120,r:190,g:0,b:30},{v:130,r:170,g:0,b:60},
+    {v:140,r:150,g:0,b:100},{v:150,r:130,g:0,b:140},{v:160,r:180,g:0,b:180},
+    {v:170,r:200,g:0,b:200},{v:180,r:220,g:20,b:220},{v:190,r:240,g:50,b:240},
+    {v:200,r:250,g:100,b:250},{v:220,r:255,g:150,b:255},{v:240,r:255,g:200,b:255},
+    {v:260,r:255,g:220,b:255},{v:280,r:255,g:240,b:255},{v:300,r:255,g:255,b:255}
+];
+
+const STOPS_VENT_UV = [
+    {v:-60,r:255,g:0,b:255},{v:-40,r:200,g:0,b:200},{v:-20,r:100,g:0,b:200},
+    {v:-10,r:0,g:100,b:255},{v:0,r:255,g:255,b:255},{v:10,r:255,g:100,b:0},
+    {v:20,r:200,g:0,b:100},{v:40,r:200,g:0,b:0},{v:60,r:100,g:0,b:0}
+];
+
+// ─── HUMITAT 2m ─────────────────────────────────────────────────────
+const STOPS_HUMITAT = [
+    {v:0,    r:200, g:190, b:150, a:255},
+    {v:3,    r:195, g:190, b:145, a:255},
+    {v:5,    r:190, g:190, b:140, a:255},
+    {v:8,    r:185, g:192, b:135, a:255},
+    {v:10,   r:180, g:195, b:130, a:255},
+    {v:12,   r:175, g:198, b:128, a:255},
+    {v:15,   r:170, g:200, b:125, a:255},
+    {v:18,   r:165, g:203, b:122, a:255},
+    {v:20,   r:158, g:208, b:118, a:255},
+    {v:23,   r:150, g:212, b:115, a:255},
+    {v:25,   r:142, g:216, b:112, a:255},
+    {v:28,   r:134, g:220, b:110, a:255},
+    {v:30,   r:126, g:224, b:108, a:255},
+    {v:33,   r:118, g:228, b:110, a:255},
+    {v:35,   r:110, g:230, b:115, a:255},
+    {v:38,   r:102, g:232, b:122, a:255},
+    {v:40,   r:94,  g:234, b:130, a:255},
+    {v:42,   r:86,  g:234, b:140, a:255},
+    {v:45,   r:78,  g:234, b:150, a:255},
+    {v:48,   r:70,  g:234, b:162, a:255},
+    {v:50,   r:64,  g:232, b:174, a:255},
+    {v:52,   r:58,  g:230, b:186, a:255},
+    {v:55,   r:52,  g:226, b:196, a:255},
+    {v:57,   r:48,  g:220, b:206, a:255},
+    {v:60,   r:44,  g:214, b:216, a:255},
+    {v:62,   r:42,  g:206, b:224, a:255},
+    {v:65,   r:40,  g:196, b:230, a:255},
+    {v:68,   r:38,  g:184, b:236, a:255},
+    {v:70,   r:36,  g:172, b:240, a:255},
+    {v:72,   r:36,  g:158, b:244, a:255},
+    {v:75,   r:38,  g:144, b:248, a:255},
+    {v:78,   r:40,  g:130, b:248, a:255},
+    {v:80,   r:44,  g:116, b:248, a:255},
+    {v:83,   r:50,  g:102, b:248, a:255},
+    {v:85,   r:58,  g:88,  b:246, a:255},
+    {v:88,   r:66,  g:74,  b:244, a:255},
+    {v:90,   r:76,  g:62,  b:240, a:255},
+    {v:92,   r:88,  g:52,  b:236, a:255},
+    {v:94,   r:100, g:44,  b:230, a:255},
+    {v:95,   r:112, g:38,  b:224, a:255},
+    {v:96,   r:124, g:34,  b:218, a:255},
+    {v:97,   r:136, g:30,  b:210, a:255},
+    {v:98,   r:148, g:28,  b:200, a:255},
+    {v:99,   r:158, g:28,  b:190, a:255},
+    {v:100,  r:168, g:30,  b:178, a:255},
+];
+
+const STOPS_PRESSIO = [
+    {v:980,r:0,g:0,b:200},{v:990,r:0,g:100,b:255},{v:995,r:0,g:200,b:255},
+    {v:1000,r:100,g:255,b:200},{v:1005,r:255,g:255,b:150},{v:1010,r:255,g:200,b:100},
+    {v:1015,r:255,g:150,b:50},{v:1020,r:255,g:80,b:0},{v:1025,r:200,g:30,b:0},
+    {v:1030,r:150,g:0,b:0},{v:1040,r:100,g:0,b:50}
+];
+
+const STOPS_CAPE = [
+    {v:0,    r:79,  g:195, b:247, a:255},
+    {v:100,  r:50,  g:170, b:240, a:255},
+    {v:300,  r:0,   g:140, b:255, a:255},
+    {v:500,  r:0,   g:200, b:255, a:255},
+    {v:700,  r:0,   g:255, b:200, a:255},
+    {v:900,  r:120, g:255, b:80,  a:255},
+    {v:1100, r:220, g:255, b:0,   a:255},
+    {v:1300, r:255, g:255, b:0,   a:255},
+    {v:1500, r:255, g:200, b:0,   a:255},
+    {v:1800, r:255, g:140, b:0,   a:255},
+    {v:2100, r:255, g:60,  b:0,   a:255},
+    {v:2400, r:255, g:0,   b:0,   a:255},
+    {v:2800, r:255, g:0,   b:140, a:255},
+    {v:3200, r:255, g:0,   b:220, a:255},
+    {v:3800, r:200, g:0,   b:255, a:255}
+];
+
+// Radar simulat - Reflectivitat dBZ (estil NEXRAD americà)
+const STOPS_RADAR = [
+    {v:-10, r:0,   g:0,   b:0,   a:0},
+    {v:-5,  r:0,   g:0,   b:0,   a:0},
+    {v:0,   r:0,   g:0,   b:0,   a:0},
+    {v:5,   r:0,   g:236, b:236, a:200},
+    {v:10,  r:0,   g:160, b:246, a:215},
+    {v:15,  r:0,   g:0,   b:246, a:225},
+    {v:20,  r:0,   g:255, b:0,   a:230},
+    {v:25,  r:0,   g:200, b:0,   a:235},
+    {v:30,  r:0,   g:140, b:0,   a:238},
+    {v:35,  r:255, g:255, b:0,   a:240},
+    {v:40,  r:255, g:200, b:0,   a:242},
+    {v:45,  r:255, g:120, b:0,   a:245},
+    {v:50,  r:255, g:0,   b:0,   a:248},
+    {v:55,  r:200, g:0,   b:0,   a:250},
+    {v:60,  r:255, g:0,   b:255, a:252},
+    {v:65,  r:180, g:0,   b:220, a:254},
+    {v:70,  r:100, g:0,   b:200, a:255},
+    {v:75,  r:255, g:255, b:255, a:255},
+];
+
+// ═══════════════════════════════════════════════════════════════════════
+//  PALETES SATÈL·LIT IR
+// ═══════════════════════════════════════════════════════════════════════
+
+const STOPS_BT108 = [
+    {v:-80, r:180, g:0,   b:0},
+    {v:-75, r:210, g:0,   b:0},
+    {v:-72, r:240, g:0,   b:0},
+    {v:-70, r:255, g:0,   b:0},
+    {v:-68, r:255, g:30,  b:0},
+    {v:-66, r:255, g:60,  b:0},
+    {v:-65, r:255, g:90,  b:0},
+    {v:-63, r:255, g:120, b:0},
+    {v:-61, r:255, g:150, b:0},
+    {v:-60, r:255, g:180, b:0},
+    {v:-58, r:255, g:200, b:0},
+    {v:-55, r:255, g:220, b:0},
+    {v:-53, r:240, g:220, b:50},
+    {v:-50, r:220, g:215, b:100},
+    {v:-48, r:200, g:210, b:140},
+    {v:-45, r:180, g:205, b:170},
+    {v:-42, r:160, g:200, b:190},
+    {v:-40, r:145, g:195, b:200},
+    {v:-38, r:130, g:190, b:205},
+    {v:-35, r:115, g:185, b:210},
+    {v:-32, r:100, g:180, b:210},
+    {v:-29, r:90,  g:170, b:200},
+    {v:-26, r:80,  g:160, b:190},
+    {v:-23, r:70,  g:150, b:180},
+    {v:-20, r:60,  g:140, b:170},
+    {v:-17, r:55,  g:130, b:160},
+    {v:-14, r:50,  g:120, b:150},
+    {v:-11, r:45,  g:110, b:140},
+    {v:-8,  r:40,  g:100, b:130},
+    {v:-5,  r:38,  g:90,  b:120},
+    {v:-2,  r:35,  g:80,  b:110},
+    {v:0,   r:200, g:200, b:200},
+    {v:2,   r:190, g:190, b:190},
+    {v:4,   r:180, g:180, b:180},
+    {v:6,   r:170, g:170, b:170},
+    {v:8,   r:160, g:160, b:160},
+    {v:10,  r:150, g:150, b:150},
+    {v:12,  r:140, g:140, b:140},
+    {v:14,  r:130, g:130, b:130},
+    {v:16,  r:120, g:120, b:120},
+    {v:18,  r:110, g:110, b:110},
+    {v:20,  r:100, g:100, b:100},
+    {v:22,  r:90,  g:90,  b:90},
+    {v:24,  r:80,  g:80,  b:80},
+    {v:26,  r:70,  g:70,  b:70},
+    {v:28,  r:60,  g:60,  b:60},
+    {v:30,  r:55,  g:55,  b:55},
+    {v:32,  r:50,  g:50,  b:50},
+    {v:35,  r:45,  g:45,  b:45},
+    {v:38,  r:40,  g:40,  b:40},
+    {v:40,  r:35,  g:35,  b:35},
+    {v:42,  r:30,  g:30,  b:30},
+    {v:45,  r:25,  g:25,  b:25},
+    {v:48,  r:20,  g:20,  b:20},
+    {v:50,  r:15,  g:15,  b:15},
+];
+
+const STOPS_BT62 = [
+    {v:20,  r:0,   g:0,   b:0},
+    {v:15,  r:15,  g:15,  b:15},
+    {v:10,  r:32,  g:32,  b:32},
+    {v:5,   r:52,  g:52,  b:52},
+    {v:0,   r:75,  g:75,  b:75},
+    {v:-5,  r:98,  g:98,  b:98},
+    {v:-10, r:120, g:120, b:120},
+    {v:-15, r:142, g:142, b:142},
+    {v:-20, r:163, g:163, b:163},
+    {v:-25, r:182, g:182, b:182},
+    {v:-30, r:200, g:200, b:200},
+    {v:-35, r:216, g:216, b:216},
+    {v:-40, r:230, g:230, b:230},
+    {v:-45, r:244, g:244, b:244},
+    {v:-50, r:255, g:255, b:255},
+    {v:-53, r:255, g:255, b:255},
+    {v:-55, r:255, g:255, b:0},
+    {v:-57, r:255, g:220, b:0},
+    {v:-59, r:255, g:180, b:0},
+    {v:-61, r:255, g:140, b:0},
+    {v:-63, r:255, g:100, b:0},
+    {v:-65, r:255, g:60,  b:0},
+    {v:-68, r:255, g:20,  b:0},
+    {v:-71, r:230, g:0,   b:0},
+    {v:-75, r:200, g:0,   b:0},
+    {v:-80, r:160, g:0,   b:20},
+    {v:-85, r:120, g:0,   b:40},
+];
+
+// ─── EHI ───────────────────────────────────────────────────────────
+const STOPS_EHI = [
+    {v:0,    r:255, g:255, b:255, a:30},
+    {v:0.5,  r:200, g:220, b:255, a:80},
+    {v:1,    r:150, g:200, b:255, a:120},
+    {v:2,    r:80,  g:180, b:255, a:160},
+    {v:3,    r:0,   g:150, b:255, a:190},
+    {v:4,    r:0,   g:200, b:255, a:210},
+    {v:5,    r:0,   g:240, b:200, a:220},
+    {v:7,    r:0,   g:255, b:100, a:230},
+    {v:9,    r:100, g:255, b:0,   a:235},
+    {v:11,   r:200, g:255, b:0,   a:240},
+    {v:13,   r:255, g:255, b:0,   a:242},
+    {v:16,   r:255, g:200, b:0,   a:245},
+    {v:20,   r:255, g:140, b:0,   a:248},
+    {v:25,   r:255, g:80,  b:0,   a:250},
+    {v:30,   r:255, g:20,  b:0,   a:252},
+    {v:40,   r:220, g:0,   b:60,  a:254},
+    {v:50,   r:180, g:0,   b:140, a:255},
+    {v:70,   r:140, g:0,   b:200, a:255},
+    {v:100,  r:100, g:0,   b:255, a:255},
+];
+
+// ─── STP ─────────────────────────────────────────────────────────────
+const STOPS_STP = [
+    {v:0.0,  r:255, g:255, b:255, a:255},
+    {v:0.57, r:210, g:233, b:255, a:255},
+    {v:1.16, r:117, g:186, b:255, a:255},
+    {v:1.74, r:4,   g:130, b:255, a:255},
+    {v:2.33, r:0,   g:105, b:210, a:255},
+    {v:2.93, r:0,   g:54,  b:127, a:255},
+    {v:3.51, r:20,  g:143, b:27,  a:255},
+    {v:4.11, r:99,  g:237, b:7,   a:255},
+    {v:4.70, r:255, g:244, b:43,  a:255},
+    {v:5.28, r:232, g:220, b:0,   a:255},
+    {v:5.88, r:255, g:127, b:39,  a:255},
+    {v:6.46, r:247, g:30,  b:84,  a:255},
+    {v:7.06, r:136, g:0,   b:0,   a:255},
+    {v:7.65, r:100, g:0,   b:127, a:255},
+    {v:8.24, r:194, g:0,   b:251, a:255},
+    {v:8.83, r:221, g:102, b:255, a:255},
+    {v:9.41, r:235, g:166, b:255, a:255},
+    {v:10.0, r:245, g:200, b:255, a:255},
+];
+
+// ─── GEL NÚVOLS (CIWC) ─────────────────────────────────────────────
+const STOPS_GEL = [
+    {v:0,    r:255, g:255, b:255, a:0},
+    {v:0.01, r:240, g:245, b:255, a:30},
+    {v:0.05, r:220, g:235, b:255, a:60},
+    {v:0.1,  r:200, g:220, b:255, a:90},
+    {v:0.2,  r:170, g:200, b:255, a:120},
+    {v:0.3,  r:140, g:180, b:255, a:150},
+    {v:0.5,  r:100, g:150, b:255, a:180},
+    {v:0.7,  r:60,  g:120, b:255, a:200},
+    {v:1.0,  r:0,   g:80,  b:255, a:215},
+    {v:1.5,  r:0,   g:40,  b:230, a:230},
+    {v:2.0,  r:0,   g:0,   b:200, a:240},
+    {v:3.0,  r:60,  g:0,   b:200, a:248},
+    {v:5.0,  r:140, g:0,   b:200, a:252},
+    {v:8.0,  r:200, g:0,   b:180, a:255},
+    {v:12,   r:255, g:0,   b:140, a:255},
+    {v:20,   r:255, g:0,   b:60,  a:255},
+    {v:30,   r:200, g:0,   b:0,   a:255},
+];
+
+// ─── AIGUA PRECIPITABLE (TPW) ─────────────────────────────────────
+const STOPS_TPW = [
+    {v:0,   r:255, g:255, b:255},
+    {v:2,   r:200, g:255, b:200},
+    {v:4,   r:100, g:255, b:100},
+    {v:6,   r:0,   g:255, b:50},
+    {v:8,   r:0,   g:255, b:0},
+    {v:10,  r:150, g:255, b:0},
+    {v:12,  r:255, g:255, b:0},
+    {v:14,  r:255, g:230, b:0},
+    {v:16,  r:255, g:200, b:0},
+    {v:18,  r:255, g:170, b:0},
+    {v:20,  r:255, g:140, b:0},
+    {v:22,  r:255, g:110, b:0},
+    {v:24,  r:255, g:80,  b:0},
+    {v:26,  r:255, g:50,  b:0},
+    {v:28,  r:255, g:20,  b:0},
+    {v:30,  r:255, g:0,   b:0},
+    {v:32,  r:240, g:0,   b:20},
+    {v:34,  r:220, g:0,   b:50},
+    {v:36,  r:200, g:0,   b:80},
+    {v:38,  r:180, g:0,   b:110},
+    {v:40,  r:160, g:0,   b:140},
+    {v:42,  r:140, g:0,   b:170},
+    {v:44,  r:120, g:0,   b:200},
+    {v:46,  r:100, g:0,   b:230},
+    {v:48,  r:80,  g:0,   b:255},
+    {v:50,  r:60,  g:20,  b:255},
+    {v:52,  r:40,  g:40,  b:230},
+    {v:54,  r:20,  g:60,  b:200},
+    {v:56,  r:0,   g:80,  b:180},
+    {v:58,  r:0,   g:60,  b:150},
+    {v:60,  r:0,   g:40,  b:120},
+    {v:62,  r:0,   g:20,  b:90},
+    {v:64,  r:0,   g:10,  b:60},
+    {v:66,  r:0,   g:0,   b:40},
+    {v:70,  r:0,   g:0,   b:20},
+    {v:75,  r:0,   g:0,   b:10},
+    {v:80,  r:0,   g:0,   b:5},
+];
+
+// ─── THETA VIRTUAL ────────────────────────────────────────────────
+const STOPS_THETAV = [
+    {v:-24,r:45,g:0,b:75},{v:-20,r:130,g:0,b:160},{v:-15,r:65,g:0,b:115},
+    {v:-10,r:0,g:0,b:255},{v:-5,r:0,g:135,b:255},{v:0,r:0,g:235,b:255},
+    {v:2,r:0,g:255,b:150},{v:5,r:0,g:200,b:0},{v:8,r:120,g:255,b:0},
+    {v:11,r:255,g:255,b:0},{v:14,r:255,g:255,b:170},{v:17,r:255,g:235,b:100},
+    {v:20,r:255,g:200,b:0},{v:23,r:255,g:140,b:0},{v:26,r:255,g:70,b:0},
+    {v:29,r:255,g:0,b:0},{v:32,r:180,g:0,b:0},{v:35,r:90,g:0,b:0},
+    {v:38,r:150,g:0,b:150},{v:42,r:255,g:0,b:255},{v:46,r:255,g:185,b:255}
+];
+
+// ─── PLUJA NÚVOLS ──────────────────────────────────────────────────
+const STOPS_PLUJA = [
+    {v:0,    r:255, g:255, b:255, a:0},
+    {v:0.01, r:240, g:248, b:255, a:30},
+    {v:0.05, r:220, g:240, b:255, a:60},
+    {v:0.1,  r:200, g:230, b:255, a:90},
+    {v:0.2,  r:170, g:210, b:255, a:120},
+    {v:0.3,  r:140, g:190, b:255, a:150},
+    {v:0.5,  r:100, g:170, b:255, a:180},
+    {v:0.7,  r:50,  g:200, b:255, a:200},
+    {v:1.0,  r:0,   g:220, b:255, a:215},
+    {v:1.5,  r:0,   g:240, b:200, a:230},
+    {v:2.0,  r:0,   g:255, b:140, a:240},
+    {v:3.0,  r:100, g:255, b:80,  a:248},
+    {v:4.0,  r:180, g:255, b:20,  a:252},
+    {v:5.0,  r:255, g:255, b:0,   a:255},
+    {v:7.0,  r:255, g:220, b:0,   a:255},
+    {v:10,   r:255, g:180, b:0,   a:255},
+    {v:15,   r:255, g:140, b:0,   a:255},
+    {v:20,   r:255, g:100, b:0,   a:255},
+    {v:30,   r:255, g:60,  b:0,   a:255},
+    {v:50,   r:200, g:0,   b:0,   a:255},
+];
+
+
+
+// ─── RATXA DE VENT (paleta pròpia, estil "plasma") ─────────────────
+const STOPS_RATXAVENT = [
+ {v:0,r:200,g:200,b:255},{v:5,r:150,g:200,b:255},{v:10,r:100,g:180,b:255},
+    {v:15,r:0,g:150,b:255},{v:20,r:0,g:200,b:220},{v:25,r:0,g:220,b:180},
+    {v:30,r:0,g:255,b:100},{v:35,r:50,g:255,b:0},{v:40,r:150,g:255,b:0},
+    {v:45,r:220,g:255,b:0},{v:50,r:255,g:255,b:0},{v:55,r:255,g:230,b:0},
+    {v:60,r:255,g:200,b:0},{v:65,r:255,g:170,b:0},{v:70,r:255,g:140,b:0},
+    {v:75,r:255,g:110,b:0},{v:80,r:255,g:80,b:0},{v:85,r:255,g:50,b:0},
+    {v:90,r:255,g:20,b:0},{v:95,r:255,g:0,b:0},{v:100,r:230,g:0,b:0},
+    {v:110,r:210,g:0,b:0},{v:120,r:190,g:0,b:30},{v:130,r:170,g:0,b:60},
+    {v:140,r:150,g:0,b:100},{v:150,r:130,g:0,b:140},{v:160,r:180,g:0,b:180},
+    {v:170,r:200,g:0,b:200},{v:180,r:220,g:20,b:220},{v:190,r:240,g:50,b:240},
+    {v:200,r:250,g:100,b:250},{v:220,r:255,g:150,b:255},{v:240,r:255,g:200,b:255},
+    {v:260,r:255,g:220,b:255},{v:280,r:255,g:240,b:255},{v:300,r:255,g:255,b:255}
+];
+
+
+// Llamps 1h
+const STOPS_LLAMPS_V2 = [
+    {v:0,    r:0,   g:0,   b:0,   a:0},
+    {v:0.01, r:255, g:255, b:200, a:80},
+    {v:0.05, r:255, g:255, b:150, a:120},
+    {v:0.1,  r:255, g:255, b:100, a:160},
+    {v:0.2,  r:255, g:255, b:50,  a:200},
+    {v:0.5,  r:255, g:255, b:0,   a:220},
+    {v:1,    r:255, g:220, b:0,   a:230},
+    {v:2,    r:255, g:180, b:0,   a:235},
+    {v:5,    r:255, g:120, b:0,   a:240},
+    {v:10,   r:255, g:60,  b:0,   a:245},
+    {v:15,   r:255, g:0,   b:0,   a:250},
+    {v:25,   r:230, g:0,   b:30,  a:252},
+    {v:40,   r:200, g:0,   b:80,  a:254},
+    {v:60,   r:170, g:0,   b:150, a:255},
+    {v:80,   r:140, g:0,   b:200, a:255},
+    {v:100,  r:100, g:0,   b:255, a:255},
+    {v:150,  r:60,  g:0,   b:200, a:255},
+    {v:200,  r:30,  g:0,   b:150, a:255},
+];
+
+const STOPS_CIN = [
+    {v:-500,r:0,g:0,b:180},{v:-200,r:0,g:80,b:255},{v:-100,r:0,g:180,b:255},
+    {v:-50,r:100,g:220,b:255},{v:0,r:200,g:200,b:200},{v:50,r:255,g:220,b:100},
+    {v:100,r:255,g:150,b:0},{v:200,r:200,g:50,b:0},{v:500,r:150,g:0,b:0}
+];
+
+const STOPS_NUVOLS_ALTS = [
+    {v:0,  r:0,   g:0,   b:0,   a:0},
+    {v:10, r:255, g:255, b:230, a:160},
+    {v:20, r:255, g:255, b:210, a:175},
+    {v:30, r:255, g:255, b:190, a:190},
+    {v:40, r:255, g:255, b:160, a:200},
+    {v:50, r:255, g:255, b:130, a:210},
+    {v:60, r:255, g:255, b:100, a:215},
+    {v:70, r:255, g:255, b:60,  a:220},
+    {v:80, r:255, g:255, b:20,  a:230},
+    {v:90, r:255, g:245, b:0,   a:235},
+    {v:100,r:255, g:235, b:0,   a:240},
+];
+
+const STOPS_NUVOLS_MITJANS = [
+    {v:0,  r:0,   g:0,   b:0,   a:0},
+    {v:10, r:230, g:210, b:255, a:160},
+    {v:20, r:215, g:190, b:250, a:175},
+    {v:30, r:200, g:170, b:245, a:190},
+    {v:40, r:185, g:145, b:240, a:200},
+    {v:50, r:170, g:120, b:235, a:210},
+    {v:60, r:155, g:95,  b:230, a:215},
+    {v:70, r:140, g:70,  b:225, a:220},
+    {v:80, r:125, g:45,  b:220, a:230},
+    {v:90, r:110, g:20,  b:215, a:235},
+    {v:100,r:95,  g:0,   b:210, a:240},
+];
+
+const STOPS_NUVOLS_BAIXOS = [
+    {v:0,  r:0,   g:0,   b:0,   a:0},
+    {v:10, r:255, g:200, b:200, a:160},
+    {v:20, r:255, g:175, b:175, a:175},
+    {v:30, r:255, g:145, b:145, a:190},
+    {v:40, r:255, g:115, b:115, a:200},
+    {v:50, r:255, g:80,  b:80,  a:210},
+    {v:60, r:255, g:50,  b:50,  a:215},
+    {v:70, r:240, g:20,  b:20,  a:220},
+    {v:80, r:220, g:0,   b:0,   a:230},
+    {v:90, r:190, g:0,   b:0,   a:235},
+    {v:100,r:160, g:0,   b:0,   a:240},
+];
+
+// ─── SOSTRE NÚVOLS (PLAFOND) ───────────────────────────────────────
+const STOPS_ALTURA_CL = [
+    {v:0,    r:10,  g:10,  b:40,  a:255},
+    {v:50,   r:15,  g:20,  b:60,  a:255},
+    {v:100,  r:20,  g:35,  b:90,  a:255},
+    {v:150,  r:25,  g:55,  b:120, a:255},
+    {v:200,  r:30,  g:75,  b:150, a:255},
+    {v:250,  r:40,  g:95,  b:180, a:255},
+    {v:300,  r:55,  g:115, b:200, a:255},
+    {v:350,  r:70,  g:135, b:215, a:255},
+    {v:400,  r:85,  g:155, b:230, a:255},
+    {v:500,  r:100, g:175, b:240, a:255},
+    {v:600,  r:115, g:190, b:245, a:255},
+    {v:700,  r:130, g:205, b:248, a:255},
+    {v:800,  r:145, g:215, b:250, a:255},
+    {v:900,  r:160, g:225, b:250, a:255},
+    {v:1000, r:175, g:232, b:248, a:255},
+    {v:1200, r:190, g:238, b:245, a:255},
+    {v:1400, r:200, g:242, b:240, a:255},
+    {v:1600, r:210, g:245, b:235, a:255},
+    {v:1800, r:220, g:248, b:225, a:255},
+    {v:2000, r:230, g:250, b:210, a:255},
+    {v:2200, r:235, g:248, b:190, a:255},
+    {v:2400, r:240, g:245, b:165, a:255},
+    {v:2600, r:245, g:242, b:140, a:255},
+    {v:2800, r:248, g:238, b:115, a:255},
+    {v:3000, r:250, g:232, b:90,  a:255},
+    {v:3500, r:252, g:225, b:65,  a:255},
+    {v:4000, r:255, g:215, b:40,  a:255},
+    {v:4500, r:255, g:200, b:20,  a:255},
+    {v:5000, r:255, g:185, b:10,  a:255},
+    {v:5500, r:255, g:165, b:0,   a:255},
+    {v:6000, r:255, g:145, b:0,   a:255},
+    {v:6500, r:255, g:125, b:0,   a:255},
+    {v:7000, r:255, g:105, b:0,   a:255},
+    {v:7500, r:255, g:85,  b:0,   a:255},
+    {v:8000, r:255, g:65,  b:0,   a:255},
+    {v:8500, r:240, g:50,  b:0,   a:255},
+    {v:9000, r:220, g:35,  b:0,   a:255},
+    {v:9500,  r:200, g:25,  b:0,   a:255},
+    {v:10000, r:180, g:15,  b:0,   a:255},
+    {v:10500, r:155, g:10,  b:5,   a:255},
+    {v:11000, r:130, g:5,   b:15,  a:255},
+    {v:11500, r:100, g:0,   b:30,  a:255},
+    {v:12000, r:255, g:255, b:255, a:255},
+];
+
+const STOPS_RATXA = [
+    {v:0,r:200,g:200,b:255},{v:5,r:150,g:200,b:255},{v:10,r:100,g:180,b:255},
+    {v:15,r:0,g:150,b:255},{v:20,r:0,g:200,b:220},{v:25,r:0,g:220,b:180},
+    {v:30,r:0,g:255,b:100},{v:35,r:50,g:255,b:0},{v:40,r:150,g:255,b:0},
+    {v:45,r:220,g:255,b:0},{v:50,r:255,g:255,b:0},{v:55,r:255,g:230,b:0},
+    {v:60,r:255,g:200,b:0},{v:65,r:255,g:170,b:0},{v:70,r:255,g:140,b:0},
+    {v:75,r:255,g:110,b:0},{v:80,r:255,g:80,b:0},{v:85,r:255,g:50,b:0},
+    {v:90,r:255,g:20,b:0},{v:95,r:255,g:0,b:0},{v:100,r:230,g:0,b:0},
+    {v:110,r:210,g:0,b:0},{v:120,r:190,g:0,b:30},{v:130,r:170,g:0,b:60},
+    {v:140,r:150,g:0,b:100},{v:150,r:130,g:0,b:140},{v:160,r:180,g:0,b:180},
+    {v:170,r:200,g:0,b:200},{v:180,r:220,g:20,b:220},{v:190,r:240,g:50,b:240},
+    {v:200,r:250,g:100,b:250},{v:220,r:255,g:150,b:255},{v:240,r:255,g:200,b:255},
+    {v:260,r:255,g:220,b:255},{v:280,r:255,g:240,b:255},{v:300,r:255,g:255,b:255}
+];
+
+const STOPS_PRECIP = [
+    {v:0,r:0,g:0,b:0,a:0},{v:0.1,r:200,g:230,b:255},{v:0.5,r:100,g:200,b:255},
+    {v:1,r:0,g:150,b:255},{v:2,r:0,g:100,b:200},{v:5,r:0,g:200,b:0},
+    {v:10,r:100,g:255,b:0},{v:20,r:255,g:255,b:0},{v:30,r:255,g:200,b:0},
+    {v:50,r:255,g:100,b:0},{v:75,r:255,g:0,b:0},{v:100,r:200,g:0,b:200}
+];
+
+const STOPS_VEL_VERT = [
+    {v:-5, r:200, g:0,   b:0},
+    {v:-2, r:255, g:120, b:0},
+    {v:-0.5, r:255, g:220, b:150},
+    {v:0,  r:230, g:230, b:230},
+    {v:0.5, r:150, g:220, b:255},
+    {v:2,  r:0,   g:150, b:255},
+    {v:5,  r:0,   g:0,   b:200}
+];
+
+const STOPS_VORT_POT = [
+    {v:-10,r:0,g:0,b:200},{v:-3,r:0,g:150,b:255},{v:0,r:220,g:220,b:220},
+    {v:3,r:255,g:180,b:0},{v:10,r:200,g:0,b:0}
+];
+
+// ─── dBZ (REFLECTIVITAT RADAR) ─────────────────────────────────────
+const STOPS_DBZ = [
+    {v:0,    r:255, g:255, b:255, a:0},
+    {v:2,    r:245, g:248, b:255, a:30},
+    {v:4,    r:235, g:242, b:255, a:60},
+    {v:6,    r:220, g:235, b:255, a:90},
+    {v:8,    r:205, g:228, b:255, a:120},
+    {v:10,   r:190, g:220, b:255, a:150},
+    {v:12,   r:170, g:215, b:255, a:170},
+    {v:14,   r:150, g:210, b:255, a:185},
+    {v:16,   r:130, g:205, b:255, a:195},
+    {v:18,   r:110, g:205, b:248, a:205},
+    {v:20,   r:95,  g:210, b:240, a:212},
+    {v:22,   r:85,  g:218, b:228, a:218},
+    {v:24,   r:80,  g:226, b:215, a:222},
+    {v:26,   r:85,  g:234, b:198, a:226},
+    {v:28,   r:95,  g:240, b:178, a:230},
+    {v:30,   r:110, g:245, b:158, a:234},
+    {v:32,   r:130, g:248, b:138, a:238},
+    {v:34,   r:155, g:250, b:118, a:240},
+    {v:36,   r:180, g:250, b:98,  a:242},
+    {v:38,   r:205, g:248, b:78,  a:244},
+    {v:40,   r:225, g:245, b:58,  a:246},
+    {v:42,   r:240, g:240, b:40,  a:248},
+    {v:44,   r:250, g:232, b:25,  a:250},
+    {v:46,   r:255, g:220, b:10,  a:252},
+    {v:48,   r:255, g:205, b:0,   a:253},
+    {v:50,   r:255, g:185, b:0,   a:254},
+    {v:52,   r:255, g:160, b:0,   a:255},
+    {v:54,   r:255, g:135, b:0,   a:255},
+    {v:56,   r:255, g:110, b:0,   a:255},
+    {v:58,   r:255, g:85,  b:0,   a:255},
+    {v:60,   r:255, g:60,  b:0,   a:255},
+    {v:62,   r:255, g:40,  b:20,  a:255},
+    {v:64,   r:240, g:25,  b:50,  a:255},
+    {v:66,   r:220, g:15,  b:80,  a:255},
+    {v:68,   r:200, g:10,  b:110, a:255},
+    {v:70,   r:180, g:10,  b:140, a:255},
+    {v:72,   r:155, g:20,  b:170, a:255},
+    {v:74,   r:130, g:40,  b:195, a:255},
+    {v:75,   r:255, g:255, b:255, a:255},
+];
+
+const STOPS_LLAMPS = [
+    {v:0,   r:0,   g:0,   b:0,   a:0},
+    {v:0.1, r:255, g:255, b:180},
+    {v:0.5, r:255, g:255, b:120},
+    {v:1,   r:255, g:255, b:0},
+    {v:2,   r:255, g:210, b:0},
+    {v:5,   r:255, g:170, b:0},
+    {v:10,  r:255, g:120, b:0},
+    {v:20,  r:255, g:60,  b:0},
+    {v:35,  r:230, g:0,   b:0},
+    {v:50,  r:180, g:0,   b:60},
+    {v:75,  r:150, g:0,   b:140},
+    {v:100, r:130, g:0,   b:200}
+];
+
+const STOPS_LI = [
+    {v:-10,r:180,g:0,b:0},{v:-6,r:255,g:60,b:0},{v:-3,r:255,g:150,b:0},
+    {v:0,r:255,g:255,b:150},{v:3,r:150,g:220,b:255},{v:6,r:0,g:150,b:255},
+    {v:10,r:0,g:0,b:180}
+];
+
+const STOPS_GEO500 = [
+    {v:470,r:0,g:0,b:200},{v:490,r:0,g:100,b:255},{v:510,r:0,g:200,b:255},
+    {v:530,r:0,g:255,b:200},{v:540,r:0,g:255,b:0},{v:550,r:100,g:255,b:0},
+    {v:560,r:220,g:255,b:0},{v:570,r:255,g:255,b:0},{v:580,r:255,g:200,b:0},
+    {v:590,r:255,g:120,b:0},{v:600,r:255,g:60,b:0},{v:610,r:255,g:0,b:0},
+    {v:630,r:200,g:0,b:100},{v:650,r:150,g:0,b:150}
+];
+
+const STOPS_T500 = [
+    {v:-50,r:0,g:0,b:150},{v:-40,r:0,g:50,b:200},{v:-35,r:0,g:100,b:255},
+    {v:-30,r:0,g:160,b:255},{v:-25,r:0,g:210,b:255},{v:-20,r:0,g:255,b:255},
+    {v:-15,r:0,g:255,b:200},{v:-10,r:0,g:255,b:100},{v:-5,r:100,g:255,b:0},
+    {v:0,r:220,g:255,b:0},{v:5,r:255,g:255,b:0},{v:10,r:255,g:220,b:0},
+    {v:15,r:255,g:180,b:0},{v:20,r:255,g:120,b:0},{v:25,r:255,g:60,b:0},
+    {v:30,r:255,g:0,b:0},{v:35,r:200,g:0,b:0},{v:40,r:150,g:0,b:50}
+];
+
+// SRH: Efecte MIRALL simètric
+const STOPS_SRH = [
+    {v:-1500, r:0,   g:0,   b:40},
+    {v:-1000, r:0,   g:0,   b:120},
+    {v:-800,  r:20,  g:0,   b:180},
+    {v:-600,  r:60,  g:0,   b:200},
+    {v:-500,  r:100, g:0,   b:140},
+    {v:-400,  r:140, g:0,   b:80},
+    {v:-350,  r:170, g:0,   b:30},
+    {v:-300,  r:200, g:0,   b:0},
+    {v:-275,  r:230, g:0,   b:0},
+    {v:-250,  r:255, g:30,  b:0},
+    {v:-225,  r:255, g:80,  b:0},
+    {v:-200,  r:255, g:130, b:0},
+    {v:-175,  r:255, g:180, b:0},
+    {v:-150,  r:255, g:220, b:0},
+    {v:-125,  r:255, g:255, b:0},
+    {v:-100,  r:200, g:255, b:0},
+    {v:-75,   r:0,   g:255, b:0},
+    {v:-50,   r:100, g:255, b:100},
+    {v:-25,   r:180, g:255, b:180},
+    {v:0,    r:255, g:255, b:255},
+    {v:25,   r:180, g:255, b:180},
+    {v:50,   r:100, g:255, b:100},
+    {v:75,   r:0,   g:255, b:0},
+    {v:100,  r:200, g:255, b:0},
+    {v:125,  r:255, g:255, b:0},
+    {v:150,  r:255, g:220, b:0},
+    {v:175,  r:255, g:180, b:0},
+    {v:200,  r:255, g:130, b:0},
+    {v:225,  r:255, g:80,  b:0},
+    {v:250,  r:255, g:30,  b:0},
+    {v:275,  r:230, g:0,   b:0},
+    {v:300,  r:200, g:0,   b:0},
+    {v:350,  r:170, g:0,   b:30},
+    {v:400,  r:140, g:0,   b:80},
+    {v:500,  r:100, g:0,   b:140},
+    {v:600,  r:60,  g:0,   b:200},
+    {v:800,  r:20,  g:0,   b:180},
+    {v:1000, r:0,   g:0,   b:120},
+    {v:1500, r:0,   g:0,   b:40},
+];
+
+// SHEAR
+const STOPS_SHEAR = [
+    {v:0,   r:0,   g:0,   b:255},
+    {v:2,   r:0,   g:200, b:255},
+    {v:4,   r:0,   g:255, b:200},
+    {v:6,   r:0,   g:255, b:100},
+    {v:8,   r:0,   g:255, b:0},
+    {v:10,  r:150, g:255, b:0},
+    {v:12,  r:220, g:255, b:0},
+    {v:14,  r:255, g:255, b:0},
+    {v:16,  r:255, g:220, b:0},
+    {v:18,  r:255, g:180, b:0},
+    {v:20,  r:255, g:140, b:0},
+    {v:22,  r:255, g:90,  b:0},
+    {v:24,  r:255, g:40,  b:0},
+    {v:26,  r:255, g:0,   b:0},
+    {v:28,  r:230, g:0,   b:30},
+    {v:30,  r:210, g:0,   b:80},
+    {v:32,  r:180, g:0,   b:140},
+    {v:34,  r:150, g:0,   b:200},
+    {v:36,  r:120, g:0,   b:240},
+    {v:38,  r:80,  g:0,   b:255},
+    {v:40,  r:40,  g:0,   b:255},
+    {v:44,  r:0,   g:0,   b:220},
+    {v:48,  r:0,   g:0,   b:180},
+    {v:52,  r:20,  g:0,   b:130},
+    {v:56,  r:40,  g:0,   b:80},
+    {v:60,  r:60,  g:0,   b:0},
+    {v:70,  r:0,   g:0,   b:0},
+];
+
+// ═══════════════════════════════════════════════════════════════════════
+//  PALETES WCS 2D
+// ═══════════════════════════════════════════════════════════════════════
+
+// ═══════════════════════════════════════════════════════════════════════
+//  PALETA NEU MILLORADA — lila fort → groc → vermell → morat → blanc
+//  Transparent només a 0, després opacitat total
+// ═══════════════════════════════════════════════════════════════════════
+
+const STOPS_NEU = [
+    {v:0,    r:180, g:80,  b:220, a:0},    // transparent
+    {v:0.01, r:180, g:80,  b:220, a:255},  // lila fort
+    {v:0.3,  r:160, g:70,  b:210, a:255},  // lila intens
+    {v:0.5,  r:140, g:60,  b:200, a:255},  // lila
+    {v:1,    r:200, g:120, b:60,  a:255},  // taronja (transició)
+    {v:2,    r:230, g:180, b:30,  a:255},  // groc
+    {v:3,    r:240, g:150, b:20,  a:255},  // groc-taronja
+    {v:4,    r:235, g:100, b:15,  a:255},  // taronja
+    {v:6,    r:220, g:50,  b:10,  a:255},  // vermell-taronja
+    {v:8,    r:200, g:20,  b:5,   a:255},  // vermell
+    {v:10,   r:160, g:40,  b:120, a:255},  // morat
+    {v:12,   r:130, g:60,  b:160, a:255},  // morat intens
+    {v:15,   r:180, g:140, b:220, a:255},  // lila clar
+    {v:18,   r:220, g:200, b:240, a:255},  // lila molt clar
+    {v:20,   r:245, g:240, b:255, a:255}   // blanc
+];
+
+const STOPS_PRECIP_TYPE = [
+    {v:0, r:255, g:255, b:255, a:0},
+    {v:1, r:0,   g:150, b:255, a:200},
+    {v:2, r:255, g:255, b:255, a:220},
+    {v:3, r:255, g:0,   b:255, a:220},
+    {v:4, r:180, g:0,   b:220, a:200},
+];
+
+const STOPS_REFLECTIVITAT = [
+    {v:0, r:0, g:0, b:0, a:0},
+    {v:5, r:0, g:236, b:236, a:150},
+    {v:10, r:1, g:160, b:246, a:200},
+    {v:15, r:0, g:0, b:246, a:210},
+    {v:20, r:0, g:236, b:0, a:220},
+    {v:25, r:0, g:180, b:0, a:220},
+    {v:30, r:0, g:100, b:0, a:220},
+    {v:35, r:255, g:144, b:0, a:230},
+    {v:40, r:255, g:0, b:0, a:240},
+    {v:45, r:192, g:0, b:0, a:240},
+    {v:50, r:120, g:0, b:0, a:240},
+    {v:55, r:255, g:0, b:255, a:250},
+    {v:60, r:160, g:32, b:240, a:250},
+    {v:65, r:80, g:0, b:130, a:255},
+    {v:70, r:200, g:200, b:200, a:255},
+    {v:75, r:255, g:255, b:255, a:255},
+];
+
+const STOPS_VISIBILITAT = [
+    {v:0, r:0, g:0, b:0, a:255},
+    {v:100, r:255, g:0, b:0, a:230},
+    {v:500, r:255, g:100, b:0, a:200},
+    {v:1000, r:255, g:255, b:0, a:180},
+    {v:2000, r:0, g:255, b:0, a:160},
+    {v:5000, r:0, g:200, b:255, a:140},
+    {v:10000, r:100, g:150, b:255, a:100},
+    {v:20000, r:200, g:200, b:255, a:80},
+    {v:50000, r:255, g:255, b:255, a:60},
+];
+
+const STOPS_TPW_WCS = [
+    {v:0, r:255, g:255, b:255, a:0},
+    {v:2, r:200, g:255, b:200, a:80},
+    {v:5, r:100, g:255, b:100, a:120},
+    {v:10, r:0, g:255, b:0, a:160},
+    {v:15, r:255, g:255, b:0, a:190},
+    {v:20, r:255, g:200, b:0, a:210},
+    {v:25, r:255, g:140, b:0, a:220},
+    {v:30, r:255, g:80, b:0, a:235},
+    {v:40, r:255, g:0, b:0, a:248},
+    {v:50, r:200, g:0, b:50, a:255},
+    {v:60, r:150, g:0, b:100, a:255},
+    {v:80, r:100, g:0, b:150, a:255},
+];
+
+const STOPS_TEMP_SFC_MODEL = [
+    {v:-50, r:45, g:0, b:75},
+    {v:-40, r:130, g:0, b:160},
+    {v:-30, r:0, g:0, b:255},
+    {v:-20, r:0, g:135, b:255},
+    {v:-10, r:0, g:235, b:255},
+    {v:0, r:0, g:255, b:150},
+    {v:5, r:0, g:200, b:0},
+    {v:10, r:120, g:255, b:0},
+    {v:15, r:255, g:255, b:0},
+    {v:20, r:255, g:255, b:170},
+    {v:25, r:255, g:235, b:100},
+    {v:30, r:255, g:200, b:0},
+    {v:35, r:255, g:140, b:0},
+    {v:40, r:255, g:70, b:0},
+    {v:45, r:255, g:0, b:0},
+    {v:50, r:180, g:0, b:0},
+];
+
+const STOPS_TOTAL_CLOUD = [
+    {v:0, r:0, g:0, b:0, a:0},
+    {v:10, r:50, g:50, b:50, a:80},
+    {v:20, r:100, g:100, b:100, a:120},
+    {v:30, r:150, g:150, b:150, a:150},
+    {v:40, r:200, g:200, b:200, a:170},
+    {v:50, r:220, g:220, b:220, a:180},
+    {v:60, r:240, g:240, b:240, a:190},
+    {v:70, r:250, g:250, b:250, a:200},
+    {v:80, r:255, g:255, b:255, a:210},
+    {v:90, r:255, g:255, b:255, a:220},
+    {v:100, r:255, g:255, b:255, a:230},
+];
+
+const STOPS_CAPE_MITJANA = [
+    {v:0, r:79, g:195, b:247, a:255},
+    {v:100, r:50, g:170, b:240, a:255},
+    {v:300, r:0, g:140, b:255, a:255},
+    {v:500, r:0, g:200, b:255, a:255},
+    {v:700, r:0, g:255, b:200, a:255},
+    {v:900, r:120, g:255, b:80, a:255},
+    {v:1100, r:220, g:255, b:0, a:255},
+    {v:1300, r:255, g:255, b:0, a:255},
+    {v:1500, r:255, g:200, b:0, a:255},
+    {v:1800, r:255, g:140, b:0, a:255},
+    {v:2100, r:255, g:60, b:0, a:255},
+    {v:2400, r:255, g:0, b:0, a:255},
+    {v:2800, r:255, g:0, b:140, a:255},
+    {v:3200, r:255, g:0, b:220, a:255},
+    {v:3800, r:200, g:0, b:255, a:255},
+];
+
+const STOPS_PRECIP_RATE = [
+    {v:0, r:0, g:0, b:0, a:0},
+    {v:0.1, r:200, g:230, b:255, a:80},
+    {v:0.5, r:100, g:200, b:255, a:120},
+    {v:1, r:0, g:150, b:255, a:160},
+    {v:2, r:0, g:100, b:200, a:190},
+    {v:5, r:0, g:200, b:0, a:210},
+    {v:10, r:100, g:255, b:0, a:220},
+    {v:20, r:255, g:255, b:0, a:230},
+    {v:30, r:255, g:200, b:0, a:240},
+    {v:50, r:255, g:100, b:0, a:248},
+    {v:75, r:255, g:0, b:0, a:252},
+    {v:100, r:200, g:0, b:200, a:255},
+];
+
+const STOPS_CIWC_MITJANA = [
+    {v:0,         r:255, g:255, b:255, a:0},
+    {v:0.000001,  r:220, g:230, b:255, a:30},
+    {v:0.000002,  r:200, g:220, b:255, a:50},
+    {v:0.000005,  r:180, g:210, b:255, a:70},
+    {v:0.00001,   r:160, g:200, b:255, a:90},
+    {v:0.00002,   r:140, g:190, b:255, a:110},
+    {v:0.00003,   r:120, g:180, b:255, a:130},
+    {v:0.00004,   r:100, g:170, b:255, a:145},
+    {v:0.00005,   r:80,  g:160, b:255, a:155},
+    {v:0.00006,   r:60,  g:150, b:255, a:165},
+    {v:0.00007,   r:40,  g:140, b:255, a:175},
+    {v:0.00008,   r:20,  g:130, b:255, a:185},
+    {v:0.00009,   r:0,   g:120, b:255, a:190},
+    {v:0.0001,    r:0,   g:110, b:250, a:195},
+    {v:0.0002,    r:0,   g:100, b:245, a:200},
+    {v:0.0003,    r:0,   g:90,  b:240, a:205},
+    {v:0.0004,    r:0,   g:80,  b:235, a:210},
+    {v:0.0005,    r:0,   g:70,  b:230, a:215},
+    {v:0.0006,    r:0,   g:60,  b:225, a:220},
+    {v:0.0007,    r:0,   g:50,  b:220, a:225},
+    {v:0.0008,    r:0,   g:40,  b:215, a:230},
+    {v:0.0009,    r:0,   g:30,  b:210, a:235},
+    {v:0.001,     r:0,   g:20,  b:205, a:240},
+    {v:0.002,     r:0,   g:10,  b:200, a:245},
+    {v:0.003,     r:0,   g:0,   b:195, a:248},
+    {v:0.004,     r:10,  g:0,   b:190, a:250},
+    {v:0.005,     r:20,  g:0,   b:185, a:252},
+    {v:0.006,     r:30,  g:0,   b:180, a:253},
+    {v:0.007,     r:40,  g:0,   b:175, a:254},
+    {v:0.008,     r:50,  g:0,   b:170, a:255},
+    {v:0.009,     r:60,  g:0,   b:165, a:255},
+    {v:0.01,      r:70,  g:0,   b:160, a:255},
+    {v:0.02,      r:80,  g:0,   b:155, a:255},
+    {v:0.03,      r:90,  g:0,   b:150, a:255},
+    {v:0.04,      r:100, g:0,   b:145, a:255},
+    {v:0.05,      r:110, g:0,   b:140, a:255},
+    {v:0.06,      r:120, g:0,   b:135, a:255},
+    {v:0.07,      r:130, g:0,   b:130, a:255},
+    {v:0.08,      r:140, g:0,   b:125, a:255},
+    {v:0.09,      r:150, g:0,   b:120, a:255},
+    {v:0.1,       r:160, g:0,   b:115, a:255},
+    {v:0.15,      r:170, g:0,   b:110, a:255},
+    {v:0.2,       r:180, g:20,  b:105, a:255},
+    {v:0.25,      r:190, g:40,  b:100, a:255},
+    {v:0.3,       r:200, g:60,  b:95,  a:255},
+    {v:0.4,       r:210, g:80,  b:90,  a:255},
+    {v:0.5,       r:220, g:100, b:85,  a:255},
+    {v:0.6,       r:230, g:120, b:80,  a:255},
+    {v:0.7,       r:235, g:140, b:75,  a:255},
+    {v:0.8,       r:240, g:160, b:70,  a:255},
+    {v:0.9,       r:245, g:180, b:65,  a:255},
+    {v:1.0,       r:250, g:200, b:60,  a:255},
+    {v:1.2,       r:252, g:210, b:55,  a:255},
+    {v:1.4,       r:254, g:220, b:50,  a:255},
+    {v:1.6,       r:255, g:230, b:45,  a:255},
+    {v:1.8,       r:255, g:235, b:40,  a:255},
+    {v:2.0,       r:255, g:240, b:35,  a:255},
+    {v:2.5,       r:255, g:245, b:30,  a:255},
+    {v:3.0,       r:255, g:250, b:25,  a:255},
+    {v:4.0,       r:255, g:252, b:20,  a:255},
+    {v:5.0,       r:255, g:254, b:15,  a:255},
+    {v:7.0,       r:255, g:255, b:10,  a:255},
+    {v:10.0,      r:255, g:255, b:255, a:255},
+    {v:15.0,      r:255, g:250, b:240, a:255},
+    {v:20.0,      r:255, g:255, b:255, a:255},
+];
+
+const STOPS_CLD_RAIN_MITJANA = [
+    {v:0,         r:25,  g:28,  b:40,  a:220},
+    {v:0.000001,  r:10,  g:40,  b:120, a:230},
+    {v:0.000005,  r:0,   g:70,  b:190, a:235},
+    {v:0.00001,   r:0,   g:110, b:240, a:240},
+    {v:0.00002,   r:0,   g:160, b:255, a:242},
+    {v:0.00003,   r:0,   g:200, b:255, a:245},
+    {v:0.00004,   r:0,   g:230, b:220, a:248},
+    {v:0.00005,   r:0,   g:255, b:180, a:250},
+    {v:0.0001,    r:50,  g:255, b:120, a:252},
+    {v:0.0002,    r:130, g:255, b:70,  a:253},
+    {v:0.0005,    r:210, g:255, b:20,  a:254},
+    {v:0.001,     r:255, g:255, b:0,   a:255},
+    {v:0.002,     r:255, g:220, b:0,   a:255},
+    {v:0.003,     r:255, g:180, b:0,   a:255},
+    {v:0.005,     r:255, g:140, b:0,   a:255},
+    {v:0.01,      r:255, g:100, b:0,   a:255},
+    {v:0.02,      r:255, g:60,  b:0,   a:255},
+    {v:0.03,      r:255, g:20,  b:0,   a:255},
+    {v:0.05,      r:230, g:0,   b:50,  a:255},
+    {v:0.1,       r:200, g:0,   b:120, a:255},
+    {v:0.2,       r:160, g:0,   b:200, a:255},
+    {v:0.5,       r:120, g:0,   b:240, a:255},
+    {v:1.0,       r:80,  g:0,   b:220, a:255},
+    {v:2.0,       r:40,  g:0,   b:180, a:255},
+    {v:5.0,       r:200, g:200, b:255, a:255},
+    {v:10.0,      r:255, g:255, b:255, a:255},
+];
+
+const STOPS_TPW_MITJANA = [
+    {v:0,     r:30,  g:32,  b:45,  a:220},
+    {v:1,     r:200, g:220, b:255, a:200},
+    {v:2,     r:180, g:210, b:255, a:210},
+    {v:4,     r:150, g:195, b:255, a:215},
+    {v:6,     r:120, g:180, b:255, a:220},
+    {v:8,     r:90,  g:165, b:255, a:225},
+    {v:10,    r:60,  g:145, b:255, a:230},
+    {v:12,    r:30,  g:125, b:255, a:235},
+    {v:14,    r:0,   g:105, b:245, a:240},
+    {v:16,    r:0,   g:145, b:230, a:242},
+    {v:17,    r:0,   g:180, b:210, a:244},
+    {v:18,    r:0,   g:210, b:185, a:246},
+    {v:19,    r:50,  g:230, b:155, a:248},
+    {v:20,    r:100, g:245, b:120, a:250},
+    {v:21,    r:160, g:250, b:80,  a:252},
+    {v:22,    r:210, g:250, b:40,  a:253},
+    {v:23,    r:245, g:245, b:0,   a:254},
+    {v:24,    r:255, g:220, b:0,   a:255},
+    {v:25,    r:255, g:195, b:0,   a:255},
+    {v:26,    r:255, g:165, b:0,   a:255},
+    {v:27,    r:255, g:135, b:0,   a:255},
+    {v:28,    r:255, g:105, b:0,   a:255},
+    {v:29,    r:255, g:75,  b:0,   a:255},
+    {v:30,    r:255, g:45,  b:0,   a:255},
+    {v:32,    r:255, g:20,  b:0,   a:255},
+    {v:34,    r:230, g:0,   b:0,   a:255},
+    {v:36,    r:200, g:0,   b:0,   a:255},
+    {v:38,    r:170, g:0,   b:0,   a:255},
+    {v:40,    r:140, g:0,   b:0,   a:255},
+    {v:45,    r:100, g:0,   b:0,   a:255},
+    {v:50,    r:70,  g:0,   b:0,   a:255},
+    {v:60,    r:40,  g:0,   b:0,   a:255},
+];
+
+// ═══════════════════════════════════════════════════════════════════════
+//  PALETES WCS 3D (PV SURFACES)
+// ═══════════════════════════════════════════════════════════════════════
+
+const STOPS_GEO_PV = [
+    {v:470, r:0, g:0, b:200},
+    {v:490, r:0, g:100, b:255},
+    {v:510, r:0, g:200, b:255},
+    {v:530, r:0, g:255, b:200},
+    {v:540, r:0, g:255, b:0},
+    {v:550, r:100, g:255, b:0},
+    {v:560, r:220, g:255, b:0},
+    {v:570, r:255, g:255, b:0},
+    {v:580, r:255, g:200, b:0},
+    {v:590, r:255, g:120, b:0},
+    {v:600, r:255, g:60, b:0},
+    {v:610, r:255, g:0, b:0},
+    {v:630, r:200, g:0, b:100},
+    {v:650, r:150, g:0, b:150},
+];
+
+const STOPS_THETA_PV = [
+    {v:-30, r:0, g:0, b:200},
+    {v:-20, r:0, g:100, b:255},
+    {v:-10, r:0, g:200, b:255},
+    {v:0, r:0, g:255, b:200},
+    {v:10, r:0, g:255, b:100},
+    {v:20, r:100, g:255, b:0},
+    {v:30, r:255, g:255, b:0},
+    {v:40, r:255, g:200, b:0},
+    {v:50, r:255, g:120, b:0},
+    {v:60, r:255, g:60, b:0},
+    {v:70, r:255, g:0, b:0},
+    {v:80, r:200, g:0, b:100},
+    {v:90, r:150, g:0, b:150},
+];
+
+const STOPS_VENT_PV = [
+    {v:-100, r:255, g:0, b:255},
+    {v:-60, r:200, g:0, b:200},
+    {v:-30, r:100, g:0, b:200},
+    {v:-10, r:0, g:100, b:255},
+    {v:0, r:255, g:255, b:255},
+    {v:10, r:255, g:100, b:0},
+    {v:30, r:200, g:0, b:100},
+    {v:60, r:200, g:0, b:0},
+    {v:100, r:100, g:0, b:0},
+];
+
+const STOPS_WIND_PV = [
+    {v:0, r:200, g:200, b:255},
+    {v:5, r:150, g:200, b:255},
+    {v:10, r:100, g:180, b:255},
+    {v:15, r:0, g:150, b:255},
+    {v:20, r:0, g:200, b:220},
+    {v:30, r:0, g:255, b:100},
+    {v:40, r:150, g:255, b:0},
+    {v:50, r:255, g:255, b:0},
+    {v:60, r:255, g:200, b:0},
+    {v:70, r:255, g:140, b:0},
+    {v:80, r:255, g:80, b:0},
+    {v:90, r:255, g:20, b:0},
+    {v:100, r:255, g:0, b:0},
+    {v:120, r:190, g:0, b:30},
+    {v:150, r:130, g:0, b:140},
+    {v:200, r:250, g:100, b:250},
+    {v:250, r:255, g:200, b:255},
+    {v:300, r:255, g:255, b:255},
+];
+
+const STOPS_ISOTERMA = [
+    {v:0, r:0, g:0, b:0, a:0},
+    {v:500, r:200, g:200, b:255, a:80},
+    {v:1000, r:100, g:180, b:255, a:120},
+    {v:1500, r:0, g:200, b:200, a:160},
+    {v:2000, r:0, g:255, b:100, a:190},
+    {v:2500, r:100, g:255, b:0, a:210},
+    {v:3000, r:255, g:255, b:0, a:220},
+    {v:3500, r:255, g:200, b:0, a:230},
+    {v:4000, r:255, g:150, b:0, a:240},
+    {v:4500, r:255, g:80, b:0, a:248},
+    {v:5000, r:255, g:0, b:0, a:252},
+    {v:6000, r:200, g:0, b:50, a:255},
+    {v:8000, r:150, g:0, b:100, a:255},
+    {v:12000, r:100, g:0, b:150, a:255},
+];
+
+const STOPS_SCP = [
+    {v:0,    r:220, g:220, b:220, a:20},
+    {v:0.1,  r:200, g:210, b:220, a:50},
+    {v:0.2,  r:180, g:200, b:220, a:80},
+    {v:0.3,  r:160, g:190, b:220, a:110},
+    {v:0.4,  r:140, g:180, b:220, a:140},
+    {v:0.5,  r:120, g:170, b:220, a:160},
+    {v:0.7,  r:100, g:180, b:220, a:175},
+    {v:0.9,  r:80,  g:195, b:220, a:190},
+    {v:1.1,  r:60,  g:210, b:215, a:200},
+    {v:1.3,  r:60,  g:220, b:200, a:210},
+    {v:1.5,  r:80,  g:230, b:180, a:215},
+    {v:1.8,  r:110, g:235, b:155, a:225},
+    {v:2.0,  r:150, g:240, b:130, a:230},
+    {v:2.3,  r:185, g:245, b:105, a:235},
+    {v:2.6,  r:215, g:248, b:80,  a:240},
+    {v:2.9,  r:235, g:248, b:55,  a:242},
+    {v:3.2,  r:248, g:245, b:35,  a:245},
+    {v:3.5,  r:255, g:240, b:20,  a:248},
+    {v:4.0,  r:255, g:235, b:10,  a:250},
+    {v:4.5,  r:255, g:225, b:0,   a:252},
+    {v:5.0,  r:255, g:215, b:0,   a:253},
+    {v:5.5,  r:255, g:200, b:0,   a:254},
+    {v:6.0,  r:255, g:180, b:0,   a:255},
+    {v:6.5,  r:255, g:160, b:0,   a:255},
+    {v:7.0,  r:255, g:140, b:0,   a:255},
+    {v:7.5,  r:255, g:120, b:0,   a:255},
+    {v:8.0,  r:255, g:100, b:0,   a:255},
+    {v:8.5,  r:255, g:80,  b:0,   a:255},
+    {v:9.0,  r:255, g:60,  b:0,   a:255},
+    {v:9.5,  r:255, g:40,  b:0,   a:255},
+    {v:10.0, r:255, g:20,  b:0,   a:255},
+    {v:10.5, r:255, g:10,  b:10,  a:255},
+    {v:11.0, r:240, g:0,   b:30,  a:255},
+    {v:11.5, r:220, g:0,   b:60,  a:255},
+    {v:12.0, r:200, g:0,   b:90,  a:255},
+    {v:12.5, r:180, g:0,   b:120, a:255},
+    {v:13.0, r:160, g:0,   b:150, a:255},
+    {v:13.5, r:140, g:20,  b:175, a:255},
+    {v:14.0, r:120, g:40,  b:195, a:255},
+    {v:14.5, r:100, g:60,  b:215, a:255},
+    {v:15.0, r:80,  g:80,  b:235, a:255},
+    {v:16.0, r:60,  g:100, b:245, a:255},
+    {v:17.0, r:80,  g:130, b:248, a:255},
+    {v:18.0, r:120, g:170, b:248, a:255},
+    {v:19.0, r:180, g:210, b:250, a:255},
+    {v:20.0, r:255, g:255, b:255, a:255},
+];
+
+const STOPS_HAIL = [
+    {v:0,    r:255, g:255, b:255, a:0},
+    {v:0.1,  r:220, g:240, b:255, a:60},
+    {v:0.2,  r:200, g:225, b:255, a:100},
+    {v:0.3,  r:180, g:210, b:255, a:130},
+    {v:0.4,  r:160, g:195, b:255, a:155},
+    {v:0.5,  r:140, g:180, b:255, a:175},
+    {v:0.6,  r:120, g:165, b:255, a:190},
+    {v:0.7,  r:100, g:150, b:255, a:200},
+    {v:0.8,  r:80,  g:135, b:255, a:210},
+    {v:0.9,  r:60,  g:120, b:255, a:218},
+    {v:1.0,  r:40,  g:105, b:255, a:225},
+    {v:1.2,  r:20,  g:90,  b:255, a:235},
+    {v:1.4,  r:0,   g:75,  b:245, a:242},
+    {v:1.6,  r:0,   g:60,  b:230, a:248},
+    {v:1.8,  r:0,   g:45,  b:215, a:252},
+    {v:2.0,  r:0,   g:30,  b:200, a:255},
+    {v:2.5,  r:0,   g:60,  b:180, a:255},
+    {v:3.0,  r:0,   g:100, b:160, a:255},
+    {v:3.5,  r:0,   g:150, b:140, a:255},
+    {v:4.0,  r:0,   g:200, b:120, a:255},
+    {v:4.5,  r:50,  g:230, b:100, a:255},
+    {v:5.0,  r:100, g:250, b:80,  a:255},
+    {v:5.5,  r:150, g:255, b:60,  a:255},
+    {v:6.0,  r:200, g:255, b:40,  a:255},
+    {v:6.5,  r:230, g:255, b:20,  a:255},
+    {v:7.0,  r:255, g:255, b:0,   a:255},
+    {v:7.5,  r:255, g:230, b:0,   a:255},
+    {v:8.0,  r:255, g:200, b:0,   a:255},
+    {v:8.5,  r:255, g:170, b:0,   a:255},
+    {v:9.0,  r:255, g:140, b:0,   a:255},
+    {v:9.5,  r:255, g:110, b:0,   a:255},
+    {v:10.0, r:255, g:80,  b:0,   a:255},
+    {v:11,   r:255, g:60,  b:0,   a:255},
+    {v:12,   r:255, g:40,  b:0,   a:255},
+    {v:13,   r:255, g:20,  b:0,   a:255},
+    {v:14,   r:255, g:0,   b:0,   a:255},
+    {v:15,   r:240, g:0,   b:0,   a:255},
+    {v:16,   r:220, g:0,   b:20,  a:255},
+    {v:17,   r:200, g:0,   b:40,  a:255},
+    {v:18,   r:180, g:0,   b:60,  a:255},
+    {v:19,   r:160, g:0,   b:80,  a:255},
+    {v:20,   r:140, g:0,   b:100, a:255},
+    {v:21,   r:120, g:0,   b:120, a:255},
+    {v:22,   r:100, g:0,   b:140, a:255},
+    {v:23,   r:80,  g:0,   b:160, a:255},
+    {v:24,   r:60,  g:0,   b:180, a:255},
+    {v:25,   r:40,  g:0,   b:200, a:255},
+    {v:26,   r:60,  g:20,  b:210, a:255},
+    {v:27,   r:80,  g:40,  b:220, a:255},
+    {v:28,   r:100, g:60,  b:230, a:255},
+    {v:29,   r:120, g:80,  b:240, a:255},
+    {v:30,   r:255, g:255, b:255, a:255},
+];
+
+// ═══════════════════════════════════════════════════════════════════════
+//  NORMALITZACIÓ DE CLAUS WCS
+// ═══════════════════════════════════════════════════════════════════════
+
+const ALIES_CLAUS = {
+    'BRIGHTNESS_TEMPERATURE__GROUND_OR_WATER_SURFACE': 'bt108',
+    'BRIGHTNESS_TEMPERATURE_62__GROUND_OR_WATER_SURFACE': 'bt62',
+    'BT__CHANNELS_108': 'bt108',
+    'BT__CHANNELS_62': 'bt62',
+    'DIAG_EHI__GROUND': 'ehi',
+    'CIN__GROUND': 'cin',
+    'DIAG_SCP__GROUND': 'scp_wcs',
+    'DIAG_STP__GROUND': 'stp',
+    'ALTITUDE__GROUND': 'altitud',
+    'CIWC__ISOBARIC_500': 'ciwc_500',
+    'CLD_RAIN__ISOBARIC_850': 'cld_rain_850',
+    'TPW__ISOBARIC_700': 'tpw_700',
+    'TPW__ISOBARIC_850': 'tpw_850',
+    'THETAV__ISOBARIC_850': 'thetav_850',
+    'WIND_SPEED_GUST__SPECIFIC_HEIGHT_LEVEL_ABOVE_GROUND': 'wind_gust',
+};
+
+const CLAU_REAL = {};
+Object.entries(ALIES_CLAUS).forEach(([crua, curta]) => {
+    CLAU_REAL[curta] = crua;
+});
+
+function normalitzarClau(clauOriginal) {
+    if (ALIES_CLAUS[clauOriginal]) return ALIES_CLAUS[clauOriginal];
+    if (typeof clauOriginal === 'string' && clauOriginal.startsWith('WIND_SPEED_GUST')) {
+        return 'wind_gust';
+    }
+    return clauOriginal;
+}
+
+function clauRealPerLlegir(clauCurta) {
+    return CLAU_REAL[clauCurta] || clauCurta;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  PALETES MAP
+// ═══════════════════════════════════════════════════════════════════════
+
+const PALETES = {
+    // ─── SFC (superfície) ──────────────────────────────────────────
+    st:             {titol:'Temperatura 2m',           unitat:'°C',        stops:STOPS_TEMP},
+    sd:             {titol:'Punt rosada 2m',           unitat:'°C',        stops:STOPS_TEMP},
+    srh:            {titol:'Humitat 2m',               unitat:'%',         stops:STOPS_HUMITAT},
+    temp_min2m:     {titol:'Temp. mín. 2m',            unitat:'°C',        stops:STOPS_TEMP},
+    temp_max2m:     {titol:'Temp. màx. 2m',            unitat:'°C',        stops:STOPS_TEMP},
+    su:             {titol:'Vent U 10m',               unitat:'m/s',       stops:STOPS_VENT_UV},
+    sv:             {titol:'Vent V 10m',               unitat:'m/s',       stops:STOPS_VENT_UV},
+    wind_speed_10m: {titol:'Vent 10m',                 unitat:'km/h',      stops:STOPS_RATXA},
+    wind_gust_real:      {titol:'Ratxa 10m',                unitat:'km/h',      stops:STOPS_RATXA},
+    sp:             {titol:'Pressió superf.',          unitat:'hPa',       stops:STOPS_PRESSIO},
+    pressure_msl:   {titol:'Pressió MSL',              unitat:'hPa',       stops:STOPS_PRESSIO},
+    cape:           {titol:'CAPE',                     unitat:'J/kg',      stops:STOPS_CAPE},
+    cin:            {titol:'CIN',                      unitat:'J/kg',      stops:STOPS_CIN},
+    spbl:           {titol:'Capa límit',               unitat:'m',         stops:STOPS_ALTURA_CL},
+    radar_dbz:      {titol:'Radar simulat',            unitat:'dBZ',       stops:STOPS_RADAR},
+    'REFLECTIVITY_MAX_DBZ__GROUND_OR_WATER_SURFACE': {
+        titol: 'Reflectivitat dBZ', unitat: 'dBZ', stops: STOPS_REFLECTIVITAT
+    },
+    lightning_1h:   {titol:'Llamps 1h',                unitat:'fl/m²',     stops:STOPS_LLAMPS_V2},
+    low_cloud_cover:{titol:'Núvols baixos',            unitat:'%',         stops:STOPS_NUVOLS_BAIXOS},
+    medium_cloud_cover:{titol:'Núvols mitjans',        unitat:'%',         stops:STOPS_NUVOLS_MITJANS},
+    high_cloud_cover:{titol:'Núvols alts',             unitat:'%',         stops:STOPS_NUVOLS_ALTS},
+    tp:             {titol:'Precip. total acum.',      unitat:'mm',        stops:STOPS_PRECIP},
+    tsnowp:         {titol:'Neu total acum.',          unitat:'mm',        stops:STOPS_PRECIP},
+
+    // ─── SATÈL·LIT ──────────────────────────────────────────────────
+    bt108:          {titol:'BT 10.8µm',                unitat:'°C',        stops:STOPS_BT108},
+    bt62:           {titol:'BT 6.2µm (vapor)',         unitat:'°C',        stops:STOPS_BT62},
+
+    // ─── 3D ─────────────────────────────────────────────────────────
+    t:              {titol:'Temperatura',              unitat:'°C',        stops:STOPS_TEMP_ALT},
+    u:              {titol:'Vent U',                   unitat:'m/s',       stops:STOPS_VENT_UV},
+    v:              {titol:'Vent V',                   unitat:'m/s',       stops:STOPS_VENT_UV},
+    wind_speed:     {titol:'Vent',                     unitat:'km/h',      stops:STOPS_RATXA},
+    r:              {titol:'Humitat',                  unitat:'%',         stops:STOPS_HUMITAT},
+    w:              {titol:'Vel. vertical',            unitat:'Pa/s',      stops:STOPS_VEL_VERT},
+    dpt:            {titol:'Punt rosada',              unitat:'°C',        stops:STOPS_TEMP_ALT},
+    pv:             {titol:'Vort. potencial',          unitat:'PVU',       stops:STOPS_VORT_POT},
+
+    // ─── CONVECTIU ──────────────────────────────────────────────────
+    lcl_m:          {titol:'LCL (alçada)',             unitat:'m',         stops:STOPS_ALTURA_CL},
+    lfc_m:          {titol:'LFC (alçada)',             unitat:'m',         stops:STOPS_ALTURA_CL},
+    lifted_index:   {titol:'Lifted Index',             unitat:'°C',        stops:STOPS_LI},
+    el_m:           {titol:'Equilibrium Level',        unitat:'m',         stops:STOPS_ALTURA_CL},
+    scp:            {titol:'SCP (càlcul local)',       unitat:'Index',     stops:STOPS_SCP},
+    scp_wcs:        {titol:'SCP (Météo-France)',       unitat:'Index',     stops:STOPS_SCP},
+    stp:            {titol:'STP (Météo-France)',       unitat:'Index',     stops:STOPS_STP},
+    hail_cm:        {titol:'Calamarsa (mida aprox.)',  unitat:'cm',        stops:STOPS_HAIL},
+    ehi:            {titol:'EHI (SRH×CAPE)',           unitat:'m²/s²',     stops:STOPS_EHI},
+
+    // ─── SHEAR + SRH ────────────────────────────────────────────────
+    srh_01:         {titol:'SRH 0-1km',                unitat:'m²/s²',    stops:STOPS_SRH},
+    srh_03:         {titol:'SRH 0-3km',                unitat:'m²/s²',    stops:STOPS_SRH},
+    shear_03:       {titol:'Shear 0-3km',              unitat:'m/s',      stops:STOPS_SHEAR},
+    shear_06:       {titol:'Shear 0-6km',              unitat:'m/s',      stops:STOPS_SHEAR},
+
+    // ─── NÚVOLS (WCS 3D) ────────────────────────────────────────────
+    ciwc_500:       {titol:'Gel núvols 500hPa',        unitat:'g/kg',     stops:STOPS_GEL},
+    cld_rain_850:   {titol:'Pluja núvols 850hPa',      unitat:'g/kg',     stops:STOPS_PLUJA},
+    tpw_700:        {titol:'Aigua precip. @700hPa',    unitat:'kg/m²',    stops:STOPS_TPW},
+    tpw_850:        {titol:'Aigua precip. @850hPa',    unitat:'mm',       stops:STOPS_TPW},
+    thetav_850:     {titol:'Theta virtual 850hPa',     unitat:'°C',       stops:STOPS_THETAV},
+
+    // ─── ALTRES ─────────────────────────────────────────────────────
+    geopotencial_500:{titol:'Geopotencial 500hPa',     unitat:'dam',      stops:STOPS_GEO500},
+    temperatura_500:{titol:'Temperatura 500hPa',       unitat:'°C',       stops:STOPS_T500},
+    altitud:        {titol:'Altitud',                  unitat:'m',        stops:STOPS_ALTURA_CL},
+    wind_gust:      {titol:'Ratxa 10m (WCS)',          unitat:'km/h',      stops:STOPS_RATXAVENT},
+'WIND_SPEED_GUST__SPECIFIC_HEIGHT_LEVEL_ABOVE_GROUND': {
+    titol: 'Ratxa 10m (WCS)', unitat: 'km/h', stops: STOPS_RATXAVENT
+},
+
+    'SNOW_DEPTH__GROUND_OR_WATER_SURFACE': {
+        titol: 'Gruix de neu', unitat: 'm', stops: STOPS_NEU
+    },
+    'WATER_EQUIVALENT_ACCUMULATED_SNOW__GROUND_OR_WATER_SURFACE': {
+        titol: 'Equivalent aigua neu', unitat: 'm', stops: STOPS_NEU
+    },
+    'PRECIPITATION_TYPE_60_MIN__GROUND_OR_WATER_SURFACE': {
+        titol: 'Tipus precip. 60min', unitat: 'categ.', stops: STOPS_PRECIP_TYPE
+    },
+    'SEVERE_PRECIPITATION_TYPE_60_MIN__GROUND_OR_WATER_SURFACE': {
+        titol: 'Tipus precip. severa 60min', unitat: 'categ.', stops: STOPS_PRECIP_TYPE
+    },
+    'REFLECTIVITY_MAX__GROUND_OR_WATER_SURFACE': {
+        titol: 'Reflectivitat màxima', unitat: 'dBZ', stops: STOPS_REFLECTIVITAT
+    },
+    'VISIBILITY_MINI_60MIN__GROUND_OR_WATER_SURFACE': {
+        titol: 'Visibilitat 60min', unitat: 'm', stops: STOPS_VISIBILITAT
+    },
+    'VISIBILITY_MINI_PRECIP_60MIN__GROUND_OR_WATER_SURFACE': {
+        titol: 'Visibilitat sota precip. 60min', unitat: 'm', stops: STOPS_VISIBILITAT
+    },
+    'PRECIPITABLE_WATER__GROUND_OR_WATER_SURFACE': {
+        titol: 'Aigua precipitable (WCS)', unitat: 'kg/m²', stops: STOPS_TPW_WCS
+    },
+    'TEMPERATURE__GROUND_OR_WATER_SURFACE': {
+        titol: 'Temperatura superfície model', unitat: '°C', stops: STOPS_TEMP_SFC_MODEL
+    },
+    'TOTAL_CLOUD_COVER__GROUND_OR_WATER_SURFACE': {
+        titol: 'Nuvolositat total', unitat: '%', stops: STOPS_TOTAL_CLOUD
+    },
+    'MEAN_LAYER_CAPE__GROUND_OR_WATER_SURFACE': {
+        titol: 'CAPE mitjana', unitat: 'J/kg', stops: STOPS_CAPE_MITJANA
+    },
+    'DIAG_GRELE__GROUND_OR_WATER_SURFACE': {
+        titol: 'Calamarsa (WCS)', unitat: 'Index', stops: STOPS_HAIL
+    },
+    'PRECIPITATION_TYPE_15_MIN__GROUND_OR_WATER_SURFACE': {
+        titol: 'Tipus precip. 15min', unitat: 'categ.', stops: STOPS_PRECIP_TYPE
+    },
+    'SEVERE_PRECIPITATION_TYPE_15_MIN__GROUND_OR_WATER_SURFACE': {
+        titol: 'Tipus precip. severa 15min', unitat: 'categ.', stops: STOPS_PRECIP_TYPE
+    },
+    'TOTAL_PRECIPITATION_RATE__GROUND_OR_WATER_SURFACE': {
+        titol: 'Intensitat precip.', unitat: 'mm/h', stops: STOPS_PRECIP_RATE
+    },
+    'VISIBILITY_MINI_15MIN__GROUND_OR_WATER_SURFACE': {
+        titol: 'Visibilitat 15min', unitat: 'm', stops: STOPS_VISIBILITAT
+    },
+    'VISIBILITY_MINI_PRECIP_15MIN__GROUND_OR_WATER_SURFACE': {
+        titol: 'Visibilitat sota precip. 15min', unitat: 'm', stops: STOPS_VISIBILITAT
+    },
+
+    'CIWC_MITJANA': {
+        titol: 'Gel núvols (mitjana)', unitat: 'g/m²', stops: STOPS_CIWC_MITJANA
+    },
+    'CLD_RAIN_MITJANA': {
+        titol: 'Pluja núvols (mitjana)', unitat: 'g/m²', stops: STOPS_CLD_RAIN_MITJANA
+    },
+    'TPW_MITJANA': {
+        titol: 'Aigua precipitable (mitjana)', unitat: 'mm', stops: STOPS_TPW_MITJANA
+    },
+
+    // ─── WCS 3D (PV SURFACES) ────────────────────────────────────────
+    'GEOPOTENTIAL_PV1500': { titol: 'Geopotencial PV=1.5', unitat: 'dam', stops: STOPS_GEO_PV },
+    'GEOPOTENTIAL_PV2000': { titol: 'Geopotencial PV=2.0', unitat: 'dam', stops: STOPS_GEO_PV },
+    'THETA_PV1500':        { titol: 'Theta PV=1.5', unitat: '°C', stops: STOPS_THETA_PV },
+    'THETA_PV2000':        { titol: 'Theta PV=2.0', unitat: '°C', stops: STOPS_THETA_PV },
+    'U_PV1500':            { titol: 'Vent U PV=1.5', unitat: 'm/s', stops: STOPS_VENT_PV },
+    'U_PV2000':             { titol: 'Vent U PV=2.0', unitat: 'm/s', stops: STOPS_VENT_PV },
+    'V_PV1500':            { titol: 'Vent V PV=1.5', unitat: 'm/s', stops: STOPS_VENT_PV },
+    'V_PV2000':            { titol: 'Vent V PV=2.0', unitat: 'm/s', stops: STOPS_VENT_PV },
+    'WIND_PV1500':         { titol: 'Vent total PV=1.5', unitat: 'm/s', stops: STOPS_WIND_PV },
+    'WIND_PV2000':         { titol: 'Vent total PV=2.0', unitat: 'm/s', stops: STOPS_WIND_PV },
+    'ALTITUDE_ISOTERMA_0C':   { titol: 'Altitud isoterma 0°C', unitat: 'm', stops: STOPS_ISOTERMA },
+    'ALTITUDE_ISOTERMA_M10C': { titol: 'Altitud isoterma -10°C', unitat: 'm', stops: STOPS_ISOTERMA },
+
+    // ─── VARIABLES WCS 2D QUE ABANS CAIEN A "ALTRES" AMB °C ───────────
+    'ALTITUDE__ISO_T_27315':    { titol: 'Isoterma 0°C',      unitat: 'm', stops: STOPS_ISOTERMA },
+    'ALTITUDE__ISO_TPW_27315':  { titol: 'Iso TPW 0°C',       unitat: 'm', stops: STOPS_ISOTERMA },
+    'ALTITUDE__ISO_TPW_27415':  { titol: 'Iso TPW +1°C',      unitat: 'm', stops: STOPS_ISOTERMA },
+    'ALTITUDE__ISO_TPW_27465':  { titol: 'Iso TPW +1.5°C',    unitat: 'm', stops: STOPS_ISOTERMA },
+    'BASE_NUAGE__GROUND':       { titol: 'Base núvols',       unitat: 'm', stops: STOPS_ALTURA_CL },
+    'PLAFOND__GROUND':          { titol: 'Sostre núvols',     unitat: 'm', stops: STOPS_ALTURA_CL },
+    'P__BASE_CB':                { titol: 'Base Cumulonimbus', unitat: 'm', stops: STOPS_ALTURA_CL },
+    'P__TOP_CB':                 { titol: 'Cim Cumulonimbus',  unitat: 'm', stops: STOPS_ALTURA_CL },
+    'HTEURNEIGE__GROUND':       { titol: 'Altura neu',        unitat: 'mm', stops: STOPS_NEU },
+    'NEIGE_SC__GROUND':         { titol: 'Neu superfície',    unitat: 'mm', stops: STOPS_NEU },
+    'RESR_NEIGE__GROUND':       { titol: 'Reserva neu',       unitat: 'mm', stops: STOPS_NEU },
+    'RR_SOL_GELE__GROUND':      { titol: 'Pluja gelada',      unitat: 'mm', stops: STOPS_PRECIP },
+    'PRECIP__GROUND':           { titol: 'Precipitació 1h',   unitat: 'mm', stops: STOPS_PRECIP },
+    'NEIGE__GROUND':            { titol: 'Neu 1h',            unitat: 'mm', stops: STOPS_NEU },
+    'DIAG_GRELE__GROUND':       { titol: 'Calamarsa (diag. WCS)', unitat: 'Index', stops: STOPS_HAIL },
+    'FF__ISO_TP_1500':          { titol: 'Vent PV=1.5 (WCS)', unitat: 'm/s', stops: STOPS_VENT_PV },
+    'FF__ISO_TP_2000':          { titol: 'Vent PV=2.0 (WCS)', unitat: 'm/s', stops: STOPS_VENT_PV },
+    'HELICITE__GROUND':         { titol: 'Helicitat',         unitat: 'm²/s²', stops: STOPS_SRH },
+    'T__GROUND':                 { titol: 'Temperatura superfície', unitat: '°C', stops: STOPS_TEMP_SFC_MODEL },
+};
+
+// Assegurar que wind_speed_10m existeix (per si l'ordre de càrrega falla)
+if (!PALETES['wind_speed_10m']) {
+    PALETES['wind_speed_10m'] = {
+        titol: 'Vent 10m',
+        unitat: 'km/h',
+        stops: STOPS_RATXA
+    };
+}
+
+function escalarVariablesMitjana(variables) {
+    if (variables['CIWC_MITJANA']?.datos) {
+        const vals = variables['CIWC_MITJANA'].datos;
+        const escalats = new Float32Array(vals.length);
+        for (let i = 0; i < vals.length; i++) escalats[i] = vals[i] * 1000;
+        variables['CIWC_MITJANA'].datos = escalats;
+    }
+    if (variables['CLD_RAIN_MITJANA']?.datos) {
+        const vals = variables['CLD_RAIN_MITJANA'].datos;
+        const escalats = new Float32Array(vals.length);
+        for (let i = 0; i < vals.length; i++) escalats[i] = vals[i] * 100;
+        variables['CLD_RAIN_MITJANA'].datos = escalats;
+    }
+    if (variables['TPW_MITJANA']?.datos) {
+        const vals = variables['TPW_MITJANA'].datos;
+        const escalats = new Float32Array(vals.length);
+        for (let i = 0; i < vals.length; i++) escalats[i] = vals[i];
+        variables['TPW_MITJANA'].datos = escalats;
+    }
+    return variables;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  GRUPS DEL PANELL DE PARÀMETRES
+// ═══════════════════════════════════════════════════════════════════════
+
+const GRUP_PRINCIPAL = [
+    'st',
+    'feels_like',
+    'temp_min2m',
+    'temp_max2m',
+    'sd',
+    'srh',
+    'wind_speed_10m',
+    'wind_gust',
+    'WIND_SPEED_GUST__SPECIFIC_HEIGHT_LEVEL_ABOVE_GROUND', 
+];
+
+const GRUPS_SIMPLES = {
+
+    'Ratxes de vent': [
+        'wind_speed_10m', 'wind_gust',
+    ],
+
+    'Temperatura i Humitat': [
+        'st', 'sd', 'temp_min2m', 'temp_max2m',
+        'TEMPERATURE__GROUND_OR_WATER_SURFACE',
+        'T__GROUND',
+    ],
+    'Pressió': [
+        'pressure_msl', 'sp',
+        'PRESSURE__GROUND_OR_WATER_SURFACE',
+        'PRESSURE__MEAN_SEA_LEVEL',
+    ],
+
+    'Vent en nivells (3D)': [
+        'wind_speed_1000', 'wind_speed_950', 'wind_speed_925', 'wind_speed_900',
+        'wind_speed_875', 'wind_speed_850', 'wind_speed_800', 'wind_speed_750',
+        'wind_speed_700', 'wind_speed_650', 'wind_speed_600', 'wind_speed_550',
+        'wind_speed_500', 'wind_speed_450', 'wind_speed_400', 'wind_speed_350',
+        'wind_speed_300', 'wind_speed_250', 'wind_speed_200', 'wind_speed_150',
+        'wind_speed_100',
+    ],
+    'Velocitat vertical': [
+        'w_925', 'w_850', 'w_700', 'w_500', 'w_300',
+    ],
+    'Shear i SRH': [
+        'shear_03', 'shear_06', 'srh_01', 'srh_03', 'srh', 'sh2',
+    ],
+    'Precipitació': [
+        'tp', 'tsnowp',
+        'TOTAL_PRECIPITATION_RATE__GROUND_OR_WATER_SURFACE',
+        'CONVECTIVE_PRECIPITATION_RATE__GROUND_OR_WATER_SURFACE',
+        'PRECIPITATION_TYPE_60_MIN__GROUND_OR_WATER_SURFACE',
+        'SEVERE_PRECIPITATION_TYPE_60_MIN__GROUND_OR_WATER_SURFACE',
+        'PRECIPITATION_TYPE_15_MIN__GROUND_OR_WATER_SURFACE',
+        'SEVERE_PRECIPITATION_TYPE_15_MIN__GROUND_OR_WATER_SURFACE',
+        'TPW_MITJANA',
+        'PRECIPITABLE_WATER__GROUND_OR_WATER_SURFACE',
+        'tpw_700', 'tpw_850',
+        'PRECIP__GROUND',
+    ],
+    'Neu': [
+        'SNOW_DEPTH__GROUND_OR_WATER_SURFACE',
+        'WATER_EQUIVALENT_ACCUMULATED_SNOW__GROUND_OR_WATER_SURFACE',
+        'HTEURNEIGE__GROUND', 'NEIGE_SC__GROUND', 'RESR_NEIGE__GROUND',
+        'RR_SOL_GELE__GROUND', 'NEIGE__GROUND',
+    ],
+    'Visibilitat': [
+        'VISIBILITY_MINI_60MIN__GROUND_OR_WATER_SURFACE',
+        'VISIBILITY_MINI_PRECIP_60MIN__GROUND_OR_WATER_SURFACE',
+        'VISIBILITY_MINI_15MIN__GROUND_OR_WATER_SURFACE',
+        'VISIBILITY_MINI_PRECIP_15MIN__GROUND_OR_WATER_SURFACE',
+    ],
+    'Inestabilitat i Convecció': [
+        'cape', 'cin',
+        'MEAN_LAYER_CAPE__GROUND_OR_WATER_SURFACE',
+        'lifted_index', 'lcl_m', 'lfc_m', 'el_m',
+        'thetav_850',
+    ],
+    'Tornados i Supercèl·lules': [
+        'scp', 'scp_wcs', 'stp', 'ehi', 'hail_cm',
+        'DIAG_GRELE__GROUND_OR_WATER_SURFACE',
+        'DIAG_GRELE__GROUND',
+        'HELICITE__GROUND',
+    ],
+    'Cumulonimbus': [
+        'P__BASE_CB', 'P__TOP_CB',
+    ],
+    'Reflectivitat (Radar)': [
+        'radar_dbz',
+        'REFLECTIVITY_MAX__GROUND_OR_WATER_SURFACE',
+        'REFLECTIVITY_MAX_DBZ__GROUND_OR_WATER_SURFACE',
+    ],
+    'Núvols': [
+        'low_cloud_cover', 'medium_cloud_cover', 'high_cloud_cover',
+        'TOTAL_CLOUD_COVER__GROUND_OR_WATER_SURFACE',
+        'CIWC_MITJANA', 'CLD_RAIN_MITJANA',
+        'ciwc_500', 'cld_rain_850',
+        'BASE_NUAGE__GROUND', 'PLAFOND__GROUND',
+    ],
+    'Satèl·lit': [
+        'bt108', 'bt62',
+    ],
+    'Geometria i Altitud': [
+        'altitud',
+        'GEOMETRIC_HEIGHT__GROUND_OR_WATER_SURFACE',
+        'spbl',
+        'PLANETARY_BOUNDARY_LAYER_HEIGHT__GROUND_OR_WATER_SURFACE',
+        'ALTITUDE_ISOTERMA_0C', 'ALTITUDE_ISOTERMA_M10C',
+        'ALTITUDE__ISO_T_27315',
+        'ALTITUDE__ISO_TPW_27315', 'ALTITUDE__ISO_TPW_27415', 'ALTITUDE__ISO_TPW_27465',
+    ],
+    'PV Superfícies': [
+        'pv_925', 'pv_850', 'pv_700', 'pv_500', 'pv_300', 'pv_200',
+        'GEOPOTENTIAL_PV1500', 'GEOPOTENTIAL_PV2000',
+        'THETA_PV1500', 'THETA_PV2000',
+        'U_PV1500', 'U_PV2000',
+        'V_PV1500', 'V_PV2000',
+        'WIND_PV1500', 'WIND_PV2000',
+        'FF__ISO_TP_1500', 'FF__ISO_TP_2000',
+    ],
+};
+
+const GRUPS_ACORDIO = {
+    'Temperatura':      ['t'],
+    'Punt rosada':      ['dpt'],
+    'Humitat':          ['r'],
+    'Vent (nivells)':   ['wind_speed'],
+    'Vel. vertical':    ['w'],
+    'Vort. potencial':  ['pv'],
+};
+
+const CLAUS_3D = new Set(['t','u','v','r','w','dpt','pv','wind_speed']);
+
+const VARIABLES_AMAGADES = new Set([
+    'su', 'sv', 'u', 'v', 'sh2', 'geo_h', 'shear_06_eff',
+    'srh_06_eff', 'sp', 'lightning', 'reflectivity_dbz', 'rain','precip_water', 'group', 'tgrp' ,'scp', 'bt62',
+
+    'LOW_CLOUD_COVER__GROUND_OR_WATER_SURFACE',
+    'MEDIUM_CLOUD_COVER__GROUND_OR_WATER_SURFACE',
+    'HIGH_CLOUD_COVER__GROUND_OR_WATER_SURFACE',
+    'TOTAL_CLOUD_COVER__GROUND_OR_WATER_SURFACE',
+
+    'CONVECTIVE_AVAILABLE_POTENTIAL_ENERGY__GROUND_OR_WATER_SURFACE',
+    'CONVECTIVE_INHIBITION__GROUND_OR_WATER_SURFACE',
+    'CIN__GROUND',
+
+    'MEAN_LAYER_CAPE__GROUND_OR_WATER_SURFACE',
+    'PLANETARY_BOUNDARY_LAYER_HEIGHT__GROUND_OR_WATER_SURFACE',
+    'PRECIPITABLE_WATER__GROUND_OR_WATER_SURFACE',
+    'TEMPERATURE__GROUND_OR_WATER_SURFACE',
+    'PRESSURE__GROUND_OR_WATER_SURFACE',
+    'PRESSURE__MEAN_SEA_LEVEL',
+    'GEOMETRIC_HEIGHT__GROUND_OR_WATER_SURFACE',
+]);
+
+function esVariableAmagada(clau) {
+    if (VARIABLES_AMAGADES.has(clau)) return true;
+    const m = clau.match(/^(.+)_(-?\d+)$/);
+    if (m && VARIABLES_AMAGADES.has(m[1])) return true;
+    return false;
+}
+
+function esVariable3D(clau) { return CLAUS_3D.has(clauBase(clau)); }
+
+function getCoordenadesPer(data, clau) {
+    if (esVariable3D(clau) && data.coordenadas_3d) return data.coordenadas_3d;
+    return data.coordenadas;
+}
+
+let variableActiva = 'st';
+window._currentParameter = 'st';
+
+function clauBase(c) {
+    if (PALETES[c]) return c;
+    if (ALIES_CLAUS[c] && PALETES[ALIES_CLAUS[c]]) return ALIES_CLAUS[c];
+    const m = c.match(/^(.+)_(-?\d+)$/);
+    return (m && PALETES[m[1]]) ? m[1] : 'st';
+}
+
+function getPaleta(c) { return PALETES[clauBase(c)] || PALETES.st; }
+
+function getColor(pal, v) {
+    const s = pal.stops;
+    if (v === null || v === undefined || isNaN(v)) return {r:0,g:0,b:0,a:0};
+    if (v <= s[0].v) return {r:s[0].r,g:s[0].g,b:s[0].b,a:s[0].a??220};
+    if (v >= s[s.length-1].v) return {r:s[s.length-1].r,g:s[s.length-1].g,b:s[s.length-1].b,a:s[s.length-1].a??220};
+    for (let i=0; i<s.length-1; i++) {
+        if (v>=s[i].v && v<=s[i+1].v) {
+            const t=(v-s[i].v)/(s[i+1].v-s[i].v);
+            const lr=(a,b)=>Math.round(a+(b-a)*t);
+            return {r:lr(s[i].r,s[i+1].r),g:lr(s[i].g,s[i+1].g),b:lr(s[i].b,s[i+1].b),a:lr(s[i].a??220,s[i+1].a??220)};
+        }
+    }
+    return {r:0,g:0,b:0,a:0};
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  CALCULAR VENT
+// ═══════════════════════════════════════════════════════════════════════
+function calcularVelocitatVent(variables) {
+    if (variables['su'] && variables['sv']) {
+        const u = variables['su'].datos;
+        const v = variables['sv'].datos;
+        if (u.length === v.length) {
+            const dades = u.map((valU, i) => {
+                if (valU === null || v[i] === null || isNaN(valU) || isNaN(v[i])) return null;
+                return Math.round(Math.sqrt(valU * valU + v[i] * v[i]) * 3.6 * 10) / 10;
+            });
+            variables['wind_speed_10m'] = {
+                nombre: 'Vent 10m',
+                unidades: 'km/h',
+                datos: dades
+            };
+        }
+    }
+
+    const nivellsPressio = new Set();
+    Object.keys(variables).forEach(clau => {
+        const m = clau.match(/^[uv]_(\d+)$/);
+        if (m) nivellsPressio.add(parseInt(m[1]));
+    });
+
+    nivellsPressio.forEach(nivell => {
+        const clauU = `u_${nivell}`;
+        const clauV = `v_${nivell}`;
+        if (variables[clauU] && variables[clauV]) {
+            const u = variables[clauU].datos;
+            const v = variables[clauV].datos;
+            if (u.length === v.length) {
+                const dades = u.map((valU, i) => {
+                    if (valU === null || v[i] === null || isNaN(valU) || isNaN(v[i])) return null;
+                    return Math.round(Math.sqrt(valU * valU + v[i] * v[i]) * 3.6 * 10) / 10;
+                });
+                variables[`wind_speed_${nivell}`] = {
+                    nombre: `Vent @ ${nivell}hPa`,
+                    unidades: 'km/h',
+                    datos: dades
+                };
+            }
+        }
+    });
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  STREAMLINES
+// ═══════════════════════════════════════════════════════════════════════
+
+let canvasVent = null;
+let ctxVent = null;
+
+function _hauriaDeDibuixarVent() {
+    if (!window.ventEnabled) return false;
+    const base = clauBase(variableActiva);
+    for (const v of VARS_SENSE_VENT) {
+        if (base === v) return false;
+        if (variableActiva.startsWith(v + '_')) return false;
+    }
+    const item = totesLesHores[curIdx];
+    if (!item || !item.data || !item.data.variables) return false;
+    const data = item.data;
+    return !!(data.variables['su'] || data.variables['u']);
+}
+
+function obtenirVentPerStreamlines(data, clau) {
+    const coords = getCoordenadesPer(data, clau);
+    const lats = coords.lat;
+    const lons = coords.lon;
+    const Nlat = lats.length;
+    const Nlon = lons.length;
+
+    let clauU, clauV;
+    const base = clauBase(clau);
+
+    const varsSuperficie = [
+        'st','sd','srh','sp','pressure_msl','cape','cin','spbl',
+        'rain','rain_1h','snow','graupel','tp','tgrp','tsnowp',
+        'precip_water','low_cloud_cover','medium_cloud_cover',
+        'high_cloud_cover','reflectivity_dbz','lightning',
+        'wind_speed_10m','wind_gust',
+        'lcl_m','lfc_m','lifted_index','el_m',
+        'temp_min2m','temp_max2m','scp','scp_wcs','stp','hail_cm',
+        'ehi','bt108','bt62','ciwc_500','cld_rain_850','tpw_700','tpw_850',
+        'thetav_850','altitud'
+    ];
+
+    if (varsSuperficie.includes(base) || varsSuperficie.includes(clau)) {
+        clauU = 'su';
+        clauV = 'sv';
+    } else if (base === 'wind_speed') {
+        const m = clau.match(/_(\d+)$/);
+        if (m) { clauU = `u_${m[1]}`; clauV = `v_${m[1]}`; }
+    } else {
+        const m = clau.match(/_(\d+)$/);
+        if (m) { clauU = `u_${m[1]}`; clauV = `v_${m[1]}`; }
+        else { clauU = 'su'; clauV = 'sv'; }
+    }
+
+    const varU = data.variables[clauU];
+    const varV = data.variables[clauV];
+    if (!varU || !varV) return null;
+    if (varU.datos.length !== Nlat * Nlon || varV.datos.length !== Nlat * Nlon) return null;
+
+    const speed = new Float32Array(Nlat * Nlon);
+    const dir = new Float32Array(Nlat * Nlon);
+
+    for (let i = 0; i < Nlat; i++) {
+        const filaReal = (Nlat - 1 - i);
+        for (let j = 0; j < Nlon; j++) {
+            const idx = filaReal * Nlon + j;
+            const uVal = varU.datos[idx];
+            const vVal = varV.datos[idx];
+            if (uVal === null || vVal === null || isNaN(uVal) || isNaN(vVal)) {
+                speed[i * Nlon + j] = 0;
+                dir[i * Nlon + j] = 0;
+            } else {
+                const spd = Math.sqrt(uVal * uVal + vVal * vVal) * 3.6;
+                let angle = Math.atan2(vVal, uVal) * 180 / Math.PI;
+                angle = (270 - angle) % 360;
+                if (angle < 0) angle += 360;
+                speed[i * Nlon + j] = spd;
+                dir[i * Nlon + j] = angle;
+            }
+        }
+    }
+
+    return {
+        lats, lons, Nlat, Nlon,
+        speed, dir,
+        extent: [Math.min(...lons), Math.max(...lons), Math.min(...lats), Math.max(...lats)]
+    };
+}
+
+function _dibuixarStreamlines() {
+    if (!canvasVent) return;
+    const ctx = ctxVent;
+    const w = canvasVent.width;
+    const h = canvasVent.height;
+    ctx.clearRect(0, 0, w, h);
+
+    if (!_hauriaDeDibuixarVent()) return;
+    if (window.ventMode !== 'streamlines') return;
+
+    const item = totesLesHores[curIdx];
+    if (!item || !item.data) return;
+    const data = item.data;
+    const ventData = obtenirVentPerStreamlines(data, variableActiva);
+    if (!ventData) return;
+
+    const { Nlat, Nlon, speed, dir, extent } = ventData;
+
+    function sampleUV(px, py) {
+        if (px < 0 || px > w || py < 0 || py > h) return null;
+        const latlng = map.containerPointToLatLng([px, py]);
+        const fx = ((latlng.lng - extent[0]) / (extent[1] - extent[0])) * (Nlon - 1);
+        const fy = ((extent[3] - latlng.lat) / (extent[3] - extent[2])) * (Nlat - 1);
+        if (fx < 0 || fx >= Nlon - 1 || fy < 0 || fy >= Nlat - 1) return null;
+
+        const x0 = fx | 0, y0 = fy | 0;
+        const tx = fx - x0, ty = fy - y0;
+        const x1 = Math.min(x0 + 1, Nlon - 1);
+        const y1 = Math.min(y0 + 1, Nlat - 1);
+
+        const at = (xi, yi) => {
+            const idx = yi * Nlon + xi;
+            const spd = speed[idx];
+            const rad = (270 - dir[idx]) * 0.01745329252;
+            return { u: spd * Math.cos(rad), v: spd * Math.sin(rad) };
+        };
+
+        const a = at(x0, y0), b = at(x1, y0), c = at(x0, y1), d = at(x1, y1);
+        return {
+            u: (1 - ty) * ((1 - tx) * a.u + tx * b.u) + ty * ((1 - tx) * c.u + tx * d.u),
+            v: (1 - ty) * ((1 - tx) * a.v + tx * b.v) + ty * ((1 - tx) * c.v + tx * d.v),
+        };
+    }
+
+    const STEP = 28, STEP_LEN = 2.5, MAX_STEPS_LINIA = 45, GRID = 8;
+
+    const gw = Math.floor(w / GRID) + 1;
+    const gh = Math.floor(h / GRID) + 1;
+    const visited = new Uint8Array(gw * gh);
+
+    const strokeColor = wCfg.streamlineColor === 'white'
+        ? `rgba(255, 255, 255, ${wCfg.streamlineOpacity})`
+        : `rgba(0, 0, 0, ${wCfg.streamlineOpacity})`;
+
+    function _hexAOpacitatRgba(color, opacitat) {
+        if (color === 'white') return `rgba(255, 255, 255, ${opacitat})`;
+        if (color === 'black') return `rgba(0, 0, 0, ${opacitat})`;
+        const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(color || '');
+        if (!m) return `rgba(0, 0, 0, ${opacitat})`;
+        const r = parseInt(m[1], 16), g = parseInt(m[2], 16), b = parseInt(m[3], 16);
+        return `rgba(${r}, ${g}, ${b}, ${opacitat})`;
+    }
+
+    ctx.save();
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.lineWidth = wCfg.streamlineWidth;
+    ctx.strokeStyle = strokeColor;
+    ctx.shadowBlur = 0;
+
+    for (let py = 0; py < h; py += STEP) {
+        for (let px = 0; px < w; px += STEP) {
+            let sx = px + (Math.random() - 0.5) * STEP * 0.6;
+            let sy = py + (Math.random() - 0.5) * STEP * 0.6;
+
+            const gx0 = Math.floor(sx / GRID), gy0 = Math.floor(sy / GRID);
+            if (gy0 < 0 || gy0 >= gh || gx0 < 0 || gx0 >= gw) continue;
+            if (visited[gy0 * gw + gx0]) continue;
+
+            const fwd = [], back = [];
+            let cx = sx, cy = sy;
+
+            for (let s = 0; s < MAX_STEPS_LINIA; s++) {
+                const uv = sampleUV(cx, cy);
+                if (!uv) break;
+                const mag = Math.hypot(uv.u, uv.v);
+                if (mag < 0.2) break;
+                cx += (uv.u / mag) * STEP_LEN;
+                cy -= (uv.v / mag) * STEP_LEN;
+                const gx = Math.floor(cx / GRID), gy = Math.floor(cy / GRID);
+                if (gy < 0 || gy >= gh || gx < 0 || gx >= gw) break;
+                if (visited[gy * gw + gx]) break;
+                fwd.push([cx, cy]);
+            }
+
+            cx = sx; cy = sy;
+            for (let s = 0; s < MAX_STEPS_LINIA; s++) {
+                const uv = sampleUV(cx, cy);
+                if (!uv) break;
+                const mag = Math.hypot(uv.u, uv.v);
+                if (mag < 0.2) break;
+                cx -= (uv.u / mag) * STEP_LEN;
+                cy += (uv.v / mag) * STEP_LEN;
+                const gx = Math.floor(cx / GRID), gy = Math.floor(cy / GRID);
+                if (gy < 0 || gy >= gh || gx < 0 || gx >= gw) break;
+                if (visited[gy * gw + gx]) break;
+                back.push([cx, cy]);
+            }
+
+            const line = [...back.reverse(), [sx, sy], ...fwd];
+            if (line.length <= 12) continue;
+
+            for (let i = 0; i < line.length; i += 3) {
+                const gx = Math.floor(line[i][0] / GRID), gy = Math.floor(line[i][1] / GRID);
+                if (gy >= 0 && gy < gh && gx >= 0 && gx < gw) visited[gy * gw + gx] = 1;
+            }
+
+            ctx.beginPath();
+            ctx.moveTo(line[0][0], line[0][1]);
+            for (let i = 1; i < line.length - 1; i++) {
+                const mx = (line[i][0] + line[i + 1][0]) / 2;
+                const my = (line[i][1] + line[i + 1][1]) / 2;
+                ctx.quadraticCurveTo(line[i][0], line[i][1], mx, my);
+            }
+            ctx.stroke();
+
+            if (line.length > 25) {
+                const step = Math.floor(line.length / 4);
+                for (let i = step; i < line.length - 3; i += step) {
+                    const p0 = line[i], p1 = line[i + 2];
+                    if (p0 && p1) {
+                        const a = Math.atan2(p1[1] - p0[1], p1[0] - p0[0]);
+                        ctx.beginPath();
+                        ctx.moveTo(p0[0], p0[1]);
+                        ctx.lineTo(p0[0] - 4 * Math.cos(a - 0.6), p0[1] - 4 * Math.sin(a - 0.6));
+                        ctx.moveTo(p0[0], p0[1]);
+                        ctx.lineTo(p0[0] - 4 * Math.cos(a + 0.6), p0[1] - 4 * Math.sin(a + 0.6));
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+    }
+    ctx.restore();
+}
+
+function inicialitzarCanvasVent() {
+    if (canvasVent) return;
+    canvasVent = document.createElement('canvas');
+    canvasVent.style.cssText = 'position:absolute;top:0;left:0;pointer-events:none;';
+    map.getPane('paneVent').appendChild(canvasVent);
+    ctxVent = canvasVent.getContext('2d');
+
+    map.on('moveend', _redibuixarCanvasVent);
+    map.on('zoomend', _redibuixarCanvasVent);
+
+    _redibuixarCanvasVent();
+}
+
+function _redibuixarCanvasVent() {
+    if (!canvasVent) return;
+    const size = map.getSize();
+    canvasVent.width = size.x;
+    canvasVent.height = size.y;
+    L.DomUtil.setPosition(canvasVent, map.containerPointToLayerPoint([0, 0]));
+    _dibuixarStreamlines();
+}
+
+function redibuixarVent() {
+    _redibuixarCanvasVent();
+}
+
+// ─── Controls de vent ──────────────────────────────────────────────
+window.toggleVent = function() {
+    window.ventEnabled = !window.ventEnabled;
+    const btn = document.getElementById('btnVent');
+    if (btn) {
+        btn.textContent = window.ventEnabled ? ' Vent ON' : ' Vent OFF';
+        btn.style.background = window.ventEnabled ? '#2a5a8a' : '#141c2a';
+    }
+    if (!window.ventEnabled && canvasVent) {
+        ctxVent.clearRect(0, 0, canvasVent.width, canvasVent.height);
+    }
+    if (window.ventEnabled) _redibuixarCanvasVent();
+    return window.ventEnabled;
+};
+
+window.toggleVentMode = function() {
+    window.ventMode = window.ventMode === 'streamlines' ? 'particles' : 'streamlines';
+    if (window.ventMode !== 'streamlines' && canvasVent) {
+        ctxVent.clearRect(0, 0, canvasVent.width, canvasVent.height);
+    }
+    _redibuixarCanvasVent();
+    return window.ventMode;
+};
+
+window.setStreamlineColor = function(color) {
+    wCfg.streamlineColor = color;
+    _redibuixarCanvasVent();
+};
+
+window.setStreamlineColorHex = function (hex) {
+    wCfg.streamlineColor = hex;
+    _redibuixarCanvasVent();
+};
+
+window.setStreamlineWidth = function(v) {
+    wCfg.streamlineWidth = Math.min(3, Math.max(0.5, v));
+    _redibuixarCanvasVent();
+};
+
+window.setStreamlineOpacity = function(v) {
+    wCfg.streamlineOpacity = Math.min(1, Math.max(0.1, v));
+    _redibuixarCanvasVent();
+};
+
+// ═══════════════════════════════════════════════════════════════════════
+//  CANVAS LAYER (dades)
+// ═══════════════════════════════════════════════════════════════════════
+
+const CanvasLayer = L.Layer.extend({
+    initialize: function() {
+        this._canvas = null;
+        this._data = null;
+        this._offscreen = null;
+        this._needsRedraw = true;
+    },
+
+    onAdd: function(map) {
+        this._map = map;
+        const c = document.createElement('canvas');
+        c.style.cssText = 'position:absolute;top:0;left:0;pointer-events:none;';
+        map.getPane('paneDades').appendChild(c);
+        this._canvas = c;
+        map.on('moveend zoomend', this._render, this);
+        this._render();
+    },
+
+    onRemove: function(map) {
+        map.getPane('paneDades').removeChild(this._canvas);
+        map.off('moveend zoomend', this._render, this);
+    },
+
+    setData: function(data) {
+        this._data = data;
+        this._needsRedraw = true;
+        this._render();
+    },
+
+    _drawOffscreen: function() {
+        if (!this._data) return;
+        const coords = getCoordenadesPer(this._data, variableActiva);
+        const lats = coords.lat;
+        const lons = coords.lon;
+        const Nlat = lats.length;
+        const Nlon = lons.length;
+
+        const clauLectura = clauRealPerLlegir(variableActiva);
+        const varInfo = this._data.variables[clauLectura] || this._data.variables[variableActiva];
+        if (!varInfo || !varInfo.datos) {
+            if (this._offscreen) {
+                const ctx = this._offscreen.getContext('2d');
+                ctx.clearRect(0, 0, this._offscreen.width, this._offscreen.height);
+            }
+            this._needsRedraw = false;
+            return;
+        }
+
+        const dades = varInfo.datos;
+        if (dades.length !== Nlat * Nlon) {
+            if (this._offscreen) {
+                const ctx = this._offscreen.getContext('2d');
+                ctx.clearRect(0, 0, this._offscreen.width, this._offscreen.height);
+            }
+            this._needsRedraw = false;
+            return;
+        }
+
+        const pal = getPaleta(variableActiva);
+        if (!this._offscreen || this._offscreen.width !== Nlon || this._offscreen.height !== Nlat) {
+            this._offscreen = document.createElement('canvas');
+            this._offscreen.width = Nlon;
+            this._offscreen.height = Nlat;
+        }
+
+        const ctx = this._offscreen.getContext('2d');
+        const imgData = ctx.createImageData(Nlon, Nlat);
+        const d = imgData.data;
+
+        const CLAUS_TEMP = ['st', 'sd', 't', 'dpt', 'temp_min2m', 'temp_max2m'];
+        const base = clauBase(variableActiva);
+        const esTemperatura = CLAUS_TEMP.includes(base);
+
+        for (let i = 0; i < Nlat; i++) {
+            const filaReal = (Nlat - 1 - i);
+            for (let j = 0; j < Nlon; j++) {
+                let v = dades[filaReal * Nlon + j];
+                if (esTemperatura && v !== null && !isNaN(v) && v > 100) {
+                    v = v - 273.15;
+                }
+                const ii = (i * Nlon + j) * 4;
+                if (v === null || isNaN(v)) {
+                    d[ii+3] = 0;
+                } else {
+                    const c = getColor(pal, v);
+                    d[ii] = c.r; d[ii+1] = c.g; d[ii+2] = c.b; d[ii+3] = c.a;
+                }
+            }
+        }
+        ctx.putImageData(imgData, 0, 0);
+        this._needsRedraw = false;
+    },
+
+    _render: function() {
+        if (!this._data || !this._map) return;
+        if (this._needsRedraw) this._drawOffscreen();
+
+        const map = this._map;
+        const size = map.getSize();
+        const canvas = this._canvas;
+        canvas.width = size.x;
+        canvas.height = size.y;
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        L.DomUtil.setPosition(canvas, map.containerPointToLayerPoint([0,0]));
+
+        const coords = getCoordenadesPer(this._data, variableActiva);
+        const lats = coords.lat;
+        const lons = coords.lon;
+        const latMax = Math.max(lats[0], lats[lats.length - 1]);
+        const latMin = Math.min(lats[0], lats[lats.length - 1]);
+        const lonMin = Math.min(lons[0], lons[lons.length - 1]);
+        const lonMax = Math.max(lons[0], lons[lons.length - 1]);
+
+        const nw = map.latLngToContainerPoint(L.latLng(latMax, lonMin));
+        const se = map.latLngToContainerPoint(L.latLng(latMin, lonMax));
+        const x = nw.x, y = nw.y, w = se.x - nw.x, h = se.y - nw.y;
+
+        if (this._offscreen && w > 0 && h > 0) {
+            ctx.save();
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+            ctx.drawImage(this._offscreen, x, y, w, h);
+            ctx.restore();
+        }
+
+        this._drawLegend(ctx, getPaleta(variableActiva));
+        actualitzarCapcaleraParametre();
+        redibuixarVent();
+    },
+
+    _drawLegend: function(ctx, pal) {
+        const s = pal.stops;
+        const W = ctx.canvas.width, H = ctx.canvas.height;
+        const bw = 25, x0 = W - bw - 15, y0 = H - s.length * 3 - 25;
+        ctx.fillStyle = 'rgba(10,16,26,0.75)';
+        ctx.fillRect(x0-5, y0-18, bw+10, s.length*3+22);
+        s.forEach((st,i) => {
+            ctx.fillStyle = `rgb(${st.r},${st.g},${st.b})`;
+            ctx.fillRect(x0, y0+i*3, bw, 3);
+        });
+        ctx.fillStyle = '#fff';
+        ctx.font = '9px Arial';
+        ctx.textAlign = 'right';
+        const fmt = v => (Math.abs(v)>=10000||(Math.abs(v)<0.01&&v!==0)) ? v.toExponential(1) : v;
+        ctx.fillText(fmt(s[s.length-1].v), x0-3, y0+10);
+        ctx.fillText(fmt(s[0].v), x0-3, y0+s.length*3+2);
+    }
+});
+
+const canvasLayer = new CanvasLayer();
+canvasLayer.addTo(map);
+window._canvasLayer = canvasLayer;
+
+const GEOJSON_CAPES = [
+    {
+        id: 'catalunya',
+        nom: 'Catalunya',
+        arxiu: 'spain.geojson',
+        color: '#040400',
+        gruix: 2.5,
+        visiblePerDefecte: true
+    },
+    {
+        id: 'girona_comarques',
+        nom: 'Comarques de Girona',
+        arxiu: 'girona_comarques.geojson',
+        color: '#040400',
+        gruix: 2.5,
+        visiblePerDefecte: false
+    },
+];
+const capaInstancies = {};
+const capaOpacitats = {}; // opacitat pròpia de cada capa (independent de la vora)
+
+function estilCapa(def) {
+    return { pane: 'paneGeojson', color: def.color, weight: def.gruix, opacity: 1, fill: false };
+}
+
+async function carregarCapaGeojson(def) {
+    let retard = RETARD_INICIAL;
+    const MAX_REINTENTS_GEO = 4;
+
+    for (let intent = 1; intent <= MAX_REINTENTS_GEO; intent++) {
+        try {
+            const r = await fetch(ambCacheBuster(`${DADES_PATH}/${def.arxiu}`), { cache: 'no-store' });
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            const geojson = await r.json();
+            const capa = L.geoJSON(geojson, { pane: 'paneGeojson', style: () => estilCapa(def) });
+            capaInstancies[def.id] = capa;
+            capa.addTo(map);
+            return;
+        } catch (err) {
+            if (intent === MAX_REINTENTS_GEO) {
+                console.warn('[GeoJSON] ' + def.nom + ': fallada definitiva — ' + err.message);
+                return;
+            }
+            console.warn(`[GeoJSON ${def.nom}] Reintent ${intent}/${MAX_REINTENTS_GEO} en ${retard}ms...`);
+            await esperar(retard);
+            retard *= 2;
+        }
+    }
+}
+
+async function inicialitzarGeojson() {
+    for (const def of GEOJSON_CAPES) {
+        try {
+            const url = `dades/${def.arxiu}`;
+            const r = await fetch(url);
+            if (!r.ok) throw new Error(`HTTP ${r.status}`);
+
+            const geojson = await r.json();
+
+            const capa = L.geoJSON(geojson, {
+                pane: 'paneGeojson',
+                style: () => ({
+                    color: def.color || '#FFD700',
+                    weight: def.gruix || 2.5,
+                    opacity: 0.9,
+                    fill: false,
+                    fillOpacity: 0.1,
+                    fillColor: def.color || '#FFD700'
+                })
+            });
+
+            capaInstancies[def.id] = capa;
+            capaOpacitats[def.id] = 100; // % per defecte
+
+            if (def.visiblePerDefecte) {
+                capa.addTo(map);
+            }
+
+            map.invalidateSize();
+
+        } catch (err) {
+            console.error(`❌ Error cargando ${def.nom}:`, err);
+        }
+    }
+
+    // Un cop carregades, aplicar l'estat guardat (visibilitat + estil)
+    if (typeof aplicarEstatCapesGeojsonDesat === 'function') {
+        aplicarEstatCapesGeojsonDesat();
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  CLICK AL MAPA — POPUP ESTIL AMERICÀ (MINIMALISTA)
+// ═══════════════════════════════════════════════════════════════════════
+
+function trobarIndexMesProper(arr, val) {
+    let best=0, bestDiff=Infinity;
+    for (let i=0;i<arr.length;i++) {
+        const d=Math.abs(arr[i]-val);
+        if (d<bestDiff){bestDiff=d;best=i;}
+    }
+    return best;
+}
+
+let marcadorClic = null;
+map.on('click', function(e) {
+    const {lat, lng} = e.latlng;
+    const item = totesLesHores[curIdx];
+    if (!item || !item.data) return;
+    const data = item.data;
+    const coords = getCoordenadesPer(data, variableActiva);
+    const lats = coords.lat;
+    const lons = coords.lon;
+    const clauLectura = clauRealPerLlegir(variableActiva);
+    const varInfo = data.variables[clauLectura] || data.variables[variableActiva];
+    if (!varInfo || !varInfo.datos) return;
+
+    const latMin = Math.min(lats[0], lats[lats.length-1]);
+    const latMax = Math.max(lats[0], lats[lats.length-1]);
+    const lonMin = Math.min(lons[0], lons[lons.length-1]);
+    const lonMax = Math.max(lons[0], lons[lons.length-1]);
+    if (lat<latMin||lat>latMax||lng<lonMin||lng>lonMax) return;
+
+    const i = trobarIndexMesProper(lats, lat);
+    const j = trobarIndexMesProper(lons, lng);
+    const Nlon = lons.length;
+    if (varInfo.datos.length !== lats.length * Nlon) return;
+
+    const latNord = lats[0] > lats[lats.length-1];
+    const filaReal = latNord ? (lats.length - 1 - i) : i;
+
+    let v = varInfo.datos[filaReal * Nlon + j];
+
+    const CLAUS_TEMP = ['st', 'sd', 't', 'dpt', 'temp_min2m', 'temp_max2m'];
+    const base = clauBase(variableActiva);
+    if (CLAUS_TEMP.includes(base) && v !== null && !isNaN(v) && v > 100) {
+        v = v - 273.15;
+    }
+
+    const pal = getPaleta(variableActiva);
+
+    function formatarValor(v) {
+        if (v === null || v === undefined || isNaN(v)) return '—';
+        const absV = Math.abs(v);
+        if (absV < 0.001 && absV > 0) return v.toFixed(6);
+        if (absV >= 10000) return v.toExponential(2);
+        if (Number.isInteger(v)) return v.toString();
+        return v.toFixed(2);
+    }
+
+    const vt = formatarValor(v);
+
+    const html = `
+        <div style="
+            position: relative;
+            background: rgba(0, 0, 0, 0.79);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 4px;
+            padding: 5px 22px 5px 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Courier New', 'Segoe UI', monospace;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+            letter-spacing: 0.3px;
+            white-space: nowrap;
+        ">
+            <div style="
+                font-size: 9px;
+                color: #cccccc;
+                font-weight: 400;
+                letter-spacing: 0.3px;
+                text-transform: uppercase;
+                line-height: 1.2;
+            ">${lat.toFixed(2)}°${lat >= 0 ? 'N' : 'S'}<br>${lng.toFixed(2)}°${lng >= 0 ? 'E' : 'W'}</div>
+
+            <div style="
+                font-size: 20px;
+                font-weight: 700;
+                color: #ffffff;
+                line-height: 1;
+            ">${vt}<span style="font-size:9px;color:#667788;font-weight:400;margin-left:2px;">${pal.unitat}</span></div>
+
+            <button onclick="if(marcadorClic){map.removeLayer(marcadorClic);marcadorClic=null;}" style="
+                position: absolute;
+                top: 3px;
+                right: 4px;
+                background: transparent;
+                border: none;
+                color: #8899aa;
+                font-size: 12px;
+                cursor: pointer;
+                line-height: 1;
+                padding: 2px;
+            " onmouseover="this.style.color='#ffffff'" onmouseout="this.style.color='#8899aa'">✕</button>
+        </div>
+    `;
+
+    if (marcadorClic) map.removeLayer(marcadorClic);
+    marcadorClic = L.popup({
+        closeButton: false,
+        closeOnClick: true,
+        className: 'popup-minimal',
+        offset: [0, -8]
+    }).setLatLng(e.latlng).setContent(html).openOn(map);
+});
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && marcadorClic) {
+        map.removeLayer(marcadorClic);
+        marcadorClic = null;
+    }
+});
+
+// ═══════════════════════════════════════════════════════════════════════
+//  CÀRREGA DE JSONs
+// ═══════════════════════════════════════════════════════════════════════
+
+const MAX_REINTENTS = 4;
+const RETARD_INICIAL = 500;
+const CONCURRENCIA_CARREGA = 3;
+const CONCURRENCIA_3D = 2;
+const MAX_HORES_SFC_CACHE = 999;
+
+let totesLesHores = [];
+let curIdx = 0;
+let _ordreUsSfc = [];
+
+let _carregantAra = new Map();
+
+function aArrayTipat(datos) {
+    const n = datos.length;
+    const arr = new Float32Array(n);
+    for (let i = 0; i < n; i++) {
+        const v = datos[i];
+        arr[i] = (v === null || v === undefined) ? NaN : v;
+    }
+    return arr;
+}
+
+function tipificarVariables(variables) {
+    for (const clau in variables) {
+        const info = variables[clau];
+        if (info && Array.isArray(info.datos)) {
+            info.datos = aArrayTipat(info.datos);
+        }
+    }
+    return variables;
+}
+
+async function descomprimirGzip(response) {
+    try {
+        if (typeof DecompressionStream !== 'undefined') {
+            const ds = new DecompressionStream('gzip');
+            const reader = response.body.pipeThrough(ds).getReader();
+            const chunks = [];
+            while (true) {
+                const { value, done } = await reader.read();
+                if (done) break;
+                chunks.push(value);
+            }
+            const blob = new Blob(chunks);
+            const text = await blob.text();
+            return JSON.parse(text);
+        } else {
+            if (typeof pako !== 'undefined') {
+                const buffer = await response.arrayBuffer();
+                const data = pako.inflate(new Uint8Array(buffer), { to: 'string' });
+                return JSON.parse(data);
+            }
+            return await response.json();
+        }
+    } catch (e) {
+        throw new Error('Error descomprimint: ' + e.message);
+    }
+}
+
+function comprovarHoresFallades() {
+    const total = totesLesHores.length;
+    const fallades = totesLesHores.filter(h => h.data === null).length;
+    const pct = total > 0 ? (fallades / total) * 100 : 0;
+
+    if (pct > 30) {
+        const missatge = document.getElementById('avis_xarxa');
+        if (missatge) {
+            missatge.style.display = 'block';
+            missatge.textContent = `⚠️ ${fallades} de ${total} hores no s'han pogut carregar. Comprova la teva connexió a internet.`;
+        } else {
+            const div = document.createElement('div');
+            div.id = 'avis_xarxa';
+            div.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: rgba(255, 60, 60, 0.9);
+                color: white;
+                padding: 10px 20px;
+                border-radius: 6px;
+                font-family: Arial, sans-serif;
+                font-size: 13px;
+                z-index: 9999;
+                max-width: 90%;
+                text-align: center;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+                backdrop-filter: blur(4px);
+                border: 1px solid rgba(255,255,255,0.1);
+            `;
+            div.textContent = `⚠️ ${fallades} de ${total} hores no s'han pogut carregar. Comprova la teva connexió a internet.`;
+            document.body.appendChild(div);
+
+            setTimeout(() => {
+                div.style.transition = 'opacity 0.5s';
+                div.style.opacity = '0';
+                setTimeout(() => div.remove(), 500);
+            }, 8000);
+        }
+    }
+}
+
+function esperar(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function descomprimirGzipAmbFallback(response, url) {
+    try {
+        if (typeof DecompressionStream !== 'undefined') {
+            const ds = new DecompressionStream('gzip');
+            const reader = response.body.pipeThrough(ds).getReader();
+            const chunks = [];
+            let errorDeCompresio = false;
+
+            try {
+                while (true) {
+                    const { value, done } = await reader.read();
+                    if (done) break;
+                    chunks.push(value);
+                }
+            } catch (e) {
+                errorDeCompresio = true;
+                console.warn(`[Descompressió] Error amb DecompressionStream:`, e.message);
+            }
+
+            if (!errorDeCompresio && chunks.length > 0) {
+                const blob = new Blob(chunks);
+                const text = await blob.text();
+                try {
+                    return JSON.parse(text);
+                } catch (e) {
+                    console.warn(`[Descompressió] JSON malformat:`, e.message);
+                    throw new Error('JSON malformat');
+                }
+            }
+        }
+
+        if (typeof pako !== 'undefined') {
+            try {
+                const buffer = await response.arrayBuffer();
+                const data = pako.inflate(new Uint8Array(buffer), { to: 'string' });
+                try {
+                    return JSON.parse(data);
+                } catch (e) {
+                    console.warn(`[Descompressió] JSON malformat amb pako:`, e.message);
+                    throw new Error('JSON malformat');
+                }
+            } catch (e) {
+                console.warn(`[Descompressió] Error amb pako:`, e.message);
+                throw e;
+            }
+        }
+
+        try {
+            const text = await response.text();
+            return JSON.parse(text);
+        } catch (e) {
+            console.warn(`[Descompressió] No és JSON vàlid:`, e.message);
+            throw new Error('No es pot descomprimir ni llegir com a JSON');
+        }
+
+    } catch (e) {
+        try {
+            const text = await response.text();
+            if (text.startsWith('{') || text.startsWith('[')) {
+                return JSON.parse(text);
+            }
+        } catch (e2) {
+            // Silenciós
+        }
+        throw new Error('Error descomprimint: ' + e.message);
+    }
+}
+
+async function descomprimirMsgPackGz(response) {
+    try {
+        const buffer = await response.arrayBuffer();
+        const bytes = new Uint8Array(buffer);
+
+        // Detectar si Cloudflare ja ha descomprimit el fitxer
+        const esGzipReal = bytes.length >= 2 && bytes[0] === 0x1F && bytes[1] === 0x8B;
+
+        let decompressed;
+
+        if (esGzipReal) {
+            const ds = new DecompressionStream('gzip');
+            const blob = new Blob([buffer]);
+            const stream = blob.stream().pipeThrough(ds);
+            const reader = stream.getReader();
+
+            const chunks = [];
+            while (true) {
+                const { value, done } = await reader.read();
+                if (done) break;
+                chunks.push(value);
+            }
+
+            const totalLength = chunks.reduce((a, b) => a + b.length, 0);
+            decompressed = new Uint8Array(totalLength);
+            let offset = 0;
+            for (const chunk of chunks) {
+                decompressed.set(chunk, offset);
+                offset += chunk.length;
+            }
+        } else {
+            decompressed = bytes;
+        }
+
+        if (typeof MessagePack !== 'undefined') {
+            return MessagePack.decode(decompressed);
+        }
+
+        try {
+            const text = new TextDecoder().decode(decompressed);
+            return JSON.parse(text);
+        } catch (jsonError) {
+            throw new Error('No es pot descomprimir ni llegir com a JSON (falta MessagePack)');
+        }
+    } catch (e) {
+        console.warn('[descomprimirMsgPackGz] Error:', e.message);
+        throw e;
+    }
+}
+
+async function carregarFitxerAmbReintents(url, maxIntents = 3) {
+    let retard = RETARD_INICIAL;
+    let ultimError = null;
+
+    for (let intent = 1; intent <= maxIntents; intent++) {
+        try {
+            const response = await fetch(ambCacheBusterDades(url), { cache: 'no-store' });
+
+            if (response.status === 404) {
+                console.log(`[Fitxer] ${url} no existeix (404)`);
+                return null;
+            }
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            try {
+                if (url.includes('.msgpack.gz')) {
+                    const data = await descomprimirMsgPackGz(response);
+                    return data;
+                } else {
+                    const data = await descomprimirGzipAmbFallback(response, url);
+                    return data;
+                }
+            } catch (e) {
+                if (e.message.includes('incorrect header check') ||
+                    e.message.includes('corrupted') ||
+                    e.message.includes('header check')) {
+                    console.warn(`[Fitxer corrupte] ${url} - No es pot recuperar:`, e.message);
+                    return null;
+                }
+                throw e;
+            }
+
+        } catch (e) {
+            ultimError = e;
+
+            if (intent === maxIntents) {
+                console.warn(`[Fitxer] ${url} fallat després de ${maxIntents} intents:`, e.message);
+                return null;
+            }
+
+            if (e.message.includes('NS_BASE_STREAM_CLOSED') ||
+                e.message.includes('network') ||
+                e.message.includes('timeout')) {
+                console.warn(`[Reintent ${intent}/${maxIntents}] ${url} - Error de xarxa: ${e.message}. Reintentant en ${retard}ms...`);
+                await esperar(retard);
+                retard *= 2;
+                continue;
+            }
+
+            console.warn(`[Fitxer] ${url} - Error no recuperable:`, e.message);
+            return null;
+        }
+    }
+
+    return null;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  CÀRREGA D'UN STEP - NOMÉS UNA HORA (NO MÉS)
+// ═══════════════════════════════════════════════════════════════════════
+
+
+
+async function carregarUnStep(i, ambDades3d) {
+    const base = 'web_data_NE/';
+    const p = String(i).padStart(2, '0');
+
+    let horaReal = null;
+    let diaReal = 'avui';
+    let nomSFCTrobat = null;
+    let nom3DTrobat = null;
+
+    if (window._horesDisponibles && window._horesDisponibles[i]) {
+        const info = window._horesDisponibles[i];
+        horaReal = String(info.hora).padStart(2, '0');
+        diaReal = info.dia;
+        nomSFCTrobat = info.nomSFC;
+        nom3DTrobat = info.nom3D;
+        console.log(`[carregar] 📍 Step ${i} → hora ${horaReal}h ${diaReal}`);
+    } else {
+        const ara = new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/Madrid' }));
+        const araHores = ara.getHours();
+        let h = araHores + i;
+        let dia = 'avui';
+        if (h >= 24) { h -= 24; dia = 'dema'; }
+        if (h >= 48) { h -= 48; dia = 'dema_passat'; }
+        if (h < 0) { h += 24; dia = 'ahir'; }
+        horaReal = String(h).padStart(2, '0');
+        diaReal = dia;
+    }
+
+    let sfcData = null;
+    let sfcNom = null;
+
+    if (nomSFCTrobat) {
+        console.log(`[carregar] 📥 Carregant SFC: ${nomSFCTrobat}`);
+        sfcData = await carregarFitxerAmbReintents(nomSFCTrobat, 3);
+        if (sfcData) sfcNom = nomSFCTrobat;
+    }
+
+    if (!sfcData) {
+        const nomsSFC = [
+            `sfc_${horaReal}_${diaReal}.msgpack.gz`,
+            `sfc_${horaReal}_avui.msgpack.gz`,
+            `sfc_${horaReal}_ahir.msgpack.gz`,
+            `sfc_${horaReal}_dema.msgpack.gz`,
+            `sfc_${horaReal}_dema_passat.msgpack.gz`,
+            `sfc_${horaReal}.msgpack.gz`,
+            `sfc_${p}.msgpack.gz`,
+        ];
+        for (const nom of nomsSFC) {
+            const url = base + nom;
+            try {
+                const r = await fetch(ambCacheBusterDades(url), { method: 'HEAD', cache: 'no-store' });
+                if (r.ok) {
+                    console.log(`[carregar] 📥 Carregant SFC: ${nom}`);
+                    sfcData = await carregarFitxerAmbReintents(url, 3);
+                    if (sfcData) { sfcNom = nom; break; }
+                }
+            } catch (e) {}
+        }
+    }
+
+    if (!sfcData) {
+        // 🔧 FIX: eliminat el fallback que provava sfc_${hora}_avui, ahir, dema...
+        // Aquell fallback disfressava silenciosament dades d'un dia incorrecte
+        // (p.ex. "dema_passat" acabava mostrant dades d'"avui" sense avisar).
+        // Si el fitxer correcte per aquesta hora/dia no es pot carregar, fallem
+        // explícitament — és millor no mostrar l'hora que mostrar-la amb dades
+        // d'un altre moment.
+        console.warn(`[carregar] ❌ No s'ha pogut carregar SFC per step ${i} (${nomSFCTrobat || `sfc_${horaReal}_${diaReal}`}). No es fa servir cap fallback d'un altre dia.`);
+        return null;
+    }
+
+    let tdData = null;
+    let tdNom = null;
+
+    if (ambDades3d && nom3DTrobat) {
+        // 🔧 FIX: nom3DTrobat ve sense la carpeta (només 'web_data_NE/' fa
+        // falta afegir-la). Provem primer amb el path complet i, si falla,
+        // caiem al mateix mecanisme de fallback que ja fem servir pel SFC.
+        const url3D = nom3DTrobat.startsWith(base) ? nom3DTrobat : (base + nom3DTrobat);
+        console.log(`[carregar] 📥 Carregant 3D: ${url3D}`);
+        tdData = await carregarFitxerAmbReintents(url3D, 3);
+        if (tdData) {
+            tdNom = nom3DTrobat;
+        } else if (!nom3DTrobat.startsWith(base)) {
+            // Fallback: potser ja portava el path (per si de cas) — reprovem tal qual
+            tdData = await carregarFitxerAmbReintents(nom3DTrobat, 3);
+            if (tdData) tdNom = nom3DTrobat;
+        }
+    }
+
+    const variables = {};
+    if (sfcData && sfcData.variables) {
+        Object.assign(variables, tipificarVariables(sfcData.variables));
+    }
+    if (tdData && tdData.variables) {
+        Object.assign(variables, tipificarVariables(tdData.variables));
+    }
+
+    if (Object.keys(variables).length === 0) {
+        console.warn(`[carregar] ❌ Step ${i}: variables buides`);
+        return null;
+    }
+
+    escalarVariablesMitjana(variables);
+    calcularVelocitatVent(variables);
+
+    const data = {
+        ...sfcData,
+        variables,
+        coordenadas: sfcData.coordenadas,
+        coordenadas_3d: tdData ? tdData.coordenadas : sfcData.coordenadas,
+        _te3d: !!tdData,
+        _nomSFC: sfcNom,
+        _nom3D: tdNom,
+    };
+
+    console.log(`[carregar] ✅ Step ${i} carregat: ${sfcNom}${tdNom ? ` + ${tdNom}` : ''}`);
+
+    return { step: i, dateObj: new Date(data.hora_utc + 'Z'), data };
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  CÀRREGA SOTA DEMANDA — SENSE MANIFEST
+//  Detecta automàticament quantes hores hi ha disponibles provant-les
+//  seqüencialment. Un cop sabem el rang, construïm esquelets i NOMÉS
+//  es descarrega de veritat la hora que l'usuari clica. Una hora ja
+//  carregada (item.data existeix) mai es torna a descarregar.
+// ═══════════════════════════════════════════════════════════════════════
+
+function _marcarUsSfc(idx) {
+    const p = _ordreUsSfc.indexOf(idx);
+    if (p !== -1) _ordreUsSfc.splice(p, 1);
+    _ordreUsSfc.push(idx);
+}
+
+async function assegurarHoraCarregada(idx, ambDades3d) {
+    if (idx < 0 || idx >= totesLesHores.length) return false;
+    const item = totesLesHores[idx];
+
+    const teSfc = item.data && item.data.variables;
+    const te3d = item.data && item.data._te3d;
+
+    // ── Ja tenim el que fa falta a memòria: no es torna a descarregar ──
+    if (teSfc && (!ambDades3d || te3d)) {
+        _marcarUsSfc(idx);
+        return true;
+    }
+
+    const clauPeticio = idx + '_' + (ambDades3d ? '3d' : 'sfc');
+
+    if (_carregantAra.has(clauPeticio)) {
+        return await _carregantAra.get(clauPeticio);
+    }
+
+    const promesa = (async () => {
+        const stepReal = totesLesHores[idx].step;
+        const nou = await carregarUnStep(stepReal, ambDades3d);
+        if (!nou) return false;
+
+        const itemActual = totesLesHores[idx];
+        itemActual.dateObj = nou.dateObj;
+        if (itemActual.data && itemActual.data.variables && !ambDades3d) {
+            Object.assign(itemActual.data.variables, nou.data.variables);
+        } else {
+            itemActual.data = nou.data;
+        }
+
+        _marcarUsSfc(idx);
+        return true;
+    })();
+
+    _carregantAra.set(clauPeticio, promesa);
+    try {
+        return await promesa;
+    } finally {
+        _carregantAra.delete(clauPeticio);
+    }
+}
+
+
+
+// 🔧 FIX: el servidor retorna sempre 200 (fallback de SPA a index.html) encara
+// que el fitxer no existeixi. Cal comprovar el Content-Type / cos real,
+// no només el status code.
+async function existeixFitxerDeVeritat(url) {
+    try {
+        const r = await fetch(ambCacheBusterDades(url), { method: 'GET', cache: 'no-store' });
+        if (!r.ok) return false;
+
+        const ct = r.headers.get('content-type') || '';
+        // Si torna HTML, és el fallback de la SPA → el fitxer NO existeix
+        if (ct.includes('text/html')) return false;
+
+        // Comprovació extra: si diu ser octet-stream, mirem els primers bytes
+        const buf = await r.arrayBuffer();
+        const bytes = new Uint8Array(buf);
+        if (bytes.length < 4) return false;
+
+        // HTML sol començar per '<' (0x3C) encara que el Content-Type sigui incorrecte
+        if (bytes[0] === 0x3C) return false;
+
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  DETECTAR HORES DISPONIBLES - CACHE INSTANTÀNIA + CERCA RÀPIDA
+//  🔧 Sense manifest del backend: cachegem el resultat a localStorage.
+//  🔧 La cerca real (quan cal) és per rang consecutiu, no per força bruta:
+//     el Python sempre genera hores consecutives des d'ara-24h fins a
+//     ara+51h, així que fem servir cerca binària per trobar els límits
+//     en lloc de provar les 96 combinacions dia×hora una per una.
+// ═══════════════════════════════════════════════════════════════════════
+
+const CLAU_CACHE_HORES = 'tempestescat_hores_disponibles_v1';
+const CACHE_HORES_VALID_MS = 15 * 60 * 1000; // 15 minuts
+
+function llegirCacheHores() {
+    try {
+        const raw = localStorage.getItem(CLAU_CACHE_HORES);
+        if (!raw) return null;
+        const obj = JSON.parse(raw);
+        if (!obj.timestamp || (Date.now() - obj.timestamp) > CACHE_HORES_VALID_MS) return null;
+        if (!Array.isArray(obj.hores) || obj.hores.length === 0) return null;
+        return obj.hores;
+    } catch (e) {
+        return null;
+    }
+}
+
+function desarCacheHores(hores) {
+    try {
+        localStorage.setItem(CLAU_CACHE_HORES, JSON.stringify({ timestamp: Date.now(), hores }));
+    } catch (e) { /* silenciós */ }
+}
+
+// Converteix (dia, hora) en un índex lineal continu per poder fer cerca binària
+// sobre la seqüència completa ahir(0..23) → avui(24..47) → dema(48..71) → dema_passat(72..95)
+const DIES_SEQ = ['ahir', 'avui', 'dema', 'dema_passat'];
+function idxLineal(diaIdx, hora) { return diaIdx * 24 + hora; }
+function fromIdxLineal(idx) {
+    const diaIdx = Math.floor(idx / 24);
+    const hora = idx % 24;
+    return { dia: DIES_SEQ[diaIdx], hora };
+}
+function nomSfc(dia, hora) {
+    const hs = String(hora).padStart(2, '0');
+    return `web_data_NE/sfc_${hs}_${dia}.msgpack.gz`;
+}
+function nom3d(dia, hora) {
+    const hs = String(hora).padStart(2, '0');
+    return `web_data_NE/3d_${hs}_${dia}.msgpack.gz`;
+}
+
+// Comprova un únic índex lineal, amb cache de resultats dins la mateixa passada
+async function comprovarIdx(idx, cacheResultats) {
+    if (cacheResultats.has(idx)) return cacheResultats.get(idx);
+    const { dia, hora } = fromIdxLineal(idx);
+    const existeix = await existeixFitxerDeVeritat(nomSfc(dia, hora));
+    cacheResultats.set(idx, existeix);
+    return existeix;
+}
+
+async function trobarRangHoresPerCercaBinaria() {
+    const TOTAL_IDX = DIES_SEQ.length * 24; // 96
+    const cacheResultats = new Map();
+
+    // Punt d'ancoratge: l'hora actual a Madrid segur que existeix (és "avui")
+    const araMadrid = new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/Madrid' }));
+    const idxAra = idxLineal(1, araMadrid.getHours()); // diaIdx 1 = 'avui'
+
+    if (!(await comprovarIdx(idxAra, cacheResultats))) {
+        // Fallback rar: si ni l'hora actual existeix, no podem assumir consecutivitat.
+        // Retornem null perquè el cridant faci una cerca completa de seguretat.
+        return null;
+    }
+
+    // Cerca binària cap enrere: primer idx (des de 0) on comença a existir
+    let lo = 0, hi = idxAra;
+    while (lo < hi) {
+        const mid = Math.ceil((lo + hi) / 2);
+        if (await comprovarIdx(mid, cacheResultats)) {
+            lo = mid;
+        } else {
+            hi = mid - 1;
+        }
+        // Aquí busquem el PRIMER que existeix, així que cal anar cap avall
+    }
+    // 'lo' ara és un punt que existeix; cal seguir baixant fins trobar el límit real
+    let inici = idxAra;
+    {
+        let l = 0, h = idxAra;
+        while (l < h) {
+            const mid = Math.floor((l + h) / 2);
+            if (await comprovarIdx(mid, cacheResultats)) {
+                h = mid;
+            } else {
+                l = mid + 1;
+            }
+        }
+        inici = l;
+    }
+
+    // Cerca binària cap endavant: últim idx (fins TOTAL_IDX-1) on encara existeix
+    let fi = idxAra;
+    {
+        let l = idxAra, h = TOTAL_IDX - 1;
+        while (l < h) {
+            const mid = Math.ceil((l + h) / 2);
+            if (await comprovarIdx(mid, cacheResultats)) {
+                l = mid;
+            } else {
+                h = mid - 1;
+            }
+        }
+        fi = l;
+    }
+
+    // Verificació de seguretat: la consecutivitat és una assumpció. Comprovem
+    // uns quants punts intermedis a l'atzar; si algun falla, no confiem en el
+    // rang i tornem null (el cridant farà la cerca completa com a fallback).
+    const punts_a_verificar = 6;
+    for (let i = 0; i < punts_a_verificar; i++) {
+        const idxTest = inici + Math.floor(Math.random() * (fi - inici + 1));
+        if (!(await comprovarIdx(idxTest, cacheResultats))) {
+            return null; // el rang no és realment consecutiu, cal cerca completa
+        }
+    }
+
+    return { inici, fi };
+}
+async function detectarHoresDisponibles() {
+    const steps = [];
+    const horesTrobades = [];
+
+    console.log('[detectar] 🔍 Llegint manifest.json...');
+
+    try {
+        const r = await fetch(ambCacheBusterDades('web_data_NE/manifest.json'), { cache: 'no-store' });
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+
+        const ct = r.headers.get('content-type') || '';
+        if (ct.includes('text/html')) {
+            throw new Error('manifest.json no existeix (el servidor retorna la SPA en fallback)');
+        }
+
+        const manifest = await r.json();
+        const ordreDia = { ahir: -1, avui: 0, dema: 1, dema_passat: 2 };
+
+        const horesOrdenades = Object.values(manifest.hores || {})
+            .filter(h => h.sfc)
+            .sort((a, b) => {
+                const diffDia = (ordreDia[a.dia] ?? 99) - (ordreDia[b.dia] ?? 99);
+                if (diffDia !== 0) return diffDia;
+                return a.hora - b.hora;
+            });
+
+        let stepCounter = 0;
+        for (const h of horesOrdenades) {
+            steps.push(stepCounter);
+            horesTrobades.push({
+                step: stepCounter,
+                hora: h.hora,
+                dia: h.dia,
+                horaStr: `${String(h.hora).padStart(2, '0')}:00`,
+                diaStr: h.dia,
+                teSFC: true,
+                te3D: !!h['3d'],
+                nomSFC: `web_data_NE/${h.sfc}`,
+                nom3D: h['3d'] ? `web_data_NE/${h['3d']}` : null,
+            });
+            stepCounter++;
+        }
+
+        window._horesDisponibles = horesTrobades;
+        console.log(`[detectar] ✅ ${steps.length} hores llegides del manifest (instantani):`,
+            horesTrobades.map(h => `${h.hora}h ${h.dia}${h.te3D ? ' 📡' : ''}`).join(', '));
+        return steps;
+
+    } catch (e) {
+        console.error('[detectar] ❌ No s\'ha pogut llegir manifest.json:', e.message);
+        console.error('[detectar] Executa generar_manifest.py per crear-lo dins de web_data_NE/');
+        window._horesDisponibles = [];
+        return steps; // buit
+    }
+}
+
+// Comprova quines hores tenen 3D disponible DESPRÉS de mostrar la graella,
+// actualitzant window._horesDisponibles i refrescant la graella a mesura
+// que arriben confirmacions, sense bloquejar la UI ni les dades SFC.
+async function confirmar3DEnSegonPla(horesTrobades) {
+    const MIDA_LOT = 24;
+    for (let i = 0; i < horesTrobades.length; i += MIDA_LOT) {
+        const lot = horesTrobades.slice(i, i + MIDA_LOT);
+        await Promise.all(lot.map(async h => {
+            const ok = await existeixFitxerDeVeritat(h.nom3D);
+            h.te3D = ok;
+            if (!ok) h.nom3D = null;
+        }));
+        // Refresquem la graella perquè els badges "3D" vagin apareixent
+        if (typeof construirGraellaHores === 'function') construirGraellaHores();
+    }
+    desarCacheHores(window._horesDisponibles);
+    console.log('[detectar] ✅ Confirmació 3D completada en segon pla');
+}
+
+// Refresc silenciós en segon pla: si el rang real ha canviat (nou run del
+// model), la propera vegada que es recarregui la pàgina (cache caducada
+// o buida) es detectarà correctament. Aquí simplement invalidem la cache
+// si detectem que l'hora "ara" ja no hi és, per forçar recàlcul al proper load.
+async function refrescarHoresEnSegonPla() {
+    try {
+        const araMadrid = new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/Madrid' }));
+        const diaActual = 'avui';
+        const horaActual = araMadrid.getHours();
+        const existeix = await existeixFitxerDeVeritat(nomSfc(diaActual, horaActual));
+        if (!existeix) {
+            console.log('[detectar] 🔄 Cache sembla desactualitzada (hora actual no trobada) — invalidant per al proper load');
+            localStorage.removeItem(CLAU_CACHE_HORES);
+        }
+    } catch (e) { /* silenciós */ }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  INICIALITZACIÓ - NOMÉS LA PRIMERA HORA (SENSE CÀRREGUES AUTOMÀTIQUES)
+// ═══════════════════════════════════════════════════════════════════════
+async function inicialitzarCarregaSotaDemanda() {
+    // 1️⃣ Detectar quines hores existeixen (ara la graella ja es pot construir
+    // just després que aquesta promesa es resolgui amb el SFC confirmat;
+    // el 3D es confirma en segon pla dins de detectarHoresDisponibles())
+    const steps = await detectarHoresDisponibles();
+
+    if (steps.length === 0) {
+        console.warn('[Càrrega] No s\'ha trobat cap hora disponible.');
+        totesLesHores = [];
+        window.totesLesHores = totesLesHores;
+        construirGraellaHores();
+        const loadingOverlay = document.getElementById('loading_overlay');
+        if (loadingOverlay) loadingOverlay.classList.add('hidden');
+        return;
+    }
+
+    // 2️⃣ Crear els esquelets (sense dades)
+    totesLesHores = steps.map(s => ({ step: s, dateObj: null, data: null }));
+    window.totesLesHores = totesLesHores;
+
+    // 3️⃣ Mostrar la graella IMMEDIATAMENT — l'usuari ja veu 14h, 15h, 16h...
+    // en lloc de +01, +02, abans que es descarregui cap dada.
+    construirGraellaHores();
+    construirPanellParametres();
+
+    // 4️⃣ Amaguem l'overlay de seguida (ja no cal esperar cap mínim artificial)
+    const loadingOverlay = document.getElementById('loading_overlay');
+    if (loadingOverlay) loadingOverlay.classList.add('hidden');
+
+    // 5️⃣ Carreguem la primera hora en segon pla i la pintem quan arribi,
+    // sense bloquejar l'aparició de la graella ni de l'overlay
+    console.log('[Càrrega] 📥 Carregant primera hora (en segon pla)...');
+    const primerItem = await carregarUnStep(totesLesHores[0].step, true);
+    if (primerItem) {
+        totesLesHores[0].dateObj = primerItem.dateObj;
+        totesLesHores[0].data = primerItem.data;
+
+        if (curIdx === 0) {
+            canvasLayer._needsRedraw = true;
+            canvasLayer.setData(totesLesHores[0].data);
+            actualitzarUIHora(0);
+            resaltarHoraEnGrid(0);
+            construirPanellParametres();
+        }
+    }
+
+    console.log('[Càrrega] ✅ Inicialització completada. Carregant només sota demanda...');
+}
+function actualitzarBarraProgress(carregats, total) {
+    const pct = Math.round((carregats / total) * 100);
+    const barra = document.getElementById('loading_progress_bar');
+    const text = document.getElementById('loading_progress_text');
+    if (barra) barra.style.width = pct + '%';
+    if (text) text.textContent = carregats + ' / ' + total + ' hores (' + pct + '%)';
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  MOSTRAR HORA - CARREGA NOMÉS L'HORA CLICADA (SENSE CASCADA)
+// ═══════════════════════════════════════════════════════════════════════
+
+let _cargaHoraEnProgreso = false;
+let loadingOverlayTimeout = null;
+
+function mostrarLoadingOverlay(horaStr, diaStr) {
+    const overlay = document.getElementById('loadingHourOverlay');
+    const text = document.getElementById('loadingHourText');
+    const detail = document.getElementById('loadingHourDetail');
+
+    if (!overlay) return;
+
+    if (text) text.textContent = '⏳ Carregant hora...';
+    if (detail) detail.textContent = `${horaStr} - ${diaStr || 'avui'}`;
+
+    if (loadingOverlayTimeout) {
+        clearTimeout(loadingOverlayTimeout);
+        loadingOverlayTimeout = null;
+    }
+
+    overlay.classList.remove('hidden');
+    overlay.classList.add('visible');
+    overlay.style.display = 'flex';
+    void overlay.offsetHeight;
+    overlay.style.opacity = '1';
+}
+
+function amagarLoadingOverlay() {
+    const overlay = document.getElementById('loadingHourOverlay');
+    if (!overlay) return;
+
+    overlay.style.opacity = '0';
+
+    if (loadingOverlayTimeout) {
+        clearTimeout(loadingOverlayTimeout);
+    }
+    loadingOverlayTimeout = setTimeout(() => {
+        overlay.classList.remove('visible');
+        overlay.classList.add('hidden');
+        overlay.style.display = 'none';
+        loadingOverlayTimeout = null;
+    }, 350);
+}
+
+
+async function mostrarHora(idx) {
+    if (idx < 0 || idx >= totesLesHores.length) return;
+    if (_cargaHoraEnProgreso) return;
+
+    const user = window._firebaseUser || null;
+    if (!user && idx % 3 !== 0) {
+        if (typeof loginWithGoogle === 'function') loginWithGoogle();
+        return;
+    }
+
+    let horaMostrar = '...';
+    let diaMostrar = '';
+    const item = totesLesHores[idx];
+
+    if (window._horesDisponibles && window._horesDisponibles[idx]) {
+        const info = window._horesDisponibles[idx];
+        horaMostrar = `${String(info.hora).padStart(2, '0')}:00`;
+        diaMostrar = info.dia || 'avui';
+    }
+
+    const jaEstavaCarregada = !!(item.data && item.data.variables && Object.keys(item.data.variables).length > 0);
+
+    // Només mostrem l'overlay de càrrega si REALMENT cal descarregar
+    if (!jaEstavaCarregada) {
+        mostrarLoadingOverlay(horaMostrar, diaMostrar);
+    }
+
+    _cargaHoraEnProgreso = true;
+    const idxSeleccionada = idx;
+    curIdx = idx;
+    window.skewtHourIndex = idx;
+
+    resaltarHoraEnGrid(idx);
+
+    const label = document.getElementById('current_time_label');
+    if (label && !jaEstavaCarregada) label.textContent = ' Carregant...';
+
+    try {
+        if (!jaEstavaCarregada) {
+            console.log(`[mostrarHora] Carregant hora ${idx} sota demanda...`);
+
+            const text = document.getElementById('loadingHourText');
+            if (text) text.textContent = ` Descarregant dades...`;
+
+            // Descarrega NOMÉS aquesta hora (SFC + 3D si existeix)
+            const nou = await carregarUnStep(item.step, true);
+            if (nou) {
+                item.dateObj = nou.dateObj;
+                item.data = nou.data;
+
+                // Actualitzar la graella per mostrar que ja està carregada
+                construirGraellaHores();
+
+                // 🔧 FIX: reconstruir el panell de paràmetres perquè inclogui
+                // les variables d'aquesta hora acabada de carregar. Sense
+                // això, el panell es queda buit per sempre si la primera
+                // crida (a inicialitzarCarregaSotaDemanda) es va fer abans
+                // que hi hagués cap dada, ja que mai més es tornava a cridar.
+                construirPanellParametres();
+
+                const text2 = document.getElementById('loadingHourText');
+                if (text2) text2.textContent = ` Processant dades...`;
+            } else {
+                console.warn(`[mostrarHora]  No s'ha pogut carregar l'hora ${idx}`);
+                amagarLoadingOverlay();
+                _cargaHoraEnProgreso = false;
+                return;
+            }
+        } else {
+            console.log(`[mostrarHora]  Hora ${idx} ja carregada a memòria cau (no cal tornar a descarregar)`);
+        }
+
+        if (curIdx !== idxSeleccionada) {
+            amagarLoadingOverlay();
+            _cargaHoraEnProgreso = false;
+            return;
+        }
+
+        // Mostrar les dades (siguin noves o ja cachejades)
+        if (item?.data) {
+            canvasLayer._needsRedraw = true;
+            canvasLayer.setData(item.data);
+            if (window.ventEnabled && typeof redibuixarVent === 'function') redibuixarVent();
+        }
+
+        actualitzarUIHora(idx);
+
+    } catch (e) {
+        console.error('[mostrarHora]', e);
+        const text = document.getElementById('loadingHourText');
+        if (text) text.textContent = ' Error carregant';
+        setTimeout(() => amagarLoadingOverlay(), 1000);
+    } finally {
+        _cargaHoraEnProgreso = false;
+
+        setTimeout(() => {
+            amagarLoadingOverlay();
+        }, jaEstavaCarregada ? 0 : 400);
+
+        if (label && totesLesHores[idx]?.dateObj) {
+            const d = new Date(totesLesHores[idx].dateObj.toLocaleString('en-US', { timeZone: 'Europe/Madrid' }));
+            label.textContent = d.toLocaleString('es-ES', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' });
+        }
+    }
+}
+
+// ─── Resaltar hora activa a la graella ───────────────────────────────
+function resaltarHoraEnGrid(idx) {
+    document.querySelectorAll('.fh-item').forEach((el, i) => {
+        el.classList.toggle('active', i === idx);
+        el.style.background = i === idx ? 'rgba(255,215,0,0.12)' : 'rgba(255,255,255,0.03)';
+        el.style.color = i === idx ? '#FFD700' : '#556680';
+        el.style.border = i === idx ? '1px solid rgba(255,215,0,0.3)' : '1px solid transparent';
+    });
+    const target = document.querySelector(`.fh-item[data-idx="${idx}"]`);
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  CONSTRUIR GRAELLA D'HORES — AMB L'HORA REAL DEL FITXER (avui/dema/...)
+// ═══════════════════════════════════════════════════════════════════════
+
+function construirGraellaHores() {
+    const grid = document.getElementById('fh_grid');
+    if (!grid) {
+        console.warn('[Grid] Element fh_grid no trobat');
+        return;
+    }
+
+    grid.innerHTML = '';
+
+    if (!totesLesHores || totesLesHores.length === 0) {
+        grid.innerHTML = '<div style="color:#556680;padding:6px 12px;font-size:11px;text-align:center;width:100%;">Carregant dades...</div>';
+        return;
+    }
+
+    const container = document.createElement('div');
+    container.className = 'fh-grid-container';
+    container.style.cssText = 'display:flex;gap:3px;align-items:center;padding:2px 4px;overflow-x:auto;';
+
+    if (curIdx >= totesLesHores.length) {
+        curIdx = 0;
+    }
+
+    // Mapa per trobar ràpidament l'hora real (ve directament dels fitxers Python)
+    const horesMap = {};
+    if (window._horesDisponibles) {
+        for (const h of window._horesDisponibles) {
+            horesMap[h.step] = h;
+        }
+    }
+
+    totesLesHores.forEach((item, i) => {
+        const teDataReal = !!item.dateObj && !!item.data && !!item.data.variables;
+        const estaCarregada = teDataReal && Object.keys(item.data.variables).length > 0;
+
+        let horaMostrar = '';
+        let diaMostrar = '';
+        let minMostrar = '00';
+
+        // 1️⃣ Prioritat: hora real que ve del nom del fitxer (Python)
+        if (horesMap[i]) {
+            const info = horesMap[i];
+            horaMostrar = String(info.hora).padStart(2, '0');
+            diaMostrar = info.dia;
+            minMostrar = '00';
+        }
+        // 2️⃣ Si no, extreure de la data ja carregada
+        else if (teDataReal && item.dateObj) {
+            try {
+                const madridTime = new Date(item.dateObj.toLocaleString('en-US', { timeZone: 'Europe/Madrid' }));
+                horaMostrar = String(madridTime.getHours()).padStart(2, '0');
+                minMostrar = String(madridTime.getMinutes()).padStart(2, '0');
+
+                const ara = new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/Madrid' }));
+                const avui = new Date(ara);
+                avui.setHours(0, 0, 0, 0);
+                const dataStep = new Date(madridTime);
+                dataStep.setHours(0, 0, 0, 0);
+                const diffDies = Math.round((dataStep - avui) / (1000 * 60 * 60 * 24));
+
+                if (diffDies === 0) diaMostrar = 'avui';
+                else if (diffDies === 1) diaMostrar = 'dema';
+                else if (diffDies === 2) diaMostrar = 'dema_passat';
+                else if (diffDies === -1) diaMostrar = 'ahir';
+                else diaMostrar = String(madridTime.getDate()).padStart(2, '0') + '/' + String(madridTime.getMonth() + 1).padStart(2, '0');
+            } catch (e) {
+                const step = item.step;
+                const horaStep = Math.floor(step / 2);
+                horaMostrar = String(horaStep).padStart(2, '0');
+                minMostrar = String((step % 2) * 30).padStart(2, '0');
+                diaMostrar = '';
+            }
+        }
+        // 3️⃣ Fallback final: step
+        else {
+            const step = item.step;
+            const horaStep = Math.floor(step / 2);
+            horaMostrar = String(horaStep).padStart(2, '0');
+            minMostrar = String((step % 2) * 30).padStart(2, '0');
+            diaMostrar = '';
+        }
+
+        let estilDia = '';
+        let textDia = '';
+        if (diaMostrar === 'ahir') {
+            estilDia = 'color:#8899bb;';
+            textDia = 'ahir';
+        } else if (diaMostrar === 'avui') {
+            estilDia = 'color:#FFD700;';
+            textDia = 'avui';
+        } else if (diaMostrar === 'dema') {
+            estilDia = 'color:#FFA500;';
+            textDia = 'dema';
+        } else if (diaMostrar === 'dema_passat') {
+            estilDia = 'color:#FF6B6B;';
+            textDia = 'd+2';
+        }
+
+        const isActive = (i === curIdx);
+        const userAra = window._firebaseUser || null;
+        const itemBloquejatVisual = !userAra && (i % 3 !== 0);
+
+        const cell = document.createElement('div');
+        cell.className = 'fh-item' + (isActive ? ' active' : '');
+        cell.dataset.idx = i;
+
+        cell.style.cssText = `
+            flex: 0 0 auto;
+            padding: 2px 8px;
+            border-radius: 3px;
+            cursor: ${itemBloquejatVisual ? 'not-allowed' : 'pointer'};
+            font-size: 11px;
+            font-weight: 500;
+            color: ${isActive ? '#FFD700' : '#556680'};
+            background: ${isActive ? 'rgba(255,215,0,0.12)' : 'rgba(255,255,255,0.03)'};
+            border: ${isActive ? '1px solid rgba(255,215,0,0.3)' : '1px solid transparent'};
+            transition: all 0.15s ease;
+            text-align: center;
+            min-width: 32px;
+            position: relative;
+            user-select: none;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            line-height: 1.2;
+            opacity: ${itemBloquejatVisual ? '0.3' : (estaCarregada ? '1' : '0.55')};
+        `;
+
+        if (itemBloquejatVisual) {
+            cell.title = 'Inicia sessió per desbloquejar';
+            cell.innerHTML = `
+                <span style="font-size:12px;font-weight:700;display:block;${estilDia}">${horaMostrar}h</span>
+                <span style="font-size:7px;color:#3a4a5a;display:block;margin-top:-1px;">${minMostrar}</span>
+                <span style="font-size:7px;${estilDia}display:block;margin-top:-1px;">${textDia}</span>
+                <span style="position:absolute;top:-2px;right:-1px;font-size:7px;color:#FF6B35;"><i class="fas fa-lock"></i></span>
+            `;
+        } else {
+            cell.innerHTML = `
+                <span style="font-size:12px;font-weight:700;display:block;${estilDia}">${horaMostrar}h</span>
+                <span style="font-size:7px;color:#3a4a5a;display:block;margin-top:-1px;">${minMostrar}</span>
+                <span style="font-size:7px;${estilDia}display:block;margin-top:-1px;">${textDia}</span>
+            `;
+        }
+
+        // Indicador de si té 3D
+        if (item.data && item.data._te3d) {
+            const badge = document.createElement('span');
+            badge.style.cssText = `
+                position: absolute;
+                bottom: -2px;
+                right: -2px;
+                font-size: 6px;
+                color: #43e97b;
+                background: rgba(0,0,0,0.7);
+                border-radius: 3px;
+                padding: 0px 3px;
+                font-weight: 700;
+            `;
+            badge.textContent = '3D';
+            cell.appendChild(badge);
+        }
+
+        cell.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const idx = parseInt(this.dataset.idx);
+            if (isNaN(idx)) return;
+
+            const lliure = (idx % 3 === 0);
+            const userActual = window._firebaseUser || null;
+
+            if (!userActual && !lliure) {
+                if (typeof loginWithGoogle === 'function') {
+                    loginWithGoogle();
+                }
+                return;
+            }
+
+            if (typeof mostrarHora === 'function') {
+                mostrarHora(idx);
+            }
+        });
+
+        cell.addEventListener('mouseenter', function() {
+            if (!this.classList.contains('active')) {
+                this.style.background = 'rgba(255,255,255,0.08)';
+                this.style.color = '#c8d8e8';
+            }
+        });
+
+        cell.addEventListener('mouseleave', function() {
+            if (!this.classList.contains('active')) {
+                this.style.background = 'rgba(255,255,255,0.03)';
+                this.style.color = '#556680';
+            }
+        });
+
+        container.appendChild(cell);
+    });
+
+    grid.appendChild(container);
+
+    setTimeout(() => {
+        const active = grid.querySelector('.fh-item.active');
+        if (active) {
+            active.scrollIntoView({
+                behavior: 'smooth',
+                block: 'nearest',
+                inline: 'center'
+            });
+        }
+    }, 100);
+}
+
+// ─── NETEGAR ESDEVENIMENTS DUPLICATS ──────────────────────────────────
+function netejarGridEvents() {
+    const grid = document.getElementById('fh_grid');
+    if (!grid) return;
+
+    const items = grid.querySelectorAll('.fh-item');
+    items.forEach(item => {
+        const nouItem = item.cloneNode(true);
+        item.parentNode.replaceChild(nouItem, item);
+    });
+}
+
+function tancarTotsAcordions(excepteClauBase) {
+    document.querySelectorAll('.param-acordio-cap').forEach(capcal => {
+        const clauB = capcal.dataset.clauBase;
+        if (clauB === excepteClauBase) return;
+        const clauEstat = `acordio_${clauB}`;
+        estatAcordio[clauEstat] = false;
+        capcal.querySelector('.param-acordio-fletxa').textContent = '▸';
+        const cos = capcal.nextElementSibling;
+        if (cos && cos.classList.contains('param-acordio-cos')) {
+            cos.style.display = 'none';
+        }
+    });
+}
+
+function ordenarClausPerNivell(claus) {
+    return claus.slice().sort((a, b) => {
+        const na = parseFloat(a.split('_').pop());
+        const nb = parseFloat(b.split('_').pop());
+        return nb - na;
+    });
+}
+
+const estatAcordio = {};
+function construirPanellParametres() {
+    const cont = document.getElementById('parameter_selection');
+    if (!cont || !totesLesHores[0]) return;
+    cont.innerHTML = '';
+
+    const totesVariables = new Set();
+    const infoVariables = {};
+totesLesHores.forEach(hora => {
+    if (hora.data && hora.data.variables) {
+        Object.keys(hora.data.variables).forEach(clauOriginal => {
+            const clau = normalitzarClau(clauOriginal);
+            if (clauOriginal.includes('WIND_SPEED_GUST') || clauOriginal.includes('gust')) {
+                console.log('[DEBUG ratxa]', clauOriginal, '→', clau);
+            }
+            totesVariables.add(clau);
+                if (!infoVariables[clau]) infoVariables[clau] = hora.data.variables[clauOriginal];
+            });
+        }
+    });
+
+    const clausUsades = new Set();
+    const crearRow = (clau, className = 'param-row') => {
+        const info = infoVariables[clau];
+        if (!info) return null;
+
+        const esPremium = typeof esParametrePremium === 'function' && esParametrePremium(clau);
+
+        const row = document.createElement('div');
+        row.className = className;
+        row.dataset.clau = clau;
+
+        const teAccesInicial = verificarAccesVariable(clau);
+        if (!teAccesInicial && esPremium) {
+            row.style.opacity = '0.35';
+            row.style.filter = 'grayscale(0.8)';
+            row.style.cursor = 'not-allowed';
+            row.title = ' Variable exclusiva per membres premium';
+        } else {
+            row.style.cursor = 'pointer';
+        }
+
+        const pal = getPaleta(clau);
+        const unitat = (info.unidades && info.unidades.trim() !== '') ? info.unidades : (pal.unitat || '');
+        const nomBackend = info.nombre || '';
+        const semblaClauCrua = /^[A-Z0-9_]+$/.test(nomBackend) && nomBackend.length > 6;
+        const nom = semblaClauCrua ? pal.titol : (nomBackend || pal.titol);
+
+        const iconaCandau = (!teAccesInicial && esPremium) ? ' ' : '';
+
+        row.innerHTML = `<div class="param-link">${nom} <span class="param-unit">(${unitat})</span>${iconaCandau}</div>`;
+
+        row.onclick = () => {
+            const teAccesAra = verificarAccesVariable(clau);
+            if (teAccesAra) {
+                seleccionarVariable(clau);
+            } else if (esPremium) {
+                if (typeof mostrarAvisPremium === 'function') {
+                    mostrarAvisPremium(clau);
+                } else {
+                    console.warn('[Accés] Variable premium bloquejada:', clau);
+                }
+            } else {
+                if (typeof mostrarAvisLogin === 'function') {
+                    mostrarAvisLogin(clau);
+                } else {
+                    console.warn('[Accés] Variable bloquejada per login:', clau);
+                }
+            }
+        };
+
+        return row;
+    };
+
+    window.tancarBloqueig = function() {
+        const overlay = document.getElementById('mapLockOverlay');
+        if (overlay) overlay.style.display = 'none';
+        const mapa = document.getElementById('map');
+        if (mapa) {
+            mapa.style.opacity = '1';
+            mapa.style.pointerEvents = 'auto';
+        }
+    };
+
+    const crearSeparador = () => {
+        const sep = document.createElement('div');
+        sep.className = 'param-separador';
+        sep.style.cssText = 'border-top:1px solid rgba(255,255,255,0.08);margin:6px 12px;';
+        return sep;
+    };
+
+    const crearTitolGrup = (nom, count) => {
+        const h3 = document.createElement('h3');
+        h3.className = 'param-group-title';
+        h3.textContent = `${nom} (${count})`;
+        return h3;
+    };
+
+    // PART SUPERIOR - GRUP PRINCIPAL
+    const principals = GRUP_PRINCIPAL
+        .filter(clau => totesVariables.has(clau) && !esVariableAmagada(clau));
+
+    if (principals.length > 0) {
+        principals.forEach(clau => {
+            const row = crearRow(clau, 'param-row param-row-principal');
+            if (row) {
+                cont.appendChild(row);
+                clausUsades.add(clau);
+            }
+        });
+        cont.appendChild(crearSeparador());
+    }
+
+    // GRUPS SIMPLES
+    Object.entries(GRUPS_SIMPLES).forEach(([nomGrup, clausGrup]) => {
+        const entrades = [];
+
+        clausGrup.forEach(clauB => {
+            if (totesVariables.has(clauB) && !esVariableAmagada(clauB) && !clausUsades.has(clauB)) {
+                entrades.push(clauB);
+            }
+        });
+
+        totesVariables.forEach(clau => {
+            if (clausUsades.has(clau)) return;
+            for (const clauB of clausGrup) {
+                if (clau.startsWith(clauB + '_') && !entrades.includes(clau)) {
+                    entrades.push(clau);
+                    break;
+                }
+            }
+        });
+
+        entrades.sort((a, b) => a.localeCompare(b));
+        if (entrades.length === 0) return;
+
+        cont.appendChild(crearTitolGrup(nomGrup, entrades.length));
+        entrades.forEach(clau => {
+            const row = crearRow(clau);
+            if (row) {
+                cont.appendChild(row);
+                clausUsades.add(clau);
+            }
+        });
+    });
+
+    // GRUPS ACORDIÓ
+    Object.entries(GRUPS_ACORDIO).forEach(([nomGrupTitol, clausBase]) => {
+        clausBase.forEach(clauB => {
+            const nivellsClaus = [];
+            totesVariables.forEach(clau => {
+                if (clausUsades.has(clau)) return;
+                if (clau.startsWith(clauB + '_') && /^\d+$/.test(clau.slice(clauB.length + 1))) {
+                    nivellsClaus.push(clau);
+                }
+            });
+
+            if (nivellsClaus.length === 0) return;
+
+            const nivellsOrdenats = ordenarClausPerNivell(nivellsClaus);
+            const paletaBase = PALETES[clauB];
+            const nomBase = paletaBase ? paletaBase.titol : clauB;
+            const clauEstat = `acordio_${clauB}`;
+            if (!(clauEstat in estatAcordio)) estatAcordio[clauEstat] = false;
+
+            const capcal = document.createElement('div');
+            capcal.className = 'param-acordio-cap';
+            capcal.dataset.clauBase = clauB;
+            capcal.innerHTML = `
+                <span class="param-acordio-fletxa">${estatAcordio[clauEstat] ? '▾' : '▸'}</span>
+                ${nomBase}
+                <span class="param-unit">(${nivellsOrdenats.length} nivells)</span>
+            `;
+            cont.appendChild(capcal);
+
+            const cosContenidor = document.createElement('div');
+            cosContenidor.className = 'param-acordio-cos';
+            cosContenidor.style.display = estatAcordio[clauEstat] ? 'block' : 'none';
+
+            nivellsOrdenats.forEach(clau => {
+                const row = crearRow(clau, 'param-row param-row-nivell');
+                if (row) {
+                    cosContenidor.appendChild(row);
+                    clausUsades.add(clau);
+                }
+            });
+
+            cont.appendChild(cosContenidor);
+
+            capcal.addEventListener('click', () => {
+                const obert = estatAcordio[clauEstat];
+                tancarTotsAcordions(clauB);
+                estatAcordio[clauEstat] = !obert;
+                capcal.querySelector('.param-acordio-fletxa').textContent = !obert ? '▾' : '▸';
+                cosContenidor.style.display = !obert ? 'block' : 'none';
+            });
+        });
+    });
+
+    // PART INFERIOR - ALTRES
+    const sobrants = [...totesVariables]
+        .filter(c => !clausUsades.has(c) && !esVariableAmagada(c))
+        .sort((a, b) => a.localeCompare(b));
+
+    if (sobrants.length > 0) {
+        cont.appendChild(crearSeparador());
+        cont.appendChild(crearTitolGrup('Altres', sobrants.length));
+        sobrants.forEach(clau => {
+            const row = crearRow(clau);
+            if (row) cont.appendChild(row);
+        });
+    }
+
+    // 🔧 FIX: no resetejar sempre a temperatura en reconstruir el panell
+    // (passa cada cop que es carrega una hora nova). Mantenim la variable
+    // que l'usuari ja tenia seleccionada, si segueix existint a les dades
+    // d'aquesta hora; només caiem a 'st' la primera vegada o si la variable
+    // ja no existeix.
+    const clauAMantenir = (variableActiva && totesVariables.has(variableActiva)) ? variableActiva : 'st';
+    seleccionarVariable(clauAMantenir, true);
+}
+
+async function seleccionarVariable(clau, silenciós) {
+    if (variableActiva === clau && !silenciós) return;
+
+    if (typeof window.verificarAccesVariable === 'function') {
+        const acces = window.verificarAccesVariable(clau);
+        if (!acces) {
+            console.log('[Mapa] Accés denegat per:', clau);
+            return;
+        }
+    }
+
+    const variableAnterior = variableActiva;
+    variableActiva = clau;
+    window._currentParameter = clau;
+
+    document.querySelectorAll('.param-row').forEach(el => {
+        el.classList.toggle('param-selected', el.dataset.clau === clau);
+    });
+
+    const base = clauBase(clau);
+    const clauEstat = `acordio_${base}`;
+    if (clauEstat in estatAcordio && !estatAcordio[clauEstat] && clau !== base) {
+        tancarTotsAcordions(base);
+        estatAcordio[clauEstat] = true;
+        const capcal = document.querySelector(`.param-acordio-cap[data-clau-base="${base}"]`);
+        if (capcal) {
+            capcal.querySelector('.param-acordio-fletxa').textContent = '▾';
+            const cos = capcal.nextElementSibling;
+            if (cos && cos.classList.contains('param-acordio-cos')) cos.style.display = 'block';
+        }
+    }
+
+    // Notificar a Vent que ha canviat la variable
+    if (typeof Vent !== 'undefined' && Vent.notificarCanviVariable) {
+        const baseAnterior = variableAnterior ? clauBase(variableAnterior) : null;
+        const baseNova = clauBase(clau);
+
+        if (baseAnterior !== baseNova || variableAnterior !== clau) {
+            Vent.notificarCanviVariable(clau);
+        }
+    }
+
+    canvasLayer._needsRedraw = true;
+    canvasLayer._render();
+
+    if (!silenciós) {
+        const actiu = document.querySelector('.param-row.param-selected');
+        if (actiu) actiu.scrollIntoView({ block: 'nearest' });
+    }
+
+    actualitzarCapcaleraParametre();
+}
+
+function actualitzarCapcaleraParametre() {
+    const pal = getPaleta(variableActiva);
+    const label = document.getElementById('parameter_menu_link');
+    if (label) label.textContent = pal.titol + ' (' + pal.unitat + ')';
+}
+
+
+
+
+
+// ═══════════════════════════════════════════════════════════════════════
+//  PERSISTÈNCIA EN localStorage PER AL PANELL D'AJUSTOS DE VENT
+// ═══════════════════════════════════════════════════════════════════════
+
+const CLAU_STORAGE_AJUSTOS_VENT = 'tempestescat_ajustos_vent_v1';
+
+function carregarAjustosVent() {
+    try {
+        const raw = localStorage.getItem(CLAU_STORAGE_AJUSTOS_VENT);
+        if (!raw) return null;
+        return JSON.parse(raw);
+    } catch (e) {
+        console.warn('[AjustosVent] Error llegint localStorage:', e.message);
+        return null;
+    }
+}
+
+function desarAjustosVent(valors) {
+    try {
+        const actuals = carregarAjustosVent() || {};
+        const nous = { ...actuals, ...valors };
+        localStorage.setItem(CLAU_STORAGE_AJUSTOS_VENT, JSON.stringify(nous));
+    } catch (e) {
+        console.warn('[AjustosVent] Error guardant a localStorage:', e.message);
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  PANELL D'AJUSTOS DE VENT I MAPA
+// ═══════════════════════════════════════════════════════════════════════
+function crearPanellAjustos() {
+
+    const panell = document.createElement('div');
+    panell.id = 'panellAjustosVent';
+    panell.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 300px;
+        max-width: 88vw;
+        height: 100vh;
+        background: rgba(10, 16, 26, 0.97);
+        backdrop-filter: blur(16px);
+        border-right: 1px solid rgba(255, 215, 0, 0.1);
+        z-index: 995;
+        transform: translateX(-105%);
+        transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+        box-shadow: 4px 0 40px rgba(0,0,0,0.6);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        font-family: 'Segoe UI', Tahoma, sans-serif;
+    `;
+
+    panell.innerHTML = `
+        <div style="padding:16px 18px 12px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+            <span style="font-size:13px;font-weight:700;color:#FFD700;display:flex;align-items:center;gap:8px;">
+                <i class=""></i> Ajustos de vent i mapa
+            </span>
+            <button id="btnTancarAjustosVent" style="background:none;border:none;color:#556680;font-size:18px;cursor:pointer;padding:4px 6px;border-radius:6px;line-height:1;">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <div style="flex:1;overflow-y:auto;padding:14px 18px 24px;">
+
+            <div class="aj-titol-seccio">Vent</div>
+
+            <div class="aj-fila">
+                <span class="aj-label">Mostrar vent</span>
+                <button id="ajVentOn" class="aj-toggle-btn"></button>
+            </div>
+
+            <div class="aj-fila">
+                <span class="aj-label">Mode</span>
+                <div class="aj-segmented" id="ajVentMode">
+                    <button data-mode="streamlines" class="aj-seg-btn">〜 Línies</button>
+                    <button data-mode="particles" class="aj-seg-btn">✦ Partícules</button>
+                </div>
+            </div>
+
+            <div class="aj-fila aj-fila-vent-comu">
+                <span class="aj-label">Color</span>
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <input type="color" id="ajVentColor" value="#ffffff" style="width:34px;height:26px;border:none;border-radius:5px;background:none;cursor:pointer;padding:0;">
+                    <div class="aj-swatches" id="ajVentSwatches">
+                        <span data-c="#ffffff" style="background:#ffffff"></span>
+                        <span data-c="#000000" style="background:#000000"></span>
+                        <span data-c="#3ea6ff" style="background:#3ea6ff"></span>
+                        <span data-c="#FFD700" style="background:#FFD700"></span>
+                        <span data-c="#ff5e5e" style="background:#ff5e5e"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="aj-fila aj-fila-vent-comu">
+                <span class="aj-label">Opacitat <span class="aj-val" id="valVentOpacitat">75%</span></span>
+                <input type="range" id="ajVentOpacitat" min="10" max="100" value="75" class="aj-range">
+            </div>
+
+            <div class="aj-fila aj-fila-particules" style="display:none;">
+                <span class="aj-label">Densitat <span class="aj-val" id="valVentDensitat">1400</span></span>
+                <input type="range" id="ajVentDensitat" min="200" max="8000" step="100" value="1400" class="aj-range">
+            </div>
+
+            <div class="aj-fila aj-fila-particules" style="display:none;">
+                <span class="aj-label">Durada estela <span class="aj-val" id="valVentEstela">1.0x</span></span>
+                <input type="range" id="ajVentEstela" min="0.3" max="3" step="0.1" value="1.0" class="aj-range">
+            </div>
+
+            <div class="aj-fila aj-fila-particules" style="display:none;">
+                <span class="aj-label">Mida partícula <span class="aj-val" id="valVentMida">1.6</span></span>
+                <input type="range" id="ajVentMida" min="0.5" max="4" step="0.1" value="1.6" class="aj-range">
+            </div>
+
+            <div class="aj-fila aj-fila-particules" style="display:none;">
+                <span class="aj-label">Velocitat <span class="aj-val" id="valVentVelocitat">1.0x</span></span>
+                <input type="range" id="ajVentVelocitat" min="0.2" max="3" step="0.1" value="1.0" class="aj-range">
+            </div>
+
+            <div class="aj-fila aj-fila-linies">
+                <span class="aj-label">Gruix línia <span class="aj-val" id="valVentGruix">1.2</span></span>
+                <input type="range" id="ajVentGruix" min="0.5" max="3" step="0.1" value="1.2" class="aj-range">
+            </div>
+
+            <div class="aj-separador"></div>
+
+            <div class="aj-titol-seccio">Contorn del mapa</div>
+
+            <div class="aj-fila">
+                <span class="aj-label">Color de la vora</span>
+                <input type="color" id="ajContornColor" value="#040400" style="width:34px;height:26px;border:none;border-radius:5px;background:none;cursor:pointer;padding:0;">
+            </div>
+
+            <div class="aj-fila">
+                <span class="aj-label">Opacitat vora <span class="aj-val" id="valContornOpacitat">100%</span></span>
+                <input type="range" id="ajContornOpacitat" min="0" max="100" value="100" class="aj-range">
+            </div>
+
+            <div class="aj-fila">
+                <span class="aj-label">Gruix vora <span class="aj-val" id="valContornGruix">2.5</span></span>
+                <input type="range" id="ajContornGruix" min="0.5" max="6" step="0.1" value="2.5" class="aj-range">
+            </div>
+
+            <div class="aj-fila">
+                <span class="aj-label">Comarques</span>
+                <button id="ajCapaGironaOn" class="aj-toggle-btn">
+                    <i class="fas fa-toggle-off"></i> Desactivat
+                </button>
+            </div>
+
+            <div class="aj-fila aj-fila-girona" style="display:none;">
+                <span class="aj-label">Opacitat capa <span class="aj-val" id="valCapaGironaOpacitat">100%</span></span>
+                <input type="range" id="ajCapaGironaOpacitat" min="10" max="100" value="100" class="aj-range">
+            </div>
+
+            <div class="aj-separador"></div>
+
+            <div class="aj-titol-seccio">Capa de dades</div>
+
+            <div class="aj-fila">
+                <span class="aj-label">Opacitat capa <span class="aj-val" id="valCapaOpacitat">100%</span></span>
+                <input type="range" id="ajCapaOpacitat" min="10" max="100" value="100" class="aj-range">
+            </div>
+
+            <div class="aj-separador"></div>
+
+            <button id="ajResetDefectes" class="aj-btn-reset">
+                <i class="fas fa-rotate-left"></i> Restaurar valors per defecte
+            </button>
+
+        </div>
+    `;
+
+    document.body.appendChild(panell);
+    injectarEstilsPanellAjustos();
+
+    // ─── Referències ──────────────────────────────────────────────────
+    const btnTancar = panell.querySelector('#btnTancarAjustosVent');
+    const btnVentOn = panell.querySelector('#ajVentOn');
+    const modeButtons = panell.querySelectorAll('#ajVentMode .aj-seg-btn');
+    const inputColor = panell.querySelector('#ajVentColor');
+    const swatches = panell.querySelectorAll('#ajVentSwatches span');
+    const inputOpacitat = panell.querySelector('#ajVentOpacitat');
+    const inputDensitat = panell.querySelector('#ajVentDensitat');
+    const inputEstela = panell.querySelector('#ajVentEstela');
+    const inputMida = panell.querySelector('#ajVentMida');
+    const inputVelocitat = panell.querySelector('#ajVentVelocitat');
+    const inputGruix = panell.querySelector('#ajVentGruix');
+    const filesParticules = panell.querySelectorAll('.aj-fila-particules');
+    const filesLinies = panell.querySelectorAll('.aj-fila-linies');
+
+    const inputContornColor = panell.querySelector('#ajContornColor');
+    const btnCapaGironaOn = panell.querySelector('#ajCapaGironaOn');
+    const inputCapaGironaOpacitat = panell.querySelector('#ajCapaGironaOpacitat');
+    const filaCapaGirona = panell.querySelector('.aj-fila-girona');
+    const inputContornOpacitat = panell.querySelector('#ajContornOpacitat');
+    const inputContornGruix = panell.querySelector('#ajContornGruix');
+
+    const inputCapaOpacitat = panell.querySelector('#ajCapaOpacitat');
+    const btnReset = panell.querySelector('#ajResetDefectes');
+
+    // ═══════════════════════════════════════════════════════════════════
+    //  CARREGAR VALORS GUARDATS I APLICAR-LOS ABANS DE TOT
+    // ═══════════════════════════════════════════════════════════════════
+    const DEFECTES = {
+        ventActiu: true,
+        ventMode: 'streamlines',
+        ventColor: '#ffffff',
+        ventOpacitat: 75,
+        ventDensitat: 1400,
+        ventMida: 1.6,
+        ventVelocitat: 1.0,
+        ventEstela: 1.0,
+        ventGruix: 1.2,
+        contornColor: '#040400',
+        contornOpacitat: 100,
+        contornGruix: 2.5,
+        capaOpacitat: 100,
+        capaGironaActiva: false,
+        capaGironaOpacitat: 100,
+    };
+    const guardats = carregarAjustosVent() || {};
+    const A = { ...DEFECTES, ...guardats };
+
+    window._ventMode = A.ventMode;
+    window._ventActiu = A.ventActiu;
+
+    inputColor.value = A.ventColor;
+    inputOpacitat.value = A.ventOpacitat;
+    panell.querySelector('#valVentOpacitat').textContent = A.ventOpacitat + '%';
+    inputDensitat.value = A.ventDensitat;
+    panell.querySelector('#valVentDensitat').textContent = A.ventDensitat;
+    inputMida.value = A.ventMida;
+    panell.querySelector('#valVentMida').textContent = Number(A.ventMida).toFixed(1);
+    inputVelocitat.value = A.ventVelocitat;
+    panell.querySelector('#valVentVelocitat').textContent = Number(A.ventVelocitat).toFixed(1) + 'x';
+    inputEstela.value = A.ventEstela;
+    panell.querySelector('#valVentEstela').textContent = Number(A.ventEstela).toFixed(1) + 'x';
+    inputGruix.value = A.ventGruix;
+    panell.querySelector('#valVentGruix').textContent = Number(A.ventGruix).toFixed(1);
+
+    inputContornColor.value = A.contornColor;
+    inputContornOpacitat.value = A.contornOpacitat;
+    panell.querySelector('#valContornOpacitat').textContent = A.contornOpacitat + '%';
+    inputContornGruix.value = A.contornGruix;
+    panell.querySelector('#valContornGruix').textContent = Number(A.contornGruix).toFixed(1);
+
+    inputCapaOpacitat.value = A.capaOpacitat;
+    panell.querySelector('#valCapaOpacitat').textContent = A.capaOpacitat + '%';
+
+    // Aplicar-ho tot de seguida al motor de vent / streamlines / mapa
+    function aplicarTotElsAjustosGuardats() {
+        if (typeof wCfg !== 'undefined') {
+            wCfg.streamlineColor = A.ventColor;
+            wCfg.streamlineOpacity = A.ventOpacitat / 100;
+            wCfg.streamlineWidth = Number(A.ventGruix);
+        }
+        if (typeof Vent !== 'undefined') {
+            const baseVida = 40, baseVidaMax = 110;
+            const factorEstela = Number(A.ventEstela);
+            Vent.configurar({
+                color: A.ventColor,
+                opacitat: A.ventOpacitat / 100,
+                numParticules: Number(A.ventDensitat),
+                midaParticula: Number(A.ventMida),
+                velocitatFactor: Number(A.ventVelocitat),
+                vidaMinima: baseVida * factorEstela,
+                vidaMaxima: baseVidaMax * factorEstela,
+            });
+        }
+
+        window.ventEnabled = false;
+        if (typeof canvasVent !== 'undefined' && canvasVent && typeof ctxVent !== 'undefined' && ctxVent) {
+            ctxVent.clearRect(0, 0, canvasVent.width, canvasVent.height);
+        }
+        if (typeof Vent !== 'undefined' && Vent.estaActiu()) {
+            Vent.aturar();
+        }
+
+        if (A.ventActiu) {
+            if (A.ventMode === 'particles' && typeof Vent !== 'undefined') {
+                Vent.iniciar();
+            } else if (A.ventMode === 'streamlines') {
+                window.ventEnabled = true;
+                if (typeof redibuixarVent === 'function') redibuixarVent();
+            }
+        }
+
+        if (typeof canvasLayer !== 'undefined' && canvasLayer && canvasLayer._canvas) {
+            canvasLayer._canvas.style.opacity = (A.capaOpacitat / 100).toString();
+        }
+
+        aplicarEstilContornDesat();
+    }
+
+    function aplicarEstilContornDesat() {
+        if (typeof capaInstancies === 'undefined') return;
+        const color = inputContornColor.value;
+        const opacitat = parseInt(inputContornOpacitat.value) / 100;
+        const gruix = parseFloat(inputContornGruix.value);
+
+        Object.entries(capaInstancies).forEach(([id, capa]) => {
+            if (!capa || !capa.setStyle) return;
+            let opacitatFinal = opacitat;
+            if (id === 'girona_comarques') {
+                const opacitatCapaPropia = parseInt(inputCapaGironaOpacitat.value) / 100;
+                opacitatFinal = opacitat * opacitatCapaPropia;
+            }
+            capa.setStyle({ color, opacity: opacitatFinal, weight: gruix });
+        });
+    }
+
+    // Exposar-la globalment perquè inicialitzarGeojson() pugui cridar-la
+    window.aplicarEstatCapesGeojsonDesat = function() {
+        aplicarEstilContornDesat();
+        const capaGirona = capaInstancies['girona_comarques'];
+        if (capaGirona) {
+            if (A.capaGironaActiva && !map.hasLayer(capaGirona)) {
+                capaGirona.addTo(map);
+            } else if (!A.capaGironaActiva && map.hasLayer(capaGirona)) {
+                map.removeLayer(capaGirona);
+            }
+        }
+    };
+
+    setTimeout(aplicarEstilContornDesat, 1200);
+    setTimeout(aplicarEstilContornDesat, 3000);
+
+    aplicarTotElsAjustosGuardats();
+
+    function actualitzarVisibilitatFilesMode() {
+        const esParticules = window._ventMode === 'particles';
+        filesParticules.forEach(f => f.style.display = esParticules ? 'flex' : 'none');
+        filesLinies.forEach(f => f.style.display = esParticules ? 'none' : 'flex');
+        modeButtons.forEach(b => b.classList.toggle('actiu', b.dataset.mode === window._ventMode));
+    }
+
+    function actualitzarBotoOnOff() {
+        const actiuAra = window._ventMode === 'particles' ? Vent.estaActiu() : !!window.ventEnabled;
+        btnVentOn.classList.toggle('actiu', actiuAra);
+        btnVentOn.innerHTML = actiuAra
+            ? '<i class="fas fa-toggle-on"></i> Activat'
+            : '<i class="fas fa-toggle-off"></i> Desactivat';
+    }
+
+    // ─── ON / OFF ─────────────────────────────────────────────────────
+    btnVentOn.addEventListener('click', () => {
+        if (window._ventMode === 'particles') {
+            if (typeof Vent === 'undefined') return;
+            if (Vent.estaActiu()) {
+                Vent.aturar();
+            } else {
+                Vent.iniciar();
+            }
+        } else {
+            window.ventEnabled = !window.ventEnabled;
+            if (window.ventEnabled) {
+                if (typeof redibuixarVent === 'function') redibuixarVent();
+            } else if (typeof canvasVent !== 'undefined' && canvasVent && typeof ctxVent !== 'undefined' && ctxVent) {
+                ctxVent.clearRect(0, 0, canvasVent.width, canvasVent.height);
+            }
+        }
+        actualitzarBotoOnOff();
+        desarAjustosVent({ ventActiu: window._ventMode === 'particles' ? Vent.estaActiu() : !!window.ventEnabled });
+    });
+
+    // ─── Canvi de mode ──────────────────────────────────────────────────
+    modeButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const nouMode = btn.dataset.mode;
+            if (nouMode === window._ventMode) return;
+
+            if (window._ventMode === 'particles' && typeof Vent !== 'undefined') {
+                Vent.aturar();
+            } else if (window._ventMode === 'streamlines') {
+                window.ventEnabled = false;
+                if (typeof canvasVent !== 'undefined' && canvasVent && typeof ctxVent !== 'undefined' && ctxVent) {
+                    ctxVent.clearRect(0, 0, canvasVent.width, canvasVent.height);
+                }
+            }
+
+            window._ventMode = nouMode;
+
+            const volActiu = btnVentOn.classList.contains('actiu');
+            if (volActiu) {
+                if (nouMode === 'particles' && typeof Vent !== 'undefined') {
+                    Vent.iniciar();
+                } else if (nouMode === 'streamlines') {
+                    window.ventEnabled = true;
+                    if (typeof redibuixarVent === 'function') redibuixarVent();
+                }
+            }
+
+            actualitzarVisibilitatFilesMode();
+            actualitzarBotoOnOff();
+            desarAjustosVent({ ventMode: nouMode });
+        });
+    });
+
+    // ─── Color ────────────────────────────────────────────────────────
+    function aplicarColor(hex) {
+        inputColor.value = hex;
+        if (window._ventMode === 'particles' && typeof Vent !== 'undefined') {
+            Vent.configurar({ color: hex });
+        } else if (typeof window.setStreamlineColorHex === 'function') {
+            window.setStreamlineColorHex(hex);
+        } else if (typeof wCfg !== 'undefined') {
+            wCfg.streamlineColor = hex;
+            if (typeof redibuixarVent === 'function') redibuixarVent();
+        }
+        desarAjustosVent({ ventColor: hex });
+    }
+    inputColor.addEventListener('input', () => aplicarColor(inputColor.value));
+    swatches.forEach(sw => {
+        sw.addEventListener('click', () => aplicarColor(sw.dataset.c));
+    });
+
+    // ─── Opacitat ─────────────────────────────────────────────────────
+    inputOpacitat.addEventListener('input', () => {
+        const v = parseInt(inputOpacitat.value);
+        panell.querySelector('#valVentOpacitat').textContent = v + '%';
+        const frac = v / 100;
+        if (window._ventMode === 'particles' && typeof Vent !== 'undefined') {
+            Vent.configurar({ opacitat: frac });
+        } else if (typeof window.setStreamlineOpacity === 'function') {
+            window.setStreamlineOpacity(frac);
+        }
+        desarAjustosVent({ ventOpacitat: v });
+    });
+
+    // ─── Densitat (partícules) ──────────────────────────────────────────
+    inputDensitat.addEventListener('input', () => {
+        const v = parseInt(inputDensitat.value);
+        panell.querySelector('#valVentDensitat').textContent = v;
+        if (typeof Vent !== 'undefined') Vent.configurar({ numParticules: v });
+        desarAjustosVent({ ventDensitat: v });
+    });
+
+    // ─── Mida partícula ─────────────────────────────────────────────────
+    inputMida.addEventListener('input', () => {
+        const v = parseFloat(inputMida.value);
+        panell.querySelector('#valVentMida').textContent = v.toFixed(1);
+        if (typeof Vent !== 'undefined') Vent.configurar({ midaParticula: v });
+        desarAjustosVent({ ventMida: v });
+    });
+
+    // ─── Durada de l'estela (vida de la partícula) ──────────────────────
+    inputEstela.addEventListener('input', () => {
+        const v = parseFloat(inputEstela.value);
+        panell.querySelector('#valVentEstela').textContent = v.toFixed(1) + 'x';
+        if (typeof Vent !== 'undefined') {
+            Vent.configurar({ vidaMinima: 40 * v, vidaMaxima: 110 * v });
+        }
+        desarAjustosVent({ ventEstela: v });
+    });
+
+    // ─── Velocitat ──────────────────────────────────────────────────────
+    inputVelocitat.addEventListener('input', () => {
+        const v = parseFloat(inputVelocitat.value);
+        panell.querySelector('#valVentVelocitat').textContent = v.toFixed(1) + 'x';
+        if (typeof Vent !== 'undefined') Vent.configurar({ velocitatFactor: v });
+        desarAjustosVent({ ventVelocitat: v });
+    });
+
+    // ─── Gruix línies (streamlines) ─────────────────────────────────────
+    inputGruix.addEventListener('input', () => {
+        const v = parseFloat(inputGruix.value);
+        panell.querySelector('#valVentGruix').textContent = v.toFixed(1);
+        if (typeof window.setStreamlineWidth === 'function') window.setStreamlineWidth(v);
+        desarAjustosVent({ ventGruix: v });
+    });
+
+    // ─── Contorn del mapa (geojson) ─────────────────────────────────────
+    function aplicarEstilContorn() {
+        aplicarEstilContornDesat();
+    }
+    inputContornColor.addEventListener('input', () => {
+        aplicarEstilContorn();
+        desarAjustosVent({ contornColor: inputContornColor.value });
+    });
+    inputContornOpacitat.addEventListener('input', () => {
+        panell.querySelector('#valContornOpacitat').textContent = inputContornOpacitat.value + '%';
+        aplicarEstilContorn();
+        desarAjustosVent({ contornOpacitat: parseInt(inputContornOpacitat.value) });
+    });
+    inputContornGruix.addEventListener('input', () => {
+        panell.querySelector('#valContornGruix').textContent = parseFloat(inputContornGruix.value).toFixed(1);
+        aplicarEstilContorn();
+        desarAjustosVent({ contornGruix: parseFloat(inputContornGruix.value) });
+    });
+
+    // ─── Capa de comarques de Girona (on/off + opacitat pròpia) ─────────
+    btnCapaGironaOn.addEventListener('click', () => {
+        const araActiu = btnCapaGironaOn.classList.contains('actiu');
+        const noviActiu = !araActiu;
+
+        btnCapaGironaOn.classList.toggle('actiu', noviActiu);
+        btnCapaGironaOn.innerHTML = noviActiu
+            ? '<i class="fas fa-toggle-on"></i> Activat'
+            : '<i class="fas fa-toggle-off"></i> Desactivat';
+        filaCapaGirona.style.display = noviActiu ? 'flex' : 'none';
+
+        const capaGirona = capaInstancies['girona_comarques'];
+        if (capaGirona) {
+            if (noviActiu && !map.hasLayer(capaGirona)) {
+                capaGirona.addTo(map);
+                aplicarEstilContorn();
+            } else if (!noviActiu && map.hasLayer(capaGirona)) {
+                map.removeLayer(capaGirona);
+            }
+        }
+
+        desarAjustosVent({ capaGironaActiva: noviActiu });
+    });
+
+    inputCapaGironaOpacitat.addEventListener('input', () => {
+        const v = parseInt(inputCapaGironaOpacitat.value);
+        panell.querySelector('#valCapaGironaOpacitat').textContent = v + '%';
+        aplicarEstilContorn();
+        desarAjustosVent({ capaGironaOpacitat: v });
+    });
+
+    // ─── Opacitat de la capa de dades ───────────────────────────────────
+    inputCapaOpacitat.addEventListener('input', () => {
+        const v = parseInt(inputCapaOpacitat.value);
+        panell.querySelector('#valCapaOpacitat').textContent = v + '%';
+        if (typeof canvasLayer !== 'undefined' && canvasLayer && canvasLayer._canvas) {
+            canvasLayer._canvas.style.opacity = (v / 100).toString();
+        }
+        desarAjustosVent({ capaOpacitat: v });
+    });
+
+    // ─── Restaurar valors per defecte ─────────────────────────────────
+    btnReset.addEventListener('click', () => {
+        try {
+            localStorage.removeItem(CLAU_STORAGE_AJUSTOS_VENT);
+        } catch (e) { /* silenciós */ }
+        location.reload();
+    });
+
+    // ─── Obrir / tancar NOMÉS amb el botó ────────────────────────────
+    function obrirPanellAjustos() {
+        panell.style.transform = 'translateX(0)';
+        actualitzarVisibilitatFilesMode();
+        actualitzarBotoOnOff();
+    }
+
+    function tancarPanellAjustos() {
+        panell.style.transform = 'translateX(-105%)';
+    }
+
+    btnTancar.addEventListener('click', tancarPanellAjustos);
+
+    const btnConfigGeneral = document.getElementById('btnObrirAjustosVent');
+    if (btnConfigGeneral) {
+        btnConfigGeneral.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const estaObert = panell.style.transform === 'translateX(0)';
+            if (estaObert) {
+                tancarPanellAjustos();
+            } else {
+                obrirPanellAjustos();
+            }
+        });
+    }
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            tancarPanellAjustos();
+        }
+    });
+
+    document.addEventListener('click', function(e) {
+        if (panell.style.transform === 'translateX(0)') {
+            if (!panell.contains(e.target) && e.target.id !== 'btnObrirAjustosVent') {
+                tancarPanellAjustos();
+            }
+        }
+    });
+
+    actualitzarVisibilitatFilesMode();
+    actualitzarBotoOnOff();
+}
+
+function injectarEstilsPanellAjustos() {
+    if (document.getElementById('estils-panell-ajustos-vent')) return;
+    const style = document.createElement('style');
+    style.id = 'estils-panell-ajustos-vent';
+    style.textContent = `
+        #panellAjustosVent .aj-titol-seccio {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #2aa3e8;
+            margin: 4px 0 10px;
+        }
+        #panellAjustosVent .aj-separador {
+            border-top: 1px solid rgba(255,255,255,0.07);
+            margin: 16px 0;
+        }
+        #panellAjustosVent .aj-fila {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        #panellAjustosVent .aj-label {
+            font-size: 11.5px;
+            color: #c8d8e8;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        #panellAjustosVent .aj-val {
+            color: #FFD700;
+            font-size: 10px;
+            font-weight: 700;
+        }
+        #panellAjustosVent .aj-range {
+            width: 130px;
+            accent-color: #FFD700;
+            cursor: pointer;
+        }
+        #panellAjustosVent .aj-toggle-btn {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #8899bb;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 5px 12px;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        #panellAjustosVent .aj-toggle-btn.actiu {
+            background: rgba(67, 233, 123, 0.15);
+            border-color: rgba(67, 233, 123, 0.4);
+            color: #43e97b;
+        }
+        #panellAjustosVent .aj-toggle-btn i { margin-right: 4px; }
+        #panellAjustosVent .aj-segmented {
+            display: flex;
+            background: rgba(255,255,255,0.05);
+            border-radius: 6px;
+            padding: 2px;
+            gap: 2px;
+        }
+        #panellAjustosVent .aj-seg-btn {
+            background: none;
+            border: none;
+            color: #8899bb;
+            font-size: 10px;
+            font-weight: 600;
+            padding: 5px 9px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        #panellAjustosVent .aj-seg-btn.actiu {
+            background: rgba(255, 215, 0, 0.15);
+            color: #FFD700;
+        }
+        #panellAjustosVent .aj-swatches {
+            display: flex;
+            gap: 5px;
+        }
+        #panellAjustosVent .aj-swatches span {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.25);
+            cursor: pointer;
+            display: inline-block;
+        }
+        #panellAjustosVent .aj-swatches span:hover {
+            border-color: #FFD700;
+            transform: scale(1.1);
+        }
+        #panellAjustosVent .scroll-area-ajustos::-webkit-scrollbar { width: 3px; }
+        #panellAjustosVent .scroll-area-ajustos::-webkit-scrollbar-thumb { background: #FFD700; border-radius: 4px; }
+
+        @media (max-width: 768px) {
+            #panellAjustosVent {
+                width: 100% !important;
+                max-width: 100vw !important;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  ESDEVENIMENTS LOGIN/LOGOUT
+// ═══════════════════════════════════════════════════════════════════════
+
+window.addEventListener('tc:login', function(e) {
+
+    if (totesLesHores && totesLesHores.length > 0) {
+        construirGraellaHores();
+        construirPanellParametres();
+        mostrarHora(curIdx);
+    }
+    if (typeof window.amagarOverlay === 'function') {
+        window.amagarOverlay();
+    }
+});
+
+window.addEventListener('tc:logout', function() {
+    console.log('[mapa.js] Usuari desloguejat');
+    if (totesLesHores && totesLesHores.length > 0) {
+        construirGraellaHores();
+        construirPanellParametres();
+        mostrarHora(0);
+    }
+    if (typeof seleccionarVariable === 'function') {
+        seleccionarVariable('st', true);
+    }
+    if (typeof window.amagarOverlay === 'function') {
+        window.amagarOverlay();
+    }
+});
+
+// ═══════════════════════════════════════════════════════════════════════
+//  CURSOR PERSONALITZAT (CREU)
+// ═══════════════════════════════════════════════════════════════════════
+(function() {
+    const mapContainer = map.getContainer();
+
+    const cursorSVG = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+            <line x1="6" y1="24" x2="42" y2="24" stroke="#030303" stroke-width="2" stroke-linecap="round"/>
+            <line x1="6" y1="24" x2="42" y2="24" stroke="#faf8f8" stroke-width="1" stroke-linecap="round" opacity="0.3" transform="translate(1, 1)"/>
+            <line x1="24" y1="6" x2="24" y2="42" stroke="#030303" stroke-width="2" stroke-linecap="round"/>
+            <line x1="24" y1="6" x2="24" y2="42" stroke="#faf8f8" stroke-width="1" stroke-linecap="round" opacity="0.3" transform="translate(1, 1)"/>
+            <circle cx="24" cy="24" r="3" fill="#070000"/>
+            <circle cx="24" cy="24" r="1.5" fill="#fcf9f9"/>
+        </svg>
+    `;
+
+    const encodedSVG = encodeURIComponent(cursorSVG);
+    const cursorURL = `data:image/svg+xml,${encodedSVG}`;
+
+    mapContainer.style.cursor = `url('${cursorURL}') 24 24, crosshair`;
+
+    mapContainer.addEventListener('mouseover', function(e) {
+        mapContainer.style.cursor = `url('${cursorURL}') 24 24, crosshair`;
+    });
+
+    mapContainer.addEventListener('mouseout', function(e) {
+        if (!mapContainer.contains(e.relatedTarget)) {
+            mapContainer.style.cursor = '';
+        }
+    });
+
+    const style = document.createElement('style');
+    style.textContent = `
+        #map, #map * {
+            cursor: url('${cursorURL}') 24 24, crosshair !important;
+        }
+        #map button, #map a, #map .leaflet-control, #map .leaflet-popup,
+        #map button *, #map a * {
+            cursor: pointer !important;
+        }
+        #map {
+            transition: cursor 0.1s ease;
+        }
+    `;
+    document.head.appendChild(style);
+})();
+
+// ═══════════════════════════════════════════════════════════════════════
+//  FONS NEGRE NOMÉS FORA DE LA ZONA lon/lat DEFINIDA
+// ═══════════════════════════════════════════════════════════════════════
+
+(function() {
+    const ZONA_VISIBLE = {
+   lon_min: -4.5,
+lon_max: 4.8,
+lat_min: 38.0,
+lat_max: 44.5,
+    };
+
+    function aplicarOverride() {
+        if (!window._canvasLayer) {
+            setTimeout(aplicarOverride, 200);
+            return;
+        }
+
+        const layer = window._canvasLayer;
+        const renderOriginal = layer._render;
+        map.off('moveend zoomend', renderOriginal, layer);
+
+        function renderAmbNegre() {
+            if (!layer._data || !layer._map) return;
+            if (layer._needsRedraw) layer._drawOffscreen();
+
+            const m = layer._map;
+            const size = m.getSize();
+            const canvas = layer._canvas;
+            canvas.width = size.x;
+            canvas.height = size.y;
+            const ctx = canvas.getContext('2d');
+            L.DomUtil.setPosition(canvas, m.containerPointToLayerPoint([0, 0]));
+
+            const nwZona = m.latLngToContainerPoint(L.latLng(ZONA_VISIBLE.lat_max, ZONA_VISIBLE.lon_min));
+            const seZona = m.latLngToContainerPoint(L.latLng(ZONA_VISIBLE.lat_min, ZONA_VISIBLE.lon_max));
+            const zx = nwZona.x, zy = nwZona.y, zw = seZona.x - nwZona.x, zh = seZona.y - nwZona.y;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, canvas.width, Math.max(0, zy));
+            ctx.fillRect(0, zy + zh, canvas.width, canvas.height - (zy + zh));
+            ctx.fillRect(0, zy, Math.max(0, zx), zh);
+            ctx.fillRect(zx + zw, zy, canvas.width - (zx + zw), zh);
+
+            const coords = getCoordenadesPer(layer._data, variableActiva);
+            const lats = coords.lat;
+            const lons = coords.lon;
+            const latMax = Math.max(lats[0], lats[lats.length - 1]);
+            const latMin = Math.min(lats[0], lats[lats.length - 1]);
+            const lonMin = Math.min(lons[0], lons[lons.length - 1]);
+            const lonMax = Math.max(lons[0], lons[lons.length - 1]);
+
+            const nw = m.latLngToContainerPoint(L.latLng(latMax, lonMin));
+            const se = m.latLngToContainerPoint(L.latLng(latMin, lonMax));
+            const x = nw.x, y = nw.y, w = se.x - nw.x, h = se.y - nw.y;
+
+            if (layer._offscreen && w > 0 && h > 0) {
+                ctx.save();
+                ctx.imageSmoothingEnabled = true;
+                ctx.imageSmoothingQuality = 'high';
+                ctx.drawImage(layer._offscreen, x, y, w, h);
+                ctx.restore();
+            }
+
+            layer._drawLegend(ctx, getPaleta(variableActiva));
+            actualitzarCapcaleraParametre();
+            redibuixarVent();
+        }
+
+        layer._render = renderAmbNegre;
+        map.off('move', renderAmbNegre);
+        map.on('move moveend zoomend', renderAmbNegre);
+
+        layer._needsRedraw = true;
+        renderAmbNegre();
+    }
+
+    aplicarOverride();
+})();
+
+
+
+// ═══════════════════════════════════════════════════════════════════════
+//  CERCA DE PARÀMETRES EN TEMPS REAL
+// ═══════════════════════════════════════════════════════════════════════
+
+function inicialitzarCercaParametres() {
+    const input = document.getElementById('parameter_search');
+    if (!input) return;
+
+    input.addEventListener('input', function() {
+        const text = this.value.toLowerCase().trim();
+        const container = document.getElementById('parameter_selection');
+        if (!container) return;
+
+        // Tots els elements que volem filtrar
+        const items = container.querySelectorAll('.param-row, .param-group-title, .param-separador, .param-acordio-cap, .param-acordio-cos');
+
+        if (!text) {
+            items.forEach(el => el.style.display = '');
+            // Tancar tots els acordions per defecte
+            document.querySelectorAll('.param-acordio-cos').forEach(cos => {
+                cos.style.display = 'none';
+            });
+            document.querySelectorAll('.param-acordio-cap .param-acordio-fletxa').forEach(f => {
+                f.textContent = '▸';
+            });
+            return;
+        }
+
+        // Primer: amagar tots els separadors i títols
+        items.forEach(el => {
+            if (el.classList.contains('param-separador') || el.classList.contains('param-group-title')) {
+                el.style.display = 'none';
+            }
+        });
+
+        // Filtrar files individuals
+        const rows = container.querySelectorAll('.param-row');
+        let hiHaCoincidencies = false;
+
+        rows.forEach(row => {
+            const textRow = row.textContent.toLowerCase();
+            const clau = row.dataset.clau || '';
+            if (textRow.includes(text) || clau.includes(text)) {
+                row.style.display = '';
+                hiHaCoincidencies = true;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        // Gestionar acordions: obrir els que continguin resultats
+        const caps = container.querySelectorAll('.param-acordio-cap');
+        caps.forEach(cap => {
+            const cos = cap.nextElementSibling;
+            if (!cos || !cos.classList.contains('param-acordio-cos')) return;
+
+            const teResultats = cos.querySelectorAll('.param-row[style*="display:"]:not([style*="display:none"])').length > 0;
+            
+            if (teResultats) {
+                cap.style.display = '';
+                cos.style.display = 'block';
+                cap.querySelector('.param-acordio-fletxa').textContent = '▾';
+            } else {
+                cap.style.display = 'none';
+                cos.style.display = 'none';
+            }
+        });
+
+        // Mostrar missatge si no hi ha resultats
+        let msg = container.querySelector('.cerca-buit');
+        if (!hiHaCoincidencies) {
+            if (!msg) {
+                msg = document.createElement('div');
+                msg.className = 'cerca-buit';
+                msg.style.cssText = 'color:#556680;padding:20px 16px;text-align:center;font-size:13px;';
+                container.appendChild(msg);
+            }
+            msg.textContent = '🔍 No s\'han trobat paràmetres amb "' + text + '"';
+            msg.style.display = '';
+        } else if (msg) {
+            msg.style.display = 'none';
+        }
+    });
+}
+
+// Inicialitzar després de construir el panell
+const originalBuild = construirPanellParametres;
+construirPanellParametres = function() {
+    originalBuild.call(this);
+    setTimeout(inicialitzarCercaParametres, 100);
+};
+
+// ═══════════════════════════════════════════════════════════════════════
+//  INICIALITZACIÓ
+// ═══════════════════════════════════════════════════════════════════════
+
+inicialitzarCanvasVent();
+crearPanellAjustos();
+
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(() => {
+        inicialitzarGeojson();
+    }, 500);
+});
+
+inicialitzarCarregaSotaDemanda();
+
+// Estat global: indica si el panell de Skew-T està obert.
+window.sondeigObert = false;
+
+window._currentParameter = variableActiva || 'st';
+function actualitzarBloqueigMapa() {
+    // La funció es defineix a accesvariable.js
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  ANIMACIÓ D'HORES — SENSE CONFLICTES AMB animació.js
+// ═══════════════════════════════════════════════════════════════════════
+
+(function() {
+    'use strict';
+
+    // Variables locals (no globals) per evitar conflictes
+    let _animacioActiva = false;
+    let _intervalAnimacio = null;
+    let _velocitatAnimacio = 1500;
+    let _tempsIniciHora = null;
+    let _intervalTempsRestant = null;
+
+    // Opcions de velocitat
+    const VELOCITATS = {
+        'Súper megaràpid': 50,
+        'Súper megaràpid': 100,
+        'Molt ràpid': 250,
+        'Ràpid': 800,
+        'Normal': 1500,
+        'Lent': 2500,
+        'Molt lent': 4000,
+    };
+
+    // ─── Selector de velocitat ──────────────────────────────────────
+
+    function afegirSelectorVelocitat() {
+        const controls = document.getElementById('controls');
+        if (!controls) return;
+        if (document.getElementById('velocitatAnimacio')) return;
+
+        const container = document.createElement('div');
+        container.style.cssText = `
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-left: 4px;
+            padding: 0 4px;
+            border-left: 1px solid rgba(255,255,255,0.06);
+        `;
+
+        const icona = document.createElement('span');
+        icona.innerHTML = '<i class="fas fa-tachometer-alt" style="font-size:9px;color:#556680;"></i>';
+        icona.style.cssText = 'font-size:9px;color:#556680;';
+        container.appendChild(icona);
+
+        const select = document.createElement('select');
+        select.id = 'velocitatAnimacio';
+        select.style.cssText = `
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 3px;
+            color: #8899bb;
+            font-size: 8px;
+            padding: 2px 4px;
+            cursor: pointer;
+            font-family: inherit;
+            height: 20px;
+            outline: none;
+            transition: all 0.2s;
+        `;
+
+        Object.entries(VELOCITATS).forEach(([nom, valor]) => {
+            const option = document.createElement('option');
+            option.value = valor;
+            option.textContent = nom;
+            if (valor === _velocitatAnimacio) {
+                option.selected = true;
+            }
+            select.appendChild(option);
+        });
+
+        select.addEventListener('change', function() {
+            _velocitatAnimacio = parseInt(this.value);
+            if (_animacioActiva) {
+                reiniciarInterval();
+            }
+            try {
+                localStorage.setItem('tempestescat_velocitat_animacio', _velocitatAnimacio);
+            } catch (e) {}
+        });
+
+        container.appendChild(select);
+
+        const btnPlay = document.getElementById('btnPlay');
+        if (btnPlay) {
+            btnPlay.after(container);
+        } else {
+            controls.appendChild(container);
+        }
+    }
+
+    // ─── Reiniciar interval ──────────────────────────────────────────
+
+    function reiniciarInterval() {
+        if (_intervalAnimacio) {
+            clearInterval(_intervalAnimacio);
+            _intervalAnimacio = null;
+        }
+        if (_animacioActiva) {
+            _intervalAnimacio = setInterval(avancarHora, _velocitatAnimacio);
+        }
+    }
+
+    // ─── Avançar hora ──────────────────────────────────────────────
+
+    function avancarHora() {
+        _tempsIniciHora = Date.now();
+
+        let nextIdx = curIdx + 1;
+        if (nextIdx >= totesLesHores.length) {
+            nextIdx = 0;
+        }
+
+        if (typeof mostrarHora === 'function') {
+            mostrarHora(nextIdx);
+        }
+
+        actualitzarTempsRestant();
+    }
+
+    // ─── Temps restant ──────────────────────────────────────────────
+
+    function actualitzarTempsRestant() {
+        const label = document.getElementById('tempsRestantAnimacio');
+        if (!label) return;
+
+        if (!_animacioActiva) {
+            label.textContent = '';
+            return;
+        }
+
+        const ara = Date.now();
+        const tempsTranscorregut = ara - (_tempsIniciHora || ara);
+        const restant = Math.max(0, Math.round((_velocitatAnimacio - tempsTranscorregut) / 1000));
+        
+        label.textContent = restant > 0 ? `⏱ ${restant}s` : ' ...';
+    }
+
+    // ─── Mostrar temps restant UI ──────────────────────────────────
+
+    function mostrarTempsRestantUI() {
+        const labelExistent = document.getElementById('tempsRestantAnimacio');
+        if (labelExistent) labelExistent.remove();
+
+        const btnPlay = document.getElementById('btnPlay');
+        if (!btnPlay) return;
+
+        const label = document.createElement('span');
+        label.id = 'tempsRestantAnimacio';
+        label.style.cssText = `
+            font-size: 8px;
+            color: #FFD700;
+            font-weight: 600;
+            margin-left: 4px;
+            min-width: 35px;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            opacity: 0.7;
+        `;
+        label.textContent = '⏱ 0s';
+
+        btnPlay.after(label);
+
+        if (_intervalTempsRestant) {
+            clearInterval(_intervalTempsRestant);
+        }
+        _intervalTempsRestant = setInterval(actualitzarTempsRestant, 500);
+    }
+
+    // ─── Toggle animació ────────────────────────────────────────────
+
+    function toggleAnimacio() {
+        const btnPlay = document.getElementById('btnPlay');
+        if (!btnPlay) return;
+
+        // Comprovar que tenim dades
+        if (!window.totesLesHores || window.totesLesHores.length === 0) {
+            console.warn('[Animació] No hi ha hores per reproduir');
+            return;
+        }
+
+        if (_animacioActiva) {
+            // ─── ATURAR ──────────────────────────────────────────────
+            if (_intervalAnimacio) {
+                clearInterval(_intervalAnimacio);
+                _intervalAnimacio = null;
+            }
+            if (_intervalTempsRestant) {
+                clearInterval(_intervalTempsRestant);
+                _intervalTempsRestant = null;
+            }
+            _animacioActiva = false;
+            _tempsIniciHora = null;
+
+            btnPlay.innerHTML = '▶ Animació';
+            btnPlay.style.background = 'rgba(255,255,255,0.04)';
+            btnPlay.style.color = '#8899bb';
+            btnPlay.title = 'Reproduir animació d\'hores';
+
+            const label = document.getElementById('tempsRestantAnimacio');
+            if (label) label.textContent = '';
+
+            return;
+        }
+
+        // ─── INICIAR ──────────────────────────────────────────────────
+        _animacioActiva = true;
+        _tempsIniciHora = Date.now();
+
+        btnPlay.innerHTML = '⏹ Aturar';
+        btnPlay.style.background = 'rgba(255,215,0,0.15)';
+        btnPlay.style.color = '#FFD700';
+        btnPlay.title = 'Aturar animació';
+
+        // Iniciar interval
+        if (_intervalAnimacio) clearInterval(_intervalAnimacio);
+        _intervalAnimacio = setInterval(avancarHora, _velocitatAnimacio);
+
+        // Mostrar temps restant
+        mostrarTempsRestantUI();
+
+        // Avançar a la següent hora
+        setTimeout(() => {
+            if (_animacioActiva) {
+                avancarHora();
+            }
+        }, 100);
+    }
+
+    // ─── Carregar velocitat guardada ────────────────────────────────
+
+    function carregarVelocitatGuardada() {
+        try {
+            const guardada = localStorage.getItem('tempestescat_velocitat_animacio');
+            if (guardada) {
+                const valor = parseInt(guardada);
+                if (Object.values(VELOCITATS).includes(valor)) {
+                    _velocitatAnimacio = valor;
+                }
+            }
+        } catch (e) {}
+    }
+
+    // ─── Inicialitzar ────────────────────────────────────────────────
+
+    function inicialitzarAnimacio() {
+        carregarVelocitatGuardada();
+
+        // Esperar que el DOM estigui llest
+        if (!document.getElementById('btnPlay')) {
+            setTimeout(inicialitzarAnimacio, 200);
+            return;
+        }
+
+        afegirSelectorVelocitat();
+
+        const btnPlay = document.getElementById('btnPlay');
+        if (btnPlay) {
+            // Reemplaçar per evitar duplicats d'events
+            const nouBtn = btnPlay.cloneNode(true);
+            btnPlay.parentNode.replaceChild(nouBtn, btnPlay);
+            nouBtn.addEventListener('click', toggleAnimacio);
+        }
+
+        console.log('[Animació] Inicialitzada amb velocitat:', _velocitatAnimacio + 'ms');
+    }
+
+    // ─── Exposar funcions globalment (sense conflictes) ──────────────
+
+    window._animacio = {
+        toggle: toggleAnimacio,
+        setVelocitat: function(v) {
+            _velocitatAnimacio = v;
+            if (_animacioActiva) reiniciarInterval();
+            try {
+                localStorage.setItem('tempestescat_velocitat_animacio', v);
+            } catch (e) {}
+        },
+        estaActiva: function() { return _animacioActiva; },
+        getVelocitat: function() { return _velocitatAnimacio; }
+    };
+
+    // ─── Iniciar ──────────────────────────────────────────────────────
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', inicialitzarAnimacio);
+    } else {
+        setTimeout(inicialitzarAnimacio, 500);
+    }
+
+})();
+
+console.log('✅ mapa.js carregat — cada hora es descarrega només quan es clica, sense càrrega 3D en cascada.');
