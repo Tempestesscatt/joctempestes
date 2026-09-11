@@ -499,7 +499,7 @@ const traduccions = {
     // ============================================================
     "Avís legal": "Aviso legal",
     "Dades de Meteo-France, NOAA i ECMWF. Mapes i dades elaborats per": "Datos de Meteo-France, NOAA y ECMWF. Mapas y datos elaborados por",
-    "Responsable: Simo Garcia · meteomaresme@gmail.com": "Responsable: Simo Garcia · meteomaresme@gmail.com",
+    "Responsable: Simo Garcia · tempestescat@gmail.com": "Responsable: Simo Garcia · tempestescat@gmail.com",
     "AROME 1.3km · AROME-PI · GFS 0.25º": "AROME 1.3km · AROME-PI · GFS 0.25º",
     "Política de Cookies": "Política de Cookies",
 

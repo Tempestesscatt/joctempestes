@@ -204,7 +204,7 @@
             </form>
 
             <div class="contact-email">
-                També pots escriure'ns directament a <a href="mailto:meteomaresme@gmail.com">meteomaresme@gmail.com</a>
+                També pots escriure'ns directament a <a href="mailto:tempestescat@gmail.com">tempestescat@gmail.com</a>
             </div>
 
         <?php endif; ?>

@@ -31,7 +31,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     // Destinatari
-    $to = "meteomaresme@gmail.com";
+    $to = "tempestescat@gmail.com";
     $subject = "Nou missatge de " . $name . " des de TEMPESTES.CAT";
 
     // Cos del missatge
@@ -60,7 +60,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $success = true;
         $message_text = "✅ Missatge enviat correctament! Et respondrem en 24h.";
     } else {
-        $error = "❌ Error en enviar el missatge. Si us plau, torna a provar o escriu-nos directament a meteomaresme@gmail.com";
+        $error = "❌ Error en enviar el missatge. Si us plau, torna a provar o escriu-nos directament a tempestescat@gmail.com";
     }
 
     // Mostrar resultat
