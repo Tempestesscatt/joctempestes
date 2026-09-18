@@ -26,6 +26,19 @@
  * Colors: blau per fred, vermell per calor, negre per temperat
  *
  * Selector de velocitat d'animació + bucle infinit
+ *
+ * ─── RENDIMENT (canvis per evitar lag / penjades) ─────────────────────
+ * 1. Cache LRU amb mida màxima (this._cacheMaxSize / _soundingCacheMaxSize):
+ *    abans la Map de cache creixia sense límit i, en sessions llargues o
+ *    animacions "All", acabava esgotant la memòria del navegador.
+ * 2. Token de descart (_loadToken / _surfaceLoadToken): si es demana un
+ *    frame nou (canvi ràpid de dia/hora, o parar/reprendre animació)
+ *    abans que l'anterior hagi acabat de carregar, el frame vell es
+ *    descarta en arribar i NO es renderitza. Evita "carreres" de
+ *    render que feien anar el mapa a batzegades.
+ * 3. AbortController per petició: en descartar un frame també s'aborta
+ *    el fetch en curs si encara no ha arribat, alliberant xarxa/CPU
+ *    abans (útil quan es navega molt ràpid entre hores).
  */
 
 // Nivells seleccionables al mapa (temperatura + vent)
@@ -75,6 +88,7 @@ class MapaGFS {
       maxBounds: [[-85, -180], [85, 180]],
       maxBoundsViscosity: 1.0,
       zoomControl: false,
+      preferCanvas: true, // molt més ràpid amb centenars de polígons/polilínies
     });
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -98,8 +112,15 @@ class MapaGFS {
     this._barbsLayer = L.layerGroup().addTo(this.map);
     this._bordersLayer = null;
 
+    // ─── Cache amb límit (LRU) ────────────────────────────────────
+    // Una Map en JS manté l'ordre d'inserció; en re-inserir una clau
+    // (delete + set) la portem al final, de manera que la primera
+    // clau del Map sempre és la "menys usada recentment".
     this._cache = new Map();
-    this._soundingCache = new Map(); // cache separada pels fitxers de sondeig (poden ser grans)
+    this._cacheMaxSize = 40; // ~40 frames en memòria com a màxim
+    this._soundingCache = new Map();
+    this._soundingCacheMaxSize = 10;
+
     this.currentLevel = null;
     this.currentDia = null;
     this.currentHora = null;
@@ -112,12 +133,40 @@ class MapaGFS {
     this._loop = false;
     this._animationType = null; // 'hours', 'days', 'all'
 
+    // ─── Control de frames obsolets ───────────────────────────────
+    this._loadToken = 0;        // incrementa a cada load() / loadSurface()
+    this._activeAbortControllers = new Set(); // fetches en curs, per poder-los avortar
+
     if (this.opts.bordersUrl) {
       this._loadBorders(this.opts.bordersUrl);
     }
 
     if (this.opts.enableSoundingOnRightClick) {
       this._bindSoundingRightClick();
+    }
+  }
+
+  // ------------------------------------------------------------------
+  // Cache LRU (helpers)
+  // ------------------------------------------------------------------
+
+  _cacheGet(map, key) {
+    if (!map.has(key)) return undefined;
+    var val = map.get(key);
+    // Re-inserir la clau la mou al final -> "usada més recentment"
+    map.delete(key);
+    map.set(key, val);
+    return val;
+  }
+
+  _cacheSet(map, maxSize, key, value) {
+    if (map.has(key)) {
+      map.delete(key);
+    }
+    map.set(key, value);
+    while (map.size > maxSize) {
+      var oldestKey = map.keys().next().value;
+      map.delete(oldestKey);
     }
   }
 
@@ -183,19 +232,34 @@ class MapaGFS {
     return this._buildSurfaceUrl(this.opts.soundingUrlTemplate, dia, hora);
   }
 
+  /**
+   * fetch + descompressió + decodificació, amb cache LRU i suport
+   * d'avortament (AbortController) perquè les peticions obsoletes es
+   * puguin cancel·lar sense esperar que acabin.
+   */
   async _fetchAndDecode(url) {
-    if (this._cache.has(url)) {
-      return this._cache.get(url);
+    var cached = this._cacheGet(this._cache, url);
+    if (cached !== undefined) {
+      return cached;
     }
 
     console.log("[MapaGFS] Descarregant:", url);
 
+    var controller = (typeof AbortController !== "undefined") ? new AbortController() : null;
+    if (controller) this._activeAbortControllers.add(controller);
+
     var res;
     try {
-      res = await fetch(url);
+      res = await fetch(url, controller ? { signal: controller.signal } : undefined);
     } catch (err) {
+      if (controller) this._activeAbortControllers.delete(controller);
+      if (err && err.name === "AbortError") {
+        throw err; // es propaga tal qual perquè el codi cridant sap distingir-lo
+      }
       throw new Error("Error de xarxa carregant " + url + ": " + err.message);
     }
+
+    if (controller) this._activeAbortControllers.delete(controller);
 
     if (!res.ok) {
       throw new Error("No s'ha pogut carregar " + url + " (HTTP " + res.status + ").");
@@ -225,7 +289,7 @@ class MapaGFS {
     }
 
     console.log("[MapaGFS] Decodificat OK:", url);
-    this._cache.set(url, decoded);
+    this._cacheSet(this._cache, this._cacheMaxSize, url, decoded);
     return decoded;
   }
 
@@ -235,8 +299,9 @@ class MapaGFS {
    * mapes de nivell/superfície).
    */
   async _fetchAndDecodeSounding(url) {
-    if (this._soundingCache.has(url)) {
-      return this._soundingCache.get(url);
+    var cached = this._cacheGet(this._soundingCache, url);
+    if (cached !== undefined) {
+      return cached;
     }
 
     console.log("[MapaGFS] Descarregant sondeig:", url);
@@ -276,12 +341,28 @@ class MapaGFS {
     }
 
     console.log("[MapaGFS] Sondeig decodificat OK:", url);
-    this._soundingCache.set(url, decoded);
+    this._cacheSet(this._soundingCache, this._soundingCacheMaxSize, url, decoded);
     return decoded;
   }
 
   /**
+   * Avorta totes les peticions de nivell/superfície en curs (no afecta
+   * les de sondeig, que són puntuals i independents de l'animació).
+   * S'utilitza quan es demana un frame nou abans que l'anterior hagi
+   * acabat de descarregar.
+   */
+  _abortPendingLoads() {
+    this._activeAbortControllers.forEach(function (c) {
+      try { c.abort(); } catch (e) { /* no-op */ }
+    });
+    this._activeAbortControllers.clear();
+  }
+
+  /**
    * Carrega un nivell de pressió (temp/vent). Només vàlid per a MAP_LEVELS.
+   * Fa servir un "token" per descartar el resultat si, mentre es
+   * descarregava, s'ha demanat un altre frame (evita renderitzats
+   * obsolets i sensació de lag/parpelleig durant l'animació).
    */
   async load(level, dia, hora, variable) {
     variable = variable || "temp";
@@ -304,8 +385,29 @@ class MapaGFS {
       throw new Error("L'hora " + hora + " supera el màxim de " + this.opts.maxHours);
     }
 
+    var myToken = ++this._loadToken;
+    // Si hi havia una petició de nivell/superfície en curs, l'avortem:
+    // ja no interessa el seu resultat.
+    this._abortPendingLoads();
+
     var url = this._buildUrl(level, dia, hora);
-    var data = await this._fetchAndDecode(url);
+    var data;
+    try {
+      data = await this._fetchAndDecode(url);
+    } catch (err) {
+      if (err && err.name === "AbortError") {
+        // Petició cancel·lada perquè se n'ha demanat una de més nova:
+        // no és un error real, simplement no fem res.
+        return null;
+      }
+      throw err;
+    }
+
+    if (myToken !== this._loadToken) {
+      // Mentre descarregàvem, s'ha demanat un altre frame: descartem
+      // aquest resultat sense tocar l'estat ni renderitzar.
+      return data;
+    }
 
     this.currentLevel = level;
     this.currentDia = dia;
@@ -326,6 +428,8 @@ class MapaGFS {
   /**
    * Carrega el mode combinat de superfície: pressió (isòbares) + pluja
    * (bandes de color). Sempre es carreguen i es dibuixen junts.
+   * Igual que load(), fa servir un token per descartar resultats
+   * obsolets si s'ha demanat un altre frame mentre es descarregava.
    */
   async loadSurface(dia, hora) {
     if (dia > this.opts.maxDays) {
@@ -335,15 +439,32 @@ class MapaGFS {
       throw new Error("L'hora " + hora + " supera el màxim de " + this.opts.maxHours);
     }
 
+    var myToken = ++this._loadToken;
+    this._abortPendingLoads();
+
     var prmslUrl = this._buildSurfaceUrl(this.opts.surfacePrmslUrlTemplate, dia, hora);
     var apcpUrl = this._buildSurfaceUrl(this.opts.surfaceApcpUrlTemplate, dia, hora);
 
-    var results = await Promise.all([
-      this._fetchAndDecode(prmslUrl),
-      this._fetchAndDecode(apcpUrl),
-    ]);
+    var results;
+    try {
+      results = await Promise.all([
+        this._fetchAndDecode(prmslUrl),
+        this._fetchAndDecode(apcpUrl),
+      ]);
+    } catch (err) {
+      if (err && err.name === "AbortError") {
+        return null;
+      }
+      throw err;
+    }
+
     var prmslData = results[0];
     var apcpData = results[1];
+
+    if (myToken !== this._loadToken) {
+      // Frame obsolet: no toquem l'estat ni renderitzem.
+      return { prmsl: prmslData, apcp: apcpData };
+    }
 
     this.currentLevel = null;
     this.currentDia = dia;
@@ -738,6 +859,7 @@ class MapaGFS {
       clearTimeout(this._animationTimeout);
       this._animationTimeout = null;
     }
+    this._abortPendingLoads();
     console.log("[MapaGFS] Animació aturada");
   }
 
@@ -767,56 +889,37 @@ class MapaGFS {
     return "rgba(" + Math.round(r * 255) + ", " + Math.round(g * 255) + ", " + Math.round(b * 255) + ", " + a + ")";
   }
 
-_getTempLineColor(level, tempValue) {
+  _getTempLineColor(level, tempValue) {
     // Sempre retorna un color visible!
-    var intensity = 0;
     var r = 0, g = 0, b = 0;
-    
+    var norm;
+
     // Per a TOTS els nivells: gradient de blau (fred) a vermell (calor)
     // Així SEMPRE hi haurà color a les línies!
-    
+
     if (level === 850) {
-        // Rang típic per a 850 hPa: -40°C a 40°C
-        var norm = (tempValue + 40) / 80; // 0 a 1
-        norm = Math.max(0, Math.min(1, norm));
-        
-        // Blau (fred) -> Verd -> Vermell (calor)
-        r = Math.round(20 + 235 * norm);
-        g = Math.round(60 + 100 * (1 - Math.abs(norm - 0.5) * 2));
-        b = Math.round(255 - 235 * norm);
-        
+      // Rang típic per a 850 hPa: -40°C a 40°C
+      norm = (tempValue + 40) / 80; // 0 a 1
     } else if (level === 700) {
-        var norm = (tempValue + 50) / 90;
-        norm = Math.max(0, Math.min(1, norm));
-        r = Math.round(20 + 235 * norm);
-        g = Math.round(60 + 100 * (1 - Math.abs(norm - 0.5) * 2));
-        b = Math.round(255 - 235 * norm);
-        
+      norm = (tempValue + 50) / 90;
     } else if (level === 500) {
-        var norm = (tempValue + 60) / 80;
-        norm = Math.max(0, Math.min(1, norm));
-        r = Math.round(20 + 235 * norm);
-        g = Math.round(60 + 100 * (1 - Math.abs(norm - 0.5) * 2));
-        b = Math.round(255 - 235 * norm);
-        
+      norm = (tempValue + 60) / 80;
     } else if (level === 300) {
-        var norm = (tempValue + 80) / 80;
-        norm = Math.max(0, Math.min(1, norm));
-        r = Math.round(20 + 235 * norm);
-        g = Math.round(60 + 100 * (1 - Math.abs(norm - 0.5) * 2));
-        b = Math.round(255 - 235 * norm);
-        
+      norm = (tempValue + 80) / 80;
     } else {
-        // Fallback per a qualsevol altre nivell
-        var norm = (tempValue + 50) / 100;
-        norm = Math.max(0, Math.min(1, norm));
-        r = Math.round(20 + 235 * norm);
-        g = Math.round(60 + 100 * (1 - Math.abs(norm - 0.5) * 2));
-        b = Math.round(255 - 235 * norm);
+      // Fallback per a qualsevol altre nivell
+      norm = (tempValue + 50) / 100;
     }
-    
+
+    norm = Math.max(0, Math.min(1, norm));
+
+    // Blau (fred) -> Verd -> Vermell (calor)
+    r = Math.round(20 + 235 * norm);
+    g = Math.round(60 + 100 * (1 - Math.abs(norm - 0.5) * 2));
+    b = Math.round(255 - 235 * norm);
+
     return "rgb(" + r + ", " + g + ", " + b + ")";
-}
+  }
 
   _render() {
     this._clearLayers();
@@ -924,7 +1027,7 @@ _getTempLineColor(level, tempValue) {
         var roundedVal = Math.round(line.value);
         var isThick = roundedVal % 8 === 0; // cada 8 hPa una isòbara més gruixuda i etiquetada
 
-        var poly = L.polyline(latlngs, {
+        L.polyline(latlngs, {
           pane: "linesPane",
           color: "#111111",
           weight: isThick ? 1.6 : 1,
@@ -936,7 +1039,7 @@ _getTempLineColor(level, tempValue) {
           // Etiqueta incrustada al punt central de la línia, sense hover
           var midIdx = Math.floor(latlngs.length / 2);
           var midPoint = latlngs[midIdx];
-          var label = L.marker(midPoint, {
+          L.marker(midPoint, {
             pane: "linesPane",
             interactive: false,
             icon: L.divIcon({
@@ -994,10 +1097,10 @@ _getTempLineColor(level, tempValue) {
       var lineColor = this._getTempLineColor(currentLevel, roundedLevel);
 
       for (var s = 0; s < lines.length; s++) {
-        var line = lines[s];
+        var lineObj = lines[s];
         var latlngs = [];
-        for (var u = 0; u < line.coords.length; u++) {
-          var coord = line.coords[u];
+        for (var u = 0; u < lineObj.coords.length; u++) {
+          var coord = lineObj.coords[u];
           latlngs.push([coord[1], coord[0]]);
         }
         L.polyline(latlngs, {

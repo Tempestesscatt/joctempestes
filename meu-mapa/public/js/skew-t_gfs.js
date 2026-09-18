@@ -5,16 +5,19 @@
     let modalCreat = false;
     let temaActual = localStorage.getItem('skewt_tema') || 'fosc';
     let unitatVent = localStorage.getItem('skewt_unitat_vent') || 'kmh';
-    let origenParcelaActual = localStorage.getItem('skewt_origen_parcela') || 'manual';  
+    let origenParcelaActual = localStorage.getItem('skewt_origen_parcela') || 'manual';
     let pressioManualActual = parseFloat(localStorage.getItem('skewt_pressio_manual')) || 850;
     let perfilActual = null;
     let indexsActual = null;
     let ventActual = null;
     let puntActual = null;
-    // Alçada (m) sota el cursor quan es passa el ratolí pel Skew-T o
-    // per l'hodògraf. Permet sincronitzar el marcador entre tots dos
-    // gràfics (que ara viuen al mateix canvas).
     let alcadaHoverActual = null;
+
+    // Cache del fons estàtic (graella, adiabàtiques, isotermes...)
+    let fonsCanvas = null;
+    let fonsCanvasW = 0;
+    let fonsCanvasH = 0;
+    let fonsTemaKey = '';
 
     const ORIGENS_PARCELA = ['sfc', 'ml', 'manual'];
     const ETIQUETES_ORIGEN = {
@@ -50,8 +53,8 @@
             hodograf1_3: '#ffb030',
             hodograf3_6: '#30b0ff',
             hodograf6_9: '#b030ff',
-           
-         
+            hodograf9_12: '#30ff90',
+            hodograf12_15: '#9090ff',
             bunkersR: '#92ff03',
             bunkersL: '#6f00ff',
         },
@@ -81,7 +84,8 @@
             hodograf1_3: '#d08000',
             hodograf3_6: '#0060c0',
             hodograf6_9: '#8000c0',
-       
+            hodograf9_12: '#00a060',
+            hodograf12_15: '#4040c0',
             bunkersR: '#c000c0',
             bunkersL: '#00a0a0',
         }
@@ -250,7 +254,6 @@
         document.getElementById('skewtBtnUnitat').addEventListener('click', toggleUnitatVent);
         document.getElementById('skewtBtnOrigen').addEventListener('click', toggleOrigenParcela);
 
-        // Quan l'usuari canvia la pressió manual, recalcular automàticament
         const inputPressio = document.getElementById('skewtInputPressio');
         if (inputPressio) {
             inputPressio.addEventListener('change', function () {
@@ -281,6 +284,7 @@
         const modal = document.getElementById('skewtModal');
         if (modal) modal.classList.toggle('tema-clar', temaActual === 'clar');
         document.getElementById('skewtTemaLabel').textContent = temaActual === 'fosc' ? 'Fosc' : 'Clar';
+        invalidarFons();
         redibuixarTot();
     }
 
@@ -292,10 +296,6 @@
         redibuixarTot();
     }
 
-    // ── calcula (si cal) i aplica el millor nivell de partida per a
-    //     l'origen "Manual", entre superfície i 500 hPa, segons el CAPE
-    //     més alt que en resultaria (Most-Unstable style). Actualitza
-    //     l'input de pressió i l'estat intern.
     function aplicarMillorNivellManual() {
         if (!perfilActual) return;
         const E = window.SkewtEngine;
@@ -315,32 +315,21 @@
         origenParcelaActual = ORIGENS_PARCELA[(idx + 1) % ORIGENS_PARCELA.length];
         localStorage.setItem('skewt_origen_parcela', origenParcelaActual);
 
-        // Actualitzar botó
         const label = document.getElementById('skewtOrigenLabel');
         if (label) label.textContent = ETIQUETES_ORIGEN[origenParcelaActual];
 
-        // Actualitzar estil del botó (actiu si no és SFC)
         const btn = document.getElementById('skewtBtnOrigen');
-        if (btn) {
-            btn.classList.toggle('active', origenParcelaActual !== 'sfc');
-        }
+        if (btn) btn.classList.toggle('active', origenParcelaActual !== 'sfc');
 
-        // Mostrar/amagar input de pressió manual
         const wrapManual = document.getElementById('skewtManualPressioWrap');
         if (wrapManual) {
             wrapManual.style.display = origenParcelaActual === 'manual' ? 'inline' : 'none';
         }
 
-        // En entrar a mode "manual", proposar automàticament el
-        // nivell (sfc..500 hPa) que produeix el CAPE més alt, en lloc de
-        // mantenir sempre el valor fix anterior. Això detecta capes
-        // elevades humides i inestables per sobre d'inversions de
-        // superfície (Elevated CAPE).
         if (origenParcelaActual === 'manual') {
             aplicarMillorNivellManual();
         }
 
-        // Recalcular índexs i redibuixar
         recalcularAmbNouOrigen();
     }
 
@@ -361,7 +350,6 @@
             pressioManualActual = pManual;
         }
 
-        // Recalcular índexs termodinàmics amb el nou origen
         const nousIndexs = E.calcularIndexsTermo(perfilActual, {
             origenParcela: origenParcelaActual,
             pManual: pManual,
@@ -370,11 +358,9 @@
 
         if (!nousIndexs) return;
 
-        // Mantenir els índexs addicionals (K, Showalter, Totals)
         const addicionals = E.indexsAddicionals(perfilActual);
         indexsActual = Object.assign({}, nousIndexs, addicionals);
 
-        // Redibuixar
         redibuixarTot();
     }
 
@@ -389,73 +375,69 @@
         if (overlay) overlay.classList.remove('active');
     }
 
-window.openSkewtModal = function () {
-    crearModal();
-    const overlay = document.getElementById('skewtModalOverlay');
-    const modal = document.getElementById('skewtModal');
-    modal.classList.toggle('tema-clar', temaActual === 'clar');
-    document.getElementById('skewtTemaLabel').textContent = temaActual === 'fosc' ? 'Fosc' : 'Clar';
-    document.getElementById('skewtUnitatLabel').textContent = etiquetaUnitat(unitatVent);
-    document.getElementById('skewtOrigenLabel').textContent = ETIQUETES_ORIGEN[origenParcelaActual];
-    document.getElementById('skewtManualPressioWrap').style.display = origenParcelaActual === 'manual' ? 'inline' : 'none';
-    overlay.classList.add('active');
+    window.openSkewtModal = function () {
+        crearModal();
+        const overlay = document.getElementById('skewtModalOverlay');
+        const modal = document.getElementById('skewtModal');
+        modal.classList.toggle('tema-clar', temaActual === 'clar');
+        document.getElementById('skewtTemaLabel').textContent = temaActual === 'fosc' ? 'Fosc' : 'Clar';
+        document.getElementById('skewtUnitatLabel').textContent = etiquetaUnitat(unitatVent);
+        document.getElementById('skewtOrigenLabel').textContent = ETIQUETES_ORIGEN[origenParcelaActual];
+        document.getElementById('skewtManualPressioWrap').style.display = origenParcelaActual === 'manual' ? 'inline' : 'none';
+        overlay.classList.add('active');
 
-    // ═══ NOU: Usar perfil precarregat ═══
-    if (window._skewtPerfilPrecarregat) {
-        const perfil = window._skewtPerfilPrecarregat;
-        const punt = window._skewtPuntPrecarregat || { lat: 41.5, lon: 1.5, hourIdx: 0 };
-        
-        const E = window.SkewtEngine;
-        if (!E) {
-            mostrarError('Motor de càlcul no carregat.');
+        if (window._skewtPerfilPrecarregat) {
+            const perfil = window._skewtPerfilPrecarregat;
+            const punt = window._skewtPuntPrecarregat || { lat: 41.5, lon: 1.5, hourIdx: 0 };
+
+            const E = window.SkewtEngine;
+            if (!E) {
+                mostrarError('Motor de càlcul no carregat.');
+                return;
+            }
+
+            perfilActual = perfil;
+
+            const indexs = E.calcularIndexsTermo(perfil, {
+                origenParcela: origenParcelaActual,
+                pManual: origenParcelaActual === 'manual' ? pressioManualActual : null,
+                dpMix: 100
+            });
+            const addicionals = E.indexsAddicionals(perfil);
+            const nivellsVent = perfil.p.map((p, i) => ({ z: perfil.z[i], u: perfil.u[i], v: perfil.v[i] }));
+            const ventComposite = E.calcularVentComposite(nivellsVent, perfil.z[0]);
+
+            indexsActual = Object.assign({}, indexs, addicionals);
+            ventActual = ventComposite;
+
+            const horaItem = {
+                dateObj: new Date(),
+                data: { step: punt.hourIdx }
+            };
+
+            const pobleProper = trobarPobleMesProper(punt.lat, punt.lon);
+            puntActual = { lat: punt.lat, lon: punt.lon, hourIdx: punt.hourIdx, horaItem, pobleProper };
+
+            window._skewtPerfilPrecarregat = null;
+            window._skewtPuntPrecarregat = null;
+
+            invalidarFons();
+            muntarLayout();
+            redibuixarTot();
             return;
         }
-        
-        perfilActual = perfil;
-        
-        const indexs = E.calcularIndexsTermo(perfil, {
-            origenParcela: origenParcelaActual,
-            pManual: origenParcelaActual === 'manual' ? pressioManualActual : null,
-            dpMix: 100
-        });
-        const addicionals = E.indexsAddicionals(perfil);
-        const nivellsVent = perfil.p.map((p, i) => ({ z: perfil.z[i], u: perfil.u[i], v: perfil.v[i] }));
-        const ventComposite = E.calcularVentComposite(nivellsVent, perfil.z[0]);
-        
-        indexsActual = Object.assign({}, indexs, addicionals);
-        ventActual = ventComposite;
-        
-        // Crear horaItem fictici
-        const horaItem = {
-            dateObj: new Date(),
-            data: { step: punt.hourIdx }
-        };
-        
-        const pobleProper = trobarPobleMesProper(punt.lat, punt.lon);
-        puntActual = { lat: punt.lat, lon: punt.lon, hourIdx: punt.hourIdx, horaItem, pobleProper };
-        
-        // Netejar
-        window._skewtPerfilPrecarregat = null;
-        window._skewtPuntPrecarregat = null;
-        
-        muntarLayout();
-        redibuixarTot();
-        return;
-    }
-    
-    // Fallback al mètode original
-    const pos = window.lastRightClickPos;
-    if (!pos) {
-        mostrarError('No hi ha cap punt seleccionat al mapa.');
-        return;
-    }
-    
-    mostrarCarregant();
-    esperarDadesIObrir(pos, 0);
-};
 
-    // ── FIX race condition ──────────────────────────────────────────────
-    const SKEWT_MAX_INTENTS = 30;       // 30 x 200ms ≈ 6 segons màxim d'espera
+        const pos = window.lastRightClickPos;
+        if (!pos) {
+            mostrarError('No hi ha cap punt seleccionat al mapa.');
+            return;
+        }
+
+        mostrarCarregant();
+        esperarDadesIObrir(pos, 0);
+    };
+
+    const SKEWT_MAX_INTENTS = 30;
     const SKEWT_INTERVAL_MS = 200;
 
     function esperarDadesIObrir(pos, intent) {
@@ -507,7 +489,6 @@ window.openSkewtModal = function () {
 
     function esFinit(v) { return v !== null && v !== undefined && !isNaN(v) && isFinite(v); }
 
-    // ── Cerca del poble/vila més proper (towns_cat.js) ──────────────────
     const RADI_TERRA_KM = 6371;
 
     function distanciaHaversineKm(lat1, lon1, lat2, lon2) {
@@ -564,20 +545,16 @@ window.openSkewtModal = function () {
 
         const perfil = E.extreurePerfil(data, lat, lon, null);
         if (!perfil) {
-            mostrarError('Esperi un momenet.\nEstan carregant les dades de sondeig. En res estará. Torni a provar repetidament fisn que surti el sondeig\n\nProva de fer CTRL + Shift i R, reincia i tornai a provar.');
+            mostrarError('Esperi un moment.\nEstan carregant les dades de sondeig. Torni a provar.');
             return;
         }
 
         perfilActual = perfil;
 
-        // Si l'origen actual és "manual", recalcular el millor nivell de
-        // partida per a AQUEST nou perfil (cada punt/hora té la seva
-        // pròpia estructura vertical, així que el nivell òptim pot canviar).
         if (origenParcelaActual === 'manual') {
             aplicarMillorNivellManual();
         }
 
-        // Calcular índexs amb l'origen de parcel·la actual
         let pManual = null;
         if (origenParcelaActual === 'manual') {
             pManual = pressioManualActual;
@@ -588,7 +565,7 @@ window.openSkewtModal = function () {
             pManual: pManual,
             dpMix: 100
         });
-        
+
         const addicionals = E.indexsAddicionals(perfil);
         const nivellsVent = perfil.p.map((p, i) => ({ z: perfil.z[i], u: perfil.u[i], v: perfil.v[i] }));
         const ventComposite = E.calcularVentComposite(nivellsVent, perfil.z[0]);
@@ -598,7 +575,6 @@ window.openSkewtModal = function () {
         const pobleProper = trobarPobleMesProper(lat, lon);
         puntActual = { lat, lon, hourIdx, horaItem, pobleProper };
 
-        // Actualitzar etiquetes del botó d'origen
         document.getElementById('skewtOrigenLabel').textContent = ETIQUETES_ORIGEN[origenParcelaActual];
         const btnOrigen = document.getElementById('skewtBtnOrigen');
         if (btnOrigen) btnOrigen.classList.toggle('active', origenParcelaActual !== 'sfc');
@@ -608,6 +584,7 @@ window.openSkewtModal = function () {
             if (input) input.value = pressioManualActual;
         }
 
+        invalidarFons();
         muntarLayout();
         redibuixarTot();
     }
@@ -639,13 +616,24 @@ window.openSkewtModal = function () {
 
         if (window.construirTaulaIndexsSkewt) window.construirTaulaIndexsSkewt();
 
+        window.removeEventListener('resize', onResizeSkewt);
         window.addEventListener('resize', onResizeSkewt);
     }
 
     let resizeTimeout = null;
     function onResizeSkewt() {
         clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(redibuixarTot, 120);
+        resizeTimeout = setTimeout(function() {
+            invalidarFons();
+            redibuixarTot();
+        }, 120);
+    }
+
+    function invalidarFons() {
+        fonsCanvas = null;
+        fonsCanvasW = 0;
+        fonsCanvasH = 0;
+        fonsTemaKey = '';
     }
 
     function redibuixarTot() {
@@ -666,9 +654,8 @@ window.openSkewtModal = function () {
         esFinit
     };
 
-
     // ═══════════════════════════════════════════════════════════════════
-    //  SECCIÓ 2 — DIBUIX DEL SKEW-T + HODÒGRAF (mateix Canvas)
+    //  SECCIÓ 2 — DIBUIX DEL SKEW-T + HODÒGRAF
     // ═══════════════════════════════════════════════════════════════════
 
     const P_TOP = 100;
@@ -676,6 +663,23 @@ window.openSkewtModal = function () {
     const T_MIN = -32;
     const T_MAX = 50;
     const SKEW = 50;
+
+    // Geometria compartida (es recalcula a cada redibuixat)
+    let _geom = null;
+
+    function calcGeom(wTotal, hTotal) {
+        const hodoAmpleIdeal = Math.min(340, Math.max(230, hTotal * 0.42));
+        const hodoAmple = Math.min(hodoAmpleIdeal, wTotal * 0.42);
+        const skewtAmple = wTotal - hodoAmple;
+        const w = skewtAmple, h = hTotal;
+        const padLeft = 42, padRight = 38, padTop = 10, padBot = 26;
+        return {
+            wTotal, hTotal,
+            hodoAmple, skewtAmple,
+            w, h,
+            padLeft, padRight, padTop, padBot
+        };
+    }
 
     function yPerP(p, h, padTop, padBot) {
         const logTop = Math.log(P_TOP), logBot = Math.log(P_BOT);
@@ -697,14 +701,6 @@ window.openSkewtModal = function () {
         const xBase = padLeft + fracT * (w - padLeft - padRight);
         return xBase + dxSkew;
     }
-    function tPerXY(x, y, w, h, padLeft, padRight, padTop, padBot) {
-        const skewPerPx = Math.tan(SKEW * Math.PI / 180);
-        const yBase = yPerP(P_BOT, h, padTop, padBot);
-        const dxSkew = (yBase - y) * skewPerPx;
-        const xBase = x - dxSkew;
-        const fracT = (xBase - padLeft) / (w - padLeft - padRight);
-        return T_MIN + fracT * (T_MAX - T_MIN);
-    }
 
     function dibuixarEtiquetaPoble(ctx, padLeft, padTop, T) {
         const pp = puntActual && puntActual.pobleProper;
@@ -715,50 +711,87 @@ window.openSkewtModal = function () {
         ctx.fillText(pp.nom, padLeft + 6, padTop + 12);
     }
 
+    // ─── DIBUIX DEL FONS ESTÀTIC (cache) ─────────────────────────────
+    function construirFons(wTotal, hTotal, geom) {
+        const T = tema();
+        const dpr = window.devicePixelRatio || 1;
+
+        if (fonsCanvas &&
+            fonsCanvasW === wTotal &&
+            fonsCanvasH === hTotal &&
+            fonsTemaKey === temaActual) {
+            return;
+        }
+
+        fonsCanvas = document.createElement('canvas');
+        fonsCanvas.width = Math.round(wTotal * dpr);
+        fonsCanvas.height = Math.round(hTotal * dpr);
+        fonsCanvasW = wTotal;
+        fonsCanvasH = hTotal;
+        fonsTemaKey = temaActual;
+
+        const ctx = fonsCanvas.getContext('2d');
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        ctx.fillStyle = T.fons;
+        ctx.fillRect(0, 0, wTotal, hTotal);
+
+        const proj = {
+            x: (tC, p) => xPerT(tC, p, geom.w, geom.h, geom.padLeft, geom.padRight, geom.padTop, geom.padBot),
+            y: (p) => yPerP(p, geom.h, geom.padTop, geom.padBot)
+        };
+
+        dibuixarGraella(ctx, geom.w, geom.h, geom.padLeft, geom.padRight, geom.padTop, geom.padBot, T, proj);
+        dibuixarTerreny(ctx, T, proj, geom.w, geom.padRight);
+        dibuixarEtiquetesEix(ctx, geom.w, geom.h, geom.padLeft, geom.padRight, geom.padTop, geom.padBot, T, proj);
+
+        // Separador vertical entre skewt i hodògraf
+        ctx.strokeStyle = T.gridForta;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(geom.skewtAmple + 0.5, 0);
+        ctx.lineTo(geom.skewtAmple + 0.5, hTotal);
+        ctx.stroke();
+    }
+
     function dibuixarSkewtCanvas() {
         const wrap = document.getElementById('skewtCanvasWrap');
         const canvas = document.getElementById('skewtCanvas');
         if (!wrap || !canvas) return;
         const dpr = window.devicePixelRatio || 1;
         const wTotal = wrap.clientWidth, hTotal = wrap.clientHeight;
-        canvas.width = wTotal * dpr; canvas.height = hTotal * dpr;
+        canvas.width = Math.round(wTotal * dpr);
+        canvas.height = Math.round(hTotal * dpr);
+
         const ctx = canvas.getContext('2d');
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        ctx.clearRect(0, 0, wTotal, hTotal);
 
         const T = tema();
-        ctx.fillStyle = T.fons;
-        ctx.fillRect(0, 0, wTotal, hTotal);
+        const geom = calcGeom(wTotal, hTotal);
+        _geom = geom;
 
-        const hodoAmpleIdeal = Math.min(340, Math.max(230, hTotal * 0.42));
-        const hodoAmple = Math.min(hodoAmpleIdeal, wTotal * 0.42);
-        const skewtAmple = wTotal - hodoAmple;
+        // Assegurar fons cachejat
+        construirFons(wTotal, hTotal, geom);
 
-        const w = skewtAmple, h = hTotal;
-        const padLeft = 42, padRight = 38, padTop = 10, padBot = 26;
         const proj = {
-            x: (tC, p) => xPerT(tC, p, w, h, padLeft, padRight, padTop, padBot),
-            y: (p) => yPerP(p, h, padTop, padBot)
+            x: (tC, p) => xPerT(tC, p, geom.w, geom.h, geom.padLeft, geom.padRight, geom.padTop, geom.padBot),
+            y: (p) => yPerP(p, geom.h, geom.padTop, geom.padBot)
         };
 
-        dibuixarGraella(ctx, w, h, padLeft, padRight, padTop, padBot, T, proj);
-        dibuixarTerreny(ctx, T, proj, w, padRight);
+        // ── Capa 1: fons cachejat ─────────────────────────────────
+        ctx.clearRect(0, 0, wTotal, hTotal);
+        ctx.drawImage(fonsCanvas, 0, 0, wTotal, hTotal);
+
+        // ── Capa 2: elements dinàmics ─────────────────────────────
         dibuixarAreesCapeCin(ctx, T, proj);
-        dibuixarLiniesEstat(ctx, w, h, padLeft, padRight, padTop, padBot, T, proj);
-        dibuixarNivellsClau(ctx, w, padRight, T, proj);
-        dibuixarBarbesVent(ctx, w, padRight, T, proj);
-        dibuixarEtiquetesEix(ctx, w, h, padLeft, padRight, padTop, padBot, T, proj);
-        dibuixarEtiquetaPoble(ctx, padLeft, padTop, T);
+        dibuixarLiniesEstat(ctx, geom.w, geom.h, geom.padLeft, geom.padRight, geom.padTop, geom.padBot, T, proj);
+        dibuixarNivellsClau(ctx, geom.w, geom.padRight, T, proj);
+        dibuixarBarbesVent(ctx, geom.w, geom.padRight, T, proj);
+        dibuixarEtiquetaPoble(ctx, geom.padLeft, geom.padTop, T);
 
-        ctx.strokeStyle = T.gridForta;
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(skewtAmple + 0.5, 0);
-        ctx.lineTo(skewtAmple + 0.5, hTotal);
-        ctx.stroke();
+        const hodoGeom = dibuixarHodografEnCanvas(ctx, T, geom.skewtAmple, 0, geom.hodoAmple, hTotal);
 
-        const hodoGeom = dibuixarHodografEnCanvas(ctx, T, skewtAmple, 0, hodoAmple, hTotal);
-
+        // ── Events ────────────────────────────────────────────────
         if (canvas._skewtMouseMove) canvas.removeEventListener('mousemove', canvas._skewtMouseMove);
         if (canvas._skewtMouseLeave) canvas.removeEventListener('mouseleave', canvas._skewtMouseLeave);
         if (canvas._skewtClick) canvas.removeEventListener('click', canvas._skewtClick);
@@ -833,45 +866,46 @@ window.openSkewtModal = function () {
             return E.descendirSecAPressio(tC, pNiv, pSfc);
         }
 
+        // Redibuixa NOMÉS la capa superior (fons + dinàmic + línia)
         function redrawWithLine(my) {
             ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
             ctx.clearRect(0, 0, wTotal, hTotal);
-            ctx.fillStyle = T.fons; ctx.fillRect(0, 0, wTotal, hTotal);
-            dibuixarGraella(ctx, w, h, padLeft, padRight, padTop, padBot, T, proj);
-            dibuixarTerreny(ctx, T, proj, w, padRight);
-            dibuixarAreesCapeCin(ctx, T, proj);
-            dibuixarLiniesEstat(ctx, w, h, padLeft, padRight, padTop, padBot, T, proj);
-            dibuixarNivellsClau(ctx, w, padRight, T, proj);
-            dibuixarBarbesVent(ctx, w, padRight, T, proj);
-            dibuixarEtiquetesEix(ctx, w, h, padLeft, padRight, padTop, padBot, T, proj);
-            dibuixarEtiquetaPoble(ctx, padLeft, padTop, T);
 
+            // 1. Fons cachejat
+            ctx.drawImage(fonsCanvas, 0, 0, wTotal, hTotal);
+
+            // 2. Dinàmic
+            dibuixarAreesCapeCin(ctx, T, proj);
+            dibuixarLiniesEstat(ctx, geom.w, geom.h, geom.padLeft, geom.padRight, geom.padTop, geom.padBot, T, proj);
+            dibuixarNivellsClau(ctx, geom.w, geom.padRight, T, proj);
+            dibuixarBarbesVent(ctx, geom.w, geom.padRight, T, proj);
+            dibuixarEtiquetaPoble(ctx, geom.padLeft, geom.padTop, T);
+
+            // 3. Línia horitzontal de hover
             if (my !== null) {
                 ctx.strokeStyle = 'rgba(255,255,255,0.65)';
                 ctx.lineWidth = 0.8;
                 ctx.setLineDash([3, 4]);
-                ctx.beginPath(); ctx.moveTo(padLeft, my); ctx.lineTo(w - padRight, my); ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(geom.padLeft, my);
+                ctx.lineTo(geom.w - geom.padRight, my);
+                ctx.stroke();
                 ctx.setLineDash([]);
                 ctx.fillStyle = 'rgba(255,255,255,0.85)';
-                ctx.beginPath(); ctx.arc(padLeft - 2, my, 2.5, 0, 2 * Math.PI); ctx.fill();
+                ctx.beginPath();
+                ctx.arc(geom.padLeft - 2, my, 2.5, 0, 2 * Math.PI);
+                ctx.fill();
             }
 
-            ctx.strokeStyle = T.gridForta;
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.moveTo(skewtAmple + 0.5, 0);
-            ctx.lineTo(skewtAmple + 0.5, hTotal);
-            ctx.stroke();
-
-            dibuixarHodografEnCanvas(ctx, T, skewtAmple, 0, hodoAmple, hTotal, alcadaHoverActual);
+            dibuixarHodografEnCanvas(ctx, T, geom.skewtAmple, 0, geom.hodoAmple, hTotal, alcadaHoverActual);
         }
 
         canvas._skewtMouseMove = function (e) {
             const r = canvas.getBoundingClientRect();
             const mx = e.clientX - r.left, my = e.clientY - r.top;
 
-            if (mx >= 0 && mx <= w) {
-                if (mx < padLeft - 8 || mx > w - padRight + 8 || my < padTop || my > h - padBot) {
+            if (mx >= 0 && mx <= geom.w) {
+                if (mx < geom.padLeft - 8 || mx > geom.w - geom.padRight + 8 || my < geom.padTop || my > geom.h - geom.padBot) {
                     tooltip.style.display = 'none';
                     if (currentMouseY !== null || alcadaHoverActual !== null) {
                         currentMouseY = null; alcadaHoverActual = null;
@@ -882,7 +916,7 @@ window.openSkewtModal = function () {
 
                 if (currentMouseY !== my) { currentMouseY = my; }
 
-                const p = pPerY(my, h, padTop, padBot);
+                const p = pPerY(my, geom.h, geom.padTop, geom.padBot);
                 const pf = perfilActual;
                 if (!pf) { tooltip.style.display = 'none'; redrawWithLine(my); return; }
 
@@ -951,14 +985,14 @@ window.openSkewtModal = function () {
                 return;
             }
 
-            if (mx > w && ventActual) {
-                const geom = hodoGeom;
-                if (!geom) { tooltip.style.display = 'none'; return; }
+            if (mx > geom.w && ventActual) {
+                const g2 = hodoGeom;
+                if (!g2) { tooltip.style.display = 'none'; return; }
                 const niv = ventActual.niv;
                 const factor = unitatVent === 'kt' ? 1.94384 : (unitatVent === 'kmh' ? 3.6 : 1);
 
                 function ptLocal(u, v) {
-                    return { x: geom.cx + u * factor * geom.pxPerUnit, y: geom.cy - v * factor * geom.pxPerUnit };
+                    return { x: g2.cx + u * factor * g2.pxPerUnit, y: g2.cy - v * factor * g2.pxPerUnit };
                 }
 
                 let millorI = -1, millorD = Infinity;
@@ -989,7 +1023,6 @@ window.openSkewtModal = function () {
                     <span style="color:#bbb;">${fmtVent(spd)} · ${dg.toFixed(0)}°</span>
                 `;
 
-                const wr = wrap.getBoundingClientRect();
                 const pMark = ptLocal(nPunt.u, nPunt.v);
                 const twPx = 130, thPx = 34;
                 let tx = pMark.x + 12, ty = pMark.y - thPx - 8;
@@ -1021,9 +1054,9 @@ window.openSkewtModal = function () {
             const r = canvas.getBoundingClientRect();
             const mx = e.clientX - r.left, my = e.clientY - r.top;
 
-            if (mx < padLeft - 8 || mx > w - padRight + 8 || my < padTop || my > h - padBot) return;
+            if (mx < geom.padLeft - 8 || mx > geom.w - geom.padRight + 8 || my < geom.padTop || my > geom.h - geom.padBot) return;
 
-            const pClic = pPerY(my, h, padTop, padBot);
+            const pClic = pPerY(my, geom.h, geom.padTop, geom.padBot);
             if (!esFinit(pClic) || pClic < 100 || pClic > 1050) return;
 
             const pArrodonit = Math.round(pClic);
@@ -1051,17 +1084,20 @@ window.openSkewtModal = function () {
         ctx.rect(padLeft, padTop, w - padLeft - padRight, h - padTop - padBot);
         ctx.clip();
 
+        // Isobares
         const isobares = [1000, 900, 850, 800, 700, 600, 500, 400, 300, 250, 200, 150, 100];
         isobares.forEach(p => {
             const y = proj.y(p);
-            ctx.strokeStyle = [1000, 850, 700, 500, 300].includes(p) ? T.gridForta : T.isobara;
-            ctx.lineWidth = [1000, 850, 700, 500, 300].includes(p) ? 1 : 0.6;
+            const forta = [1000, 850, 700, 500, 300].includes(p);
+            ctx.strokeStyle = forta ? T.gridForta : T.isobara;
+            ctx.lineWidth = forta ? 1 : 0.6;
             ctx.beginPath();
             ctx.moveTo(padLeft, y);
             ctx.lineTo(w - padRight, y);
             ctx.stroke();
         });
 
+        // Isotermes
         ctx.strokeStyle = T.isoterma;
         ctx.lineWidth = 0.7;
         for (let tC = -100; tC <= 50; tC += 10) {
@@ -1071,11 +1107,13 @@ window.openSkewtModal = function () {
                 const x = proj.x(tC, p);
                 const y = proj.y(p);
                 if (x < padLeft - 60 || x > w - padRight + 60) { started = false; continue; }
-                if (!started) { ctx.moveTo(x, y); started = true; } else { ctx.lineTo(x, y); }
+                if (!started) { ctx.moveTo(x, y); started = true; }
+                else { ctx.lineTo(x, y); }
             }
             ctx.stroke();
         }
 
+        // Isoterma 0°C destacada
         ctx.strokeStyle = T.hodograf3_6 || '#3090ff';
         ctx.lineWidth = 1.3;
         ctx.setLineDash([4, 3]);
@@ -1083,46 +1121,67 @@ window.openSkewtModal = function () {
         let started0 = false;
         for (let p = P_BOT; p >= P_TOP; p -= 10) {
             const x = proj.x(0, p), y = proj.y(p);
-            if (!started0) { ctx.moveTo(x, y); started0 = true; } else { ctx.lineTo(x, y); }
+            if (!started0) { ctx.moveTo(x, y); started0 = true; }
+            else { ctx.lineTo(x, y); }
         }
         ctx.stroke();
         ctx.setLineDash([]);
 
+        // ─── ADIABÀTIQUES SEQUES ────────────────────────────────
+        // CORREGIT: rango más razonable y paso más uniforme.
         ctx.strokeStyle = T.adiabaticaSeca;
         ctx.lineWidth = 0.6;
         const RD_CP = 287.05 / 1004.6;
-        for (let tPot = -30; tPot <= 200; tPot += 10) {
+        for (let tPot = -40; tPot <= 160; tPot += 10) {
             ctx.beginPath();
             let started2 = false;
-            for (let p = P_BOT; p >= P_TOP; p -= 15) {
+            for (let p = P_BOT; p >= P_TOP; p -= 10) {
                 const tK = (tPot + 273.15) * Math.pow(p / 1000, RD_CP);
                 const tC = tK - 273.15;
                 const x = proj.x(tC, p), y = proj.y(p);
                 if (x < padLeft - 100 || x > w - padRight + 100) { started2 = false; continue; }
-                if (!started2) { ctx.moveTo(x, y); started2 = true; } else { ctx.lineTo(x, y); }
+                if (!started2) { ctx.moveTo(x, y); started2 = true; }
+                else { ctx.lineTo(x, y); }
             }
             ctx.stroke();
         }
 
+        // ─── ADIABÀTIQUES HUMIDES ────────────────────────────────
+        // CORREGIT: sense offset p+7.5, pas fi, sense acumulació excessiva.
         ctx.strokeStyle = T.adiabaticaHumida;
         ctx.lineWidth = 0.6;
         const E = window.SkewtEngine;
-        for (let tStart = -20; tStart <= 32; tStart += 4) {
-            ctx.beginPath();
-            let started3 = false;
-            let p = 1000, t = tStart;
-            for (; p >= P_TOP; p -= 15) {
-                if (p < 1000) {
-                    const gamma = E.gradientHumit(t, p + 7.5);
-                    t = t - gamma * 15;
+        if (E && E.gradientHumit) {
+            for (let tStart = -20; tStart <= 36; tStart += 4) {
+                ctx.beginPath();
+                let started3 = false;
+                let p = 1000;
+                let t = tStart;
+                const dp = 5; // pas fi
+                // Guardem estat inicial
+                let firstPoint = true;
+                for (; p >= P_TOP; p -= dp) {
+                    if (p < 1000 && !firstPoint) {
+                        // gradientHumit s'espera que torni °C/hPa.
+                        // Si el teu engine retorna °C/km, caldria:
+                        //   const dz = (287.05 * (t + 273.15)) / (9.81 * p) * dp; // metres
+                        //   t = t - gamma_C_per_km * (dz / 1000);
+                        const gamma = E.gradientHumit(t, p);
+                        if (esFinit(gamma)) {
+                            t = t - gamma * dp;
+                        }
+                    }
+                    firstPoint = false;
+                    const x = proj.x(t, p), y = proj.y(p);
+                    if (x < padLeft - 100 || x > w - padRight + 100) { started3 = false; continue; }
+                    if (!started3) { ctx.moveTo(x, y); started3 = true; }
+                    else { ctx.lineTo(x, y); }
                 }
-                const x = proj.x(t, p), y = proj.y(p);
-                if (x < padLeft - 100 || x > w - padRight + 100) { started3 = false; continue; }
-                if (!started3) { ctx.moveTo(x, y); started3 = true; } else { ctx.lineTo(x, y); }
+                ctx.stroke();
             }
-            ctx.stroke();
         }
 
+        // Línies de mescla
         ctx.strokeStyle = T.mescla;
         ctx.lineWidth = 0.5;
         ctx.setLineDash([2, 4]);
@@ -1135,7 +1194,8 @@ window.openSkewtModal = function () {
                 const tC = (243.5 * Math.log(e / 6.112)) / (17.67 - Math.log(e / 6.112));
                 const x = proj.x(tC, p), y = proj.y(p);
                 if (x < padLeft - 40 || x > w - padRight + 40) { started4 = false; continue; }
-                if (!started4) { ctx.moveTo(x, y); started4 = true; } else { ctx.lineTo(x, y); }
+                if (!started4) { ctx.moveTo(x, y); started4 = true; }
+                else { ctx.lineTo(x, y); }
             }
             ctx.stroke();
         });
@@ -1143,6 +1203,7 @@ window.openSkewtModal = function () {
 
         ctx.restore();
 
+        // Marc exterior
         ctx.strokeStyle = T.gridForta;
         ctx.lineWidth = 1;
         ctx.strokeRect(padLeft, padTop, w - padLeft - padRight, h - padTop - padBot);
@@ -1156,17 +1217,15 @@ window.openSkewtModal = function () {
         const pSurface = perfil.p[0];
         if (pSurface >= P_BOT) return;
 
-        ctx.fillStyle = 'rgba(34, 139, 34, 0.3)';
-        ctx.beginPath();
-
         const ySurface = proj.y(pSurface);
         const yBottom = proj.y(P_BOT);
 
+        ctx.fillStyle = 'rgba(34, 139, 34, 0.3)';
+        ctx.beginPath();
         ctx.moveTo(42, ySurface);
         ctx.lineTo(42, yBottom);
         ctx.lineTo(w - padRight, yBottom);
         ctx.lineTo(w - padRight, ySurface);
-
         ctx.closePath();
         ctx.fill();
 
@@ -1191,21 +1250,22 @@ window.openSkewtModal = function () {
         const perfil = perfilActual, idx = indexsActual;
         if (!perfil) return;
 
-if (idx && idx.tParcela) {
-    ctx.strokeStyle = T.parcela;  
-    ctx.lineWidth = 1.5;
-    ctx.setLineDash([2, 3]);      
-    ctx.beginPath();
-    let started = false;
-    for (let i = 0; i < perfil.p.length; i++) {
-        const tp = idx.tParcela[i];
-        if (tp === null) continue;
-        const x = proj.x(tp, perfil.p[i]), y = proj.y(perfil.p[i]);
-        if (!started) { ctx.moveTo(x, y); started = true; } else { ctx.lineTo(x, y); }
-    }
-    ctx.stroke();
-    ctx.setLineDash([]);         
-}
+        if (idx && idx.tParcela) {
+            ctx.strokeStyle = T.parcela;
+            ctx.lineWidth = 1.5;
+            ctx.setLineDash([2, 3]);
+            ctx.beginPath();
+            let started = false;
+            for (let i = 0; i < perfil.p.length; i++) {
+                const tp = idx.tParcela[i];
+                if (tp === null) continue;
+                const x = proj.x(tp, perfil.p[i]), y = proj.y(perfil.p[i]);
+                if (!started) { ctx.moveTo(x, y); started = true; }
+                else { ctx.lineTo(x, y); }
+            }
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
 
         const E = window.SkewtEngine;
         if (E && E.perfilMixedLayer && origenParcelaActual !== 'ml') {
@@ -1226,7 +1286,6 @@ if (idx && idx.tParcela) {
                 ctx.stroke();
                 ctx.setLineDash([]);
             }
-        } else if (E && E.perfilMixedLayer && origenParcelaActual === 'ml') {
         }
 
         if (E && E.perfilBulbHumit) {
@@ -1249,15 +1308,28 @@ if (idx && idx.tParcela) {
             }
         }
 
-        ctx.strokeStyle = T.rosadaBlava || '#3090ff';
-        ctx.lineWidth = 2.2;
-        ctx.beginPath();
-        perfil.p.forEach((p, i) => {
-            const x = proj.x(perfil.td[i], p), y = proj.y(p);
-            if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-        });
-        ctx.stroke();
+        // Td
+// Td (només si és vàlida: td <= t i no null)
+ctx.strokeStyle = T.rosadaBlava || '#3090ff';
+ctx.lineWidth = 2.2;
+ctx.beginPath();
+let startedTd = false;
+for (let i = 0; i < perfil.p.length; i++) {
+    const tdVal = perfil.td[i];
+    const tVal = perfil.t[i];
+    // No dibuixar si Td > T (físicament impossible)
+    if (!esFinit(tdVal) || !esFinit(tVal) || tdVal > tVal + 0.5) {
+        startedTd = false;
+        continue;
+    }
+    const x = proj.x(tdVal, perfil.p[i]);
+    const y = proj.y(perfil.p[i]);
+    if (!startedTd) { ctx.moveTo(x, y); startedTd = true; }
+    else { ctx.lineTo(x, y); }
+}
+ctx.stroke();
 
+        // T
         ctx.strokeStyle = T.temperatura;
         ctx.lineWidth = 2.2;
         ctx.beginPath();
@@ -1370,23 +1442,17 @@ if (idx && idx.tParcela) {
         dibuixarFranjaColorVent(ctx, w, padRight, proj);
     }
 
-    // ─── AGULLES DE FORÇA DEL VENT ────────────────────────────────────────
-    // A cada nivell de dades es dibuixa una petita agulla horitzontal (a
-    // la dreta de les barbes) la longitud de la qual creix amb la
-    // velocitat del vent, i el color varia de forma GRADUAL (interpolada)
-    // segons una escala en km/h: 0-20 verd, 30-60 groc, 60-100 taronja,
-    // 100-130 vermell, 130-200 blanc.
     const ESCALA_COLOR_VENT_KMH = [
-        { v: 0,   c: [42, 143, 58] },    // verd fosc
-        { v: 20,  c: [95, 191, 58] },    // verd
-        { v: 30,  c: [232, 208, 32] },   // groc
-        { v: 60,  c: [232, 208, 32] },   // groc (es manté fins a 60)
-        { v: 60,  c: [240, 140, 20] },   // taronja (arrenca a 60)
-        { v: 100, c: [240, 140, 20] },   // taronja (es manté fins a 100)
-        { v: 100, c: [224, 32, 32] },    // vermell (arrenca a 100)
-        { v: 130, c: [224, 32, 32] },    // vermell (es manté fins a 130)
-        { v: 130, c: [255, 255, 255] },  // blanc (arrenca a 130)
-        { v: 200, c: [255, 255, 255] }   // blanc (es manté fins a 200+)
+        { v: 0,   c: [42, 143, 58] },
+        { v: 20,  c: [95, 191, 58] },
+        { v: 30,  c: [232, 208, 32] },
+        { v: 60,  c: [232, 208, 32] },
+        { v: 60,  c: [240, 140, 20] },
+        { v: 100, c: [240, 140, 20] },
+        { v: 100, c: [224, 32, 32] },
+        { v: 130, c: [224, 32, 32] },
+        { v: 130, c: [255, 255, 255] },
+        { v: 200, c: [255, 255, 255] }
     ];
 
     function colorPerVelocitatVentKmh(kmh) {
@@ -1412,8 +1478,8 @@ if (idx && idx.tParcela) {
         if (!perfil || !perfil.p || perfil.p.length < 1) return;
 
         const xBase = w - padRight + 3;
-        const llargMax = padRight - 6; // llargada màxima de l'agulla en px
-        const ESCALA_LLARG_MAX_KMH = 110; // referència més baixa -> agulles més llargues i variació més visible
+        const llargMax = padRight - 6;
+        const ESCALA_LLARG_MAX_KMH = 110;
 
         ctx.save();
         for (let i = 0; i < perfil.p.length; i++) {
@@ -1602,12 +1668,12 @@ if (idx && idx.tParcela) {
         }
 
         const trams = [
-            { min: 0, max: 3000, color: T.hodograf0_1 },
-            { min: 3000, max: 6000, color: T.hodograf1_3 },
-            { min: 6000, max: 9000, color: T.hodograf3_6 },
-            { min: 9000, max: 10000, color: T.hodograf6_9 },
-            
-        
+            { min: 0, max: 1000, color: T.hodograf0_1 },
+            { min: 1000, max: 3000, color: T.hodograf1_3 },
+            { min: 3000, max: 6000, color: T.hodograf3_6 },
+            { min: 6000, max: 9000, color: T.hodograf6_9 },
+            { min: 9000, max: 12000, color: T.hodograf9_12 },
+            { min: 12000, max: 15000, color: T.hodograf12_15 },
         ];
 
         ctx.lineCap = 'round';
@@ -1746,7 +1812,6 @@ if (idx && idx.tParcela) {
     }
 
     // ─── TAULA D'ÍNDEXS ──────────────────────────────────────────────────
-
     function fmt(v, dec, unitat) {
         if (v === null || v === undefined || isNaN(v)) return '—';
         return v.toFixed(dec !== undefined ? dec : 0) + (unitat || '');
@@ -1858,7 +1923,5 @@ if (idx && idx.tParcela) {
         side.innerHTML = html;
     }
     window.construirTaulaIndexsSkewt = construirTaulaIndexsSkewt;
-
-    
 
 })();

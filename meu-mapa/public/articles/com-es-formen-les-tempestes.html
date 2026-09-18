@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Com es formen les tempestes: els ingredients de la convecció · TEMPESTES.CAT</title>
+    <meta name="description" content="Descobreix els tres ingredients bàsics per a la formació de tempestes a Catalunya: humitat, inestabilitat i mecanisme d'ascens. Explicat pas a pas amb el model AROME." />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://tempestes.cat/articles/com-es-formen-les-tempestes.html" />
+    <link rel="icon" type="image/png" href="/img/favicon.png" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+
+    <!-- Dades estructurades: ajuden Google a entendre que això és un article real -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "Com es formen les tempestes: els ingredients de la convecció",
+      "description": "Descobreix els tres ingredients bàsics per a la formació de tempestes a Catalunya: humitat, inestabilitat i mecanisme d'ascens.",
+      "author": { "@type": "Person", "name": "Simo Garcia" },
+      "publisher": { "@type": "Organization", "name": "TEMPESTES.CAT" },
+      "datePublished": "2024-06-10",
+      "dateModified": "2026-08-26",
+      "image": "https://tempestes.cat/img_articles/tempestes_01.png",
+      "mainEntityOfPage": "https://tempestes.cat/articles/com-es-formen-les-tempestes.html"
+    }
+    </script>
+
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --navy: #0b1f32;
+            --navy-2: #152c44;
+            --gold: #f5c842;
+            --gold-dim: #d4a82a;
+            --ink: #131313;
+            --paper: #f5f4f0;
+            --line: #e0dcd4;
+            --muted: #6b7a8f;
+            --font: 'Inter', -apple-system, system-ui, sans-serif;
+        }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: var(--font);
+            font-size: 16px;
+            background: var(--paper);
+            color: var(--ink);
+            line-height: 1.7;
+        }
+        a { color: #0058EE; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        img { display: block; max-width: 100%; }
+
+        /* ===== TOPBAR ===== */
+        .topbar {
+            background: var(--navy-2);
+            padding: 0 24px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            border-bottom: 3px solid var(--gold);
+        }
+        .logo-text { font-size: 20px; font-weight: 800; color: #fff; text-transform: uppercase; }
+        .logo-text span { color: var(--gold); }
+        .topbar nav { margin-left: auto; display: flex; gap: 18px; }
+        .topbar nav a { color: #c8d8ee; font-size: 14px; font-weight: 600; }
+        .topbar nav a:hover { color: #fff; text-decoration: none; }
+
+        /* ===== BREADCRUMB ===== */
+        .breadcrumb {
+            max-width: 760px;
+            margin: 20px auto 0;
+            padding: 0 24px;
+            font-size: 13px;
+            color: var(--muted);
+        }
+        .breadcrumb a { color: var(--muted); }
+        .breadcrumb a:hover { color: var(--navy-2); }
+
+        /* ===== ARTICLE ===== */
+        article {
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 20px 24px 60px;
+        }
+        .article-category {
+            display: inline-block;
+            background: var(--gold);
+            color: var(--navy-2);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 4px 14px;
+            border-radius: 30px;
+            margin-bottom: 16px;
+        }
+        h1 {
+            font-size: clamp(28px, 4vw, 38px);
+            font-weight: 800;
+            color: var(--navy-2);
+            line-height: 1.25;
+            margin-bottom: 10px;
+            letter-spacing: -0.3px;
+        }
+        .article-meta {
+            font-size: 13px;
+            color: var(--muted);
+            margin-bottom: 28px;
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .article-hero-img {
+            width: 100%;
+            aspect-ratio: 16/9;
+            border-radius: 14px;
+            overflow: hidden;
+            background: #152c44;
+            margin-bottom: 32px;
+        }
+        .article-hero-img img { width: 100%; height: 100%; object-fit: cover; }
+
+        article h2 {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--navy-2);
+            margin: 34px 0 12px;
+        }
+        article p {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 14px;
+        }
+
+        .author-box {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-top: 44px;
+            padding-top: 24px;
+            border-top: 1px solid var(--line);
+        }
+        .author-box img {
+            width: 48px; height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .author-box .name { font-weight: 700; color: var(--navy-2); font-size: 14px; }
+        .author-box .role { font-size: 13px; color: var(--muted); }
+
+        .related {
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 0 24px 60px;
+        }
+        .related h3 {
+            font-size: 18px;
+            color: var(--navy-2);
+            margin-bottom: 14px;
+        }
+        .related ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+        .related a { font-size: 15px; }
+
+        .footer-bar {
+            background: var(--navy-2);
+            color: #8aa3be;
+            font-size: 13px;
+            text-align: center;
+            padding: 20px;
+            border-top: 3px solid var(--gold);
+        }
+        .footer-bar strong { color: var(--gold); }
+
+        @media (max-width: 600px) {
+            .topbar nav { display: none; }
+            article { padding: 16px 18px 40px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="topbar">
+        <span class="logo-text">TEMPESTES<span>.CAT</span></span>
+        <nav>
+            <a href="/articles/">Articles</a>
+            <a href="/#qui-som">Qui som</a>
+            <a href="/#contacte">Contacte</a>
+            <a href="/visor.html">Visor AROME</a>
+        </nav>
+    </div>
+
+    <div class="breadcrumb">
+        <a href="/">Inici</a> &rsaquo; <a href="/articles/">Articles</a> &rsaquo; Com es formen les tempestes
+    </div>
+
+    <article>
+        <span class="article-category">Tempestes</span>
+        <h1>Com es formen les tempestes: els ingredients de la convecció</h1>
+        <div class="article-meta">
+            <span><i class="fa-regular fa-calendar"></i> Actualitzat: 26 d'agost de 2026</span>
+            <span><i class="fa-regular fa-clock"></i> 5 min de lectura</span>
+            <span><i class="fa-regular fa-user"></i> Simo Garcia</span>
+        </div>
+
+        <div class="article-hero-img">
+            <img src="/img_articles/tempestes_01.png" alt="Cumulonimbus formant-se sobre Catalunya" onerror="this.parentElement.style.background='linear-gradient(135deg,#152c44,#1e3a5f)'">
+        </div>
+
+        <h2>La convecció: el motor de les tempestes</h2>
+        <p>La convecció és el procés pel qual l'aire càlid i menys dens ascendeix a través de l'atmosfera. Aquest moviment vertical és el motor que alimenta les tempestes. Quan l'aire ascendeix, es refreda i, si conté prou humitat, es condensa formant núvols de gran desenvolupament vertical: els cumulonimbus.</p>
+        <p>Perquè es produeixi convecció, cal que l'aire a la superfície sigui més càlid que l'aire que el rodeja. Això pot passar per escalfament solar, per la presència d'un front o per l'ascens forçat per relleu muntanyós.</p>
+
+        <h2>Els tres ingredients essencials</h2>
+        <p>Perquè es formi una tempesta calen tres factors: humitat a baixos nivells, una font d'escalfament i un mecanisme d'ascens. A Catalunya, el sol escalfa la superfície i provoca l'ascens de l'aire humit del Mediterrani.</p>
+        <p>La humitat és el combustible de les tempestes. L'aire humit que puja es refreda i es condensa, formant núvols. Aquest procés allibera calor latent, que fa que l'aire continuï pujant. Això crea un bucle de retroalimentació positiva que pot donar lloc a tempestes molt intenses.</p>
+
+        <h2>El paper del relleu català</h2>
+        <p>El relleu de Catalunya, amb el Pirineu, la Depressió Central i la Serralada Litoral, crea zones de convergència que afavoreixen la formació de núvols de tempesta. Les muntanyes actuen com a barreres que forcen l'aire a ascendir.</p>
+        <p>El Pirineu és una barrera natural que atura les masses d'aire humit procedents del nord. Quan l'aire xoca amb les muntanyes, es veu forçat a pujar, es refreda i es condensa, formant núvols i precipitacions. Això explica per què al Pirineu hi ha més precipitacions que a la Depressió Central.</p>
+
+        <h2>Com mesurar la inestabilitat: CAPE i CIN</h2>
+        <p>El CAPE (Convective Available Potential Energy) és l'energia disponible per a la convecció. Valors superiors a 1000 J/kg indiquen un alt potencial de tempestes. El CIN (Convective Inhibition) és l'energia necessària per trencar la capa d'inhibició.</p>
+        <p>El CAPE es calcula a partir de la temperatura i la humitat a diferents altures. Es mesura en J/kg i, generalment, valors superiors a 1000 J/kg ja indiquen una alta probabilitat de tempestes. El CIN, en canvi, indica l'energia que cal subministrar per iniciar la convecció.</p>
+
+        <h2>Els models de previsió que utilitzem</h2>
+        <p>A TEMPESTES.CAT utilitzem el model AROME de Meteo-France, amb una resolució de 1.3km, que permet detectar tempestes locals. També fem servir GFS i ECMWF per a tendències a llarg termini.</p>
+        <p>AROME és el model més precís per a Catalunya perquè té en compte el relleu i les particularitats del clima mediterrani. Amb la seva resolució de 1.3 km, pot detectar tempestes que altres models amb resolució més baixa no veuen.</p>
+
+        <h2>Consells de seguretat davant d'una tempesta</h2>
+        <p>Si hi ha avís de tempesta, evita refugiar-te sota arbres, no utilitzis aparells connectats a la xarxa elèctrica i cerca un edifici segur. Si ets a la muntanya, baixa ràpidament.</p>
+        <p>Les tempestes poden ser molt perilloses. Els llamps poden caure a terra i causar incendis o lesions. Les pluges intenses poden provocar inundacions i lliscaments de terra. És important estar informat i seguir les recomanacions de Protecció Civil.</p>
+
+        <div class="author-box">
+            <img src="/img/simon-garcia.jpg" alt="Simo Garcia" onerror="this.style.display='none'">
+            <div>
+                <div class="name">Simo Garcia</div>
+                <div class="role">Fundador de TEMPESTES.CAT</div>
+            </div>
+        </div>
+    </article>
+
+    <div class="related">
+        <h3>Segueix llegint</h3>
+        <ul>
+            <li><a href="/articles/vents-en-superficie.html">Vents en superfície: com predir-los i interpretar-los</a></li>
+            <li><a href="/articles/parametres-de-severitat.html">Paràmetres de severitat: CAPE, CIN, cisallament i helicitat</a></li>
+            <li><a href="/visor.html">Consulta el visor AROME en directe</a></li>
+        </ul>
+    </div>
+
+    <div class="footer-bar">
+        <strong>TEMPESTES.CAT</strong> · AROME 1.3km · AROME-PI · GFS 0.25º
+    </div>
+
+</body>
+</html>
