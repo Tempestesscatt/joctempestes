@@ -3722,7 +3722,7 @@ function ordenarClausPerNivell(claus) {
     return claus.slice().sort((a, b) => {
         const na = parseFloat(a.split('_').pop());
         const nb = parseFloat(b.split('_').pop());
-        return nb - na;
+        return na - nb;   // ✅ 1000 → 100 (abans era nb - na)
     });
 }
 
@@ -3775,8 +3775,12 @@ totesLesHores.forEach(hora => {
         const nom = semblaClauCrua ? pal.titol : (nomBackend || pal.titol);
 
         const iconaCandau = (!teAccesInicial && esPremium) ? ' ' : '';
+        // Altura en km si és un nivell de pressió (via convertiraltura.js)
+const textAltura = (window.ConvertirAltura && window.ConvertirAltura.textHtmlPerClau)
+    ? window.ConvertirAltura.textHtmlPerClau(clau)
+    : '';
 
-        row.innerHTML = `<div class="param-link">${nom} <span class="param-unit">(${unitat})</span>${iconaCandau}</div>`;
+        row.innerHTML = `<div class="param-link">${nom} <span class="param-unit">(${unitat})</span>${textAltura}${iconaCandau}</div>`;
 
         row.onclick = () => {
             const teAccesAra = verificarAccesVariable(clau);
@@ -3859,7 +3863,12 @@ totesLesHores.forEach(hora => {
             }
         });
 
-        entrades.sort((a, b) => a.localeCompare(b));
+        entrades.sort((a, b) => {
+    const ma = a.match(/_(\d+)$/);
+    const mb = b.match(/_(\d+)$/);
+    if (ma && mb) return parseFloat(mb[1]) - parseFloat(ma[1]);
+    return a.localeCompare(b);
+});
         if (entrades.length === 0) return;
 
         cont.appendChild(crearTitolGrup(nomGrup, entrades.length));
