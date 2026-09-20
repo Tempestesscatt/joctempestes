@@ -10,6 +10,11 @@ permissions:
   contents: write
   deployments: write
 
+# Mateix grup que l'altre workflow: s'encuen en lloc de trepitjar-se
+concurrency:
+  group: deploy-data
+  cancel-in-progress: false
+
 jobs:
   # ════════════════════════════════════════════════════════════════
   #  JOB: AVIS - Genera el mapa d'outbreak (NO desplega)
@@ -171,6 +176,24 @@ jobs:
           echo "✅ Tots els jobs han acabat en èxit"
         fi
 
+    # ── Recuperar TOT el que hi ha a la branca 'data' (mapa + avis + previsions) ──
+    #    Es fa ABANS de baixar els artifacts, perquè les dades fresques d'aquest
+    #    workflow sobreescriguin les de 'data', i si un job falla es conservi l'anterior.
+    - name: 📥 Recuperar dades de la branca 'data'
+      run: |
+        git fetch origin data
+        rm -rf /tmp/data-branch
+        git worktree add /tmp/data-branch origin/data
+        mkdir -p meu-mapa/public/web_data_NE meu-mapa/public/webdata_waves meu-mapa/public/js meu-mapa/public/avis meu-mapa/public/previsions_catalunya
+        cp -r /tmp/data-branch/web_data_NE/. meu-mapa/public/web_data_NE/ 2>/dev/null || echo "⚠️  web_data_NE no trobat a la branca data"
+        cp -r /tmp/data-branch/webdata_waves/. meu-mapa/public/webdata_waves/ 2>/dev/null || echo "⚠️  webdata_waves no trobat a la branca data"
+        cp /tmp/data-branch/js/status.js meu-mapa/public/js/status.js 2>/dev/null || echo "⚠️  status.js no trobat a la branca data"
+        cp -r /tmp/data-branch/avis/. meu-mapa/public/avis/ 2>/dev/null || echo "⚠️  avis no trobat a la branca data (primera execució?)"
+        cp -r /tmp/data-branch/previsions_catalunya/. meu-mapa/public/previsions_catalunya/ 2>/dev/null || echo "⚠️  previsions_catalunya no trobat a la branca data (primera execució?)"
+        git worktree remove /tmp/data-branch --force
+        echo "✅ Dades de la branca 'data' aplicades sobre el checkout"
+      continue-on-error: true
+
     - name: Descarregar artifact - AVIS
       if: needs.avis.result == 'success'
       uses: actions/download-artifact@v4
@@ -185,19 +208,6 @@ jobs:
       with:
         name: dades-ensembles
         path: meu-mapa/public/previsions_catalunya/
-      continue-on-error: true
-
-    - name: 📥 Traer dades del mapa (branca 'data', per no esborrar-les al desplegar)
-      run: |
-        git fetch origin data
-        rm -rf /tmp/data-branch
-        git worktree add /tmp/data-branch origin/data
-        mkdir -p meu-mapa/public/web_data_NE meu-mapa/public/webdata_waves meu-mapa/public/js
-        cp -r /tmp/data-branch/web_data_NE/. meu-mapa/public/web_data_NE/ 2>/dev/null || echo "⚠️  web_data_NE no trobat a la branca data"
-        cp -r /tmp/data-branch/webdata_waves/. meu-mapa/public/webdata_waves/ 2>/dev/null || echo "⚠️  webdata_waves no trobat a la branca data"
-        cp /tmp/data-branch/js/status.js meu-mapa/public/js/status.js 2>/dev/null || echo "⚠️  status.js no trobat a la branca data"
-        git worktree remove /tmp/data-branch --force
-        echo "✅ Dades de la branca 'data' aplicades sobre el checkout"
       continue-on-error: true
 
     - name: Resum abans del deploy
@@ -224,10 +234,45 @@ jobs:
         CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
+    # ── NOU: publicar a 'data' el que s'ha generat, preservant la resta ──
+    - name: 📤 Publicar dades a la branca 'data' (force-push, sense historial)
+      run: |
+        cd meu-mapa/public
+        mkdir -p web_data_NE webdata_waves js avis previsions_catalunya
+        rm -rf .git
+        git init -q
+        git checkout -q -b data
+
+        AFEGIT=0
+        for carpeta in web_data_NE webdata_waves avis previsions_catalunya; do
+          if [ -n "$(find "$carpeta" -type f 2>/dev/null)" ]; then
+            git add "$carpeta"
+            AFEGIT=1
+          else
+            echo "⚠️  $carpeta buida o inexistent, s'omet"
+          fi
+        done
+        if [ -f js/status.js ]; then
+          git add js/status.js
+          AFEGIT=1
+        else
+          echo "⚠️  js/status.js no existeix, s'omet"
+        fi
+
+        if [ "$AFEGIT" = "1" ]; then
+          git -c user.name="bot-dades" -c user.email="bot@tempestes-cat" commit -q -m "avis+ensembles $(date -u +'%Y-%m-%d %H:%M UTC')"
+          git push --force "https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/Tempestesscatt/joctempestes.git" data
+          echo "✅ Dades publicades a la branca 'data'"
+        else
+          echo "❌ Cap dada disponible per publicar, s'omet el push"
+        fi
+      continue-on-error: true
+
     - name: Completat
       run: |
         echo "============================================"
         echo "  ✅ AVIS + ENSEMBLES COMPLETAT!"
         echo "  Un únic deploy amb tots els fitxers junts"
+        echo "  Dades publicades a la branca 'data' (mapa + avis + previsions)"
         echo "  Hora: $(date)"
         echo "============================================"

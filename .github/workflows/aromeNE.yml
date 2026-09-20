@@ -12,6 +12,11 @@ permissions:
   contents: write
   deployments: write
 
+# Evita que dos workflows que toquen la branca 'data' s'trepitgin
+concurrency:
+  group: deploy-data
+  cancel-in-progress: false
+
 jobs:
   # ════════════════════════════════════════════════════════════════
   #  JOB -1: CHECK - Decideix si s'executa segons el flag intern
@@ -410,6 +415,7 @@ jobs:
     - uses: actions/checkout@v4
       with:
         token: ${{ secrets.PRIVATE_REPO_TOKEN }}
+        fetch-depth: 0
 
     - name: Comprovar resultat dels jobs anteriors
       run: |
@@ -425,6 +431,23 @@ jobs:
         else
           echo "OK Tots els jobs han acabat en exit"
         fi
+
+    # ── NOU: recuperar de la branca 'data' el que aquest workflow NO genera ──
+    #    (avis + previsions dels ensembles), perquè el deploy no els esborri.
+    - name: 📥 Recuperar avis i previsions de la branca 'data'
+      run: |
+        if ! git fetch origin data; then
+          echo "⚠️  No existeix la branca 'data' encara, s'omet"
+          exit 0
+        fi
+        rm -rf /tmp/data-branch
+        git worktree add /tmp/data-branch origin/data
+        mkdir -p meu-mapa/public/avis meu-mapa/public/previsions_catalunya
+        cp -r /tmp/data-branch/avis/. meu-mapa/public/avis/ 2>/dev/null || echo "⚠️  avis no trobat a la branca data"
+        cp -r /tmp/data-branch/previsions_catalunya/. meu-mapa/public/previsions_catalunya/ 2>/dev/null || echo "⚠️  previsions_catalunya no trobat a la branca data"
+        git worktree remove /tmp/data-branch --force
+        echo "✅ avis i previsions recuperats de 'data'"
+      continue-on-error: true
 
     - name: Descarregar artifact - SFC
       if: needs.arome_sfc.result == 'success'
@@ -479,6 +502,10 @@ jobs:
         ls public/web_data_NE/ 2>/dev/null | wc -l || echo "buit"
         echo "--- webdata_waves ---"
         ls public/webdata_waves/ 2>/dev/null | wc -l || echo "buit"
+        echo "--- avis ---"
+        ls public/avis/ 2>/dev/null | wc -l || echo "buit"
+        echo "--- previsions_catalunya (PNG) ---"
+        find public/previsions_catalunya -name "*.png" -type f 2>/dev/null | wc -l || echo "buit"
         echo "--- status.js ---"
         ls -la public/js/status.js 2>/dev/null || echo "No existeix"
         echo "--- manifest.json ---"
@@ -497,13 +524,15 @@ jobs:
     - name: 📤 Publicar dades a la branca 'data' (force-push, sense historial)
       run: |
         cd meu-mapa/public
-        mkdir -p web_data_NE webdata_waves js
+        mkdir -p web_data_NE webdata_waves js avis previsions_catalunya
         rm -rf .git
         git init -q
         git checkout -q -b data
 
         AFEGIT=0
-        for carpeta in web_data_NE webdata_waves; do
+        # web_data_NE i webdata_waves ara van juntament amb avis i previsions_catalunya,
+        # perquè el force-push reescriu tota la branca i no s'ha de perdre res.
+        for carpeta in web_data_NE webdata_waves avis previsions_catalunya; do
           if [ -n "$(find "$carpeta" -type f 2>/dev/null)" ]; then
             git add "$carpeta"
             AFEGIT=1
@@ -544,6 +573,6 @@ jobs:
         echo "============================================"
         echo "  OK TOT COMPLETAT (sfc + 3d + ones + status + manifest)!"
         echo "  Dades desplegades a Cloudflare Pages"
-        echo "  Dades publicades a la branca 'data'"
+        echo "  Dades publicades a la branca 'data' (mapa + avis + previsions)"
         echo "  status.js i manifest.json generats correctament"
         echo "============================================"
