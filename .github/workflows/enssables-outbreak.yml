@@ -111,7 +111,9 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y libgeos-dev libproj-dev proj-data proj-bin
         python3 -m pip install --upgrade pip
-        python3 -m pip install numpy requests matplotlib
+        python3 -m pip install numpy requests matplotlib scipy
+        python3 -m pip install herbie-data xarray cfgrib eccodes
+        python3 -m pip install shapely pyproj
       continue-on-error: true
 
     - name: Crear carpeta previsions_catalunya
