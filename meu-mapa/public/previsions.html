@@ -1,3 +1,5 @@
+<!DOCTYPE html>
+<html lang="ca">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -42,6 +44,175 @@
             background-color: var(--background-color);
             color: var(--text-color);
             line-height: 1.6;
+        }
+
+        /* ═══════════════════════════════════════════════════════════ */
+        /*  PANTALLA DE CÀRREGA                                        */
+        /* ═══════════════════════════════════════════════════════════ */
+        #loadingScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1a5276 0%, #2980b9 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        /* Patró de núvols de fons */
+        #loadingScreen::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                radial-gradient(circle at 20% 30%, rgba(255,255,255,0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(255,255,255,0.06) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(255,255,255,0.04) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        #loadingScreen.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        /* Contenidor de l'emoji meteorològic */
+        .weather-emoji-container {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .weather-emoji {
+            position: absolute;
+            font-size: 5rem;
+            opacity: 0;
+            animation: emojiCycle 6s infinite ease-in-out;
+            filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.4));
+            transform: translateY(0);
+        }
+
+        .weather-emoji:nth-child(1) { animation-delay: 0s; }
+        .weather-emoji:nth-child(2) { animation-delay: 2s; }
+        .weather-emoji:nth-child(3) { animation-delay: 4s; }
+
+        @keyframes emojiCycle {
+            0%   { opacity: 0; transform: translateY(15px) scale(0.8); }
+            10%  { opacity: 1; transform: translateY(0) scale(1); }
+            30%  { opacity: 1; transform: translateY(0) scale(1); }
+            40%  { opacity: 0; transform: translateY(-15px) scale(0.8); }
+            100% { opacity: 0; transform: translateY(-15px) scale(0.8); }
+        }
+
+        .loading-title {
+            font-size: 1.9rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.5px;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .loading-subtitle {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin-bottom: 2.5rem;
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .progress-container {
+            width: 100%;
+            max-width: 420px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.18);
+            border-radius: 100px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+            box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #ffffff 0%, #c8e6ff 50%, #ffffff 100%);
+            background-size: 200% 100%;
+            border-radius: 100px;
+            width: 0%;
+            transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 16px rgba(255, 255, 255, 0.8);
+            animation: shimmer 2s linear infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .loading-status {
+            font-size: 0.95rem;
+            opacity: 0.9;
+            margin-top: 0.5rem;
+            min-height: 1.5rem;
+            font-variant-numeric: tabular-nums;
+            font-weight: 500;
+        }
+
+        .loading-cities {
+            margin-top: 2.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            justify-content: center;
+            max-width: 700px;
+            opacity: 0.45;
+            transition: opacity 0.4s ease;
+            position: relative;
+            z-index: 2;
+        }
+
+        .loading-cities .city-pill {
+            font-size: 0.7rem;
+            padding: 0.25rem 0.6rem;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.4s ease;
+            white-space: nowrap;
+        }
+
+        .loading-cities .city-pill.done {
+            background: rgba(255, 255, 255, 0.95);
+            color: var(--primary-color);
+            font-weight: 700;
+            border-color: white;
+            opacity: 1;
+            transform: scale(1.05);
+            box-shadow: 0 2px 8px rgba(255, 255, 255, 0.3);
+        }
+
+        /* El contingut principal està amagat fins que acaba la càrrega */
+        #mainContent {
+            opacity: 0;
+            transition: opacity 0.8s ease;
+        }
+
+        #mainContent.visible {
+            opacity: 1;
         }
 
         .header {
@@ -400,6 +571,27 @@
 
         /* Mobile */
         @media (max-width: 768px) {
+            .weather-emoji-container {
+                width: 90px;
+                height: 90px;
+            }
+
+            .weather-emoji {
+                font-size: 3.5rem;
+            }
+
+            .loading-title {
+                font-size: 1.4rem;
+            }
+
+            .loading-subtitle {
+                font-size: 0.9rem;
+            }
+
+            .loading-cities {
+                display: none;
+            }
+
             .back-btn {
                 top: 0.5rem;
                 left: 0.5rem;
@@ -464,67 +656,94 @@
     </style>
 </head>
 <body>
-    <div class="header">
-        <a href="index.html" class="back-btn" title="Tornar al menú principal">
-            ← Menú
-        </a>
-        <h1>Previsions Meteorològiques</h1>
-        <p>Comparativa de models per a les capitals de comarca de Catalunya</p>
-        <p style="font-size: 0.85rem; margin-top: 0.5rem; opacity: 0.8;">@tempestes.cat</p>
-        <div class="stats" id="statsContainer"></div>
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!--  PANTALLA DE CÀRREGA                                        -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <div id="loadingScreen">
+        <div class="weather-emoji-container">
+            <span class="weather-emoji">☀️</span>
+            <span class="weather-emoji">🌤️</span>
+            <span class="weather-emoji">🌧️</span>
+        </div>
+        <h2 class="loading-title">Carregant previsions...</h2>
+        <p class="loading-subtitle">Estem llegint les dades dels models meteorològics</p>
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+        <p class="loading-status" id="loadingStatus">Iniciant...</p>
+        <div class="loading-cities" id="loadingCities"></div>
     </div>
 
-    <div class="container">
-        <div class="controls">
-            <h2>Selecciona una capital de comarca:</h2>
-            <div class="legend">
-                <div class="legend-item">
-                    <span class="legend-dot available"></span>
-                    <span>Disponible</span>
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!--  CONTINGUT PRINCIPAL                                        -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <div id="mainContent">
+
+        <div class="header">
+            <a href="index.html" class="back-btn" title="Tornar al menú principal">
+                ← Menú
+            </a>
+            <h1>Previsions Meteorològiques</h1>
+            <p>Comparativa de models per a les capitals de comarca de Catalunya</p>
+            <p style="font-size: 0.85rem; margin-top: 0.5rem; opacity: 0.8;">@tempestes.cat</p>
+            <div class="stats" id="statsContainer"></div>
+        </div>
+
+        <div class="container">
+            <div class="controls">
+                <h2>Selecciona una capital de comarca:</h2>
+                <div class="legend">
+                    <div class="legend-item">
+                        <span class="legend-dot available"></span>
+                        <span>Disponible</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot unavailable"></span>
+                        <span>No disponible</span>
+                    </div>
                 </div>
-                <div class="legend-item">
-                    <span class="legend-dot unavailable"></span>
-                    <span>No disponible</span>
+                <div class="capital-grid" id="capitalGrid">
+                    <!-- Les capitals s'afegiran aquí dinàmicament -->
                 </div>
-            </div>
-            <div class="capital-grid" id="capitalGrid">
-                <!-- Les capitals s'afegiran aquí dinàmicament -->
             </div>
         </div>
-    </div>
 
-    <!-- Modal per mostrar la previsió -->
-    <div class="modal-overlay" id="modalOverlay">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title" id="modalTitle">Previsió</h3>
-                <button class="close-btn" onclick="closeModal()" title="Tancar">
-                    ✕
-                </button>
-            </div>
-            <div class="modal-body" id="modalBody">
-                <div class="loading" id="modalLoading">
-                    <div class="spinner"></div>
-                    <p>Carregant previsió...</p>
+        <!-- Modal per mostrar la previsió -->
+        <div class="modal-overlay" id="modalOverlay">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title" id="modalTitle">Previsió</h3>
+                    <button class="close-btn" onclick="closeModal()" title="Tancar">
+                        ✕
+                    </button>
                 </div>
-                <img id="modalImage" src="" alt="Previsió meteorològica" style="display: none;">
-            </div>
-            <div class="modal-footer">
-                <button class="modal-btn" onclick="closeModal()">Tancar</button>
-                <button class="modal-btn primary" onclick="downloadImage()">Descarregar</button>
-                <button class="modal-btn" onclick="openFullscreen()">Pantalla completa</button>
+                <div class="modal-body" id="modalBody">
+                    <div class="loading" id="modalLoading">
+                        <div class="spinner"></div>
+                        <p>Carregant previsió...</p>
+                    </div>
+                    <img id="modalImage" src="" alt="Previsió meteorològica" style="display: none;">
+                </div>
+                <div class="modal-footer">
+                    <button class="modal-btn" onclick="closeModal()">Tancar</button>
+                    <button class="modal-btn primary" onclick="downloadImage()">Descarregar</button>
+                    <button class="modal-btn" onclick="openFullscreen()">Pantalla completa</button>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="footer">
-        
-        <p>© 2024 <a href="https://tempestes.cat" target="_blank">@tempestes.cat</a> - Previsions meteorològiques per a Catalunya</p>
-        <p style="margin-top: 0.5rem; font-size: 0.8rem;">Actualitzat: <span id="lastUpdate"></span></p>
+        <div class="footer">
+            <p>© 2024 <a href="https://tempestes.cat" target="_blank">@tempestes.cat</a> - Previsions meteorològiques per a Catalunya</p>
+            <p style="margin-top: 0.5rem; font-size: 0.8rem;">Actualitzat: <span id="lastUpdate"></span></p>
+        </div>
+
     </div>
 
     <script>
         // Llista de capitals de comarca disponibles
+        // IMPORTANT: els noms dels fitxers han de coincidir EXACTAMENT amb
+        // el que genera el Python (slug sense accents)
         const capitals = [
             { nom: "Barcelona", comarca: "Barcelonès", fitxer: "previsio_barcelona_16dies.png" },
             { nom: "Manresa", comarca: "Bages", fitxer: "previsio_manresa_16dies.png" },
@@ -576,16 +795,61 @@
         let capitalsDisponibles = new Set();
         const basePath = './previsions_catalunya/';
 
-        // Verificar disponibilitat d'imatges
+        // ═══════════════════════════════════════════════════════════
+        //  REFERÈNCIES ALS ELEMENTS DE LA PANTALLA DE CÀRREGA
+        // ═══════════════════════════════════════════════════════════
+        const loadingScreen = document.getElementById('loadingScreen');
+        const progressBar = document.getElementById('progressBar');
+        const loadingStatus = document.getElementById('loadingStatus');
+        const loadingCities = document.getElementById('loadingCities');
+        const mainContent = document.getElementById('mainContent');
+
+        // Crea les píndoles de ciutats a la pantalla de càrrega
+        function initLoadingCities() {
+            loadingCities.innerHTML = '';
+            capitals.forEach(capital => {
+                const pill = document.createElement('span');
+                pill.className = 'city-pill';
+                pill.dataset.fitxer = capital.fitxer;
+                pill.textContent = capital.nom;
+                loadingCities.appendChild(pill);
+            });
+        }
+
+        // Actualitza la barra de progrés
+        function updateProgress(current, total, cityFitxer) {
+            const pct = Math.round((current / total) * 100);
+            progressBar.style.width = pct + '%';
+            loadingStatus.textContent = `${current} de ${total} ciutats llegides (${pct}%)`;
+
+            if (cityFitxer) {
+                const pill = loadingCities.querySelector(`[data-fitxer="${cityFitxer}"]`);
+                if (pill) pill.classList.add('done');
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        //  VERIFICAR DISPONIBILITAT D'IMATGES (amb progrés)
+        // ═══════════════════════════════════════════════════════════
         async function verificarDisponibilitat() {
+            let completades = 0;
+            const total = capitals.length;
+
+            // Actualitzem l'estat inicial
+            loadingStatus.textContent = `0 de ${total} ciutats llegides (0%)`;
+
             const promises = capitals.map(capital => {
                 return new Promise((resolve) => {
                     const img = new Image();
                     img.onload = () => {
                         capitalsDisponibles.add(capital.fitxer);
+                        completades++;
+                        updateProgress(completades, total, capital.fitxer);
                         resolve(capital.fitxer);
                     };
                     img.onerror = () => {
+                        completades++;
+                        updateProgress(completades, total, capital.fitxer);
                         resolve(null);
                     };
                     img.src = basePath + capital.fitxer;
@@ -595,13 +859,37 @@
             await Promise.all(promises);
         }
 
-        // Inicialitzar la pàgina
+        // ═══════════════════════════════════════════════════════════
+        //  INICIALITZAR LA PÀGINA
+        // ═══════════════════════════════════════════════════════════
         async function init() {
+            initLoadingCities();
+
+            const t0 = performance.now();
+
+            // Verificar disponibilitat amb barra de progrés
             await verificarDisponibilitat();
+
+            // Garanteix un mínim de temps de visualització de la pantalla de càrrega
+            // (perquè no sigui un flash massa curt si la xarxa va ràpid)
+            const elapsed = performance.now() - t0;
+            const minDisplayTime = 1500; // 1.5 segons
+            if (elapsed < minDisplayTime) {
+                await new Promise(r => setTimeout(r, minDisplayTime - elapsed));
+            }
+
+            loadingStatus.textContent = `✓ ${capitalsDisponibles.size} previsions disponibles`;
+            await new Promise(r => setTimeout(r, 400));
+
+            // Amagar pantalla de càrrega i mostrar contingut
+            loadingScreen.classList.add('hidden');
+            mainContent.classList.add('visible');
+
+            // Carregar contingut
             loadCapitalButtons();
             updateStats();
             updateLastUpdate();
-            
+
             // Comprovar si hi ha una capital seleccionada a la URL
             const urlParams = new URLSearchParams(window.location.search);
             const capitalParam = urlParams.get('capital');
@@ -617,25 +905,25 @@
         function loadCapitalButtons() {
             const capitalGrid = document.getElementById('capitalGrid');
             capitalGrid.innerHTML = '';
-            
+
             capitals.forEach(capital => {
                 const button = document.createElement('button');
                 const disponible = capitalsDisponibles.has(capital.fitxer);
-                
+
                 button.className = disponible ? 'capital-btn available' : 'capital-btn unavailable';
                 button.innerHTML = `
                     ${capital.nom}
                     <span class="comarca">${capital.comarca}</span>
                     <span class="status-icon">${disponible ? '✓' : '✗'}</span>
                 `;
-                
+
                 if (disponible) {
                     button.onclick = () => openModal(capital);
                 } else {
                     button.disabled = true;
                     button.title = 'Previsió no disponible';
                 }
-                
+
                 capitalGrid.appendChild(button);
             });
         }
@@ -645,7 +933,7 @@
             const disponibles = capitalsDisponibles.size;
             const total = capitals.length;
             const noDisponibles = total - disponibles;
-            
+
             document.getElementById('statsContainer').innerHTML = `
                 <span>✓ ${disponibles} disponibles</span>
                 <span>✗ ${noDisponibles} no disponibles</span>
@@ -655,26 +943,21 @@
         // Obrir modal amb la previsió
         function openModal(capital) {
             selectedCapital = capital;
-            
-            // Actualitzar títol
-            document.getElementById('modalTitle').textContent = 
+
+            document.getElementById('modalTitle').textContent =
                 `${capital.nom} (${capital.comarca})`;
-            
-            // Mostrar modal
+
             document.getElementById('modalOverlay').classList.add('active');
-            document.body.style.overflow = 'hidden'; // Prevenir scroll del body
-            
-            // Mostrar loading
+            document.body.style.overflow = 'hidden';
+
             const loading = document.getElementById('modalLoading');
             const img = document.getElementById('modalImage');
             loading.classList.add('active');
             loading.style.display = 'block';
             img.style.display = 'none';
-            
-            // Carregar imatge
+
             loadImage(capital.fitxer);
-            
-            // Actualitzar URL
+
             const url = new URL(window.location);
             url.searchParams.set('capital', capital.fitxer);
             window.history.pushState({}, '', url);
@@ -683,10 +966,9 @@
         // Tancar modal
         function closeModal() {
             document.getElementById('modalOverlay').classList.remove('active');
-            document.body.style.overflow = ''; // Restaurar scroll
+            document.body.style.overflow = '';
             selectedCapital = null;
-            
-            // Netejar URL
+
             const url = new URL(window.location);
             url.searchParams.delete('capital');
             window.history.pushState({}, '', url);
@@ -697,16 +979,16 @@
             const imagePath = basePath + fitxer;
             const img = document.getElementById('modalImage');
             const loading = document.getElementById('modalLoading');
-            
+
             const tempImg = new Image();
-            
+
             tempImg.onload = function() {
                 img.src = imagePath;
                 img.style.display = 'block';
                 loading.style.display = 'none';
                 loading.classList.remove('active');
             };
-            
+
             tempImg.onerror = function() {
                 img.style.display = 'none';
                 loading.style.display = 'none';
@@ -714,14 +996,14 @@
                 closeModal();
                 alert('No s\'ha pogut carregar la imatge');
             };
-            
+
             tempImg.src = imagePath;
         }
 
         // Descarregar imatge
         function downloadImage() {
             if (!selectedCapital) return;
-            
+
             const imagePath = basePath + selectedCapital.fitxer;
             const link = document.createElement('a');
             link.href = imagePath;
@@ -734,7 +1016,7 @@
         // Obrir pantalla completa
         function openFullscreen() {
             if (!selectedCapital) return;
-            
+
             const imagePath = basePath + selectedCapital.fitxer;
             window.open(imagePath, '_blank');
         }
@@ -756,12 +1038,12 @@
         // Actualitzar data
         function updateLastUpdate() {
             const now = new Date();
-            const options = { 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric', 
-                hour: '2-digit', 
-                minute: '2-digit' 
+            const options = {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
             };
             document.getElementById('lastUpdate').textContent = now.toLocaleDateString('ca-ES', options);
         }
