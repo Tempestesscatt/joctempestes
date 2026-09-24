@@ -93,6 +93,17 @@
     text-align: center; padding: 24px; color: var(--muted); font-size: .9rem; line-height: 1.6;
   }
   #mapStage .panel-img-wrap.empty .empty-msg { display: flex; }
+  #mapStage .panel-img-wrap .spinner {
+    position: absolute; inset: 0; display: none;
+    align-items: center; justify-content: center; pointer-events: none;
+  }
+  #mapStage .panel-img-wrap.loading .spinner { display: flex; }
+  #mapStage .spinner .circ {
+    width: 38px; height: 38px; border-radius: 50%;
+    border: 3px solid rgba(31,122,224,.2); border-top-color: var(--accent);
+    animation: spin .7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
 
   /* Etiqueta de pas flotant */
   #mapStage .step-label {
@@ -250,6 +261,27 @@
   .var-select:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
   .var-select:disabled { opacity: .5; cursor: not-allowed; }
 
+  /* Botó de precàrrega */
+  .preload-btn {
+    width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;
+    background: var(--panel2); color: var(--text);
+    border: 1px solid var(--line); border-radius: 9px;
+    padding: 10px 12px; font-size: .76rem; font-weight: 650; cursor: pointer;
+    transition: border-color .15s, background .15s, color .15s;
+    position: relative; overflow: hidden;
+  }
+  .preload-btn:hover:not(:disabled) { border-color: var(--accent); background: #fff; }
+  .preload-btn:disabled { cursor: default; opacity: .7; }
+  .preload-btn.done {
+    border-color: var(--accent2); color: #0a7a5c; background: rgba(16,180,138,.08);
+  }
+  .preload-btn .preload-bar {
+    position: absolute; left: 0; bottom: 0; height: 3px; width: 0;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    transition: width .2s ease;
+  }
+  .preload-btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+
   /* ───── Hora flotant a baix ───── */
   #timeFloat {
     position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%);
@@ -338,14 +370,16 @@
     <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.6-5.9M20 4v5h-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
     <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m0 0 4.5-4.5M12 15l-4.5-4.5M4 19h16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5 10 17.5 19 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
 
-    <!-- Mapa Península Ibèrica (silueta simplificada real) -->
+    <!-- Mapa Península Ibèrica -->
     <symbol id="m-esp" viewBox="0 0 60 44">
       <rect width="60" height="44" fill="#d3e8f7"/>
       <path fill="#79c267" stroke="#1d3b22" stroke-width="0.9" stroke-linejoin="round" fill-rule="evenodd" d="M46.4,26.9L45.6,27.0L45.7,26.5L46.4,26.9ZM46.5,25.3L44.9,25.9L46.5,25.1L46.5,25.3ZM52.3,24.1L50.8,23.0L50.0,23.3L49.5,22.6L52.8,21.0L52.6,21.8L53.8,22.2L52.3,24.1ZM57.1,21.6L55.5,21.0L55.4,20.6L56.9,20.7L57.1,21.6ZM16.2,40.8L18.4,39.7L19.6,41.8L21.5,43.0L26.4,43.0L28.1,42.1L28.6,43.4L32.3,43.6L45.0,37.0L55.1,35.2L60.0,35.6L60.0,44.0L15.0,44.0L16.2,40.8ZM59.9,5.0L56.2,4.2L53.0,6.1L52.2,7.7L53.2,10.2L52.6,10.8L53.0,11.8L48.3,14.9L44.1,15.9L42.9,17.0L43.6,17.5L42.4,18.0L38.7,23.1L39.2,25.2L40.8,26.6L37.9,28.6L36.7,31.2L37.1,31.8L33.4,32.9L31.6,35.8L22.5,36.0L19.3,37.4L17.5,39.2L15.8,38.5L14.5,36.4L15.1,35.1L14.4,35.5L12.5,33.4L8.7,34.7L4.0,34.6L4.7,32.7L4.5,28.0L5.3,28.1L4.8,27.7L3.1,28.0L3.0,27.1L3.9,26.6L4.8,25.1L3.5,26.7L2.1,26.4L5.3,17.4L4.4,12.7L4.5,11.1L5.2,10.3L4.8,8.6L3.9,8.8L4.3,7.9L3.1,7.1L4.5,5.4L9.2,3.4L11.8,4.4L16.6,4.0L21.9,5.0L25.6,4.5L32.0,5.3L34.1,4.3L35.0,0.0L60.0,0.0L59.9,5.0Z"/>
     </symbol>
 
-    <!-- Mapa Europa (silueta simplificada real) -->
+    <!-- Mapa Europa -->
     <symbol id="m-eur" viewBox="0 0 60 44">
       <rect width="60" height="44" fill="#d3e8f7"/>
       <path fill="#79c267" stroke="#1d3b22" stroke-width="0.9" stroke-linejoin="round" fill-rule="evenodd" d="M8.5,6.7L9.8,8.0L5.4,10.0L2.0,9.5L2.9,8.5L0.8,8.3L2.7,8.0L2.1,7.9L2.7,7.6L0.4,7.5L1.5,7.2L1.0,7.1L1.3,6.7L2.2,7.1L1.8,6.4L3.1,6.9L3.3,7.8L4.1,6.8L5.9,7.3L5.7,6.8L8.9,6.5L8.5,6.7ZM0.0,0.0L2.6,0.3L2.2,0.7L2.8,0.6L3.0,1.7L1.0,1.7L0.0,0.8L0.0,0.0ZM0.2,2.0L1.1,2.2L2.4,2.2L0.0,3.1L0.2,2.0ZM31.0,43.2L31.1,43.1L31.1,43.1L31.0,43.2ZM33.7,41.8L33.9,41.9L33.9,41.9L33.7,41.8ZM33.7,41.6L33.7,41.6L33.6,41.6L33.7,41.6ZM31.7,40.7L31.8,40.8L31.7,40.8L31.7,40.7ZM34.8,39.0L34.1,40.9L32.1,39.6L34.8,39.0ZM22.8,38.6L22.6,38.6L22.7,38.5L22.8,38.6ZM22.8,38.2L22.5,38.3L22.8,38.1L22.8,38.2ZM28.6,38.1L28.6,38.2L28.6,38.1L28.6,38.1ZM24.1,37.9L23.6,37.7L23.5,37.5L24.2,37.1L24.1,37.9ZM25.1,37.0L24.7,37.1L24.7,37.0L25.1,37.0ZM29.6,37.9L28.8,38.3L28.5,36.0L29.7,35.9L29.6,37.9ZM33.3,36.2L33.4,36.2L33.4,36.2L33.3,36.2ZM28.5,35.9L28.5,35.8L28.6,35.8L28.5,35.9ZM29.4,35.2L29.0,35.2L28.8,34.3L29.5,33.6L29.4,35.2ZM36.3,33.8L36.5,33.8L36.6,33.9L36.3,33.8ZM30.1,33.8L30.4,33.9L30.1,33.8L30.1,33.8ZM35.9,33.7L36.0,33.6L36.2,33.7L35.9,33.7ZM36.1,33.4L35.5,33.3L36.2,33.4L36.1,33.4ZM35.8,33.3L35.5,33.1L35.9,33.2L35.8,33.3ZM34.6,32.5L34.6,32.5L34.5,32.4L34.6,32.5ZM34.5,32.5L34.2,32.3L34.2,32.2L34.5,32.5ZM34.4,32.3L34.3,32.2L34.5,32.4L34.4,32.3ZM34.1,31.6L34.4,31.9L34.5,32.0L34.3,32.0L34.1,31.6ZM34.2,31.6L34.0,31.5L34.0,31.4L34.2,31.6ZM33.7,31.1L33.8,31.3L33.8,31.7L33.7,31.1ZM33.9,31.0L34.0,31.3L33.8,31.1L33.9,31.0ZM20.3,30.1L20.4,30.2L20.4,30.3L20.3,30.1ZM19.7,26.4L19.5,26.4L19.5,26.3L19.7,26.4ZM19.2,26.0L19.2,26.1L19.2,26.1L19.2,26.0ZM20.3,24.6L20.4,24.8L20.1,24.7L20.3,24.6ZM24.8,23.5L24.8,23.6L24.6,23.5L24.8,23.5ZM25.6,21.8L25.5,22.0L25.5,22.0L25.6,21.8ZM25.7,21.6L25.6,21.7L25.6,21.7L25.7,21.6ZM17.7,21.8L17.7,21.5L18.0,21.6L17.7,21.8ZM26.1,21.5L26.0,21.6L25.9,21.5L26.1,21.5ZM16.3,19.5L16.7,20.3L16.0,20.9L16.0,22.9L13.5,23.7L12.6,23.4L12.9,23.0L12.6,22.9L13.9,22.4L12.9,22.5L13.8,21.8L12.8,21.5L13.2,21.1L12.8,20.5L14.1,20.6L14.5,20.1L14.0,20.0L15.1,19.3L16.3,19.5ZM26.3,21.5L26.5,21.5L26.3,21.5L26.3,21.5ZM26.7,21.4L26.8,21.4L26.9,21.4L26.7,21.4ZM27.2,21.3L27.1,21.3L27.3,21.3L27.2,21.3ZM12.8,20.9L12.6,20.9L12.9,21.0L12.8,20.9ZM17.6,20.4L17.5,20.8L17.3,20.8L17.6,20.4ZM18.8,15.5L17.9,16.7L19.8,16.7L18.6,18.1L19.1,18.2L18.2,18.4L20.0,19.0L21.4,20.7L21.5,21.3L21.2,21.1L20.9,21.2L21.7,21.6L21.5,22.1L22.8,22.3L22.8,23.0L21.8,23.8L22.6,24.1L18.9,24.6L16.6,25.4L17.8,24.1L18.7,24.1L19.3,23.5L18.6,23.9L16.9,23.3L17.9,22.8L17.9,22.1L17.4,22.2L17.8,21.8L19.1,21.6L19.0,20.6L18.3,20.2L18.8,19.7L17.2,20.0L17.5,18.6L17.1,18.3L16.5,19.3L17.0,17.6L16.2,17.7L16.5,17.5L17.1,15.6L18.8,15.5ZM32.7,20.5L32.9,20.0L33.2,20.5L32.7,20.5ZM31.0,20.4L31.1,20.3L31.1,20.4L31.0,20.4ZM28.8,20.0L28.7,20.0L28.8,20.0L28.8,20.0ZM30.9,19.9L31.5,19.9L31.5,20.1L30.9,19.9ZM30.4,19.8L30.2,19.8L30.2,19.7L30.4,19.8ZM28.6,19.9L28.6,19.6L28.8,19.8L28.6,19.9ZM30.7,19.9L30.5,19.9L30.8,19.5L30.7,19.9ZM30.1,19.8L29.8,19.8L29.8,19.6L30.1,19.8ZM31.9,19.6L32.2,19.7L31.8,19.8L31.9,19.6ZM34.0,19.6L34.1,19.3L34.4,19.6L34.0,19.6ZM30.0,19.4L30.2,19.0L30.7,19.3L30.5,19.6L30.0,19.4ZM32.2,18.5L31.6,19.9L30.8,18.8L32.2,18.5ZM17.0,18.9L16.9,19.1L16.8,18.9L17.0,18.9ZM32.2,19.0L32.2,18.9L32.3,19.0L32.2,19.0ZM16.2,18.9L15.9,18.9L16.2,18.6L16.2,18.9ZM30.6,18.7L30.5,18.8L30.5,18.5L30.6,18.7ZM16.3,18.5L16.3,18.7L16.2,18.7L16.3,18.5ZM16.0,18.2L16.5,18.0L16.5,18.1L16.0,18.2ZM15.8,17.8L15.8,17.8L15.7,17.9L15.8,17.8ZM35.5,17.9L36.1,17.0L35.5,18.2L35.5,17.9ZM15.0,17.4L15.0,17.3L15.1,17.4L15.0,17.4ZM16.0,17.3L16.0,17.4L15.9,17.3L16.0,17.3ZM15.2,16.9L15.1,17.1L15.1,16.9L15.2,16.9ZM30.8,17.0L30.9,17.1L30.7,17.1L30.8,17.0ZM16.0,16.6L16.3,17.3L15.6,16.9L16.0,16.6ZM37.8,16.4L37.0,17.5L37.0,16.7L37.3,16.4L37.8,16.4ZM15.0,16.6L15.3,16.6L15.0,16.7L15.0,16.6ZM15.9,16.2L15.4,16.0L16.1,15.6L15.9,16.2ZM18.9,15.2L18.9,15.4L18.8,15.3L18.9,15.2ZM18.6,15.2L18.6,15.3L18.5,15.2L18.6,15.2ZM19.0,15.2L18.6,14.9L19.1,15.1L19.0,15.2ZM37.2,14.9L37.2,15.0L37.2,15.0L37.2,14.9ZM18.9,14.7L19.0,14.9L18.8,14.7L18.9,14.7ZM19.3,14.7L19.1,14.8L19.4,14.7L19.3,14.7ZM37.3,14.5L37.4,14.4L37.5,14.4L37.3,14.5ZM20.4,13.9L20.0,13.6L20.2,13.2L20.5,13.4L20.4,13.9ZM25.8,13.4L25.7,13.6L25.7,13.4L25.8,13.4ZM20.6,13.1L20.4,13.2L20.5,13.1L20.6,13.1ZM20.6,13.0L20.7,13.1L20.6,13.1L20.6,13.0ZM25.6,12.5L25.7,12.6L25.5,12.6L25.6,12.5ZM15.7,12.1L15.7,12.3L15.5,12.0L15.7,12.1ZM15.7,11.7L15.6,11.8L15.5,11.7L15.7,11.7ZM15.2,11.4L15.2,11.5L15.1,11.4L15.2,11.4ZM15.7,11.3L15.4,11.5L15.3,11.2L15.7,11.3ZM15.9,11.4L15.8,11.2L15.9,11.3L15.9,11.4ZM28.3,10.0L28.3,9.9L28.4,10.0L28.3,10.0ZM29.0,9.6L28.5,9.6L29.0,9.5L29.0,9.6ZM31.0,8.3L30.9,8.1L31.1,8.2L31.0,8.3ZM31.6,7.4L31.6,7.3L31.7,7.3L31.6,7.4ZM32.2,7.1L32.2,6.9L32.4,7.0L32.2,7.1ZM32.2,6.9L32.2,6.7L32.2,6.7L32.2,6.9ZM32.5,4.7L32.7,4.6L32.4,4.8L32.5,4.7ZM33.2,4.5L32.7,4.5L33.5,4.3L33.2,4.5ZM35.6,3.7L35.1,4.2L33.6,4.4L34.6,3.9L35.1,3.1L34.9,4.0L35.6,3.7ZM33.8,3.9L34.3,3.5L34.6,3.7L34.5,3.9L33.8,3.9ZM36.8,3.2L36.1,3.4L35.8,3.4L36.4,2.8L36.8,3.2ZM38.2,2.3L37.5,2.8L36.9,2.8L38.2,2.3ZM13.7,1.4L14.3,1.0L14.6,1.0L14.6,1.1L13.7,1.4ZM51.0,42.1L49.5,43.2L49.1,42.7L51.0,42.1ZM41.6,42.4L43.5,42.7L44.0,42.5L43.9,42.8L42.7,42.9L41.6,42.4ZM44.7,42.1L44.6,42.1L44.8,41.9L44.7,42.1ZM45.3,41.4L45.5,41.6L45.2,41.8L45.3,41.4ZM41.2,41.5L41.1,41.2L41.2,41.4L41.2,41.5ZM43.2,41.3L43.2,41.1L43.3,41.2L43.2,41.3ZM44.0,41.1L44.0,40.9L44.1,41.0L44.0,41.1ZM45.2,41.0L45.3,41.0L45.3,41.1L45.2,41.0ZM42.5,40.9L42.3,40.9L42.3,40.8L42.5,40.9ZM43.1,40.8L43.2,40.9L43.1,40.8L43.1,40.8ZM44.7,40.8L44.8,40.6L44.9,40.7L44.7,40.8ZM43.6,40.8L43.7,40.6L43.8,40.6L43.6,40.8ZM42.6,40.5L42.7,40.6L42.6,40.6L42.6,40.5ZM44.5,40.6L44.6,40.5L44.6,40.6L44.5,40.6ZM43.2,40.4L43.4,40.5L43.2,40.6L43.2,40.4ZM43.0,40.5L43.1,40.4L43.1,40.4L43.0,40.5ZM42.4,40.4L42.5,40.3L42.4,40.4L42.4,40.4ZM42.3,40.0L42.4,40.1L42.3,40.2L42.3,40.0ZM42.8,39.9L42.8,40.1L42.8,40.1L42.8,39.9ZM43.2,39.9L43.2,40.0L43.1,40.0L43.2,39.9ZM43.9,39.9L43.8,39.8L44.0,39.7L43.9,39.9ZM42.3,39.7L42.3,39.9L42.2,39.9L42.3,39.7ZM43.0,39.9L42.9,39.7L43.1,39.8L43.0,39.9ZM44.2,39.7L44.6,39.6L44.6,39.7L44.2,39.7ZM39.2,39.5L39.3,39.8L39.1,39.5L39.2,39.5ZM42.8,39.5L42.8,39.7L42.6,39.4L42.8,39.5ZM41.6,39.5L41.5,39.4L41.6,39.4L41.6,39.5ZM39.0,39.2L39.1,38.8L39.2,39.3L39.0,39.2ZM43.6,38.7L43.8,39.0L43.7,39.2L43.6,38.7ZM39.2,39.0L39.1,38.8L39.2,39.0L39.2,39.0ZM41.4,38.2L42.5,39.4L41.0,38.4L41.4,38.2ZM39.2,38.6L39.0,38.7L39.2,38.4L39.2,38.6ZM42.6,38.4L42.4,38.3L42.4,38.2L42.6,38.4ZM41.8,38.1L41.7,38.1L41.7,38.0L41.8,38.1ZM44.0,37.8L43.9,38.0L43.6,38.0L44.0,37.8ZM41.9,37.9L42.0,37.9L41.9,38.0L41.9,37.9ZM38.3,37.3L38.5,37.6L38.7,37.8L38.5,37.7L38.3,37.3ZM43.2,37.3L42.9,37.1L43.2,37.0L43.2,37.3ZM43.5,36.8L43.7,36.9L43.4,36.9L43.5,36.8ZM43.3,36.5L43.3,36.6L43.2,36.5L43.3,36.5ZM42.7,36.3L42.4,36.3L42.6,36.1L42.7,36.3ZM49.0,29.9L48.5,29.8L48.4,29.7L49.0,29.9ZM37.8,16.2L37.8,16.4L37.7,16.3L37.8,16.2ZM41.4,15.7L40.3,16.3L40.2,15.6L41.4,15.7ZM41.2,15.5L41.4,15.5L41.4,15.6L41.2,15.5ZM40.3,15.1L40.9,15.0L41.2,15.2L40.3,15.1ZM39.0,13.9L38.9,13.8L39.1,13.8L39.0,13.9ZM39.9,13.7L40.0,13.8L39.8,13.7L39.9,13.7ZM40.0,13.7L40.1,13.7L40.0,13.8L40.0,13.7ZM38.3,13.6L38.2,13.7L38.2,13.7L38.3,13.6ZM38.8,13.6L38.4,13.8L38.3,13.6L38.8,13.6ZM40.6,13.7L40.4,13.5L40.6,13.5L40.6,13.7ZM40.2,13.4L40.1,13.5L40.1,13.4L40.2,13.4ZM39.8,13.3L39.6,13.2L39.7,13.2L39.8,13.3ZM39.6,10.2L39.7,10.1L39.8,10.2L39.6,10.2ZM42.6,8.2L42.6,8.0L42.9,8.1L42.6,8.2ZM51.9,7.9L52.2,7.9L52.2,8.1L51.9,7.9ZM57.8,6.1L58.0,6.0L58.0,6.1L57.8,6.1ZM46.9,2.6L47.0,2.4L47.2,2.5L46.9,2.6ZM39.0,2.1L39.2,2.2L38.9,2.2L39.0,2.1ZM38.4,2.2L38.3,2.0L38.6,2.2L38.4,2.2ZM41.3,2.0L41.6,1.6L41.7,1.8L41.3,2.0ZM42.0,1.5L41.9,1.7L41.7,1.5L42.0,1.5ZM41.2,1.6L40.3,1.6L41.5,1.4L41.2,1.6ZM43.5,1.2L43.4,1.0L43.8,1.1L43.5,1.2ZM37.2,14.8L35.3,15.5L35.9,15.6L35.1,18.3L32.5,19.2L32.5,18.8L32.1,18.2L32.5,17.8L30.5,14.2L30.2,15.0L28.4,16.0L26.2,15.5L26.9,14.4L25.9,14.9L25.9,14.4L27.4,13.3L25.8,14.3L26.3,13.8L25.8,13.4L26.3,13.1L25.7,12.7L27.5,12.8L27.9,12.5L26.0,12.6L25.6,11.8L25.7,11.7L26.6,11.8L27.2,11.7L25.8,11.5L28.4,10.7L27.2,10.7L27.9,10.3L28.8,10.6L28.4,10.2L28.8,9.7L30.0,10.0L31.2,9.5L29.6,9.6L32.5,7.7L31.8,7.8L32.6,7.0L32.4,6.8L33.5,6.6L32.7,6.7L32.8,6.2L34.9,5.2L34.1,4.9L36.5,4.1L35.6,4.0L36.9,3.3L37.1,2.9L37.6,3.1L38.3,2.5L38.3,3.0L38.8,2.4L38.7,3.1L39.2,2.9L39.1,2.4L40.3,2.5L39.7,2.0L40.9,1.9L41.4,2.3L42.6,1.2L43.5,1.3L42.9,2.2L45.6,1.1L45.6,2.0L46.1,1.3L48.0,1.9L46.1,2.1L46.9,2.6L48.8,2.4L50.1,3.0L49.8,3.4L52.2,3.3L56.5,5.0L56.7,6.0L54.6,6.9L51.0,6.3L49.7,5.7L48.8,5.6L51.2,7.0L50.9,7.6L51.5,8.8L53.5,9.5L54.1,9.2L52.8,8.3L53.0,7.9L55.5,8.6L56.1,8.4L55.6,7.4L57.6,6.3L59.2,6.9L59.5,5.9L59.0,5.5L59.3,4.3L58.6,3.9L60.0,4.0L60.0,44.0L51.9,44.0L52.3,40.6L49.5,41.6L47.7,40.7L47.5,41.4L46.9,41.5L46.3,40.9L45.0,40.9L45.6,40.5L44.8,40.6L44.8,39.4L44.0,39.0L44.7,38.8L44.5,37.6L43.8,37.7L43.9,37.1L47.0,36.2L46.4,35.6L48.2,35.8L50.0,34.7L51.4,34.7L54.3,36.0L56.9,35.4L56.9,33.9L52.8,31.1L53.7,30.8L54.4,30.0L53.8,29.4L55.0,28.6L51.4,30.0L51.6,29.6L51.3,29.9L51.4,30.5L52.8,30.8L52.6,31.2L50.5,32.0L50.2,31.2L49.3,30.8L50.2,30.0L48.7,29.8L48.5,29.5L49.2,29.6L49.4,29.4L48.7,28.7L48.7,29.4L47.8,29.5L46.8,30.4L46.8,31.4L46.2,31.3L45.9,33.0L45.0,34.2L46.2,35.9L45.0,35.9L43.9,37.0L44.4,36.3L42.4,36.0L41.8,36.2L42.3,36.9L41.5,36.7L41.7,37.1L40.8,36.5L41.4,38.0L40.8,38.4L42.0,39.2L42.0,39.7L41.6,39.3L41.2,39.5L41.6,40.0L40.9,39.9L41.3,41.2L40.2,40.8L39.5,39.5L41.3,39.2L39.6,39.0L39.2,38.4L39.5,38.2L38.1,36.7L38.2,35.0L35.9,33.1L35.1,33.0L34.4,32.2L34.7,32.1L33.9,30.9L33.7,30.9L33.3,31.5L33.1,30.4L31.9,30.7L32.1,32.2L33.9,34.5L35.3,34.9L35.1,35.3L37.3,36.8L37.2,37.3L35.9,36.5L35.6,37.3L36.1,38.2L35.2,39.4L34.8,39.3L35.3,38.3L34.9,37.1L31.0,34.3L30.2,32.5L28.9,31.9L26.7,33.5L24.9,32.9L24.2,33.4L24.2,34.8L22.0,36.1L21.1,37.6L21.6,38.5L19.6,40.8L17.7,40.9L16.6,41.7L15.5,40.2L13.7,40.5L14.0,38.9L13.5,38.6L13.7,38.5L13.9,38.1L13.3,38.4L14.0,34.4L13.6,33.4L14.8,32.7L19.7,33.2L20.2,32.9L20.5,30.6L20.7,30.8L20.8,31.2L21.0,31.3L20.4,29.7L19.6,29.1L19.9,28.7L17.7,28.0L17.4,27.2L20.2,27.0L19.8,25.8L21.8,26.1L22.9,24.4L25.1,23.9L24.4,23.7L25.1,23.8L24.9,23.2L26.2,21.7L28.7,21.5L28.8,21.0L29.8,21.4L28.8,20.5L29.1,20.2L28.8,19.2L28.4,19.0L28.4,17.8L29.3,17.7L28.5,17.7L28.8,17.2L30.5,16.5L30.2,17.8L30.8,18.0L29.6,19.1L29.9,20.3L31.2,20.9L32.6,20.4L33.4,21.1L33.9,21.3L33.3,20.7L36.9,19.9L38.1,20.4L39.5,19.0L39.1,19.7L39.6,19.8L39.5,17.8L40.1,16.7L40.8,16.5L41.7,17.4L42.3,17.1L42.5,15.8L41.8,15.8L41.6,14.8L47.3,13.9L45.9,13.1L41.2,14.1L40.8,13.5L39.8,13.2L39.5,10.9L39.9,10.2L43.2,8.1L42.5,7.1L40.6,7.1L39.8,7.7L39.9,8.7L39.2,9.4L36.3,11.0L36.2,13.1L37.7,14.1L36.8,14.6L37.2,14.8ZM15.6,43.8L16.8,41.8L17.5,42.6L19.7,42.7L22.3,41.2L24.7,40.6L26.0,40.9L29.7,40.1L30.4,40.8L31.0,40.7L30.4,41.5L31.0,42.6L30.1,44.0L15.6,43.8Z"/>
@@ -381,6 +415,7 @@
     <div class="panel-img-wrap" id="mapWrap">
       <img id="mapImgA" alt="Mapa" decoding="async">
       <img id="mapImgB" alt="Mapa" decoding="async">
+      <div class="spinner"><div class="circ"></div></div>
       <span class="step-label" id="stepLabel"></span>
       <div class="empty-msg" id="emptyMsg">No hi ha mapa disponible per a aquesta variable i pas.</div>
     </div>
@@ -440,6 +475,15 @@
       <div class="jump-row" id="jumpRow"></div>
     </div>
 
+    <div class="sb-section">
+      <span class="lbl">Càrrega</span>
+      <button type="button" class="preload-btn" id="preloadBtn">
+        <svg><use href="#i-download"/></svg>
+        <span id="preloadText">Precarregar tots els mapes</span>
+        <span class="preload-bar" id="preloadBar"></span>
+      </button>
+    </div>
+
     <div class="sb-section" style="margin-top:auto;padding-top:12px;border-top:1px solid var(--line)">
       <span id="runLabel" style="display:block;text-align:center;font-size:.72rem;padding:8px 12px;background:var(--panel2);border:1px solid var(--line);border-radius:999px;color:var(--muted);font-weight:600"></span>
     </div>
@@ -453,9 +497,9 @@
 (function () {
   "use strict";
 
-  /* ───── Configuració de càrrega ───── */
-  // Nombre de PNG que es descarreguen simultàniament
-  var CONCURRENCIA = 450;
+  /* ───── Configuració ───── */
+  var CONCURRENCIA = 50;       // PNG simultanis durant la precàrrega
+  var MAX_CACHE = 400;         // màxim d'imatges a memòria (les més recents)
 
   /* ───── Zones ───── */
   var REGIONS = {
@@ -478,17 +522,21 @@
       sidebar = $("sidebar"), sidebarToggle = $("sidebarToggle"),
       toggleIcon = $("toggleIcon"), stepLabel = $("stepLabel"),
       mapWrap = $("mapWrap"), mapImgA = $("mapImgA"), mapImgB = $("mapImgB"),
-      emptyMsg = $("emptyMsg");
+      emptyMsg = $("emptyMsg"),
+      preloadBtn = $("preloadBtn"), preloadText = $("preloadText"), preloadBar = $("preloadBar");
 
-  var ICO_PLAY  = '<svg><use href="#i-play"/></svg>';
-  var ICO_PAUSE = '<svg><use href="#i-pause"/></svg>';
-  var ICO_REFR  = '<svg class="ico"><use href="#i-refresh"/></svg>';
-  var ICO_MENU  = '<use href="#i-menu"/>';
-  var ICO_CLOSE = '<use href="#i-close"/>';
+  var ICO_PLAY    = '<svg><use href="#i-play"/></svg>';
+  var ICO_PAUSE   = '<svg><use href="#i-pause"/></svg>';
+  var ICO_REFR    = '<svg class="ico"><use href="#i-refresh"/></svg>';
+  var ICO_MENU    = '<use href="#i-menu"/>';
+  var ICO_CLOSE   = '<use href="#i-close"/>';
+  var ICO_DOWN    = '<svg><use href="#i-download"/></svg>';
+  var ICO_CHECK   = '<svg><use href="#i-check"/></svg>';
 
   /* ───── Estat ───── */
   var dades = {};
-  var index = null, cache = {};
+  var index = null;              // { run, fxx:[...], variables:[...], fitxers:{vid:{fxx:nom}} }
+  var dirActual = "";            // carpeta on són els PNG
   var fxxList = [], currentFxxIdx = 0, playTimer = null;
   var vidActual = "temp500";
   var VELOCITATS = [
@@ -496,7 +544,18 @@
     { label: "2x", ms: 350 },   { label: "4x", ms: 175 }
   ];
   var velocitatActualIdx = 1;
-  var _decodificades = {};
+
+  // Cache de blobs ja carregats: clau "vid|fxx" -> { url, ts }
+  var cache = {};
+  // Ordre d'ús per anar eliminant els més antics
+  var cacheOrdre = [];
+
+  // Precàrrega
+  var preloadActiva = false;
+  var preloadAcabada = false;
+  var preloadTotal = 0, preloadFets = 0;
+
+  // Doble buffer per pintar el mapa sense parpelleig
   var mapBufs = [mapImgA, mapImgB];
   var mapFront = 0, mapUrlActual = null, mapSeq = 0, mapShown = 0;
 
@@ -529,7 +588,45 @@
   }
   sidebarToggle.addEventListener("click", function(e){ e.stopPropagation(); toggleSidebar(); });
 
-  /* ───── Càrrega ───── */
+  /* ───── Càrrega d'imatges sota demanda ───── */
+  function urlDe(vid, fxx) {
+    // Retorna la URL pública del PNG (sense descarregar-lo encara)
+    var nom = index && index.fitxers[vid] && index.fitxers[vid][String(fxx)];
+    return nom ? (dirActual + nom) : null;
+  }
+
+  function guardarCache(clau, url, blobUrl) {
+    cache[clau] = { url: url, blob: blobUrl, ts: Date.now() };
+    var i = cacheOrdre.indexOf(clau);
+    if (i >= 0) cacheOrdre.splice(i, 1);
+    cacheOrdre.push(clau);
+    // Netegem si passem del límit
+    while (cacheOrdre.length > MAX_CACHE) {
+      var vell = cacheOrdre.shift();
+      if (cache[vell] && cache[vell].blob) URL.revokeObjectURL(cache[vell].blob);
+      delete cache[vell];
+    }
+  }
+
+  function obtenirImatge(vid, fxx) {
+    // Retorna una Promise<URL> — si ja està a cache, la retorna; si no, la descarrega
+    var clau = claID(vid, fxx);
+    if (cache[clau] && cache[clau].blob) return Promise.resolve(cache[clau].blob);
+
+    var url = urlDe(vid, fxx);
+    if (!url) return Promise.reject(new Error("No hi ha fitxer per a " + vid + " f" + fxx));
+
+    return fetch(url).then(function (r) {
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      return r.blob();
+    }).then(function (b) {
+      var blobUrl = URL.createObjectURL(b);
+      guardarCache(clau, url, blobUrl);
+      return blobUrl;
+    });
+  }
+
+  /* ───── Mostrar error inicial ───── */
   function mostrarError(msg) {
     loadError.innerHTML = msg;
     retryRow.innerHTML = "";
@@ -544,7 +641,7 @@
     var r = document.createElement("button");
     r.innerHTML = ICO_REFR + "Tornar-ho a provar";
     r.style.cssText = "display:inline-flex;align-items:center;gap:7px;background:var(--accent);border:1px solid var(--accent);border-radius:999px;padding:8px 16px;font-size:.8rem;font-weight:600;cursor:pointer;color:#fff";
-    r.onclick = function () { delete dades[regioActual]; canviarRegio(regioActual, true); };
+    r.onclick = function () { canviarRegio(regioActual, true); };
     retryRow.appendChild(r);
   }
 
@@ -555,68 +652,7 @@
     });
   }
 
-  function fetchBlobURL(dir, nom) {
-    return fetch(dir + nom).then(function (r) {
-      if (!r.ok) throw new Error("HTTP " + r.status);
-      return r.blob();
-    }).then(function (b) { return URL.createObjectURL(b); });
-  }
-
-  function precarregar(dir, idx, dest) {
-    var tasques = [];
-    idx.variables.forEach(function (v) {
-      var fv = idx.fitxers[v.id] || {};
-      idx.fxx.forEach(function (fxx) {
-        var nom = fv[String(fxx)];
-        if (nom) tasques.push({ vid: v.id, fxx: fxx, nom: nom });
-      });
-    });
-    var total = tasques.length, fets = 0, cursor = 0, errors = [];
-    loadCount.textContent = "0 / " + total;
-    barFill.style.width = "0%";
-    if (!total) return Promise.reject(new Error("El mapes.json de " + dir + " no conté cap fitxer."));
-
-    function seguent() {
-      if (cursor >= tasques.length) return Promise.resolve();
-      var t = tasques[cursor++];
-      return fetchBlobURL(dir, t.nom)
-        .then(function (u) { dest[claID(t.vid, t.fxx)] = u; })
-        .catch(function (e) { errors.push(t.nom + ": " + e.message); })
-        .then(function () {
-          fets++;
-          barFill.style.width = Math.round(fets / total * 100) + "%";
-          loadCount.textContent = fets + " / " + total;
-          return seguent();
-        });
-    }
-
-    // ── Aquí és on es decideix quants PNG es carreguen alhora ──
-    var w = [];
-    var treballadors = Math.min(CONCURRENCIA, tasques.length);
-    for (var i = 0; i < treballadors; i++) w.push(seguent());
-
-    return Promise.all(w).then(function () {
-      if (errors.length) console.warn("Errors de precàrrega:", errors);
-      predecodificar(dest);
-    });
-  }
-
-  var _pool = [];
-  function predecodificar(c) {
-    var urls = Object.keys(c).map(function (k) { return c[k]; });
-    var i = 0;
-    (function pas() {
-      // decodifiquem també en tandes grans per aprofitar la memòria cau
-      for (var n = 0; n < 20 && i < urls.length; n++, i++) {
-        var im = new Image(); im.decoding = "async"; im.src = urls[i];
-        if (im.decode) im.decode().then((function (u) { return function () { _decodificades[u] = true; }; })(urls[i]), function () {});
-        _pool.push(im);
-      }
-      if (i < urls.length) setTimeout(pas, 20);
-    })();
-  }
-
-  /* ───── Zona ───── */
+  /* ───── Canvi de zona ───── */
   function actualitzarBotonsRegio() {
     regionSelector.querySelectorAll("button").forEach(function (b) {
       b.classList.toggle("current", b.dataset.region === regioActual);
@@ -628,9 +664,16 @@
     regioActual = clau;
     actualitzarBotonsRegio();
     var dir = REGIONS[clau].dir;
+    dirActual = dir;
 
+    // Aturem qualsevol precàrrega en curs
+    preloadActiva = false;
+    preloadAcabada = false;
+    preloadTotal = 0; preloadFets = 0;
+
+    // Si ja teníem l'índex carregat, no cal tornar a descarregar res
     if (dades[clau] && !forcar) {
-      index = dades[clau].index; cache = dades[clau].cache;
+      index = dades[clau];
       arrencarVisor();
       return;
     }
@@ -644,13 +687,11 @@
       if (!idx || !idx.variables || !idx.variables.length || !idx.fxx || !idx.fxx.length) {
         throw new Error("El mapes.json no té l'estructura esperada (variables/fxx).");
       }
-      var c = {};
+      dades[clau] = idx;
+      index = idx;
       runInfo.textContent = REGIONS[clau].nom + " · Run " + (idx.run_label || idx.run || "");
-      return precarregar(dir, idx, c).then(function () {
-        dades[clau] = { index: idx, cache: c };
-        index = idx; cache = c;
-        arrencarVisor();
-      });
+      // Ja no esperem a cap PNG: entrem directament al visor
+      arrencarVisor();
     }).catch(function (e) {
       console.error(e);
       var msg = "No s'ha pogut carregar «" + REGIONS[clau].nom + "»:<br><span style='font-size:.82rem;opacity:.8'>" + e.message + "</span>";
@@ -673,6 +714,7 @@
       configurarSlider();
       construirBotonsSalt();
       construirBotonsVelocitat();
+      actualitzarBotoPrecarrega();
       var nou = fxxList.indexOf(anterior); if (nou < 0) nou = 0;
       mostrarPas(nou);
 
@@ -693,21 +735,19 @@
       var teAlgunMapa = fxxList.some(function(f){
         return index.fitxers[v.id] && index.fitxers[v.id][String(f)] !== undefined;
       });
-      if (!teAlgunMapa) return; // no afegim variables sense cap mapa
+      if (!teAlgunMapa) return;
       var o = document.createElement("option");
       o.value = v.id; o.textContent = v.nom;
       if (!primeraDisponible) primeraDisponible = v.id;
       varSelect.appendChild(o);
     });
 
-    // Si l'actual no està disponible, triem la primera que sí ho estigui
     var teActual = varSelect.querySelector('option[value="' + vidActual + '"]');
     if (!teActual) {
       vidActual = primeraDisponible || (index.variables[0] ? index.variables[0].id : "temp500");
     }
     varSelect.value = vidActual;
 
-    // Assegurem que només hi hagi un handler (evita duplicats)
     varSelect.onchange = function () {
       vidActual = varSelect.value;
       actualitzarMapa();
@@ -725,7 +765,7 @@
     return -1;
   }
 
-  /* Doble buffer */
+  /* ───── Doble buffer per pintar ───── */
   function ensenyarMapa(url) {
     if (mapUrlActual === url) return;
     var mySeq = ++mapSeq;
@@ -734,28 +774,60 @@
     function commit() {
       if (mySeq < mapShown) return;
       mapShown = mySeq;
-      _decodificades[url] = true;
       back.classList.add("on");
       front.classList.remove("on");
       mapFront = 1 - mapFront;
       mapUrlActual = url;
     }
     back.src = url;
-    if (_decodificades[url]) { commit(); return; }
     if (back.decode) back.decode().then(commit, commit);
     else if (back.complete) commit();
     else { back.onload = commit; back.onerror = commit; }
   }
 
+  /* ───── Actualitzar mapa (sota demanda) ───── */
+  var _carregantMapa = null;
   function actualitzarMapa() {
     if (!index) return;
     var i = fxxDisponibleMesProper(vidActual, currentFxxIdx);
-    if (i < 0) { mapWrap.classList.add("empty"); stepLabel.textContent = ""; return; }
-    var f = fxxList[i], url = cache[claID(vidActual, f)];
-    if (!url) { mapWrap.classList.add("empty"); return; }
+    if (i < 0) {
+      mapWrap.classList.add("empty");
+      stepLabel.textContent = "";
+      return;
+    }
+    var f = fxxList[i];
+    var clau = claID(vidActual, f);
+
+    // Si ja està a cache, pintem directament
+    if (cache[clau] && cache[clau].blob) {
+      mapWrap.classList.remove("empty");
+      mapWrap.classList.remove("loading");
+      ensenyarMapa(cache[clau].blob);
+      stepLabel.textContent = "F" + String(f).padStart(3, "0") + (i !== currentFxxIdx ? " (més proper)" : "");
+      return;
+    }
+
+    // Sinó, mostrem l'spinner i descarreguem només aquesta
     mapWrap.classList.remove("empty");
-    ensenyarMapa(url);
-    stepLabel.textContent = "F" + String(f).padStart(3, "0") + (i !== currentFxxIdx ? " (més proper)" : "");
+    mapWrap.classList.add("loading");
+    stepLabel.textContent = "F" + String(f).padStart(3, "0");
+
+    // Evitem descarregar la mateixa dues vegades seguides
+    if (_carregantMapa === clau) return;
+    _carregantMapa = clau;
+
+    obtenirImatge(vidActual, f).then(function (blobUrl) {
+      if (_carregantMapa !== clau) return; // l'usuari ja ha canviat
+      _carregantMapa = null;
+      mapWrap.classList.remove("loading");
+      ensenyarMapa(blobUrl);
+      stepLabel.textContent = "F" + String(f).padStart(3, "0") + (i !== currentFxxIdx ? " (més proper)" : "");
+    }).catch(function (e) {
+      if (_carregantMapa === clau) _carregantMapa = null;
+      console.warn("Error carregant mapa:", e);
+      mapWrap.classList.remove("loading");
+      mapWrap.classList.add("empty");
+    });
   }
 
   /* ───── Controls ───── */
@@ -840,6 +912,97 @@
     }, VELOCITATS[velocitatActualIdx].ms);
   }
   function alternar() { playTimer ? aturarReproduccio() : iniciarReproduccio(); }
+
+  /* ───── Precàrrega en segon pla ───── */
+  function actualitzarBotoPrecarrega() {
+    if (preloadAcabada) {
+      preloadBtn.classList.add("done");
+      preloadBtn.disabled = true;
+      preloadText.textContent = "Tots els mapes precarregats";
+      preloadBtn.querySelector("svg").outerHTML = ICO_CHECK;
+      preloadBar.style.width = "100%";
+    } else if (preloadActiva) {
+      preloadBtn.disabled = true;
+      preloadText.textContent = "Precarregant " + preloadFets + "/" + preloadTotal;
+      var pct = preloadTotal ? Math.round(preloadFets / preloadTotal * 100) : 0;
+      preloadBar.style.width = pct + "%";
+    } else {
+      preloadBtn.disabled = false;
+      preloadText.textContent = "Precarregar tots els mapes";
+      preloadBar.style.width = "0%";
+    }
+  }
+
+  function iniciarPrecarrega() {
+    if (preloadActiva || preloadAcabada || !index) return;
+
+    // Construïm la llista de tasques pendents
+    var tasques = [];
+    index.variables.forEach(function (v) {
+      var fv = index.fitxers[v.id] || {};
+      index.fxx.forEach(function (fxx) {
+        var nom = fv[String(fxx)];
+        if (nom) {
+          var clau = claID(v.id, fxx);
+          if (!cache[clau] || !cache[clau].blob) {
+            tasques.push({ vid: v.id, fxx: fxx, nom: nom, clau: clau });
+          }
+        }
+      });
+    });
+
+    preloadTotal = tasques.length;
+    preloadFets = 0;
+
+    if (!preloadTotal) {
+      preloadAcabada = true;
+      actualitzarBotoPrecarrega();
+      return;
+    }
+
+    preloadActiva = true;
+    actualitzarBotoPrecarrega();
+
+    var cursor = 0;
+    var errors = 0;
+
+    function seguent() {
+      if (!preloadActiva) return Promise.resolve();
+      if (cursor >= tasques.length) return Promise.resolve();
+      var t = tasques[cursor++];
+      return fetch(dirActual + t.nom).then(function (r) {
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return r.blob();
+      }).then(function (b) {
+        var blobUrl = URL.createObjectURL(b);
+        guardarCache(t.clau, dirActual + t.nom, blobUrl);
+      }).catch(function (e) {
+        errors++;
+        console.warn("Error precarregant " + t.nom + ":", e.message);
+      }).then(function () {
+        preloadFets++;
+        // Actualitzem la UI cada 5 fitxers per no ofegar el navegador
+        if (preloadFets % 5 === 0 || preloadFets === preloadTotal) {
+          actualitzarBotoPrecarrega();
+        }
+        return seguent();
+      });
+    }
+
+    var w = [];
+    var treballadors = Math.min(CONCURRENCIA, tasques.length);
+    for (var i = 0; i < treballadors; i++) w.push(seguent());
+
+    Promise.all(w).then(function () {
+      preloadActiva = false;
+      preloadAcabada = true;
+      actualitzarBotoPrecarrega();
+      if (errors) console.warn("Precàrrega acabada amb " + errors + " errors.");
+      else console.log("Precàrrega completada: " + preloadFets + " mapes.");
+    });
+  }
+
+  preloadBtn.addEventListener("click", iniciarPrecarrega);
 
   /* ───── Esdeveniments ───── */
   function events() {

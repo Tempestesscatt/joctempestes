@@ -10,14 +10,13 @@ permissions:
   contents: write
   deployments: write
 
-# Mateix grup que l'altre workflow: s'encuen en lloc de trepitjar-se
 concurrency:
   group: deploy-data
   cancel-in-progress: false
 
 jobs:
   # ════════════════════════════════════════════════════════════════
-  #  JOB: GFSMAP - Genera els mapes GFS (NO desplega)
+  #  GFSMAP
   # ════════════════════════════════════════════════════════════════
   gfsmap:
     runs-on: ubuntu-latest
@@ -44,36 +43,35 @@ jobs:
         python3 -m pip install numpy requests matplotlib scipy
         python3 -m pip install herbie-data xarray cfgrib eccodes
         python3 -m pip install shapely pyproj cartopy metpy
-      continue-on-error: true
 
-    - name: Crear carpeta gfsmaps
+    - name: Crear carpeta de sortida (buida)
       run: |
-        mkdir -p meu-mapa/public/gfsmaps
-        echo "Carpeta gfsmaps creada"
+        rm -rf "$GITHUB_WORKSPACE/meu-mapa/public/gfsmaps"
+        mkdir -p "$GITHUB_WORKSPACE/meu-mapa/public/gfsmaps"
 
     - name: Executar gfsmap.py
       run: |
         cd private-scripts-new
-        echo "--- gfsmap.py: inici ---"
         echo "Hora d'inici: $(date)"
-        python3 gfsmap.py 2>&1 | tee gfsmap.log
+        python3 gfsmap.py --out-dir "$GITHUB_WORKSPACE/meu-mapa/public/gfsmaps" 2>&1 | tee gfsmap.log
         echo "Hora de final: $(date)"
-        echo "✅ gfsmap.py: completat"
       timeout-minutes: 300
 
     - name: Mostrar log si falla
       if: failure()
-      run: |
-        echo "=== LOG DE GFSMAP.PY ==="
-        cat private-scripts-new/gfsmap.log 2>/dev/null || echo "No s'ha trobat cap log"
+      run: cat private-scripts-new/gfsmap.log 2>/dev/null || echo "No hi ha log"
 
-    - name: Verificar fitxers generats
+    - name: Verificar fitxers generats (falla si n'hi ha 0)
       run: |
-        echo "=== Fitxers generats a gfsmaps/ ==="
-        ls -la meu-mapa/public/gfsmaps/ 2>/dev/null || echo "No hi ha fitxers"
-        echo ""
-        echo "=== Comptant imatges PNG ==="
-        find meu-mapa/public/gfsmaps/ -name "*.png" -type f | wc -l
+        DIR="$GITHUB_WORKSPACE/meu-mapa/public/gfsmaps"
+        N=$(find "$DIR" -name "*.png" -type f | wc -l)
+        echo "PNG generats: $N"
+        ls "$DIR" | head -5
+        if [ "$N" -lt 10 ]; then
+          echo "❌ Massa pocs PNG ($N). Es marca el job com a fallit."
+          exit 1
+        fi
+        [ -f "$DIR/mapes.json" ] && echo "✅ mapes.json OK" || { echo "❌ Falta mapes.json"; exit 1; }
 
     - name: Pujar GFSMAP com a artifact
       uses: actions/upload-artifact@v4
@@ -81,9 +79,10 @@ jobs:
         name: dades-gfsmap
         path: meu-mapa/public/gfsmaps/
         retention-days: 5
+        if-no-files-found: error
 
   # ════════════════════════════════════════════════════════════════
-  #  JOB: GFSNE - Genera els mapes GFS NE (NO desplega)
+  #  GFSNE
   # ════════════════════════════════════════════════════════════════
   gfsne:
     runs-on: ubuntu-latest
@@ -110,36 +109,35 @@ jobs:
         python3 -m pip install numpy requests matplotlib scipy
         python3 -m pip install herbie-data xarray cfgrib eccodes
         python3 -m pip install shapely pyproj cartopy metpy
-      continue-on-error: true
 
-    - name: Crear carpeta gfsESPmaps
+    - name: Crear carpeta de sortida (buida)
       run: |
-        mkdir -p meu-mapa/public/gfsESPmaps
-        echo "Carpeta gfsESPmaps creada"
+        rm -rf "$GITHUB_WORKSPACE/meu-mapa/public/gfsESPmaps"
+        mkdir -p "$GITHUB_WORKSPACE/meu-mapa/public/gfsESPmaps"
 
     - name: Executar gfsNE.py
       run: |
         cd private-scripts-new
-        echo "--- gfsNE.py: inici ---"
         echo "Hora d'inici: $(date)"
-        python3 gfsNE.py 2>&1 | tee gfsNE.log
+        python3 gfsNE.py --out-dir "$GITHUB_WORKSPACE/meu-mapa/public/gfsESPmaps" 2>&1 | tee gfsNE.log
         echo "Hora de final: $(date)"
-        echo "✅ gfsNE.py: completat"
       timeout-minutes: 300
 
     - name: Mostrar log si falla
       if: failure()
-      run: |
-        echo "=== LOG DE GFSNE.PY ==="
-        cat private-scripts-new/gfsNE.log 2>/dev/null || echo "No s'ha trobat cap log"
+      run: cat private-scripts-new/gfsNE.log 2>/dev/null || echo "No hi ha log"
 
-    - name: Verificar fitxers generats
+    - name: Verificar fitxers generats (falla si n'hi ha 0)
       run: |
-        echo "=== Fitxers generats a gfsESPmaps/ ==="
-        ls -la meu-mapa/public/gfsESPmaps/ 2>/dev/null || echo "No hi ha fitxers"
-        echo ""
-        echo "=== Comptant imatges PNG ==="
-        find meu-mapa/public/gfsESPmaps/ -name "*.png" -type f | wc -l
+        DIR="$GITHUB_WORKSPACE/meu-mapa/public/gfsESPmaps"
+        N=$(find "$DIR" -name "*.png" -type f | wc -l)
+        echo "PNG generats: $N"
+        ls "$DIR" | head -5
+        if [ "$N" -lt 10 ]; then
+          echo "❌ Massa pocs PNG ($N). Es marca el job com a fallit."
+          exit 1
+        fi
+        [ -f "$DIR/mapes.json" ] && echo "✅ mapes.json OK" || { echo "❌ Falta mapes.json"; exit 1; }
 
     - name: Pujar GFSNE com a artifact
       uses: actions/upload-artifact@v4
@@ -147,9 +145,10 @@ jobs:
         name: dades-gfsne
         path: meu-mapa/public/gfsESPmaps/
         retention-days: 5
+        if-no-files-found: error
 
   # ════════════════════════════════════════════════════════════════
-  #  JOB: ENSEMBLES - Genera els gràfics d'ensembles (NO desplega)
+  #  ENSEMBLES
   # ════════════════════════════════════════════════════════════════
   ensembles:
     runs-on: ubuntu-latest
@@ -176,36 +175,31 @@ jobs:
         python3 -m pip install numpy requests matplotlib scipy
         python3 -m pip install herbie-data xarray cfgrib eccodes
         python3 -m pip install shapely pyproj
-      continue-on-error: true
 
     - name: Crear carpeta previsions_catalunya
-      run: |
-        mkdir -p meu-mapa/public/previsions_catalunya
-        echo "Carpeta previsions_catalunya creada"
+      run: mkdir -p "$GITHUB_WORKSPACE/meu-mapa/public/previsions_catalunya"
 
     - name: Executar enssambles.py
       run: |
         cd private-scripts-new
-        echo "--- enssambles.py: inici ---"
         echo "Hora d'inici: $(date)"
         python3 enssambles.py 2>&1 | tee ensembles.log
         echo "Hora de final: $(date)"
-        echo "✅ enssambles.py: completat"
       timeout-minutes: 300
 
     - name: Mostrar log si falla
       if: failure()
-      run: |
-        echo "=== LOG DE ENSSAMBLES.PY ==="
-        cat private-scripts-new/ensembles.log 2>/dev/null || echo "No s'ha trobat cap log"
+      run: cat private-scripts-new/ensembles.log 2>/dev/null || echo "No hi ha log"
 
     - name: Verificar fitxers generats
       run: |
-        echo "=== Fitxers generats a previsions_catalunya/ ==="
-        ls -la meu-mapa/public/previsions_catalunya/ 2>/dev/null || echo "No hi ha fitxers"
-        echo ""
-        echo "=== Comptant imatges PNG ==="
-        find meu-mapa/public/previsions_catalunya/ -name "*.png" -type f | wc -l
+        DIR="$GITHUB_WORKSPACE/meu-mapa/public/previsions_catalunya"
+        N=$(find "$DIR" -name "*.png" -type f | wc -l)
+        echo "PNG generats: $N"
+        if [ "$N" -lt 1 ]; then
+          echo "❌ Cap PNG d'ensembles. Es marca el job com a fallit."
+          exit 1
+        fi
 
     - name: Pujar ENSEMBLES com a artifact
       uses: actions/upload-artifact@v4
@@ -213,10 +207,10 @@ jobs:
         name: dades-ensembles
         path: meu-mapa/public/previsions_catalunya/
         retention-days: 5
+        if-no-files-found: error
 
   # ════════════════════════════════════════════════════════════════
-  #  JOB FINAL: deploy - Junta GFSMAP + GFSNE + ENSEMBLES + dades
-  #  del mapa i fa un ÚNIC deploy a Cloudflare
+  #  DEPLOY ÚNIC
   # ════════════════════════════════════════════════════════════════
   deploy:
     needs: [gfsmap, gfsne, ensembles]
@@ -229,36 +223,33 @@ jobs:
         token: ${{ secrets.PRIVATE_REPO_TOKEN }}
         fetch-depth: 0
 
-    - name: Comprovar resultat dels jobs anteriors
+    - name: Resultat dels jobs anteriors
       run: |
-        FALLITS=""
-        if [ "${{ needs.gfsmap.result }}" != "success" ]; then FALLITS="$FALLITS gfsmap"; fi
-        if [ "${{ needs.gfsne.result }}" != "success" ]; then FALLITS="$FALLITS gfsne"; fi
-        if [ "${{ needs.ensembles.result }}" != "success" ]; then FALLITS="$FALLITS ensembles"; fi
-        if [ -n "$FALLITS" ]; then
-          echo "⚠️  ATENCIÓ: Jobs que NO han acabat en èxit:$FALLITS (es continua igualment amb el que hi hagi)"
-        else
-          echo "✅ Tots els jobs han acabat en èxit"
-        fi
+        echo "gfsmap:    ${{ needs.gfsmap.result }}"
+        echo "gfsne:     ${{ needs.gfsne.result }}"
+        echo "ensembles: ${{ needs.ensembles.result }}"
 
-    # ── Recuperar TOT el que hi ha a la branca 'data' (mapa + gfsmaps + gfsESPmaps + previsions) ──
-    #    Es fa ABANS de baixar els artifacts, perquè les dades fresques d'aquest
-    #    workflow sobreescriguin les de 'data', i si un job falla es conservi l'anterior.
+    # 1) Base: tot el que hi ha a la branca 'data' (com a còpia de seguretat)
     - name: 📥 Recuperar dades de la branca 'data'
       run: |
         git fetch origin data
         rm -rf /tmp/data-branch
         git worktree add /tmp/data-branch origin/data
-        mkdir -p meu-mapa/public/web_data_NE meu-mapa/public/webdata_waves meu-mapa/public/js meu-mapa/public/gfsmaps meu-mapa/public/gfsESPmaps meu-mapa/public/previsions_catalunya
-        cp -r /tmp/data-branch/web_data_NE/. meu-mapa/public/web_data_NE/ 2>/dev/null || echo "⚠️  web_data_NE no trobat a la branca data"
-        cp -r /tmp/data-branch/webdata_waves/. meu-mapa/public/webdata_waves/ 2>/dev/null || echo "⚠️  webdata_waves no trobat a la branca data"
-        cp /tmp/data-branch/js/status.js meu-mapa/public/js/status.js 2>/dev/null || echo "⚠️  status.js no trobat a la branca data"
-        cp -r /tmp/data-branch/gfsmaps/. meu-mapa/public/gfsmaps/ 2>/dev/null || echo "⚠️  gfsmaps no trobat a la branca data (primera execució?)"
-        cp -r /tmp/data-branch/gfsESPmaps/. meu-mapa/public/gfsESPmaps/ 2>/dev/null || echo "⚠️  gfsESPmaps no trobat a la branca data (primera execució?)"
-        cp -r /tmp/data-branch/previsions_catalunya/. meu-mapa/public/previsions_catalunya/ 2>/dev/null || echo "⚠️  previsions_catalunya no trobat a la branca data (primera execució?)"
+        P=meu-mapa/public
+        mkdir -p $P/web_data_NE $P/webdata_waves $P/js $P/gfsmaps $P/gfsESPmaps $P/previsions_catalunya
+        cp -r /tmp/data-branch/web_data_NE/. $P/web_data_NE/ 2>/dev/null || echo "⚠️ web_data_NE no trobat"
+        cp -r /tmp/data-branch/webdata_waves/. $P/webdata_waves/ 2>/dev/null || echo "⚠️ webdata_waves no trobat"
+        cp /tmp/data-branch/js/status.js $P/js/status.js 2>/dev/null || echo "⚠️ status.js no trobat"
+        cp -r /tmp/data-branch/gfsmaps/. $P/gfsmaps/ 2>/dev/null || echo "⚠️ gfsmaps no trobat a data"
+        cp -r /tmp/data-branch/gfsESPmaps/. $P/gfsESPmaps/ 2>/dev/null || echo "⚠️ gfsESPmaps no trobat a data"
+        cp -r /tmp/data-branch/previsions_catalunya/. $P/previsions_catalunya/ 2>/dev/null || echo "⚠️ previsions_catalunya no trobat a data"
         git worktree remove /tmp/data-branch --force
-        echo "✅ Dades de la branca 'data' aplicades sobre el checkout"
       continue-on-error: true
+
+    # 2) Si el job ha anat bé: ESBORRAR els vells i posar només els nous
+    - name: Netejar carpeta vella - GFSMAP
+      if: needs.gfsmap.result == 'success'
+      run: rm -rf meu-mapa/public/gfsmaps && mkdir -p meu-mapa/public/gfsmaps
 
     - name: Descarregar artifact - GFSMAP
       if: needs.gfsmap.result == 'success'
@@ -266,7 +257,10 @@ jobs:
       with:
         name: dades-gfsmap
         path: meu-mapa/public/gfsmaps/
-      continue-on-error: true
+
+    - name: Netejar carpeta vella - GFSNE
+      if: needs.gfsne.result == 'success'
+      run: rm -rf meu-mapa/public/gfsESPmaps && mkdir -p meu-mapa/public/gfsESPmaps
 
     - name: Descarregar artifact - GFSNE
       if: needs.gfsne.result == 'success'
@@ -274,7 +268,10 @@ jobs:
       with:
         name: dades-gfsne
         path: meu-mapa/public/gfsESPmaps/
-      continue-on-error: true
+
+    - name: Netejar carpeta vella - ENSEMBLES
+      if: needs.ensembles.result == 'success'
+      run: rm -rf meu-mapa/public/previsions_catalunya && mkdir -p meu-mapa/public/previsions_catalunya
 
     - name: Descarregar artifact - ENSEMBLES
       if: needs.ensembles.result == 'success'
@@ -282,26 +279,18 @@ jobs:
       with:
         name: dades-ensembles
         path: meu-mapa/public/previsions_catalunya/
-      continue-on-error: true
 
     - name: Resum abans del deploy
       run: |
-        echo "📊 RESUM:"
-        echo "--- gfsmaps/ ---"
-        find meu-mapa/public/gfsmaps/ -name "*.png" -type f 2>/dev/null | wc -l || echo "buit"
-        echo "--- gfsESPmaps/ ---"
-        find meu-mapa/public/gfsESPmaps/ -name "*.png" -type f 2>/dev/null | wc -l || echo "buit"
-        echo "--- previsions_catalunya/ ---"
-        find meu-mapa/public/previsions_catalunya/ -name "*.png" -type f 2>/dev/null | wc -l || echo "buit"
-        echo "--- web_data_NE ---"
-        find meu-mapa/public/web_data_NE -type f 2>/dev/null | wc -l || echo "buit"
-        echo "--- webdata_waves ---"
-        find meu-mapa/public/webdata_waves -type f 2>/dev/null | wc -l || echo "buit"
-        echo "--- status.js ---"
-        ls -la meu-mapa/public/js/status.js 2>/dev/null || echo "No existeix"
-        echo "📦 TOTAL: $(find meu-mapa/public -type f 2>/dev/null | wc -l) fitxers"
+        P=meu-mapa/public
+        for d in gfsmaps gfsESPmaps previsions_catalunya; do
+          echo "--- $d: $(find $P/$d -name '*.png' -type f 2>/dev/null | wc -l) PNG ---"
+        done
+        echo "Run publicat GFS:    $(grep -o '"run": *"[^"]*"' $P/gfsmaps/mapes.json 2>/dev/null | head -1)"
+        echo "Run publicat GFS NE: $(grep -o '"run": *"[^"]*"' $P/gfsESPmaps/mapes.json 2>/dev/null | head -1)"
+        echo "TOTAL: $(find $P -type f | wc -l) fitxers"
 
-    - name: Deploy a Cloudflare (ÚNIC, amb tot junt)
+    - name: Deploy a Cloudflare
       run: |
         cd meu-mapa
         npm install -g wrangler
@@ -310,45 +299,27 @@ jobs:
         CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
-    # ── NOU: publicar a 'data' el que s'ha generat, preservant la resta ──
-    - name: 📤 Publicar dades a la branca 'data' (force-push, sense historial)
+    - name: 📤 Publicar dades a la branca 'data'
       run: |
         cd meu-mapa/public
-        mkdir -p web_data_NE webdata_waves js gfsmaps gfsESPmaps previsions_catalunya
         rm -rf .git
         git init -q
         git checkout -q -b data
-
         AFEGIT=0
         for carpeta in web_data_NE webdata_waves gfsmaps gfsESPmaps previsions_catalunya; do
           if [ -n "$(find "$carpeta" -type f 2>/dev/null)" ]; then
-            git add "$carpeta"
-            AFEGIT=1
-          else
-            echo "⚠️  $carpeta buida o inexistent, s'omet"
+            git add "$carpeta"; AFEGIT=1
           fi
         done
-        if [ -f js/status.js ]; then
-          git add js/status.js
-          AFEGIT=1
-        else
-          echo "⚠️  js/status.js no existeix, s'omet"
-        fi
-
+        [ -f js/status.js ] && { git add js/status.js; AFEGIT=1; }
         if [ "$AFEGIT" = "1" ]; then
           git -c user.name="bot-dades" -c user.email="bot@tempestes-cat" commit -q -m "gfs+ensembles $(date -u +'%Y-%m-%d %H:%M UTC')"
           git push --force "https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/Tempestesscatt/joctempestes.git" data
-          echo "✅ Dades publicades a la branca 'data'"
+          echo "✅ Publicat a 'data'"
         else
-          echo "❌ Cap dada disponible per publicar, s'omet el push"
+          echo "❌ Res a publicar"
         fi
       continue-on-error: true
 
     - name: Completat
-      run: |
-        echo "============================================"
-        echo "  ✅ GFS + ENSEMBLES COMPLETAT!"
-        echo "  Un únic deploy amb tots els fitxers junts"
-        echo "  Dades publicades a la branca 'data' (mapa + gfs + previsions)"
-        echo "  Hora: $(date)"
-        echo "============================================"
+      run: echo "✅ Deploy completat $(date)"
