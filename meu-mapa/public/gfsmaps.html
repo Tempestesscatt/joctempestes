@@ -453,6 +453,10 @@
 (function () {
   "use strict";
 
+  /* ───── Configuració de càrrega ───── */
+  // Nombre de PNG que es descarreguen simultàniament
+  var CONCURRENCIA = 450;
+
   /* ───── Zones ───── */
   var REGIONS = {
     esp: { nom: "Península Ibèrica", dir: "gfsESPmaps/" },
@@ -585,7 +589,12 @@
           return seguent();
         });
     }
-    var w = []; for (var i = 0; i < 6; i++) w.push(seguent());
+
+    // ── Aquí és on es decideix quants PNG es carreguen alhora ──
+    var w = [];
+    var treballadors = Math.min(CONCURRENCIA, tasques.length);
+    for (var i = 0; i < treballadors; i++) w.push(seguent());
+
     return Promise.all(w).then(function () {
       if (errors.length) console.warn("Errors de precàrrega:", errors);
       predecodificar(dest);
@@ -597,12 +606,13 @@
     var urls = Object.keys(c).map(function (k) { return c[k]; });
     var i = 0;
     (function pas() {
-      for (var n = 0; n < 4 && i < urls.length; n++, i++) {
+      // decodifiquem també en tandes grans per aprofitar la memòria cau
+      for (var n = 0; n < 20 && i < urls.length; n++, i++) {
         var im = new Image(); im.decoding = "async"; im.src = urls[i];
         if (im.decode) im.decode().then((function (u) { return function () { _decodificades[u] = true; }; })(urls[i]), function () {});
         _pool.push(im);
       }
-      if (i < urls.length) setTimeout(pas, 30);
+      if (i < urls.length) setTimeout(pas, 20);
     })();
   }
 
@@ -675,7 +685,7 @@
     }
   }
 
-  /* ───── Selector de variable (CORREGIT) ───── */
+  /* ───── Selector de variable ───── */
   function construirSelectorVariable() {
     varSelect.innerHTML = "";
     var primeraDisponible = null;
