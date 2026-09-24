@@ -2186,7 +2186,7 @@ QUI SOM - Estils
             <!-- Botó d'idioma -->
 <button class="topbar-icon" id="btnIdioma" onclick="canviarIdioma(this.getAttribute('data-idioma'))" data-idioma="es" style="cursor:pointer;background:none;border:none;color:#8aa3be;font-size:13px;font-weight:600;padding:6px 12px;border-radius:30px;display:flex;align-items:center;gap:6px;">
     <i class="fa-solid fa-language"></i>
-    <span> Castellano</span>
+  
 
 
     
@@ -2234,11 +2234,20 @@ QUI SOM - Estils
                     <span class="side-desc">Alta resolució 1.3km, nivells, skew-T i convecció.</span>
                 </div>
             </a>
+
+
+                      <a href="gfsmaps.html" class="side-card">
+               
+                <div class="side-info">
+                    <span class="side-name">GFS per a llarg plaç - 16 dies</span>
+                    <span class="side-desc">Mapes sinòptics de temperatura, pressió, precipitació, vent, CAPE i geopotencial.</span>
+                </div>
+            </a>
             <a href="previsions.html" class="side-card">
                
                 <div class="side-info">
                     <span class="side-name">Previsions (Ensembles)</span>
-                    <span class="side-desc">Escenaris i models de reforç a curt termini.</span>
+                    <span class="side-desc">Escenaris i models de reforç.</span>
                 </div>
             </a>
    
@@ -2585,6 +2594,7 @@ VISOR AROME - Accés directe al visor
                         <span>Detecta tempestes</span>
                     </div>
                 </div>
+                
                 <div class="visor-actions">
                     <a href="selector.html" class="btn-visor">
                         <i class="fa-solid fa-arrow-right"></i> 
@@ -2679,6 +2689,76 @@ VISOR AROME - Accés directe al visor
     </div>
 </div>
 
+
+<div class="sec" id="models">
+    <div class="sec-head">
+        <div class="sec-head-left">
+            <h2><i class=""></i> </h2>
+            <span class="sec-badge" style="background:#f5c842;color:#152c44;">
+                <i class=""></i> A llarg plaç..
+            </span>
+        </div>
+   
+        </a>
+    </div>
+
+    <div class="visor-card">
+        <div class="visor-content">
+            <div class="visor-left">
+                <div class="visor-badge">
+                    <i class=""></i> 
+                    <span>GFS</span>
+                </div>
+                <h3 class="visor-title">Visor GFS </h3>
+             <p class="visor-desc">
+    El visor GFS mostra les previsions del model global de la NOAA amb una resolució
+    espacial de <strong>0.25°</strong> (aproximadament <strong>25 quilòmetres</strong>)
+    i un horitzó de previsió de fins a <strong>384 hores</strong> (16 dies). Permet
+    consultar mapes sinòptics de temperatura, pressió, precipitació, vent, CAPE i
+    geopotencial, amb actualitzacions <strong>4 vegades al dia</strong> (00, 06, 12 i 18 UTC).
+</p>
+                <p class="visor-desc" style="margin-top:10px;">
+                    Amb el radar pots:
+                </p>
+                <ul class="visor-features" style="list-style:none;padding:0;margin:10px 0;display:flex;flex-direction:column;gap:8px;">
+                    <li style="display:flex;align-items:center;gap:8px;">
+                        <i class="fa-solid fa-cloud-showers-heavy" style="color:#0058EE;"></i>
+                        <span><strong>Seguir events</strong> com futures DANES</span>
+                    </li>
+                    <li style="display:flex;align-items:center;gap:8px;">
+                        <i class="fa-solid fa-wind" style="color:#0058EE;"></i>
+                        <span><strong>Detectar vents en altura</strong> </span>
+                    </li>
+                    <li style="display:flex;align-items:center;gap:8px;">
+                        <i class="fa-solid fa-map-location-dot" style="color:#0058EE;"></i>
+                        <span><strong>Visualitzar aire fred en altura fàcilment</strong></span>
+                    </li>
+                    <li style="display:flex;align-items:center;gap:8px;">
+                        <i class="fa-solid fa-clock-rotate-left" style="color:#0058EE;"></i>
+                        <span><strong>Consultar a a llarg plaç</strong> amb l'animació</span>
+                    </li>
+                </ul>
+                <div class="visor-actions">
+                    <a href="gfsmaps.html" class="btn-visor">
+                        <i class="fa-solid fa-arrow-right"></i> 
+                        Entrar al mapa GFS (16 dies)
+                        <span style="font-size:12px;font-weight:400;opacity:0.7;"></span>
+                    </a>
+                </div>
+            </div>
+            <div class="visor-right">
+                <div class="visor-preview">
+                    
+                        <img src="img/gfsmap.jpg" alt="Radar meteorològic en viu" onerror="this.parentElement.innerHTML='<div style=\'display:flex;align-items:center;justify-content:center;height:100%;background:linear-gradient(135deg,#152c44,#1e3a5f);color:#f5c842;font-size:14px;text-align:center;padding:20px;\'><i class=\'fa-solid fa-satellite-dish\' style=\'font-size:48px;display:block;margin-bottom:12px;\'></i>Radar no disponible</div>'">
+                        <div class="visor-preview-badge">
+                            <i class="fa-solid fa-play"></i> Animats
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 
@@ -4023,7 +4103,7 @@ CONTACTE (amb EmailJS)
 
 <script src="js/xat-index.js"></script>
 <script src="avis/avis.js"></script>
-<script src="js/index/traduccions.js"></script>
+
 <script src="js/hero-rain.js"></script>
 
 

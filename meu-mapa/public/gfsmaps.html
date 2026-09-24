@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mapes GFS · Tempestes.cat</title>
+<link rel="icon" type="image/png" href="img/favicon.png" />
+<link rel="icon" href="/favicon.ico" sizes="any" />
+<style>
+  :root {
+    --bg: #eef2f6;
+    --panel: #ffffff;
+    --panel2: #f5f8fb;
+    --line: #dde5ee;
+    --line2: #c9d5e2;
+    --text: #13202c;
+    --muted: #64768a;
+    --accent: #1f7ae0;
+    --accent-d: #1861b5;
+    --accent2: #10b48a;
+    --danger: #d64550;
+    --radius: 14px;
+    --shadow: 0 1px 2px rgba(20,40,60,.05), 0 6px 22px rgba(20,40,60,.10);
+    --sidebar-w: 280px;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+  }
+  button, select { font-family: inherit; }
+  button { -webkit-tap-highlight-color: transparent; }
+
+  /* ───── Icones ───── */
+  .ico { width: 1.05em; height: 1.05em; flex-shrink: 0; }
+  .logo {
+    width: 36px; height: 36px; border-radius: 11px; flex-shrink: 0;
+    background: linear-gradient(140deg, var(--accent), var(--accent2));
+    display: grid; place-items: center; box-shadow: 0 4px 12px rgba(31,122,224,.28);
+    overflow: hidden;
+  }
+  .logo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .rmap {
+    width: 32px; height: 24px; border-radius: 5px; flex-shrink: 0; display: block;
+    box-shadow: 0 0 0 1px rgba(20,40,60,.15);
+  }
+
+  /* ───── Càrrega ───── */
+  #loading {
+    position: fixed; inset: 0; z-index: 50; background: var(--bg);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 16px; padding: 24px; text-align: center;
+  }
+  #loading .logo { width: 60px; height: 60px; border-radius: 17px; }
+  #loading h1 { font-size: 1.2rem; font-weight: 750; margin: 4px 0 0; letter-spacing: -.01em; }
+  #loading .run-info { color: var(--muted); font-size: .86rem; margin-top: -8px; }
+  .bar-track { width: min(340px, 80vw); height: 7px; border-radius: 4px; background: var(--line); overflow: hidden; }
+  .bar-fill { height: 100%; width: 0; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 4px; transition: width .15s ease-out; }
+  #loading .count { font-variant-numeric: tabular-nums; font-size: .88rem; color: var(--muted); }
+  #loading .error { color: var(--danger); font-size: .88rem; max-width: 480px; line-height: 1.5; }
+  .retry-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+
+  /* ───── Visor ───── */
+  #viewer { display: none; position: fixed; inset: 0; }
+  #viewer.ready { display: block; }
+
+  /* Mapa a pantalla completa */
+  #mapStage {
+    position: absolute; inset: 0;
+    background: #e9eef3;
+    overflow: hidden;
+    z-index: 1;
+  }
+  #mapStage .panel-img-wrap {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    cursor: zoom-in;
+    background: #e9eef3;
+  }
+  #mapStage .panel-img-wrap img {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    object-fit: contain; user-select: none; -webkit-user-drag: none; display: block;
+    opacity: 0; will-change: opacity;
+  }
+  #mapStage .panel-img-wrap img.on { opacity: 1; }
+  #mapStage .panel-img-wrap.empty img { opacity: 0 !important; }
+  #mapStage .panel-img-wrap .empty-msg {
+    position: absolute; inset: 0; display: none; align-items: center; justify-content: center;
+    text-align: center; padding: 24px; color: var(--muted); font-size: .9rem; line-height: 1.6;
+  }
+  #mapStage .panel-img-wrap.empty .empty-msg { display: flex; }
+
+  /* Etiqueta de pas flotant */
+  #mapStage .step-label {
+    position: absolute; top: 16px; right: calc(var(--sidebar-w) + 16px);
+    pointer-events: none;
+    background: rgba(255,255,255,.94); color: var(--text);
+    font-size: .72rem; font-weight: 600; padding: 5px 12px; border-radius: 999px;
+    font-variant-numeric: tabular-nums; border: 1px solid var(--line);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 2px 10px rgba(20,40,60,.12);
+    z-index: 5;
+    transition: right .25s ease;
+  }
+
+  /* ───── Botó Tornar al menú ───── */
+  #backBtn {
+    position: fixed; top: 14px; left: 14px; z-index: 30;
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,.95);
+    color: var(--text);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 8px 16px 8px 12px;
+    font-size: .82rem; font-weight: 650;
+    text-decoration: none;
+    box-shadow: 0 4px 16px rgba(20,40,60,.15);
+    backdrop-filter: blur(8px);
+    transition: border-color .15s, transform .08s, background .15s;
+  }
+  #backBtn:hover { border-color: var(--accent); background: #fff; }
+  #backBtn:active { transform: scale(.96); }
+  #backBtn svg { width: 16px; height: 16px; }
+
+  /* ───── Barra lateral ───── */
+  #sidebar {
+    position: fixed; top: 0; right: 0; bottom: 0;
+    width: var(--sidebar-w);
+    background: rgba(255,255,255,.96);
+    backdrop-filter: blur(16px);
+    border-left: 1px solid var(--line);
+    z-index: 20;
+    display: flex; flex-direction: column;
+    padding: 14px;
+    gap: 14px;
+    overflow-y: auto;
+    transition: transform .25s ease;
+    box-shadow: -4px 0 24px rgba(20,40,60,.08);
+  }
+  #sidebar::-webkit-scrollbar { width: 5px; }
+  #sidebar::-webkit-scrollbar-thumb { background: var(--line2); border-radius: 3px; }
+
+  .sb-brand {
+    display: flex; align-items: center; gap: 10px;
+    padding-bottom: 12px; border-bottom: 1px solid var(--line);
+  }
+  .sb-brand b { font-size: .92rem; letter-spacing: -.01em; }
+  .sb-brand small { display: block; color: var(--muted); font-size: .62rem; letter-spacing: .08em; margin-top: 1px; }
+
+  .sb-section { display: flex; flex-direction: column; gap: 7px; }
+  .sb-section > .lbl {
+    font-size: .62rem; color: var(--muted); letter-spacing: .08em;
+    text-transform: uppercase; font-weight: 700; padding-left: 2px;
+  }
+
+  /* Selector de zona */
+  .seg {
+    display: flex; background: var(--panel2);
+    border: 1px solid var(--line); border-radius: 10px; padding: 3px; gap: 2px;
+  }
+  .seg button {
+    flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    background: transparent; color: var(--muted); border: 0; border-radius: 8px;
+    padding: 7px 6px; font-size: .72rem; font-weight: 600; cursor: pointer; white-space: nowrap;
+    transition: background .15s, color .15s;
+  }
+  .seg button:hover { color: var(--text); }
+  .seg button.current { background: var(--accent); color: #fff; font-weight: 700; box-shadow: 0 2px 8px rgba(31,122,224,.3); }
+  .seg.regions button { padding: 4px 10px 4px 5px; justify-content: flex-start; }
+  .seg.regions button.current { background: #fff; color: #13202c; box-shadow: 0 0 0 2px var(--accent), 0 2px 8px rgba(31,122,224,.2); }
+
+  /* Botons de control */
+  .ctrl-row { display: flex; align-items: center; gap: 6px; }
+  .ibtn {
+    background: var(--panel2); color: var(--text); border: 1px solid var(--line);
+    border-radius: 10px; width: 38px; height: 38px; cursor: pointer;
+    display: grid; place-items: center; flex-shrink: 0; transition: border-color .15s, transform .08s, background .15s;
+  }
+  .ibtn svg { width: 17px; height: 17px; }
+  .ibtn:hover:not(:disabled) { border-color: var(--accent); background: #fff; }
+  .ibtn:active:not(:disabled) { transform: scale(.94); }
+  .ibtn:disabled { opacity: .35; cursor: default; }
+  #playBtn { flex: 1; width: auto; background: var(--accent); border-color: var(--accent); color: #fff; box-shadow: 0 3px 10px rgba(31,122,224,.3); }
+  #playBtn:hover:not(:disabled) { background: var(--accent-d); border-color: var(--accent-d); }
+  #playBtn svg { width: 20px; height: 20px; }
+
+  /* Slider */
+  input[type="range"] {
+    width: 100%; -webkit-appearance: none; appearance: none; height: 6px; border-radius: 3px;
+    background: var(--line2); outline: none; cursor: pointer; margin: 4px 0;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%;
+    background: var(--accent); border: 3px solid #fff;
+    box-shadow: 0 0 0 1px var(--accent), 0 2px 6px rgba(20,40,60,.25);
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 14px; height: 14px; border-radius: 50%; background: var(--accent);
+    border: 3px solid #fff; box-shadow: 0 0 0 1px var(--accent);
+  }
+
+  /* Botons de salt */
+  .jump-row { display: flex; flex-wrap: wrap; gap: 4px; max-height: 200px; overflow-y: auto; padding-right: 2px; }
+  .jump-row::-webkit-scrollbar { width: 4px; }
+  .jump-row::-webkit-scrollbar-thumb { background: var(--line2); border-radius: 2px; }
+  .jump-btn {
+    background: var(--panel2); color: var(--muted); border: 1px solid var(--line);
+    border-radius: 7px; padding: 4px 8px; font-size: .68rem; font-weight: 600; cursor: pointer;
+    white-space: nowrap; flex-shrink: 0; font-variant-numeric: tabular-nums;
+    transition: border-color .15s, color .15s, background .15s;
+  }
+  .jump-btn:hover { color: var(--text); border-color: var(--accent); background: #fff; }
+  .jump-btn.current { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 700; }
+  .jump-btn.midnight { box-shadow: inset 3px 0 0 var(--accent2); }
+
+  /* Velocitat */
+  .speed-row { display: flex; background: var(--panel2); border: 1px solid var(--line); border-radius: 10px; padding: 3px; gap: 2px; }
+  .speed-row button {
+    flex: 1; background: transparent; color: var(--muted); border: 0; border-radius: 8px;
+    padding: 6px 4px; font-size: .72rem; font-weight: 600; cursor: pointer;
+    transition: background .15s, color .15s;
+  }
+  .speed-row button:hover { color: var(--text); }
+  .speed-row button.current { background: var(--accent); color: #fff; font-weight: 700; }
+
+  /* Checkbox bucle */
+  .loop-toggle {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: .78rem; color: var(--text); cursor: pointer; user-select: none;
+    padding: 9px 10px; border-radius: 9px; background: var(--panel2); border: 1px solid var(--line);
+    transition: border-color .15s;
+  }
+  .loop-toggle:hover { border-color: var(--accent); }
+  .loop-toggle input { accent-color: var(--accent); width: 15px; height: 15px; }
+  .loop-toggle svg { color: var(--accent); }
+
+  /* Selector de variable */
+  .var-select {
+    width: 100%; background: var(--panel2); color: var(--text);
+    border: 1px solid var(--line); border-radius: 9px;
+    padding: 9px 10px; font-size: .78rem; font-weight: 650; cursor: pointer;
+    appearance: none; -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1.5 1.5 6 6l4.5-4.5' fill='none' stroke='%2364768a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px;
+  }
+  .var-select:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .var-select:disabled { opacity: .5; cursor: not-allowed; }
+
+  /* ───── Hora flotant a baix ───── */
+  #timeFloat {
+    position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%);
+    z-index: 15;
+    background: rgba(255,255,255,.95);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 8px 22px;
+    display: flex; align-items: baseline; gap: 12px;
+    box-shadow: 0 6px 24px rgba(20,40,60,.18);
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  #timeFloat .tf-date { font-size: .92rem; font-weight: 750; letter-spacing: -.01em; color: var(--text); }
+  #timeFloat .tf-date small { color: var(--muted); font-weight: 500; font-size: .72rem; margin-left: 8px; }
+  #timeFloat .tf-run { color: var(--muted); font-size: .68rem; }
+
+  /* ───── Botó toggle sidebar mòbil ───── */
+  #sidebarToggle {
+    display: none;
+    position: fixed; top: 14px; right: 14px; z-index: 30;
+    background: rgba(255,255,255,.95); backdrop-filter: blur(8px);
+    border: 1px solid var(--line); color: var(--text);
+    border-radius: 10px; width: 42px; height: 42px;
+    cursor: pointer; place-items: center;
+    box-shadow: 0 4px 16px rgba(20,40,60,.15);
+    transition: background .15s, border-color .15s;
+  }
+  #sidebarToggle:hover { border-color: var(--accent); background: #fff; }
+  #sidebarToggle svg { width: 20px; height: 20px; }
+
+  /* ───── Lightbox ───── */
+  #lightbox {
+    position: fixed; inset: 0; z-index: 60; background: rgba(19,32,44,.9);
+    display: none; align-items: center; justify-content: center; cursor: zoom-out; padding: 14px;
+  }
+  #lightbox.open { display: flex; }
+  #lightbox img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px; background: #fff; box-shadow: 0 10px 40px rgba(0,0,0,.5); }
+
+  /* ───── Responsive ───── */
+  @media (max-width: 900px) {
+    #sidebarToggle { display: grid; }
+    #sidebar {
+      transform: translateX(100%);
+      width: min(310px, 88vw);
+      border-radius: 16px 0 0 16px;
+      box-shadow: -8px 0 32px rgba(20,40,60,.2);
+    }
+    #sidebar.open { transform: translateX(0); }
+    #mapStage .step-label { right: 16px; top: 66px; }
+    #timeFloat {
+      left: 12px; right: 12px; transform: none;
+      bottom: 12px;
+      padding: 7px 16px;
+      justify-content: center;
+    }
+    #timeFloat .tf-date { font-size: .82rem; }
+    #timeFloat .tf-date small { font-size: .65rem; margin-left: 5px; }
+    #timeFloat .tf-run { display: none; }
+    #backBtn { padding: 7px 13px 7px 10px; font-size: .76rem; }
+    #backBtn svg { width: 14px; height: 14px; }
+  }
+  @media (max-width: 400px) {
+    #timeFloat { padding: 6px 12px; }
+    #timeFloat .tf-date { font-size: .76rem; }
+    #backBtn { padding: 6px 11px 6px 8px; font-size: .72rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Sprite d'icones -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-logo" viewBox="0 0 32 32">
+      <path d="M9.5 21.5a5.5 5.5 0 0 1-.6-10.96A7.5 7.5 0 0 1 23.3 10a5 5 0 0 1 .7 9.95" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M17.5 14 12.8 21h3.9l-1.6 6.5L21 19.4h-3.9l1.4-5.4z" fill="#fff"/>
+    </symbol>
+    <symbol id="i-back" viewBox="0 0 24 24"><path d="M14.5 5.5 8 12l6.5 6.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-prev" viewBox="0 0 24 24"><path d="M14.5 5.5 8 12l6.5 6.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-next" viewBox="0 0 24 24"><path d="M9.5 5.5 16 12l-6.5 6.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.2v13.6a.6.6 0 0 0 .9.5l11-6.8a.6.6 0 0 0 0-1L8.9 4.7a.6.6 0 0 0-.9.5z" fill="currentColor"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><rect x="6.5" y="5" width="3.8" height="14" rx="1.2" fill="currentColor"/><rect x="13.7" y="5" width="3.8" height="14" rx="1.2" fill="currentColor"/></symbol>
+    <symbol id="i-loop" viewBox="0 0 24 24"><path d="M4 12a6 6 0 0 1 6-6h7m0 0-2.5-2.5M17 6l-2.5 2.5M20 12a6 6 0 0 1-6 6H7m0 0 2.5 2.5M7 18l2.5-2.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.6-5.9M20 4v5h-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+
+    <!-- Mapa Península Ibèrica (silueta simplificada real) -->
+    <symbol id="m-esp" viewBox="0 0 60 44">
+      <rect width="60" height="44" fill="#d3e8f7"/>
+      <path fill="#79c267" stroke="#1d3b22" stroke-width="0.9" stroke-linejoin="round" fill-rule="evenodd" d="M46.4,26.9L45.6,27.0L45.7,26.5L46.4,26.9ZM46.5,25.3L44.9,25.9L46.5,25.1L46.5,25.3ZM52.3,24.1L50.8,23.0L50.0,23.3L49.5,22.6L52.8,21.0L52.6,21.8L53.8,22.2L52.3,24.1ZM57.1,21.6L55.5,21.0L55.4,20.6L56.9,20.7L57.1,21.6ZM16.2,40.8L18.4,39.7L19.6,41.8L21.5,43.0L26.4,43.0L28.1,42.1L28.6,43.4L32.3,43.6L45.0,37.0L55.1,35.2L60.0,35.6L60.0,44.0L15.0,44.0L16.2,40.8ZM59.9,5.0L56.2,4.2L53.0,6.1L52.2,7.7L53.2,10.2L52.6,10.8L53.0,11.8L48.3,14.9L44.1,15.9L42.9,17.0L43.6,17.5L42.4,18.0L38.7,23.1L39.2,25.2L40.8,26.6L37.9,28.6L36.7,31.2L37.1,31.8L33.4,32.9L31.6,35.8L22.5,36.0L19.3,37.4L17.5,39.2L15.8,38.5L14.5,36.4L15.1,35.1L14.4,35.5L12.5,33.4L8.7,34.7L4.0,34.6L4.7,32.7L4.5,28.0L5.3,28.1L4.8,27.7L3.1,28.0L3.0,27.1L3.9,26.6L4.8,25.1L3.5,26.7L2.1,26.4L5.3,17.4L4.4,12.7L4.5,11.1L5.2,10.3L4.8,8.6L3.9,8.8L4.3,7.9L3.1,7.1L4.5,5.4L9.2,3.4L11.8,4.4L16.6,4.0L21.9,5.0L25.6,4.5L32.0,5.3L34.1,4.3L35.0,0.0L60.0,0.0L59.9,5.0Z"/>
+    </symbol>
+
+    <!-- Mapa Europa (silueta simplificada real) -->
+    <symbol id="m-eur" viewBox="0 0 60 44">
+      <rect width="60" height="44" fill="#d3e8f7"/>
+      <path fill="#79c267" stroke="#1d3b22" stroke-width="0.9" stroke-linejoin="round" fill-rule="evenodd" d="M8.5,6.7L9.8,8.0L5.4,10.0L2.0,9.5L2.9,8.5L0.8,8.3L2.7,8.0L2.1,7.9L2.7,7.6L0.4,7.5L1.5,7.2L1.0,7.1L1.3,6.7L2.2,7.1L1.8,6.4L3.1,6.9L3.3,7.8L4.1,6.8L5.9,7.3L5.7,6.8L8.9,6.5L8.5,6.7ZM0.0,0.0L2.6,0.3L2.2,0.7L2.8,0.6L3.0,1.7L1.0,1.7L0.0,0.8L0.0,0.0ZM0.2,2.0L1.1,2.2L2.4,2.2L0.0,3.1L0.2,2.0ZM31.0,43.2L31.1,43.1L31.1,43.1L31.0,43.2ZM33.7,41.8L33.9,41.9L33.9,41.9L33.7,41.8ZM33.7,41.6L33.7,41.6L33.6,41.6L33.7,41.6ZM31.7,40.7L31.8,40.8L31.7,40.8L31.7,40.7ZM34.8,39.0L34.1,40.9L32.1,39.6L34.8,39.0ZM22.8,38.6L22.6,38.6L22.7,38.5L22.8,38.6ZM22.8,38.2L22.5,38.3L22.8,38.1L22.8,38.2ZM28.6,38.1L28.6,38.2L28.6,38.1L28.6,38.1ZM24.1,37.9L23.6,37.7L23.5,37.5L24.2,37.1L24.1,37.9ZM25.1,37.0L24.7,37.1L24.7,37.0L25.1,37.0ZM29.6,37.9L28.8,38.3L28.5,36.0L29.7,35.9L29.6,37.9ZM33.3,36.2L33.4,36.2L33.4,36.2L33.3,36.2ZM28.5,35.9L28.5,35.8L28.6,35.8L28.5,35.9ZM29.4,35.2L29.0,35.2L28.8,34.3L29.5,33.6L29.4,35.2ZM36.3,33.8L36.5,33.8L36.6,33.9L36.3,33.8ZM30.1,33.8L30.4,33.9L30.1,33.8L30.1,33.8ZM35.9,33.7L36.0,33.6L36.2,33.7L35.9,33.7ZM36.1,33.4L35.5,33.3L36.2,33.4L36.1,33.4ZM35.8,33.3L35.5,33.1L35.9,33.2L35.8,33.3ZM34.6,32.5L34.6,32.5L34.5,32.4L34.6,32.5ZM34.5,32.5L34.2,32.3L34.2,32.2L34.5,32.5ZM34.4,32.3L34.3,32.2L34.5,32.4L34.4,32.3ZM34.1,31.6L34.4,31.9L34.5,32.0L34.3,32.0L34.1,31.6ZM34.2,31.6L34.0,31.5L34.0,31.4L34.2,31.6ZM33.7,31.1L33.8,31.3L33.8,31.7L33.7,31.1ZM33.9,31.0L34.0,31.3L33.8,31.1L33.9,31.0ZM20.3,30.1L20.4,30.2L20.4,30.3L20.3,30.1ZM19.7,26.4L19.5,26.4L19.5,26.3L19.7,26.4ZM19.2,26.0L19.2,26.1L19.2,26.1L19.2,26.0ZM20.3,24.6L20.4,24.8L20.1,24.7L20.3,24.6ZM24.8,23.5L24.8,23.6L24.6,23.5L24.8,23.5ZM25.6,21.8L25.5,22.0L25.5,22.0L25.6,21.8ZM25.7,21.6L25.6,21.7L25.6,21.7L25.7,21.6ZM17.7,21.8L17.7,21.5L18.0,21.6L17.7,21.8ZM26.1,21.5L26.0,21.6L25.9,21.5L26.1,21.5ZM16.3,19.5L16.7,20.3L16.0,20.9L16.0,22.9L13.5,23.7L12.6,23.4L12.9,23.0L12.6,22.9L13.9,22.4L12.9,22.5L13.8,21.8L12.8,21.5L13.2,21.1L12.8,20.5L14.1,20.6L14.5,20.1L14.0,20.0L15.1,19.3L16.3,19.5ZM26.3,21.5L26.5,21.5L26.3,21.5L26.3,21.5ZM26.7,21.4L26.8,21.4L26.9,21.4L26.7,21.4ZM27.2,21.3L27.1,21.3L27.3,21.3L27.2,21.3ZM12.8,20.9L12.6,20.9L12.9,21.0L12.8,20.9ZM17.6,20.4L17.5,20.8L17.3,20.8L17.6,20.4ZM18.8,15.5L17.9,16.7L19.8,16.7L18.6,18.1L19.1,18.2L18.2,18.4L20.0,19.0L21.4,20.7L21.5,21.3L21.2,21.1L20.9,21.2L21.7,21.6L21.5,22.1L22.8,22.3L22.8,23.0L21.8,23.8L22.6,24.1L18.9,24.6L16.6,25.4L17.8,24.1L18.7,24.1L19.3,23.5L18.6,23.9L16.9,23.3L17.9,22.8L17.9,22.1L17.4,22.2L17.8,21.8L19.1,21.6L19.0,20.6L18.3,20.2L18.8,19.7L17.2,20.0L17.5,18.6L17.1,18.3L16.5,19.3L17.0,17.6L16.2,17.7L16.5,17.5L17.1,15.6L18.8,15.5ZM32.7,20.5L32.9,20.0L33.2,20.5L32.7,20.5ZM31.0,20.4L31.1,20.3L31.1,20.4L31.0,20.4ZM28.8,20.0L28.7,20.0L28.8,20.0L28.8,20.0ZM30.9,19.9L31.5,19.9L31.5,20.1L30.9,19.9ZM30.4,19.8L30.2,19.8L30.2,19.7L30.4,19.8ZM28.6,19.9L28.6,19.6L28.8,19.8L28.6,19.9ZM30.7,19.9L30.5,19.9L30.8,19.5L30.7,19.9ZM30.1,19.8L29.8,19.8L29.8,19.6L30.1,19.8ZM31.9,19.6L32.2,19.7L31.8,19.8L31.9,19.6ZM34.0,19.6L34.1,19.3L34.4,19.6L34.0,19.6ZM30.0,19.4L30.2,19.0L30.7,19.3L30.5,19.6L30.0,19.4ZM32.2,18.5L31.6,19.9L30.8,18.8L32.2,18.5ZM17.0,18.9L16.9,19.1L16.8,18.9L17.0,18.9ZM32.2,19.0L32.2,18.9L32.3,19.0L32.2,19.0ZM16.2,18.9L15.9,18.9L16.2,18.6L16.2,18.9ZM30.6,18.7L30.5,18.8L30.5,18.5L30.6,18.7ZM16.3,18.5L16.3,18.7L16.2,18.7L16.3,18.5ZM16.0,18.2L16.5,18.0L16.5,18.1L16.0,18.2ZM15.8,17.8L15.8,17.8L15.7,17.9L15.8,17.8ZM35.5,17.9L36.1,17.0L35.5,18.2L35.5,17.9ZM15.0,17.4L15.0,17.3L15.1,17.4L15.0,17.4ZM16.0,17.3L16.0,17.4L15.9,17.3L16.0,17.3ZM15.2,16.9L15.1,17.1L15.1,16.9L15.2,16.9ZM30.8,17.0L30.9,17.1L30.7,17.1L30.8,17.0ZM16.0,16.6L16.3,17.3L15.6,16.9L16.0,16.6ZM37.8,16.4L37.0,17.5L37.0,16.7L37.3,16.4L37.8,16.4ZM15.0,16.6L15.3,16.6L15.0,16.7L15.0,16.6ZM15.9,16.2L15.4,16.0L16.1,15.6L15.9,16.2ZM18.9,15.2L18.9,15.4L18.8,15.3L18.9,15.2ZM18.6,15.2L18.6,15.3L18.5,15.2L18.6,15.2ZM19.0,15.2L18.6,14.9L19.1,15.1L19.0,15.2ZM37.2,14.9L37.2,15.0L37.2,15.0L37.2,14.9ZM18.9,14.7L19.0,14.9L18.8,14.7L18.9,14.7ZM19.3,14.7L19.1,14.8L19.4,14.7L19.3,14.7ZM37.3,14.5L37.4,14.4L37.5,14.4L37.3,14.5ZM20.4,13.9L20.0,13.6L20.2,13.2L20.5,13.4L20.4,13.9ZM25.8,13.4L25.7,13.6L25.7,13.4L25.8,13.4ZM20.6,13.1L20.4,13.2L20.5,13.1L20.6,13.1ZM20.6,13.0L20.7,13.1L20.6,13.1L20.6,13.0ZM25.6,12.5L25.7,12.6L25.5,12.6L25.6,12.5ZM15.7,12.1L15.7,12.3L15.5,12.0L15.7,12.1ZM15.7,11.7L15.6,11.8L15.5,11.7L15.7,11.7ZM15.2,11.4L15.2,11.5L15.1,11.4L15.2,11.4ZM15.7,11.3L15.4,11.5L15.3,11.2L15.7,11.3ZM15.9,11.4L15.8,11.2L15.9,11.3L15.9,11.4ZM28.3,10.0L28.3,9.9L28.4,10.0L28.3,10.0ZM29.0,9.6L28.5,9.6L29.0,9.5L29.0,9.6ZM31.0,8.3L30.9,8.1L31.1,8.2L31.0,8.3ZM31.6,7.4L31.6,7.3L31.7,7.3L31.6,7.4ZM32.2,7.1L32.2,6.9L32.4,7.0L32.2,7.1ZM32.2,6.9L32.2,6.7L32.2,6.7L32.2,6.9ZM32.5,4.7L32.7,4.6L32.4,4.8L32.5,4.7ZM33.2,4.5L32.7,4.5L33.5,4.3L33.2,4.5ZM35.6,3.7L35.1,4.2L33.6,4.4L34.6,3.9L35.1,3.1L34.9,4.0L35.6,3.7ZM33.8,3.9L34.3,3.5L34.6,3.7L34.5,3.9L33.8,3.9ZM36.8,3.2L36.1,3.4L35.8,3.4L36.4,2.8L36.8,3.2ZM38.2,2.3L37.5,2.8L36.9,2.8L38.2,2.3ZM13.7,1.4L14.3,1.0L14.6,1.0L14.6,1.1L13.7,1.4ZM51.0,42.1L49.5,43.2L49.1,42.7L51.0,42.1ZM41.6,42.4L43.5,42.7L44.0,42.5L43.9,42.8L42.7,42.9L41.6,42.4ZM44.7,42.1L44.6,42.1L44.8,41.9L44.7,42.1ZM45.3,41.4L45.5,41.6L45.2,41.8L45.3,41.4ZM41.2,41.5L41.1,41.2L41.2,41.4L41.2,41.5ZM43.2,41.3L43.2,41.1L43.3,41.2L43.2,41.3ZM44.0,41.1L44.0,40.9L44.1,41.0L44.0,41.1ZM45.2,41.0L45.3,41.0L45.3,41.1L45.2,41.0ZM42.5,40.9L42.3,40.9L42.3,40.8L42.5,40.9ZM43.1,40.8L43.2,40.9L43.1,40.8L43.1,40.8ZM44.7,40.8L44.8,40.6L44.9,40.7L44.7,40.8ZM43.6,40.8L43.7,40.6L43.8,40.6L43.6,40.8ZM42.6,40.5L42.7,40.6L42.6,40.6L42.6,40.5ZM44.5,40.6L44.6,40.5L44.6,40.6L44.5,40.6ZM43.2,40.4L43.4,40.5L43.2,40.6L43.2,40.4ZM43.0,40.5L43.1,40.4L43.1,40.4L43.0,40.5ZM42.4,40.4L42.5,40.3L42.4,40.4L42.4,40.4ZM42.3,40.0L42.4,40.1L42.3,40.2L42.3,40.0ZM42.8,39.9L42.8,40.1L42.8,40.1L42.8,39.9ZM43.2,39.9L43.2,40.0L43.1,40.0L43.2,39.9ZM43.9,39.9L43.8,39.8L44.0,39.7L43.9,39.9ZM42.3,39.7L42.3,39.9L42.2,39.9L42.3,39.7ZM43.0,39.9L42.9,39.7L43.1,39.8L43.0,39.9ZM44.2,39.7L44.6,39.6L44.6,39.7L44.2,39.7ZM39.2,39.5L39.3,39.8L39.1,39.5L39.2,39.5ZM42.8,39.5L42.8,39.7L42.6,39.4L42.8,39.5ZM41.6,39.5L41.5,39.4L41.6,39.4L41.6,39.5ZM39.0,39.2L39.1,38.8L39.2,39.3L39.0,39.2ZM43.6,38.7L43.8,39.0L43.7,39.2L43.6,38.7ZM39.2,39.0L39.1,38.8L39.2,39.0L39.2,39.0ZM41.4,38.2L42.5,39.4L41.0,38.4L41.4,38.2ZM39.2,38.6L39.0,38.7L39.2,38.4L39.2,38.6ZM42.6,38.4L42.4,38.3L42.4,38.2L42.6,38.4ZM41.8,38.1L41.7,38.1L41.7,38.0L41.8,38.1ZM44.0,37.8L43.9,38.0L43.6,38.0L44.0,37.8ZM41.9,37.9L42.0,37.9L41.9,38.0L41.9,37.9ZM38.3,37.3L38.5,37.6L38.7,37.8L38.5,37.7L38.3,37.3ZM43.2,37.3L42.9,37.1L43.2,37.0L43.2,37.3ZM43.5,36.8L43.7,36.9L43.4,36.9L43.5,36.8ZM43.3,36.5L43.3,36.6L43.2,36.5L43.3,36.5ZM42.7,36.3L42.4,36.3L42.6,36.1L42.7,36.3ZM49.0,29.9L48.5,29.8L48.4,29.7L49.0,29.9ZM37.8,16.2L37.8,16.4L37.7,16.3L37.8,16.2ZM41.4,15.7L40.3,16.3L40.2,15.6L41.4,15.7ZM41.2,15.5L41.4,15.5L41.4,15.6L41.2,15.5ZM40.3,15.1L40.9,15.0L41.2,15.2L40.3,15.1ZM39.0,13.9L38.9,13.8L39.1,13.8L39.0,13.9ZM39.9,13.7L40.0,13.8L39.8,13.7L39.9,13.7ZM40.0,13.7L40.1,13.7L40.0,13.8L40.0,13.7ZM38.3,13.6L38.2,13.7L38.2,13.7L38.3,13.6ZM38.8,13.6L38.4,13.8L38.3,13.6L38.8,13.6ZM40.6,13.7L40.4,13.5L40.6,13.5L40.6,13.7ZM40.2,13.4L40.1,13.5L40.1,13.4L40.2,13.4ZM39.8,13.3L39.6,13.2L39.7,13.2L39.8,13.3ZM39.6,10.2L39.7,10.1L39.8,10.2L39.6,10.2ZM42.6,8.2L42.6,8.0L42.9,8.1L42.6,8.2ZM51.9,7.9L52.2,7.9L52.2,8.1L51.9,7.9ZM57.8,6.1L58.0,6.0L58.0,6.1L57.8,6.1ZM46.9,2.6L47.0,2.4L47.2,2.5L46.9,2.6ZM39.0,2.1L39.2,2.2L38.9,2.2L39.0,2.1ZM38.4,2.2L38.3,2.0L38.6,2.2L38.4,2.2ZM41.3,2.0L41.6,1.6L41.7,1.8L41.3,2.0ZM42.0,1.5L41.9,1.7L41.7,1.5L42.0,1.5ZM41.2,1.6L40.3,1.6L41.5,1.4L41.2,1.6ZM43.5,1.2L43.4,1.0L43.8,1.1L43.5,1.2ZM37.2,14.8L35.3,15.5L35.9,15.6L35.1,18.3L32.5,19.2L32.5,18.8L32.1,18.2L32.5,17.8L30.5,14.2L30.2,15.0L28.4,16.0L26.2,15.5L26.9,14.4L25.9,14.9L25.9,14.4L27.4,13.3L25.8,14.3L26.3,13.8L25.8,13.4L26.3,13.1L25.7,12.7L27.5,12.8L27.9,12.5L26.0,12.6L25.6,11.8L25.7,11.7L26.6,11.8L27.2,11.7L25.8,11.5L28.4,10.7L27.2,10.7L27.9,10.3L28.8,10.6L28.4,10.2L28.8,9.7L30.0,10.0L31.2,9.5L29.6,9.6L32.5,7.7L31.8,7.8L32.6,7.0L32.4,6.8L33.5,6.6L32.7,6.7L32.8,6.2L34.9,5.2L34.1,4.9L36.5,4.1L35.6,4.0L36.9,3.3L37.1,2.9L37.6,3.1L38.3,2.5L38.3,3.0L38.8,2.4L38.7,3.1L39.2,2.9L39.1,2.4L40.3,2.5L39.7,2.0L40.9,1.9L41.4,2.3L42.6,1.2L43.5,1.3L42.9,2.2L45.6,1.1L45.6,2.0L46.1,1.3L48.0,1.9L46.1,2.1L46.9,2.6L48.8,2.4L50.1,3.0L49.8,3.4L52.2,3.3L56.5,5.0L56.7,6.0L54.6,6.9L51.0,6.3L49.7,5.7L48.8,5.6L51.2,7.0L50.9,7.6L51.5,8.8L53.5,9.5L54.1,9.2L52.8,8.3L53.0,7.9L55.5,8.6L56.1,8.4L55.6,7.4L57.6,6.3L59.2,6.9L59.5,5.9L59.0,5.5L59.3,4.3L58.6,3.9L60.0,4.0L60.0,44.0L51.9,44.0L52.3,40.6L49.5,41.6L47.7,40.7L47.5,41.4L46.9,41.5L46.3,40.9L45.0,40.9L45.6,40.5L44.8,40.6L44.8,39.4L44.0,39.0L44.7,38.8L44.5,37.6L43.8,37.7L43.9,37.1L47.0,36.2L46.4,35.6L48.2,35.8L50.0,34.7L51.4,34.7L54.3,36.0L56.9,35.4L56.9,33.9L52.8,31.1L53.7,30.8L54.4,30.0L53.8,29.4L55.0,28.6L51.4,30.0L51.6,29.6L51.3,29.9L51.4,30.5L52.8,30.8L52.6,31.2L50.5,32.0L50.2,31.2L49.3,30.8L50.2,30.0L48.7,29.8L48.5,29.5L49.2,29.6L49.4,29.4L48.7,28.7L48.7,29.4L47.8,29.5L46.8,30.4L46.8,31.4L46.2,31.3L45.9,33.0L45.0,34.2L46.2,35.9L45.0,35.9L43.9,37.0L44.4,36.3L42.4,36.0L41.8,36.2L42.3,36.9L41.5,36.7L41.7,37.1L40.8,36.5L41.4,38.0L40.8,38.4L42.0,39.2L42.0,39.7L41.6,39.3L41.2,39.5L41.6,40.0L40.9,39.9L41.3,41.2L40.2,40.8L39.5,39.5L41.3,39.2L39.6,39.0L39.2,38.4L39.5,38.2L38.1,36.7L38.2,35.0L35.9,33.1L35.1,33.0L34.4,32.2L34.7,32.1L33.9,30.9L33.7,30.9L33.3,31.5L33.1,30.4L31.9,30.7L32.1,32.2L33.9,34.5L35.3,34.9L35.1,35.3L37.3,36.8L37.2,37.3L35.9,36.5L35.6,37.3L36.1,38.2L35.2,39.4L34.8,39.3L35.3,38.3L34.9,37.1L31.0,34.3L30.2,32.5L28.9,31.9L26.7,33.5L24.9,32.9L24.2,33.4L24.2,34.8L22.0,36.1L21.1,37.6L21.6,38.5L19.6,40.8L17.7,40.9L16.6,41.7L15.5,40.2L13.7,40.5L14.0,38.9L13.5,38.6L13.7,38.5L13.9,38.1L13.3,38.4L14.0,34.4L13.6,33.4L14.8,32.7L19.7,33.2L20.2,32.9L20.5,30.6L20.7,30.8L20.8,31.2L21.0,31.3L20.4,29.7L19.6,29.1L19.9,28.7L17.7,28.0L17.4,27.2L20.2,27.0L19.8,25.8L21.8,26.1L22.9,24.4L25.1,23.9L24.4,23.7L25.1,23.8L24.9,23.2L26.2,21.7L28.7,21.5L28.8,21.0L29.8,21.4L28.8,20.5L29.1,20.2L28.8,19.2L28.4,19.0L28.4,17.8L29.3,17.7L28.5,17.7L28.8,17.2L30.5,16.5L30.2,17.8L30.8,18.0L29.6,19.1L29.9,20.3L31.2,20.9L32.6,20.4L33.4,21.1L33.9,21.3L33.3,20.7L36.9,19.9L38.1,20.4L39.5,19.0L39.1,19.7L39.6,19.8L39.5,17.8L40.1,16.7L40.8,16.5L41.7,17.4L42.3,17.1L42.5,15.8L41.8,15.8L41.6,14.8L47.3,13.9L45.9,13.1L41.2,14.1L40.8,13.5L39.8,13.2L39.5,10.9L39.9,10.2L43.2,8.1L42.5,7.1L40.6,7.1L39.8,7.7L39.9,8.7L39.2,9.4L36.3,11.0L36.2,13.1L37.7,14.1L36.8,14.6L37.2,14.8ZM15.6,43.8L16.8,41.8L17.5,42.6L19.7,42.7L22.3,41.2L24.7,40.6L26.0,40.9L29.7,40.1L30.4,40.8L31.0,40.7L30.4,41.5L31.0,42.6L30.1,44.0L15.6,43.8Z"/>
+    </symbol>
+  </defs>
+</svg>
+
+<!-- Botó Tornar al menú -->
+<a id="backBtn" href="index.html">
+  <svg><use href="#i-back"/></svg>
+  <span>Tornar al menú</span>
+</a>
+
+<!-- Botó toggle sidebar mòbil -->
+<button id="sidebarToggle" aria-label="Obrir menú">
+  <svg id="toggleIcon"><use href="#i-menu"/></svg>
+</button>
+
+<!-- Càrrega -->
+<div id="loading">
+  <div class="logo"><img src="img/favicon.png" alt="Logo"></div>
+  <h1>Carregant mapes GFS</h1>
+  <div class="run-info" id="runInfo"></div>
+  <div class="bar-track"><div class="bar-fill" id="barFill"></div></div>
+  <div class="count" id="loadCount">0 / 0</div>
+  <div class="error" id="loadError"></div>
+  <div class="retry-row" id="retryRow"></div>
+</div>
+
+<!-- Visor -->
+<div id="viewer">
+  <div id="mapStage">
+    <div class="panel-img-wrap" id="mapWrap">
+      <img id="mapImgA" alt="Mapa" decoding="async">
+      <img id="mapImgB" alt="Mapa" decoding="async">
+      <span class="step-label" id="stepLabel"></span>
+      <div class="empty-msg" id="emptyMsg">No hi ha mapa disponible per a aquesta variable i pas.</div>
+    </div>
+  </div>
+
+  <!-- Hora flotant a baix -->
+  <div id="timeFloat">
+    <div class="tf-date" id="nowDate">—</div>
+    <div class="tf-run" id="nowRun"></div>
+  </div>
+
+  <!-- Barra lateral de controls -->
+  <aside id="sidebar">
+    <div class="sb-brand">
+      <div class="logo"><img src="img/favicon.png" alt="Logo"></div>
+      <div><b>Mapes GFS</b><small>TEMPESTES.CAT</small></div>
+    </div>
+
+    <div class="sb-section">
+      <span class="lbl">Zona</span>
+      <div class="seg regions" id="regionSelector">
+        <button type="button" data-region="esp" class="current"><svg class="rmap"><use href="#m-esp"/></svg>P. Ibèrica</button>
+        <button type="button" data-region="eur"><svg class="rmap"><use href="#m-eur"/></svg>Europa</button>
+      </div>
+    </div>
+
+    <div class="sb-section">
+      <span class="lbl">Variable</span>
+      <select class="var-select" id="varSelect"></select>
+    </div>
+
+    <div class="sb-section">
+      <span class="lbl">Reproducció</span>
+      <div class="ctrl-row">
+        <button class="ibtn" id="prevBtn" title="Anterior" aria-label="Pas anterior"><svg><use href="#i-prev"/></svg></button>
+        <button class="ibtn" id="playBtn" title="Reproduir" aria-label="Reproduir"><svg><use href="#i-play"/></svg></button>
+        <button class="ibtn" id="nextBtn" title="Següent" aria-label="Pas següent"><svg><use href="#i-next"/></svg></button>
+      </div>
+      <input type="range" id="fxxSlider" min="0" max="0" step="1" value="0">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span class="fxx-label" id="fxxLabel" style="font-size:.72rem;color:var(--muted)">+000h</span>
+        <span class="fxx-label" id="fxxTotal" style="font-size:.68rem;color:var(--muted)"></span>
+      </div>
+    </div>
+
+    <div class="sb-section">
+      <span class="lbl">Velocitat</span>
+      <div class="speed-row" id="speedRow"></div>
+    </div>
+
+    <div class="sb-section">
+      <label class="loop-toggle"><input type="checkbox" id="loopCheck" checked><svg class="ico"><use href="#i-loop"/></svg>Bucle continu</label>
+    </div>
+
+    <div class="sb-section">
+      <span class="lbl">Salts ràpids</span>
+      <div class="jump-row" id="jumpRow"></div>
+    </div>
+
+    <div class="sb-section" style="margin-top:auto;padding-top:12px;border-top:1px solid var(--line)">
+      <span id="runLabel" style="display:block;text-align:center;font-size:.72rem;padding:8px 12px;background:var(--panel2);border:1px solid var(--line);border-radius:999px;color:var(--muted);font-weight:600"></span>
+    </div>
+  </aside>
+</div>
+
+<!-- Lightbox -->
+<div id="lightbox"><img alt="Mapa ampliat"></div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ───── Zones ───── */
+  var REGIONS = {
+    esp: { nom: "Península Ibèrica", dir: "gfsESPmaps/" },
+    eur: { nom: "Europa",            dir: "gfsmaps/" }
+  };
+  var regioActual = "esp";
+
+  /* ───── DOM ───── */
+  var $ = function (id) { return document.getElementById(id); };
+  var loadingEl = $("loading"), viewerEl = $("viewer"), barFill = $("barFill"),
+      loadCount = $("loadCount"), loadError = $("loadError"), runInfo = $("runInfo"),
+      retryRow = $("retryRow"), runLabel = $("runLabel"), mapStage = $("mapStage"),
+      fxxSlider = $("fxxSlider"), fxxLabel = $("fxxLabel"), fxxTotal = $("fxxTotal"),
+      prevBtn = $("prevBtn"), nextBtn = $("nextBtn"), playBtn = $("playBtn"),
+      jumpRow = $("jumpRow"), speedRow = $("speedRow"), loopCheck = $("loopCheck"),
+      regionSelector = $("regionSelector"),
+      nowDate = $("nowDate"), nowRun = $("nowRun"), lightbox = $("lightbox"),
+      lightboxImg = lightbox.querySelector("img"), varSelect = $("varSelect"),
+      sidebar = $("sidebar"), sidebarToggle = $("sidebarToggle"),
+      toggleIcon = $("toggleIcon"), stepLabel = $("stepLabel"),
+      mapWrap = $("mapWrap"), mapImgA = $("mapImgA"), mapImgB = $("mapImgB"),
+      emptyMsg = $("emptyMsg");
+
+  var ICO_PLAY  = '<svg><use href="#i-play"/></svg>';
+  var ICO_PAUSE = '<svg><use href="#i-pause"/></svg>';
+  var ICO_REFR  = '<svg class="ico"><use href="#i-refresh"/></svg>';
+  var ICO_MENU  = '<use href="#i-menu"/>';
+  var ICO_CLOSE = '<use href="#i-close"/>';
+
+  /* ───── Estat ───── */
+  var dades = {};
+  var index = null, cache = {};
+  var fxxList = [], currentFxxIdx = 0, playTimer = null;
+  var vidActual = "temp500";
+  var VELOCITATS = [
+    { label: "0.5x", ms: 1400 }, { label: "1x", ms: 700 },
+    { label: "2x", ms: 350 },   { label: "4x", ms: 175 }
+  ];
+  var velocitatActualIdx = 1;
+  var _decodificades = {};
+  var mapBufs = [mapImgA, mapImgB];
+  var mapFront = 0, mapUrlActual = null, mapSeq = 0, mapShown = 0;
+
+  function claID(vid, fxx) { return vid + "|" + fxx; }
+
+  /* ───── Dates ───── */
+  function parseRun(runStr) {
+    var m = /^(\d{4})(\d{2})(\d{2})_(\d{2})z$/.exec(runStr || "");
+    return m ? new Date(Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4])) : null;
+  }
+  function formatLocal(d) {
+    var parts = new Intl.DateTimeFormat("ca-ES", {
+      timeZone: "Europe/Madrid", weekday: "long", day: "numeric",
+      month: "long", hour: "2-digit", minute: "2-digit", hour12: false
+    }).formatToParts(d);
+    var o = {}; parts.forEach(function (p) { o[p.type] = p.value; });
+    var s = o.weekday + " " + o.day + " " + o.month;
+    return { dia: s.charAt(0).toUpperCase() + s.slice(1), hora: o.hour + ":" + o.minute };
+  }
+  function horaLocal(d) {
+    return +new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Madrid", hour: "2-digit", hour12: false }).format(d) % 24;
+  }
+
+  /* ───── Sidebar toggle mòbil ───── */
+  var sidebarOberta = false;
+  function toggleSidebar() {
+    sidebarOberta = !sidebarOberta;
+    sidebar.classList.toggle("open", sidebarOberta);
+    toggleIcon.innerHTML = sidebarOberta ? ICO_CLOSE : ICO_MENU;
+  }
+  sidebarToggle.addEventListener("click", function(e){ e.stopPropagation(); toggleSidebar(); });
+
+  /* ───── Càrrega ───── */
+  function mostrarError(msg) {
+    loadError.innerHTML = msg;
+    retryRow.innerHTML = "";
+    Object.keys(REGIONS).forEach(function (k) {
+      if (k === regioActual) return;
+      var b = document.createElement("button");
+      b.textContent = "Provar " + REGIONS[k].nom;
+      b.style.cssText = "background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:8px 16px;font-size:.8rem;font-weight:600;cursor:pointer;color:var(--text)";
+      b.onclick = function () { canviarRegio(k); };
+      retryRow.appendChild(b);
+    });
+    var r = document.createElement("button");
+    r.innerHTML = ICO_REFR + "Tornar-ho a provar";
+    r.style.cssText = "display:inline-flex;align-items:center;gap:7px;background:var(--accent);border:1px solid var(--accent);border-radius:999px;padding:8px 16px;font-size:.8rem;font-weight:600;cursor:pointer;color:#fff";
+    r.onclick = function () { delete dades[regioActual]; canviarRegio(regioActual, true); };
+    retryRow.appendChild(r);
+  }
+
+  function carregarIndex(dir) {
+    return fetch(dir + "mapes.json?_=" + Date.now()).then(function (resp) {
+      if (!resp.ok) throw new Error("HTTP " + resp.status);
+      return resp.json();
+    });
+  }
+
+  function fetchBlobURL(dir, nom) {
+    return fetch(dir + nom).then(function (r) {
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      return r.blob();
+    }).then(function (b) { return URL.createObjectURL(b); });
+  }
+
+  function precarregar(dir, idx, dest) {
+    var tasques = [];
+    idx.variables.forEach(function (v) {
+      var fv = idx.fitxers[v.id] || {};
+      idx.fxx.forEach(function (fxx) {
+        var nom = fv[String(fxx)];
+        if (nom) tasques.push({ vid: v.id, fxx: fxx, nom: nom });
+      });
+    });
+    var total = tasques.length, fets = 0, cursor = 0, errors = [];
+    loadCount.textContent = "0 / " + total;
+    barFill.style.width = "0%";
+    if (!total) return Promise.reject(new Error("El mapes.json de " + dir + " no conté cap fitxer."));
+
+    function seguent() {
+      if (cursor >= tasques.length) return Promise.resolve();
+      var t = tasques[cursor++];
+      return fetchBlobURL(dir, t.nom)
+        .then(function (u) { dest[claID(t.vid, t.fxx)] = u; })
+        .catch(function (e) { errors.push(t.nom + ": " + e.message); })
+        .then(function () {
+          fets++;
+          barFill.style.width = Math.round(fets / total * 100) + "%";
+          loadCount.textContent = fets + " / " + total;
+          return seguent();
+        });
+    }
+    var w = []; for (var i = 0; i < 6; i++) w.push(seguent());
+    return Promise.all(w).then(function () {
+      if (errors.length) console.warn("Errors de precàrrega:", errors);
+      predecodificar(dest);
+    });
+  }
+
+  var _pool = [];
+  function predecodificar(c) {
+    var urls = Object.keys(c).map(function (k) { return c[k]; });
+    var i = 0;
+    (function pas() {
+      for (var n = 0; n < 4 && i < urls.length; n++, i++) {
+        var im = new Image(); im.decoding = "async"; im.src = urls[i];
+        if (im.decode) im.decode().then((function (u) { return function () { _decodificades[u] = true; }; })(urls[i]), function () {});
+        _pool.push(im);
+      }
+      if (i < urls.length) setTimeout(pas, 30);
+    })();
+  }
+
+  /* ───── Zona ───── */
+  function actualitzarBotonsRegio() {
+    regionSelector.querySelectorAll("button").forEach(function (b) {
+      b.classList.toggle("current", b.dataset.region === regioActual);
+    });
+  }
+
+  function canviarRegio(clau, forcar) {
+    aturarReproduccio();
+    regioActual = clau;
+    actualitzarBotonsRegio();
+    var dir = REGIONS[clau].dir;
+
+    if (dades[clau] && !forcar) {
+      index = dades[clau].index; cache = dades[clau].cache;
+      arrencarVisor();
+      return;
+    }
+
+    loadingEl.style.display = "flex";
+    loadError.innerHTML = ""; retryRow.innerHTML = "";
+    runInfo.textContent = REGIONS[clau].nom;
+    barFill.style.width = "0%"; loadCount.textContent = "Llegint l'índex…";
+
+    carregarIndex(dir).then(function (idx) {
+      if (!idx || !idx.variables || !idx.variables.length || !idx.fxx || !idx.fxx.length) {
+        throw new Error("El mapes.json no té l'estructura esperada (variables/fxx).");
+      }
+      var c = {};
+      runInfo.textContent = REGIONS[clau].nom + " · Run " + (idx.run_label || idx.run || "");
+      return precarregar(dir, idx, c).then(function () {
+        dades[clau] = { index: idx, cache: c };
+        index = idx; cache = c;
+        arrencarVisor();
+      });
+    }).catch(function (e) {
+      console.error(e);
+      var msg = "No s'ha pogut carregar «" + REGIONS[clau].nom + "»:<br><span style='font-size:.82rem;opacity:.8'>" + e.message + "</span>";
+      if (/mapes\.json/.test(e.message) || /HTTP 404/.test(e.message)) {
+        msg += "<br><br><span style='font-size:.8rem;opacity:.7'>Comprova que existeixi la carpeta <b>" + dir + "</b> amb el fitxer <b>mapes.json</b> i les imatges PNG.</span>";
+      }
+      mostrarError(msg);
+    });
+  }
+
+  function arrencarVisor() {
+    try {
+      var lbl = "Run " + (index.run_label || index.run || "");
+      runLabel.textContent = lbl;
+      nowRun.textContent = lbl + " · " + REGIONS[regioActual].nom;
+
+      var anterior = fxxList.length ? fxxList[currentFxxIdx] : 0;
+      fxxList = index.fxx.slice();
+      construirSelectorVariable();
+      configurarSlider();
+      construirBotonsSalt();
+      construirBotonsVelocitat();
+      var nou = fxxList.indexOf(anterior); if (nou < 0) nou = 0;
+      mostrarPas(nou);
+
+      loadingEl.style.display = "none";
+      viewerEl.classList.add("ready");
+    } catch (e) {
+      console.error(e);
+      loadingEl.style.display = "flex";
+      mostrarError("Error inicialitzant el visor: " + e.message);
+    }
+  }
+
+  /* ───── Selector de variable (CORREGIT) ───── */
+  function construirSelectorVariable() {
+    varSelect.innerHTML = "";
+    var primeraDisponible = null;
+    index.variables.forEach(function (v) {
+      var teAlgunMapa = fxxList.some(function(f){
+        return index.fitxers[v.id] && index.fitxers[v.id][String(f)] !== undefined;
+      });
+      if (!teAlgunMapa) return; // no afegim variables sense cap mapa
+      var o = document.createElement("option");
+      o.value = v.id; o.textContent = v.nom;
+      if (!primeraDisponible) primeraDisponible = v.id;
+      varSelect.appendChild(o);
+    });
+
+    // Si l'actual no està disponible, triem la primera que sí ho estigui
+    var teActual = varSelect.querySelector('option[value="' + vidActual + '"]');
+    if (!teActual) {
+      vidActual = primeraDisponible || (index.variables[0] ? index.variables[0].id : "temp500");
+    }
+    varSelect.value = vidActual;
+
+    // Assegurem que només hi hagi un handler (evita duplicats)
+    varSelect.onchange = function () {
+      vidActual = varSelect.value;
+      actualitzarMapa();
+    };
+  }
+
+  function fxxDisponibleMesProper(vid, idx) {
+    var fv = index.fitxers[vid] || {};
+    if (fv[String(fxxList[idx])] !== undefined) return idx;
+    for (var d = 1; d < fxxList.length; d++) {
+      var a = idx + d, b = idx - d;
+      if (a < fxxList.length && fv[String(fxxList[a])] !== undefined) return a;
+      if (b >= 0 && fv[String(fxxList[b])] !== undefined) return b;
+    }
+    return -1;
+  }
+
+  /* Doble buffer */
+  function ensenyarMapa(url) {
+    if (mapUrlActual === url) return;
+    var mySeq = ++mapSeq;
+    var back = mapBufs[1 - mapFront], front = mapBufs[mapFront];
+
+    function commit() {
+      if (mySeq < mapShown) return;
+      mapShown = mySeq;
+      _decodificades[url] = true;
+      back.classList.add("on");
+      front.classList.remove("on");
+      mapFront = 1 - mapFront;
+      mapUrlActual = url;
+    }
+    back.src = url;
+    if (_decodificades[url]) { commit(); return; }
+    if (back.decode) back.decode().then(commit, commit);
+    else if (back.complete) commit();
+    else { back.onload = commit; back.onerror = commit; }
+  }
+
+  function actualitzarMapa() {
+    if (!index) return;
+    var i = fxxDisponibleMesProper(vidActual, currentFxxIdx);
+    if (i < 0) { mapWrap.classList.add("empty"); stepLabel.textContent = ""; return; }
+    var f = fxxList[i], url = cache[claID(vidActual, f)];
+    if (!url) { mapWrap.classList.add("empty"); return; }
+    mapWrap.classList.remove("empty");
+    ensenyarMapa(url);
+    stepLabel.textContent = "F" + String(f).padStart(3, "0") + (i !== currentFxxIdx ? " (més proper)" : "");
+  }
+
+  /* ───── Controls ───── */
+  function configurarSlider() {
+    fxxSlider.min = 0; fxxSlider.max = Math.max(0, fxxList.length - 1);
+    fxxSlider.value = 0; currentFxxIdx = 0;
+    fxxTotal.textContent = "de " + (fxxList.length ? fxxList[fxxList.length-1] : 0) + "h";
+  }
+
+  function construirBotonsSalt() {
+    jumpRow.innerHTML = "";
+    var run = parseRun(index.run);
+    fxxList.forEach(function (fxx) {
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "jump-btn"; b.dataset.fxx = String(fxx);
+      b.textContent = "+" + fxx + "h";
+      if (run) {
+        var v = new Date(run.getTime() + fxx * 3600000);
+        if (horaLocal(v) < 6) b.classList.add("midnight");
+        b.title = formatLocal(v).dia + " " + formatLocal(v).hora;
+      }
+      b.addEventListener("click", function () { aturarReproduccio(); mostrarPas(fxxList.indexOf(fxx)); });
+      jumpRow.appendChild(b);
+    });
+  }
+
+  function construirBotonsVelocitat() {
+    speedRow.innerHTML = "";
+    VELOCITATS.forEach(function (v, i) {
+      var b = document.createElement("button");
+      b.type = "button"; b.dataset.idx = String(i); b.textContent = v.label;
+      if (i === velocitatActualIdx) b.classList.add("current");
+      b.addEventListener("click", function () {
+        velocitatActualIdx = i;
+        speedRow.querySelectorAll("button").forEach(function (x) { x.classList.toggle("current", +x.dataset.idx === i); });
+        if (playTimer) { aturarReproduccio(true); iniciarReproduccio(); }
+      });
+      speedRow.appendChild(b);
+    });
+  }
+
+  function actualitzarBotonsSalt() {
+    var cur = fxxList[currentFxxIdx];
+    var arrossegant = document.activeElement === fxxSlider;
+    jumpRow.querySelectorAll(".jump-btn").forEach(function (b) {
+      var es = +b.dataset.fxx === cur;
+      b.classList.toggle("current", es);
+      if (es && !arrossegant) b.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
+    });
+  }
+
+  function mostrarPas(idx) {
+    if (!fxxList.length) return;
+    idx = Math.max(0, Math.min(fxxList.length - 1, idx));
+    currentFxxIdx = idx;
+    var fxx = fxxList[idx];
+    if (+fxxSlider.value !== idx) fxxSlider.value = idx;
+    fxxLabel.textContent = "+" + String(fxx).padStart(3, "0") + "h";
+    prevBtn.disabled = idx <= 0; nextBtn.disabled = idx >= fxxList.length - 1;
+
+    var run = parseRun(index.run);
+    if (run) {
+      var f = formatLocal(new Date(run.getTime() + fxx * 3600000));
+      nowDate.innerHTML = f.dia + "<small>" + f.hora + " hora local</small>";
+    } else nowDate.textContent = "+" + fxx + "h";
+
+    actualitzarMapa();
+    actualitzarBotonsSalt();
+  }
+
+  function aturarReproduccio(mantenir) {
+    if (playTimer) { clearInterval(playTimer); playTimer = null; }
+    if (!mantenir) { playBtn.innerHTML = ICO_PLAY; playBtn.title = "Reproduir"; }
+  }
+  function iniciarReproduccio() {
+    if (!fxxList.length) return;
+    playBtn.innerHTML = ICO_PAUSE; playBtn.title = "Pausar";
+    playTimer = setInterval(function () {
+      if (currentFxxIdx >= fxxList.length - 1) {
+        if (loopCheck.checked) mostrarPas(0); else aturarReproduccio();
+      } else mostrarPas(currentFxxIdx + 1);
+    }, VELOCITATS[velocitatActualIdx].ms);
+  }
+  function alternar() { playTimer ? aturarReproduccio() : iniciarReproduccio(); }
+
+  /* ───── Esdeveniments ───── */
+  function events() {
+    var raf = 0;
+    fxxSlider.addEventListener("input", function () {
+      aturarReproduccio();
+      if (raf) return;
+      raf = requestAnimationFrame(function () { raf = 0; mostrarPas(+fxxSlider.value); });
+    });
+    fxxSlider.addEventListener("change", function () { mostrarPas(+fxxSlider.value); });
+
+    prevBtn.addEventListener("click", function () { aturarReproduccio(); mostrarPas(currentFxxIdx - 1); });
+    nextBtn.addEventListener("click", function () { aturarReproduccio(); mostrarPas(currentFxxIdx + 1); });
+    playBtn.addEventListener("click", alternar);
+
+    regionSelector.querySelectorAll("button").forEach(function (b) {
+      b.addEventListener("click", function () {
+        if (b.dataset.region !== regioActual) {
+          canviarRegio(b.dataset.region);
+          if (window.innerWidth <= 900) toggleSidebar();
+        }
+      });
+    });
+
+    mapWrap.addEventListener("click", function () {
+      var vis = mapBufs[mapFront];
+      if (vis && vis.src) { lightboxImg.src = vis.src; lightbox.classList.add("open"); }
+    });
+
+    lightbox.addEventListener("click", function () { lightbox.classList.remove("open"); });
+
+    document.addEventListener("keydown", function (e) {
+      var tag = e.target && e.target.tagName;
+      if (tag === "SELECT" || tag === "TEXTAREA" || tag === "INPUT") return;
+      if (e.key === "Escape") { lightbox.classList.remove("open"); if (sidebarOberta) toggleSidebar(); }
+      else if (e.key === "ArrowLeft")  { aturarReproduccio(); mostrarPas(currentFxxIdx - 1); }
+      else if (e.key === "ArrowRight") { aturarReproduccio(); mostrarPas(currentFxxIdx + 1); }
+      else if (e.key === " " && tag !== "BUTTON") { e.preventDefault(); alternar(); }
+    });
+
+    mapStage.addEventListener("click", function () {
+      if (sidebarOberta && window.innerWidth <= 900) toggleSidebar();
+    });
+  }
+
+  events();
+  canviarRegio("esp");
+})();
+</script>
+</body>
+</html>

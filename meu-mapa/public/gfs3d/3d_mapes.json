@@ -1,0 +1,14 @@
+{
+  "run": "20260923_12z",
+  "fxx": 24,
+  "nivells": [
+    500
+  ],
+  "fitxers": {
+    "500": {
+      "des_del_sud": "3d_500hPa_20260923_12z_f024_des_del_sud.png",
+      "des_del_nord": "3d_500hPa_20260923_12z_f024_des_del_nord.png",
+      "1a_persona": "3d_500hPa_20260923_12z_f024_1a_persona.png"
+    }
+  }
+}
