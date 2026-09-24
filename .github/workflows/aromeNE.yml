@@ -5,21 +5,20 @@ on:
   schedule:
     # AROME publica cada 3h (~00:20, 03:20, 06:20, 09:20, 12:20, 15:20, 18:20, 21:20 UTC)
     # Disparamos 30 min después de cada publicación, para dar margen.
-    # Esto es un respaldo independiente de Cloudflare mientras su Cron Triggers esté caído.
     - cron: '50 0,3,6,9,12,15,18,21 * * *'
 
 permissions:
   contents: write
   deployments: write
 
-# Evita que dos workflows que toquen la branca 'data' s'trepitgin
+# MATEIX grup que el workflow GFS + ENSEMBLES: s'encuen en lloc de trepitjar-se
 concurrency:
   group: deploy-data
   cancel-in-progress: false
 
 jobs:
   # ════════════════════════════════════════════════════════════════
-  #  JOB -1: CHECK - Decideix si s'executa segons el flag intern
+  #  JOB -1: CHECK
   # ════════════════════════════════════════════════════════════════
   check_schedule:
     runs-on: ubuntu-latest
@@ -30,12 +29,9 @@ jobs:
     - name: Gate - activa/desactiva el schedule intern
       id: gate
       run: |
-        # ══════════════════════════════════════════════════════
-        # INTERRUPTOR MANUAL:
-        #   true  -> el schedule intern SÍ s'executa (backup propi, Cloudflare no fiable)
-        #   false -> el schedule intern NO s'executa (Cloudflare ja funciona, s'encarrega ell)
-        # Els disparaments manuals (workflow_dispatch) SEMPRE s'executen, ignorant aquest flag.
-        # ══════════════════════════════════════════════════════
+        # true  -> el schedule intern SÍ s'executa
+        # false -> el schedule intern NO s'executa (Cloudflare s'encarrega)
+        # Els disparaments manuals SEMPRE s'executen.
         USE_INTERNAL_SCHEDULE=false
 
         if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
@@ -45,12 +41,12 @@ jobs:
           echo "Schedule intern ACTIU -> s'executa"
           echo "should_run=true" >> "$GITHUB_OUTPUT"
         else
-          echo "Schedule intern DESACTIVAT (Cloudflare s'encarrega) -> NO s'executa"
+          echo "Schedule intern DESACTIVAT -> NO s'executa"
           echo "should_run=false" >> "$GITHUB_OUTPUT"
         fi
 
   # ════════════════════════════════════════════════════════════════
-  #  JOB 0: NETEJA - Borra carpetes abans de començar
+  #  JOB 0: NETEJA
   # ════════════════════════════════════════════════════════════════
   neteja:
     runs-on: ubuntu-latest
@@ -87,17 +83,14 @@ jobs:
 
     - name: Verificar carpetes netes
       run: |
-        echo "=== Estat de les carpetes després de la neteja ==="
         echo "--- web_data_NE ---"
         ls -la meu-mapa/public/web_data_NE/ 2>/dev/null || echo "buit"
         echo "--- webdata_waves ---"
         ls -la meu-mapa/public/webdata_waves/ 2>/dev/null || echo "buit"
-        echo "--- logs ---"
-        ls -la meu-mapa/public/logs/ 2>/dev/null || echo "buit"
         echo "✓ Neteja completada"
 
   # ════════════════════════════════════════════════════════════════
-  #  JOB 1: SFC (arome_sfc.py)
+  #  JOB 1: SFC
   # ════════════════════════════════════════════════════════════════
   arome_sfc:
     runs-on: ubuntu-latest
@@ -147,7 +140,6 @@ jobs:
     - name: Mostrar log de arome_sfc.py si falla
       if: failure()
       run: |
-        echo "=== LOG DE AROME_SFC.PY ==="
         find . -name "*.log" -type f -exec cat {} \; 2>/dev/null || echo "No s'ha trobat cap log"
 
     - name: Pujar SFC com a artifact
@@ -158,7 +150,7 @@ jobs:
         retention-days: 5
 
   # ════════════════════════════════════════════════════════════════
-  #  JOB 2: 3D (arome_3d.py)
+  #  JOB 2: 3D
   # ════════════════════════════════════════════════════════════════
   arome_3d:
     runs-on: ubuntu-latest
@@ -187,7 +179,7 @@ jobs:
         python3 -m pip install numpy requests tifffile scipy python-dotenv lxml xarray cfgrib meteofetch matplotlib msgpack
       continue-on-error: true
 
-    - name: Netejar web_data_NE (3d)
+    - name: Preparar web_data_NE (3d)
       run: |
         mkdir -p meu-mapa/public/web_data_NE
         echo "preparat"
@@ -207,7 +199,6 @@ jobs:
     - name: Mostrar log de arome_3d.py si falla
       if: failure()
       run: |
-        echo "=== LOG DE AROME_3D.PY ==="
         find . -name "*.log" -type f -exec cat {} \; 2>/dev/null || echo "No s'ha trobat cap log"
 
     - name: Pujar 3D com a artifact
@@ -218,7 +209,7 @@ jobs:
         retention-days: 5
 
   # ════════════════════════════════════════════════════════════════
-  #  JOB 3: ONES (ones.py)
+  #  JOB 3: ONES
   # ════════════════════════════════════════════════════════════════
   ones:
     runs-on: ubuntu-latest
@@ -247,7 +238,7 @@ jobs:
         python3 -m pip install numpy requests scipy python-dotenv lxml xarray cfgrib meteofetch matplotlib msgpack
       continue-on-error: true
 
-    - name: Netejar sortida Ones
+    - name: Preparar sortida Ones
       run: |
         mkdir -p meu-mapa/public/webdata_waves
         echo "preparat"
@@ -276,7 +267,7 @@ jobs:
         retention-days: 5
 
   # ════════════════════════════════════════════════════════════════
-  #  JOB 4: STATUS (status.py) - GENERA status.js
+  #  JOB 4: STATUS
   # ════════════════════════════════════════════════════════════════
   status:
     runs-on: ubuntu-latest
@@ -298,11 +289,9 @@ jobs:
         python-version: '3.11'
 
     - name: Instal·lar dependencies (bàsiques)
-      run: |
-        python3 -m pip install --upgrade pip
-        # status.py només necessita Python estàndard
+      run: python3 -m pip install --upgrade pip
 
-    - name: Descarregar artifact - SFC (per si cal)
+    - name: Descarregar artifact - SFC
       if: needs.arome_sfc.result == 'success'
       uses: actions/download-artifact@v4
       with:
@@ -310,7 +299,7 @@ jobs:
         path: meu-mapa/public/web_data_NE/
       continue-on-error: true
 
-    - name: Descarregar artifact - 3D (per si cal)
+    - name: Descarregar artifact - 3D
       if: needs.arome_3d.result == 'success'
       uses: actions/download-artifact@v4
       with:
@@ -318,7 +307,7 @@ jobs:
         path: meu-mapa/public/web_data_NE/
       continue-on-error: true
 
-    - name: Descarregar artifact - ONES (per si cal)
+    - name: Descarregar artifact - ONES
       if: needs.ones.result == 'success'
       uses: actions/download-artifact@v4
       with:
@@ -333,9 +322,7 @@ jobs:
       timeout-minutes: 5
 
     - name: Mostrar status.js generat
-      run: |
-        echo "=== status.js generat ==="
-        cat meu-mapa/public/js/status.js 2>/dev/null || echo "No s'ha trobat status.js"
+      run: cat meu-mapa/public/js/status.js 2>/dev/null || echo "No s'ha trobat status.js"
 
     - name: Pujar status.js com a artifact
       uses: actions/upload-artifact@v4
@@ -345,7 +332,7 @@ jobs:
         retention-days: 5
 
   # ════════════════════════════════════════════════════════════════
-  #  JOB 5: MANIFEST - Genera manifest.json (NOMÉS DESPRÉS de status)
+  #  JOB 5: MANIFEST
   # ════════════════════════════════════════════════════════════════
   manifest:
     runs-on: ubuntu-latest
@@ -389,9 +376,7 @@ jobs:
       timeout-minutes: 5
 
     - name: Mostrar manifest.json generat
-      run: |
-        echo "=== manifest.json generat ==="
-        cat meu-mapa/public/web_data_NE/manifest.json 2>/dev/null || echo "No s'ha trobat manifest.json"
+      run: cat meu-mapa/public/web_data_NE/manifest.json 2>/dev/null || echo "No s'ha trobat manifest.json"
 
     - name: Pujar manifest com a artifact
       uses: actions/upload-artifact@v4
@@ -401,15 +386,13 @@ jobs:
         retention-days: 5
 
   # ════════════════════════════════════════════════════════════════
-  #  JOB FINAL: deploy (NOMÉS DESPRÉS de manifest)
+  #  JOB FINAL: deploy — robust: relectura fresca de 'data' + reintents
   # ════════════════════════════════════════════════════════════════
   deploy:
     needs: [check_schedule, arome_sfc, arome_3d, ones, status, manifest]
     if: always() && needs.check_schedule.outputs.should_run == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    env:
-      SCRIPTS_FALLITS: ""
 
     steps:
     - uses: actions/checkout@v4
@@ -417,44 +400,21 @@ jobs:
         token: ${{ secrets.PRIVATE_REPO_TOKEN }}
         fetch-depth: 0
 
-    - name: Comprovar resultat dels jobs anteriors
+    - name: Resultat dels jobs anteriors
       run: |
-        FALLITS=""
-        if [ "${{ needs.arome_sfc.result }}" != "success" ]; then FALLITS="$FALLITS sfc"; fi
-        if [ "${{ needs.arome_3d.result }}" != "success" ]; then FALLITS="$FALLITS 3d"; fi
-        if [ "${{ needs.ones.result }}" != "success" ]; then FALLITS="$FALLITS ones"; fi
-        if [ "${{ needs.status.result }}" != "success" ]; then FALLITS="$FALLITS status"; fi
-        if [ "${{ needs.manifest.result }}" != "success" ]; then FALLITS="$FALLITS manifest"; fi
-        if [ -n "$FALLITS" ]; then
-          echo "ATTENCIO: Jobs que NO han acabat en exit:$FALLITS (es continua igualment)"
-          echo "SCRIPTS_FALLITS=$FALLITS" >> "$GITHUB_ENV"
-        else
-          echo "OK Tots els jobs han acabat en exit"
-        fi
+        echo "sfc:      ${{ needs.arome_sfc.result }}"
+        echo "3d:       ${{ needs.arome_3d.result }}"
+        echo "ones:     ${{ needs.ones.result }}"
+        echo "status:   ${{ needs.status.result }}"
+        echo "manifest: ${{ needs.manifest.result }}"
 
-    # ── NOU: recuperar de la branca 'data' el que aquest workflow NO genera ──
-    #    (avis + previsions dels ensembles), perquè el deploy no els esborri.
-    - name: 📥 Recuperar avis i previsions de la branca 'data'
-      run: |
-        if ! git fetch origin data; then
-          echo "⚠️  No existeix la branca 'data' encara, s'omet"
-          exit 0
-        fi
-        rm -rf /tmp/data-branch
-        git worktree add /tmp/data-branch origin/data
-        mkdir -p meu-mapa/public/avis meu-mapa/public/previsions_catalunya
-        cp -r /tmp/data-branch/avis/. meu-mapa/public/avis/ 2>/dev/null || echo "⚠️  avis no trobat a la branca data"
-        cp -r /tmp/data-branch/previsions_catalunya/. meu-mapa/public/previsions_catalunya/ 2>/dev/null || echo "⚠️  previsions_catalunya no trobat a la branca data"
-        git worktree remove /tmp/data-branch --force
-        echo "✅ avis i previsions recuperats de 'data'"
-      continue-on-error: true
-
+    # Baixem els artifacts a /tmp (NO toquem encara public/)
     - name: Descarregar artifact - SFC
       if: needs.arome_sfc.result == 'success'
       uses: actions/download-artifact@v4
       with:
         name: dades-sfc
-        path: meu-mapa/public/web_data_NE/
+        path: /tmp/nou-sfc
       continue-on-error: true
 
     - name: Descarregar artifact - 3D
@@ -462,7 +422,7 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: dades-3d
-        path: meu-mapa/public/web_data_NE/
+        path: /tmp/nou-3d
       continue-on-error: true
 
     - name: Descarregar artifact - ONES
@@ -470,7 +430,7 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: dades-ones
-        path: meu-mapa/public/webdata_waves/
+        path: /tmp/nou-ones
       continue-on-error: true
 
     - name: Descarregar artifact - STATUS
@@ -478,7 +438,7 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: dades-status
-        path: meu-mapa/public/js/
+        path: /tmp/nou-status
       continue-on-error: true
 
     - name: Descarregar artifact - MANIFEST
@@ -486,33 +446,131 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: dades-manifest
-        path: meu-mapa/public/web_data_NE/
+        path: /tmp/nou-manifest
       continue-on-error: true
+
+    # ── Fusionar amb 'data' FRESCA i publicar, amb reintents anti-cursa ──
+    - name: 🔒 Fusionar i publicar a 'data' (reintents anti-cursa)
+      run: |
+        set -e
+        P="$GITHUB_WORKSPACE/meu-mapa/public"
+        MAX_INTENTS=5
+        INTENT=1
+        PUBLICAT=0
+
+        while [ $INTENT -le $MAX_INTENTS ]; do
+          echo "=== Intent $INTENT/$MAX_INTENTS ==="
+
+          # 1) Llegim 'data' EN FRESC
+          cd "$GITHUB_WORKSPACE"
+          git fetch origin data || echo "⚠️ No existeix 'data' encara"
+          DATA_SHA_ABANS=$(git rev-parse origin/data 2>/dev/null || echo "none")
+
+          rm -rf /tmp/data-branch
+          rm -rf "$P"
+          mkdir -p "$P/web_data_NE" "$P/webdata_waves" "$P/js" "$P/avis" \
+                   "$P/previsions_catalunya" "$P/gfsmaps" "$P/gfsESPmaps"
+
+          if [ "$DATA_SHA_ABANS" != "none" ]; then
+            git worktree add -f /tmp/data-branch origin/data
+            # Base: TOT el que hi ha a 'data' (inclou el que NO genera aquest workflow)
+            for c in web_data_NE webdata_waves avis previsions_catalunya gfsmaps gfsESPmaps; do
+              cp -r /tmp/data-branch/$c/. "$P/$c/" 2>/dev/null || echo "  ⚠️ $c no trobat a data"
+            done
+            cp /tmp/data-branch/js/status.js "$P/js/status.js" 2>/dev/null || true
+            git worktree remove /tmp/data-branch --force
+          fi
+
+          # 2) Sobreescrivim NOMÉS el que aquest workflow ha generat de nou
+          #    web_data_NE: es substitueix sencer (SFC + 3D + manifest)
+          if [ -d /tmp/nou-sfc ] || [ -d /tmp/nou-3d ]; then
+            rm -rf "$P/web_data_NE"; mkdir -p "$P/web_data_NE"
+            [ -d /tmp/nou-sfc ] && cp -r /tmp/nou-sfc/. "$P/web_data_NE/"
+            [ -d /tmp/nou-3d ] && cp -r /tmp/nou-3d/. "$P/web_data_NE/"
+            echo "  ↳ web_data_NE: substituït pel nou run"
+          fi
+          if [ -d /tmp/nou-manifest ]; then
+            cp /tmp/nou-manifest/manifest.json "$P/web_data_NE/manifest.json" 2>/dev/null || true
+          fi
+          if [ -d /tmp/nou-ones ] && [ -n "$(ls -A /tmp/nou-ones 2>/dev/null)" ]; then
+            rm -rf "$P/webdata_waves"; mkdir -p "$P/webdata_waves"
+            cp -r /tmp/nou-ones/. "$P/webdata_waves/"
+            echo "  ↳ webdata_waves: substituït pel nou run"
+          fi
+          if [ -f /tmp/nou-status/status.js ]; then
+            cp /tmp/nou-status/status.js "$P/js/status.js"
+            echo "  ↳ status.js: actualitzat"
+          fi
+
+          echo "--- Resum abans de publicar ---"
+          echo "web_data_NE:  $(find $P/web_data_NE -type f 2>/dev/null | wc -l) fitxers"
+          echo "webdata_waves: $(find $P/webdata_waves -type f 2>/dev/null | wc -l) fitxers"
+          echo "avis:         $(find $P/avis -type f 2>/dev/null | wc -l) fitxers"
+          echo "previsions:   $(find $P/previsions_catalunya -name '*.png' 2>/dev/null | wc -l) PNG"
+          echo "gfsmaps:      $(find $P/gfsmaps -name '*.png' 2>/dev/null | wc -l) PNG"
+          echo "gfsESPmaps:   $(find $P/gfsESPmaps -name '*.png' 2>/dev/null | wc -l) PNG"
+
+          # 3) Preparem el commit per a 'data'
+          rm -rf /tmp/publish && mkdir -p /tmp/publish
+          cp -r "$P/." /tmp/publish/
+          cd /tmp/publish
+          rm -rf .git
+          git init -q
+          git checkout -q -b data
+
+          AFEGIT=0
+          for c in web_data_NE webdata_waves avis previsions_catalunya gfsmaps gfsESPmaps; do
+            if [ -n "$(find "$c" -type f 2>/dev/null)" ]; then
+              git add "$c"; AFEGIT=1
+            else
+              echo "  ⚠️ $c buida, s'omet"
+            fi
+          done
+          [ -f js/status.js ] && { git add js/status.js; AFEGIT=1; }
+
+          if [ "$AFEGIT" != "1" ]; then
+            echo "❌ Res a publicar"; break
+          fi
+
+          git -c user.name="bot-dades" -c user.email="bot@tempestes-cat" \
+              commit -q -m "dades $(date -u +'%Y-%m-%d %H:%M UTC')"
+
+          REMOTE_URL="https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/Tempestesscatt/joctempestes.git"
+          git remote add origin "$REMOTE_URL"
+
+          # 4) Comprovem que 'data' remota no ha canviat mentre treballàvem
+          DATA_SHA_ARA=$(git ls-remote origin data | cut -f1)
+          [ -z "$DATA_SHA_ARA" ] && DATA_SHA_ARA="none"
+
+          if [ "$DATA_SHA_ABANS" != "$DATA_SHA_ARA" ]; then
+            echo "⚠️  'data' ha canviat (altre workflow ha publicat). Reintentem amb dades fresques..."
+            INTENT=$((INTENT + 1))
+            sleep $((RANDOM % 10 + 5))
+            continue
+          fi
+
+          if git push --force origin data; then
+            echo "✅ Publicat a 'data' (intent $INTENT)"
+            PUBLICAT=1
+            break
+          else
+            echo "⚠️  Push fallit. Reintentem..."
+            INTENT=$((INTENT + 1))
+            sleep $((RANDOM % 10 + 5))
+          fi
+        done
+
+        if [ "$PUBLICAT" != "1" ]; then
+          echo "❌ No s'ha pogut publicar a 'data' després de $MAX_INTENTS intents"
+          exit 1
+        fi
 
     - name: Comprovar mida de fitxers (limit 25 MiB de Cloudflare Pages)
       run: |
-        echo "Fitxers per sobre de 25 MiB a tot public/ (fallarien el deploy):"
-        find meu-mapa/public -type f -size +25M -exec ls -lh {} \; || echo "Cap fitxer supera el limit OK"
+        find meu-mapa/public -type f -size +25M -exec ls -lh {} \; || true
+        echo "Comprovació de mida acabada"
 
-    - name: Dades generades (resum)
-      run: |
-        cd meu-mapa
-        echo "Dades meteorologiques generades correctament."
-        echo "--- web_data_NE (sfc + 3d) ---"
-        ls public/web_data_NE/ 2>/dev/null | wc -l || echo "buit"
-        echo "--- webdata_waves ---"
-        ls public/webdata_waves/ 2>/dev/null | wc -l || echo "buit"
-        echo "--- avis ---"
-        ls public/avis/ 2>/dev/null | wc -l || echo "buit"
-        echo "--- previsions_catalunya (PNG) ---"
-        find public/previsions_catalunya -name "*.png" -type f 2>/dev/null | wc -l || echo "buit"
-        echo "--- status.js ---"
-        ls -la public/js/status.js 2>/dev/null || echo "No existeix"
-        echo "--- manifest.json ---"
-        cat public/web_data_NE/manifest.json 2>/dev/null || echo "No existeix"
-        echo "Pes total: $(du -sh public 2>/dev/null | cut -f1)"
-
-    - name: Deploy a Cloudflare
+    - name: Deploy a Cloudflare (amb l'estat final ja fusionat)
       run: |
         cd meu-mapa
         npm install -g wrangler
@@ -521,58 +579,10 @@ jobs:
         CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
-    - name: 📤 Publicar dades a la branca 'data' (force-push, sense historial)
-      run: |
-        cd meu-mapa/public
-        mkdir -p web_data_NE webdata_waves js avis previsions_catalunya
-        rm -rf .git
-        git init -q
-        git checkout -q -b data
-
-        AFEGIT=0
-        # web_data_NE i webdata_waves ara van juntament amb avis i previsions_catalunya,
-        # perquè el force-push reescriu tota la branca i no s'ha de perdre res.
-        for carpeta in web_data_NE webdata_waves avis previsions_catalunya; do
-          if [ -n "$(find "$carpeta" -type f 2>/dev/null)" ]; then
-            git add "$carpeta"
-            AFEGIT=1
-          else
-            echo "⚠️  $carpeta buida o inexistent, s'omet"
-          fi
-        done
-        if [ -f js/status.js ]; then
-          git add js/status.js
-          AFEGIT=1
-        else
-          echo "⚠️  js/status.js no existeix, s'omet"
-        fi
-
-        if [ "$AFEGIT" = "1" ]; then
-          git -c user.name="bot-dades" -c user.email="bot@tempestes-cat" commit -q -m "dades $(date -u +'%Y-%m-%d %H:%M UTC')"
-          git push --force "https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/Tempestesscatt/joctempestes.git" data
-          echo "✅ Dades publicades a la branca 'data'"
-        else
-          echo "❌ Cap dada disponible per publicar, s'omet el push"
-        fi
-      continue-on-error: true
-
-    - name: Comprovar si algun job ha fallat
-      run: |
-        FALLITS="${{ env.SCRIPTS_FALLITS }}"
-        if echo "$FALLITS" | grep -q "sfc" && echo "$FALLITS" | grep -q "3d" && echo "$FALLITS" | grep -q "ones" && echo "$FALLITS" | grep -q "status"; then
-          echo "ERROR: Tots els jobs principals han fallat ($FALLITS)"
-          exit 1
-        elif [ -n "$FALLITS" ]; then
-          echo "AVIS: Algun job ha fallat:$FALLITS (es continua)"
-        else
-          echo "OK Tots els jobs han acabat en exit"
-        fi
-
     - name: Completat
       run: |
         echo "============================================"
-        echo "  OK TOT COMPLETAT (sfc + 3d + ones + status + manifest)!"
-        echo "  Dades desplegades a Cloudflare Pages"
-        echo "  Dades publicades a la branca 'data' (mapa + avis + previsions)"
-        echo "  status.js i manifest.json generats correctament"
+        echo "  ✅ TOT COMPLETAT (sfc + 3d + ones + status + manifest)"
+        echo "  Dades fusionades amb 'data' i desplegades a Cloudflare"
+        echo "  Hora: $(date -u)"
         echo "============================================"
