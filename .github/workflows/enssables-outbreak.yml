@@ -154,6 +154,7 @@ jobs:
 
   # ════════════════════════════════════════════════════════════════
   #  DEPLOY — robust: relectura fresca de 'data' i push protegit
+  #  + PROTECCIÓ dels fitxers estàtics (selector.html, index.html, etc.)
   # ════════════════════════════════════════════════════════════════
   deploy:
     needs: [gfsmap, gfsne, ensembles]
@@ -195,7 +196,7 @@ jobs:
         path: /tmp/nou-previsions
 
     # ── Llegeix 'data' EN FRESC, fusiona, publica; reintenta si hi ha cursa ──
-    - name: 🔒 Fusionar i publicar (amb reintents anti-cursa)
+    - name: 🔒 Fusionar i publicar (reintents anti-cursa + estàtics protegits)
       run: |
         P="$GITHUB_WORKSPACE/meu-mapa/public"
         CARPETES="web_data_NE webdata_waves avis gfsmaps gfsESPmaps previsions_catalunya"
@@ -212,9 +213,29 @@ jobs:
           DATA_SHA_ABANS=$(git ls-remote "$REMOTE_URL" refs/heads/data | cut -f1)
           [ -z "$DATA_SHA_ABANS" ] && DATA_SHA_ABANS="none"
 
+          # ── PROTECCIÓ ESTÀTICS: guardem TOT el que ja hi ha a public/ ──
+          #    (ve del checkout de main: selector.html, index.html, css/, etc.)
+          #    abans de destruir-lo, EXCEPTE les carpetes que gestiona 'data'.
+          rm -rf /tmp/estatic-base
+          mkdir -p /tmp/estatic-base
+          if [ -d "$P" ]; then
+            cp -r "$P"/. /tmp/estatic-base/
+            for c in $CARPETES; do
+              rm -rf "/tmp/estatic-base/$c"
+            done
+            rm -f /tmp/estatic-base/js/status.js
+          fi
+          echo "--- Fitxers/carpetes estàtics protegits en aquest intent ---"
+          find /tmp/estatic-base -maxdepth 1
+          # ── FI PROTECCIÓ ESTÀTICS ──
+
           rm -rf /tmp/data-branch "$P"
           mkdir -p "$P/js"
           for c in $CARPETES; do mkdir -p "$P/$c"; done
+
+          # ── PROTECCIÓ ESTÀTICS: restaurem ABANS de fusionar amb 'data' ──
+          cp -r /tmp/estatic-base/. "$P/"
+          # ── FI PROTECCIÓ ESTÀTICS ──
 
           if [ "$DATA_SHA_ABANS" != "none" ]; then
             git fetch origin data
@@ -252,6 +273,7 @@ jobs:
           done
           echo "Run GFS:    $(grep -o '"run": *"[^"]*"' $P/gfsmaps/mapes.json 2>/dev/null | head -1)"
           echo "Run GFS NE: $(grep -o '"run": *"[^"]*"' $P/gfsESPmaps/mapes.json 2>/dev/null | head -1)"
+          if [ -f "$P/selector.html" ]; then echo "selector.html present?: SI"; else echo "selector.html present?: NO"; fi
 
           # 3) Preparem el commit per a 'data'
           rm -rf /tmp/publish && mkdir -p /tmp/publish

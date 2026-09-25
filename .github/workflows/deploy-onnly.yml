@@ -22,6 +22,21 @@ jobs:
         git config --global url."https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/".insteadOf "https://github.com/"
         git submodule update --init --recursive
 
+    - name: 🔎 Diagnòstic del submòdul (per detectar si va desactualitzat)
+      run: |
+        echo "--- Estat del submòdul meu-mapa ---"
+        git submodule status
+        echo ""
+        echo "--- Últim commit dins del submòdul ---"
+        git -C meu-mapa log -1 --format="%H %ci %s" 2>/dev/null || echo "No s'ha pogut llegir el log del submòdul"
+        echo ""
+        if [ -f meu-mapa/public/selector.html ]; then
+          echo "✅ selector.html present just després del checkout del submòdul"
+        else
+          echo "❌ selector.html NO present just després del checkout del submòdul"
+          echo "   -> El submòdul està apuntant a un commit antic, o el fitxer no és a la branca del submòdul."
+        fi
+
     - name: 📥 Traer dades de la branca 'data'
       run: |
         git fetch origin data
@@ -34,6 +49,17 @@ jobs:
         git worktree remove /tmp/data-branch --force
         echo "✅ Dades de la branca 'data' aplicades sobre main (només al filesystem, no es commiteja res)"
       continue-on-error: true
+
+    - name: 🛡️ Comprovació final dels estàtics abans del deploy
+      run: |
+        echo "--- Fitxers HTML/estàtics a l'arrel de public/ ---"
+        find meu-mapa/public -maxdepth 1 -type f
+        echo ""
+        if [ -f meu-mapa/public/selector.html ]; then
+          echo "✅ selector.html present, es desplegarà"
+        else
+          echo "❌❌❌ selector.html NO present, NO es desplegarà (revisa el submòdul o el checkout) ❌❌❌"
+        fi
 
     - name: 📊 Resum de dades abans del deploy
       run: |

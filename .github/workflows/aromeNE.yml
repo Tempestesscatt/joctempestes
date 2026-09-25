@@ -387,6 +387,7 @@ jobs:
 
   # ════════════════════════════════════════════════════════════════
   #  JOB FINAL: deploy — robust: relectura fresca de 'data' + reintents
+  #  + PROTECCIÓ dels fitxers estàtics (selector.html, index.html, etc.)
   # ════════════════════════════════════════════════════════════════
   deploy:
     needs: [check_schedule, arome_sfc, arome_3d, ones, status, manifest]
@@ -450,7 +451,7 @@ jobs:
       continue-on-error: true
 
     # ── Fusionar amb 'data' FRESCA i publicar, amb reintents anti-cursa ──
-    - name: 🔒 Fusionar i publicar a 'data' (reintents anti-cursa)
+    - name: 🔒 Fusionar i publicar a 'data' (reintents anti-cursa + estàtics protegits)
       run: |
         set -e
         P="$GITHUB_WORKSPACE/meu-mapa/public"
@@ -466,10 +467,33 @@ jobs:
           git fetch origin data || echo "⚠️ No existeix 'data' encara"
           DATA_SHA_ABANS=$(git rev-parse origin/data 2>/dev/null || echo "none")
 
+          # ── PROTECCIÓ ESTÀTICS: guardem TOT el que ja hi ha a public/ ──
+          #    (ve del checkout de main: selector.html, index.html, css/, etc.)
+          #    abans de destruir-lo, EXCEPTE les carpetes que gestiona 'data'.
+          #    Així qualsevol fitxer estàtic, present o futur, queda protegit
+          #    sense haver de llistar-lo a mà.
+          CARPETES_DADES="web_data_NE webdata_waves avis previsions_catalunya gfsmaps gfsESPmaps"
+          rm -rf /tmp/estatic-base
+          mkdir -p /tmp/estatic-base
+          if [ -d "$P" ]; then
+            cp -r "$P"/. /tmp/estatic-base/
+            for c in $CARPETES_DADES; do
+              rm -rf "/tmp/estatic-base/$c"
+            done
+            rm -f /tmp/estatic-base/js/status.js
+          fi
+          echo "--- Fitxers/carpetes estàtics protegits en aquest intent ---"
+          find /tmp/estatic-base -maxdepth 1
+          # ── FI PROTECCIÓ ESTÀTICS ──
+
           rm -rf /tmp/data-branch
           rm -rf "$P"
           mkdir -p "$P/web_data_NE" "$P/webdata_waves" "$P/js" "$P/avis" \
                    "$P/previsions_catalunya" "$P/gfsmaps" "$P/gfsESPmaps"
+
+          # ── PROTECCIÓ ESTÀTICS: restaurem ABANS de fusionar amb 'data' ──
+          cp -r /tmp/estatic-base/. "$P/"
+          # ── FI PROTECCIÓ ESTÀTICS ──
 
           if [ "$DATA_SHA_ABANS" != "none" ]; then
             git worktree add -f /tmp/data-branch origin/data
@@ -509,6 +533,7 @@ jobs:
           echo "previsions:   $(find $P/previsions_catalunya -name '*.png' 2>/dev/null | wc -l) PNG"
           echo "gfsmaps:      $(find $P/gfsmaps -name '*.png' 2>/dev/null | wc -l) PNG"
           echo "gfsESPmaps:   $(find $P/gfsESPmaps -name '*.png' 2>/dev/null | wc -l) PNG"
+          if [ -f "$P/selector.html" ]; then echo "selector.html present?: SI"; else echo "selector.html present?: NO"; fi
 
           # 3) Preparem el commit per a 'data'
           rm -rf /tmp/publish && mkdir -p /tmp/publish
