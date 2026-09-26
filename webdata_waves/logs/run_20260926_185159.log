@@ -1,0 +1,93 @@
+=================================================================
+  MFWAM0025 48h: onatge + vent marí · costa catalana
+=================================================================
+  Comprovant connexió... ✓
+
+  Descàrrega MFWAM0025 SP1 (intent 1/5)... 
+
+  ⚠️  Ctrl+C. Acabant petició en curs i desant...
+
+
+  ⚠️  Ctrl+C. Acabant petició en curs i desant...
+✓
+  Variables descarregades: ['si10', 'wdir10', 'unknown', 'swdir', 'swh', 'mwd', 'pp1d', 'mwp', 'shww', 'mpww', 'shts', 'mpts', 'wvdir']
+
+  ╔══════════════════════════════════════╗
+  ║  🌊 Retallant a costa catalana (13 vars)  ║
+  ╚══════════════════════════════════════╝
+  Hores disponibles: 48. Processant les primeres 48.
+    +10/48h processades
+    +20/48h processades
+    +30/48h processades
+    +40/48h processades
+    +48/48h processades
+  ✅ Graella: 80×116 = 9280 punts
+
+  ╔══════════════════════════════════════╗
+  ║  📦 GENERANT JSONs                    ║
+  ╚══════════════════════════════════════╝
+  mar_00.json: 667 KB (12 vars) | +00h | 2026-09-26 15:00 CEST
+  mar_01.json: 668 KB (12 vars) | +01h | 2026-09-26 16:00 CEST
+  mar_02.json: 669 KB (12 vars) | +02h | 2026-09-26 17:00 CEST
+  mar_03.json: 670 KB (12 vars) | +03h | 2026-09-26 18:00 CEST
+  mar_04.json: 671 KB (12 vars) | +04h | 2026-09-26 19:00 CEST
+  mar_05.json: 672 KB (12 vars) | +05h | 2026-09-26 20:00 CEST
+  mar_06.json: 671 KB (12 vars) | +06h | 2026-09-26 21:00 CEST
+  mar_07.json: 670 KB (12 vars) | +07h | 2026-09-26 22:00 CEST
+  mar_08.json: 669 KB (12 vars) | +08h | 2026-09-26 23:00 CEST
+  mar_09.json: 669 KB (12 vars) | +09h | 2026-09-27 00:00 CEST
+  mar_10.json: 669 KB (12 vars) | +10h | 2026-09-27 01:00 CEST
+  mar_11.json: 668 KB (12 vars) | +11h | 2026-09-27 02:00 CEST
+  mar_12.json: 666 KB (12 vars) | +12h | 2026-09-27 03:00 CEST
+  mar_13.json: 665 KB (12 vars) | +13h | 2026-09-27 04:00 CEST
+  mar_14.json: 665 KB (12 vars) | +14h | 2026-09-27 05:00 CEST
+  mar_15.json: 667 KB (12 vars) | +15h | 2026-09-27 06:00 CEST
+  mar_16.json: 668 KB (12 vars) | +16h | 2026-09-27 07:00 CEST
+  mar_17.json: 670 KB (12 vars) | +17h | 2026-09-27 08:00 CEST
+  mar_18.json: 670 KB (12 vars) | +18h | 2026-09-27 09:00 CEST
+  mar_19.json: 671 KB (12 vars) | +19h | 2026-09-27 10:00 CEST
+  mar_20.json: 671 KB (12 vars) | +20h | 2026-09-27 11:00 CEST
+  mar_21.json: 671 KB (12 vars) | +21h | 2026-09-27 12:00 CEST
+  mar_22.json: 672 KB (12 vars) | +22h | 2026-09-27 13:00 CEST
+  mar_23.json: 673 KB (12 vars) | +23h | 2026-09-27 14:00 CEST
+  mar_24.json: 673 KB (12 vars) | +24h | 2026-09-27 15:00 CEST
+  mar_25.json: 673 KB (12 vars) | +25h | 2026-09-27 16:00 CEST
+  mar_26.json: 673 KB (12 vars) | +26h | 2026-09-27 17:00 CEST
+  mar_27.json: 674 KB (12 vars) | +27h | 2026-09-27 18:00 CEST
+  mar_28.json: 674 KB (12 vars) | +28h | 2026-09-27 19:00 CEST
+  mar_29.json: 673 KB (12 vars) | +29h | 2026-09-27 20:00 CEST
+  mar_30.json: 673 KB (12 vars) | +30h | 2026-09-27 21:00 CEST
+  mar_31.json: 674 KB (12 vars) | +31h | 2026-09-27 22:00 CEST
+  mar_32.json: 675 KB (12 vars) | +32h | 2026-09-27 23:00 CEST
+  mar_33.json: 675 KB (12 vars) | +33h | 2026-09-28 00:00 CEST
+  mar_34.json: 675 KB (12 vars) | +34h | 2026-09-28 01:00 CEST
+  mar_35.json: 676 KB (12 vars) | +35h | 2026-09-28 02:00 CEST
+  mar_36.json: 675 KB (12 vars) | +36h | 2026-09-28 03:00 CEST
+  mar_37.json: 676 KB (12 vars) | +37h | 2026-09-28 04:00 CEST
+  mar_38.json: 677 KB (12 vars) | +38h | 2026-09-28 05:00 CEST
+  mar_39.json: 677 KB (12 vars) | +39h | 2026-09-28 06:00 CEST
+  mar_40.json: 678 KB (12 vars) | +40h | 2026-09-28 07:00 CEST
+  mar_41.json: 679 KB (12 vars) | +41h | 2026-09-28 08:00 CEST
+  mar_42.json: 679 KB (12 vars) | +42h | 2026-09-28 09:00 CEST
+  mar_43.json: 679 KB (12 vars) | +43h | 2026-09-28 10:00 CEST
+  mar_44.json: 679 KB (12 vars) | +44h | 2026-09-28 11:00 CEST
+  mar_45.json: 679 KB (12 vars) | +45h | 2026-09-28 12:00 CEST
+  mar_46.json: 680 KB (12 vars) | +46h | 2026-09-28 13:00 CEST
+  mar_47.json: 680 KB (12 vars) | +47h | 2026-09-28 14:00 CEST
+
+  ╔══════════════════════════════════════╗
+  ║  🔎 INFORME D'INTEGRITAT              ║
+  ╚══════════════════════════════════════╝
+  ✅ Totes les 48 hores tenen variables crítiques
+
+  📊 status.json: 520 B
+
+  ╔══════════════════════════════════════╗
+  ║  ✅ FINALITZAT
+  ╠══════════════════════════════════════╣
+  ║  Fitxers: 48 (hores: 48/48)
+  ║  Pes total: 31.5 MB
+  ║  Temps: 58s
+  ╚══════════════════════════════════════╝
+
+  📝 Log: /home/runner/work/joctempestes/joctempestes/meu-mapa/public/webdata_waves/logs/run_20260926_185159.log
