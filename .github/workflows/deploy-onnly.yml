@@ -22,77 +22,45 @@ jobs:
         git config --global url."https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/".insteadOf "https://github.com/"
         git submodule update --init --recursive
 
-    - name: 🔎 Diagnòstic del submòdul (per detectar si va desactualitzat)
+    - name: 📥 Afegir dades de la branca 'data' (sense esborrar res)
       run: |
-        echo "--- Estat del submòdul meu-mapa ---"
-        git submodule status
-        echo ""
-        echo "--- Últim commit dins del submòdul ---"
-        git -C meu-mapa log -1 --format="%H %ci %s" 2>/dev/null || echo "No s'ha pogut llegir el log del submòdul"
-        echo ""
-        if [ -f meu-mapa/public/selector.html ]; then
-          echo "✅ selector.html present just després del checkout del submòdul"
-        else
-          echo "❌ selector.html NO present just després del checkout del submòdul"
-          echo "   -> El submòdul està apuntant a un commit antic, o el fitxer no és a la branca del submòdul."
-        fi
+        P="meu-mapa/public"
+        CARPETES="web_data_NE webdata_waves avis previsions_catalunya gfsmaps gfsESPmaps"
 
-    - name: 📥 Traer dades de la branca 'data'
-      run: |
         git fetch origin data
         rm -rf /tmp/data-branch
         git worktree add /tmp/data-branch origin/data
-        mkdir -p meu-mapa/public/web_data_NE meu-mapa/public/webdata_waves meu-mapa/public/js
-        cp -r /tmp/data-branch/web_data_NE/. meu-mapa/public/web_data_NE/ 2>/dev/null || echo "⚠️  web_data_NE no trobat a la branca data"
-        cp -r /tmp/data-branch/webdata_waves/. meu-mapa/public/webdata_waves/ 2>/dev/null || echo "⚠️  webdata_waves no trobat a la branca data"
-        cp /tmp/data-branch/js/status.js meu-mapa/public/js/status.js 2>/dev/null || echo "⚠️  status.js no trobat a la branca data"
-        git worktree remove /tmp/data-branch --force
-        echo "✅ Dades de la branca 'data' aplicades sobre main (només al filesystem, no es commiteja res)"
-      continue-on-error: true
 
-    - name: 🛡️ Comprovació final dels estàtics abans del deploy
-      run: |
-        echo "--- Fitxers HTML/estàtics a l'arrel de public/ ---"
-        find meu-mapa/public -maxdepth 1 -type f
-        echo ""
-        if [ -f meu-mapa/public/selector.html ]; then
-          echo "✅ selector.html present, es desplegarà"
-        else
-          echo "❌❌❌ selector.html NO present, NO es desplegarà (revisa el submòdul o el checkout) ❌❌❌"
-        fi
-
-    - name: 📊 Resum de dades abans del deploy
-      run: |
-        echo "📊 RESUM DE DADES:"
-        echo "🌡️  web_data_NE:    $(find meu-mapa/public/web_data_NE -type f 2>/dev/null | wc -l) fitxers"
-        echo "🌊 webdata_waves:   $(find meu-mapa/public/webdata_waves -type f 2>/dev/null | wc -l) fitxers"
-        echo "📄 status.js:       $(ls -la meu-mapa/public/js/status.js 2>/dev/null || echo 'NO TROBAT')"
-        echo "📦 TOTAL:           $(find meu-mapa/public -type f 2>/dev/null | wc -l) fitxers"
-        echo ""
-        echo "📁 Directoris:"
-        for dir in meu-mapa/public/*/; do
-          if [ -d "$dir" ]; then
-            count=$(find "$dir" -type f 2>/dev/null | wc -l)
-            echo "  $(basename "$dir"): $count fitxers"
-          fi
+        mkdir -p "$P/js"
+        for c in $CARPETES; do
+          mkdir -p "$P/$c"
+          cp -r /tmp/data-branch/$c/. "$P/$c/" 2>/dev/null || echo "⚠️  $c no trobat a data"
         done
+        cp /tmp/data-branch/js/status.js "$P/js/status.js" 2>/dev/null || echo "⚠️  status.js no trobat a data"
+
+        git worktree remove /tmp/data-branch --force
+        echo "✅ Dades de 'data' afegides sobre main (només filesystem, no es commiteja res)"
+
+    - name: 📊 Resum abans del deploy
+      run: |
+        P="meu-mapa/public"
+        echo "--- Arrel de public/ ---"
+        find "$P" -maxdepth 1 -type f
+        [ -f "$P/selector.html" ] && echo "✅ selector.html present" || echo "❌ selector.html NO present"
+        echo "--- Carpetes ---"
+        for dir in "$P"/*/; do
+          echo "  $(basename "$dir"): $(find "$dir" -type f | wc -l) fitxers"
+        done
+        echo "TOTAL: $(find "$P" -type f | wc -l) fitxers"
 
     - name: 🚀 DEPLOY a Cloudflare
       run: |
         cd meu-mapa
         npm install -g wrangler
-        echo "📦 Desplegant a Cloudflare Pages..."
         wrangler pages deploy public --project-name=tempestes-cat --branch=main --commit-dirty=true
       env:
         CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
-    - name: 🎉 Confirmació final
-      run: |
-        echo "🎉 DEPLOY COMPLETAT!"
-        echo ""
-        echo "🌐 Web desplegada a:"
-        echo "   https://tempestes-cat.pages.dev/"
-        echo ""
-        echo "📊 Estadístiques:"
-        echo "   📦 TOTAL fitxers: $(find meu-mapa/public -type f 2>/dev/null | wc -l)"
+    - name: 🎉 Confirmació
+      run: echo "🎉 Deploy completat a https://tempestes-cat.pages.dev/"
