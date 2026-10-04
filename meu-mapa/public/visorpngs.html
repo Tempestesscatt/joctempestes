@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0a0f18">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+<title>Visor AROME · Tempestes.cat</title>
+
+<link rel="icon" type="image/png" href="img/favicon.png">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+
+<!-- Llibreries per llegir sondejos .msgpack.gz -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.0.4/pako.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/msgpack-lite@0.1.26/dist/msgpack.min.js"></script>
+
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-QDWCZ0Z9XF"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-QDWCZ0Z9XF');
+</script>
+
+<!-- Google AdSense -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1675456750465139" crossorigin="anonymous"></script>
+
+<style>
+/* ═══════════════════════════════════════════════════════════════════
+   VARIABLES
+   ═══════════════════════════════════════════════════════════════════ */
+:root {
+    --fons: #0a0f18;
+    --panell: rgba(10, 16, 26, 0.92);
+    --vora: rgba(255, 215, 0, 0.16);
+    --groc: #FFD700;
+    --text: #c8d8e8;
+    --text-fluix: #8899bb;
+
+    --marge-sup: env(safe-area-inset-top, 0px);
+    --marge-inf: env(safe-area-inset-bottom, 0px);
+    --marge-esq: env(safe-area-inset-left, 0px);
+    --marge-dre: env(safe-area-inset-right, 0px);
+
+    /* Amplada del panell lateral + marge */
+    --panell-ample: 344px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   BASE
+   ═══════════════════════════════════════════════════════════════════ */
+* { -webkit-tap-highlight-color: transparent; }
+
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+    background: var(--fons);
+    font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, Roboto, Tahoma, sans-serif;
+    color: var(--text);
+    -webkit-text-size-adjust: 100%;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   MAPA
+   ═══════════════════════════════════════════════════════════════════ */
+#map {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background: #1b2330;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   BARRA INFERIOR (animació + hores)
+   ═══════════════════════════════════════════════════════════════════ */
+#dock {
+    position: fixed;
+    left: calc(var(--panell-ample) + var(--marge-esq));
+    right: calc(290px + var(--marge-dre));
+    bottom: calc(14px + var(--marge-inf));
+    z-index: 900;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px;
+    background: var(--panell);
+    border: 1px solid var(--vora);
+    border-radius: 12px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
+    transition: left .25s ease, right .25s ease;
+}
+
+body.panell-plegat #dock {
+    left: calc(14px + var(--marge-esq));
+}
+
+#btnPlay {
+    flex: 0 0 auto;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: var(--text-fluix);
+    padding: 9px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 700;
+    font-family: inherit;
+    white-space: nowrap;
+    transition: background .15s, color .15s, border-color .15s;
+}
+#btnPlay:hover {
+    background: rgba(255, 215, 0, 0.12);
+    color: var(--groc);
+    border-color: rgba(255, 215, 0, 0.3);
+}
+
+#fh_grid {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+}
+#fh_grid > div {
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    padding: 2px !important;
+}
+#fh_grid > div::-webkit-scrollbar { display: none; }
+#fh_grid .fh-item { min-width: 42px !important; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   ETIQUETA HORA ACTUAL
+   ═══════════════════════════════════════════════════════════════════ */
+#current_time_label {
+    position: fixed;
+    top: calc(14px + var(--marge-sup));
+    right: calc(14px + var(--marge-dre));
+    z-index: 900;
+    padding: 7px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--groc);
+    background: var(--panell);
+    border: 1px solid var(--vora);
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    pointer-events: none;
+    white-space: nowrap;
+}
+#current_time_label:empty { display: none; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   PANTALLA DE CÀRREGA
+   ═══════════════════════════════════════════════════════════════════ */
+#loading_overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 14px;
+    background: rgba(10, 15, 24, 0.96);
+    color: var(--groc);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: .3px;
+    transition: opacity .35s ease;
+}
+#loading_overlay.hidden { opacity: 0; pointer-events: none; }
+
+#loading_overlay .spinner {
+    width: 42px;
+    height: 42px;
+    border: 3px solid rgba(255, 215, 0, 0.15);
+    border-top-color: var(--groc);
+    border-radius: 50%;
+    animation: gira .9s linear infinite;
+}
+@keyframes gira { to { transform: rotate(360deg); } }
+
+/* ═══════════════════════════════════════════════════════════════════
+   AJUSTOS DELS ELEMENTS DEL JS
+   ═══════════════════════════════════════════════════════════════════ */
+#panell-pro {
+    top: calc(14px + var(--marge-sup)) !important;
+    left: calc(14px + var(--marge-esq)) !important;
+    max-height: calc(100vh - 150px - var(--marge-sup)) !important;
+    max-height: calc(100dvh - 150px - var(--marge-sup)) !important;
+}
+#btn-obrir-panell {
+    top: calc(14px + var(--marge-sup)) !important;
+    left: calc(14px + var(--marge-esq)) !important;
+    min-height: 40px;
+}
+
+/* Llegenda de colors (creada pel JS) */
+body > img[src*="legend_"] {
+    left: calc(14px + var(--marge-esq)) !important;
+    bottom: calc(14px + var(--marge-inf)) !important;
+}
+body.panell-plegat > img[src*="legend_"] {
+    left: calc(14px + var(--marge-esq)) !important;
+    bottom: calc(78px + var(--marge-inf)) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   RESPONSIVE · Tauleta i mòbil
+   ═══════════════════════════════════════════════════════════════════ */
+@media (max-width: 860px) {
+    #dock {
+        left: calc(8px + var(--marge-esq));
+        right: calc(8px + var(--marge-dre));
+        bottom: calc(8px + var(--marge-inf));
+        padding: 5px;
+        gap: 6px;
+        border-radius: 14px;
+    }
+    #btnPlay { padding: 10px 12px; font-size: 12px; }
+    #fh_grid .fh-item { min-width: 46px !important; padding: 6px 10px !important; }
+
+    body > img[src*="legend_"] {
+        left: calc(8px + var(--marge-esq)) !important;
+        bottom: calc(78px + var(--marge-inf)) !important;
+        width: 190px !important;
+    }
+    #current_time_label {
+        top: auto;
+        right: calc(8px + var(--marge-dre));
+        bottom: calc(78px + var(--marge-inf));
+        font-size: 12px;
+        padding: 6px 10px;
+    }
+
+    #panell-pro {
+        top: calc(8px + var(--marge-sup)) !important;
+        left: calc(8px + var(--marge-esq)) !important;
+        width: calc(100vw - 16px - var(--marge-esq) - var(--marge-dre)) !important;
+        max-height: calc(100vh - 100px - var(--marge-sup) - var(--marge-inf)) !important;
+        max-height: calc(100dvh - 100px - var(--marge-sup) - var(--marge-inf)) !important;
+    }
+    #btn-obrir-panell {
+        top: calc(8px + var(--marge-sup)) !important;
+        left: calc(8px + var(--marge-esq)) !important;
+    }
+    #panell-pro .param-row   { padding: 10px 10px !important; font-size: 13px !important; }
+    #panell-pro .ciu-fila    { padding: 10px 10px !important; }
+    #panell-pro .cap-fila    { padding: 11px 2px !important; font-size: 13px !important; }
+    #panell-pro .pp-cerca input { font-size: 16px !important; padding-top: 11px !important; padding-bottom: 11px !important; }
+    #panell-pro .pp-tab      { padding: 10px 4px !important; }
+    #panell-pro .pp-plega    { width: 34px !important; height: 34px !important; }
+}
+
+/* Mòbil en horitzontal (poca alçada) */
+@media (max-height: 460px) and (orientation: landscape) {
+    #panell-pro {
+        width: 340px !important;
+        max-height: calc(100vh - 80px - var(--marge-sup)) !important;
+        max-height: calc(100dvh - 80px - var(--marge-sup)) !important;
+    }
+    body > img[src*="legend_"] { width: 160px !important; bottom: calc(66px + var(--marge-inf)) !important; }
+    #current_time_label { bottom: calc(66px + var(--marge-inf)); }
+}
+
+/* Mòbils molt estrets */
+@media (max-width: 380px) {
+    #btnPlay { padding: 10px 9px; font-size: 11px; }
+    body > img[src*="legend_"] { width: 160px !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- Mapa (el construeix el JS) -->
+<div id="map"></div>
+
+<!-- Barra inferior: botó d'animació + graella d'hores -->
+<div id="dock">
+    <button id="btnPlay" type="button">▶ Animació</button>
+    <div id="fh_grid"></div>
+</div>
+
+<!-- Etiqueta de l'hora actual -->
+<div id="current_time_label"></div>
+
+<!-- Pantalla de càrrega inicial -->
+<div id="loading_overlay">
+    <div class="spinner"></div>
+    <div>Carregant mapa…</div>
+</div>
+
+<!-- Missatge sense JavaScript -->
+<noscript>
+    <div style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#0a0f18;color:#FFD700;z-index:10000;font-family:sans-serif;">
+        Cal activar JavaScript per veure el mapa.
+    </div>
+</noscript>
+
+<!-- Visor SFC + 3D + sondejos -->
+<script src="js/mapapngs.js"></script>
+<script src="js/skew-t-engine.js"></script>
+<script src="js/skew-t.js"></script>
+
+<!-- Zoom amb dos dits (pinça) + sincronització del panell -->
+<script>
+(function () {
+    'use strict';
+
+    // ─── Zoom amb dos dits ─────────────────────────────────────────────
+    const mapa = document.getElementById('map');
+    if (mapa) {
+        const dits = new Map();
+        let engolir = false, dPrev = 0, cPrev = null;
+
+        const geometria = () => {
+            const [a, b] = [...dits.values()];
+            return { d: Math.hypot(a.x - b.x, a.y - b.y), x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+        };
+
+        mapa.addEventListener('pointerdown', e => {
+            if (e.pointerType !== 'touch') return;
+            dits.set(e.pointerId, { x: e.clientX, y: e.clientY });
+            if (dits.size === 2) {
+                e.stopImmediatePropagation();
+                engolir = true;
+                const g = geometria();
+                dPrev = g.d; cPrev = g;
+                try { _animVista = null; } catch (_) { /* res */ }
+            }
+        }, true);
+
+        mapa.addEventListener('pointermove', e => {
+            if (e.pointerType !== 'touch' || !dits.has(e.pointerId)) return;
+            dits.set(e.pointerId, { x: e.clientX, y: e.clientY });
+            if (!engolir) return;
+
+            e.stopImmediatePropagation();
+            if (dits.size < 2 || dPrev <= 0) return;
+
+            const g = geometria();
+            const r = mapa.getBoundingClientRect();
+
+            vista.x += g.x - cPrev.x;
+            vista.y += g.y - cPrev.y;
+
+            const nk = Math.min(12, Math.max(0.5, vista.k * (g.d / dPrev)));
+            const q = nk / vista.k;
+            const mx = g.x - r.left, my = g.y - r.top;
+            vista.x = mx - (mx - vista.x) * q;
+            vista.y = my - (my - vista.y) * q;
+            vista.k = nk;
+
+            dPrev = g.d; cPrev = g;
+            aplicarTransform();
+            programarRedibuix();
+        }, true);
+
+        const deixa = e => {
+            dits.delete(e.pointerId);
+            if (!dits.size) engolir = false;
+        };
+        mapa.addEventListener('pointerup', deixa, true);
+        mapa.addEventListener('pointercancel', deixa, true);
+    }
+
+    // ─── Sincronitza 'panell-plegat' al body ───────────────────────────
+    const panell = document.getElementById('panell-pro');
+    if (panell) {
+        const actualitzar = () => {
+            document.body.classList.toggle('panell-plegat', panell.classList.contains('plegat'));
+        };
+        new MutationObserver(actualitzar).observe(panell, { attributes: true, attributeFilter: ['class'] });
+        actualitzar();
+    }
+})();
+</script>
+
+</body>
+</html>
