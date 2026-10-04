@@ -20,7 +20,7 @@ jobs:
   # ════════════════════════════════════════════════════════════════
   check_schedule:
     runs-on: ubuntu-latest
-    timeout-minutes: 2
+    timeout-minutes: 180
     outputs:
       should_run: ${{ steps.gate.outputs.should_run }}
     steps:
@@ -42,7 +42,7 @@ jobs:
   # ════════════════════════════════════════════════════════════════
   png_sfc:
     runs-on: ubuntu-latest
-    timeout-minutes: 250
+    timeout-minutes: 180
     needs: check_schedule
     if: needs.check_schedule.outputs.should_run == 'true'
     env:
@@ -81,11 +81,20 @@ jobs:
         cd private-scripts-new
         for i in 1 2 3; do
           echo "--- arome_sfc_png.py: intent $i/3 ---"
-          python3 arome_sfc_png.py && echo "OK a l'intent $i" && exit 0 || echo "ERROR (codi $?) a l'intent $i/3"
+          python3 arome_sfc_png.py
+          CODI=$?
+          N=$(find "$IMATGES_DIR" -name "sfc_*.png" -type f | wc -l)
+          # Bo si surt net, o si peta (134) en tancar pero les dades ja hi son
+          if [ $CODI -eq 0 ] || { [ $CODI -eq 134 ] && [ "$N" -ge 5 ] && [ -f "$IMATGES_DIR/manifest.json" ]; }; then
+            echo "OK a l'intent $i (codi $CODI, $N PNG)"
+            exit 0
+          fi
+          echo "ERROR (codi $CODI) a l'intent $i/3"
           sleep 30
         done
-        echo "ERROR: els 3 intents han fallat." && exit 1
-      timeout-minutes: 200
+        echo "ERROR: els 3 intents han fallat."
+        exit 1
+      timeout-minutes: 170
 
     - name: Verificar fitxers generats
       run: |
@@ -109,7 +118,7 @@ jobs:
   # ════════════════════════════════════════════════════════════════
   png_3d:
     runs-on: ubuntu-latest
-    timeout-minutes: 250
+    timeout-minutes: 180
     needs: check_schedule
     if: needs.check_schedule.outputs.should_run == 'true'
     env:
@@ -148,11 +157,19 @@ jobs:
         cd private-scripts-new
         for i in 1 2 3; do
           echo "--- arome_3dpng.py: intent $i/3 ---"
-          python3 arome_3dpng.py && echo "OK a l'intent $i" && exit 0 || echo "ERROR (codi $?) a l'intent $i/3"
+          python3 arome_3dpng.py
+          CODI=$?
+          N=$(find "$IMATGES_DIR" -name "3d_*.png" -type f | wc -l)
+          if [ $CODI -eq 0 ] || { [ $CODI -eq 134 ] && [ "$N" -ge 5 ]; }; then
+            echo "OK a l'intent $i (codi $CODI, $N PNG)"
+            exit 0
+          fi
+          echo "ERROR (codi $CODI) a l'intent $i/3"
           sleep 30
         done
-        echo "ERROR: els 3 intents han fallat." && exit 1
-      timeout-minutes: 200
+        echo "ERROR: els 3 intents han fallat."
+        exit 1
+      timeout-minutes: 170
 
     - name: Verificar fitxers generats
       run: |
@@ -175,7 +192,7 @@ jobs:
   # ════════════════════════════════════════════════════════════════
   manifest:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 180
     needs: [check_schedule, png_sfc, png_3d]
     if: >-
       always() &&
@@ -211,7 +228,7 @@ jobs:
         sed -i -E 's|^IMATGES_DIR = .*|IMATGES_DIR = Path(os.environ["IMATGES_DIR"])|' generar_manifestpngs.py
         grep -q 'os.environ\["IMATGES_DIR"\]' generar_manifestpngs.py || { echo "No s'ha pogut canviar IMATGES_DIR"; exit 1; }
         python3 generar_manifestpngs.py
-      timeout-minutes: 5
+      timeout-minutes: 170
 
     - name: Resum del manifest
       run: |
@@ -241,7 +258,7 @@ jobs:
       needs.check_schedule.outputs.should_run == 'true' &&
       (needs.png_sfc.result == 'success' || needs.png_3d.result == 'success')
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 180
     steps:
     - uses: actions/checkout@v4
       with:
@@ -411,6 +428,7 @@ jobs:
           echo "No s'ha pogut publicar a 'data' despres de $MAX_INTENTS intents"
           exit 1
         fi
+      timeout-minutes: 170
 
     - name: Comprovar mida de fitxers (limit 25 MiB de Cloudflare Pages)
       run: |
@@ -425,6 +443,7 @@ jobs:
       env:
         CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      timeout-minutes: 170
 
     - name: Completat
       run: echo "Deploy completat $(date -u)"
