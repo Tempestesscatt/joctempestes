@@ -203,15 +203,10 @@ jobs:
         python3 generar_manifestpngs.py
       timeout-minutes: 170
 
-    # 🆕 Executar info.py per generar info_run.json
+    # ✅ Executar info.py — SENSE sed! info.py llegeix IMATGES_DIR de l'entorn nativament
     - name: Executar info.py (info_run.json)
       run: |
         cd private-scripts-new
-        export IMATGES_DIR="${{ github.workspace }}/merged/imatges"
-        # Si info.py té la línia IMATGES_DIR hardcodejada, la sobreescrivim
-        if grep -q '^IMATGES_DIR' info.py 2>/dev/null; then
-          sed -i -E 's|^IMATGES_DIR = .*|IMATGES_DIR = Path(os.environ["IMATGES_DIR"])|' info.py
-        fi
         python3 info.py
       timeout-minutes: 5
 
