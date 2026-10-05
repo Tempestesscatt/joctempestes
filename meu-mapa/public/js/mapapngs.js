@@ -610,7 +610,6 @@ function retallarAImatge(ctx) {
     ctx.rect(vista.x, vista.y, sw * vista.k, sh * vista.k);
     ctx.clip();
 }
-
 function activarInteraccio() {
     viewport.addEventListener('wheel', e => {
         e.preventDefault();
@@ -628,8 +627,22 @@ function activarInteraccio() {
 
     let arrossegant = false, ox = 0, oy = 0, mogut = false;
     let pointerActiu = null;
+    // 🔑 Comptador de punters actius (per detectar pinch)
+    let puntersActius = new Set();
 
     viewport.addEventListener('pointerdown', e => {
+        puntersActius.add(e.pointerId);
+
+        // 🔑 Si hi ha 2+ punters, cancel·lem el drag (és un pinch)
+        if (puntersActius.size >= 2) {
+            arrossegant = false;
+            if (pointerActiu !== null) {
+                try { viewport.releasePointerCapture(pointerActiu); } catch {}
+                pointerActiu = null;
+            }
+            return;
+        }
+
         if (pointerActiu !== null && pointerActiu !== e.pointerId) return;
         pointerActiu = e.pointerId;
         _animVista = null;
@@ -639,6 +652,8 @@ function activarInteraccio() {
     });
 
     viewport.addEventListener('pointermove', e => {
+        // 🔑 Si hi ha 2+ punters, no fem drag
+        if (puntersActius.size >= 2) return;
         if (!arrossegant || e.pointerId !== pointerActiu) return;
         const dx = e.clientX - ox, dy = e.clientY - oy;
         if (Math.abs(dx) + Math.abs(dy) > 3) mogut = true;
@@ -649,10 +664,16 @@ function activarInteraccio() {
     });
 
     const fi = (e) => {
-        if (e.pointerId !== pointerActiu) return;
+        puntersActius.delete(e.pointerId);
+
+        if (e.pointerId !== pointerActiu) {
+            // Si era el segon dit, no toquem res
+            return;
+        }
+
         const esClicDret = e.button === 2;
         const esTactil = e.pointerType === 'touch' && e.button === 0;
-        if (arrossegant && !mogut && (esClicDret || esTactil)) {
+        if (arrossegant && !mogut && puntersActius.size === 0 && (esClicDret || esTactil)) {
             const r = viewport.getBoundingClientRect();
             const px = e.clientX - r.left, py = e.clientY - r.top;
             obrirMenuContextual(px, py, e.clientX, e.clientY);
@@ -664,6 +685,7 @@ function activarInteraccio() {
     };
     viewport.addEventListener('pointerup', fi);
     viewport.addEventListener('pointercancel', e => {
+        puntersActius.delete(e.pointerId);
         if (e.pointerId !== pointerActiu) return;
         arrossegant = false;
         pointerActiu = null;
@@ -680,9 +702,9 @@ function activarInteraccio() {
 
 function activarInteraccioPinca() {
     const punts = new Map();
-    let engolir = false;
     let dPrev = 0;
     let cPrev = { x: 0, y: 0 };
+    let actiu = false;
 
     function calcular() {
         const arr = [...punts.values()];
@@ -696,10 +718,11 @@ function activarInteraccioPinca() {
     viewport.addEventListener('pointerdown', e => {
         if (e.pointerType !== 'touch') return;
         punts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
         if (punts.size === 2) {
+            actiu = true;
             e.stopImmediatePropagation();
             e.preventDefault();
-            engolir = true;
             const g = calcular();
             dPrev = g.d;
             cPrev = { x: g.cx, y: g.cy };
@@ -710,24 +733,36 @@ function activarInteraccioPinca() {
     viewport.addEventListener('pointermove', e => {
         if (e.pointerType !== 'touch') return;
         if (!punts.has(e.pointerId)) return;
+
         punts.set(e.pointerId, { x: e.clientX, y: e.clientY });
-        if (!engolir || punts.size !== 2 || dPrev <= 0) return;
+
+        if (!actiu || punts.size !== 2) return;
+
         e.stopImmediatePropagation();
         e.preventDefault();
+
         const g = calcular();
         const r = viewport.getBoundingClientRect();
+
+        // Pan del centre del pinch
         vista.x += g.cx - cPrev.x;
         vista.y += g.cy - cPrev.y;
-        const factor = g.d / dPrev;
-        const nk = Math.min(12, Math.max(0.5, vista.k * factor));
-        const q = nk / vista.k;
-        const mx = g.cx - r.left;
-        const my = g.cy - r.top;
-        vista.x = mx - (mx - vista.x) * q;
-        vista.y = my - (my - vista.y) * q;
-        vista.k = nk;
+
+        // Zoom pel canvi de distància
+        if (dPrev > 0) {
+            const factor = g.d / dPrev;
+            const nk = Math.min(12, Math.max(0.5, vista.k * factor));
+            const q = nk / vista.k;
+            const mx = g.cx - r.left;
+            const my = g.cy - r.top;
+            vista.x = mx - (mx - vista.x) * q;
+            vista.y = my - (my - vista.y) * q;
+            vista.k = nk;
+        }
+
         dPrev = g.d;
         cPrev = { x: g.cx, y: g.cy };
+
         aplicarTransform();
         programarRedibuix();
     }, { capture: true, passive: false });
@@ -735,8 +770,14 @@ function activarInteraccioPinca() {
     const deixa = e => {
         if (e.pointerType !== 'touch') return;
         punts.delete(e.pointerId);
-        if (punts.size < 2) engolir = false;
-        if (punts.size === 0) { dPrev = 0; cPrev = { x: 0, y: 0 }; }
+
+        if (punts.size < 2) {
+            actiu = false;
+            dPrev = 0;
+            cPrev = { x: 0, y: 0 };
+        }
+
+      
     };
     viewport.addEventListener('pointerup', deixa, { capture: true });
     viewport.addEventListener('pointercancel', deixa, { capture: true });
@@ -1928,6 +1969,12 @@ function precarregarSeguent() {
 }
 
 function actualitzarLlegenda() {
+    // 🔽 Primer comprova si tenim llegenda CSS definida
+    const clauLlegenda = _capa3DActiva ? _capa3DActiva.var : variableActiva;
+    if (mostrarLlegendaCss(clauLlegenda)) return;
+
+    // Si no, comportament original (PNG)
+    eliminarLlegendaCss();
     imgLlegenda.onload = () => { imgLlegenda.style.display = 'block'; };
     imgLlegenda.onerror = () => { imgLlegenda.style.display = 'none'; };
     if (_capa3DActiva) {
@@ -2851,19 +2898,6 @@ function mostrarLlegendaCss(clau, titolCustom, unitatCustom) {
     return true;
 }
 
-// Sobreescrivim actualitzarLlegenda perquè contempli les CSS
-const _actualitzarLlegendaOriginal = actualitzarLlegenda;
-actualitzarLlegenda = function () {
-    // Si és una variable 3D, primer mirem si tenim llegenda CSS
-    if (_capa3DActiva) {
-        const clau = _capa3DActiva.var;
-        if (mostrarLlegendaCss(clau)) return;
-    } else {
-        if (mostrarLlegendaCss(variableActiva)) return;
-    }
-    // Si no hi ha CSS, comportament original (PNG)
-    eliminarLlegendaCss();
-    _actualitzarLlegendaOriginal.apply(this, arguments);
-};
+
 
 console.log('✅ mapapngs.js carregat — accés restringit (login obligatori excepte bàsics)');
