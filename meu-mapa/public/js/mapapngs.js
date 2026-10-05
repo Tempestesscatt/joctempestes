@@ -1,12 +1,22 @@
 // ═══════════════════════════════════════════════════════════════════════
-//  mapapngs.js — Visor AROME amb accés restringit
-//  Variables bàsiques lliures; resta requereix login
+//  mapapngs.js — Visor AROME (lògica essencial + accés restringit)
+//  Capes: fons.png < dades PNG < vores (vectorials) < isolínies < vent/barbes < ciutats
+//  La UI i el disseny viuen a l'HTML (style + estructura semàntica)
+//
+//  NOVETATS:
+//   - Llista 3D curada (CATALEG_3D_*): sense duplicats, sense u/v ni camps tècnics.
+//     Ja NO depèn de manifest.variables_3d (el script 3D no l'escriu).
+//   - Variables per nivell: una sola fila + "chips" de nivell (1000…200 hPa).
+//   - Variables de columna (fitxer ..._col.png): Shear, SRH, DCAPE, LI, LCL, storm motion.
+//   - Storm motion: PNG de velocitat + barbes vectorials (stormmotion_HH_dia.js).
+//   - Accés restringit: variables bàsiques lliures; resta requereix login.
+//   - Optimitzacions mòbil: cache limitat, debounce, pointer capture correcte.
 // ═══════════════════════════════════════════════════════════════════════
 
 const FIT = 'contain';
 
 // ═══════════════════════════════════════════════════════════════════════
-//  VARIABLES LLIURES (sense login)
+//  ACCÉS: VARIABLES LLIURES (sense login)
 // ═══════════════════════════════════════════════════════════════════════
 const PARAMETRES_LLIURES = new Set([
     'st', 'sd', 'srh',
@@ -18,25 +28,20 @@ function clauBaseLliure(clau) {
     if (!clau) return '';
     return String(clau).replace(/_\d+$/, '');
 }
-
 function esParametreLliure(clau) {
     if (!clau) return false;
     const base = clauBaseLliure(clau);
     return PARAMETRES_LLIURES.has(clau) || PARAMETRES_LLIURES.has(base);
 }
-
 function usuariLoguejat() {
     return !!(window._firebaseUser);
 }
-
 function potVeureVariable(clau) {
     if (esParametreLliure(clau)) return true;
     return usuariLoguejat();
 }
 
-// ═══════════════════════════════════════════════════════════════════════
-//  CONFIGURACIÓ PERSISTENT
-// ═══════════════════════════════════════════════════════════════════════
+// ─── Configuració persistent ───────────────────────────────────────
 const CLAU_CFG = 'tempestescat_visor_v2';
 function cfgLlegir() {
     try { return JSON.parse(localStorage.getItem(CLAU_CFG)) || {}; } catch { return {}; }
@@ -47,16 +52,25 @@ function cfgGuardar(obj) {
     try { localStorage.setItem(CLAU_CFG, JSON.stringify(_cfg)); } catch {}
 }
 
-// ─── Opacitat ───────────────────────────────────────────────────────
+// ─── Opacitat ──────────────────────────────────────────────────────
 let OPACITAT_DADES = (typeof _cfg.opacitat === 'number' && _cfg.opacitat >= 0.2 && _cfg.opacitat <= 1)
     ? _cfg.opacitat : 0.85;
 
-// ─── Constants ──────────────────────────────────────────────────────
+// ─── Constants de tractament d'imatge ──────────────────────────────
 const VENT_INVERTIR_V = false;
 const NEGRE_A_BLANC = true;
 const LLINDAR_NEGRE = 50;
 
-// ─── Rutes dinàmiques ───────────────────────────────────────────────
+// ─── Límits de memòria dels caches ─────────────────────────────────
+const MAX_CACHE_BLANQUES = 30;
+const MAX_CACHE_ISOLINES = 20;
+const MAX_CACHE_VENT = 20;
+const MAX_CACHE_SONDEIGS = 8;
+
+// ─── Detecció de dispositiu ────────────────────────────────────────
+const ES_MOBIL = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+
+// ─── Rutes ─────────────────────────────────────────────────────────
 const _pathActual = window.location.pathname;
 const _basePath = _pathActual.substring(0, _pathActual.lastIndexOf('/') + 1);
 
@@ -66,7 +80,6 @@ const CARPETES_CANDIDATES = [
     '/web_data_NE/imatges/',
     '/public/web_data_NE/imatges/',
 ];
-
 let PNG_BASE = CARPETES_CANDIDATES[0];
 let BASE_3D = CARPETES_CANDIDATES[0];
 
@@ -77,16 +90,15 @@ const CARPETES_NOMS = [
     '/public/dades/',
 ];
 
-// ─── Capes visibles ─────────────────────────────────────────────────
+// ─── Capes visibles (estat) ────────────────────────────────────────
 window.MOSTRAR_VENT = true;
-window.MOSTRAR_ISOLINIES = false;
 window.MOSTRAR_BARBES = true;
+window.MOSTRAR_ISOLINIES = false;
 window.MOSTRAR_CIUTATS = true;
 window.MOSTRAR_FRONTERES = true;
 window.MOSTRAR_PROVINCIES = true;
 
-const PROPS_CAPES = ['MOSTRAR_VENT', 'MOSTRAR_ISOLINIES', 'MOSTRAR_BARBES',
-                     'MOSTRAR_FRONTERES', 'MOSTRAR_PROVINCIES'];
+const PROPS_CAPES = ['MOSTRAR_VENT', 'MOSTRAR_BARBES', 'MOSTRAR_ISOLINIES', 'MOSTRAR_FRONTERES', 'MOSTRAR_PROVINCIES'];
 if (_cfg.capes) {
     for (const p of PROPS_CAPES) {
         if (typeof _cfg.capes[p] === 'boolean') window[p] = _cfg.capes[p];
@@ -98,7 +110,7 @@ function guardarCapes() {
     cfgGuardar({ capes: o });
 }
 
-// ─── Densitat de ciutats ────────────────────────────────────────────
+// ─── Densitat de ciutats ───────────────────────────────────────────
 const DENSITAT_CIUTATS = {
     molt_dens: { minPoblacio: 0 },
     dens:      { minPoblacio: 500 },
@@ -117,17 +129,28 @@ window.DENSITAT_CIUTATS_ACTIVA = 'dens';
     }
 })();
 
-// ─── Paràmetres visuals ─────────────────────────────────────────────
+// ─── Paràmetres visuals ────────────────────────────────────────────
 const VENT_CFG = {
     color: 'rgba(0,0,0,0.72)',
     amplada: 0.7,
-    separacio: 34,
+    separacio: ES_MOBIL ? 45 : 34,
     longitudPas: 3.0,
-    maxPassos: 40,
+    maxPassos: ES_MOBIL ? 28 : 40,
     gridVisitat: 10,
     midaFletxa: 5.0,
     angleFletxa: 0.45,
 };
+
+// Barbes de storm motion (nusos)
+const MS_A_KT = 1.94384;
+const BARBES_CFG = {
+    llargada: 26,
+    separacioMin: 38,
+};
+
+const BARBES_PASSADES = [
+    ['rgba(15,15,25,0.95)', 1.3],
+];
 
 const ISO_CFG = {
     color: 'rgba(20,20,30,0.85)',
@@ -141,12 +164,6 @@ const ISO_CFG = {
     distMinEtiquetes: 46,
 };
 
-const BARBES_CFG = {
-    color: 'rgba(0,0,0,0.9)',
-    amplada: 1.4,
-    mida: 22,
-};
-
 const CIUTATS_CFG = {
     colorText: 'rgba(255,255,255,0.98)',
     colorTextCapital: 'rgba(255,220,120,1.0)',
@@ -155,7 +172,7 @@ const CIUTATS_CFG = {
     colorPuntCapital: 'rgba(255,200,60,1.0)',
     midaFontBase: 10,
     midaPuntBase: 3,
-    maxVisibles: 800,
+    maxVisibles: ES_MOBIL ? 300 : 800,
 };
 
 const VORES_CFG = {
@@ -169,7 +186,7 @@ const VORES_CFG = {
     provinciaHaloExtra: 1.6,
 };
 
-// ─── Icones SVG ─────────────────────────────────────────────────────
+// ─── Icones SVG ────────────────────────────────────────────────────
 const svgBase = (w, cos, extra) =>
     `<svg viewBox="0 0 24 24" width="${w}" height="${w}" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" ${extra || ''}>${cos}</svg>`;
 const ICO = {
@@ -183,7 +200,7 @@ const ICO = {
     stop:   '<svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>',
 };
 
-// ─── Estat global ───────────────────────────────────────────────────
+// ─── Estat global ──────────────────────────────────────────────────
 let totesLesHores = [];
 let infoVariables = {};
 let infoVariables3D = {};
@@ -195,7 +212,7 @@ let variableActiva = 'st';
 let _errorManifest = '';
 
 let viewport, stage, imgFons, imgDades, imgVores, imgLlegenda;
-let canvasVores, canvasIsolines, canvasVent, canvasBarbes, canvasNoms;
+let canvasVores, canvasIsolines, canvasVent, canvasNoms;
 
 let _tokenDades = 0;
 let _urlDades = null;
@@ -203,38 +220,71 @@ let _tokenVI = 0;
 
 const _cacheIsolines = new Map();
 const _cacheVent = new Map();
-const _cacheBarbes = new Map();
 const _cacheDadesBlanques = new Map();
+const _cacheSondeigs = new Map();
+const _cacheCapes3D = new Map();
+const _cacheVent3D = new Map();
+const _cacheStorm = new Map();
+
 let _isolinesActuals = null;
 let _ventActual = null;
-let _barbesActuals = null;
+let _stormActual = null;
 let _ciutats = [];
 let _linies = null;
 let _ciutatSel = null;
 let _animVista = null;
 let _vistaPermesGuardar = false;
 let _tmrVista = null;
-
-const _cacheSondeigs = new Map();
-const _cacheCapes3D = new Map();
-const _cacheVent3D = new Map();
 let _capa3DActiva = null;
+
+const ultimNivell3D = {};
 
 window._extentManifest = null;
 const vista = { k: 1, x: 0, y: 0 };
 
+// ─── Redraw amb debounce ───────────────────────────────────────────
 let _rafPendent = null;
+let _darrerRedibuix = 0;
+const INTERVAL_MIN_REDRAW = 33;
+
+function _llevarCache(map, max) {
+    if (map.size <= max) return;
+    const extra = map.size - max;
+    let i = 0;
+    for (const k of map.keys()) {
+        if (i++ >= extra) break;
+        map.delete(k);
+    }
+}
+
 function programarRedibuix() {
     guardarVistaDiferit();
     if (_rafPendent) return;
+
+    const ara = performance.now();
+    const delta = ara - _darrerRedibuix;
+
+    if (delta < INTERVAL_MIN_REDRAW) {
+        _rafPendent = requestAnimationFrame(() => {
+            _rafPendent = null;
+            _darrerRedibuix = performance.now();
+            redibuixarTot();
+        });
+        return;
+    }
+
     _rafPendent = requestAnimationFrame(() => {
         _rafPendent = null;
-        dibuixarVores();
-        dibuixarIsolines();
-        dibuixarVent();
-        dibuixarBarbes();
-        dibuixarCiutats();
+        _darrerRedibuix = performance.now();
+        redibuixarTot();
     });
+}
+
+function redibuixarTot() {
+    dibuixarVores();
+    dibuixarIsolines();
+    dibuixarVent();
+    dibuixarCiutats();
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -282,11 +332,41 @@ const NOMS_VARIABLES_3D = {
     u: 'Vent U', v: 'Vent V', r: 'Humitat relativa',
     w: 'Velocitat vertical', pv: 'Vorticitat potencial',
     wind_speed: 'Velocitat del vent', wind_dir: 'Direcció del vent',
-    srh_01: 'SRH 0-1 km', srh_03: 'SRH 0-3 km',
     shear_01: 'Shear 0-1 km', shear_03: 'Shear 0-3 km', shear_06: 'Shear 0-6 km',
-    dcape: 'DCAPE', hail_cm: 'Calamarsa potencial', lcl_m: 'LCL (alçada)',
-    lifted_index: 'Lifted Index', storm_speed: 'Moviment tempesta (RM)',
+    srh_01: 'SRH 0-1 km', srh_03: 'SRH 0-3 km',
+    dcape: 'DCAPE', lifted_index: 'Lifted Index', lcl_m: 'Base del núvol (LCL)',
+    hail_cm: 'Calamarsa potencial', storm_speed: 'Moviment de tempestes (storm motion)',
 };
+
+// ─── Catàleg 3D CURAT ──────────────────────────────────────────────
+const NIVELL_COLUMNA = 'col';
+const NIVELLS_3D = [1000, 925, 850, 700, 500, 300, 200];
+
+const CATALEG_3D_NIVELL = [
+    { var: 't',          nom: 'Temperatura',         unitat: '°C' },
+    { var: 'dpt',        nom: 'Punt de rosada',      unitat: '°C' },
+    { var: 'r',          nom: 'Humitat relativa',    unitat: '%' },
+    { var: 'wind_speed', nom: 'Velocitat del vent',  unitat: 'km/h' },
+    { var: 'w',          nom: 'Velocitat vertical',  unitat: 'Pa/s' },
+];
+
+const CATALEG_3D_COLUMNA = [
+    { var: 'shear_01',     nom: 'Shear 0-1 km',                       unitat: 'm/s' },
+    { var: 'shear_03',     nom: 'Shear 0-3 km',                       unitat: 'm/s' },
+    { var: 'shear_06',     nom: 'Shear 0-6 km',                       unitat: 'm/s' },
+    { var: 'srh_01',       nom: 'Helicitat SRH 0-1 km',               unitat: 'm²/s²' },
+    { var: 'srh_03',       nom: 'Helicitat SRH 0-3 km',               unitat: 'm²/s²' },
+    { var: 'dcape',        nom: 'DCAPE (corrents descendents)',       unitat: 'J/kg' },
+    { var: 'lifted_index', nom: 'Lifted Index',                       unitat: '°C' },
+    { var: 'lcl_m',        nom: 'Base del núvol (LCL)',               unitat: 'm' },
+    { var: 'storm_speed',  nom: 'Moviment de tempestes (barbes)',     unitat: 'km/h' },
+];
+
+function info3D(v) {
+    return CATALEG_3D_NIVELL.find(c => c.var === v) || CATALEG_3D_COLUMNA.find(c => c.var === v) || null;
+}
+
+const OCULTES_SFC = new Set(['su', 'sv']);
 
 const SECCIONS = [
     { id: 'temp', nom: 'Temperatura i humitat', color: '#ff7a45',
@@ -345,6 +425,11 @@ function ordreDinsSeccio(sec, clau) {
     const i = sec.claus.indexOf(normClau(clau));
     return i === -1 ? 999 : i;
 }
+function prioritatClau(clau) {
+    const id = seccioDe(clau);
+    const s = SECCIONS.find(x => x.id === id) || SECCIONS[SECCIONS.length - 1];
+    return ordreDinsSeccio(s, clau);
+}
 
 // ═══════════════════════════════════════════════════════════════════
 //  ESCENA
@@ -352,13 +437,14 @@ function ordreDinsSeccio(sec, clau) {
 function crearImatge(z, extra) {
     const im = document.createElement('img');
     im.draggable = false;
+    im.decoding = 'async';
     im.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;display:block;'
         + 'user-select:none;pointer-events:none;z-index:' + z + ';' + (extra || '');
     return im;
 }
 function crearCanvas(z) {
     const c = document.createElement('canvas');
-    c.style.cssText = 'position:absolute;left:0;top:0;pointer-events:none;z-index:' + z + ';';
+    c.style.cssText = 'position:absolute;left:0;top:0;pointer-events:none;z-index:' + z + ';will-change:contents;';
     viewport.appendChild(c);
     return c;
 }
@@ -367,11 +453,13 @@ function crearEscena() {
     viewport.innerHTML = '';
     Object.assign(viewport.style, {
         position: 'absolute', inset: '0', overflow: 'hidden',
-        background: '#1b2330', touchAction: 'none', cursor: 'grab', zIndex: '0'
+        background: '#1b2330', touchAction: 'none', cursor: 'grab', zIndex: '0',
+        WebkitTapHighlightColor: 'transparent',
     });
 
     stage = document.createElement('div');
-    stage.style.cssText = 'position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform;';
+    stage.style.cssText = 'position:absolute;left:0;top:0;transform-origin:0 0;'
+        + 'will-change:transform;backface-visibility:hidden;';
 
     imgFons = crearImatge(1);
     imgDades = crearImatge(2, `opacity:${OPACITAT_DADES};visibility:hidden;image-rendering:auto;`);
@@ -382,8 +470,7 @@ function crearEscena() {
     canvasVores = crearCanvas(9);
     canvasIsolines = crearCanvas(10);
     canvasVent = crearCanvas(11);
-    canvasBarbes = crearCanvas(12);
-    canvasNoms = crearCanvas(13);
+    canvasNoms = crearCanvas(12);
 
     imgLlegenda = document.createElement('img');
     imgLlegenda.className = 'llegenda-mapa';
@@ -397,7 +484,15 @@ function crearEscena() {
     };
 
     activarInteraccio();
-    window.addEventListener('resize', () => ajustarVista(true));
+    activarInteraccioPinca();
+
+    if (typeof ResizeObserver !== 'undefined') {
+        const ro = new ResizeObserver(() => ajustarVista(true));
+        ro.observe(viewport);
+    } else {
+        window.addEventListener('resize', () => ajustarVista(true));
+    }
+
     ajustarVista(false);
     crearPanell();
 }
@@ -446,7 +541,7 @@ function ajustarVista(mantenir) {
     programarRedibuix();
 }
 function aplicarTransform() {
-    stage.style.transform = `translate(${vista.x}px,${vista.y}px) scale(${vista.k})`;
+    stage.style.transform = `translate3d(${vista.x}px,${vista.y}px,0) scale(${vista.k})`;
 }
 function guardarVistaDiferit() {
     if (!_vistaPermesGuardar) return;
@@ -455,7 +550,7 @@ function guardarVistaDiferit() {
         const c = centreLonLat();
         if (!c || !isFinite(c[0]) || !isFinite(c[1])) return;
         cfgGuardar({ vista: { k: vista.k, lon: c[0], lat: c[1] } });
-    }, 400);
+    }, 600);
 }
 function restaurarVista() {
     const v = _cfg.vista;
@@ -468,7 +563,7 @@ function restaurarVista() {
 function redimensionarCanvas() {
     const W = viewport.clientWidth, H = viewport.clientHeight;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    [canvasVores, canvasIsolines, canvasVent, canvasBarbes, canvasNoms].forEach(c => {
+    [canvasVores, canvasIsolines, canvasVent, canvasNoms].forEach(c => {
         const nw = Math.max(1, Math.round(W * dpr));
         const nh = Math.max(1, Math.round(H * dpr));
         if (c.width !== nw || c.height !== nh) { c.width = nw; c.height = nh; }
@@ -480,7 +575,7 @@ function prepararCtx(canvas) {
     const W = parseFloat(canvas.style.width) || 0;
     const H = parseFloat(canvas.style.height) || 0;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d', { alpha: true, desynchronized: true });
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -532,14 +627,19 @@ function activarInteraccio() {
     }, { passive: false });
 
     let arrossegant = false, ox = 0, oy = 0, mogut = false;
+    let pointerActiu = null;
+
     viewport.addEventListener('pointerdown', e => {
+        if (pointerActiu !== null && pointerActiu !== e.pointerId) return;
+        pointerActiu = e.pointerId;
         _animVista = null;
         arrossegant = true; ox = e.clientX; oy = e.clientY; mogut = false;
-        viewport.setPointerCapture(e.pointerId);
+        try { viewport.setPointerCapture(e.pointerId); } catch {}
         viewport.style.cursor = 'grabbing';
     });
+
     viewport.addEventListener('pointermove', e => {
-        if (!arrossegant) return;
+        if (!arrossegant || e.pointerId !== pointerActiu) return;
         const dx = e.clientX - ox, dy = e.clientY - oy;
         if (Math.abs(dx) + Math.abs(dy) > 3) mogut = true;
         vista.x += dx; vista.y += dy;
@@ -547,7 +647,9 @@ function activarInteraccio() {
         aplicarTransform();
         programarRedibuix();
     });
+
     const fi = (e) => {
+        if (e.pointerId !== pointerActiu) return;
         const esClicDret = e.button === 2;
         const esTactil = e.pointerType === 'touch' && e.button === 0;
         if (arrossegant && !mogut && (esClicDret || esTactil)) {
@@ -556,17 +658,88 @@ function activarInteraccio() {
             obrirMenuContextual(px, py, e.clientX, e.clientY);
         }
         arrossegant = false;
+        pointerActiu = null;
+        try { viewport.releasePointerCapture(e.pointerId); } catch {}
         viewport.style.cursor = 'grab';
     };
     viewport.addEventListener('pointerup', fi);
-    viewport.addEventListener('pointercancel', () => { arrossegant = false; viewport.style.cursor = 'grab'; });
+    viewport.addEventListener('pointercancel', e => {
+        if (e.pointerId !== pointerActiu) return;
+        arrossegant = false;
+        pointerActiu = null;
+        try { viewport.releasePointerCapture(e.pointerId); } catch {}
+        viewport.style.cursor = 'grab';
+    });
     viewport.addEventListener('dblclick', () => ajustarVista(false));
 
-    // Bloquejar menú natiu
     viewport.addEventListener('contextmenu', e => e.preventDefault());
     document.addEventListener('contextmenu', e => {
         if (viewport && viewport.contains(e.target)) e.preventDefault();
     });
+}
+
+function activarInteraccioPinca() {
+    const punts = new Map();
+    let engolir = false;
+    let dPrev = 0;
+    let cPrev = { x: 0, y: 0 };
+
+    function calcular() {
+        const arr = [...punts.values()];
+        const a = arr[0], b = arr[1];
+        const d = Math.hypot(a.x - b.x, a.y - b.y);
+        const cx = (a.x + b.x) / 2;
+        const cy = (a.y + b.y) / 2;
+        return { d, cx, cy };
+    }
+
+    viewport.addEventListener('pointerdown', e => {
+        if (e.pointerType !== 'touch') return;
+        punts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+        if (punts.size === 2) {
+            e.stopImmediatePropagation();
+            e.preventDefault();
+            engolir = true;
+            const g = calcular();
+            dPrev = g.d;
+            cPrev = { x: g.cx, y: g.cy };
+            _animVista = null;
+        }
+    }, { capture: true, passive: false });
+
+    viewport.addEventListener('pointermove', e => {
+        if (e.pointerType !== 'touch') return;
+        if (!punts.has(e.pointerId)) return;
+        punts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+        if (!engolir || punts.size !== 2 || dPrev <= 0) return;
+        e.stopImmediatePropagation();
+        e.preventDefault();
+        const g = calcular();
+        const r = viewport.getBoundingClientRect();
+        vista.x += g.cx - cPrev.x;
+        vista.y += g.cy - cPrev.y;
+        const factor = g.d / dPrev;
+        const nk = Math.min(12, Math.max(0.5, vista.k * factor));
+        const q = nk / vista.k;
+        const mx = g.cx - r.left;
+        const my = g.cy - r.top;
+        vista.x = mx - (mx - vista.x) * q;
+        vista.y = my - (my - vista.y) * q;
+        vista.k = nk;
+        dPrev = g.d;
+        cPrev = { x: g.cx, y: g.cy };
+        aplicarTransform();
+        programarRedibuix();
+    }, { capture: true, passive: false });
+
+    const deixa = e => {
+        if (e.pointerType !== 'touch') return;
+        punts.delete(e.pointerId);
+        if (punts.size < 2) engolir = false;
+        if (punts.size === 0) { dPrev = 0; cPrev = { x: 0, y: 0 }; }
+    };
+    viewport.addEventListener('pointerup', deixa, { capture: true });
+    viewport.addEventListener('pointercancel', deixa, { capture: true });
 }
 
 function volarA(lon, lat, kFinal) {
@@ -607,7 +780,6 @@ let _menuCtx = null;
 function obrirMenuContextual(px, py, clientX, clientY) {
     tancarMenuContextual();
 
-    // 🔒 Requereix login
     if (!usuariLoguejat()) {
         if (typeof window.mostrarAvisLogin === 'function') {
             window.mostrarAvisLogin('Skew-T');
@@ -620,7 +792,6 @@ function obrirMenuContextual(px, py, clientX, clientY) {
     const ll = pantallaALonLat(px, py);
     if (!ll) return;
     const [lon, lat] = ll;
-
     const ext = window._extentManifest;
     if (ext && (lon < ext.lon_w || lon > ext.lon_e || lat < ext.lat_s || lat > ext.lat_n)) return;
 
@@ -839,10 +1010,11 @@ async function carregarSondeig(hora, dia) {
         const u8 = await descomprimirGzip(buf);
         const dades = await decodificarMsgpack(u8);
         _cacheSondeigs.set(clau, dades);
+        _llevarCache(_cacheSondeigs, MAX_CACHE_SONDEIGS);
         return dades;
     } catch (e) {
-        console.warn(`[sondeig] No s'ha pogut carregar ${clau}:`, e.message);
         _cacheSondeigs.set(clau, null);
+        _llevarCache(_cacheSondeigs, MAX_CACHE_SONDEIGS);
         return null;
     }
 }
@@ -855,45 +1027,108 @@ function obtenirPerfilSondeig(sondeig, lat, lon) {
     const iLon = Math.max(0, Math.min(nLon - 1, Math.round((lon - sondeig.lons[0]) / (sondeig.lons[nLon - 1] - sondeig.lons[0]) * (nLon - 1))));
     const idx = iLat * nLon + iLon;
     const pressions = sondeig.pressions || [];
-    const t = [], dpt = [], u = [], v = [];
+    const t = [], dpt = [], u = [], v = [], speed = [], dir = [];
     for (let k = 0; k < pressions.length; k++) {
         const tk = sondeig.t[k] ? sondeig.t[k][idx] : null;
         const dk = sondeig.dpt[k] ? sondeig.dpt[k][idx] : null;
         const uk = sondeig.u[k] ? sondeig.u[k][idx] : null;
         const vk = sondeig.v[k] ? sondeig.v[k][idx] : null;
         t.push(tk); dpt.push(dk); u.push(uk); v.push(vk);
+        if (uk != null && vk != null) {
+            speed.push(Math.hypot(uk, vk));
+            dir.push((270 - Math.atan2(vk, uk) * 180 / Math.PI + 360) % 360);
+        } else {
+            speed.push(null); dir.push(null);
+        }
     }
-    return { lat: sondeig.lats[iLat], lon: sondeig.lons[iLon], idx, pressions, t, dpt, u, v };
+    return { lat: sondeig.lats[iLat], lon: sondeig.lons[iLon], idx, pressions, t, dpt, u, v, speed, dir };
+}
+
+async function obtenirSondeigPunt(hora, dia, lat, lon) {
+    const sondeig = await carregarSondeig(hora, dia);
+    if (!sondeig) return null;
+    return obtenirPerfilSondeig(sondeig, lat, lon);
 }
 
 async function carregarVent3D(hora, dia, nivell) {
-    const clau = `${String(hora).padStart(2, '0')}_${dia}`;
-    if (_cacheVent3D.has(clau)) {
-        const camp = _cacheVent3D.get(clau);
-        return seleccionarNivellVent(camp, nivell);
-    }
-    try {
-        window.VENT3D = undefined;
-        await carregarScript(`${BASE_3D}vent3d_${clau}.js`);
-        const camp = window.VENT3D && window.VENT3D[clau];
-        _cacheVent3D.set(clau, camp || null);
-        if (!camp) return null;
-        return seleccionarNivellVent(camp, nivell);
-    } catch (e) {
+    const clau = `${String(hora).padStart(2, '0')}_${dia}_${nivell}`;
+    if (_cacheVent3D.has(clau)) return _cacheVent3D.get(clau);
+
+    const sondeig = await carregarSondeig(hora, dia);
+    if (!sondeig || !sondeig.pressions) {
         _cacheVent3D.set(clau, null);
+        return null;
+    }
+    const idxNivell = sondeig.pressions.indexOf(nivell);
+    if (idxNivell < 0) {
+        _cacheVent3D.set(clau, null);
+        return null;
+    }
+    const u_flat = sondeig.u[idxNivell] || [];
+    const v_flat = sondeig.v[idxNivell] || [];
+    if (!u_flat.length || u_flat.length !== v_flat.length) {
+        _cacheVent3D.set(clau, null);
+        return null;
+    }
+
+    let lats = sondeig.lats;
+    let lons = sondeig.lons;
+    if (!lats || !lons) {
+        const ext = window._extentManifest;
+        if (!ext) { _cacheVent3D.set(clau, null); return null; }
+        const nPunts = u_flat.length;
+        let nLon = 130, nLat = 120;
+        const candidats = [[130, 120], [128, 122], [120, 130], [156, 100], [156, 120]];
+        for (const [nL, nT] of candidats) {
+            if (nL * nT === nPunts) { nLon = nL; nLat = nT; break; }
+        }
+        if (nLon * nLat !== nPunts) {
+            for (let nL = 100; nL <= 200; nL++) {
+                if (nPunts % nL === 0) {
+                    const nT = nPunts / nL;
+                    if (nT > 50 && nT < 250) { nLon = nL; nLat = nT; break; }
+                }
+            }
+        }
+        lons = Array.from({length: nLon}, (_, i) =>
+            ext.lon_w + (i / (nLon - 1)) * (ext.lon_e - ext.lon_w));
+        lats = Array.from({length: nLat}, (_, i) =>
+            ext.lat_n - (i / (nLat - 1)) * (ext.lat_n - ext.lat_s));
+    }
+
+    const nLon = lons.length;
+    const nLat = lats.length;
+    const u = [], v = [];
+    for (let i = 0; i < nLat; i++) {
+        u.push(u_flat.slice(i * nLon, (i + 1) * nLon));
+        v.push(v_flat.slice(i * nLon, (i + 1) * nLon));
+    }
+    const camp = { lats, lons, u, v, _nivell: nivell };
+    _cacheVent3D.set(clau, camp);
+    _llevarCache(_cacheVent3D, MAX_CACHE_VENT);
+    return camp;
+}
+
+// Storm motion: u/v decimats (stormmotion_HH_dia.js) per dibuixar barbes
+async function carregarStorm(hora, dia) {
+    const clau = `${String(hora).padStart(2, '0')}_${dia}`;
+    if (_cacheStorm.has(clau)) return _cacheStorm.get(clau);
+    try {
+        await carregarScript(`${BASE_3D}stormmotion_${clau}.js`);
+        const dades = (window.STORMMOTION && window.STORMMOTION[clau]) || null;
+        _cacheStorm.set(clau, dades);
+        _llevarCache(_cacheStorm, MAX_CACHE_VENT);
+        return dades;
+    } catch (e) {
+        _cacheStorm.set(clau, null);
+        _llevarCache(_cacheStorm, MAX_CACHE_VENT);
         return null;
     }
 }
 
-function seleccionarNivellVent(camp, nivell) {
-    if (!camp || !camp.per_nivell) return null;
-    const dades = camp.per_nivell[String(nivell)];
-    if (!dades) return null;
-    return { lats: camp.lats, lons: camp.lons, u: dades.u, v: dades.v, _nivell: nivell };
-}
-
 async function mostrarCapa3D(var3d, nivell) {
     if (!var3d || !nivell) return false;
+
     // 🔒 Requereix login
     if (!usuariLoguejat()) {
         if (typeof window.mostrarAvisLogin === 'function') {
@@ -903,6 +1138,7 @@ async function mostrarCapa3D(var3d, nivell) {
         }
         return false;
     }
+
     const hora = totesLesHores[curIdx] ? totesLesHores[curIdx].hora : null;
     const dia = totesLesHores[curIdx] ? totesLesHores[curIdx].dia : null;
     if (hora == null || !dia) return false;
@@ -914,6 +1150,7 @@ async function mostrarCapa3D(var3d, nivell) {
 
     const token = ++_tokenDades;
     const pre = new Image();
+    pre.decoding = 'async';
     pre.onload = () => {
         if (token !== _tokenDades) return;
         imgDades.src = NEGRE_A_BLANC ? negreABlanc(pre, urlPng) : urlPng;
@@ -927,21 +1164,31 @@ async function mostrarCapa3D(var3d, nivell) {
     };
     pre.src = urlPng;
 
-    const esVent = ['wind_speed', 'wind_dir', 'u', 'v'].includes(var3d);
-    if (esVent && window.MOSTRAR_VENT) {
-        _ventActual = await carregarVent3D(hora, dia, nivell);
+    const esVent = nivell !== NIVELL_COLUMNA && ['wind_speed', 'wind_dir', 'u', 'v'].includes(var3d);
+    if (esVent) {
+        if (window.MOSTRAR_VENT) {
+            const camp = await carregarVent3D(hora, dia, nivell);
+            if (token !== _tokenDades) return false;
+            _ventActual = camp;
+        } else {
+            _ventActual = null;
+        }
     } else {
         _ventActual = null;
     }
-
-    if ((var3d === 'storm_speed' || var3d === 'storm_dir') && window.MOSTRAR_BARBES) {
-        _barbesActuals = await carregarBarbes(hora, dia);
-    } else {
-        _barbesActuals = null;
-    }
+const VARS_AMB_BARBES = ['storm_speed', 'shear_01', 'shear_03', 'shear_06'];
+if (VARS_AMB_BARBES.includes(var3d)) {
+    const s = window.MOSTRAR_BARBES ? await carregarStorm(hora, dia) : null;
+    if (token !== _tokenDades) return false;
+    _stormActual = s;
+} else {
+    _stormActual = null;
+}
 
     if (window.MOSTRAR_ISOLINIES) {
-        _isolinesActuals = await carregarIsolines3D(clau);
+        const iso = await carregarIsolines3D(clau);
+        if (token !== _tokenDades) return false;
+        _isolinesActuals = iso;
     } else {
         _isolinesActuals = null;
     }
@@ -953,42 +1200,31 @@ async function mostrarCapa3D(var3d, nivell) {
 
 function tornarAModeSFC() {
     _capa3DActiva = null;
-    _barbesActuals = null;
+    _stormActual = null;
     actualitzarDades();
     actualitzarLlegenda();
     refrescarVentIsolines();
+    actualitzarCapcaleraVariable();
 }
 
 async function carregarIsolines3D(clau) {
     if (_cacheCapes3D.has('iso_' + clau)) return _cacheCapes3D.get('iso_' + clau);
     try {
         await carregarScript(`${BASE_3D}isolines_3d_${clau}.js`);
-        const dades = (window.ISOLINIES && window.ISOLINIES[clau]) || null;
+        const dades = (window.ISOLINIES && window.ISOLINIES['3d_' + clau]) || null;
         _cacheCapes3D.set('iso_' + clau, dades);
+        _llevarCache(_cacheCapes3D, MAX_CACHE_ISOLINES);
         return dades;
     } catch (e) {
         _cacheCapes3D.set('iso_' + clau, null);
-        return null;
-    }
-}
-
-async function carregarBarbes(hora, dia) {
-    const clau = `${String(hora).padStart(2, '0')}_${dia}`;
-    if (_cacheBarbes.has(clau)) return _cacheBarbes.get(clau);
-    try {
-        window.STORMMOTION = undefined;
-        await carregarScript(`${BASE_3D}stormmotion_${clau}.js`, true);
-        const dades = window.STORMMOTION && window.STORMMOTION[clau];
-        _cacheBarbes.set(clau, dades || null);
-        return dades || null;
-    } catch (e) {
-        _cacheBarbes.set(clau, null);
+        _llevarCache(_cacheCapes3D, MAX_CACHE_ISOLINES);
         return null;
     }
 }
 
 window.carregarSondeig = carregarSondeig;
 window.obtenirPerfilSondeig = obtenirPerfilSondeig;
+window.obtenirSondeigPunt = obtenirSondeigPunt;
 window.mostrarCapa3D = mostrarCapa3D;
 window.tornarAModeSFC = tornarAModeSFC;
 window.carregarIsolines3D = carregarIsolines3D;
@@ -999,9 +1235,33 @@ window.carregarIsolines3D = carregarIsolines3D;
 let _filesVariables = [];
 const _seccionsObertes = new Set();
 
+function injectarEstils3D() {
+    if (document.getElementById('pp3d-estils')) return;
+    const st = document.createElement('style');
+    st.id = 'pp3d-estils';
+    st.textContent = `
+        .pp3d-chips{display:none;flex-wrap:wrap;gap:5px;padding:3px 12px 9px 22px}
+        .pp3d-bloc.obert .pp3d-chips{display:flex}
+        .pp3d-chip{font:600 10.5px 'Inter',system-ui,sans-serif;padding:3px 9px;border-radius:999px;
+            border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:#c9d4e6;cursor:pointer}
+        .pp3d-chip:hover{background:rgba(255,255,255,.15)}
+        .pp3d-chip.actiu{background:#ff7ad9;border-color:#ff7ad9;color:#1b1030}
+    `;
+    document.head.appendChild(st);
+}
+
 function ocultarUIAntiga() {
     const antiga = document.getElementById('parameter_selection');
     if (antiga) antiga.style.display = 'none';
+    const inp = document.querySelector('input[placeholder^="Cercar par"], input[placeholder^="Buscar par"]');
+    if (inp && !inp.closest('#panell-pro')) {
+        let cont = inp.parentElement;
+        const grid = document.getElementById('fh_grid');
+        if (!cont || cont === document.body || (grid && cont.contains(grid)) || cont.contains(viewport)) cont = inp;
+        cont.style.display = 'none';
+    }
+    const oldCtrl = document.getElementById('controls-png');
+    if (oldCtrl) oldCtrl.remove();
 }
 
 function activarPestanya(nom, enfocar) {
@@ -1020,6 +1280,7 @@ function activarPestanya(nom, enfocar) {
 function crearPanell() {
     if (document.getElementById('panell-pro')) return;
     ocultarUIAntiga();
+    injectarEstils3D();
 
     const p = document.createElement('div');
     p.id = 'panell-pro';
@@ -1073,7 +1334,7 @@ function crearPanell() {
                 <div class="cap-titol">Superposicions</div>
                 <div class="cap-fila" data-prop="MOSTRAR_ISOLINIES"><span>Isolínies</span><span class="interruptor"></span></div>
                 <div class="cap-fila" data-prop="MOSTRAR_VENT"><span>Línies de corrent del vent</span><span class="interruptor"></span></div>
-                <div class="cap-fila" data-prop="MOSTRAR_BARBES"><span>Barbes de tempesta</span><span class="interruptor"></span></div>
+                <div class="cap-fila" data-prop="MOSTRAR_BARBES"><span>Barbes de storm motion</span><span class="interruptor"></span></div>
                 <div class="cap-titol">Ciutats</div>
                 <label class="ctrl-label">Densitat de noms</label>
                 <select id="selDensitatCiutats" class="ctrl-select">
@@ -1111,7 +1372,6 @@ function crearPanell() {
     p.querySelectorAll('.pp-tab').forEach(b => b.addEventListener('click', () => activarPestanya(b.dataset.tab, true)));
     if (['variables', 'ciutats', 'capes'].includes(_cfg.pestanya)) activarPestanya(_cfg.pestanya, false);
 
-    // Cercador variables
     const inpVar = p.querySelector('#ppCercaVar');
     const esbVar = p.querySelector('#ppEsbVar');
     inpVar.addEventListener('input', () => {
@@ -1135,7 +1395,6 @@ function crearPanell() {
         }
     });
 
-    // Ciutats
     const inpCiu = p.querySelector('#ppCercaCiu');
     const esbCiu = p.querySelector('#ppEsbCiu');
     inpCiu.addEventListener('input', () => {
@@ -1157,7 +1416,6 @@ function crearPanell() {
         programarRedibuix();
     });
 
-    // Toggles de capes
     p.querySelectorAll('.cap-fila').forEach(f => {
         const prop = f.dataset.prop;
         f.classList.toggle('on', !!window[prop]);
@@ -1167,19 +1425,31 @@ function crearPanell() {
             guardarCapes();
             if (prop === 'MOSTRAR_ISOLINIES' && window[prop]) refrescarVentIsolines();
             else if (prop === 'MOSTRAR_VENT') {
-                if (!window[prop]) { _ventActual = null; programarRedibuix(); }
-                else refrescarVentIsolines();
-            } else if (prop === 'MOSTRAR_BARBES') {
-                if (!window[prop]) { _barbesActuals = null; programarRedibuix(); }
-                else if (_capa3DActiva && (_capa3DActiva.var === 'storm_speed' || _capa3DActiva.var === 'storm_dir')) {
-                    carregarBarbes(_capa3DActiva.hora, _capa3DActiva.dia)
-                        .then(b => { _barbesActuals = b; programarRedibuix(); });
+                if (!window[prop]) {
+                    _ventActual = null;
+                    programarRedibuix();
+                } else {
+                    if (_capa3DActiva && _capa3DActiva.nivell !== NIVELL_COLUMNA &&
+                        ['wind_speed','wind_dir','u','v'].includes(_capa3DActiva.var)) {
+                        carregarVent3D(_capa3DActiva.hora, _capa3DActiva.dia, _capa3DActiva.nivell)
+                            .then(c => { _ventActual = c; programarRedibuix(); });
+                    } else if (!_capa3DActiva) {
+                        carregarVent(curIdx).then(v => { _ventActual = v; programarRedibuix(); });
+                    }
                 }
+            } else if (prop === 'MOSTRAR_BARBES') {
+                const VARS_AMB_BARBES = ['storm_speed', 'shear_01', 'shear_03', 'shear_06'];
+                if (window[prop] && _capa3DActiva && VARS_AMB_BARBES.includes(_capa3DActiva.var)) {
+                    carregarStorm(_capa3DActiva.hora, _capa3DActiva.dia)
+                        .then(s => { _stormActual = s; programarRedibuix(); });
+                } else if (!window[prop]) {
+                    _stormActual = null;
+                    programarRedibuix();
+                } else programarRedibuix();
             } else programarRedibuix();
         });
     });
 
-    // Densitat ciutats
     const sel = p.querySelector('#selDensitatCiutats');
     sel.value = window.DENSITAT_CIUTATS_ACTIVA;
     sel.addEventListener('change', () => {
@@ -1191,7 +1461,6 @@ function crearPanell() {
         programarRedibuix();
     });
 
-    // Opacitat
     const rng = p.querySelector('#rngOpacitat');
     rng.addEventListener('input', e => {
         OPACITAT_DADES = e.target.value / 100;
@@ -1205,21 +1474,127 @@ function crearPanell() {
     });
 }
 
+function crearSeccioPanell(id, nom, color, n) {
+    const sec = document.createElement('div');
+    sec.className = 'sec';
+    sec.dataset.sec = id;
+    sec.innerHTML = `
+        <button class="sec-cap">
+            <span class="sec-punt" style="background:${color}"></span>
+            <span class="sec-nom">${nom}</span>
+            <span class="sec-n">${n}</span>
+            <span class="sec-fletxa">${ICO.fletxa}</span>
+        </button>
+        <div class="sec-cos"></div>`;
+    sec.querySelector('.sec-cap').addEventListener('click', () => {
+        const oberta = sec.classList.toggle('oberta');
+        if (oberta) _seccionsObertes.add(id); else _seccionsObertes.delete(id);
+    });
+    return { sec, cos: sec.querySelector('.sec-cos') };
+}
+
+function seleccionar3D(v, nivell) {
+    const p = mostrarCapa3D(v, nivell);
+    actualitzarCapcaleraVariable();
+    return p;
+}
+
+function construirSeccions3D(cont) {
+    // ── 1) Variables per nivell de pressió: una fila + chips de nivell ──
+    const nivell = crearSeccioPanell('3d', 'Altura (nivells de pressió)', '#ff7ad9', CATALEG_3D_NIVELL.length);
+    CATALEG_3D_NIVELL.forEach(c => {
+        const bloc = document.createElement('div');
+        bloc.className = 'pp3d-bloc';
+        bloc.dataset.var = c.var;
+
+        const row = document.createElement('div');
+        row.className = 'param-row';
+        row.dataset.clau = '3d_' + c.var;
+        row.dataset.v3d = c.var;
+        row.title = `${c.nom} (${c.unitat}) — tria el nivell`;
+        row.innerHTML = `<span>${c.nom}</span><span class="unitat">${c.unitat}</span>`;
+        row.addEventListener('click', () => {
+            const n = ultimNivell3D[c.var] || 850;
+            ultimNivell3D[c.var] = n;
+            seleccionar3D(c.var, n);
+        });
+
+        const chips = document.createElement('div');
+        chips.className = 'pp3d-chips';
+        NIVELLS_3D.forEach(n => {
+            const b = document.createElement('button');
+            b.type = 'button';
+            b.className = 'pp3d-chip';
+            b.dataset.var = c.var;
+            b.dataset.niv = String(n);
+            b.textContent = n + ' hPa';
+            b.addEventListener('click', e => {
+                e.stopPropagation();
+                ultimNivell3D[c.var] = n;
+                seleccionar3D(c.var, n);
+            });
+            chips.appendChild(b);
+        });
+
+        bloc.append(row, chips);
+        bloc.click = () => row.click();
+        nivell.cos.appendChild(bloc);
+        _filesVariables.push({
+            clau: '3d_' + c.var, seccio: '3d',
+            nomN: nrm(`${c.nom} ${c.var} 3d altura nivell pressio hpa`),
+            el: bloc,
+        });
+    });
+    cont.appendChild(nivell.sec);
+
+    // ── 2) Variables de columna (tempestes severes) ──
+    const col = crearSeccioPanell('3dcol', 'Tempestes severes (índexs)', '#ff4d4f', CATALEG_3D_COLUMNA.length);
+    CATALEG_3D_COLUMNA.forEach(c => {
+        const row = document.createElement('div');
+        row.className = 'param-row';
+        row.dataset.clau = '3d_' + c.var + '_' + NIVELL_COLUMNA;
+        row.dataset.v3d = c.var;
+        row.title = `${c.nom} (${c.unitat})`;
+        row.innerHTML = `<span>${c.nom}</span><span class="unitat">${c.unitat}</span>`;
+        row.addEventListener('click', () => seleccionar3D(c.var, NIVELL_COLUMNA));
+        col.cos.appendChild(row);
+        _filesVariables.push({
+            clau: '3d_' + c.var, seccio: '3dcol',
+            nomN: nrm(`${c.nom} ${c.var} 3d tempestes severes cisallament shear helicitat storm motion barbes`),
+            el: row,
+        });
+    });
+    cont.appendChild(col.sec);
+}
+
 function construirPanellParametres() {
     const cont = document.getElementById('ppLlistaVar');
     if (!cont) return;
     cont.innerHTML = '';
     _filesVariables = [];
 
+    // ── Superfície ──
     const totes = new Set();
-    for (const h of totesLesHores) for (const v of h.variables) totes.add(v);
+    for (const h of totesLesHores) for (const v of h.variables) {
+        if (!OCULTES_SFC.has(normClau(v))) totes.add(v);
+    }
+    const visibles = new Set();
+    const nomsVistos = new Set();
+    [...totes]
+        .sort((a, b) => (prioritatClau(a) - prioritatClau(b)) || a.localeCompare(b))
+        .forEach(clau => {
+            const nk = nrm(nomVariable(clau));
+            if (nomsVistos.has(nk)) return;
+            nomsVistos.add(nk);
+            visibles.add(clau);
+        });
 
-    if (totes.size) {
-        if (_cfg.variable && totes.has(_cfg.variable)) variableActiva = _cfg.variable;
-        if (!totes.has(variableActiva)) variableActiva = [...totes].sort()[0];
+    if (visibles.size) {
+        if (_cfg.variable && visibles.has(_cfg.variable)) variableActiva = _cfg.variable;
+        if (!visibles.has(variableActiva)) variableActiva = [...visibles].sort()[0];
 
         const perSeccio = new Map(SECCIONS.map(s => [s.id, []]));
-        for (const clau of totes) perSeccio.get(seccioDe(clau)).push(clau);
+        for (const clau of visibles) perSeccio.get(seccioDe(clau)).push(clau);
 
         for (const s of SECCIONS) {
             const claus = perSeccio.get(s.id);
@@ -1229,26 +1604,14 @@ function construirPanellParametres() {
                 return d !== 0 ? d : nomVariable(a).localeCompare(nomVariable(b), 'ca');
             });
 
-            const sec = document.createElement('div');
-            sec.className = 'sec';
-            sec.dataset.sec = s.id;
-            sec.innerHTML = `
-                <button class="sec-cap">
-                    <span class="sec-punt" style="background:${s.color}"></span>
-                    <span class="sec-nom">${s.nom}</span>
-                    <span class="sec-n">${claus.length}</span>
-                    <span class="sec-fletxa">${ICO.fletxa}</span>
-                </button>
-                <div class="sec-cos"></div>`;
-            const cos = sec.querySelector('.sec-cos');
+            const { sec, cos } = crearSeccioPanell(s.id, s.nom, s.color, claus.length);
 
             claus.forEach(clau => {
                 const nom = nomVariable(clau);
                 const unitat = infoVariables[clau] && infoVariables[clau].unitat;
 
                 // 🔒 Comprovar accés
-                const teAcces = potVeureVariable(clau);
-                const bloquejat = !teAcces;
+                const bloquejat = !potVeureVariable(clau);
 
                 const row = document.createElement('div');
                 row.className = 'param-row'
@@ -1278,85 +1641,12 @@ function construirPanellParametres() {
                 cos.appendChild(row);
                 _filesVariables.push({ clau, seccio: s.id, nomN: nrm(nom + ' ' + clau + ' ' + s.nom), el: row });
             });
-
-            sec.querySelector('.sec-cap').addEventListener('click', () => {
-                const oberta = sec.classList.toggle('oberta');
-                if (oberta) _seccionsObertes.add(s.id); else _seccionsObertes.delete(s.id);
-            });
             cont.appendChild(sec);
         }
     }
 
-    // Bloc 3D
-    if (Object.keys(infoVariables3D).length) {
-        const claus3d = Object.keys(infoVariables3D).sort((a, b) => {
-            const A = infoVariables3D[a], B = infoVariables3D[b];
-            const dv = A.var.localeCompare(B.var);
-            return dv !== 0 ? dv : (B.nivell - A.nivell);
-        });
-
-        const sec3d = document.createElement('div');
-        sec3d.className = 'sec';
-        sec3d.dataset.sec = '3d';
-        sec3d.innerHTML = `
-            <button class="sec-cap">
-                <span class="sec-punt" style="background:#ff7ad9"></span>
-                <span class="sec-nom">Nivells 3D (pressió)</span>
-                <span class="sec-n">${claus3d.length}</span>
-                <span class="sec-fletxa">${ICO.fletxa}</span>
-            </button>
-            <div class="sec-cos"></div>`;
-        const cos3d = sec3d.querySelector('.sec-cos');
-
-        claus3d.forEach(k => {
-            const inf = infoVariables3D[k];
-            const nom = NOMS_VARIABLES_3D[inf.var] || inf.var;
-            const nomComplet = `${nom} @ ${inf.nivell} hPa`;
-
-            // 🔒 3D requereix login sempre
-            const bloquejat = !usuariLoguejat();
-
-            const row = document.createElement('div');
-            row.className = 'param-row'
-                + (clau => (clau === '3d_' + k && _capa3DActiva && _capa3DActiva.var === inf.var && _capa3DActiva.nivell === inf.nivell) ? ' param-selected' : '')(variableActiva)
-                + (bloquejat ? ' premium-bloquejat' : '');
-            row.dataset.clau = '3d_' + k;
-            row.dataset.nom = nrm(nomComplet + ' ' + k).toLowerCase();
-            row.title = bloquejat
-                ? 'Inicia sessió per veure les capes 3D'
-                : (nomComplet + (inf.unitat ? ` (${inf.unitat})` : ''));
-
-            const cadenat = bloquejat ? ' <span style="opacity:0.7;">🔒</span>' : '';
-            row.innerHTML = `<span>${nomComplet}${cadenat}</span>${inf.unitat ? `<span class="unitat">${inf.unitat}</span>` : ''}`;
-
-            row.addEventListener('click', async () => {
-                if (!usuariLoguejat()) {
-                    if (typeof window.mostrarAvisLogin === 'function') {
-                        window.mostrarAvisLogin(inf.var);
-                    } else if (typeof window.obrirModal === 'function') {
-                        window.obrirModal('modalLogin');
-                    }
-                    return;
-                }
-                document.querySelectorAll('#panell-pro .param-row').forEach(el => el.classList.remove('param-selected'));
-                row.classList.add('param-selected');
-                await mostrarCapa3D(inf.var, inf.nivell);
-                actualitzarCapcaleraVariable();
-            });
-            cos3d.appendChild(row);
-            _filesVariables.push({
-                clau: '3d_' + k, seccio: '3d',
-                nomN: nrm(nomComplet + ' ' + inf.var + ' ' + inf.nivell + ' 3d nivell pressio'),
-                el: row,
-            });
-        });
-
-        sec3d.querySelector('.sec-cap').addEventListener('click', () => {
-            const oberta = sec3d.classList.toggle('oberta');
-            if (oberta) _seccionsObertes.add('3d'); else _seccionsObertes.delete('3d');
-        });
-        cont.appendChild(sec3d);
-    }
+    // ── 3D (catàleg curat; no depèn del manifest) ──
+    construirSeccions3D(cont);
 
     const buit = document.createElement('div');
     buit.className = 'pp-buit';
@@ -1367,7 +1657,6 @@ function construirPanellParametres() {
 
     _seccionsObertes.clear();
     _seccionsObertes.add(seccioDe(variableActiva));
-    if (Object.keys(infoVariables3D).length) _seccionsObertes.add('3d');
     restaurarSeccions();
     actualitzarCapcaleraVariable();
 }
@@ -1406,23 +1695,39 @@ function filtrarVariables(text) {
     const b = document.getElementById('ppBuitVar'); if (b) b.style.display = total ? 'none' : 'block';
 }
 
+function marcarSeleccio3D() {
+    const a = _capa3DActiva;
+    document.querySelectorAll('#panell-pro .param-row').forEach(el => {
+        if (el.dataset.v3d) el.classList.toggle('param-selected', !!a && el.dataset.v3d === a.var);
+        else if (a) el.classList.remove('param-selected');
+    });
+    document.querySelectorAll('#panell-pro .pp3d-bloc').forEach(b => {
+        b.classList.toggle('obert', !!a && b.dataset.var === a.var);
+    });
+    document.querySelectorAll('#panell-pro .pp3d-chip').forEach(c => {
+        c.classList.toggle('actiu', !!a && c.dataset.var === a.var && String(a.nivell) === c.dataset.niv);
+    });
+}
+
 function actualitzarCapcaleraVariable() {
     const n = document.getElementById('ppActualNom');
     const u = document.getElementById('ppActualUnitat');
     if (!n) return;
     if (_capa3DActiva) {
-        const nm = NOMS_VARIABLES_3D[_capa3DActiva.var] || _capa3DActiva.var;
-        n.textContent = `${nm} @ ${_capa3DActiva.nivell} hPa`;
-        u.textContent = '3D';
-        return;
+        const a = _capa3DActiva;
+        const nm = NOMS_VARIABLES_3D[a.var] || a.var;
+        const inf = info3D(a.var);
+        n.textContent = a.nivell === NIVELL_COLUMNA ? nm : `${nm} @ ${a.nivell} hPa`;
+        u.textContent = (inf && inf.unitat) ? inf.unitat : '3D';
+    } else {
+        n.textContent = nomVariable(variableActiva);
+        const inf = infoVariables[variableActiva];
+        u.textContent = (inf && inf.unitat) ? inf.unitat : '';
     }
-    n.textContent = nomVariable(variableActiva);
-    const inf = infoVariables[variableActiva];
-    u.textContent = (inf && inf.unitat) ? inf.unitat : '';
+    marcarSeleccio3D();
 }
 
 function seleccionarVariable(clau) {
-    // 🔒 Comprovar accés
     if (!potVeureVariable(clau)) {
         if (typeof window.mostrarAvisLogin === 'function') {
             window.mostrarAvisLogin(clau);
@@ -1432,7 +1737,7 @@ function seleccionarVariable(clau) {
         return;
     }
     _capa3DActiva = null;
-    _barbesActuals = null;
+    _stormActual = null;
     variableActiva = clau;
     document.querySelectorAll('#panell-pro .param-row').forEach(el => {
         el.classList.toggle('param-selected', el.dataset.clau === clau);
@@ -1583,8 +1888,8 @@ function negreABlanc(img, url) {
             resultat = c.toDataURL('image/png');
         }
     } catch (e) { resultat = url; }
-    if (_cacheDadesBlanques.size > 60) _cacheDadesBlanques.delete(_cacheDadesBlanques.keys().next().value);
     _cacheDadesBlanques.set(url, resultat);
+    _llevarCache(_cacheDadesBlanques, MAX_CACHE_BLANQUES);
     return resultat;
 }
 
@@ -1596,6 +1901,7 @@ function actualitzarDades() {
     if (url === _urlDades) return;
 
     const pre = new Image();
+    pre.decoding = 'async';
     pre.onload = () => {
         if (token !== _tokenDades) return;
         imgDades.src = NEGRE_A_BLANC ? negreABlanc(pre, url) : url;
@@ -1614,7 +1920,11 @@ function precarregarSeguent() {
     if (!totesLesHores.length) return;
     if (_capa3DActiva) return;
     const next = construirUrlPng((curIdx + 1) % totesLesHores.length, variableActiva);
-    if (next) new Image().src = next;
+    if (next) {
+        const im = new Image();
+        im.decoding = 'async';
+        im.src = next;
+    }
 }
 
 function actualitzarLlegenda() {
@@ -1628,12 +1938,13 @@ function actualitzarLlegenda() {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-//  CÀRREGA .js
+//  CÀRREGA DE FITXERS .js
 // ═══════════════════════════════════════════════════════════════════
 function carregarScript(url, opcional) {
     return new Promise((resolve, reject) => {
         const s = document.createElement('script');
         s.src = url + '?_cb=' + Date.now();
+        s.async = true;
         s.onload = () => { s.remove(); resolve(); };
         s.onerror = () => {
             s.remove();
@@ -1655,9 +1966,11 @@ async function carregarIsolines(idx, clau) {
         await carregarScript(`${PNG_BASE}isolines_${clauFitxer}.js`);
         const dades = (window.ISOLINIES && window.ISOLINIES[clauFitxer]) || null;
         _cacheIsolines.set(clauFitxer, dades);
+        _llevarCache(_cacheIsolines, MAX_CACHE_ISOLINES);
         return dades;
     } catch (e) {
         _cacheIsolines.set(clauFitxer, null);
+        _llevarCache(_cacheIsolines, MAX_CACHE_ISOLINES);
         return null;
     }
 }
@@ -1672,9 +1985,11 @@ async function carregarVent(idx) {
         await carregarScript(`${PNG_BASE}vent_${clauFitxer}.js`);
         const dades = (window.VENT && window.VENT[clauFitxer]) || null;
         _cacheVent.set(clauFitxer, dades);
+        _llevarCache(_cacheVent, MAX_CACHE_VENT);
         return dades;
     } catch (e) {
         _cacheVent.set(clauFitxer, null);
+        _llevarCache(_cacheVent, MAX_CACHE_VENT);
         return null;
     }
 }
@@ -1911,7 +2226,106 @@ function dibuixarIsolines() {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-//  VENT (streamlines)
+//  BARBES DE STORM MOTION
+// ═══════════════════════════════════════════════════════════════════
+function ferBarba(ctx, x, y, u, v, L) {
+    const mag = Math.hypot(u, v);
+    const sp = Math.round(mag * MS_A_KT / 5) * 5;
+
+    if (sp < 5 || mag < 1e-6) {
+        for (const [col, lw] of BARBES_PASSADES) {
+            ctx.beginPath();
+            ctx.arc(x, y, 2.6, 0, Math.PI * 2);
+            ctx.lineWidth = lw; ctx.strokeStyle = col;
+            ctx.stroke();
+        }
+        return;
+    }
+
+    const dx = -u / mag, dy = v / mag;
+    const ex = x + dx * L, ey = y + dy * L;
+    const px = -dy, py = dx;
+    const fl = L * 0.45, pas = L * 0.13;
+
+    const n50 = Math.floor(sp / 50);
+    const r = sp - n50 * 50;
+    const n10 = Math.floor(r / 10);
+    const n5 = (r - n10 * 10) >= 5 ? 1 : 0;
+
+    const pt = t => [ex - dx * t, ey - dy * t];
+
+    const traç = () => {
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(ex, ey);
+        let t = 0;
+        for (let i = 0; i < n50; i++) {
+            const a = pt(t), b = pt(t + pas * 1.5);
+            ctx.moveTo(a[0], a[1]);
+            ctx.lineTo(a[0] + px * fl, a[1] + py * fl);
+            ctx.lineTo(b[0], b[1]);
+            ctx.closePath();
+            t += pas * 1.9;
+        }
+        for (let i = 0; i < n10; i++) {
+            const a = pt(t);
+            ctx.moveTo(a[0], a[1]);
+            ctx.lineTo(a[0] + px * fl + dx * fl * 0.3, a[1] + py * fl + dy * fl * 0.3);
+            t += pas;
+        }
+        if (n5) {
+            if (n50 === 0 && n10 === 0) t = pas;
+            const a = pt(t);
+            ctx.moveTo(a[0], a[1]);
+            ctx.lineTo(a[0] + px * fl * 0.5 + dx * fl * 0.15, a[1] + py * fl * 0.5 + dy * fl * 0.15);
+        }
+    };
+
+    for (const [col, lw] of BARBES_PASSADES) {
+        traç();
+        ctx.lineWidth = lw;
+        ctx.strokeStyle = col;
+        ctx.fillStyle = col;
+        ctx.stroke();
+        ctx.fill();
+    }
+}
+
+function dibuixarBarbesStorm(ctx, W, H) {
+    const sd = _stormActual;
+    if (!sd || !sd.lats || !sd.lons || !sd.u || !sd.v) return;
+    const nLat = sd.lats.length, nLon = sd.lons.length;
+    if (nLat < 2 || nLon < 2) return;
+
+    const pa = lonLatAPantalla(sd.lons[0], sd.lats[0]);
+    const pb = lonLatAPantalla(sd.lons[1], sd.lats[0]);
+    const pc = lonLatAPantalla(sd.lons[0], sd.lats[1]);
+    if (!pa || !pb || !pc) return;
+    const sep = Math.max(Math.abs(pb[0] - pa[0]), Math.abs(pc[1] - pa[1]), 1);
+    const salt = Math.max(1, Math.ceil(BARBES_CFG.separacioMin / sep));
+    const L = BARBES_CFG.llargada * Math.min(1.25, Math.max(0.85, Math.sqrt(vista.k)));
+
+    ctx.save();
+    retallarAImatge(ctx);
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    for (let i = 0; i < nLat; i += salt) {
+        const filaU = sd.u[i], filaV = sd.v[i];
+        if (!filaU || !filaV) continue;
+        for (let j = 0; j < nLon; j += salt) {
+            const u = filaU[j], v = filaV[j];
+            if (u == null || v == null) continue;
+            const p = lonLatAPantalla(sd.lons[j], sd.lats[i]);
+            if (!p) continue;
+            if (p[0] < -40 || p[0] > W + 40 || p[1] < -40 || p[1] > H + 40) continue;
+            ferBarba(ctx, p[0], p[1], u, v, L);
+        }
+    }
+    ctx.restore();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  VENT (streamlines) + BARBES
 // ═══════════════════════════════════════════════════════════════════
 function crearAleatori(seed) {
     let a = seed >>> 0;
@@ -1935,15 +2349,24 @@ function dibuixarFletxa(ctx, x, y, ang, mida) {
 function dibuixarVent() {
     if (!canvasVent) return;
     const { ctx, W, H } = prepararCtx(canvasVent);
+
+const VARS_AMB_BARBES = ['storm_speed', 'shear_01', 'shear_03', 'shear_06'];
+if (_capa3DActiva && VARS_AMB_BARBES.includes(_capa3DActiva.var)) {
+    if (window.MOSTRAR_BARBES && window._extentManifest) dibuixarBarbesStorm(ctx, W, H);
+    return;
+}
+
     if (!window.MOSTRAR_VENT || !window._extentManifest) return;
     const vd = _ventActual;
     if (!vd || !vd.u || !vd.v || !vd.lats || !vd.lons) return;
     const Nlat = vd.lats.length, Nlon = vd.lons.length;
     if (Nlat < 2 || Nlon < 2) return;
+
     const lat0 = vd.lats[0], lat1 = vd.lats[Nlat - 1];
     const lon0 = vd.lons[0], lon1 = vd.lons[Nlon - 1];
     const dLat = lat1 - lat0, dLon = lon1 - lon0;
     if (!dLat || !dLon) return;
+
     const ext = window._extentManifest;
     const { sw, sh } = dimensionsStage();
     const signeV = VENT_INVERTIR_V ? -1 : 1;
@@ -2033,82 +2456,6 @@ function dibuixarVent() {
             }
         }
     }
-}
-
-// ═══════════════════════════════════════════════════════════════════
-//  BARBES STORM MOTION
-// ═══════════════════════════════════════════════════════════════════
-function dibuixarBarbes() {
-    if (!canvasBarbes) return;
-    const { ctx, W, H } = prepararCtx(canvasBarbes);
-    if (!window.MOSTRAR_BARBES || !window._extentManifest) return;
-    if (!_barbesActuals) return;
-
-    const b = _barbesActuals;
-    if (!b.u || !b.v || !b.lats || !b.lons) return;
-    const Nlat = b.lats.length, Nlon = b.lons.length;
-    if (Nlat < 2 || Nlon < 2) return;
-    const ext = window._extentManifest;
-    const signeV = VENT_INVERTIR_V ? -1 : 1;
-    const MS_A_KT = 1.94384;
-
-    ctx.save();
-    retallarAImatge(ctx);
-    ctx.strokeStyle = BARBES_CFG.color;
-    ctx.fillStyle = BARBES_CFG.color;
-    ctx.lineWidth = BARBES_CFG.amplada;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-
-    const llarg = BARBES_CFG.mida;
-    const mig = llarg / 2;
-
-    for (let j = 0; j < Nlat; j++) {
-        for (let i = 0; i < Nlon; i++) {
-            const u = b.u[j][i];
-            const v = b.v[j][i];
-            if (u == null || v == null || !isFinite(u) || !isFinite(v)) continue;
-            const lon = b.lons[i], lat = b.lats[j];
-            const p = lonLatAPantalla(lon, lat);
-            if (!p) continue;
-            if (p[0] < -50 || p[0] > W + 50 || p[1] < -50 || p[1] > H + 50) continue;
-            const uKt = u * MS_A_KT;
-            const vKt = signeV * v * MS_A_KT;
-            const mag = Math.hypot(uKt, vKt);
-            if (mag < 0.5) continue;
-            const esc = Math.min(1.0, Math.max(0.4, mag / 25));
-            const dx = (uKt / mag) * llarg * esc;
-            const dy = -(vKt / mag) * llarg * esc;
-            const x0 = p[0] - dx * 0.5, y0 = p[1] - dy * 0.5;
-            const x1 = p[0] + dx * 0.5, y1 = p[1] + dy * 0.5;
-            ctx.beginPath();
-            ctx.moveTo(x0, y0);
-            ctx.lineTo(x1, y1);
-            const nusos = mag;
-            const nPlomes = Math.floor(nusos / 10);
-            const teTriangle = nusos >= 50;
-            const nPlomesNormals = teTriangle ? (nPlomes - 5) : nPlomes;
-            const perpX = -dy / llarg * mig * 0.6;
-            const perpY = dx / llarg * mig * 0.6;
-            const dirX = dx / llarg, dirY = dy / llarg;
-            for (let k = 1; k <= Math.max(0, nPlomesNormals); k++) {
-                const f = k / Math.max(1, nPlomes);
-                const bx = x1 - dirX * f * llarg * 0.5;
-                const by = y1 - dirY * f * llarg * 0.5;
-                ctx.moveTo(bx, by);
-                ctx.lineTo(bx + perpX, by + perpY);
-            }
-            if (teTriangle) {
-                const bx = x1 - dirX * 0.3 * llarg;
-                const by = y1 - dirY * 0.3 * llarg;
-                ctx.moveTo(bx, by);
-                ctx.lineTo(bx + perpX * 1.4, by + perpY * 1.4);
-                ctx.lineTo(bx + dirX * 0.15 * llarg, by + dirY * 0.15 * llarg);
-            }
-            ctx.stroke();
-        }
-    }
-    ctx.restore();
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -2205,7 +2552,7 @@ function dibuixarCiutats() {
 function mostrarHora(idx) {
     if (idx < 0 || idx >= totesLesHores.length) return;
 
-    // 🔒 Comprovar accés (sense login: només 1 de cada 3 hores)
+    // 🔒 Hores bloquejades sense login (1 de cada 3)
     if (!usuariLoguejat() && idx % 3 !== 0) {
         if (typeof window.mostrarAvisLogin === 'function') {
             window.mostrarAvisLogin('aquesta hora');
@@ -2264,14 +2611,12 @@ function resaltarHoraEnGrid(idx) {
     const act = document.querySelector('.fh-item.active');
     if (act) act.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
 }
-
 function actualitzarEtiquetaHora() {
     const label = document.getElementById('current_time_label');
     if (!label) return;
     const info = totesLesHores[curIdx];
     label.textContent = info ? `${String(info.hora).padStart(2, '0')}:00 - ${info.dia}` : '';
 }
-
 function construirGraellaHores() {
     const grid = document.getElementById('fh_grid');
     if (!grid) return;
@@ -2292,8 +2637,6 @@ function construirGraellaHores() {
         else if (dia === 'dema') { classeDia = 'fh-dema'; textDia = 'dema'; }
         else if (dia === 'dema_passat') { classeDia = 'fh-dema2'; textDia = 'd+2'; }
         const actiu = i === curIdx;
-
-        // 🔒 Bloquejar hores sense login
         const bloquejada = !usuariLoguejat() && (i % 3 !== 0);
 
         const cell = document.createElement('div');
@@ -2338,7 +2681,6 @@ function pintarBotoPlay() {
         btn.classList.remove('actiu');
     }
 }
-
 function toggleAnimacio() {
     if (!totesLesHores.length) return;
     if (!usuariLoguejat()) {
@@ -2398,10 +2740,7 @@ async function inicialitzar() {
         const i = totesLesHores.findIndex(h => h.hora === _cfg.hora.hora && h.dia === _cfg.hora.dia);
         if (i >= 0) idx0 = i;
     }
-    // Si sense login, anar a una hora lliure
-    if (!usuariLoguejat() && idx0 % 3 !== 0) {
-        idx0 = 0;
-    }
+    if (!usuariLoguejat() && idx0 % 3 !== 0) idx0 = 0;
     curIdx = idx0;
 
     construirPanellParametres();
@@ -2423,24 +2762,18 @@ async function inicialitzar() {
 //  EVENTS LOGIN / LOGOUT
 // ═══════════════════════════════════════════════════════════════════
 window.addEventListener('tc:login', () => {
-    // Refrescar panell i graella per desbloquejar contingut
     if (typeof construirPanellParametres === 'function') construirPanellParametres();
     if (typeof construirGraellaHores === 'function') construirGraellaHores();
 });
-
 window.addEventListener('tc:logout', () => {
-    // Refrescar panell i graella per bloquejar contingut
     if (typeof construirPanellParametres === 'function') construirPanellParametres();
     if (typeof construirGraellaHores === 'function') construirGraellaHores();
-    // Si estàvem en una variable/hora no permesa, tornar a st
     if (!esParametreLliure(variableActiva)) {
         variableActiva = 'st';
         actualitzarDades();
         actualitzarLlegenda();
     }
-    if (curIdx % 3 !== 0) {
-        mostrarHora(0);
-    }
+    if (curIdx % 3 !== 0) mostrarHora(0);
 });
 
 if (document.readyState === 'loading') {
@@ -2448,5 +2781,89 @@ if (document.readyState === 'loading') {
 } else {
     inicialitzar();
 }
+
+// ═══════════════════════════════════════════════════════════════════
+//  LLEGENDES CSS (per variables sense PNG de llegenda)
+// ═══════════════════════════════════════════════════════════════════
+
+// Defineix aquí les escales de color per cada variable que no tinguis en PNG
+const LLEGENDES_CSS = {
+    // Exemple per índex convectiu (ajusta colors i valors als teus)
+    'convective_index': {
+        titol: 'Índex convectiu',
+        unitat: '',
+        trams: [
+            { color: '#4a90e2', valor: '< 1' },
+            { color: '#7ed321', valor: '1 - 2' },
+            { color: '#f5a623', valor: '2 - 3' },
+            { color: '#e94b3c', valor: '3 - 4' },
+            { color: '#8b1a1a', valor: '> 4' },
+        ],
+    },
+
+    // Exemple CAPE (per si el vols tenir també en CSS)
+    'cape': {
+        titol: 'CAPE',
+        unitat: 'J/kg',
+        trams: [
+            { color: '#3b6fd4', valor: '0 - 500' },
+            { color: '#4fc3f7', valor: '500 - 1000' },
+            { color: '#aed581', valor: '1000 - 1500' },
+            { color: '#ffeb3b', valor: '1500 - 2500' },
+            { color: '#ff9800', valor: '2500 - 3500' },
+            { color: '#e53935', valor: '> 3500' },
+        ],
+    },
+};
+
+let _llegendaCssEl = null;
+
+function eliminarLlegendaCss() {
+    if (_llegendaCssEl) {
+        _llegendaCssEl.remove();
+        _llegendaCssEl = null;
+    }
+}
+
+function mostrarLlegendaCss(clau, titolCustom, unitatCustom) {
+    eliminarLlegendaCss();
+    const def = LLEGENDES_CSS[clau];
+    if (!def) return false;
+
+    const el = document.createElement('div');
+    el.className = 'llegenda-css';
+    const titol = titolCustom || def.titol || clau;
+    const unitat = unitatCustom || def.unitat || '';
+
+    let html = `<div class="lc-titol">${titol}${unitat ? `<span class="lc-unitat">${unitat}</span>` : ''}</div>`;
+    for (const t of def.trams) {
+        html += `<div class="lc-fila">
+            <span class="lc-color" style="background:${t.color}"></span>
+            <span class="lc-valor">${t.valor}</span>
+        </div>`;
+    }
+    el.innerHTML = html;
+    document.body.appendChild(el);
+    _llegendaCssEl = el;
+
+    // Amagar el PNG de llegenda perquè no es superposin
+    if (imgLlegenda) imgLlegenda.style.display = 'none';
+    return true;
+}
+
+// Sobreescrivim actualitzarLlegenda perquè contempli les CSS
+const _actualitzarLlegendaOriginal = actualitzarLlegenda;
+actualitzarLlegenda = function () {
+    // Si és una variable 3D, primer mirem si tenim llegenda CSS
+    if (_capa3DActiva) {
+        const clau = _capa3DActiva.var;
+        if (mostrarLlegendaCss(clau)) return;
+    } else {
+        if (mostrarLlegendaCss(variableActiva)) return;
+    }
+    // Si no hi ha CSS, comportament original (PNG)
+    eliminarLlegendaCss();
+    _actualitzarLlegendaOriginal.apply(this, arguments);
+};
 
 console.log('✅ mapapngs.js carregat — accés restringit (login obligatori excepte bàsics)');

@@ -70,9 +70,14 @@ html, body {
     -webkit-text-size-adjust: 100%;
     -webkit-user-select: none; user-select: none;
     overscroll-behavior: none; font-size: 13px;
+    touch-action: manipulation;
 }
 
-#map { position: absolute; inset: 0; width: 100%; height: 100%; background: #0e1620; }
+#map {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    background: #0e1620;
+    touch-action: none;
+}
 
 body::before {
     content: ""; position: fixed; inset: 0; z-index: 400; pointer-events: none;
@@ -159,7 +164,7 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
     position: fixed;
     top: calc(14px + var(--safe-top));
     left: calc(14px + var(--safe-left));
-    z-index: 699;
+    z-index: 800;
     background: rgba(13, 17, 23, 0.9);
     color: var(--text);
     border: 1px solid var(--line-strong);
@@ -179,6 +184,7 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
 .pp-cap {
     display: flex; align-items: center; justify-content: space-between;
     padding: 14px 16px 10px;
+    flex-shrink: 0;
 }
 .pp-titol {
     font-size: 11.5px; font-weight: 700; color: var(--text);
@@ -190,6 +196,7 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
     width: 26px; height: 26px; border-radius: 6px; cursor: pointer;
     display: flex; align-items: center; justify-content: center; padding: 0;
     transition: all 0.15s ease;
+    flex-shrink: 0;
 }
 .pp-plega:hover { color: var(--text); background: var(--panel-hover); border-color: var(--line-strong); }
 .pp-plega svg { display: block; }
@@ -198,6 +205,7 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
 .pp-user-bar {
     margin: 0 14px 10px;
     display: flex; align-items: center; gap: 6px;
+    flex-shrink: 0;
 }
 .pp-user-bar button {
     flex: 1;
@@ -241,6 +249,7 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
     font-weight: 600;
     display: flex; justify-content: space-between; gap: 8px;
     align-items: center;
+    flex-shrink: 0;
 }
 .pp-actual span:last-child {
     color: var(--muted); font-weight: 500;
@@ -252,6 +261,7 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
 .pp-tabs {
     display: flex; gap: 0; padding: 0 16px;
     border-bottom: 1px solid var(--line);
+    flex-shrink: 0;
 }
 .pp-tab {
     flex: 1; padding: 9px 4px;
@@ -266,12 +276,12 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
 
 .pp-cos {
     display: none; flex-direction: column;
-    min-height: 0; flex: 1; overflow: hidden;
+    min-height: 0; flex: 1 1 0; overflow: hidden;
 }
 .pp-cos.actiu { display: flex; }
 
 /* Cercador */
-.pp-cerca { position: relative; margin: 12px 14px 8px; }
+.pp-cerca { position: relative; margin: 12px 14px 8px; flex-shrink: 0; }
 .pp-cerca input {
     width: 100%; box-sizing: border-box;
     padding: 8px 30px 8px 32px;
@@ -299,7 +309,8 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
 
 .pp-llista {
     overflow-y: auto; padding: 0 8px 14px;
-    min-height: 0; flex: 1;
+    min-height: 0; flex: 1 1 0;
+    -webkit-overflow-scrolling: touch;
 }
 .pp-llista::-webkit-scrollbar { width: 5px; }
 .pp-llista::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 3px; }
@@ -364,7 +375,7 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
 }
 
 /* ═══════════════════════════════════════════════════════════════════
-   SELECTOR D'ALÇADES — Desplegable compacte
+   SELECTOR D'ALÇADES
    ═══════════════════════════════════════════════════════════════════ */
 .param-altura-grup {
     margin: 1px 0;
@@ -426,7 +437,6 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
 }
 .param-altura-grup.obert .param-altura-fletxa { transform: rotate(180deg); }
 
-/* Desplegable amb les alçades */
 .param-altura-opcions {
     display: none;
     padding: 4px 6px 8px 6px;
@@ -494,7 +504,7 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
 .ciu-pin.cap { background: var(--gold); }
 .ciu-nom { flex: 1; font-size: 12.5px; color: var(--text); font-weight: 500; }
 .ciu-pob { font-size: 10px; color: var(--muted); }
-.ciu-info { padding: 0 16px 6px; font-size: 10px; color: var(--muted); }
+.ciu-info { padding: 0 16px 6px; font-size: 10px; color: var(--muted); flex-shrink: 0; }
 .ciu-treu {
     margin: 0 14px 8px; padding: 7px 10px;
     font-size: 11px; font-weight: 600; cursor: pointer;
@@ -502,11 +512,12 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
     border: 1px solid var(--line); border-radius: 6px;
     font-family: inherit; display: none;
     align-items: center; gap: 6px;
+    flex-shrink: 0;
 }
 .ciu-treu:hover { color: var(--text); background: var(--panel-hover); }
 
 /* Capes */
-.capes-cos { padding: 8px 16px 18px; overflow-y: auto; }
+.capes-cos { padding: 8px 16px 18px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
 .cap-titol {
     font-size: 9.5px; font-weight: 700; color: var(--muted);
     text-transform: uppercase; letter-spacing: 0.8px;
@@ -878,35 +889,134 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
 .radar-body iframe { width: 100%; height: 100%; border: none; display: block; min-height: 400px; }
 
 /* ═══════════════════════════════════════════════════════════════════
-   RESPONSIVE
+   RESPONSIVE — MÒBIL
    ═══════════════════════════════════════════════════════════════════ */
 @media (max-width: 860px) {
     :root { --panel-width: 100vw; }
-    #panell-pro { width: 100vw; border-right: none; }
-    #btn-obrir-panell { top: calc(10px + var(--safe-top)); left: calc(10px + var(--safe-left)); }
+
+    #panell-pro {
+        width: 100vw;
+        border-right: none;
+        padding-top: var(--safe-top);
+        padding-bottom: var(--safe-bottom);
+    }
+
+    /* 🔑 Capçalera mòbil amb botó gran i sempre accessible */
+    .pp-cap {
+        padding: 12px 14px 10px;
+        gap: 10px;
+    }
+    .pp-plega {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        background: var(--panel-2);
+        border: 1px solid var(--line-strong);
+        color: var(--text);
+        position: relative;
+        z-index: 10;
+        flex-shrink: 0;
+    }
+    .pp-plega svg { width: 18px; height: 18px; }
+
+    /* 🔑 Botó obrir panell per sobre del panell quan està plegat */
+    #btn-obrir-panell {
+        top: calc(10px + var(--safe-top));
+        left: calc(10px + var(--safe-left));
+        z-index: 800;
+        padding: 10px 14px;
+        font-size: 13px;
+    }
+
     #current_time_label {
-        top: calc(10px + var(--safe-top)); left: 50vw;
-        font-size: 12px; padding: 6px 14px;
+        top: calc(10px + var(--safe-top));
+        left: 50vw;
+        font-size: 12px;
+        padding: 6px 14px;
     }
     body.panell-plegat #current_time_label { left: 50vw; }
-    #info_run {
-        top: calc(10px + var(--safe-top)); right: calc(10px + var(--safe-right));
-        padding: 6px 12px; font-size: 11px;
+
+#info_run {
+    top: calc(56px + var(--safe-top));
+    right: calc(10px + var(--safe-right));
+    padding: 5px 10px;
+    font-size: 10.5px;
+    z-index: 940;
+}
+
+
+    /* 🔑 Amagar el dock quan el panell està obert a mòbil */
+    body:not(.panell-plegat) #dock {
+        transform: translateY(120%);
+        opacity: 0;
+        pointer-events: none;
+        transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+                    opacity 0.25s ease;
     }
+
     #dock {
         left: calc(10px + var(--safe-left));
         right: calc(10px + var(--safe-right));
         bottom: calc(10px + var(--safe-bottom));
-        height: 50px;
+        height: 52px;
+        padding: 5px;
     }
-    #btnPlay { height: 38px; padding: 0 12px; font-size: 10px; }
-    .fh-item { min-width: 44px; padding: 4px 8px; }
+    #btnPlay {
+        height: 40px;
+        padding: 0 12px;
+        font-size: 10px;
+    }
+    .fh-item {
+        min-width: 46px;
+        padding: 5px 9px;
+        font-size: 11px;
+    }
+    .fh-hora { font-size: 11.5px; }
+    .fh-dia { font-size: 8.5px; }
+
     .llegenda-mapa {
         right: calc(10px + var(--safe-right));
-        bottom: calc(74px + var(--safe-bottom));
-        max-width: 160px; max-height: 35vh;
+        bottom: calc(76px + var(--safe-bottom));
+        max-width: 160px;
+        max-height: 35vh;
     }
-    .param-altura-opcions { grid-template-columns: 1fr 1fr; }
+
+    /* 🔑 Assegurar scroll intern correcte a tot el panell */
+    .pp-cos {
+        min-height: 0;
+        flex: 1 1 0;
+        overflow: hidden;
+    }
+    .pp-llista {
+        min-height: 0;
+        flex: 1 1 0;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    .pp-tabs { flex-shrink: 0; }
+    .pp-user-bar,
+    .pp-actual,
+    .pp-cerca,
+    .ciu-info,
+    .ciu-treu { flex-shrink: 0; }
+
+    /* 🔑 Els modals ocupin bé la pantalla mòbil */
+    .modal-cos {
+        max-width: 96vw;
+        max-height: 88vh;
+    }
+    .modal-cap { padding: 12px 14px; }
+    .modal-body { padding: 14px; }
+    .modal-tanca {
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
+        background: var(--panel-2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+    }
 }
 
 @media (max-height: 500px) and (orientation: landscape) {
@@ -914,6 +1024,8 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
     #btnPlay { height: 34px; }
     .fh-item { padding: 2px 8px; min-width: 40px; }
     .llegenda-mapa { max-height: 55vh; bottom: calc(64px + var(--safe-bottom)); }
+    .pp-cap { padding: 8px 14px 6px; }
+    .pp-plega { width: 32px; height: 32px; }
 }
 </style>
 </head>
