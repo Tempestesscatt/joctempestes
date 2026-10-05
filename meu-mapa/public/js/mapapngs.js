@@ -1,46 +1,92 @@
 // ═══════════════════════════════════════════════════════════════════════
-//  mapapngs.js - Visor AROME (sense Leaflet)
-//  Capes: fons.png < dades PNG < vores (vectorials) < isolínies < vent < ciutats
-//
-//  🔥 Extres:
-//   - Capes 3D sota demanda (PNG + isolínies + sondeig .msgpack.gz)
-//   - Streamlines 3D automàtiques al nivell de pressió correcte
-//   - Clic esquerre al mapa → menú → "Skew-T" amb confirmació Sí/No
-//   - Totes les rutes a /web_data_NE/imatges/ (PNG_BASE = BASE_3D)
+//  mapapngs.js — Visor AROME amb accés restringit
+//  Variables bàsiques lliures; resta requereix login
 // ═══════════════════════════════════════════════════════════════════════
 
 const FIT = 'contain';
 
+// ═══════════════════════════════════════════════════════════════════════
+//  VARIABLES LLIURES (sense login)
+// ═══════════════════════════════════════════════════════════════════════
+const PARAMETRES_LLIURES = new Set([
+    'st', 'sd', 'srh',
+    'temp_min2m', 'temp_max2m',
+    'wind_speed_10m', 'wind_gust',
+]);
+
+function clauBaseLliure(clau) {
+    if (!clau) return '';
+    return String(clau).replace(/_\d+$/, '');
+}
+
+function esParametreLliure(clau) {
+    if (!clau) return false;
+    const base = clauBaseLliure(clau);
+    return PARAMETRES_LLIURES.has(clau) || PARAMETRES_LLIURES.has(base);
+}
+
+function usuariLoguejat() {
+    return !!(window._firebaseUser);
+}
+
+function potVeureVariable(clau) {
+    if (esParametreLliure(clau)) return true;
+    return usuariLoguejat();
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  CONFIGURACIÓ PERSISTENT
+// ═══════════════════════════════════════════════════════════════════════
 const CLAU_CFG = 'tempestescat_visor_v2';
 function cfgLlegir() {
-    try { return JSON.parse(localStorage.getItem(CLAU_CFG)) || {}; } catch (e) { return {}; }
+    try { return JSON.parse(localStorage.getItem(CLAU_CFG)) || {}; } catch { return {}; }
 }
 let _cfg = cfgLlegir();
 function cfgGuardar(obj) {
     Object.assign(_cfg, obj);
-    try { localStorage.setItem(CLAU_CFG, JSON.stringify(_cfg)); } catch (e) {}
+    try { localStorage.setItem(CLAU_CFG, JSON.stringify(_cfg)); } catch {}
 }
 
+// ─── Opacitat ───────────────────────────────────────────────────────
 let OPACITAT_DADES = (typeof _cfg.opacitat === 'number' && _cfg.opacitat >= 0.2 && _cfg.opacitat <= 1)
     ? _cfg.opacitat : 0.85;
 
+// ─── Constants ──────────────────────────────────────────────────────
 const VENT_INVERTIR_V = false;
 const NEGRE_A_BLANC = true;
 const LLINDAR_NEGRE = 50;
 
-const CARPETES_CANDIDATES = ['/web_data_NE/imatges/', '/public/web_data_NE/imatges/'];
+// ─── Rutes dinàmiques ───────────────────────────────────────────────
+const _pathActual = window.location.pathname;
+const _basePath = _pathActual.substring(0, _pathActual.lastIndexOf('/') + 1);
+
+const CARPETES_CANDIDATES = [
+    _basePath + 'web_data_NE/imatges/',
+    './web_data_NE/imatges/',
+    '/web_data_NE/imatges/',
+    '/public/web_data_NE/imatges/',
+];
+
 let PNG_BASE = CARPETES_CANDIDATES[0];
 let BASE_3D = CARPETES_CANDIDATES[0];
 
-const CARPETES_NOMS = ['/dades/', '/public/dades/'];
+const CARPETES_NOMS = [
+    _basePath + 'dades/',
+    _basePath + 'web_data_NE/imatges/',
+    '/dades/',
+    '/public/dades/',
+];
 
+// ─── Capes visibles ─────────────────────────────────────────────────
 window.MOSTRAR_VENT = true;
 window.MOSTRAR_ISOLINIES = false;
+window.MOSTRAR_BARBES = true;
 window.MOSTRAR_CIUTATS = true;
 window.MOSTRAR_FRONTERES = true;
 window.MOSTRAR_PROVINCIES = true;
 
-const PROPS_CAPES = ['MOSTRAR_VENT', 'MOSTRAR_ISOLINIES', 'MOSTRAR_FRONTERES', 'MOSTRAR_PROVINCIES'];
+const PROPS_CAPES = ['MOSTRAR_VENT', 'MOSTRAR_ISOLINIES', 'MOSTRAR_BARBES',
+                     'MOSTRAR_FRONTERES', 'MOSTRAR_PROVINCIES'];
 if (_cfg.capes) {
     for (const p of PROPS_CAPES) {
         if (typeof _cfg.capes[p] === 'boolean') window[p] = _cfg.capes[p];
@@ -52,6 +98,7 @@ function guardarCapes() {
     cfgGuardar({ capes: o });
 }
 
+// ─── Densitat de ciutats ────────────────────────────────────────────
 const DENSITAT_CIUTATS = {
     molt_dens: { minPoblacio: 0 },
     dens:      { minPoblacio: 500 },
@@ -63,13 +110,14 @@ const DENSITAT_CIUTATS = {
 window.DENSITAT_CIUTATS_ACTIVA = 'dens';
 (function () {
     let g = _cfg.densitat;
-    if (!g) { try { g = localStorage.getItem('tempestescat_densitat_ciutats'); } catch (e) {} }
+    if (!g) { try { g = localStorage.getItem('tempestescat_densitat_ciutats'); } catch {} }
     if (g && DENSITAT_CIUTATS[g]) {
         window.DENSITAT_CIUTATS_ACTIVA = g;
         window.MOSTRAR_CIUTATS = g !== 'cap';
     }
 })();
 
+// ─── Paràmetres visuals ─────────────────────────────────────────────
 const VENT_CFG = {
     color: 'rgba(0,0,0,0.72)',
     amplada: 0.7,
@@ -91,6 +139,12 @@ const ISO_CFG = {
     decimacioBase: 6,
     minPuntsPerEtiqueta: 25,
     distMinEtiquetes: 46,
+};
+
+const BARBES_CFG = {
+    color: 'rgba(0,0,0,0.9)',
+    amplada: 1.4,
+    mida: 22,
 };
 
 const CIUTATS_CFG = {
@@ -115,6 +169,7 @@ const VORES_CFG = {
     provinciaHaloExtra: 1.6,
 };
 
+// ─── Icones SVG ─────────────────────────────────────────────────────
 const svgBase = (w, cos, extra) =>
     `<svg viewBox="0 0 24 24" width="${w}" height="${w}" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" ${extra || ''}>${cos}</svg>`;
 const ICO = {
@@ -128,6 +183,7 @@ const ICO = {
     stop:   '<svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>',
 };
 
+// ─── Estat global ───────────────────────────────────────────────────
 let totesLesHores = [];
 let infoVariables = {};
 let infoVariables3D = {};
@@ -139,7 +195,7 @@ let variableActiva = 'st';
 let _errorManifest = '';
 
 let viewport, stage, imgFons, imgDades, imgVores, imgLlegenda;
-let canvasVores, canvasIsolines, canvasVent, canvasNoms;
+let canvasVores, canvasIsolines, canvasVent, canvasBarbes, canvasNoms;
 
 let _tokenDades = 0;
 let _urlDades = null;
@@ -147,9 +203,11 @@ let _tokenVI = 0;
 
 const _cacheIsolines = new Map();
 const _cacheVent = new Map();
+const _cacheBarbes = new Map();
 const _cacheDadesBlanques = new Map();
 let _isolinesActuals = null;
 let _ventActual = null;
+let _barbesActuals = null;
 let _ciutats = [];
 let _linies = null;
 let _ciutatSel = null;
@@ -174,6 +232,7 @@ function programarRedibuix() {
         dibuixarVores();
         dibuixarIsolines();
         dibuixarVent();
+        dibuixarBarbes();
         dibuixarCiutats();
     });
 }
@@ -223,6 +282,10 @@ const NOMS_VARIABLES_3D = {
     u: 'Vent U', v: 'Vent V', r: 'Humitat relativa',
     w: 'Velocitat vertical', pv: 'Vorticitat potencial',
     wind_speed: 'Velocitat del vent', wind_dir: 'Direcció del vent',
+    srh_01: 'SRH 0-1 km', srh_03: 'SRH 0-3 km',
+    shear_01: 'Shear 0-1 km', shear_03: 'Shear 0-3 km', shear_06: 'Shear 0-6 km',
+    dcape: 'DCAPE', hail_cm: 'Calamarsa potencial', lcl_m: 'LCL (alçada)',
+    lifted_index: 'Lifted Index', storm_speed: 'Moviment tempesta (RM)',
 };
 
 const SECCIONS = [
@@ -319,11 +382,11 @@ function crearEscena() {
     canvasVores = crearCanvas(9);
     canvasIsolines = crearCanvas(10);
     canvasVent = crearCanvas(11);
-    canvasNoms = crearCanvas(12);
+    canvasBarbes = crearCanvas(12);
+    canvasNoms = crearCanvas(13);
 
     imgLlegenda = document.createElement('img');
-    imgLlegenda.style.cssText = 'position:fixed;left:14px;bottom:14px;width:260px;z-index:500;'
-        + 'border-radius:8px;display:none;pointer-events:none;';
+    imgLlegenda.className = 'llegenda-mapa';
     document.body.appendChild(imgLlegenda);
 
     imgFons.onload = () => {
@@ -405,7 +468,7 @@ function restaurarVista() {
 function redimensionarCanvas() {
     const W = viewport.clientWidth, H = viewport.clientHeight;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    [canvasVores, canvasIsolines, canvasVent, canvasNoms].forEach(c => {
+    [canvasVores, canvasIsolines, canvasVent, canvasBarbes, canvasNoms].forEach(c => {
         const nw = Math.max(1, Math.round(W * dpr));
         const nh = Math.max(1, Math.round(H * dpr));
         if (c.width !== nw || c.height !== nh) { c.width = nw; c.height = nh; }
@@ -485,7 +548,9 @@ function activarInteraccio() {
         programarRedibuix();
     });
     const fi = (e) => {
-        if (arrossegant && !mogut && e.button === 0) {
+        const esClicDret = e.button === 2;
+        const esTactil = e.pointerType === 'touch' && e.button === 0;
+        if (arrossegant && !mogut && (esClicDret || esTactil)) {
             const r = viewport.getBoundingClientRect();
             const px = e.clientX - r.left, py = e.clientY - r.top;
             obrirMenuContextual(px, py, e.clientX, e.clientY);
@@ -496,6 +561,12 @@ function activarInteraccio() {
     viewport.addEventListener('pointerup', fi);
     viewport.addEventListener('pointercancel', () => { arrossegant = false; viewport.style.cursor = 'grab'; });
     viewport.addEventListener('dblclick', () => ajustarVista(false));
+
+    // Bloquejar menú natiu
+    viewport.addEventListener('contextmenu', e => e.preventDefault());
+    document.addEventListener('contextmenu', e => {
+        if (viewport && viewport.contains(e.target)) e.preventDefault();
+    });
 }
 
 function volarA(lon, lat, kFinal) {
@@ -529,12 +600,23 @@ function volarA(lon, lat, kFinal) {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-//  MENÚ CONTEXTUAL (clic esquerre)
+//  MENÚ CONTEXTUAL (Skew-T)
 // ═══════════════════════════════════════════════════════════════════
 let _menuCtx = null;
 
 function obrirMenuContextual(px, py, clientX, clientY) {
     tancarMenuContextual();
+
+    // 🔒 Requereix login
+    if (!usuariLoguejat()) {
+        if (typeof window.mostrarAvisLogin === 'function') {
+            window.mostrarAvisLogin('Skew-T');
+        } else if (typeof window.obrirModal === 'function') {
+            window.obrirModal('modalLogin');
+        }
+        return;
+    }
+
     const ll = pantallaALonLat(px, py);
     if (!ll) return;
     const [lon, lat] = ll;
@@ -544,26 +626,11 @@ function obrirMenuContextual(px, py, clientX, clientY) {
 
     const menu = document.createElement('div');
     menu.id = 'menuCtxMapa';
-    menu.style.cssText = `
-        position: fixed; left: ${clientX}px; top: ${clientY}px;
-        z-index: 8500; background: rgba(10,16,26,0.96);
-        border: 1px solid rgba(255,215,0,0.25); border-radius: 8px;
-        padding: 4px; box-shadow: 0 8px 30px rgba(0,0,0,0.6);
-        font-family: 'Segoe UI', system-ui, Tahoma, sans-serif;
-        font-size: 12px; color: #c8d8e8; min-width: 180px;
-        backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-    `;
+    menu.className = 'menu-ctx';
     menu.innerHTML = `
-        <div style="padding:6px 10px; font-size:10px; color:#7f9bb3; border-bottom:1px solid rgba(255,255,255,0.06);">
-            ${lat.toFixed(3)}°N, ${lon.toFixed(3)}°E
-        </div>
-        <button id="menuCtxSkewt" style="
-            display:flex; align-items:center; gap:8px; width:100%;
-            background:none; border:none; text-align:left; padding:9px 10px;
-            color:#c8d8e8; cursor:pointer; font-family:inherit; font-size:12px;
-            border-radius:6px;
-        ">
-            <span style="color:#FFD700; font-weight:700;">📈</span>
+        <div class="menu-ctx-cap">${lat.toFixed(3)}°N, ${lon.toFixed(3)}°E</div>
+        <button id="menuCtxSkewt" class="menu-ctx-boto">
+            <span class="menu-ctx-ico">📈</span>
             <span>Skew-T (sondeig vertical)</span>
         </button>
     `;
@@ -571,8 +638,6 @@ function obrirMenuContextual(px, py, clientX, clientY) {
     _menuCtx = menu;
 
     const boto = menu.querySelector('#menuCtxSkewt');
-    boto.addEventListener('mouseenter', () => { boto.style.background = 'rgba(255,215,0,0.15)'; });
-    boto.addEventListener('mouseleave', () => { boto.style.background = 'none'; });
     boto.addEventListener('click', () => {
         tancarMenuContextual();
         confirmarSkewT(lat, lon);
@@ -596,36 +661,17 @@ function tancarMenuContextual() {
 function confirmarSkewT(lat, lon) {
     const dlg = document.createElement('div');
     dlg.id = 'skewtConfirmaDlg';
-    dlg.style.cssText = `
-        position: fixed; inset: 0; z-index: 8600;
-        display: flex; align-items: center; justify-content: center;
-        background: rgba(0,0,0,0.55); backdrop-filter: blur(3px);
-        font-family: 'Segoe UI', system-ui, Tahoma, sans-serif;
-    `;
+    dlg.className = 'skewt-dlg';
     dlg.innerHTML = `
-        <div style="
-            background: rgba(10,16,26,0.97); border: 1px solid rgba(255,215,0,0.3);
-            border-radius: 12px; padding: 18px 22px; max-width: 380px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.7); color: #c8d8e8;
-        ">
-            <div style="font-size:14px; font-weight:700; color:#FFD700; margin-bottom:6px;">
-                📈 Skew-T
-            </div>
-            <div style="font-size:12px; line-height:1.5; margin-bottom:14px;">
+        <div class="skewt-dlg-cos">
+            <div class="skewt-dlg-titol">📈 Skew-T</div>
+            <div class="skewt-dlg-text">
                 Vols generar el sondeig vertical per aquest punt?<br>
-                <span style="color:#7f9bb3;">${lat.toFixed(3)}°N, ${lon.toFixed(3)}°E</span>
+                <span class="skewt-dlg-coord">${lat.toFixed(3)}°N, ${lon.toFixed(3)}°E</span>
             </div>
-            <div style="display:flex; gap:8px; justify-content:flex-end;">
-                <button id="skewtNo" style="
-                    background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15);
-                    color:#c8d8e8; padding:7px 14px; border-radius:6px; cursor:pointer;
-                    font-family:inherit; font-size:12px; font-weight:600;
-                ">No</button>
-                <button id="skewtSi" style="
-                    background:rgba(255,215,0,0.18); border:1px solid rgba(255,215,0,0.5);
-                    color:#FFD700; padding:7px 14px; border-radius:6px; cursor:pointer;
-                    font-family:inherit; font-size:12px; font-weight:700;
-                ">Sí, Skew-T</button>
+            <div class="skewt-dlg-botons">
+                <button id="skewtNo" class="skewt-btn skewt-btn-no">No</button>
+                <button id="skewtSi" class="skewt-btn skewt-btn-si">Sí, Skew-T</button>
             </div>
         </div>
     `;
@@ -662,23 +708,11 @@ function confirmarSkewT(lat, lon) {
 function mostrarCarregantSkewt(lat, lon) {
     const ov = document.createElement('div');
     ov.id = 'skewtCarregantOverlay';
-    ov.style.cssText = `
-        position: fixed; inset: 0; z-index: 8700;
-        display: flex; align-items: center; justify-content: center;
-        background: rgba(10,15,24,0.9);
-        font-family: 'Segoe UI', system-ui, Tahoma, sans-serif;
-        color: #FFD700; flex-direction: column; gap: 14px;
-    `;
+    ov.className = 'skewt-carregant';
     ov.innerHTML = `
-        <div style="
-            width: 42px; height: 42px;
-            border: 3px solid rgba(255,215,0,0.15);
-            border-top-color: #FFD700; border-radius: 50%;
-            animation: skewtSpin .9s linear infinite;
-        "></div>
-        <div style="font-size: 13px; font-weight: 600;">Carregant sondeig...</div>
-        <div style="font-size: 11px; color: #7f9bb3;">${lat.toFixed(3)}°N, ${lon.toFixed(3)}°E</div>
-        <style>@keyframes skewtSpin { to { transform: rotate(360deg); } }</style>
+        <div class="skewt-spinner"></div>
+        <div class="skewt-carregant-text">Carregant sondeig...</div>
+        <div class="skewt-carregant-coord">${lat.toFixed(3)}°N, ${lon.toFixed(3)}°E</div>
     `;
     document.body.appendChild(ov);
 }
@@ -689,26 +723,12 @@ function amagarCarregantSkewt() {
 function mostrarErrorSkewt(msg) {
     amagarCarregantSkewt();
     const ov = document.createElement('div');
-    ov.style.cssText = `
-        position: fixed; inset: 0; z-index: 8700;
-        display: flex; align-items: center; justify-content: center;
-        background: rgba(10,15,24,0.9);
-        font-family: 'Segoe UI', system-ui, Tahoma, sans-serif;
-    `;
+    ov.className = 'skewt-error';
     ov.innerHTML = `
-        <div style="
-            background: rgba(20,28,42,0.96); border: 1px solid #556;
-            border-radius: 10px; padding: 20px 26px; max-width: 400px;
-            color: #c8d8e8; text-align: center; line-height: 1.5;
-        ">
-            <div style="font-size: 32px; opacity: 0.6;">⚠️</div>
-            <div style="font-size: 13px; margin-top: 10px; white-space: pre-line;">${msg}</div>
-            <button onclick="this.parentElement.parentElement.remove()" style="
-                margin-top: 14px; background: rgba(255,215,0,0.15);
-                border: 1px solid rgba(255,215,0,0.4); color: #FFD700;
-                padding: 7px 16px; border-radius: 6px; cursor: pointer;
-                font-family: inherit; font-size: 12px; font-weight: 600;
-            ">Tanca</button>
+        <div class="skewt-error-cos">
+            <div class="skewt-error-ico">⚠️</div>
+            <div class="skewt-error-text">${msg}</div>
+            <button class="skewt-error-btn" onclick="this.parentElement.parentElement.remove()">Tanca</button>
         </div>
     `;
     document.body.appendChild(ov);
@@ -719,56 +739,26 @@ async function construirPerfilPerSkewT(lat, lon) {
     if (hora == null || !dia) return null;
 
     const sondeig = await carregarSondeig(hora, dia);
-    if (!sondeig) {
-        console.warn('[skewt] No s\'ha pogut carregar el sondeig');
-        return null;
-    }
+    if (!sondeig) return null;
 
     const perfil = obtenirPerfilSondeig(sondeig, lat, lon);
-    if (!perfil) {
-        console.warn('[skewt] No s\'ha pogut obtenir el perfil');
-        return null;
-    }
+    if (!perfil) return null;
 
-    // 🔥 El sondeig usa "dpt" no "td"
-    const t_arr  = perfil.t;
-    const td_arr = perfil.dpt;    // 👈 AQUÍ el canvi
-    const u_arr  = perfil.u;
-    const v_arr  = perfil.v;
-    const p_arr  = perfil.pressions;
+    const t_arr = perfil.t, td_arr = perfil.dpt, u_arr = perfil.u, v_arr = perfil.v, p_arr = perfil.pressions;
+    if (!t_arr || !td_arr || !u_arr || !v_arr) return null;
 
-    if (!t_arr || !td_arr || !u_arr || !v_arr) {
-        console.warn('[skewt] Falten arrays al perfil');
-        return null;
-    }
-
-    // Càlcul de Z aproximada
-    const z = p_arr.map(p =>
-        44330 * (1 - Math.pow(p / 1013.25, 0.1903))
-    );
-
+    const z = p_arr.map(p => 44330 * (1 - Math.pow(p / 1013.25, 0.1903)));
     const p_out = [], t_out = [], td_out = [], u_out = [], v_out = [], z_out = [];
     for (let i = 0; i < p_arr.length; i++) {
-        if (t_arr[i] == null || td_arr[i] == null ||
-            u_arr[i] == null || v_arr[i] == null) continue;
-        p_out.push(p_arr[i]);
-        t_out.push(t_arr[i]);
-        td_out.push(td_arr[i]);
-        u_out.push(u_arr[i]);
-        v_out.push(v_arr[i]);
-        z_out.push(z[i]);
+        if (t_arr[i] == null || td_arr[i] == null || u_arr[i] == null || v_arr[i] == null) continue;
+        p_out.push(p_arr[i]); t_out.push(t_arr[i]); td_out.push(td_arr[i]);
+        u_out.push(u_arr[i]); v_out.push(v_arr[i]); z_out.push(z[i]);
     }
-
-    // Ordenar de superfície (p gran) cap a dalt (p petita)
     const ordre = p_out.map((_, i) => i).sort((a, b) => p_out[b] - p_out[a]);
-
     return {
-        p:  ordre.map(i => p_out[i]),
-        z:  ordre.map(i => z_out[i]),
-        t:  ordre.map(i => t_out[i]),
-        td: ordre.map(i => td_out[i]),   // el SkewtEngine espera "td"
-        u:  ordre.map(i => u_out[i]),
-        v:  ordre.map(i => v_out[i]),
+        p: ordre.map(i => p_out[i]), z: ordre.map(i => z_out[i]),
+        t: ordre.map(i => t_out[i]), td: ordre.map(i => td_out[i]),
+        u: ordre.map(i => u_out[i]), v: ordre.map(i => v_out[i]),
     };
 }
 
@@ -778,21 +768,21 @@ async function construirPerfilPerSkewT(lat, lon) {
 
 async function descomprimirGzip(buf) {
     if (typeof pako !== 'undefined' && pako.inflate) {
-        try { return pako.inflate(new Uint8Array(buf)); } catch (e) {}
+        try { return pako.inflate(new Uint8Array(buf)); } catch {}
     }
     if (typeof DecompressionStream !== 'undefined') {
         try {
             const ds = new DecompressionStream('gzip');
             const stream = new Blob([buf]).stream().pipeThrough(ds);
             return new Uint8Array(await new Response(stream).arrayBuffer());
-        } catch (e) {}
+        } catch {}
     }
     throw new Error('Cal pako o DecompressionStream per llegir .msgpack.gz');
 }
 
 async function decodificarMsgpack(u8) {
     if (typeof msgpack !== 'undefined' && msgpack.decode) {
-        try { return msgpack.decode(u8); } catch (e) {}
+        try { return msgpack.decode(u8); } catch {}
     }
     return _msgpackDecodeMinim(u8);
 }
@@ -841,7 +831,6 @@ function _msgpackDecodeMinim(u8) {
 async function carregarSondeig(hora, dia) {
     const clau = `${String(hora).padStart(2, '0')}_${dia}`;
     if (_cacheSondeigs.has(clau)) return _cacheSondeigs.get(clau);
-
     const url = `${BASE_3D}sondeig_${clau}.msgpack.gz?_cb=${Date.now()}`;
     try {
         const r = await fetch(url, { cache: 'no-store' });
@@ -865,116 +854,55 @@ function obtenirPerfilSondeig(sondeig, lat, lon) {
     const iLat = Math.max(0, Math.min(nLat - 1, Math.round((lat - sondeig.lats[0]) / (sondeig.lats[nLat - 1] - sondeig.lats[0]) * (nLat - 1))));
     const iLon = Math.max(0, Math.min(nLon - 1, Math.round((lon - sondeig.lons[0]) / (sondeig.lons[nLon - 1] - sondeig.lons[0]) * (nLon - 1))));
     const idx = iLat * nLon + iLon;
-
     const pressions = sondeig.pressions || [];
-    const t = [], dpt = [], u = [], v = [], speed = [], dir = [];
+    const t = [], dpt = [], u = [], v = [];
     for (let k = 0; k < pressions.length; k++) {
         const tk = sondeig.t[k] ? sondeig.t[k][idx] : null;
         const dk = sondeig.dpt[k] ? sondeig.dpt[k][idx] : null;
         const uk = sondeig.u[k] ? sondeig.u[k][idx] : null;
         const vk = sondeig.v[k] ? sondeig.v[k][idx] : null;
         t.push(tk); dpt.push(dk); u.push(uk); v.push(vk);
-        if (uk != null && vk != null) {
-            speed.push(Math.hypot(uk, vk));
-            dir.push((270 - Math.atan2(vk, uk) * 180 / Math.PI + 360) % 360);
-        } else {
-            speed.push(null); dir.push(null);
-        }
     }
-    return { lat: sondeig.lats[iLat], lon: sondeig.lons[iLon], idx, pressions, t, dpt, u, v, speed, dir };
-}
-
-async function obtenirSondeigPunt(hora, dia, lat, lon) {
-    const sondeig = await carregarSondeig(hora, dia);
-    if (!sondeig) return null;
-    return obtenirPerfilSondeig(sondeig, lat, lon);
+    return { lat: sondeig.lats[iLat], lon: sondeig.lons[iLon], idx, pressions, t, dpt, u, v };
 }
 
 async function carregarVent3D(hora, dia, nivell) {
-    const clau = `${String(hora).padStart(2, '0')}_${dia}_${nivell}`;
-    if (_cacheVent3D.has(clau)) return _cacheVent3D.get(clau);
-
-    const sondeig = await carregarSondeig(hora, dia);
-    if (!sondeig || !sondeig.pressions) {
-        console.warn(`[vent3D] No hi ha sondeig per ${hora}_${dia}`);
+    const clau = `${String(hora).padStart(2, '0')}_${dia}`;
+    if (_cacheVent3D.has(clau)) {
+        const camp = _cacheVent3D.get(clau);
+        return seleccionarNivellVent(camp, nivell);
+    }
+    try {
+        window.VENT3D = undefined;
+        await carregarScript(`${BASE_3D}vent3d_${clau}.js`);
+        const camp = window.VENT3D && window.VENT3D[clau];
+        _cacheVent3D.set(clau, camp || null);
+        if (!camp) return null;
+        return seleccionarNivellVent(camp, nivell);
+    } catch (e) {
         _cacheVent3D.set(clau, null);
         return null;
     }
-
-    const idxNivell = sondeig.pressions.indexOf(nivell);
-    if (idxNivell < 0) {
-        console.warn(`[vent3D] Nivell ${nivell} hPa no trobat al sondeig. Disponibles: ${sondeig.pressions.join(', ')}`);
-        _cacheVent3D.set(clau, null);
-        return null;
-    }
-
-    const u_flat = sondeig.u[idxNivell] || [];
-    const v_flat = sondeig.v[idxNivell] || [];
-    if (!u_flat.length || u_flat.length !== v_flat.length) {
-        console.warn(`[vent3D] Files u/v buides o desalineades per ${nivell} hPa`);
-        _cacheVent3D.set(clau, null);
-        return null;
-    }
-
-    // 🔥 Si el sondeig NO té lats/lons, els reconstruïm des del manifest
-    let lats = sondeig.lats;
-    let lons = sondeig.lons;
-    if (!lats || !lons) {
-        const ext = window._extentManifest;
-        if (!ext) {
-            console.warn('[vent3D] No hi ha manifest.extent per reconstruir la graella');
-            _cacheVent3D.set(clau, null);
-            return null;
-        }
-        // Deduïm nLon/nLat a partir de nPunts totals
-        const nPunts = u_flat.length;
-        // Busquem la combinació nLon × nLat = nPunts que doni una relació propera
-        // a l'aspecte del mapa. Si no, agafem 130×120 per defecte.
-        let nLon = 130, nLat = 120;
-        // Si l'arxiu del config ho sap, prova diferents combinacions
-        const candidats = [
-            [130, 120], [128, 122], [120, 130], [156, 100], [156, 120],
-        ];
-        for (const [nL, nT] of candidats) {
-            if (nL * nT === nPunts) { nLon = nL; nLat = nT; break; }
-        }
-        // Si cap encaixa exactament, prova divisors
-        if (nLon * nLat !== nPunts) {
-            for (let nL = 100; nL <= 200; nL++) {
-                if (nPunts % nL === 0) {
-                    const nT = nPunts / nL;
-                    if (nT > 50 && nT < 250) { nLon = nL; nLat = nT; break; }
-                }
-            }
-        }
-        lons = Array.from({length: nLon}, (_, i) =>
-            ext.lon_w + (i / (nLon - 1)) * (ext.lon_e - ext.lon_w));
-        lats = Array.from({length: nLat}, (_, i) =>
-            ext.lat_n - (i / (nLat - 1)) * (ext.lat_n - ext.lat_s));
-        console.log(`[vent3D] Reconstruïda graella ${nLat}×${nLon} = ${nPunts} punts`);
-    } else {
-        // nLat/nLon del sondeig
-    }
-
-    const nLon = lons.length;
-    const nLat = lats.length;
-
-    const u = [], v = [];
-    for (let i = 0; i < nLat; i++) {
-        u.push(u_flat.slice(i * nLon, (i + 1) * nLon));
-        v.push(v_flat.slice(i * nLon, (i + 1) * nLon));
-    }
-
-    const camp = { lats, lons, u, v, _nivell: nivell };
-    _cacheVent3D.set(clau, camp);
-    console.log(`[vent3D] ✅ Carregat vent a ${nivell} hPa (${nLat}×${nLon} = ${nLat*nLon} punts)`);
-    return camp;
 }
 
-// 🔥 Mostra una capa 3D. Si és una variable de vent, carrega streamlines
-//    3D al nivell correcte. Si no, no mostra vent (excepte si és SFC).
+function seleccionarNivellVent(camp, nivell) {
+    if (!camp || !camp.per_nivell) return null;
+    const dades = camp.per_nivell[String(nivell)];
+    if (!dades) return null;
+    return { lats: camp.lats, lons: camp.lons, u: dades.u, v: dades.v, _nivell: nivell };
+}
+
 async function mostrarCapa3D(var3d, nivell) {
     if (!var3d || !nivell) return false;
+    // 🔒 Requereix login
+    if (!usuariLoguejat()) {
+        if (typeof window.mostrarAvisLogin === 'function') {
+            window.mostrarAvisLogin(var3d);
+        } else if (typeof window.obrirModal === 'function') {
+            window.obrirModal('modalLogin');
+        }
+        return false;
+    }
     const hora = totesLesHores[curIdx] ? totesLesHores[curIdx].hora : null;
     const dia = totesLesHores[curIdx] ? totesLesHores[curIdx].dia : null;
     if (hora == null || !dia) return false;
@@ -984,7 +912,6 @@ async function mostrarCapa3D(var3d, nivell) {
 
     _capa3DActiva = { var: var3d, nivell, hora, dia, urlPng };
 
-    // 1) PNG de fons
     const token = ++_tokenDades;
     const pre = new Image();
     pre.onload = () => {
@@ -1000,23 +927,19 @@ async function mostrarCapa3D(var3d, nivell) {
     };
     pre.src = urlPng;
 
-    // 2) Vent: 3D si és variable de vent, null si no ho és
     const esVent = ['wind_speed', 'wind_dir', 'u', 'v'].includes(var3d);
-    if (esVent) {
-        if (window.MOSTRAR_VENT) {
-            console.log(`[mostrarCapa3D] Carregant vent 3D a ${nivell} hPa...`);
-            const camp = await carregarVent3D(hora, dia, nivell);
-            _ventActual = camp;
-            if (!camp) console.warn('[mostrarCapa3D] No s\'ha pogut carregar el vent 3D');
-        } else {
-            _ventActual = null;
-        }
+    if (esVent && window.MOSTRAR_VENT) {
+        _ventActual = await carregarVent3D(hora, dia, nivell);
     } else {
-        // No és vent → amaguem el vent del tot (ni SFC ni 3D)
         _ventActual = null;
     }
 
-    // 3) Isolínies
+    if ((var3d === 'storm_speed' || var3d === 'storm_dir') && window.MOSTRAR_BARBES) {
+        _barbesActuals = await carregarBarbes(hora, dia);
+    } else {
+        _barbesActuals = null;
+    }
+
     if (window.MOSTRAR_ISOLINIES) {
         _isolinesActuals = await carregarIsolines3D(clau);
     } else {
@@ -1030,9 +953,9 @@ async function mostrarCapa3D(var3d, nivell) {
 
 function tornarAModeSFC() {
     _capa3DActiva = null;
+    _barbesActuals = null;
     actualitzarDades();
     actualitzarLlegenda();
-    // Recarregar el vent SFC
     refrescarVentIsolines();
 }
 
@@ -1040,7 +963,7 @@ async function carregarIsolines3D(clau) {
     if (_cacheCapes3D.has('iso_' + clau)) return _cacheCapes3D.get('iso_' + clau);
     try {
         await carregarScript(`${BASE_3D}isolines_3d_${clau}.js`);
-        const dades = (window.ISOLINIES && window.ISOLINIES['3d_' + clau]) || null;
+        const dades = (window.ISOLINIES && window.ISOLINIES[clau]) || null;
         _cacheCapes3D.set('iso_' + clau, dades);
         return dades;
     } catch (e) {
@@ -1049,9 +972,23 @@ async function carregarIsolines3D(clau) {
     }
 }
 
+async function carregarBarbes(hora, dia) {
+    const clau = `${String(hora).padStart(2, '0')}_${dia}`;
+    if (_cacheBarbes.has(clau)) return _cacheBarbes.get(clau);
+    try {
+        window.STORMMOTION = undefined;
+        await carregarScript(`${BASE_3D}stormmotion_${clau}.js`, true);
+        const dades = window.STORMMOTION && window.STORMMOTION[clau];
+        _cacheBarbes.set(clau, dades || null);
+        return dades || null;
+    } catch (e) {
+        _cacheBarbes.set(clau, null);
+        return null;
+    }
+}
+
 window.carregarSondeig = carregarSondeig;
 window.obtenirPerfilSondeig = obtenirPerfilSondeig;
-window.obtenirSondeigPunt = obtenirSondeigPunt;
 window.mostrarCapa3D = mostrarCapa3D;
 window.tornarAModeSFC = tornarAModeSFC;
 window.carregarIsolines3D = carregarIsolines3D;
@@ -1062,180 +999,9 @@ window.carregarIsolines3D = carregarIsolines3D;
 let _filesVariables = [];
 const _seccionsObertes = new Set();
 
-function injectarEstils() {
-    if (document.getElementById('estils-panell-pro')) return;
-    const st = document.createElement('style');
-    st.id = 'estils-panell-pro';
-    st.textContent = `
-    #panell-pro, #btn-obrir-panell { font-family: 'Segoe UI', system-ui, Tahoma, sans-serif; }
-    #panell-pro svg, #btn-obrir-panell svg, #btnPlay svg { display: block; flex: 0 0 auto; }
-    #btnPlay { display: inline-flex; align-items: center; gap: 7px; }
-    #panell-pro {
-        position: fixed; top: 14px; left: 14px; width: 330px; z-index: 700;
-        max-height: calc(100vh - 150px);
-        display: flex; flex-direction: column;
-        background: rgba(10,16,26,0.92);
-        border: 1px solid rgba(255,215,0,0.16);
-        border-radius: 14px; backdrop-filter: blur(14px);
-        -webkit-backdrop-filter: blur(14px);
-        box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-        color: #c8d8e8; overflow: hidden;
-        transition: transform .25s ease, opacity .2s ease;
-    }
-    #panell-pro.plegat { transform: translateX(-120%); opacity: 0; pointer-events: none; }
-    #btn-obrir-panell {
-        position: fixed; top: 14px; left: 14px; z-index: 699;
-        background: rgba(10,16,26,0.92); color: #FFD700;
-        border: 1px solid rgba(255,215,0,0.3); border-radius: 10px;
-        padding: 9px 14px; font-size: 12px; font-weight: 700; cursor: pointer;
-        backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-        box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-        display: none; align-items: center; gap: 8px;
-    }
-    #btn-obrir-panell.visible { display: inline-flex; }
-    #btn-obrir-panell:hover { background: rgba(255,215,0,0.15); }
-    #panell-pro .pp-cap { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px 8px; }
-    #panell-pro .pp-titol { font-size: 13px; font-weight: 800; color: #FFD700; letter-spacing: .4px; }
-    #panell-pro .pp-sub { font-size: 10px; color: #7f91ad; margin-top: 1px; }
-    #panell-pro .pp-plega {
-        background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
-        color: #8899bb; width: 28px; height: 28px; border-radius: 7px; cursor: pointer;
-        display: flex; align-items: center; justify-content: center; padding: 0;
-    }
-    #panell-pro .pp-plega:hover { color: #fff; background: rgba(255,255,255,0.12); }
-    #panell-pro .pp-actual {
-        margin: 0 14px 8px; padding: 7px 10px; border-radius: 8px;
-        background: rgba(255,215,0,0.09); border: 1px solid rgba(255,215,0,0.22);
-        font-size: 11px; color: #FFD700; font-weight: 600;
-        display: flex; justify-content: space-between; gap: 8px;
-    }
-    #panell-pro .pp-actual span:last-child { color: #b9a64a; font-weight: 500; white-space: nowrap; }
-    #panell-pro .pp-tabs { display: flex; gap: 4px; padding: 0 14px 10px; }
-    #panell-pro .pp-tab {
-        flex: 1; padding: 7px 4px; font-size: 11px; font-weight: 700; cursor: pointer;
-        background: rgba(255,255,255,0.04); color: #8899bb; font-family: inherit;
-        border: 1px solid transparent; border-radius: 8px; transition: all .15s;
-    }
-    #panell-pro .pp-tab:hover { color: #c8d8e8; background: rgba(255,255,255,0.08); }
-    #panell-pro .pp-tab.actiu { color: #FFD700; background: rgba(255,215,0,0.13); border-color: rgba(255,215,0,0.35); }
-    #panell-pro .pp-cos { display: none; flex-direction: column; min-height: 0; flex: 1; }
-    #panell-pro .pp-cos.actiu { display: flex; }
-    #panell-pro .pp-cerca { position: relative; margin: 0 14px 8px; }
-    #panell-pro .pp-cerca input {
-        width: 100%; box-sizing: border-box; padding: 9px 30px 9px 33px;
-        background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
-        border-radius: 9px; color: #e6eefc; font-size: 12px; outline: none; font-family: inherit;
-    }
-    #panell-pro .pp-cerca input:focus { border-color: rgba(255,215,0,0.5); background: rgba(255,255,255,0.09); }
-    #panell-pro .pp-cerca input::placeholder { color: #667690; }
-    #panell-pro .pp-cerca .ico {
-        position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
-        color: #8899bb; pointer-events: none; display: flex;
-    }
-    #panell-pro .pp-cerca .esb {
-        position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
-        background: none; border: none; color: #8899bb; cursor: pointer;
-        width: 26px; height: 26px; display: none; align-items: center; justify-content: center; padding: 0;
-    }
-    #panell-pro .pp-cerca .esb:hover { color: #fff; }
-    #panell-pro .pp-llista { overflow-y: auto; padding: 0 8px 10px 10px; min-height: 0; flex: 1; }
-    #panell-pro .pp-llista::-webkit-scrollbar { width: 6px; }
-    #panell-pro .pp-llista::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
-    #panell-pro .sec { margin-bottom: 4px; }
-    #panell-pro .sec-cap {
-        display: flex; align-items: center; gap: 8px; width: 100%;
-        padding: 8px 8px; background: none; border: none; cursor: pointer;
-        color: #aebcd4; font-size: 10.5px; font-weight: 800; text-transform: uppercase;
-        letter-spacing: .6px; text-align: left; font-family: inherit; border-radius: 7px;
-    }
-    #panell-pro .sec-cap:hover { background: rgba(255,255,255,0.05); color: #fff; }
-    #panell-pro .sec-punt { width: 8px; height: 8px; border-radius: 50%; flex: 0 0 auto; }
-    #panell-pro .sec-nom { flex: 1; }
-    #panell-pro .sec-n { font-size: 10px; font-weight: 700; color: #667690; background: rgba(255,255,255,0.06); padding: 1px 7px; border-radius: 9px; }
-    #panell-pro .sec-fletxa { color: #667690; transition: transform .15s; display: flex; }
-    #panell-pro .sec.oberta .sec-fletxa { transform: rotate(90deg); }
-    #panell-pro .sec-cos { display: none; padding: 2px 0 6px 10px; border-left: 2px solid rgba(255,255,255,0.06); margin-left: 12px; }
-    #panell-pro .sec.oberta .sec-cos { display: block; }
-    #panell-pro .param-row {
-        display: flex; justify-content: space-between; align-items: center; gap: 8px;
-        padding: 7px 10px; margin: 1px 0; border-radius: 7px; cursor: pointer;
-        font-size: 12px; color: #c8d8e8; transition: background .12s;
-    }
-    #panell-pro .param-row:hover { background: rgba(255,255,255,0.07); }
-    #panell-pro .param-row.param-selected {
-        background: rgba(255,215,0,0.15); color: #FFD700; font-weight: 700;
-        box-shadow: inset 3px 0 0 #FFD700;
-    }
-    #panell-pro .param-row .unitat { font-size: 10px; color: #667690; white-space: nowrap; }
-    #panell-pro .param-row.param-selected .unitat { color: #b9a64a; }
-    #panell-pro .pp-buit { color: #667690; font-size: 12px; text-align: center; padding: 22px 10px; }
-    #panell-pro .ciu-fila {
-        display: flex; align-items: center; gap: 10px; padding: 8px 10px; margin: 1px 0;
-        border-radius: 8px; cursor: pointer; transition: background .12s;
-    }
-    #panell-pro .ciu-fila:hover { background: rgba(255,255,255,0.07); }
-    #panell-pro .ciu-fila.sel { background: rgba(255,215,0,0.15); box-shadow: inset 3px 0 0 #FFD700; }
-    #panell-pro .ciu-pin { width: 9px; height: 9px; border-radius: 50%; background: #20202e; border: 2px solid #fff; flex: 0 0 auto; }
-    #panell-pro .ciu-pin.cap { background: #ffc83c; }
-    #panell-pro .ciu-nom { flex: 1; font-size: 12.5px; color: #e6eefc; font-weight: 600; }
-    #panell-pro .ciu-pob { font-size: 10.5px; color: #667690; }
-    #panell-pro .ciu-info { padding: 0 14px 6px; font-size: 10px; color: #667690; }
-    #panell-pro .ciu-treu {
-        margin: 0 14px 8px; padding: 6px 10px; font-size: 11px; font-weight: 700; cursor: pointer;
-        background: rgba(255,255,255,0.05); color: #8899bb; border: 1px solid rgba(255,255,255,0.1);
-        border-radius: 7px; font-family: inherit; display: none; align-items: center; gap: 7px;
-    }
-    #panell-pro .ciu-treu:hover { color: #fff; background: rgba(255,255,255,0.1); }
-    #panell-pro .capes-cos { padding: 2px 14px 14px; overflow-y: auto; }
-    #panell-pro .cap-titol {
-        font-size: 10px; font-weight: 800; color: #FFD700; text-transform: uppercase; letter-spacing: .6px;
-        margin: 10px 0 6px; padding-bottom: 4px; border-bottom: 1px solid rgba(255,255,255,0.07);
-    }
-    #panell-pro .cap-fila {
-        display: flex; justify-content: space-between; align-items: center;
-        padding: 8px 2px; font-size: 12px; color: #c8d8e8; cursor: pointer; user-select: none;
-    }
-    #panell-pro .interruptor {
-        width: 34px; height: 19px; border-radius: 10px; background: rgba(255,255,255,0.14);
-        position: relative; transition: background .18s; flex: 0 0 auto;
-    }
-    #panell-pro .interruptor::after {
-        content: ''; position: absolute; top: 2px; left: 2px; width: 15px; height: 15px;
-        border-radius: 50%; background: #fff; transition: transform .18s;
-    }
-    #panell-pro .cap-fila.on .interruptor { background: #e6b800; }
-    #panell-pro .cap-fila.on .interruptor::after { transform: translateX(15px); }
-    #panell-pro .ctrl-label { display: block; font-size: 10px; color: #8899bb; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; margin: 8px 0 5px; }
-    #panell-pro .ctrl-select {
-        width: 100%; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
-        color: #e6eefc; padding: 8px; border-radius: 8px; font-size: 12px; font-family: inherit; outline: none; cursor: pointer;
-    }
-    #panell-pro .ctrl-select option { background: #0a101a; color: #c8d8e8; }
-    #panell-pro input[type=range] { width: 100%; accent-color: #e6b800; }
-    #panell-pro .cap-reset {
-        margin-top: 14px; width: 100%; padding: 9px; font-size: 11px; font-weight: 700; cursor: pointer;
-        background: rgba(255,255,255,0.05); color: #8899bb; border: 1px solid rgba(255,255,255,0.12);
-        border-radius: 8px; font-family: inherit;
-    }
-    #panell-pro .cap-reset:hover { color: #fff; background: rgba(255,255,255,0.1); }
-    @media (max-width: 700px) {
-        #panell-pro { width: calc(100vw - 28px); max-height: calc(100vh - 170px); }
-    }`;
-    document.head.appendChild(st);
-}
-
 function ocultarUIAntiga() {
     const antiga = document.getElementById('parameter_selection');
     if (antiga) antiga.style.display = 'none';
-    const inp = document.querySelector('input[placeholder^="Cercar par"], input[placeholder^="Buscar par"]');
-    if (inp && !inp.closest('#panell-pro')) {
-        let cont = inp.parentElement;
-        const grid = document.getElementById('fh_grid');
-        if (!cont || cont === document.body || (grid && cont.contains(grid)) || cont.contains(viewport)) cont = inp;
-        cont.style.display = 'none';
-    }
-    const oldCtrl = document.getElementById('controls-png');
-    if (oldCtrl) oldCtrl.remove();
 }
 
 function activarPestanya(nom, enfocar) {
@@ -1253,7 +1019,6 @@ function activarPestanya(nom, enfocar) {
 
 function crearPanell() {
     if (document.getElementById('panell-pro')) return;
-    injectarEstils();
     ocultarUIAntiga();
 
     const p = document.createElement('div');
@@ -1265,6 +1030,16 @@ function crearPanell() {
                 <div class="pp-sub">Model numèric d'alta resolució</div>
             </div>
             <button class="pp-plega" id="ppPlega" title="Plega el panell">${ICO.plega}</button>
+        </div>
+        <div class="pp-user-bar" id="ppUserBar">
+            <button id="ppBtnLogin" class="primary" onclick="if(typeof window.loginWithGoogle==='function')window.loginWithGoogle();">
+                <i class="fab fa-google"></i>
+                <span>Iniciar sessió</span>
+            </button>
+            <button id="ppBtnPerfil" style="display:none;" onclick="if(typeof window.openProfile==='function')window.openProfile();">
+                <span class="avatar">U</span>
+                <span>Perfil</span>
+            </button>
         </div>
         <div class="pp-actual"><span id="ppActualNom">-</span><span id="ppActualUnitat"></span></div>
         <div class="pp-tabs">
@@ -1298,6 +1073,7 @@ function crearPanell() {
                 <div class="cap-titol">Superposicions</div>
                 <div class="cap-fila" data-prop="MOSTRAR_ISOLINIES"><span>Isolínies</span><span class="interruptor"></span></div>
                 <div class="cap-fila" data-prop="MOSTRAR_VENT"><span>Línies de corrent del vent</span><span class="interruptor"></span></div>
+                <div class="cap-fila" data-prop="MOSTRAR_BARBES"><span>Barbes de tempesta</span><span class="interruptor"></span></div>
                 <div class="cap-titol">Ciutats</div>
                 <label class="ctrl-label">Densitat de noms</label>
                 <select id="selDensitatCiutats" class="ctrl-select">
@@ -1335,6 +1111,7 @@ function crearPanell() {
     p.querySelectorAll('.pp-tab').forEach(b => b.addEventListener('click', () => activarPestanya(b.dataset.tab, true)));
     if (['variables', 'ciutats', 'capes'].includes(_cfg.pestanya)) activarPestanya(_cfg.pestanya, false);
 
+    // Cercador variables
     const inpVar = p.querySelector('#ppCercaVar');
     const esbVar = p.querySelector('#ppEsbVar');
     inpVar.addEventListener('input', () => {
@@ -1358,6 +1135,7 @@ function crearPanell() {
         }
     });
 
+    // Ciutats
     const inpCiu = p.querySelector('#ppCercaCiu');
     const esbCiu = p.querySelector('#ppEsbCiu');
     inpCiu.addEventListener('input', () => {
@@ -1379,6 +1157,7 @@ function crearPanell() {
         programarRedibuix();
     });
 
+    // Toggles de capes
     p.querySelectorAll('.cap-fila').forEach(f => {
         const prop = f.dataset.prop;
         f.classList.toggle('on', !!window[prop]);
@@ -1388,22 +1167,19 @@ function crearPanell() {
             guardarCapes();
             if (prop === 'MOSTRAR_ISOLINIES' && window[prop]) refrescarVentIsolines();
             else if (prop === 'MOSTRAR_VENT') {
-                if (!window[prop]) {
-                    _ventActual = null;
-                    programarRedibuix();
-                } else {
-                    // Si estem en una capa 3D de vent, recarreguem el vent 3D
-                    if (_capa3DActiva && ['wind_speed','wind_dir','u','v'].includes(_capa3DActiva.var)) {
-                        carregarVent3D(_capa3DActiva.hora, _capa3DActiva.dia, _capa3DActiva.nivell)
-                            .then(c => { _ventActual = c; programarRedibuix(); });
-                    } else if (!_capa3DActiva) {
-                        carregarVent(curIdx).then(v => { _ventActual = v; programarRedibuix(); });
-                    }
+                if (!window[prop]) { _ventActual = null; programarRedibuix(); }
+                else refrescarVentIsolines();
+            } else if (prop === 'MOSTRAR_BARBES') {
+                if (!window[prop]) { _barbesActuals = null; programarRedibuix(); }
+                else if (_capa3DActiva && (_capa3DActiva.var === 'storm_speed' || _capa3DActiva.var === 'storm_dir')) {
+                    carregarBarbes(_capa3DActiva.hora, _capa3DActiva.dia)
+                        .then(b => { _barbesActuals = b; programarRedibuix(); });
                 }
             } else programarRedibuix();
         });
     });
 
+    // Densitat ciutats
     const sel = p.querySelector('#selDensitatCiutats');
     sel.value = window.DENSITAT_CIUTATS_ACTIVA;
     sel.addEventListener('change', () => {
@@ -1415,6 +1191,7 @@ function crearPanell() {
         programarRedibuix();
     });
 
+    // Opacitat
     const rng = p.querySelector('#rngOpacitat');
     rng.addEventListener('input', e => {
         OPACITAT_DADES = e.target.value / 100;
@@ -1423,7 +1200,7 @@ function crearPanell() {
     rng.addEventListener('change', () => cfgGuardar({ opacitat: OPACITAT_DADES }));
 
     p.querySelector('#btnReset').addEventListener('click', () => {
-        try { localStorage.removeItem(CLAU_CFG); localStorage.removeItem('tempestescat_densitat_ciutats'); } catch (e) {}
+        try { localStorage.removeItem(CLAU_CFG); localStorage.removeItem('tempestescat_densitat_ciutats'); } catch {}
         location.reload();
     });
 }
@@ -1468,13 +1245,36 @@ function construirPanellParametres() {
             claus.forEach(clau => {
                 const nom = nomVariable(clau);
                 const unitat = infoVariables[clau] && infoVariables[clau].unitat;
+
+                // 🔒 Comprovar accés
+                const teAcces = potVeureVariable(clau);
+                const bloquejat = !teAcces;
+
                 const row = document.createElement('div');
-                row.className = 'param-row' + (clau === variableActiva ? ' param-selected' : '');
+                row.className = 'param-row'
+                    + (clau === variableActiva ? ' param-selected' : '')
+                    + (bloquejat ? ' premium-bloquejat' : '');
                 row.dataset.clau = clau;
                 row.dataset.nom = nom.toLowerCase();
-                row.title = unitat ? `${nom} (${unitat})` : nom;
-                row.innerHTML = `<span>${nom}</span>${unitat ? `<span class="unitat">${unitat}</span>` : ''}`;
-                row.addEventListener('click', () => seleccionarVariable(clau));
+                row.title = bloquejat
+                    ? 'Inicia sessió per veure aquesta variable'
+                    : (unitat ? `${nom} (${unitat})` : nom);
+
+                const cadenat = bloquejat ? ' <span style="opacity:0.7;">🔒</span>' : '';
+                row.innerHTML = `<span>${nom}${cadenat}</span>${unitat ? `<span class="unitat">${unitat}</span>` : ''}`;
+
+                row.addEventListener('click', () => {
+                    if (bloquejat) {
+                        if (typeof window.mostrarAvisLogin === 'function') {
+                            window.mostrarAvisLogin(clau);
+                        } else if (typeof window.obrirModal === 'function') {
+                            window.obrirModal('modalLogin');
+                        }
+                        return;
+                    }
+                    seleccionarVariable(clau);
+                });
+
                 cos.appendChild(row);
                 _filesVariables.push({ clau, seccio: s.id, nomN: nrm(nom + ' ' + clau + ' ' + s.nom), el: row });
             });
@@ -1487,6 +1287,7 @@ function construirPanellParametres() {
         }
     }
 
+    // Bloc 3D
     if (Object.keys(infoVariables3D).length) {
         const claus3d = Object.keys(infoVariables3D).sort((a, b) => {
             const A = infoVariables3D[a], B = infoVariables3D[b];
@@ -1511,13 +1312,32 @@ function construirPanellParametres() {
             const inf = infoVariables3D[k];
             const nom = NOMS_VARIABLES_3D[inf.var] || inf.var;
             const nomComplet = `${nom} @ ${inf.nivell} hPa`;
+
+            // 🔒 3D requereix login sempre
+            const bloquejat = !usuariLoguejat();
+
             const row = document.createElement('div');
-            row.className = 'param-row';
+            row.className = 'param-row'
+                + (clau => (clau === '3d_' + k && _capa3DActiva && _capa3DActiva.var === inf.var && _capa3DActiva.nivell === inf.nivell) ? ' param-selected' : '')(variableActiva)
+                + (bloquejat ? ' premium-bloquejat' : '');
             row.dataset.clau = '3d_' + k;
             row.dataset.nom = nrm(nomComplet + ' ' + k).toLowerCase();
-            row.title = nomComplet + (inf.unitat ? ` (${inf.unitat})` : '');
-            row.innerHTML = `<span>${nomComplet}</span>${inf.unitat ? `<span class="unitat">${inf.unitat}</span>` : ''}`;
+            row.title = bloquejat
+                ? 'Inicia sessió per veure les capes 3D'
+                : (nomComplet + (inf.unitat ? ` (${inf.unitat})` : ''));
+
+            const cadenat = bloquejat ? ' <span style="opacity:0.7;">🔒</span>' : '';
+            row.innerHTML = `<span>${nomComplet}${cadenat}</span>${inf.unitat ? `<span class="unitat">${inf.unitat}</span>` : ''}`;
+
             row.addEventListener('click', async () => {
+                if (!usuariLoguejat()) {
+                    if (typeof window.mostrarAvisLogin === 'function') {
+                        window.mostrarAvisLogin(inf.var);
+                    } else if (typeof window.obrirModal === 'function') {
+                        window.obrirModal('modalLogin');
+                    }
+                    return;
+                }
                 document.querySelectorAll('#panell-pro .param-row').forEach(el => el.classList.remove('param-selected'));
                 row.classList.add('param-selected');
                 await mostrarCapa3D(inf.var, inf.nivell);
@@ -1602,7 +1422,17 @@ function actualitzarCapcaleraVariable() {
 }
 
 function seleccionarVariable(clau) {
+    // 🔒 Comprovar accés
+    if (!potVeureVariable(clau)) {
+        if (typeof window.mostrarAvisLogin === 'function') {
+            window.mostrarAvisLogin(clau);
+        } else if (typeof window.obrirModal === 'function') {
+            window.obrirModal('modalLogin');
+        }
+        return;
+    }
     _capa3DActiva = null;
+    _barbesActuals = null;
     variableActiva = clau;
     document.querySelectorAll('#panell-pro .param-row').forEach(el => {
         el.classList.toggle('param-selected', el.dataset.clau === clau);
@@ -1694,7 +1524,7 @@ async function carregarManifest() {
         try {
             const manifest = await provarManifest(base);
             PNG_BASE = base;
-            BASE_3D = base;   // 🔥 tots dos apunten a /web_data_NE/imatges/
+            BASE_3D = base;
             if (manifest.aspect) { aspecte = manifest.aspect; aspecteDelManifest = true; }
             if (manifest.extent) window._extentManifest = manifest.extent;
             infoVariables = manifest.variables || {};
@@ -1798,7 +1628,8 @@ function actualitzarLlegenda() {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-//  CÀRREGA DE FITXERS .js// ═══════════════════════════════════════════════════════════════════
+//  CÀRREGA .js
+// ═══════════════════════════════════════════════════════════════════
 function carregarScript(url, opcional) {
     return new Promise((resolve, reject) => {
         const s = document.createElement('script');
@@ -1819,7 +1650,6 @@ async function carregarIsolines(idx, clau) {
     const info = totesLesHores[idx];
     const hora = String(info.hora).padStart(2, '0');
     const clauFitxer = `${hora}_${info.dia}_${clau}`;
-
     if (_cacheIsolines.has(clauFitxer)) return _cacheIsolines.get(clauFitxer);
     try {
         await carregarScript(`${PNG_BASE}isolines_${clauFitxer}.js`);
@@ -1837,7 +1667,6 @@ async function carregarVent(idx) {
     const info = totesLesHores[idx];
     const hora = String(info.hora).padStart(2, '0');
     const clauFitxer = `${hora}_${info.dia}`;
-
     if (_cacheVent.has(clauFitxer)) return _cacheVent.get(clauFitxer);
     try {
         await carregarScript(`${PNG_BASE}vent_${clauFitxer}.js`);
@@ -1854,7 +1683,6 @@ async function carregarNoms() {
     if (_ciutats.length) return _ciutats;
     const fonts = [...CARPETES_NOMS, PNG_BASE];
     const mapa = new Map();
-
     for (const base of fonts) {
         try {
             window.NOMS_MAPA = undefined;
@@ -1872,7 +1700,6 @@ async function carregarNoms() {
             }
         } catch (e) {}
     }
-
     _ciutats = [...mapa.values()];
     _ciutats.forEach(c => { c._n = nrm(c.nom); });
     _ciutats.sort((a, b) => (b.poblacio || 0) - (a.poblacio || 0));
@@ -1919,23 +1746,19 @@ function traçarPolilinies(ctx, polilinies, W, H) {
         for (let i = 1; i < proj.length; i++) ctx.lineTo(proj[i][0], proj[i][1]);
     }
 }
-
 function pintarTraç(ctx, polilinies, W, H, color, amplada, colorHalo, ampladaHalo) {
     ctx.lineJoin = 'round'; ctx.lineCap = 'round';
     traçarPolilinies(ctx, polilinies, W, H);
     ctx.strokeStyle = colorHalo; ctx.lineWidth = ampladaHalo; ctx.stroke();
     ctx.strokeStyle = color; ctx.lineWidth = amplada; ctx.stroke();
 }
-
 function dibuixarVores() {
     if (!canvasVores) return;
     const { ctx, W, H } = prepararCtx(canvasVores);
     if (!_linies || !window._extentManifest) return;
-
     const esc = Math.min(1.8, Math.max(0.8, Math.sqrt(vista.k)));
     ctx.save();
     retallarAImatge(ctx);
-
     if (window.MOSTRAR_PROVINCIES && _linies.provincies.length) {
         const tot = [];
         for (const p of _linies.provincies) for (const l of (p.linies || [])) tot.push(l);
@@ -1968,7 +1791,6 @@ function segmentsDeNivell(nivell) {
     if (cur.length >= 2) segs.push(cur);
     return segs;
 }
-
 function dibuixarLiniaSuau(ctx, punts, salt) {
     const n = punts.length;
     if (n < 2) return;
@@ -2001,7 +1823,6 @@ function dibuixarLiniaSuau(ctx, punts, salt) {
     if (tancada) ctx.closePath();
     ctx.stroke();
 }
-
 function numEtiquetesPerSegment() {
     const z = vista.k;
     if (z < 1.5) return 0;
@@ -2054,7 +1875,6 @@ function dibuixarIsolines() {
             if (proj.length < 2) continue;
             if (maxX < 0 || minX > W || maxY < 0 || minY > H) continue;
             dibuixarLiniaSuau(ctx, proj, salt);
-
             if (nEtiq > 0 && proj.length >= ISO_CFG.minPuntsPerEtiqueta) {
                 for (let k = 1; k <= nEtiq; k++) {
                     const i = Math.floor((k / (nEtiq + 1)) * proj.length);
@@ -2068,7 +1888,7 @@ function dibuixarIsolines() {
     }
     if (etiquetesPendents.length) {
         const mida = ISO_CFG.midaFont * Math.min(1.5, Math.max(0.85, Math.sqrt(vista.k)));
-        ctx.font = `${mida}px 'Segoe UI', Tahoma, sans-serif`;
+        ctx.font = `${mida}px 'Inter', system-ui, sans-serif`;
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         ctx.lineWidth = ISO_CFG.gruixOmbra;
         ctx.strokeStyle = ISO_CFG.ombraEtiqueta;
@@ -2103,7 +1923,6 @@ function crearAleatori(seed) {
         return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
     };
 }
-
 function dibuixarFletxa(ctx, x, y, ang, mida) {
     const a1 = ang - VENT_CFG.angleFletxa;
     const a2 = ang + VENT_CFG.angleFletxa;
@@ -2113,23 +1932,18 @@ function dibuixarFletxa(ctx, x, y, ang, mida) {
     ctx.lineTo(x - mida * Math.cos(a2), y - mida * Math.sin(a2));
     ctx.stroke();
 }
-
 function dibuixarVent() {
     if (!canvasVent) return;
     const { ctx, W, H } = prepararCtx(canvasVent);
     if (!window.MOSTRAR_VENT || !window._extentManifest) return;
-
     const vd = _ventActual;
     if (!vd || !vd.u || !vd.v || !vd.lats || !vd.lons) return;
-
     const Nlat = vd.lats.length, Nlon = vd.lons.length;
     if (Nlat < 2 || Nlon < 2) return;
-
     const lat0 = vd.lats[0], lat1 = vd.lats[Nlat - 1];
     const lon0 = vd.lons[0], lon1 = vd.lons[Nlon - 1];
     const dLat = lat1 - lat0, dLon = lon1 - lon0;
     if (!dLat || !dLon) return;
-
     const ext = window._extentManifest;
     const { sw, sh } = dimensionsStage();
     const signeV = VENT_INVERTIR_V ? -1 : 1;
@@ -2222,6 +2036,82 @@ function dibuixarVent() {
 }
 
 // ═══════════════════════════════════════════════════════════════════
+//  BARBES STORM MOTION
+// ═══════════════════════════════════════════════════════════════════
+function dibuixarBarbes() {
+    if (!canvasBarbes) return;
+    const { ctx, W, H } = prepararCtx(canvasBarbes);
+    if (!window.MOSTRAR_BARBES || !window._extentManifest) return;
+    if (!_barbesActuals) return;
+
+    const b = _barbesActuals;
+    if (!b.u || !b.v || !b.lats || !b.lons) return;
+    const Nlat = b.lats.length, Nlon = b.lons.length;
+    if (Nlat < 2 || Nlon < 2) return;
+    const ext = window._extentManifest;
+    const signeV = VENT_INVERTIR_V ? -1 : 1;
+    const MS_A_KT = 1.94384;
+
+    ctx.save();
+    retallarAImatge(ctx);
+    ctx.strokeStyle = BARBES_CFG.color;
+    ctx.fillStyle = BARBES_CFG.color;
+    ctx.lineWidth = BARBES_CFG.amplada;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    const llarg = BARBES_CFG.mida;
+    const mig = llarg / 2;
+
+    for (let j = 0; j < Nlat; j++) {
+        for (let i = 0; i < Nlon; i++) {
+            const u = b.u[j][i];
+            const v = b.v[j][i];
+            if (u == null || v == null || !isFinite(u) || !isFinite(v)) continue;
+            const lon = b.lons[i], lat = b.lats[j];
+            const p = lonLatAPantalla(lon, lat);
+            if (!p) continue;
+            if (p[0] < -50 || p[0] > W + 50 || p[1] < -50 || p[1] > H + 50) continue;
+            const uKt = u * MS_A_KT;
+            const vKt = signeV * v * MS_A_KT;
+            const mag = Math.hypot(uKt, vKt);
+            if (mag < 0.5) continue;
+            const esc = Math.min(1.0, Math.max(0.4, mag / 25));
+            const dx = (uKt / mag) * llarg * esc;
+            const dy = -(vKt / mag) * llarg * esc;
+            const x0 = p[0] - dx * 0.5, y0 = p[1] - dy * 0.5;
+            const x1 = p[0] + dx * 0.5, y1 = p[1] + dy * 0.5;
+            ctx.beginPath();
+            ctx.moveTo(x0, y0);
+            ctx.lineTo(x1, y1);
+            const nusos = mag;
+            const nPlomes = Math.floor(nusos / 10);
+            const teTriangle = nusos >= 50;
+            const nPlomesNormals = teTriangle ? (nPlomes - 5) : nPlomes;
+            const perpX = -dy / llarg * mig * 0.6;
+            const perpY = dx / llarg * mig * 0.6;
+            const dirX = dx / llarg, dirY = dy / llarg;
+            for (let k = 1; k <= Math.max(0, nPlomesNormals); k++) {
+                const f = k / Math.max(1, nPlomes);
+                const bx = x1 - dirX * f * llarg * 0.5;
+                const by = y1 - dirY * f * llarg * 0.5;
+                ctx.moveTo(bx, by);
+                ctx.lineTo(bx + perpX, by + perpY);
+            }
+            if (teTriangle) {
+                const bx = x1 - dirX * 0.3 * llarg;
+                const by = y1 - dirY * 0.3 * llarg;
+                ctx.moveTo(bx, by);
+                ctx.lineTo(bx + perpX * 1.4, by + perpY * 1.4);
+                ctx.lineTo(bx + dirX * 0.15 * llarg, by + dirY * 0.15 * llarg);
+            }
+            ctx.stroke();
+        }
+    }
+    ctx.restore();
+}
+
+// ═══════════════════════════════════════════════════════════════════
 //  CIUTATS
 // ═══════════════════════════════════════════════════════════════════
 function llindarPoblacio() {
@@ -2236,7 +2126,6 @@ function llindarPoblacio() {
     else llindarZoom = 0;
     return Math.max(dens.minPoblacio, llindarZoom);
 }
-
 function pintarCiutat(ctx, p, c, midaPunt, midaFont, destacada) {
     const capital = !!c.capital;
     const rP = destacada ? midaPunt + 2 : midaPunt;
@@ -2257,15 +2146,14 @@ function pintarCiutat(ctx, p, c, midaPunt, midaFont, destacada) {
     ctx.strokeStyle = 'rgba(255,255,255,0.85)';
     ctx.stroke();
     const tx = p[0] + rP + 3 + (destacada ? 8 : 0), ty = p[1];
-    if (destacada) ctx.font = `700 ${midaFont * 1.25}px 'Segoe UI', Tahoma, sans-serif`;
+    if (destacada) ctx.font = `700 ${midaFont * 1.25}px 'Inter', system-ui, sans-serif`;
     ctx.lineWidth = 3;
     ctx.strokeStyle = CIUTATS_CFG.ombra;
     ctx.strokeText(c.nom, tx, ty);
     ctx.fillStyle = (capital || destacada) ? CIUTATS_CFG.colorTextCapital : CIUTATS_CFG.colorText;
     ctx.fillText(c.nom, tx, ty);
-    if (destacada) ctx.font = `600 ${midaFont}px 'Segoe UI', Tahoma, sans-serif`;
+    if (destacada) ctx.font = `600 ${midaFont}px 'Inter', system-ui, sans-serif`;
 }
-
 function dibuixarCiutats() {
     if (!canvasNoms) return;
     const { ctx, W, H } = prepararCtx(canvasNoms);
@@ -2273,7 +2161,7 @@ function dibuixarCiutats() {
     const sq = Math.sqrt(vista.k);
     const midaFont = CIUTATS_CFG.midaFontBase * Math.min(1.4, Math.max(0.85, sq));
     const midaPunt = CIUTATS_CFG.midaPuntBase * Math.min(1.4, Math.max(0.9, sq));
-    ctx.font = `600 ${midaFont}px 'Segoe UI', Tahoma, sans-serif`;
+    ctx.font = `600 ${midaFont}px 'Inter', system-ui, sans-serif`;
     ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round';
     const ocupats = [];
     const xoca = r => {
@@ -2316,6 +2204,17 @@ function dibuixarCiutats() {
 // ═══════════════════════════════════════════════════════════════════
 function mostrarHora(idx) {
     if (idx < 0 || idx >= totesLesHores.length) return;
+
+    // 🔒 Comprovar accés (sense login: només 1 de cada 3 hores)
+    if (!usuariLoguejat() && idx % 3 !== 0) {
+        if (typeof window.mostrarAvisLogin === 'function') {
+            window.mostrarAvisLogin('aquesta hora');
+        } else if (typeof window.obrirModal === 'function') {
+            window.obrirModal('modalLogin');
+        }
+        return;
+    }
+
     curIdx = idx;
     if (!_animacioActiva) {
         const h = totesLesHores[idx];
@@ -2361,9 +2260,6 @@ function resaltarHoraEnGrid(idx) {
     document.querySelectorAll('.fh-item').forEach((el, i) => {
         const actiu = i === idx;
         el.classList.toggle('active', actiu);
-        el.style.background = actiu ? 'rgba(255,215,0,0.15)' : 'rgba(255,255,255,0.03)';
-        el.style.color = actiu ? '#FFD700' : '#8899bb';
-        el.style.border = actiu ? '1px solid rgba(255,215,0,0.3)' : '1px solid transparent';
     });
     const act = document.querySelector('.fh-item.active');
     if (act) act.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
@@ -2385,43 +2281,39 @@ function construirGraellaHores() {
         return;
     }
     const container = document.createElement('div');
-    container.style.cssText = 'display:flex;gap:3px;padding:2px 4px;overflow-x:auto;';
+    container.className = 'fh-scroll';
     totesLesHores.forEach((item, i) => {
         const hora = String(item.hora).padStart(2, '0');
         const dia = item.dia;
-        let estilDia = 'color:#c8d8e8;', textDia = dia;
-        if (dia === 'ahir') { estilDia = 'color:#8899bb;'; textDia = 'ahir'; }
-        else if (dia === 'avui') { estilDia = 'color:#FFD700;'; textDia = 'avui'; }
-        else if (dia === 'dema') { estilDia = 'color:#FFA500;'; textDia = 'dema'; }
-        else if (dia === 'dema_passat') { estilDia = 'color:#FF6B6B;'; textDia = 'd+2'; }
+        let classeDia = '';
+        let textDia = dia;
+        if (dia === 'ahir') { classeDia = 'fh-ahir'; textDia = 'ahir'; }
+        else if (dia === 'avui') { classeDia = 'fh-avui'; textDia = 'avui'; }
+        else if (dia === 'dema') { classeDia = 'fh-dema'; textDia = 'dema'; }
+        else if (dia === 'dema_passat') { classeDia = 'fh-dema2'; textDia = 'd+2'; }
         const actiu = i === curIdx;
+
+        // 🔒 Bloquejar hores sense login
+        const bloquejada = !usuariLoguejat() && (i % 3 !== 0);
+
         const cell = document.createElement('div');
-        cell.className = 'fh-item' + (actiu ? ' active' : '');
+        cell.className = 'fh-item' + (actiu ? ' active' : '') + (bloquejada ? ' locked' : '');
         cell.dataset.idx = i;
-        cell.style.cssText = `
-            flex: 0 0 auto; padding: 3px 9px; border-radius: 4px; cursor: pointer;
-            font-size: 11px; font-weight: 600; text-align: center; min-width: 38px;
-            user-select: none; line-height: 1.2; transition: all 0.15s ease;
-            color: ${actiu ? '#FFD700' : '#8899bb'};
-            background: ${actiu ? 'rgba(255,215,0,0.15)' : 'rgba(255,255,255,0.03)'};
-            border: 1px solid ${actiu ? 'rgba(255,215,0,0.3)' : 'transparent'};
-        `;
+        cell.title = bloquejada ? 'Inicia sessió per veure aquesta hora' : '';
         cell.innerHTML = `
-            <div style="${estilDia}font-weight:700;">${hora}h</div>
-            <div style="font-size:8px;${estilDia}opacity:0.8;margin-top:-1px;">${textDia}</div>
+            <div class="fh-hora ${classeDia}">${hora}h</div>
+            <div class="fh-dia ${classeDia}">${textDia}</div>
         `;
-        cell.addEventListener('click', () => mostrarHora(i));
-        cell.addEventListener('mouseenter', () => {
-            if (!cell.classList.contains('active')) {
-                cell.style.background = 'rgba(255,255,255,0.08)';
-                cell.style.color = '#c8d8e8';
+        cell.addEventListener('click', () => {
+            if (bloquejada) {
+                if (typeof window.mostrarAvisLogin === 'function') {
+                    window.mostrarAvisLogin(`hora ${hora}h ${textDia}`);
+                } else if (typeof window.obrirModal === 'function') {
+                    window.obrirModal('modalLogin');
+                }
+                return;
             }
-        });
-        cell.addEventListener('mouseleave', () => {
-            if (!cell.classList.contains('active')) {
-                cell.style.background = 'rgba(255,255,255,0.03)';
-                cell.style.color = '#8899bb';
-            }
+            mostrarHora(i);
         });
         container.appendChild(cell);
     });
@@ -2440,17 +2332,23 @@ function pintarBotoPlay() {
     if (!btn) return;
     if (_animacioActiva) {
         btn.innerHTML = `${ICO.stop}<span>Aturar</span>`;
-        btn.style.background = 'rgba(255,215,0,0.15)';
-        btn.style.color = '#FFD700';
+        btn.classList.add('actiu');
     } else {
         btn.innerHTML = `${ICO.play}<span>Animació</span>`;
-        btn.style.background = '';
-        btn.style.color = '';
+        btn.classList.remove('actiu');
     }
 }
 
 function toggleAnimacio() {
     if (!totesLesHores.length) return;
+    if (!usuariLoguejat()) {
+        if (typeof window.mostrarAvisLogin === 'function') {
+            window.mostrarAvisLogin('l\'animació');
+        } else if (typeof window.obrirModal === 'function') {
+            window.obrirModal('modalLogin');
+        }
+        return;
+    }
     if (_animacioActiva) {
         clearInterval(_intervalAnimacio);
         _animacioActiva = false;
@@ -2500,6 +2398,10 @@ async function inicialitzar() {
         const i = totesLesHores.findIndex(h => h.hora === _cfg.hora.hora && h.dia === _cfg.hora.dia);
         if (i >= 0) idx0 = i;
     }
+    // Si sense login, anar a una hora lliure
+    if (!usuariLoguejat() && idx0 % 3 !== 0) {
+        idx0 = 0;
+    }
     curIdx = idx0;
 
     construirPanellParametres();
@@ -2517,8 +2419,34 @@ async function inicialitzar() {
     programarRedibuix();
 }
 
+// ═══════════════════════════════════════════════════════════════════
+//  EVENTS LOGIN / LOGOUT
+// ═══════════════════════════════════════════════════════════════════
+window.addEventListener('tc:login', () => {
+    // Refrescar panell i graella per desbloquejar contingut
+    if (typeof construirPanellParametres === 'function') construirPanellParametres();
+    if (typeof construirGraellaHores === 'function') construirGraellaHores();
+});
+
+window.addEventListener('tc:logout', () => {
+    // Refrescar panell i graella per bloquejar contingut
+    if (typeof construirPanellParametres === 'function') construirPanellParametres();
+    if (typeof construirGraellaHores === 'function') construirGraellaHores();
+    // Si estàvem en una variable/hora no permesa, tornar a st
+    if (!esParametreLliure(variableActiva)) {
+        variableActiva = 'st';
+        actualitzarDades();
+        actualitzarLlegenda();
+    }
+    if (curIdx % 3 !== 0) {
+        mostrarHora(0);
+    }
+});
+
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', inicialitzar);
 } else {
     inicialitzar();
 }
+
+console.log('✅ mapapngs.js carregat — accés restringit (login obligatori excepte bàsics)');
