@@ -60,7 +60,6 @@ jobs:
           python3 arome_sfc_png.py
           CODI=$?
           N=$(find "$IMATGES_DIR" -name "sfc_*.png" -type f | wc -l)
-          # Bo si surt net, o si peta (134) en tancar pero les dades ja hi son
           if [ $CODI -eq 0 ] || { [ $CODI -eq 134 ] && [ "$N" -ge 5 ] && [ -f "$IMATGES_DIR/manifest.json" ]; }; then
             echo "OK a l'intent $i (codi $CODI, $N PNG)"
             exit 0
@@ -162,8 +161,7 @@ jobs:
         if-no-files-found: error
 
   # ════════════════════════════════════════════════════════════════
-  #  JOB 3: MANIFEST
-  #  Sense "if": nomes s'executa si SFC i 3D han acabat be tots dos.
+  #  JOB 3: MANIFEST + INFO_RUN
   # ════════════════════════════════════════════════════════════════
   manifest:
     runs-on: ubuntu-latest
@@ -179,6 +177,11 @@ jobs:
     - uses: actions/setup-python@v5
       with:
         python-version: '3.11'
+
+    - name: Instal·lar dependències mínimes
+      run: |
+        python3 -m pip install --upgrade pip
+        python3 -m pip install requests
 
     - name: Descarregar SFC
       uses: actions/download-artifact@v4
@@ -204,10 +207,8 @@ jobs:
     - name: Executar info.py (info_run.json)
       run: |
         cd private-scripts-new
-        # info.py ja sap on escriure el fitxer si IMATGES_DIR està al mateix directori
-        # Però per seguretat, exportem la variable d'entorn per si la vol llegir
         export IMATGES_DIR="${{ github.workspace }}/merged/imatges"
-        # Si info.py té una línia IMATGES_DIR = ..., la sobreescrivim
+        # Si info.py té la línia IMATGES_DIR hardcodejada, la sobreescrivim
         if grep -q '^IMATGES_DIR' info.py 2>/dev/null; then
           sed -i -E 's|^IMATGES_DIR = .*|IMATGES_DIR = Path(os.environ["IMATGES_DIR"])|' info.py
         fi
@@ -223,7 +224,6 @@ jobs:
               "hores | extent:", bool(m.get("extent")))
         if not m.get("total_hores") or not m.get("total_hores_3d") or not m.get("extent"):
             raise SystemExit("Manifest incomplet: no es publicara")
-        # Mostrem també la info del run si existeix
         info_path = os.path.join(os.environ["IMATGES_DIR"], "info_run.json")
         if os.path.exists(info_path):
             info = json.load(open(info_path, encoding="utf-8"))
@@ -252,8 +252,6 @@ jobs:
 
   # ════════════════════════════════════════════════════════════════
   #  JOB 4: DEPLOY
-  #  Sense "if" ni always(): si SFC, 3D o manifest fallen (o s'ometen),
-  #  aquest job NO s'executa i no es publica res.
   # ════════════════════════════════════════════════════════════════
   deploy:
     needs: [png_sfc, png_3d, manifest]
@@ -303,7 +301,6 @@ jobs:
         # Fitxers del 3D (la resta de web_data_NE/imatges es SFC)
         PAT3D=( -name '3d_*' -o -name 'isolines_3d_*' -o -name 'legend_3d_*' -o -name 'sondeig_*' -o -name 'vent3d_*' -o -name 'stormmotion_*' )
 
-        # Comprovacio de seguretat: els tres artifacts han d'existir
         [ -n "$(ls -A /tmp/nou-sfc 2>/dev/null)" ] || { echo "Falta SFC"; exit 1; }
         [ -n "$(ls -A /tmp/nou-3d 2>/dev/null)" ] || { echo "Falta 3D"; exit 1; }
         [ -f /tmp/nou-manifest/manifest.json ] || { echo "Falta manifest"; exit 1; }
@@ -311,12 +308,10 @@ jobs:
         while [ $INTENT -le $MAX_INTENTS ]; do
           echo "=== Intent $INTENT/$MAX_INTENTS ==="
 
-          # 1) Llegim 'data' EN FRESC
           cd "$GITHUB_WORKSPACE"
           DATA_SHA_ABANS=$(git ls-remote "$REMOTE_URL" refs/heads/data | cut -f1)
           [ -z "$DATA_SHA_ABANS" ] && DATA_SHA_ABANS="none"
 
-          # Proteccio estatics
           rm -rf /tmp/estatic-base
           mkdir -p /tmp/estatic-base
           if [ -d "$P" ]; then
@@ -345,7 +340,7 @@ jobs:
             echo "La branca 'data' encara no existeix, es creara"
           fi
 
-          # 2) Substituim web_data_NE/imatges (SFC + 3D + manifest + info_run)
+          # Substituir web_data_NE/imatges
           IM="$P/web_data_NE/imatges"
           mkdir -p "$IM"
 
@@ -375,9 +370,8 @@ jobs:
           echo "imatges sfc: $(find $IM -name 'sfc_*.png' 2>/dev/null | wc -l) PNG"
           echo "imatges 3d:  $(find $IM -name '3d_*.png' 2>/dev/null | wc -l) PNG"
           if [ -f "$IM/info_run.json" ]; then echo "info_run.json: SI"; else echo "info_run.json: NO"; fi
-          if [ -f "$P/selector.html" ]; then echo "selector.html present?: SI"; else echo "selector.html present?: NO"; fi
 
-          # 3) Preparem el commit per a 'data'
+          # Commit a la branca 'data'
           rm -rf /tmp/publish && mkdir -p /tmp/publish
           cp -r "$P/." /tmp/publish/
           cd /tmp/publish
@@ -403,12 +397,11 @@ jobs:
               commit -q -m "arome png $(date -u +'%Y-%m-%d %H:%M UTC')"
           git remote add origin "$REMOTE_URL"
 
-          # 4) Comprovem que 'data' no ha canviat
           DATA_SHA_ARA=$(git ls-remote origin refs/heads/data | cut -f1)
           [ -z "$DATA_SHA_ARA" ] && DATA_SHA_ARA="none"
 
           if [ "$DATA_SHA_ABANS" != "$DATA_SHA_ARA" ]; then
-            echo "'data' ha canviat (un altre workflow ha publicat). Reintentem..."
+            echo "'data' ha canviat. Reintentem..."
             INTENT=$((INTENT + 1))
             sleep $((RANDOM % 10 + 5))
             continue
