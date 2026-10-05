@@ -1,9 +1,9 @@
 name: AROME PNG (SFC + 3D)
 
+# Nomes s'executa quan el dispara el worker de Cloudflare (o a ma amb "Run workflow").
+# No te cron intern, aixi no es pot executar dues vegades alhora.
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '50 0,3,6,9,12,15,18,21 * * *'
 
 permissions:
   contents: write
@@ -16,35 +16,11 @@ concurrency:
 
 jobs:
   # ════════════════════════════════════════════════════════════════
-  #  GATE
-  # ════════════════════════════════════════════════════════════════
-  check_schedule:
-    runs-on: ubuntu-latest
-    timeout-minutes: 180
-    outputs:
-      should_run: ${{ steps.gate.outputs.should_run }}
-    steps:
-    - name: Gate
-      id: gate
-      run: |
-        USE_INTERNAL_SCHEDULE=false
-        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-          echo "should_run=true" >> "$GITHUB_OUTPUT"
-        elif [ "$USE_INTERNAL_SCHEDULE" = "true" ]; then
-          echo "should_run=true" >> "$GITHUB_OUTPUT"
-        else
-          echo "Schedule intern DESACTIVAT"
-          echo "should_run=false" >> "$GITHUB_OUTPUT"
-        fi
-
-  # ════════════════════════════════════════════════════════════════
   #  JOB 1 (paral·lel): SFC -> PNG
   # ════════════════════════════════════════════════════════════════
   png_sfc:
     runs-on: ubuntu-latest
     timeout-minutes: 180
-    needs: check_schedule
-    if: needs.check_schedule.outputs.should_run == 'true'
     env:
       IMATGES_DIR: ${{ github.workspace }}/out-sfc/imatges
     steps:
@@ -119,8 +95,6 @@ jobs:
   png_3d:
     runs-on: ubuntu-latest
     timeout-minutes: 180
-    needs: check_schedule
-    if: needs.check_schedule.outputs.should_run == 'true'
     env:
       IMATGES_DIR: ${{ github.workspace }}/out-3d/imatges
     steps:
@@ -188,17 +162,13 @@ jobs:
         if-no-files-found: error
 
   # ════════════════════════════════════════════════════════════════
-  #  JOB 3: MANIFEST (quan SFC i 3D han acabat bé)
+  #  JOB 3: MANIFEST
+  #  Sense "if": nomes s'executa si SFC i 3D han acabat be tots dos.
   # ════════════════════════════════════════════════════════════════
   manifest:
     runs-on: ubuntu-latest
     timeout-minutes: 180
-    needs: [check_schedule, png_sfc, png_3d]
-    if: >-
-      always() &&
-      needs.check_schedule.outputs.should_run == 'true' &&
-      needs.png_sfc.result == 'success' &&
-      needs.png_3d.result == 'success'
+    needs: [png_sfc, png_3d]
     env:
       IMATGES_DIR: ${{ github.workspace }}/merged/imatges
     steps:
@@ -237,6 +207,8 @@ jobs:
         m = json.load(open(os.path.join(os.environ["IMATGES_DIR"], "manifest.json"), encoding="utf-8"))
         print("SFC:", m.get("total_hores"), "hores | 3D:", m.get("total_hores_3d"),
               "hores | extent:", bool(m.get("extent")))
+        if not m.get("total_hores") or not m.get("total_hores_3d") or not m.get("extent"):
+            raise SystemExit("Manifest incomplet: no es publicara")
         PY
 
     - name: Pujar manifest com a artifact
@@ -248,15 +220,12 @@ jobs:
         if-no-files-found: error
 
   # ════════════════════════════════════════════════════════════════
-  #  JOB 4: DEPLOY (relectura fresca de 'data' + reintents + estàtics protegits)
-  #  Només toca web_data_NE/imatges.
+  #  JOB 4: DEPLOY
+  #  Sense "if" ni always(): si SFC, 3D o manifest fallen (o s'ometen),
+  #  aquest job NO s'executa i no es publica res.
   # ════════════════════════════════════════════════════════════════
   deploy:
-    needs: [check_schedule, png_sfc, png_3d, manifest]
-    if: >-
-      always() &&
-      needs.check_schedule.outputs.should_run == 'true' &&
-      (needs.png_sfc.result == 'success' || needs.png_3d.result == 'success')
+    needs: [png_sfc, png_3d, manifest]
     runs-on: ubuntu-latest
     timeout-minutes: 180
     steps:
@@ -265,35 +234,23 @@ jobs:
         token: ${{ secrets.PRIVATE_REPO_TOKEN }}
         fetch-depth: 0
 
-    - name: Resultat dels jobs anteriors
-      run: |
-        echo "sfc:      ${{ needs.png_sfc.result }}"
-        echo "3d:       ${{ needs.png_3d.result }}"
-        echo "manifest: ${{ needs.manifest.result }}"
-
     - name: Descarregar artifact - SFC
-      if: needs.png_sfc.result == 'success'
       uses: actions/download-artifact@v4
       with:
         name: png-sfc
         path: /tmp/nou-sfc
-      continue-on-error: true
 
     - name: Descarregar artifact - 3D
-      if: needs.png_3d.result == 'success'
       uses: actions/download-artifact@v4
       with:
         name: png-3d
         path: /tmp/nou-3d
-      continue-on-error: true
 
     - name: Descarregar artifact - MANIFEST
-      if: needs.manifest.result == 'success'
       uses: actions/download-artifact@v4
       with:
         name: png-manifest
         path: /tmp/nou-manifest
-      continue-on-error: true
 
     - name: Fusionar i publicar a 'data' (reintents anti-cursa + estàtics protegits)
       run: |
@@ -306,6 +263,11 @@ jobs:
 
         # Fitxers del 3D (la resta de web_data_NE/imatges es SFC)
         PAT3D=( -name '3d_*' -o -name 'isolines_3d_*' -o -name 'legend_3d_*' -o -name 'sondeig_*' -o -name 'vent3d_*' )
+
+        # Comprovacio de seguretat: els tres artifacts han d'existir
+        [ -n "$(ls -A /tmp/nou-sfc 2>/dev/null)" ] || { echo "Falta SFC"; exit 1; }
+        [ -n "$(ls -A /tmp/nou-3d 2>/dev/null)" ] || { echo "Falta 3D"; exit 1; }
+        [ -f /tmp/nou-manifest/manifest.json ] || { echo "Falta manifest"; exit 1; }
 
         while [ $INTENT -le $MAX_INTENTS ]; do
           echo "=== Intent $INTENT/$MAX_INTENTS ==="
@@ -344,28 +306,20 @@ jobs:
             echo "La branca 'data' encara no existeix, es creara"
           fi
 
-          # 2) Sobreescrivim NOMES web_data_NE/imatges
+          # 2) Substituim web_data_NE/imatges (SFC + 3D + manifest)
           IM="$P/web_data_NE/imatges"
           mkdir -p "$IM"
 
-          if [ -d /tmp/nou-sfc ] && [ -n "$(ls -A /tmp/nou-sfc 2>/dev/null)" ]; then
-            find "$IM" -maxdepth 1 -type f ! \( "${PAT3D[@]}" \) -delete
-            cp -r /tmp/nou-sfc/. "$IM/"
-            echo "  imatges: SFC substituit"
-          fi
-          if [ -d /tmp/nou-3d ] && [ -n "$(ls -A /tmp/nou-3d 2>/dev/null)" ]; then
-            find "$IM" -maxdepth 1 -type f \( "${PAT3D[@]}" \) -delete
-            cp -r /tmp/nou-3d/. "$IM/"
-            echo "  imatges: 3D substituit"
-          fi
+          find "$IM" -maxdepth 1 -type f ! \( "${PAT3D[@]}" \) -delete
+          cp -r /tmp/nou-sfc/. "$IM/"
+          echo "  imatges: SFC substituit"
 
-          # 2b) Manifest final (SFC + 3D), per sobre de tot
-          if [ -f /tmp/nou-manifest/manifest.json ]; then
-            cp /tmp/nou-manifest/manifest.json "$IM/manifest.json"
-            echo "  imatges: manifest.json (SFC + 3D) aplicat"
-          else
-            echo "  AVIS: sense manifest nou; es queda el que hi hagi"
-          fi
+          find "$IM" -maxdepth 1 -type f \( "${PAT3D[@]}" \) -delete
+          cp -r /tmp/nou-3d/. "$IM/"
+          echo "  imatges: 3D substituit"
+
+          cp /tmp/nou-manifest/manifest.json "$IM/manifest.json"
+          echo "  imatges: manifest.json (SFC + 3D) aplicat"
 
           echo "--- Resum abans de publicar ---"
           for c in $CARPETES; do
