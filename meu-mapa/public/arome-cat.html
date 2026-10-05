@@ -180,7 +180,6 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
 #btn-obrir-panell.visible { display: inline-flex; }
 #btn-obrir-panell:hover { background: var(--panel-hover); border-color: var(--accent); }
 
-/* Capçalera del panell */
 .pp-cap {
     display: flex; align-items: center; justify-content: space-between;
     padding: 14px 16px 10px;
@@ -201,7 +200,6 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
 .pp-plega:hover { color: var(--text); background: var(--panel-hover); border-color: var(--line-strong); }
 .pp-plega svg { display: block; }
 
-/* Barra usuari */
 .pp-user-bar {
     margin: 0 14px 10px;
     display: flex; align-items: center; gap: 6px;
@@ -237,7 +235,6 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
 }
 .pp-user-bar button .avatar img { width: 100%; height: 100%; object-fit: cover; }
 
-/* Variable activa */
 .pp-actual {
     margin: 0 14px 12px;
     padding: 9px 12px;
@@ -257,7 +254,6 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
     text-transform: uppercase; letter-spacing: 0.5px;
 }
 
-/* Pestanyes */
 .pp-tabs {
     display: flex; gap: 0; padding: 0 16px;
     border-bottom: 1px solid var(--line);
@@ -280,7 +276,6 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
 }
 .pp-cos.actiu { display: flex; }
 
-/* Cercador */
 .pp-cerca { position: relative; margin: 12px 14px 8px; flex-shrink: 0; }
 .pp-cerca input {
     width: 100%; box-sizing: border-box;
@@ -315,7 +310,6 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
 .pp-llista::-webkit-scrollbar { width: 5px; }
 .pp-llista::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 3px; }
 
-/* Seccions */
 .sec { margin-bottom: 1px; }
 .sec-cap {
     display: flex; align-items: center; gap: 9px;
@@ -342,7 +336,6 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
 }
 .sec.oberta .sec-cos { display: block; }
 
-/* Files de paràmetres */
 .param-row {
     display: flex; justify-content: space-between; align-items: center;
     gap: 8px; padding: 7px 10px; margin: 0;
@@ -394,7 +387,6 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
     opacity: 0.4;
     filter: grayscale(0.7);
 }
-
 .param-altura-cap {
     display: flex; align-items: center; gap: 8px;
     padding: 8px 10px;
@@ -406,7 +398,6 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
 }
 .param-altura-cap:hover { color: var(--text); }
 .param-altura-grup.obert .param-altura-cap { color: var(--accent); font-weight: 600; }
-
 .param-altura-nom {
     flex: 1;
     display: flex; align-items: center; gap: 6px;
@@ -414,7 +405,6 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
 }
 .param-altura-nom .nom { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .param-altura-nom .cadenat { font-size: 10px; opacity: 0.7; }
-
 .param-altura-valor {
     font-size: 10px;
     color: var(--muted);
@@ -429,14 +419,12 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
     background: rgba(88, 166, 255, 0.15);
     color: var(--accent);
 }
-
 .param-altura-fletxa {
     color: var(--muted-2);
     font-size: 9px;
     transition: transform 0.2s ease;
 }
 .param-altura-grup.obert .param-altura-fletxa { transform: rotate(180deg); }
-
 .param-altura-opcions {
     display: none;
     padding: 4px 6px 8px 6px;
@@ -448,7 +436,6 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
     grid-template-columns: 1fr 1fr;
     gap: 3px;
 }
-
 .param-altura-opcio {
     padding: 6px 8px;
     border-radius: 5px;
@@ -566,6 +553,187 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
 .cap-reset:hover { color: var(--text); background: var(--panel-hover); }
 
 /* ═══════════════════════════════════════════════════════════════════
+   SISTEMA (botó d'actualitzacions)
+   ═══════════════════════════════════════════════════════════════════ */
+.sistema-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 12px;
+    margin-top: 4px;
+    border-radius: 8px;
+    border: 1px solid var(--line-strong);
+    background: var(--panel-2);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+.sistema-btn:hover {
+    background: var(--panel-hover);
+    border-color: var(--accent);
+    color: var(--accent);
+}
+.sistema-btn:disabled {
+    opacity: 0.55;
+    cursor: wait;
+}
+.sistema-btn.carregant .ico {
+    display: inline-block;
+    animation: gira 1s linear infinite;
+}
+.sistema-btn.nova {
+    background: rgba(255, 215, 0, 0.12);
+    border-color: rgba(255, 215, 0, 0.5);
+    color: var(--gold);
+    animation: polsSistema 1.6s ease-in-out infinite;
+}
+@keyframes polsSistema {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255,215,0,0.4); }
+    50%      { box-shadow: 0 0 0 6px rgba(255,215,0,0); }
+}
+.sistema-btn .ico { display: inline-block; }
+
+.sistema-estat {
+    margin-top: 8px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 10.5px;
+    font-weight: 500;
+    text-align: center;
+    color: var(--muted);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--line);
+    min-height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.sistema-estat:empty { display: none; }
+.sistema-estat.ok     { color: var(--ok); border-color: rgba(63, 185, 80, 0.3); background: rgba(63, 185, 80, 0.08); }
+.sistema-estat.nova   { color: var(--gold); border-color: rgba(255, 215, 0, 0.4); background: rgba(255, 215, 0, 0.10); }
+.sistema-estat.error  { color: var(--danger); border-color: rgba(248, 81, 73, 0.3); background: rgba(248, 81, 73, 0.08); }
+.sistema-estat.comprovant { color: var(--accent); border-color: rgba(88, 166, 255, 0.3); background: rgba(88, 166, 255, 0.08); }
+
+/* Banner flotant de nova versió */
+.banner-nova-versio {
+    position: fixed;
+    top: calc(14px + var(--safe-top));
+    left: 50%;
+    transform: translate(-50%, -140%);
+    z-index: 9600;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    background: rgba(13, 17, 23, 0.96);
+    border: 1px solid rgba(255, 215, 0, 0.5);
+    border-radius: 10px;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    font-family: 'Inter', system-ui, sans-serif;
+    color: var(--text);
+    max-width: calc(100vw - 24px);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: auto;
+}
+.banner-nova-versio.visible { transform: translate(-50%, 0); }
+.banner-nova-versio .bnv-ico { font-size: 20px; flex-shrink: 0; }
+.banner-nova-versio .bnv-text {
+    display: flex; flex-direction: column; gap: 1px; min-width: 0;
+}
+.banner-nova-versio .bnv-text strong {
+    font-size: 12.5px; color: var(--gold); font-weight: 700;
+}
+.banner-nova-versio .bnv-text span {
+    font-size: 10.5px; color: var(--muted);
+}
+.banner-nova-versio .bnv-btn {
+    background: var(--gold); color: #1b1030; border: none;
+    padding: 7px 14px; border-radius: 6px;
+    font-family: inherit; font-size: 11.5px; font-weight: 700;
+    cursor: pointer; white-space: nowrap;
+    transition: background 0.15s ease;
+}
+.banner-nova-versio .bnv-btn:hover { background: #ffdf33; }
+.banner-nova-versio .bnv-tanca {
+    background: none; border: none; color: var(--muted);
+    font-size: 14px; cursor: pointer; padding: 0 4px; font-family: inherit;
+}
+.banner-nova-versio .bnv-tanca:hover { color: var(--text); }
+
+/* Toast sistema */
+.toast-sistema {
+    position: fixed;
+    bottom: calc(80px + var(--safe-bottom));
+    left: 50%;
+    transform: translate(-50%, 20px);
+    z-index: 9700;
+    padding: 9px 16px;
+    background: rgba(13, 17, 23, 0.95);
+    border: 1px solid var(--line-strong);
+    border-radius: 8px;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    max-width: calc(100vw - 32px);
+    white-space: nowrap;
+}
+.toast-sistema.visible {
+    opacity: 1;
+    transform: translate(-50%, 0);
+}
+.toast-sistema.ok    { border-color: rgba(63, 185, 80, 0.5); color: #7ee787; }
+.toast-sistema.error { border-color: rgba(248, 81, 73, 0.5); color: #ff7b72; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   LLEGENDES CSS
+   ═══════════════════════════════════════════════════════════════════ */
+.llegenda-css {
+    position: fixed;
+    right: calc(16px + var(--safe-right));
+    bottom: calc(80px + var(--safe-bottom));
+    width: 170px;
+    background: rgba(15, 20, 32, 0.88);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    padding: 8px 10px;
+    font: 600 11px 'Inter', system-ui, sans-serif;
+    color: #e8eef8;
+    z-index: 510;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+    pointer-events: none;
+}
+.llegenda-css .lc-titol {
+    font-size: 11.5px; font-weight: 700; margin-bottom: 6px; color: #fff;
+    letter-spacing: 0.2px;
+}
+.llegenda-css .lc-unitat {
+    font-size: 10px; opacity: 0.7; font-weight: 500; margin-left: 4px;
+}
+.llegenda-css .lc-fila {
+    display: flex; align-items: center; gap: 6px;
+    margin: 2px 0; font-size: 10.5px;
+}
+.llegenda-css .lc-color {
+    width: 22px; height: 11px; border-radius: 2px;
+    flex-shrink: 0; border: 1px solid rgba(0, 0, 0, 0.35);
+}
+.llegenda-css .lc-valor { font-variant-numeric: tabular-nums; }
+
+/* ═══════════════════════════════════════════════════════════════════
    DOCK INFERIOR
    ═══════════════════════════════════════════════════════════════════ */
 #dock {
@@ -579,7 +747,10 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
     background: rgba(13, 17, 23, 0.88);
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
     backdrop-filter: blur(20px) saturate(150%);
-    transition: left 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    -webkit-backdrop-filter: blur(20px) saturate(150%);
+    transition: left 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+                transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.25s ease;
 }
 body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
 
@@ -639,7 +810,7 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
 .fh-dema2 { color: #f85149; }
 
 /* ═══════════════════════════════════════════════════════════════════
-   LLEGENDA
+   LLEGENDA PNG (base)
    ═══════════════════════════════════════════════════════════════════ */
 .llegenda-mapa {
     position: fixed;
@@ -652,6 +823,7 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
     padding: 6px; border: 1px solid var(--line);
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
     backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
 }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -687,6 +859,7 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
     font-size: 12px; color: var(--text-2);
     min-width: 200px;
     backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
 }
 .menu-ctx-cap {
     padding: 8px 12px; font-size: 10px; color: var(--muted);
@@ -901,7 +1074,6 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
         padding-bottom: var(--safe-bottom);
     }
 
-    /* 🔑 Capçalera mòbil amb botó gran i sempre accessible */
     .pp-cap {
         padding: 12px 14px 10px;
         gap: 10px;
@@ -919,7 +1091,6 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
     }
     .pp-plega svg { width: 18px; height: 18px; }
 
-    /* 🔑 Botó obrir panell per sobre del panell quan està plegat */
     #btn-obrir-panell {
         top: calc(10px + var(--safe-top));
         left: calc(10px + var(--safe-left));
@@ -936,22 +1107,12 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
     }
     body.panell-plegat #current_time_label { left: 50vw; }
 
-#info_run {
-    top: calc(56px + var(--safe-top));
-    right: calc(10px + var(--safe-right));
-    padding: 5px 10px;
-    font-size: 10.5px;
-    z-index: 940;
-}
-
-
-    /* 🔑 Amagar el dock quan el panell està obert a mòbil */
-    body:not(.panell-plegat) #dock {
-        transform: translateY(120%);
-        opacity: 0;
-        pointer-events: none;
-        transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-                    opacity 0.25s ease;
+    #info_run {
+        top: calc(56px + var(--safe-top));
+        right: calc(10px + var(--safe-right));
+        padding: 5px 10px;
+        font-size: 10.5px;
+        z-index: 940;
     }
 
     #dock {
@@ -974,14 +1135,27 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
     .fh-hora { font-size: 11.5px; }
     .fh-dia { font-size: 8.5px; }
 
+    /* 🔑 Amagar el dock quan el panell està obert a mòbil */
+    body:not(.panell-plegat) #dock {
+        transform: translateY(140%);
+        opacity: 0;
+        pointer-events: none;
+    }
+
     .llegenda-mapa {
         right: calc(10px + var(--safe-right));
         bottom: calc(76px + var(--safe-bottom));
         max-width: 160px;
         max-height: 35vh;
     }
+    .llegenda-css {
+        right: calc(10px + var(--safe-right));
+        bottom: calc(76px + var(--safe-bottom));
+        width: 130px;
+        font-size: 10px;
+        padding: 6px 8px;
+    }
 
-    /* 🔑 Assegurar scroll intern correcte a tot el panell */
     .pp-cos {
         min-height: 0;
         flex: 1 1 0;
@@ -1000,7 +1174,6 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
     .ciu-info,
     .ciu-treu { flex-shrink: 0; }
 
-    /* 🔑 Els modals ocupin bé la pantalla mòbil */
     .modal-cos {
         max-width: 96vw;
         max-height: 88vh;
@@ -1017,6 +1190,18 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
         justify-content: center;
         font-size: 16px;
     }
+
+    .banner-nova-versio {
+        top: auto;
+        bottom: calc(80px + var(--safe-bottom));
+        transform: translate(-50%, 140%);
+        padding: 10px 12px;
+        gap: 8px;
+    }
+    .banner-nova-versio.visible {
+        transform: translate(-50%, 0);
+    }
+    .banner-nova-versio .bnv-text span { display: none; }
 }
 
 @media (max-height: 500px) and (orientation: landscape) {
@@ -1184,6 +1369,7 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
 <script src="js/skew-t-engine.js"></script>
 <script src="js/skew-t.js"></script>
 <script src="js/accesvariable.js"></script>
+<script src="js/actualitzacio.js"></script>
 
 <!-- ═══════════════════════════════════════════════════════════════════
      MODALS + LOGIN + XAT + PERFIL + INFO RUN
@@ -1333,26 +1519,41 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
         return null;
     }
 
-    function horesRelatives(h) {
-        if (h == null || !isFinite(h)) return '';
-        if (h < 1) return 'fa menys d\'1h';
-        if (h < 24) return `fa ${Math.round(h)}h`;
-        const dies = Math.floor(h / 24);
-        const rest = Math.round(h - dies * 24);
-        return rest === 0 ? `fa ${dies}d` : `fa ${dies}d ${rest}h`;
+    function formatDataRun(info) {
+        // Si el JSON porta una data ISO del run
+        if (info.run_iso) {
+            const ms = Date.parse(info.run_iso);
+            if (isFinite(ms)) {
+                const d = new Date(ms);
+                const dia = String(d.getDate()).padStart(2, '0');
+                const mes = String(d.getMonth() + 1).padStart(2, '0');
+                const hora = String(d.getHours()).padStart(2, '0');
+                const min = String(d.getMinutes()).padStart(2, '0');
+                return `${dia}/${mes} · ${hora}:${min}`;
+            }
+        }
+        // Si porta run_ts (segons o ms)
+        if (info.run_ts && isFinite(info.run_ts)) {
+            const ms = info.run_ts > 1e12 ? info.run_ts : info.run_ts * 1000;
+            const d = new Date(ms);
+            const dia = String(d.getDate()).padStart(2, '0');
+            const mes = String(d.getMonth() + 1).padStart(2, '0');
+            const hora = String(d.getHours()).padStart(2, '0');
+            const min = String(d.getMinutes()).padStart(2, '0');
+            return `${dia}/${mes} · ${hora}:${min}`;
+        }
+        // Si no hi ha data, mostrem només "avui"
+        return 'avui';
     }
 
     function pintarInfoRun(info) {
         const el = document.getElementById('info_run');
         if (!el || !info) return;
-        el.classList.remove('antic', 'pendent');
-        if (!info.disponible) el.classList.add('pendent');
-        else if (info.hores_des_de_run > 8) el.classList.add('antic');
         el.innerHTML = `
             <span class="punt"></span>
             <span class="run">${info.run_z || '—'}</span>
             <span class="sep">·</span>
-            <span class="fa">${horesRelatives(info.hores_des_de_run)}</span>
+            <span class="fa">${formatDataRun(info)}</span>
         `;
         el.classList.add('visible');
     }
@@ -1360,6 +1561,108 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
     async function inicialitzarInfoRun() {
         const info = await carregarInfoRun();
         if (info) pintarInfoRun(info);
+
+        // Reconsultar cada 15 min per si canvia el run
+        setInterval(async () => {
+            const nou = await carregarInfoRun();
+            if (nou) pintarInfoRun(nou);
+        }, 15 * 60 * 1000);
+    }
+
+    function formatDataRun(info) {
+        // Si el JSON porta una data ISO del run
+        if (info.run_iso) {
+            const ms = Date.parse(info.run_iso);
+            if (isFinite(ms)) {
+                const d = new Date(ms);
+                const dia = String(d.getDate()).padStart(2, '0');
+                const mes = String(d.getMonth() + 1).padStart(2, '0');
+                const hora = String(d.getHours()).padStart(2, '0');
+                const min = String(d.getMinutes()).padStart(2, '0');
+                return `${dia}/${mes} · ${hora}:${min}`;
+            }
+        }
+        // Si porta run_ts (segons o ms)
+        if (info.run_ts && isFinite(info.run_ts)) {
+            const ms = info.run_ts > 1e12 ? info.run_ts : info.run_ts * 1000;
+            const d = new Date(ms);
+            const dia = String(d.getDate()).padStart(2, '0');
+            const mes = String(d.getMonth() + 1).padStart(2, '0');
+            const hora = String(d.getHours()).padStart(2, '0');
+            const min = String(d.getMinutes()).padStart(2, '0');
+            return `${dia}/${mes} · ${hora}:${min}`;
+        }
+        // Si no hi ha data, mostrem només "avui"
+        return 'avui';
+    }
+
+    function pintarInfoRun(info) {
+        const el = document.getElementById('info_run');
+        if (!el || !info) return;
+        el.innerHTML = `
+            <span class="punt"></span>
+            <span class="run">${info.run_z || '—'}</span>
+            <span class="sep">·</span>
+            <span class="fa">${formatDataRun(info)}</span>
+        `;
+        el.classList.add('visible');
+    }
+
+    async function inicialitzarInfoRun() {
+        const info = await carregarInfoRun();
+        if (info) pintarInfoRun(info);
+
+        // Reconsultar cada 15 min per si canvia el run
+        setInterval(async () => {
+            const nou = await carregarInfoRun();
+            if (nou) pintarInfoRun(nou);
+        }, 15 * 60 * 1000);
+    }
+
+    function formatDataRun(info) {
+        // Si el JSON porta una data ISO del run
+        if (info.run_iso) {
+            const ms = Date.parse(info.run_iso);
+            if (isFinite(ms)) {
+                const d = new Date(ms);
+                const dia = String(d.getDate()).padStart(2, '0');
+                const mes = String(d.getMonth() + 1).padStart(2, '0');
+                const hora = String(d.getHours()).padStart(2, '0');
+                const min = String(d.getMinutes()).padStart(2, '0');
+                return `${dia}/${mes} · ${hora}:${min}`;
+            }
+        }
+        // Si porta run_ts (segons o ms)
+        if (info.run_ts && isFinite(info.run_ts)) {
+            const ms = info.run_ts > 1e12 ? info.run_ts : info.run_ts * 1000;
+            const d = new Date(ms);
+            const dia = String(d.getDate()).padStart(2, '0');
+            const mes = String(d.getMonth() + 1).padStart(2, '0');
+            const hora = String(d.getHours()).padStart(2, '0');
+            const min = String(d.getMinutes()).padStart(2, '0');
+            return `${dia}/${mes} · ${hora}:${min}`;
+        }
+        // Si no hi ha data, mostrem només "avui"
+        return 'avui';
+    }
+
+    function pintarInfoRun(info) {
+        const el = document.getElementById('info_run');
+        if (!el || !info) return;
+        el.innerHTML = `
+            <span class="punt"></span>
+            <span class="run">${info.run_z || '—'}</span>
+            <span class="sep">·</span>
+            <span class="fa">${formatDataRun(info)}</span>
+        `;
+        el.classList.add('visible');
+    }
+
+    async function inicialitzarInfoRun() {
+        const info = await carregarInfoRun();
+        if (info) pintarInfoRun(info);
+
+        // Reconsultar cada 15 min per si canvia el run
         setInterval(async () => {
             const nou = await carregarInfoRun();
             if (nou) pintarInfoRun(nou);

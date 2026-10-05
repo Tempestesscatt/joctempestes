@@ -11,6 +11,8 @@
 //   - Storm motion: PNG de velocitat + barbes vectorials (stormmotion_HH_dia.js).
 //   - Accés restringit: variables bàsiques lliures; resta requereix login.
 //   - Optimitzacions mòbil: cache limitat, debounce, pointer capture correcte.
+//   - Pinch-zoom robust (no es queda enganxat amb dos dits).
+//   - Botó "Sistema" al menú per comprovar i forçar actualitzacions netes.
 // ═══════════════════════════════════════════════════════════════════════
 
 const FIT = 'contain';
@@ -151,6 +153,8 @@ const BARBES_CFG = {
 const BARBES_PASSADES = [
     ['rgba(15,15,25,0.95)', 1.3],
 ];
+
+const VARS_AMB_BARBES = new Set(['storm_speed', 'shear_01', 'shear_03', 'shear_06']);
 
 const ISO_CFG = {
     color: 'rgba(20,20,30,0.85)',
@@ -432,6 +436,183 @@ function prioritatClau(clau) {
 }
 
 // ═══════════════════════════════════════════════════════════════════
+//  LLEGENDES CSS (variables sense PNG de llegenda)
+// ═══════════════════════════════════════════════════════════════════
+const LLEGENDES_CSS = {
+    'convective_index': {
+        titol: 'Índex convectiu',
+        unitat: '',
+        trams: [
+            { color: '#4a90e2', valor: '< 1' },
+            { color: '#7ed321', valor: '1 - 2' },
+            { color: '#f5a623', valor: '2 - 3' },
+            { color: '#e94b3c', valor: '3 - 4' },
+            { color: '#8b1a1a', valor: '> 4' },
+        ],
+    },
+    'cape': {
+        titol: 'CAPE',
+        unitat: 'J/kg',
+        trams: [
+            { color: '#3b6fd4', valor: '0 - 500' },
+            { color: '#4fc3f7', valor: '500 - 1000' },
+            { color: '#aed581', valor: '1000 - 1500' },
+            { color: '#ffeb3b', valor: '1500 - 2500' },
+            { color: '#ff9800', valor: '2500 - 3500' },
+            { color: '#e53935', valor: '> 3500' },
+        ],
+    },
+    'lifted_index': {
+        titol: 'Lifted Index',
+        unitat: '°C',
+        trams: [
+            { color: '#8b1a1a', valor: '< -6' },
+            { color: '#e53935', valor: '-6 a -3' },
+            { color: '#ff9800', valor: '-3 a 0' },
+            { color: '#ffeb3b', valor: '0 a 3' },
+            { color: '#7ed321', valor: '> 3' },
+        ],
+    },
+    'dcape': {
+        titol: 'DCAPE',
+        unitat: 'J/kg',
+        trams: [
+            { color: '#fff9c4', valor: '< 400' },
+            { color: '#ffe082', valor: '400 - 800' },
+            { color: '#ffb74d', valor: '800 - 1200' },
+            { color: '#f4511e', valor: '1200 - 1600' },
+            { color: '#b71c1c', valor: '> 1600' },
+        ],
+    },
+    'shear_01': {
+        titol: 'Shear 0-1 km',
+        unitat: 'm/s',
+        trams: [
+            { color: '#dbeafe', valor: '< 5' },
+            { color: '#93c5fd', valor: '5 - 10' },
+            { color: '#3b82f6', valor: '10 - 15' },
+            { color: '#1e40af', valor: '15 - 20' },
+            { color: '#7c2d12', valor: '> 20' },
+        ],
+    },
+    'shear_03': {
+        titol: 'Shear 0-3 km',
+        unitat: 'm/s',
+        trams: [
+            { color: '#dbeafe', valor: '< 8' },
+            { color: '#93c5fd', valor: '8 - 12' },
+            { color: '#3b82f6', valor: '12 - 16' },
+            { color: '#1e40af', valor: '16 - 20' },
+            { color: '#7c2d12', valor: '> 20' },
+        ],
+    },
+    'shear_06': {
+        titol: 'Shear 0-6 km',
+        unitat: 'm/s',
+        trams: [
+            { color: '#dbeafe', valor: '< 10' },
+            { color: '#93c5fd', valor: '10 - 15' },
+            { color: '#3b82f6', valor: '15 - 20' },
+            { color: '#1e40af', valor: '20 - 25' },
+            { color: '#7c2d12', valor: '> 25' },
+        ],
+    },
+    'srh_01': {
+        titol: 'SRH 0-1 km',
+        unitat: 'm²/s²',
+        trams: [
+            { color: '#f0fdf4', valor: '< 50' },
+            { color: '#bbf7d0', valor: '50 - 100' },
+            { color: '#4ade80', valor: '100 - 200' },
+            { color: '#16a34a', valor: '200 - 300' },
+            { color: '#7c2d12', valor: '> 300' },
+        ],
+    },
+    'srh_03': {
+        titol: 'SRH 0-3 km',
+        unitat: 'm²/s²',
+        trams: [
+            { color: '#f0fdf4', valor: '< 100' },
+            { color: '#bbf7d0', valor: '100 - 200' },
+            { color: '#4ade80', valor: '200 - 300' },
+            { color: '#16a34a', valor: '300 - 400' },
+            { color: '#7c2d12', valor: '> 400' },
+        ],
+    },
+};
+
+let _llegendaCssEl = null;
+let _llegendaCssClauActual = null;
+
+function _eliminarLlegendaCss() {
+    if (_llegendaCssEl) {
+        _llegendaCssEl.remove();
+        _llegendaCssEl = null;
+        _llegendaCssClauActual = null;
+    }
+}
+
+function _mostrarLlegendaCss(clau) {
+    if (!clau) return false;
+    const def = LLEGENDES_CSS[clau];
+    if (!def) return false;
+
+    if (_llegendaCssEl && _llegendaCssClauActual === clau) return true;
+
+    _eliminarLlegendaCss();
+
+    const el = document.createElement('div');
+    el.className = 'llegenda-css';
+    el.dataset.clau = clau;
+
+    let html = `<div class="lc-titol">${def.titol || clau}` +
+               (def.unitat ? `<span class="lc-unitat">${def.unitat}</span>` : '') +
+               `</div>`;
+    for (const t of (def.trams || [])) {
+        html += `<div class="lc-fila">
+            <span class="lc-color" style="background:${t.color}"></span>
+            <span class="lc-valor">${t.valor}</span>
+        </div>`;
+    }
+    el.innerHTML = html;
+    document.body.appendChild(el);
+    _llegendaCssEl = el;
+    _llegendaCssClauActual = clau;
+
+    if (imgLlegenda) imgLlegenda.style.display = 'none';
+    return true;
+}
+
+function _sincronitzarLlegenda() {
+    let clau = null;
+    if (_capa3DActiva) {
+        clau = _capa3DActiva.var;
+    } else if (variableActiva) {
+        clau = variableActiva;
+    }
+    if (!clau) return;
+
+    if (LLEGENDES_CSS[clau]) {
+        _mostrarLlegendaCss(clau);
+    } else {
+        if (_llegendaCssEl) {
+            _eliminarLlegendaCss();
+            if (imgLlegenda) imgLlegenda.style.display = 'block';
+        }
+    }
+}
+
+function _iniciarObservadorLlegenda() {
+    if (!imgLlegenda) return;
+
+    const obs = new MutationObserver(() => _sincronitzarLlegenda());
+    obs.observe(imgLlegenda, { attributes: true, attributeFilter: ['src', 'style'] });
+
+    setInterval(_sincronitzarLlegenda, 400);
+    _sincronitzarLlegenda();
+}
+
+// ═══════════════════════════════════════════════════════════════════
 //  ESCENA
 // ═══════════════════════════════════════════════════════════════════
 function crearImatge(z, extra) {
@@ -495,6 +676,9 @@ function crearEscena() {
 
     ajustarVista(false);
     crearPanell();
+
+    // 🔑 Iniciem el detector de llegendes CSS un cop creat l'img
+    _iniciarObservadorLlegenda();
 }
 
 function centreLonLat() {
@@ -610,6 +794,7 @@ function retallarAImatge(ctx) {
     ctx.rect(vista.x, vista.y, sw * vista.k, sh * vista.k);
     ctx.clip();
 }
+
 function activarInteraccio() {
     viewport.addEventListener('wheel', e => {
         e.preventDefault();
@@ -627,13 +812,12 @@ function activarInteraccio() {
 
     let arrossegant = false, ox = 0, oy = 0, mogut = false;
     let pointerActiu = null;
-    // 🔑 Comptador de punters actius (per detectar pinch)
-    let puntersActius = new Set();
+    const puntersActius = new Set();
 
     viewport.addEventListener('pointerdown', e => {
         puntersActius.add(e.pointerId);
 
-        // 🔑 Si hi ha 2+ punters, cancel·lem el drag (és un pinch)
+        // 🔑 Si hi ha 2+ punters, és un pinch → cancel·lem el drag
         if (puntersActius.size >= 2) {
             arrossegant = false;
             if (pointerActiu !== null) {
@@ -652,7 +836,6 @@ function activarInteraccio() {
     });
 
     viewport.addEventListener('pointermove', e => {
-        // 🔑 Si hi ha 2+ punters, no fem drag
         if (puntersActius.size >= 2) return;
         if (!arrossegant || e.pointerId !== pointerActiu) return;
         const dx = e.clientX - ox, dy = e.clientY - oy;
@@ -666,10 +849,7 @@ function activarInteraccio() {
     const fi = (e) => {
         puntersActius.delete(e.pointerId);
 
-        if (e.pointerId !== pointerActiu) {
-            // Si era el segon dit, no toquem res
-            return;
-        }
+        if (e.pointerId !== pointerActiu) return;
 
         const esClicDret = e.button === 2;
         const esTactil = e.pointerType === 'touch' && e.button === 0;
@@ -744,11 +924,9 @@ function activarInteraccioPinca() {
         const g = calcular();
         const r = viewport.getBoundingClientRect();
 
-        // Pan del centre del pinch
         vista.x += g.cx - cPrev.x;
         vista.y += g.cy - cPrev.y;
 
-        // Zoom pel canvi de distància
         if (dPrev > 0) {
             const factor = g.d / dPrev;
             const nk = Math.min(12, Math.max(0.5, vista.k * factor));
@@ -776,8 +954,6 @@ function activarInteraccioPinca() {
             dPrev = 0;
             cPrev = { x: 0, y: 0 };
         }
-
-      
     };
     viewport.addEventListener('pointerup', deixa, { capture: true });
     viewport.addEventListener('pointercancel', deixa, { capture: true });
@@ -1150,7 +1326,6 @@ async function carregarVent3D(hora, dia, nivell) {
     return camp;
 }
 
-// Storm motion: u/v decimats (stormmotion_HH_dia.js) per dibuixar barbes
 async function carregarStorm(hora, dia) {
     const clau = `${String(hora).padStart(2, '0')}_${dia}`;
     if (_cacheStorm.has(clau)) return _cacheStorm.get(clau);
@@ -1170,7 +1345,6 @@ async function carregarStorm(hora, dia) {
 async function mostrarCapa3D(var3d, nivell) {
     if (!var3d || !nivell) return false;
 
-    // 🔒 Requereix login
     if (!usuariLoguejat()) {
         if (typeof window.mostrarAvisLogin === 'function') {
             window.mostrarAvisLogin(var3d);
@@ -1217,14 +1391,14 @@ async function mostrarCapa3D(var3d, nivell) {
     } else {
         _ventActual = null;
     }
-const VARS_AMB_BARBES = ['storm_speed', 'shear_01', 'shear_03', 'shear_06'];
-if (VARS_AMB_BARBES.includes(var3d)) {
-    const s = window.MOSTRAR_BARBES ? await carregarStorm(hora, dia) : null;
-    if (token !== _tokenDades) return false;
-    _stormActual = s;
-} else {
-    _stormActual = null;
-}
+
+    if (VARS_AMB_BARBES.has(var3d)) {
+        const s = window.MOSTRAR_BARBES ? await carregarStorm(hora, dia) : null;
+        if (token !== _tokenDades) return false;
+        _stormActual = s;
+    } else {
+        _stormActual = null;
+    }
 
     if (window.MOSTRAR_ISOLINIES) {
         const iso = await carregarIsolines3D(clau);
@@ -1287,6 +1461,26 @@ function injectarEstils3D() {
             border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:#c9d4e6;cursor:pointer}
         .pp3d-chip:hover{background:rgba(255,255,255,.15)}
         .pp3d-chip.actiu{background:#ff7ad9;border-color:#ff7ad9;color:#1b1030}
+
+        .sistema-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;
+            padding:10px 12px;margin-top:4px;border-radius:8px;border:1px solid var(--line-strong);
+            background:var(--panel-2);color:var(--text);font-family:inherit;font-size:12px;font-weight:600;
+            cursor:pointer;transition:all .15s ease}
+        .sistema-btn:hover{background:var(--panel-hover);border-color:var(--accent);color:var(--accent)}
+        .sistema-btn:disabled{opacity:.55;cursor:wait}
+        .sistema-btn.carregant .ico{display:inline-block;animation:gira 1s linear infinite}
+        .sistema-btn.nova{background:rgba(255,215,0,.12);border-color:rgba(255,215,0,.5);color:var(--gold);
+            animation:polsSistema 1.6s ease-in-out infinite}
+        @keyframes polsSistema{0%,100%{box-shadow:0 0 0 0 rgba(255,215,0,.4)}50%{box-shadow:0 0 0 6px rgba(255,215,0,0)}}
+        .sistema-btn .ico{display:inline-block}
+        .sistema-estat{margin-top:8px;padding:6px 10px;border-radius:6px;font-size:10.5px;font-weight:500;
+            text-align:center;color:var(--muted);background:rgba(255,255,255,.03);border:1px solid var(--line);
+            min-height:24px;display:flex;align-items:center;justify-content:center}
+        .sistema-estat:empty{display:none}
+        .sistema-estat.ok{color:var(--ok);border-color:rgba(63,185,80,.3);background:rgba(63,185,80,.08)}
+        .sistema-estat.nova{color:var(--gold);border-color:rgba(255,215,0,.4);background:rgba(255,215,0,.10)}
+        .sistema-estat.error{color:var(--danger);border-color:rgba(248,81,73,.3);background:rgba(248,81,73,.08)}
+        .sistema-estat.comprovant{color:var(--accent);border-color:rgba(88,166,255,.3);background:rgba(88,166,255,.08)}
     `;
     document.head.appendChild(st);
 }
@@ -1390,6 +1584,13 @@ function crearPanell() {
                 <label class="ctrl-label">Opacitat de la capa</label>
                 <input type="range" id="rngOpacitat" min="20" max="100" value="${Math.round(OPACITAT_DADES * 100)}">
                 <button class="cap-reset" id="btnReset">Restablir ajustos i vista</button>
+
+                <div class="cap-titol" style="margin-top:22px;border-top:1px solid var(--line);padding-top:14px;">Sistema</div>
+                <button class="sistema-btn" id="btnComprovarActualitzacio" type="button">
+                    <span class="ico"></span>
+                    <span class="txt">Comprovar actualitzacions</span>
+                </button>
+                <div class="sistema-estat" id="estatActualitzacio"></div>
             </div>
         </div>`;
     document.body.appendChild(p);
@@ -1402,6 +1603,7 @@ function crearPanell() {
     const plega = (v) => {
         p.classList.toggle('plegat', v);
         obrir.classList.toggle('visible', v);
+        document.body.classList.toggle('panell-plegat', v);
         cfgGuardar({ plegat: v });
     };
     p.querySelector('#ppPlega').addEventListener('click', () => plega(true));
@@ -1409,6 +1611,7 @@ function crearPanell() {
     const plegatInici = (typeof _cfg.plegat === 'boolean') ? _cfg.plegat : (window.innerWidth <= 860);
     p.classList.toggle('plegat', plegatInici);
     obrir.classList.toggle('visible', plegatInici);
+    document.body.classList.toggle('panell-plegat', plegatInici);
 
     p.querySelectorAll('.pp-tab').forEach(b => b.addEventListener('click', () => activarPestanya(b.dataset.tab, true)));
     if (['variables', 'ciutats', 'capes'].includes(_cfg.pestanya)) activarPestanya(_cfg.pestanya, false);
@@ -1479,8 +1682,7 @@ function crearPanell() {
                     }
                 }
             } else if (prop === 'MOSTRAR_BARBES') {
-                const VARS_AMB_BARBES = ['storm_speed', 'shear_01', 'shear_03', 'shear_06'];
-                if (window[prop] && _capa3DActiva && VARS_AMB_BARBES.includes(_capa3DActiva.var)) {
+                if (window[prop] && _capa3DActiva && VARS_AMB_BARBES.has(_capa3DActiva.var)) {
                     carregarStorm(_capa3DActiva.hora, _capa3DActiva.dia)
                         .then(s => { _stormActual = s; programarRedibuix(); });
                 } else if (!window[prop]) {
@@ -1513,6 +1715,23 @@ function crearPanell() {
         try { localStorage.removeItem(CLAU_CFG); localStorage.removeItem('tempestescat_densitat_ciutats'); } catch {}
         location.reload();
     });
+
+    // 🆕 Botó del sistema: comprovar / actualitzar
+    const btnAct = p.querySelector('#btnComprovarActualitzacio');
+    if (btnAct) {
+        btnAct.addEventListener('click', () => {
+            if (!window.actualitzacioSistema) {
+                alert('El mòdul d\'actualitzacions no està carregat.');
+                return;
+            }
+            const estat = window.actualitzacioSistema.estat();
+            if (estat === 'nova') {
+                window.actualitzacioSistema.recarregar();
+            } else {
+                window.actualitzacioSistema.comprovar();
+            }
+        });
+    }
 }
 
 function crearSeccioPanell(id, nom, color, n) {
@@ -1541,7 +1760,6 @@ function seleccionar3D(v, nivell) {
 }
 
 function construirSeccions3D(cont) {
-    // ── 1) Variables per nivell de pressió: una fila + chips de nivell ──
     const nivell = crearSeccioPanell('3d', 'Altura (nivells de pressió)', '#ff7ad9', CATALEG_3D_NIVELL.length);
     CATALEG_3D_NIVELL.forEach(c => {
         const bloc = document.createElement('div');
@@ -1588,7 +1806,6 @@ function construirSeccions3D(cont) {
     });
     cont.appendChild(nivell.sec);
 
-    // ── 2) Variables de columna (tempestes severes) ──
     const col = crearSeccioPanell('3dcol', 'Tempestes severes (índexs)', '#ff4d4f', CATALEG_3D_COLUMNA.length);
     CATALEG_3D_COLUMNA.forEach(c => {
         const row = document.createElement('div');
@@ -1614,7 +1831,6 @@ function construirPanellParametres() {
     cont.innerHTML = '';
     _filesVariables = [];
 
-    // ── Superfície ──
     const totes = new Set();
     for (const h of totesLesHores) for (const v of h.variables) {
         if (!OCULTES_SFC.has(normClau(v))) totes.add(v);
@@ -1650,8 +1866,6 @@ function construirPanellParametres() {
             claus.forEach(clau => {
                 const nom = nomVariable(clau);
                 const unitat = infoVariables[clau] && infoVariables[clau].unitat;
-
-                // 🔒 Comprovar accés
                 const bloquejat = !potVeureVariable(clau);
 
                 const row = document.createElement('div');
@@ -1686,7 +1900,6 @@ function construirPanellParametres() {
         }
     }
 
-    // ── 3D (catàleg curat; no depèn del manifest) ──
     construirSeccions3D(cont);
 
     const buit = document.createElement('div');
@@ -1969,12 +2182,6 @@ function precarregarSeguent() {
 }
 
 function actualitzarLlegenda() {
-    // 🔽 Primer comprova si tenim llegenda CSS definida
-    const clauLlegenda = _capa3DActiva ? _capa3DActiva.var : variableActiva;
-    if (mostrarLlegendaCss(clauLlegenda)) return;
-
-    // Si no, comportament original (PNG)
-    eliminarLlegendaCss();
     imgLlegenda.onload = () => { imgLlegenda.style.display = 'block'; };
     imgLlegenda.onerror = () => { imgLlegenda.style.display = 'none'; };
     if (_capa3DActiva) {
@@ -2397,11 +2604,10 @@ function dibuixarVent() {
     if (!canvasVent) return;
     const { ctx, W, H } = prepararCtx(canvasVent);
 
-const VARS_AMB_BARBES = ['storm_speed', 'shear_01', 'shear_03', 'shear_06'];
-if (_capa3DActiva && VARS_AMB_BARBES.includes(_capa3DActiva.var)) {
-    if (window.MOSTRAR_BARBES && window._extentManifest) dibuixarBarbesStorm(ctx, W, H);
-    return;
-}
+    if (_capa3DActiva && VARS_AMB_BARBES.has(_capa3DActiva.var)) {
+        if (window.MOSTRAR_BARBES && window._extentManifest) dibuixarBarbesStorm(ctx, W, H);
+        return;
+    }
 
     if (!window.MOSTRAR_VENT || !window._extentManifest) return;
     const vd = _ventActual;
@@ -2599,7 +2805,6 @@ function dibuixarCiutats() {
 function mostrarHora(idx) {
     if (idx < 0 || idx >= totesLesHores.length) return;
 
-    // 🔒 Hores bloquejades sense login (1 de cada 3)
     if (!usuariLoguejat() && idx % 3 !== 0) {
         if (typeof window.mostrarAvisLogin === 'function') {
             window.mostrarAvisLogin('aquesta hora');
@@ -2829,75 +3034,4 @@ if (document.readyState === 'loading') {
     inicialitzar();
 }
 
-// ═══════════════════════════════════════════════════════════════════
-//  LLEGENDES CSS (per variables sense PNG de llegenda)
-// ═══════════════════════════════════════════════════════════════════
-
-// Defineix aquí les escales de color per cada variable que no tinguis en PNG
-const LLEGENDES_CSS = {
-    // Exemple per índex convectiu (ajusta colors i valors als teus)
-    'convective_index': {
-        titol: 'Índex convectiu',
-        unitat: '',
-        trams: [
-            { color: '#4a90e2', valor: '< 1' },
-            { color: '#7ed321', valor: '1 - 2' },
-            { color: '#f5a623', valor: '2 - 3' },
-            { color: '#e94b3c', valor: '3 - 4' },
-            { color: '#8b1a1a', valor: '> 4' },
-        ],
-    },
-
-    // Exemple CAPE (per si el vols tenir també en CSS)
-    'cape': {
-        titol: 'CAPE',
-        unitat: 'J/kg',
-        trams: [
-            { color: '#3b6fd4', valor: '0 - 500' },
-            { color: '#4fc3f7', valor: '500 - 1000' },
-            { color: '#aed581', valor: '1000 - 1500' },
-            { color: '#ffeb3b', valor: '1500 - 2500' },
-            { color: '#ff9800', valor: '2500 - 3500' },
-            { color: '#e53935', valor: '> 3500' },
-        ],
-    },
-};
-
-let _llegendaCssEl = null;
-
-function eliminarLlegendaCss() {
-    if (_llegendaCssEl) {
-        _llegendaCssEl.remove();
-        _llegendaCssEl = null;
-    }
-}
-
-function mostrarLlegendaCss(clau, titolCustom, unitatCustom) {
-    eliminarLlegendaCss();
-    const def = LLEGENDES_CSS[clau];
-    if (!def) return false;
-
-    const el = document.createElement('div');
-    el.className = 'llegenda-css';
-    const titol = titolCustom || def.titol || clau;
-    const unitat = unitatCustom || def.unitat || '';
-
-    let html = `<div class="lc-titol">${titol}${unitat ? `<span class="lc-unitat">${unitat}</span>` : ''}</div>`;
-    for (const t of def.trams) {
-        html += `<div class="lc-fila">
-            <span class="lc-color" style="background:${t.color}"></span>
-            <span class="lc-valor">${t.valor}</span>
-        </div>`;
-    }
-    el.innerHTML = html;
-    document.body.appendChild(el);
-    _llegendaCssEl = el;
-
-    // Amagar el PNG de llegenda perquè no es superposin
-    if (imgLlegenda) imgLlegenda.style.display = 'none';
-    return true;
-}
-
-
-
-console.log('✅ mapapngs.js carregat — accés restringit (login obligatori excepte bàsics)');
+console.log('✅ mapapngs.js carregat — accés restringit + actualitzacions + pinch fix');
