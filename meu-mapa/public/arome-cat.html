@@ -33,7 +33,7 @@
 
 <style>
 /* ═══════════════════════════════════════════════════════════════════
-   VARIABLES — minimal fosc
+   VARIABLES GLOBALS
    ═══════════════════════════════════════════════════════════════════ */
 :root {
     --bg: #0d1117;
@@ -54,7 +54,7 @@
     --text-2: #c9d1d9;
     --muted: #8b949e;
     --muted-2: #6e7681;
-    --panel-width: 260px;
+    --panel-width: 280px;
     --safe-top: env(safe-area-inset-top, 0px);
     --safe-bottom: env(safe-area-inset-bottom, 0px);
     --safe-left: env(safe-area-inset-left, 0px);
@@ -82,7 +82,7 @@ body::before {
 }
 
 /* ═══════════════════════════════════════════════════════════════════
-   ETIQUETA D'HORA — píndola centrada a dalt
+   ETIQUETA D'HORA
    ═══════════════════════════════════════════════════════════════════ */
 #current_time_label {
     position: fixed;
@@ -108,7 +108,7 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
 #current_time_label:empty { display: none; }
 
 /* ═══════════════════════════════════════════════════════════════════
-   INFO RUN — píndola a la cantonada superior dreta
+   INFO RUN
    ═══════════════════════════════════════════════════════════════════ */
 #info_run {
     position: fixed;
@@ -124,8 +124,7 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
     color: var(--text-2);
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
     backdrop-filter: blur(20px) saturate(150%);
-    -webkit-backdrop-filter: blur(20px) saturate(150%);
-    font-size: 11.5px; font-weight: 500; letter-spacing: 0.2px;
+    font-size: 11.5px; font-weight: 500;
     pointer-events: none; white-space: nowrap;
 }
 #info_run.visible { display: inline-flex; }
@@ -169,21 +168,23 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
     font-size: 12px; font-weight: 600;
     cursor: pointer;
     backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
     display: none; align-items: center; gap: 8px;
     font-family: inherit;
     transition: all 0.15s ease;
 }
 #btn-obrir-panell.visible { display: inline-flex; }
 #btn-obrir-panell:hover { background: var(--panel-hover); border-color: var(--accent); }
-#btn-obrir-panell svg { display: block; flex: 0 0 auto; }
 
+/* Capçalera del panell */
 .pp-cap {
     display: flex; align-items: center; justify-content: space-between;
     padding: 14px 16px 10px;
 }
-.pp-titol { font-size: 11.5px; font-weight: 700; color: var(--text); letter-spacing: 0.6px; text-transform: uppercase; }
-.pp-sub { font-size: 10px; color: var(--muted); margin-top: 2px; font-weight: 400; }
+.pp-titol {
+    font-size: 11.5px; font-weight: 700; color: var(--text);
+    letter-spacing: 0.6px; text-transform: uppercase;
+}
+.pp-sub { font-size: 10px; color: var(--muted); margin-top: 2px; }
 .pp-plega {
     background: transparent; border: 1px solid var(--line); color: var(--muted);
     width: 26px; height: 26px; border-radius: 6px; cursor: pointer;
@@ -193,14 +194,14 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
 .pp-plega:hover { color: var(--text); background: var(--panel-hover); border-color: var(--line-strong); }
 .pp-plega svg { display: block; }
 
-/* Barra superior usuari */
+/* Barra usuari */
 .pp-user-bar {
     margin: 0 14px 10px;
-    display: flex; align-items: center; gap: 8px;
+    display: flex; align-items: center; gap: 6px;
 }
 .pp-user-bar button {
     flex: 1;
-    padding: 7px 10px;
+    padding: 8px 10px;
     font-size: 11px; font-weight: 600;
     border-radius: 6px;
     cursor: pointer;
@@ -247,6 +248,7 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
     text-transform: uppercase; letter-spacing: 0.5px;
 }
 
+/* Pestanyes */
 .pp-tabs {
     display: flex; gap: 0; padding: 0 16px;
     border-bottom: 1px solid var(--line);
@@ -268,6 +270,7 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
 }
 .pp-cos.actiu { display: flex; }
 
+/* Cercador */
 .pp-cerca { position: relative; margin: 12px 14px 8px; }
 .pp-cerca input {
     width: 100%; box-sizing: border-box;
@@ -277,7 +280,6 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
     border-radius: 6px;
     color: var(--text); font-size: 12px;
     outline: none; font-family: inherit;
-    transition: border-color 0.15s ease;
 }
 .pp-cerca input:focus { border-color: var(--accent); }
 .pp-cerca input::placeholder { color: var(--muted-2); }
@@ -302,6 +304,7 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
 .pp-llista::-webkit-scrollbar { width: 5px; }
 .pp-llista::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 3px; }
 
+/* Seccions */
 .sec { margin-bottom: 1px; }
 .sec-cap {
     display: flex; align-items: center; gap: 9px;
@@ -328,6 +331,7 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
 }
 .sec.oberta .sec-cos { display: block; }
 
+/* Files de paràmetres */
 .param-row {
     display: flex; justify-content: space-between; align-items: center;
     gap: 8px; padding: 7px 10px; margin: 0;
@@ -347,11 +351,6 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
     filter: grayscale(0.7);
     cursor: not-allowed;
 }
-.param-row.premium-bloquejat::after {
-    content: '🔒';
-    font-size: 10px;
-    margin-left: 4px;
-}
 .param-row .unitat {
     font-size: 9.5px; color: var(--muted-2);
     white-space: nowrap; text-transform: uppercase;
@@ -364,12 +363,126 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
     text-align: center; padding: 22px 10px;
 }
 
+/* ═══════════════════════════════════════════════════════════════════
+   SELECTOR D'ALÇADES — Desplegable compacte
+   ═══════════════════════════════════════════════════════════════════ */
+.param-altura-grup {
+    margin: 1px 0;
+    border-radius: 6px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.015);
+    border: 1px solid transparent;
+    transition: all 0.15s ease;
+}
+.param-altura-grup:hover { background: rgba(255, 255, 255, 0.03); }
+.param-altura-grup.obert {
+    background: rgba(88, 166, 255, 0.05);
+    border-color: rgba(88, 166, 255, 0.2);
+}
+.param-altura-grup.premium-bloquejat {
+    opacity: 0.4;
+    filter: grayscale(0.7);
+}
+
+.param-altura-cap {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 10px;
+    cursor: pointer;
+    font-size: 12.5px;
+    color: var(--text-2);
+    user-select: none;
+    transition: color 0.15s ease;
+}
+.param-altura-cap:hover { color: var(--text); }
+.param-altura-grup.obert .param-altura-cap { color: var(--accent); font-weight: 600; }
+
+.param-altura-nom {
+    flex: 1;
+    display: flex; align-items: center; gap: 6px;
+    min-width: 0;
+}
+.param-altura-nom .nom { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.param-altura-nom .cadenat { font-size: 10px; opacity: 0.7; }
+
+.param-altura-valor {
+    font-size: 10px;
+    color: var(--muted);
+    font-family: 'SF Mono', ui-monospace, monospace;
+    white-space: nowrap;
+    padding: 2px 7px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.04);
+    transition: all 0.15s ease;
+}
+.param-altura-grup.obert .param-altura-valor {
+    background: rgba(88, 166, 255, 0.15);
+    color: var(--accent);
+}
+
+.param-altura-fletxa {
+    color: var(--muted-2);
+    font-size: 9px;
+    transition: transform 0.2s ease;
+}
+.param-altura-grup.obert .param-altura-fletxa { transform: rotate(180deg); }
+
+/* Desplegable amb les alçades */
+.param-altura-opcions {
+    display: none;
+    padding: 4px 6px 8px 6px;
+    background: rgba(0, 0, 0, 0.25);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+.param-altura-grup.obert .param-altura-opcions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3px;
+}
+
+.param-altura-opcio {
+    padding: 6px 8px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 10.5px;
+    color: var(--text-2);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid transparent;
+    text-align: center;
+    transition: all 0.12s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+    line-height: 1.2;
+}
+.param-altura-opcio:hover {
+    background: rgba(88, 166, 255, 0.1);
+    color: var(--accent);
+    border-color: rgba(88, 166, 255, 0.2);
+}
+.param-altura-opcio.activa {
+    background: var(--accent-soft);
+    color: var(--accent);
+    border-color: rgba(88, 166, 255, 0.4);
+    font-weight: 600;
+}
+.param-altura-opcio .hpa {
+    font-weight: 700;
+    font-family: 'SF Mono', ui-monospace, monospace;
+    font-size: 11px;
+}
+.param-altura-opcio .km {
+    font-size: 9px;
+    color: var(--muted);
+    font-weight: 400;
+}
+.param-altura-opcio.activa .km { color: var(--accent); opacity: 0.8; }
+
 /* Ciutats */
 .ciu-fila {
     display: flex; align-items: center; gap: 10px;
     padding: 7px 10px; margin: 0;
     border-radius: 5px; cursor: pointer;
-    transition: background 0.12s ease;
 }
 .ciu-fila:hover { background: var(--panel-hover); }
 .ciu-fila.sel { background: var(--accent-soft); box-shadow: inset 2px 0 0 var(--accent); }
@@ -389,7 +502,6 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
     border: 1px solid var(--line); border-radius: 6px;
     font-family: inherit; display: none;
     align-items: center; gap: 6px;
-    transition: all 0.15s ease;
 }
 .ciu-treu:hover { color: var(--text); background: var(--panel-hover); }
 
@@ -438,7 +550,7 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
     background: transparent; color: var(--muted);
     border: 1px solid var(--line); border-radius: 6px;
     font-family: inherit; text-transform: uppercase;
-    letter-spacing: 0.5px; transition: all 0.15s ease;
+    letter-spacing: 0.5px;
 }
 .cap-reset:hover { color: var(--text); background: var(--panel-hover); }
 
@@ -456,7 +568,6 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
     background: rgba(13, 17, 23, 0.88);
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
     backdrop-filter: blur(20px) saturate(150%);
-    -webkit-backdrop-filter: blur(20px) saturate(150%);
     transition: left 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
@@ -467,13 +578,13 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
     background: transparent; color: var(--text-2);
     font: 600 10.5px 'Inter', sans-serif;
     letter-spacing: 0.5px; cursor: pointer;
-    transition: all 0.18s ease; white-space: nowrap;
+    white-space: nowrap;
     display: inline-flex; align-items: center; gap: 7px;
     text-transform: uppercase;
+    transition: all 0.15s ease;
 }
 #btnPlay svg { display: block; flex: 0 0 auto; }
 #btnPlay:hover { background: var(--panel-hover); color: var(--text); }
-#btnPlay:active { transform: scale(0.97); }
 #btnPlay.actiu { background: var(--accent-soft); color: var(--accent); border-color: rgba(88, 166, 255, 0.3); }
 
 #fh_grid { flex: 1 1 auto; min-width: 0; overflow: hidden; }
@@ -490,10 +601,10 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
     font-size: 10.5px; font-weight: 500;
     text-align: center; min-width: 42px;
     user-select: none; line-height: 1.2;
-    transition: all 0.15s ease;
     color: var(--muted); background: transparent;
     border: 1px solid transparent;
     position: relative;
+    transition: all 0.15s ease;
 }
 .fh-item:hover { background: var(--panel-hover); color: var(--text-2); }
 .fh-item.active {
@@ -523,14 +634,13 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
     position: fixed;
     right: calc(16px + var(--safe-right));
     bottom: calc(80px + var(--safe-bottom));
-    max-width: 220px; max-height: 45vh; width: auto; height: auto;
+    max-width: 220px; max-height: 45vh;
     z-index: 500; border-radius: 6px; display: none;
     pointer-events: none;
     background: rgba(13, 17, 23, 0.85);
     padding: 6px; border: 1px solid var(--line);
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
     backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
 }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -541,7 +651,7 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
     display: flex; align-items: center; justify-content: center;
     flex-direction: column; gap: 16px;
     background: var(--bg); color: var(--text-2);
-    font-size: 12px; font-weight: 500; letter-spacing: 0.3px;
+    font-size: 12px; font-weight: 500;
     transition: opacity 0.35s ease;
 }
 #loading_overlay.hidden { opacity: 0; pointer-events: none; }
@@ -566,7 +676,6 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
     font-size: 12px; color: var(--text-2);
     min-width: 200px;
     backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
 }
 .menu-ctx-cap {
     padding: 8px 12px; font-size: 10px; color: var(--muted);
@@ -593,7 +702,6 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
     display: flex; align-items: center; justify-content: center;
     background: rgba(13, 17, 23, 0.7);
     backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
     font-family: 'Inter', system-ui, sans-serif;
 }
 .skewt-dlg-cos {
@@ -604,16 +712,14 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
     color: var(--text-2);
 }
-.skewt-dlg-titol {
-    font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 8px;
-}
+.skewt-dlg-titol { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
 .skewt-dlg-text { font-size: 12.5px; line-height: 1.6; margin-bottom: 18px; }
 .skewt-dlg-coord { color: var(--muted); font-family: 'SF Mono', monospace; font-size: 11px; }
 .skewt-dlg-botons { display: flex; gap: 8px; justify-content: flex-end; }
 .skewt-btn {
     padding: 8px 16px; border-radius: 6px; cursor: pointer;
     font-family: inherit; font-size: 12px; font-weight: 600;
-    transition: all 0.15s ease; letter-spacing: 0.2px;
+    transition: all 0.15s ease;
 }
 .skewt-btn-no {
     background: transparent; border: 1px solid var(--line-strong); color: var(--text-2);
@@ -650,7 +756,6 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
     border-radius: 10px; padding: 22px 28px;
     max-width: 420px; color: var(--text-2);
     text-align: center; line-height: 1.6;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
 }
 .skewt-error-ico { font-size: 32px; opacity: 0.5; }
 .skewt-error-text { font-size: 13px; margin-top: 12px; white-space: pre-line; }
@@ -663,7 +768,7 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
 }
 
 /* ═══════════════════════════════════════════════════════════════════
-   MODALS (login, perfil, xat, radar)
+   MODALS
    ═══════════════════════════════════════════════════════════════════ */
 .modal-overlay {
     position: fixed; inset: 0; z-index: 10000;
@@ -703,13 +808,12 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
     border: none; border-radius: 6px;
     font-size: 13px; font-weight: 600;
     cursor: pointer; font-family: inherit;
+    transition: background 0.15s ease;
 }
 .btn-google:hover { background: #f5f5f5; }
 .btn-google i { color: #db4437; font-size: 16px; }
 
-.camp {
-    margin-bottom: 12px;
-}
+.camp { margin-bottom: 12px; }
 .camp label {
     display: block; font-size: 10px; font-weight: 600;
     color: var(--muted); margin-bottom: 4px;
@@ -717,10 +821,8 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
 }
 .camp input {
     width: 100%; padding: 9px 12px;
-    background: var(--panel-2);
-    border: 1px solid var(--line);
-    border-radius: 6px;
-    color: var(--text); font-size: 13px;
+    background: var(--panel-2); border: 1px solid var(--line);
+    border-radius: 6px; color: var(--text); font-size: 13px;
     outline: none; font-family: inherit;
 }
 .camp input:focus { border-color: var(--accent); }
@@ -745,11 +847,6 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
 }
 .xat-avatar img { width: 100%; height: 100%; object-fit: cover; }
 .xat-nom { font-size: 11px; font-weight: 700; color: var(--gold); }
-.xat-rang {
-    font-size: 8px; padding: 1px 6px; border-radius: 10px;
-    color: #fff; font-weight: 700; letter-spacing: 0.2px;
-}
-.xat-pts { font-size: 9px; color: var(--gold); }
 .xat-hora { font-size: 8px; color: var(--muted); margin-left: auto; }
 .xat-text {
     font-size: 12.5px; color: var(--text-2);
@@ -809,11 +906,7 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
         bottom: calc(74px + var(--safe-bottom));
         max-width: 160px; max-height: 35vh;
     }
-    #panell-pro .param-row { padding: 10px 12px; font-size: 13px; }
-    #panell-pro .cap-fila { padding: 10px 0; font-size: 13px; }
-    #panell-pro .pp-cerca input { font-size: 16px; padding: 10px 32px; }
-    #panell-pro .pp-tab { padding: 10px 4px; }
-    #panell-pro .pp-plega { width: 32px; height: 32px; }
+    .param-altura-opcions { grid-template-columns: 1fr 1fr; }
 }
 
 @media (max-height: 500px) and (orientation: landscape) {
@@ -822,33 +915,20 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
     .fh-item { padding: 2px 8px; min-width: 40px; }
     .llegenda-mapa { max-height: 55vh; bottom: calc(64px + var(--safe-bottom)); }
 }
-
-@media (max-width: 380px) {
-    #btnPlay { padding: 0 10px; font-size: 10px; }
-    .llegenda-mapa { max-width: 120px; }
-    #info_run { font-size: 10px; padding: 5px 10px; }
-    #info_run .fa { display: none; }
-}
 </style>
 </head>
 <body>
 
-<!-- Mapa (el construeix el JS) -->
 <div id="map"></div>
 
-<!-- Barra inferior: botó d'animació + graella d'hores -->
 <div id="dock">
     <button id="btnPlay" type="button">▶ Animació</button>
     <div id="fh_grid"></div>
 </div>
 
-<!-- Etiqueta de l'hora actual -->
 <div id="current_time_label"></div>
-
-<!-- Info del run -->
 <div id="info_run"></div>
 
-<!-- Pantalla de càrrega inicial -->
 <div id="loading_overlay">
     <div class="spinner"></div>
     <div>Carregant visor…</div>
@@ -865,7 +945,7 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
         </div>
         <div class="modal-body">
             <p style="font-size:12.5px;color:var(--muted);margin:0 0 16px;line-height:1.5;">
-                Inicia sessió per desbloquejar totes les hores i variables premium del visor.
+                Inicia sessió per desbloquejar totes les hores, variables i nivells d'alçada del visor.
             </p>
             <button class="btn-google" onclick="loginWithGoogle()">
                 <i class="fab fa-google"></i>
@@ -939,7 +1019,6 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
     </div>
 </div>
 
-<!-- Missatge sense JavaScript -->
 <noscript>
     <div style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#0d1117;color:#58a6ff;z-index:10000;font-family:sans-serif;">
         Cal activar JavaScript per veure el mapa.
@@ -972,52 +1051,36 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
     window._firebaseUser = null;
 
     window.loginWithGoogle = async () => {
-        try {
-            await signInWithPopup(auth, new GoogleAuthProvider());
-        } catch (e) {
-            console.error('[Auth]', e);
-        }
+        try { await signInWithPopup(auth, new GoogleAuthProvider()); }
+        catch (e) { console.error('[Auth]', e); }
     };
 
     window.logoutUser = async () => {
-        try {
-            await signOut(auth);
-            tancarModal('modalPerfil');
-        } catch (e) {
-            console.error('[Auth]', e);
-        }
+        try { await signOut(auth); tancarModal('modalPerfil'); }
+        catch (e) { console.error('[Auth]', e); }
     };
 
     onAuthStateChanged(auth, user => {
         window._firebaseUser = user;
-        if (user) {
-            window.dispatchEvent(new CustomEvent('tc:login', { detail: user }));
-        } else {
-            window.dispatchEvent(new CustomEvent('tc:logout'));
-        }
+        if (user) window.dispatchEvent(new CustomEvent('tc:login', { detail: user }));
+        else window.dispatchEvent(new CustomEvent('tc:logout'));
     });
 </script>
 
-<!-- Llibreries -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.0.4/pako.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/msgpack-lite@0.1.26/dist/msgpack.min.js"></script>
-
-<!-- Visor principal -->
+<!-- Visor -->
 <script src="js/mapapngs.js"></script>
 <script src="js/skew-t-engine.js"></script>
 <script src="js/skew-t.js"></script>
 <script src="js/accesvariable.js"></script>
 
 <!-- ═══════════════════════════════════════════════════════════════════
-     SISTEMA D'ACCÉS, LOGIN, XAT, PERFIL, MODALS
+     MODALS + LOGIN + XAT + PERFIL + INFO RUN
      ═══════════════════════════════════════════════════════════════════ -->
 <script>
 (function () {
     'use strict';
 
-    // ═══════════════════════════════════════════════════════════════════
-    //  MODALS
-    // ═══════════════════════════════════════════════════════════════════
+    // ─── Modals ─────────────────────────────────────────────────────
     window.obrirModal = function (id) {
         const el = document.getElementById(id);
         if (el) el.classList.add('active');
@@ -1038,48 +1101,7 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
         }
     });
 
-    // ═══════════════════════════════════════════════════════════════════
-    //  ACCÉS A VARIABLES PREMIUM
-    // ═══════════════════════════════════════════════════════════════════
-
-    // Variables premium (bloquejades sense login)
-    const VARIABLES_PREMIUM = new Set([
-        'hail_cm', 'hail', 'scp', 'scp_wcs', 'stp', 'ehi',
-        'shear_01', 'shear_03', 'shear_06', 'srh_01', 'srh_03',
-        'dcape', 'storm_speed', 'storm_u', 'storm_v', 'storm_dir',
-        'lifted_index', 'lcl_m', 'lfc_m', 'el_m',
-        'pv', 'pv_925', 'pv_850', 'pv_700', 'pv_500', 'pv_300', 'pv_200',
-    ]);
-
-    window.esParametrePremium = function (clau) {
-        if (!clau) return false;
-        const base = clau.split('_').slice(0, -1).join('_') || clau;
-        if (VARIABLES_PREMIUM.has(clau)) return true;
-        if (VARIABLES_PREMIUM.has(base)) return true;
-        // Qualsevol variable derivada (srh_, shear_, storm_, dcape, hail_)
-        if (/^(srh|shear|storm|dcape|hail)/.test(clau)) return true;
-        return false;
-    };
-
-    window.verificarAccesVariable = function (clau) {
-        const user = window._firebaseUser;
-        if (user) return true;           // Amb login, tot desbloquejat
-        if (!esParametrePremium(clau)) return true;  // No premium, lliure
-        return false;
-    };
-
-    window.mostrarAvisPremium = function (clau) {
-        obrirModal('modalLogin');
-    };
-
-    window.mostrarAvisLogin = function (clau) {
-        obrirModal('modalLogin');
-    };
-
-    // ═══════════════════════════════════════════════════════════════════
-    //  PERFIL D'USUARI
-    // ═══════════════════════════════════════════════════════════════════
-
+    // ─── Perfil ──────────────────────────────────────────────────────
     async function obtenirNomUsuari(user) {
         if (!user) return null;
         try {
@@ -1100,49 +1122,39 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
             if (d && d.nomCanviat === true) return true;
         } catch (e) {}
         const local = localStorage.getItem(`nom_info_${user.uid}`);
-        if (local) {
-            try { return JSON.parse(local).canviat === true; } catch (e) {}
-        }
+        if (local) { try { return JSON.parse(local).canviat === true; } catch (e) {} }
         return false;
     }
 
     window.openProfile = async function () {
         const user = window._firebaseUser;
         if (!user) { obrirModal('modalLogin'); return; }
-
         const nom = await obtenirNomUsuari(user);
         const canviat = await haCanviatNom(user);
-
         document.getElementById('perfilNom').value = nom;
         document.getElementById('perfilEmail').value = user.email || '';
         const inp = document.getElementById('perfilNom');
         inp.disabled = canviat;
         inp.title = canviat ? 'El nom només es pot canviar 1 vegada' : '';
-
         obrirModal('modalPerfil');
     };
 
     window.desarPerfil = async function () {
         const user = window._firebaseUser;
         if (!user) return;
-
         const nom = document.getElementById('perfilNom').value.trim();
         if (nom.length < 3) { alert('El nom ha de tenir mínim 3 caràcters'); return; }
         if (nom.length > 20) { alert('El nom ha de tenir màxim 20 caràcters'); return; }
-
         const jaCanviat = await haCanviatNom(user);
         if (jaCanviat) { alert('El nom ja s\'ha canviat un cop'); return; }
-
         try {
             const token = await user.getIdToken();
             await fetch(`https://tempestescat-default-rtdb.firebaseio.com/users/${user.uid}.json?auth=${token}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    uid: user.uid,
-                    email: user.email,
-                    nomPersonalitzat: nom,
-                    nomCanviat: true,
+                    uid: user.uid, email: user.email,
+                    nomPersonalitzat: nom, nomCanviat: true,
                     dataCanvi: new Date().toISOString()
                 })
             });
@@ -1156,16 +1168,11 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
         }
     };
 
-    // ═══════════════════════════════════════════════════════════════════
-    //  UI USUARI AL PANELL
-    // ═══════════════════════════════════════════════════════════════════
-
+    // ─── UI usuari ───────────────────────────────────────────────────
     async function actualitzarUIUsuari(user) {
-        // Actualitzar botó del panell (login/perfil)
         const btnLogin = document.getElementById('ppBtnLogin');
         const btnPerfil = document.getElementById('ppBtnPerfil');
         if (!btnLogin || !btnPerfil) return;
-
         if (user) {
             const nom = await obtenirNomUsuari(user);
             const inicial = nom.charAt(0).toUpperCase();
@@ -1182,53 +1189,14 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
         }
     }
 
-    window.addEventListener('tc:login', e => {
-        actualitzarUIUsuari(e.detail);
-        refrescarHores();   // refrescar la graella per desbloquejar hores
-        if (typeof refrescarVariablesBloquejades === 'function') refrescarVariablesBloquejades();
-    });
-    window.addEventListener('tc:logout', () => {
-        actualitzarUIUsuari(null);
-        refrescarHores();
-        if (typeof refrescarVariablesBloquejades === 'function') refrescarVariablesBloquejades();
-    });
+    window.addEventListener('tc:login', e => actualitzarUIUsuari(e.detail));
+    window.addEventListener('tc:logout', () => actualitzarUIUsuari(null));
 
-    // ═══════════════════════════════════════════════════════════════════
-    //  HORES BLOQUEJADES (1 de cada 3 lliures sense login)
-    // ═══════════════════════════════════════════════════════════════════
-
-    window.horaEstaLliure = function (idx) {
-        if (window._firebaseUser) return true;
-        return idx % 3 === 0;
-    };
-
-    // Sobreescriure mostrarHora per bloquejar clics
-    const _mostrarHoraOriginal = window.mostrarHora;
-    if (typeof _mostrarHoraOriginal === 'function') {
-        window.mostrarHora = function (idx) {
-            if (!horaEstaLliure(idx)) {
-                obrirModal('modalLogin');
-                return;
-            }
-            return _mostrarHoraOriginal.apply(this, arguments);
-        };
-    }
-
-    function refrescarHores() {
-        if (typeof construirGraellaHores === 'function') {
-            construirGraellaHores();
-        }
-    }
-
-    // Exposar funcions
     window.obtenirNomUsuari = obtenirNomUsuari;
     window.haCanviatNom = haCanviatNom;
     window.actualitzarUIUsuari = actualitzarUIUsuari;
 
-    // ═══════════════════════════════════════════════════════════════════
-    //  INFO DEL RUN
-    // ═══════════════════════════════════════════════════════════════════
-
+    // ─── Info del run ────────────────────────────────────────────────
     function rutaBase() {
         const p = window.location.pathname;
         return p.substring(0, p.lastIndexOf('/') + 1);
@@ -1286,14 +1254,10 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
         }, 15 * 60 * 1000);
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    //  XAT (Pusher + API)
-    // ═══════════════════════════════════════════════════════════════════
-
+    // ─── Xat ─────────────────────────────────────────────────────────
     const PUSHER_KEY = '54b645506c85aed5b62e';
     const PUSHER_CLUSTER = 'eu';
     const API_CHAT = 'https://tempestes-cat.pages.dev/api';
-
     let pusherInicialitzat = false;
     const missatgesVistos = new Set();
 
@@ -1323,11 +1287,9 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
         if (missatgesVistos.size > 200) {
             [...missatgesVistos].slice(0, 50).forEach(x => missatgesVistos.delete(x));
         }
-
         const esSistema = msg.type === 'system';
         const div = document.createElement('div');
         div.className = 'xat-msg';
-
         if (esSistema) {
             div.innerHTML = `<div style="text-align:center;color:var(--muted);font-size:11px;font-style:italic;">${escHtml(msg.text)}</div>`;
         } else {
@@ -1335,18 +1297,10 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
                 ? `<img src="${escHtml(msg.photo)}" alt="">`
                 : (msg.nick || '?').charAt(0).toUpperCase();
             const bg = colorAvatar(msg.nick || 'X');
-            const rang = msg.rangNom
-                ? `<span class="xat-rang" style="background:${msg.rangColor || '#556680'}">${escHtml(msg.rangNom)}</span>`
-                : '';
-            const pts = (msg.punts != null)
-                ? `<span class="xat-pts">⭐ ${Number(msg.punts).toLocaleString('ca')}</span>`
-                : '';
             div.innerHTML = `
                 <div class="xat-msg-cap">
                     <div class="xat-avatar" style="background:${bg}">${avatar}</div>
                     <span class="xat-nom">${escHtml(msg.nick || 'Anònim')}</span>
-                    ${rang}
-                    ${pts}
                     <span class="xat-hora">${formatHora(msg.ts)}</span>
                 </div>
                 <div class="xat-text">${escHtml(msg.text || '')}</div>
@@ -1377,11 +1331,8 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
             const msgs = await r.json();
             c.innerHTML = '';
             missatgesVistos.clear();
-            if (msgs && msgs.length) {
-                msgs.slice(-30).forEach(afegirMissatge);
-            } else {
-                c.innerHTML = '<div style="text-align:center;color:var(--muted);padding:20px;font-size:13px;">Encara no hi ha missatges</div>';
-            }
+            if (msgs && msgs.length) msgs.slice(-30).forEach(afegirMissatge);
+            else c.innerHTML = '<div style="text-align:center;color:var(--muted);padding:20px;font-size:13px;">Encara no hi ha missatges</div>';
         } catch (e) {
             c.innerHTML = '<div style="text-align:center;color:var(--muted);padding:20px;font-size:13px;">Error carregant xat</div>';
         }
@@ -1391,36 +1342,25 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
         const inp = document.getElementById('xatInput');
         const text = inp?.value?.trim();
         if (!text) return;
-
         const user = window._firebaseUser;
         if (!user) { obrirModal('modalLogin'); return; }
-
         const nick = await obtenirNomUsuari(user);
         const btn = document.getElementById('xatSendBtn');
         if (btn) { btn.disabled = true; btn.textContent = '...'; }
-
         try {
             const r = await fetch(API_CHAT + '/send-message', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    nick,
-                    photo: user.photoURL || '',
-                    uid: user.uid,
-                    text,
-                    rangNom: '',
-                    rangColor: '#556680',
-                    punts: 0
+                    nick, photo: user.photoURL || '',
+                    uid: user.uid, text,
+                    rangNom: '', rangColor: '#556680', punts: 0
                 })
             });
             const d = await r.json();
-            if (d.ok) {
-                inp.value = '';
-                actualitzarBotoEnviar();
-            }
-        } catch (e) {
-            console.error('[Xat]', e);
-        } finally {
+            if (d.ok) { inp.value = ''; actualitzarBotoEnviar(); }
+        } catch (e) { console.error('[Xat]', e); }
+        finally {
             if (btn) btn.textContent = 'Enviar';
             actualitzarBotoEnviar();
         }
@@ -1430,9 +1370,7 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
         const inp = document.getElementById('xatInput');
         const btn = document.getElementById('xatSendBtn');
         if (!inp || !btn) return;
-        const user = window._firebaseUser;
-        const teText = inp.value.trim().length > 0;
-        btn.disabled = !(teText && user);
+        btn.disabled = !(inp.value.trim().length > 0 && window._firebaseUser);
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -1455,18 +1393,12 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
                 if (modal && modal.classList.contains('active')) afegirMissatge(msg);
             });
             pusherInicialitzat = true;
-        } catch (e) {
-            console.warn('[Pusher]', e);
-        }
+        } catch (e) {}
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    //  RADAR
-    // ═══════════════════════════════════════════════════════════════════
-
+    // ─── Radar ───────────────────────────────────────────────────────
     const RADAR_URL = 'https://radar.tempestes.cat/';
     let radarCarregat = false;
-
     window.obrirRadarModal = function () {
         const iframe = document.getElementById('radarIframe');
         if (!radarCarregat && iframe) {
@@ -1476,24 +1408,11 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
         obrirModal('modalRadar');
     };
 
-    // ═══════════════════════════════════════════════════════════════════
-    //  INICIALITZACIÓ
-    // ═══════════════════════════════════════════════════════════════════
-
+    // ─── Inicialització ──────────────────────────────────────────────
     async function inicialitzar() {
-        // Comprovar si l'usuari ja està loguejat
-        if (window._firebaseUser) {
-            actualitzarUIUsuari(window._firebaseUser);
-        }
-
-        // Info run
+        if (window._firebaseUser) actualitzarUIUsuari(window._firebaseUser);
         inicialitzarInfoRun();
-
-        // Pusher
         setTimeout(inicialitzarPusher, 1500);
-
-        // Primera comprovació de la graella
-        setTimeout(refrescarHores, 1000);
     }
 
     if (document.readyState === 'loading') {
@@ -1501,9 +1420,6 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
     } else {
         inicialitzar();
     }
-
-    // Exposar
-    window.refrescarHores = refrescarHores;
 })();
 </script>
 
