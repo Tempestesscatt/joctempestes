@@ -27,7 +27,7 @@ jobs:
   # ════════════════════════════════════════════════════════════════
   png_sfc:
     runs-on: ubuntu-latest
-    timeout-minutes: 240
+    timeout-minutes: 350
     env:
       IMATGES_DIR: ${{ github.workspace }}/out-sfc/imatges
     steps:
@@ -62,19 +62,28 @@ jobs:
         python3 -c 'import json; cfg = json.load(open("configNE.json", "r", encoding="utf-8-sig")); cfg["api_key"] = "${{ secrets.AROME_API_KEY }}"; json.dump(cfg, open("configNE.json", "w", encoding="utf-8"), indent=2)'
 
     - name: Executar arome_sfc_png.py (3 intents)
-      timeout-minutes: 230
+      timeout-minutes: 345
       run: |
         # IMPORTANT: GitHub executa "bash -e". Sense "set +e" un error de Python
         # aturava el pas a l'instant i els reintents mai s'executaven.
         set +e
         cd private-scripts-new
         OK=0
+        INICI=$(date +%s)
+        PRESSUPOST=$(( 330 * 60 ))   # segons totals per a tots els intents
+        TOPALL=$(( 150 * 60 ))       # màxim per intent (només talla si s'ha penjat)
         for i in 1 2 3; do
-          echo "--- arome_sfc_png.py: intent $i/3 ($(date -u +%H:%M:%S) UTC) ---"
-          timeout 75m python3 arome_sfc_png.py
+          RESTA=$(( PRESSUPOST - ($(date +%s) - INICI) ))
+          [ "$RESTA" -lt 600 ] && { echo "Sense temps per a més intents"; break; }
+          LIMIT=$(( RESTA < TOPALL ? RESTA : TOPALL ))
+          echo "--- arome_sfc_png.py: intent $i/3 (límit $(( LIMIT / 60 )) min, $(date -u +%H:%M:%S) UTC) ---"
+          rm -rf "$IMATGES_DIR"; mkdir -p "$IMATGES_DIR"     # res d'intents anteriors
+          timeout "${LIMIT}s" python3 arome_sfc_png.py
           CODI=$?
           N=$(find "$IMATGES_DIR" -name "sfc_*.png" -type f | wc -l)
-          if [ $CODI -eq 0 ] || { [ $CODI -eq 134 ] && [ "$N" -ge 5 ] && [ -f "$IMATGES_DIR/manifest.json" ]; }; then
+          # manifest.json es escriu al FINAL: si hi és, l'script ha acabat la feina
+          # encara que l'intèrpret hagi petat en tancar (qualsevol codi de sortida)
+          if [ $CODI -eq 0 ] || { [ -f "$IMATGES_DIR/manifest.json" ] && [ "$N" -ge 5 ]; }; then
             echo "OK a l'intent $i (codi $CODI, $N PNG)"
             OK=1
             break
@@ -113,7 +122,7 @@ jobs:
   # ════════════════════════════════════════════════════════════════
   png_3d:
     runs-on: ubuntu-latest
-    timeout-minutes: 240
+    timeout-minutes: 350
     env:
       IMATGES_DIR: ${{ github.workspace }}/out-3d/imatges
     steps:
@@ -148,17 +157,28 @@ jobs:
         python3 -c 'import json; cfg = json.load(open("configNE.json", "r", encoding="utf-8-sig")); cfg["api_key"] = "${{ secrets.AROME_API_KEY }}"; json.dump(cfg, open("configNE.json", "w", encoding="utf-8"), indent=2)'
 
     - name: Executar arome_3dpng.py (3 intents)
-      timeout-minutes: 230
+      timeout-minutes: 345
       run: |
         set +e
         cd private-scripts-new
         OK=0
+        INICI=$(date +%s)
+        PRESSUPOST=$(( 330 * 60 ))   # segons totals per a tots els intents
+        TOPALL=$(( 150 * 60 ))       # màxim per intent (només talla si s'ha penjat)
         for i in 1 2 3; do
-          echo "--- arome_3dpng.py: intent $i/3 ($(date -u +%H:%M:%S) UTC) ---"
-          timeout 75m python3 arome_3dpng.py
+          RESTA=$(( PRESSUPOST - ($(date +%s) - INICI) ))
+          [ "$RESTA" -lt 600 ] && { echo "Sense temps per a més intents"; break; }
+          LIMIT=$(( RESTA < TOPALL ? RESTA : TOPALL ))
+          echo "--- arome_3dpng.py: intent $i/3 (límit $(( LIMIT / 60 )) min, $(date -u +%H:%M:%S) UTC) ---"
+          rm -rf "$IMATGES_DIR"; mkdir -p "$IMATGES_DIR"     # res d'intents anteriors
+          export MARCA_FINAL="$GITHUB_WORKSPACE/3d_done.marker"
+          rm -f "$MARCA_FINAL"
+          timeout "${LIMIT}s" python3 arome_3dpng.py
           CODI=$?
           N=$(find "$IMATGES_DIR" -name "3d_*.png" -type f | wc -l)
-          if [ $CODI -eq 0 ] || { [ $CODI -eq 134 ] && [ "$N" -ge 5 ]; }; then
+          # Èxit = codi 0, o l'script ha escrit la marca de final (encara que el procés
+          # peti en tancar). El codi 134 sense marca només s'accepta amb scripts antics.
+          if [ $CODI -eq 0 ] || { [ -f "$MARCA_FINAL" ] && [ "$N" -ge 5 ]; } || { [ $CODI -eq 134 ] && [ "$N" -ge 5 ]; }; then
             echo "OK a l'intent $i (codi $CODI, $N PNG)"
             OK=1
             break
@@ -421,6 +441,10 @@ jobs:
         echo "imatges sfc: $(find "$IM" -name 'sfc_*.png' | wc -l) PNG"
         echo "imatges 3d:  $(find "$IM" -name '3d_*.png' | wc -l) PNG"
         du -sh "$P/web_data_NE" || true
+        echo "--- Mida per tipus (a web_data_NE/imatges) ---"
+        for pat in 'sfc_*.png' 'isolines_[0-2][0-9]_*.js' 'vent_*.js' '3d_*.png' 'isolines_3d_*.js' 'sondeig_*' 'vent3d_*' 'stormmotion_*'; do
+          find "$IM" -maxdepth 1 -name "$pat" -printf '%s\n' | awk -v p="$pat" '{s+=$1} END {printf "  %-26s %6d fitxers %8.1f MB\n", p, NR, s/1048576}'
+        done
 
     - name: Comprovar límits de Cloudflare Pages
       run: |
@@ -462,9 +486,12 @@ jobs:
         exit 1
 
     # S'executa encara que el deploy hagi fallat: així les dades no es perden.
-    - name: Guardar a la branca 'data'
+    # El push gran d'un sol cop feia "HTTP 500 / remote end hung up". Ara es puja
+    # en paquets petits a una branca temporal (data-staging) i només al final
+    # es promou a 'data' (aquest últim push no envia dades: ja hi són).
+    - name: Guardar a la branca 'data' (per paquets)
       if: always() && steps.assemble.outcome == 'success'
-      timeout-minutes: 45
+      timeout-minutes: 60
       run: |
         # Sense -e: gestionem els errors a mà (reintents)
         set -uo pipefail
@@ -473,6 +500,7 @@ jobs:
         REMOTE_URL="https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/Tempestesscatt/joctempestes.git"
         EXPECT=$(cat "$RUNNER_TEMP/data_sha")
         MSG="arome png $(date -u +'%Y-%m-%d %H:%M UTC')"
+        CHUNK=800          # fitxers per paquet (≈ 40-80 MB)
         T0=$(date +%s)
         tick() { echo "  ⏱  $1: $(( $(date +%s) - T0 ))s"; }
 
@@ -491,42 +519,61 @@ jobs:
         git checkout -q -b data
         git config user.name "bot-dades"
         git config user.email "bot@tempestes-cat"
-        # Els PNG ja venen comprimits: res de deltes (era el que tardava) i compressió ràpida
+        # Els PNG ja venen comprimits: res de deltes i compressió ràpida
         git config core.compression 1
         git config pack.compression 1
         git config pack.window 0
         git config pack.threads 0
         git config gc.auto 0
-        # HTTP/1.1 + buffer gran: evita els "hung up" / penjades en pushes grans
         git config http.version HTTP/1.1
         git config http.postBuffer 1048576000
         git remote add origin "$REMOTE_URL"
 
-        AFEGIT=0
-        for c in $CARPETES; do
-          if [ -n "$(find "$c" -type f 2>/dev/null | head -n 1)" ]; then
-            git add -A "$c"; AFEGIT=1
-          else
-            echo "  $c buida, s'omet"
-          fi
-        done
-        if [ -f js/status.js ]; then git add js/status.js; AFEGIT=1; fi
-        if [ "$AFEGIT" != "1" ]; then echo "Res a publicar"; exit 0; fi
-        git commit -q -m "$MSG"
-        tick "commit"
+        find $CARPETES js -type f 2>/dev/null | sort > /tmp/llista.txt
+        TOTAL=$(wc -l < /tmp/llista.txt)
+        if [ "$TOTAL" -eq 0 ]; then echo "Res a publicar"; exit 0; fi
+        rm -rf /tmp/chunks
+        mkdir -p /tmp/chunks
+        split -l "$CHUNK" -d -a 3 /tmp/llista.txt /tmp/chunks/c_
+        NCH=$(ls /tmp/chunks | wc -l)
+        echo "$TOTAL fitxers en $NCH paquets"
 
+        push_staging() {
+          for k in 1 2 3 4 5; do
+            if timeout 900 git push --force origin HEAD:refs/heads/data-staging; then return 0; fi
+            echo "  push fallit (intent $k/5)"
+            sleep $((k * 10))
+          done
+          return 1
+        }
+
+        # 1) Paquets petits cap a la branca temporal
+        I=0
+        for L in /tmp/chunks/c_*; do
+          I=$((I + 1))
+          GIT_LITERAL_PATHSPECS=1 git add -A --pathspec-from-file="$L"
+          git commit -q -m "$MSG ($I/$NCH)"
+          echo "=== Paquet $I/$NCH ==="
+          if ! push_staging; then
+            echo "No s'ha pogut pujar el paquet $I/$NCH (la web SÍ s'ha desplegat a Cloudflare)"
+            exit 1
+          fi
+          tick "paquet $I/$NCH"
+        done
+
+        # 2) Promoure a 'data' (atòmic: tot o res; no envia dades noves)
         PUBLICAT=0
         for INTENT in 1 2 3 4 5; do
-          echo "=== Push intent $INTENT/5 ==="
+          echo "=== Promoure a 'data' (intent $INTENT/5) ==="
           if [ "$EXPECT" = "none" ]; then
-            timeout 1500 git push origin data
+            timeout 600 git push origin HEAD:refs/heads/data
           else
             # Només sobreescriu si 'data' és exactament el que vam llegir
-            timeout 1500 git push --force-with-lease="data:$EXPECT" origin data
+            timeout 600 git push --force-with-lease="data:$EXPECT" origin HEAD:refs/heads/data
           fi
           RC=$?
           if [ $RC -eq 0 ]; then PUBLICAT=1; break; fi
-          echo "Push fallit/rebutjat (codi $RC)"
+          echo "Promoció fallida (codi $RC)"
 
           NOU=$(git ls-remote origin refs/heads/data | cut -f1)
           if [ -n "$NOU" ] && [ "$NOU" != "$EXPECT" ]; then
@@ -541,19 +588,24 @@ jobs:
                 rm -rf "/tmp/publish/$c"
                 cp -r "/tmp/data-branch2/$c" /tmp/publish/ 2>/dev/null || true
               done
+              mkdir -p /tmp/publish/js
               cp /tmp/data-branch2/js/status.js /tmp/publish/js/status.js 2>/dev/null || true
               ( cd "$GITHUB_WORKSPACE" && git worktree remove /tmp/data-branch2 --force )
               git add -A
-              git commit -q --amend -m "$MSG"
+              git commit -q -m "$MSG (refresc)" || true
+              push_staging || true
               EXPECT="$NOU"
             fi
           fi
           sleep $((RANDOM % 10 + 5))
         done
-        tick "push"
+        tick "promoció"
+
+        # Neteja de la branca temporal (si falla no passa res)
+        timeout 120 git push origin --delete data-staging || true
 
         if [ "$PUBLICAT" != "1" ]; then
-          echo "No s'ha pogut guardar a 'data' després de 5 intents (la web SÍ s'ha desplegat a Cloudflare)"
+          echo "No s'ha pogut promoure a 'data' (la web SÍ s'ha desplegat a Cloudflare)"
           exit 1
         fi
         echo "Publicat a 'data'"

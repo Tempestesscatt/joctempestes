@@ -13,6 +13,9 @@
 //   - Optimitzacions mòbil: cache limitat, debounce, pointer capture correcte.
 //   - Pinch-zoom robust (no es queda enganxat amb dos dits).
 //   - Botó "Sistema" al menú per comprovar i forçar actualitzacions netes.
+//   - CACHE-BUSTING: TOTES les peticions dinàmiques porten ?_cb=timestamp.
+//     Els PNG/JS poden cachejar-se al navegador perquè el nom és únic per hora.
+//     El manifest, info_run i scripts principals sempre es demanen frescos.
 // ═══════════════════════════════════════════════════════════════════════
 
 const FIT = 'contain';
@@ -91,6 +94,23 @@ const CARPETES_NOMS = [
     '/dades/',
     '/public/dades/',
 ];
+
+// ═══════════════════════════════════════════════════════════════════
+//  CACHE-BUSTING: utilitat per afegir ?_cb= a qualsevol URL
+// ═══════════════════════════════════════════════════════════════════
+function ambCb(url) {
+    if (!url) return url;
+    if (url.includes('?_cb=') || url.includes('&_cb=')) return url;
+    const sep = url.includes('?') ? '&' : '?';
+    return url + sep + '_cb=' + Date.now();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  FETCH amb no-store (evita caché del navegador + service worker)
+// ═══════════════════════════════════════════════════════════════════
+function fetchFresc(url, opts) {
+    return fetch(ambCb(url), Object.assign({ cache: 'no-store' }, opts || {}));
+}
 
 // ─── Capes visibles (estat) ────────────────────────────────────────
 window.MOSTRAR_VENT = true;
@@ -1219,9 +1239,9 @@ function _msgpackDecodeMinim(u8) {
 async function carregarSondeig(hora, dia) {
     const clau = `${String(hora).padStart(2, '0')}_${dia}`;
     if (_cacheSondeigs.has(clau)) return _cacheSondeigs.get(clau);
-    const url = `${BASE_3D}sondeig_${clau}.msgpack.gz?_cb=${Date.now()}`;
+    const url = `${BASE_3D}sondeig_${clau}.msgpack.gz`;
     try {
-        const r = await fetch(url, { cache: 'no-store' });
+        const r = await fetchFresc(url);
         if (!r.ok) throw new Error('HTTP ' + r.status);
         const buf = await r.arrayBuffer();
         const u8 = await descomprimirGzip(buf);
@@ -1377,7 +1397,7 @@ async function mostrarCapa3D(var3d, nivell) {
         imgDades.style.visibility = 'hidden';
         _urlDades = null;
     };
-    pre.src = urlPng;
+    pre.src = ambCb(urlPng);
 
     const esVent = nivell !== NIVELL_COLUMNA && ['wind_speed', 'wind_dir', 'u', 'v'].includes(var3d);
     if (esVent) {
@@ -1587,7 +1607,7 @@ function crearPanell() {
 
                 <div class="cap-titol" style="margin-top:22px;border-top:1px solid var(--line);padding-top:14px;">Sistema</div>
                 <button class="sistema-btn" id="btnComprovarActualitzacio" type="button">
-                    <span class="ico"></span>
+                    <span class="ico">🔄</span>
                     <span class="txt">Comprovar actualitzacions</span>
                 </button>
                 <div class="sistema-estat" id="estatActualitzacio"></div>
@@ -1716,7 +1736,6 @@ function crearPanell() {
         location.reload();
     });
 
-    // 🆕 Botó del sistema: comprovar / actualitzar
     const btnAct = p.querySelector('#btnComprovarActualitzacio');
     if (btnAct) {
         btnAct.addEventListener('click', () => {
@@ -2068,7 +2087,7 @@ function ordreDia(dia) {
 }
 
 async function provarManifest(base) {
-    const r = await fetch(base + 'manifest.json?_cb=' + Date.now(), { cache: 'no-store' });
+    const r = await fetchFresc(base + 'manifest.json');
     if (!r.ok) throw new Error('HTTP ' + r.status + ' a ' + base);
     const ct = r.headers.get('content-type') || '';
     if (ct.includes('text/html')) throw new Error('HTML en lloc de JSON a ' + base);
@@ -2167,7 +2186,7 @@ function actualitzarDades() {
         imgDades.style.visibility = 'hidden';
         _urlDades = null;
     };
-    pre.src = url;
+    pre.src = ambCb(url);
 }
 
 function precarregarSeguent() {
@@ -2177,7 +2196,7 @@ function precarregarSeguent() {
     if (next) {
         const im = new Image();
         im.decoding = 'async';
-        im.src = next;
+        im.src = ambCb(next);
     }
 }
 
@@ -2185,9 +2204,9 @@ function actualitzarLlegenda() {
     imgLlegenda.onload = () => { imgLlegenda.style.display = 'block'; };
     imgLlegenda.onerror = () => { imgLlegenda.style.display = 'none'; };
     if (_capa3DActiva) {
-        imgLlegenda.src = `${BASE_3D}legend_3d_${_capa3DActiva.var}.png`;
+        imgLlegenda.src = ambCb(`${BASE_3D}legend_3d_${_capa3DActiva.var}.png`);
     } else {
-        imgLlegenda.src = `${PNG_BASE}legend_${variableActiva}.png`;
+        imgLlegenda.src = ambCb(`${PNG_BASE}legend_${variableActiva}.png`);
     }
 }
 
@@ -2197,7 +2216,7 @@ function actualitzarLlegenda() {
 function carregarScript(url, opcional) {
     return new Promise((resolve, reject) => {
         const s = document.createElement('script');
-        s.src = url + '?_cb=' + Date.now();
+        s.src = ambCb(url);
         s.async = true;
         s.onload = () => { s.remove(); resolve(); };
         s.onerror = () => {
@@ -2982,8 +3001,8 @@ async function inicialitzar() {
         return;
     }
 
-    imgFons.src = PNG_BASE + 'fons.png';
-    imgVores.src = PNG_BASE + 'vores.png';
+    imgFons.src = ambCb(PNG_BASE + 'fons.png');
+    imgVores.src = ambCb(PNG_BASE + 'vores.png');
     ajustarVista(false);
     restaurarVista();
 
@@ -3034,4 +3053,4 @@ if (document.readyState === 'loading') {
     inicialitzar();
 }
 
-console.log('✅ mapapngs.js carregat — accés restringit + actualitzacions + pinch fix');
+console.log('✅ mapapngs.js carregat — accés restringit + actualitzacions + pinch fix + cache-busting');
