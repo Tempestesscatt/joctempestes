@@ -17,10 +17,11 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         fetch-depth: 0
 
-    - name: 🔐 Checkout private submodule
-      run: |
-        git config --global url."https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/".insteadOf "https://github.com/"
-        git submodule update --init --recursive
+    # ❌ Eliminat: ja no cal el submodule per al deploy
+    # - name: 🔐 Checkout private submodule
+    #   run: |
+    #     git config --global url."https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/".insteadOf "https://github.com/"
+    #     git submodule update --init --recursive
 
     - name: 📥 Afegir dades de la branca 'data' (sense esborrar res)
       run: |
