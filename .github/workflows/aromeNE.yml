@@ -1,7 +1,7 @@
 name: AROME PNG (SFC + 3D)
 
-# Nomes s'executa quan el dispara el worker de Cloudflare (o a ma amb "Run workflow").
-# No te cron intern, aixi no es pot executar dues vegades alhora.
+# Només s'executa quan el dispara el worker de Cloudflare (o a mà amb "Run workflow").
+# Sense cron intern, així no es pot executar dues vegades alhora.
 on:
   workflow_dispatch:
 
@@ -14,24 +14,31 @@ concurrency:
   group: deploy-data
   cancel-in-progress: false
 
+env:
+  PYTHONUNBUFFERED: "1"
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+  # "1" = esborra les isolínies 3D abans de publicar (≈2.900 fitxers menys => deploy més ràpid).
+  # Al visor les isolínies vénen desactivades per defecte.
+  ELIMINAR_ISOLINIES_3D: "0"
+
 jobs:
   # ════════════════════════════════════════════════════════════════
   #  JOB 1 (paral·lel): SFC -> PNG
   # ════════════════════════════════════════════════════════════════
   png_sfc:
     runs-on: ubuntu-latest
-    timeout-minutes: 180
+    timeout-minutes: 240
     env:
       IMATGES_DIR: ${{ github.workspace }}/out-sfc/imatges
     steps:
-    - uses: actions/checkout@v4
-      with:
-        token: ${{ secrets.PRIVATE_REPO_TOKEN }}
-
     - name: Clonar private-scripts
       run: |
-        rm -rf private-scripts-new
-        git clone https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/Tempestesscatt/Scripts.git private-scripts-new
+        for i in 1 2 3 4; do
+          rm -rf private-scripts-new
+          if git clone --depth 1 "https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/Tempestesscatt/Scripts.git" private-scripts-new; then break; fi
+          [ "$i" = 4 ] && { echo "No s'ha pogut clonar private-scripts"; exit 1; }
+          sleep 15
+        done
 
     - uses: actions/setup-python@v5
       with:
@@ -39,10 +46,12 @@ jobs:
 
     - name: Instal·lar dependencies
       run: |
-        sudo apt-get update
-        sudo apt-get install -y libgeos-dev libproj-dev proj-data proj-bin
-        python3 -m pip install --upgrade pip
-        python3 -m pip install numpy requests tifffile scipy xarray cfgrib eccodes meteofetch matplotlib pillow shapely pyproj cartopy
+        for i in 1 2 3; do
+          sudo apt-get update -qq && sudo apt-get install -y -qq libgeos-dev libproj-dev proj-data proj-bin && break
+          sleep 15
+        done
+        python3 -m pip install --retries 5 --upgrade pip
+        python3 -m pip install --retries 5 numpy requests tifffile scipy xarray cfgrib eccodes meteofetch matplotlib pillow shapely pyproj cartopy
 
     - name: Preparar l'script (ruta de sortida i clau)
       run: |
@@ -52,24 +61,28 @@ jobs:
         grep -q 'os.environ\["IMATGES_DIR"\]' arome_sfc_png.py || { echo "No s'ha pogut canviar IMATGES_DIR"; exit 1; }
         python3 -c 'import json; cfg = json.load(open("configNE.json", "r", encoding="utf-8-sig")); cfg["api_key"] = "${{ secrets.AROME_API_KEY }}"; json.dump(cfg, open("configNE.json", "w", encoding="utf-8"), indent=2)'
 
-    - name: Executar arome_sfc_png.py
+    - name: Executar arome_sfc_png.py (3 intents)
+      timeout-minutes: 230
       run: |
+        # IMPORTANT: GitHub executa "bash -e". Sense "set +e" un error de Python
+        # aturava el pas a l'instant i els reintents mai s'executaven.
+        set +e
         cd private-scripts-new
+        OK=0
         for i in 1 2 3; do
-          echo "--- arome_sfc_png.py: intent $i/3 ---"
-          python3 arome_sfc_png.py
+          echo "--- arome_sfc_png.py: intent $i/3 ($(date -u +%H:%M:%S) UTC) ---"
+          timeout 75m python3 arome_sfc_png.py
           CODI=$?
           N=$(find "$IMATGES_DIR" -name "sfc_*.png" -type f | wc -l)
           if [ $CODI -eq 0 ] || { [ $CODI -eq 134 ] && [ "$N" -ge 5 ] && [ -f "$IMATGES_DIR/manifest.json" ]; }; then
             echo "OK a l'intent $i (codi $CODI, $N PNG)"
-            exit 0
+            OK=1
+            break
           fi
           echo "ERROR (codi $CODI) a l'intent $i/3"
           sleep 30
         done
-        echo "ERROR: els 3 intents han fallat."
-        exit 1
-      timeout-minutes: 170
+        [ "$OK" = 1 ] || { echo "ERROR: els 3 intents han fallat."; exit 1; }
 
     - name: Verificar fitxers generats
       run: |
@@ -80,12 +93,19 @@ jobs:
         [ -f "$IMATGES_DIR/fons.png" ] || { echo "Falta fons.png"; exit 1; }
         echo "OK"
 
+    # Un sol fitxer .tar és MOLT més ràpid de pujar/baixar que milers de fitxers petits
+    - name: Empaquetar SFC
+      run: |
+        tar -cf "$GITHUB_WORKSPACE/sfc.tar" -C "$IMATGES_DIR" .
+        ls -lh "$GITHUB_WORKSPACE/sfc.tar"
+
     - name: Pujar SFC com a artifact
       uses: actions/upload-artifact@v4
       with:
         name: png-sfc
-        path: out-sfc/imatges/
-        retention-days: 5
+        path: sfc.tar
+        compression-level: 0
+        retention-days: 2
         if-no-files-found: error
 
   # ════════════════════════════════════════════════════════════════
@@ -93,18 +113,18 @@ jobs:
   # ════════════════════════════════════════════════════════════════
   png_3d:
     runs-on: ubuntu-latest
-    timeout-minutes: 180
+    timeout-minutes: 240
     env:
       IMATGES_DIR: ${{ github.workspace }}/out-3d/imatges
     steps:
-    - uses: actions/checkout@v4
-      with:
-        token: ${{ secrets.PRIVATE_REPO_TOKEN }}
-
     - name: Clonar private-scripts
       run: |
-        rm -rf private-scripts-new
-        git clone https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/Tempestesscatt/Scripts.git private-scripts-new
+        for i in 1 2 3 4; do
+          rm -rf private-scripts-new
+          if git clone --depth 1 "https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/Tempestesscatt/Scripts.git" private-scripts-new; then break; fi
+          [ "$i" = 4 ] && { echo "No s'ha pogut clonar private-scripts"; exit 1; }
+          sleep 15
+        done
 
     - uses: actions/setup-python@v5
       with:
@@ -112,10 +132,12 @@ jobs:
 
     - name: Instal·lar dependencies
       run: |
-        sudo apt-get update
-        sudo apt-get install -y libgeos-dev libproj-dev proj-data proj-bin
-        python3 -m pip install --upgrade pip
-        python3 -m pip install numpy requests scipy xarray cfgrib eccodes meteofetch matplotlib pillow msgpack
+        for i in 1 2 3; do
+          sudo apt-get update -qq && sudo apt-get install -y -qq libgeos-dev libproj-dev proj-data proj-bin && break
+          sleep 15
+        done
+        python3 -m pip install --retries 5 --upgrade pip
+        python3 -m pip install --retries 5 numpy requests scipy xarray cfgrib eccodes meteofetch matplotlib pillow msgpack
 
     - name: Preparar l'script (ruta de sortida i clau)
       run: |
@@ -125,24 +147,26 @@ jobs:
         grep -q 'os.environ\["IMATGES_DIR"\]' arome_3dpng.py || { echo "No s'ha pogut canviar IMATGES_DIR"; exit 1; }
         python3 -c 'import json; cfg = json.load(open("configNE.json", "r", encoding="utf-8-sig")); cfg["api_key"] = "${{ secrets.AROME_API_KEY }}"; json.dump(cfg, open("configNE.json", "w", encoding="utf-8"), indent=2)'
 
-    - name: Executar arome_3dpng.py
+    - name: Executar arome_3dpng.py (3 intents)
+      timeout-minutes: 230
       run: |
+        set +e
         cd private-scripts-new
+        OK=0
         for i in 1 2 3; do
-          echo "--- arome_3dpng.py: intent $i/3 ---"
-          python3 arome_3dpng.py
+          echo "--- arome_3dpng.py: intent $i/3 ($(date -u +%H:%M:%S) UTC) ---"
+          timeout 75m python3 arome_3dpng.py
           CODI=$?
           N=$(find "$IMATGES_DIR" -name "3d_*.png" -type f | wc -l)
           if [ $CODI -eq 0 ] || { [ $CODI -eq 134 ] && [ "$N" -ge 5 ]; }; then
             echo "OK a l'intent $i (codi $CODI, $N PNG)"
-            exit 0
+            OK=1
+            break
           fi
           echo "ERROR (codi $CODI) a l'intent $i/3"
           sleep 30
         done
-        echo "ERROR: els 3 intents han fallat."
-        exit 1
-      timeout-minutes: 170
+        [ "$OK" = 1 ] || { echo "ERROR: els 3 intents han fallat."; exit 1; }
 
     - name: Verificar fitxers generats
       run: |
@@ -150,14 +174,21 @@ jobs:
         S=$(find "$IMATGES_DIR" -name "sondeig_*.msgpack.gz" -type f | wc -l)
         echo "PNG 3d: $N | sondeigs: $S"
         [ "$N" -lt 5 ] && { echo "Massa pocs PNG"; exit 1; }
+        [ "$S" -lt 1 ] && { echo "Cap sondeig generat"; exit 1; }
         echo "OK"
+
+    - name: Empaquetar 3D
+      run: |
+        tar -cf "$GITHUB_WORKSPACE/3d.tar" -C "$IMATGES_DIR" .
+        ls -lh "$GITHUB_WORKSPACE/3d.tar"
 
     - name: Pujar 3D com a artifact
       uses: actions/upload-artifact@v4
       with:
         name: png-3d
-        path: out-3d/imatges/
-        retention-days: 5
+        path: 3d.tar
+        compression-level: 0
+        retention-days: 2
         if-no-files-found: error
 
   # ════════════════════════════════════════════════════════════════
@@ -165,14 +196,19 @@ jobs:
   # ════════════════════════════════════════════════════════════════
   manifest:
     runs-on: ubuntu-latest
-    timeout-minutes: 180
+    timeout-minutes: 60
     needs: [png_sfc, png_3d]
     env:
       IMATGES_DIR: ${{ github.workspace }}/merged/imatges
     steps:
     - name: Clonar private-scripts
       run: |
-        git clone https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/Tempestesscatt/Scripts.git private-scripts-new
+        for i in 1 2 3 4; do
+          rm -rf private-scripts-new
+          if git clone --depth 1 "https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/Tempestesscatt/Scripts.git" private-scripts-new; then break; fi
+          [ "$i" = 4 ] && { echo "No s'ha pogut clonar private-scripts"; exit 1; }
+          sleep 15
+        done
 
     - uses: actions/setup-python@v5
       with:
@@ -180,35 +216,42 @@ jobs:
 
     - name: Instal·lar dependències mínimes
       run: |
-        python3 -m pip install --upgrade pip
-        python3 -m pip install requests
+        python3 -m pip install --retries 5 --upgrade pip
+        python3 -m pip install --retries 5 requests
 
     - name: Descarregar SFC
       uses: actions/download-artifact@v4
       with:
         name: png-sfc
-        path: merged/imatges
+        path: /tmp/art-sfc
 
     - name: Descarregar 3D
       uses: actions/download-artifact@v4
       with:
         name: png-3d
-        path: merged/imatges
+        path: /tmp/art-3d
+
+    - name: Descomprimir SFC + 3D
+      run: |
+        mkdir -p "$IMATGES_DIR"
+        tar -xf /tmp/art-sfc/sfc.tar -C "$IMATGES_DIR"
+        tar -xf /tmp/art-3d/3d.tar -C "$IMATGES_DIR"
+        echo "Fitxers: $(find "$IMATGES_DIR" -type f | wc -l)"
 
     - name: Executar generar_manifestpngs.py
+      timeout-minutes: 30
       run: |
         cd private-scripts-new
         sed -i -E 's|^IMATGES_DIR = .*|IMATGES_DIR = Path(os.environ["IMATGES_DIR"])|' generar_manifestpngs.py
         grep -q 'os.environ\["IMATGES_DIR"\]' generar_manifestpngs.py || { echo "No s'ha pogut canviar IMATGES_DIR"; exit 1; }
         python3 generar_manifestpngs.py
-      timeout-minutes: 170
 
-    # ✅ Executar info.py — SENSE sed! info.py llegeix IMATGES_DIR de l'entorn nativament
+    # info.py llegeix IMATGES_DIR de l'entorn nativament (sense sed)
     - name: Executar info.py (info_run.json)
+      timeout-minutes: 5
       run: |
         cd private-scripts-new
         python3 info.py
-      timeout-minutes: 5
 
     - name: Resum del manifest
       run: |
@@ -225,7 +268,7 @@ jobs:
             print("RUN:", info.get("run_z"), "| fa", info.get("hores_des_de_run"), "h |",
                   "disponible:", info.get("disponible"))
         else:
-            print("⚠️  info_run.json NO generat")
+            print("info_run.json NO generat")
         PY
 
     - name: Pujar manifest com a artifact
@@ -233,207 +276,287 @@ jobs:
       with:
         name: png-manifest
         path: merged/imatges/manifest.json
-        retention-days: 5
+        retention-days: 2
         if-no-files-found: error
 
-    # 🆕 Pujar info_run.json com a artifact independent
     - name: Pujar info_run com a artifact
       uses: actions/upload-artifact@v4
       with:
         name: png-info-run
         path: merged/imatges/info_run.json
-        retention-days: 5
+        retention-days: 2
         if-no-files-found: warn
 
   # ════════════════════════════════════════════════════════════════
   #  JOB 4: DEPLOY
+  #   1) assembla la web (branca data + nou)
+  #   2) comprova límits de Cloudflare Pages
+  #   3) DEPLOY A CLOUDFLARE  <- primer: la web s'actualitza ja
+  #   4) guarda a la branca 'data' (amb timeouts i reintents)
   # ════════════════════════════════════════════════════════════════
   deploy:
     needs: [png_sfc, png_3d, manifest]
     runs-on: ubuntu-latest
-    timeout-minutes: 180
+    timeout-minutes: 120
     steps:
     - uses: actions/checkout@v4
       with:
         token: ${{ secrets.PRIVATE_REPO_TOKEN }}
-        fetch-depth: 0
+        fetch-depth: 1
 
     - name: Descarregar artifact - SFC
       uses: actions/download-artifact@v4
       with:
         name: png-sfc
-        path: /tmp/nou-sfc
+        path: /tmp/art-sfc
 
     - name: Descarregar artifact - 3D
       uses: actions/download-artifact@v4
       with:
         name: png-3d
-        path: /tmp/nou-3d
+        path: /tmp/art-3d
 
     - name: Descarregar artifact - MANIFEST
       uses: actions/download-artifact@v4
       with:
         name: png-manifest
-        path: /tmp/nou-manifest
+        path: /tmp/art-manifest
 
-    # 🆕 Descarregar info_run.json
     - name: Descarregar artifact - INFO RUN
       uses: actions/download-artifact@v4
       with:
         name: png-info-run
-        path: /tmp/nou-info
+        path: /tmp/art-info
       continue-on-error: true
 
-    - name: Fusionar i publicar a 'data' (reintents anti-cursa + estàtics protegits)
+    - name: Assemblar web (branca data + SFC/3D nous)
+      id: assemble
+      timeout-minutes: 20
       run: |
+        set -euo pipefail
         P="$GITHUB_WORKSPACE/meu-mapa/public"
         CARPETES="web_data_NE webdata_waves avis gfsmaps gfsESPmaps previsions_catalunya"
-        MAX_INTENTS=5
-        INTENT=1
-        PUBLICAT=0
         REMOTE_URL="https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/Tempestesscatt/joctempestes.git"
 
-        # Fitxers del 3D (la resta de web_data_NE/imatges es SFC)
+        # Fitxers del 3D (la resta de web_data_NE/imatges és SFC)
         PAT3D=( -name '3d_*' -o -name 'isolines_3d_*' -o -name 'legend_3d_*' -o -name 'sondeig_*' -o -name 'vent3d_*' -o -name 'stormmotion_*' )
 
-        [ -n "$(ls -A /tmp/nou-sfc 2>/dev/null)" ] || { echo "Falta SFC"; exit 1; }
-        [ -n "$(ls -A /tmp/nou-3d 2>/dev/null)" ] || { echo "Falta 3D"; exit 1; }
-        [ -f /tmp/nou-manifest/manifest.json ] || { echo "Falta manifest"; exit 1; }
+        rm -rf /tmp/nou-sfc /tmp/nou-3d
+        mkdir -p /tmp/nou-sfc /tmp/nou-3d
+        tar -xf /tmp/art-sfc/sfc.tar -C /tmp/nou-sfc
+        tar -xf /tmp/art-3d/3d.tar -C /tmp/nou-3d
+        [ -n "$(ls -A /tmp/nou-sfc)" ] || { echo "Falta SFC"; exit 1; }
+        [ -n "$(ls -A /tmp/nou-3d)" ] || { echo "Falta 3D"; exit 1; }
+        [ -f /tmp/art-manifest/manifest.json ] || { echo "Falta manifest"; exit 1; }
 
-        while [ $INTENT -le $MAX_INTENTS ]; do
-          echo "=== Intent $INTENT/$MAX_INTENTS ==="
-
-          cd "$GITHUB_WORKSPACE"
-          DATA_SHA_ABANS=$(git ls-remote "$REMOTE_URL" refs/heads/data | cut -f1)
-          [ -z "$DATA_SHA_ABANS" ] && DATA_SHA_ABANS="none"
-
-          rm -rf /tmp/estatic-base
-          mkdir -p /tmp/estatic-base
-          if [ -d "$P" ]; then
-            cp -r "$P"/. /tmp/estatic-base/
-            for c in $CARPETES; do rm -rf "/tmp/estatic-base/$c"; done
-            rm -f /tmp/estatic-base/js/status.js
-          fi
-          echo "--- Estatics protegits ---"
-          find /tmp/estatic-base -maxdepth 1
-
-          rm -rf /tmp/data-branch "$P"
-          mkdir -p "$P/js"
-          for c in $CARPETES; do mkdir -p "$P/$c"; done
-          cp -r /tmp/estatic-base/. "$P/"
-
-          if [ "$DATA_SHA_ABANS" != "none" ]; then
-            git fetch origin data
-            git worktree prune
-            git worktree add -f /tmp/data-branch FETCH_HEAD
-            for c in $CARPETES; do
-              cp -r /tmp/data-branch/$c/. "$P/$c/" 2>/dev/null || echo "  $c no trobat a data"
-            done
-            cp /tmp/data-branch/js/status.js "$P/js/status.js" 2>/dev/null || true
-            git worktree remove /tmp/data-branch --force
-          else
-            echo "La branca 'data' encara no existeix, es creara"
-          fi
-
-          # Substituir web_data_NE/imatges
-          IM="$P/web_data_NE/imatges"
-          mkdir -p "$IM"
-
-          find "$IM" -maxdepth 1 -type f ! \( "${PAT3D[@]}" \) -delete
-          cp -r /tmp/nou-sfc/. "$IM/"
-          echo "  imatges: SFC substituit"
-
-          find "$IM" -maxdepth 1 -type f \( "${PAT3D[@]}" \) -delete
-          cp -r /tmp/nou-3d/. "$IM/"
-          echo "  imatges: 3D substituit"
-
-          cp /tmp/nou-manifest/manifest.json "$IM/manifest.json"
-          echo "  imatges: manifest.json (SFC + 3D) aplicat"
-
-          # 🆕 Copiar info_run.json si existeix
-          if [ -f /tmp/nou-info/info_run.json ]; then
-            cp /tmp/nou-info/info_run.json "$IM/info_run.json"
-            echo "  imatges: info_run.json aplicat"
-          else
-            echo "  ⚠️  info_run.json no disponible, s'omet"
-          fi
-
-          echo "--- Resum abans de publicar ---"
-          for c in $CARPETES; do
-            echo "$c: $(find $P/$c -type f 2>/dev/null | wc -l) fitxers"
-          done
-          echo "imatges sfc: $(find $IM -name 'sfc_*.png' 2>/dev/null | wc -l) PNG"
-          echo "imatges 3d:  $(find $IM -name '3d_*.png' 2>/dev/null | wc -l) PNG"
-          if [ -f "$IM/info_run.json" ]; then echo "info_run.json: SI"; else echo "info_run.json: NO"; fi
-
-          # Commit a la branca 'data'
-          rm -rf /tmp/publish && mkdir -p /tmp/publish
-          cp -r "$P/." /tmp/publish/
-          cd /tmp/publish
-          rm -rf .git
-          git init -q
-          git checkout -q -b data
-
-          AFEGIT=0
-          for c in $CARPETES; do
-            if [ -n "$(find "$c" -type f 2>/dev/null)" ]; then
-              git add "$c"; AFEGIT=1
-            else
-              echo "  $c buida, s'omet"
-            fi
-          done
-          if [ -f js/status.js ]; then git add js/status.js; AFEGIT=1; fi
-
-          if [ "$AFEGIT" != "1" ]; then
-            echo "Res a publicar"; break
-          fi
-
-          git -c user.name="bot-dades" -c user.email="bot@tempestes-cat" \
-              commit -q -m "arome png $(date -u +'%Y-%m-%d %H:%M UTC')"
-          git remote add origin "$REMOTE_URL"
-
-          DATA_SHA_ARA=$(git ls-remote origin refs/heads/data | cut -f1)
-          [ -z "$DATA_SHA_ARA" ] && DATA_SHA_ARA="none"
-
-          if [ "$DATA_SHA_ABANS" != "$DATA_SHA_ARA" ]; then
-            echo "'data' ha canviat. Reintentem..."
-            INTENT=$((INTENT + 1))
-            sleep $((RANDOM % 10 + 5))
-            continue
-          fi
-
-          if git push --force origin data; then
-            echo "Publicat a 'data' (intent $INTENT)"
-            PUBLICAT=1
-            break
-          else
-            echo "Push fallit. Reintentem..."
-            INTENT=$((INTENT + 1))
-            sleep $((RANDOM % 10 + 5))
-          fi
+        # Estat actual de 'data'. Si GitHub no respon ABORTEM: continuar sense
+        # 'data' esborraria del web les carpetes dels altres workflows.
+        OK=0
+        for i in 1 2 3 4 5; do
+          if OUT=$(git ls-remote "$REMOTE_URL" refs/heads/data); then OK=1; break; fi
+          sleep 10
         done
+        [ "$OK" = 1 ] || { echo "No puc contactar amb GitHub (ls-remote)"; exit 1; }
+        DATA_SHA=$(echo "$OUT" | cut -f1)
+        [ -n "$DATA_SHA" ] || DATA_SHA="none"
 
-        cd "$GITHUB_WORKSPACE"
-        if [ "$PUBLICAT" != "1" ]; then
-          echo "No s'ha pogut publicar a 'data' despres de $MAX_INTENTS intents"
-          exit 1
+        # Estàtics protegits (tot el que NO és dinàmic)
+        rm -rf /tmp/estatic-base
+        mkdir -p /tmp/estatic-base
+        if [ -d "$P" ]; then
+          cp -r "$P"/. /tmp/estatic-base/
+          for c in $CARPETES; do rm -rf "/tmp/estatic-base/$c"; done
+          rm -f /tmp/estatic-base/js/status.js
         fi
-      timeout-minutes: 170
 
-    - name: Comprovar mida de fitxers (limit 25 MiB de Cloudflare Pages)
+        rm -rf /tmp/data-branch "$P"
+        mkdir -p "$P/js"
+        for c in $CARPETES; do mkdir -p "$P/$c"; done
+        cp -r /tmp/estatic-base/. "$P/"
+
+        if [ "$DATA_SHA" != "none" ]; then
+          OK=0
+          for i in 1 2 3 4 5; do
+            if git fetch --depth=1 origin data; then OK=1; break; fi
+            sleep 10
+          done
+          [ "$OK" = 1 ] || { echo "No puc baixar la branca data"; exit 1; }
+          DATA_SHA=$(git rev-parse FETCH_HEAD)
+          git worktree prune
+          git worktree add -f /tmp/data-branch FETCH_HEAD
+          for c in $CARPETES; do
+            cp -r /tmp/data-branch/$c/. "$P/$c/" 2>/dev/null || echo "  $c no trobat a data"
+          done
+          cp /tmp/data-branch/js/status.js "$P/js/status.js" 2>/dev/null || true
+          git worktree remove /tmp/data-branch --force
+        else
+          echo "La branca 'data' encara no existeix, es crearà"
+        fi
+        echo "$DATA_SHA" > "$RUNNER_TEMP/data_sha"
+
+        # Substituir web_data_NE/imatges
+        IM="$P/web_data_NE/imatges"
+        mkdir -p "$IM"
+        find "$IM" -maxdepth 1 -type f ! \( "${PAT3D[@]}" \) -delete
+        cp -r /tmp/nou-sfc/. "$IM/"
+        echo "  imatges: SFC substituït"
+        find "$IM" -maxdepth 1 -type f \( "${PAT3D[@]}" \) -delete
+        cp -r /tmp/nou-3d/. "$IM/"
+        echo "  imatges: 3D substituït"
+        cp /tmp/art-manifest/manifest.json "$IM/manifest.json"
+        echo "  imatges: manifest.json (SFC + 3D) aplicat"
+        if [ -f /tmp/art-info/info_run.json ]; then
+          cp /tmp/art-info/info_run.json "$IM/info_run.json"
+          echo "  imatges: info_run.json aplicat"
+        else
+          echo "  info_run.json no disponible, s'omet"
+        fi
+        if [ "${ELIMINAR_ISOLINIES_3D:-0}" = "1" ]; then
+          find "$IM" -maxdepth 1 -name 'isolines_3d_*' -delete
+          echo "  imatges: isolínies 3D eliminades (ELIMINAR_ISOLINIES_3D=1)"
+        fi
+
+        echo "--- Resum ---"
+        for c in $CARPETES; do echo "$c: $(find "$P/$c" -type f | wc -l) fitxers"; done
+        echo "imatges sfc: $(find "$IM" -name 'sfc_*.png' | wc -l) PNG"
+        echo "imatges 3d:  $(find "$IM" -name '3d_*.png' | wc -l) PNG"
+        du -sh "$P/web_data_NE" || true
+
+    - name: Comprovar límits de Cloudflare Pages
       run: |
-        find meu-mapa/public -type f -size +25M -exec ls -lh {} \; || true
-        echo "Total fitxers: $(find meu-mapa/public -type f | wc -l)  (limit Pages: 20000)"
+        P="$GITHUB_WORKSPACE/meu-mapa/public"
+        # Pages: màx. 25 MiB per fitxer i 20.000 fitxers per deploy
+        find "$P" -type f -size +25M -print -delete || true
+        N=$(find "$P" -type f | wc -l)
+        echo "Total fitxers: $N (límit Pages: 20000)"
+        if [ "$N" -gt 19000 ]; then
+          echo "Massa fitxers: elimino les isolínies 3D (opcionals)"
+          find "$P/web_data_NE/imatges" -maxdepth 1 -name 'isolines_3d_*' -delete || true
+          N=$(find "$P" -type f | wc -l)
+          echo "Total fitxers ara: $N"
+        fi
+        [ "$N" -le 19900 ] || { echo "Encara massa fitxers per a Cloudflare Pages"; exit 1; }
 
     - name: Deploy a Cloudflare
-      run: |
-        cd meu-mapa
-        npm install -g wrangler
-        wrangler pages deploy public --project-name=tempestes-cat --branch=main --commit-dirty=true
+      id: deploy
+      timeout-minutes: 80
       env:
         CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-      timeout-minutes: 170
+        WRANGLER_SEND_METRICS: "false"
+      run: |
+        cd meu-mapa
+        for i in 1 2 3; do
+          npm install -g wrangler && break
+          sleep 10
+        done
+        for i in 1 2 3; do
+          echo "--- deploy intent $i/3 ($(date -u +%H:%M:%S) UTC) ---"
+          if timeout 25m wrangler pages deploy public --project-name=tempestes-cat --branch=main --commit-dirty=true; then
+            echo "Deploy OK"
+            exit 0
+          fi
+          sleep 20
+        done
+        echo "El deploy a Cloudflare ha fallat 3 vegades"
+        exit 1
+
+    # S'executa encara que el deploy hagi fallat: així les dades no es perden.
+    - name: Guardar a la branca 'data'
+      if: always() && steps.assemble.outcome == 'success'
+      timeout-minutes: 45
+      run: |
+        # Sense -e: gestionem els errors a mà (reintents)
+        set -uo pipefail
+        P="$GITHUB_WORKSPACE/meu-mapa/public"
+        CARPETES="web_data_NE webdata_waves avis gfsmaps gfsESPmaps previsions_catalunya"
+        REMOTE_URL="https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/Tempestesscatt/joctempestes.git"
+        EXPECT=$(cat "$RUNNER_TEMP/data_sha")
+        MSG="arome png $(date -u +'%Y-%m-%d %H:%M UTC')"
+        T0=$(date +%s)
+        tick() { echo "  ⏱  $1: $(( $(date +%s) - T0 ))s"; }
+
+        # Només copiem el que es versiona (no els estàtics)
+        rm -rf /tmp/publish
+        mkdir -p /tmp/publish/js
+        for c in $CARPETES; do
+          if [ -d "$P/$c" ]; then cp -r "$P/$c" /tmp/publish/; fi
+        done
+        if [ -f "$P/js/status.js" ]; then cp "$P/js/status.js" /tmp/publish/js/status.js; fi
+        du -sh /tmp/publish
+        tick "còpia"
+
+        cd /tmp/publish
+        git init -q
+        git checkout -q -b data
+        git config user.name "bot-dades"
+        git config user.email "bot@tempestes-cat"
+        # Els PNG ja venen comprimits: res de deltes (era el que tardava) i compressió ràpida
+        git config core.compression 1
+        git config pack.compression 1
+        git config pack.window 0
+        git config pack.threads 0
+        git config gc.auto 0
+        # HTTP/1.1 + buffer gran: evita els "hung up" / penjades en pushes grans
+        git config http.version HTTP/1.1
+        git config http.postBuffer 1048576000
+        git remote add origin "$REMOTE_URL"
+
+        AFEGIT=0
+        for c in $CARPETES; do
+          if [ -n "$(find "$c" -type f 2>/dev/null | head -n 1)" ]; then
+            git add -A "$c"; AFEGIT=1
+          else
+            echo "  $c buida, s'omet"
+          fi
+        done
+        if [ -f js/status.js ]; then git add js/status.js; AFEGIT=1; fi
+        if [ "$AFEGIT" != "1" ]; then echo "Res a publicar"; exit 0; fi
+        git commit -q -m "$MSG"
+        tick "commit"
+
+        PUBLICAT=0
+        for INTENT in 1 2 3 4 5; do
+          echo "=== Push intent $INTENT/5 ==="
+          if [ "$EXPECT" = "none" ]; then
+            timeout 1500 git push origin data
+          else
+            # Només sobreescriu si 'data' és exactament el que vam llegir
+            timeout 1500 git push --force-with-lease="data:$EXPECT" origin data
+          fi
+          RC=$?
+          if [ $RC -eq 0 ]; then PUBLICAT=1; break; fi
+          echo "Push fallit/rebutjat (codi $RC)"
+
+          NOU=$(git ls-remote origin refs/heads/data | cut -f1)
+          if [ -n "$NOU" ] && [ "$NOU" != "$EXPECT" ]; then
+            echo "'data' ha canviat ($EXPECT -> $NOU): refresco les carpetes d'altres workflows"
+            if ( cd "$GITHUB_WORKSPACE" \
+                 && git fetch --depth=1 origin data \
+                 && rm -rf /tmp/data-branch2 \
+                 && git worktree prune \
+                 && git worktree add -f /tmp/data-branch2 FETCH_HEAD ); then
+              for c in $CARPETES; do
+                [ "$c" = "web_data_NE" ] && continue
+                rm -rf "/tmp/publish/$c"
+                cp -r "/tmp/data-branch2/$c" /tmp/publish/ 2>/dev/null || true
+              done
+              cp /tmp/data-branch2/js/status.js /tmp/publish/js/status.js 2>/dev/null || true
+              ( cd "$GITHUB_WORKSPACE" && git worktree remove /tmp/data-branch2 --force )
+              git add -A
+              git commit -q --amend -m "$MSG"
+              EXPECT="$NOU"
+            fi
+          fi
+          sleep $((RANDOM % 10 + 5))
+        done
+        tick "push"
+
+        if [ "$PUBLICAT" != "1" ]; then
+          echo "No s'ha pogut guardar a 'data' després de 5 intents (la web SÍ s'ha desplegat a Cloudflare)"
+          exit 1
+        fi
+        echo "Publicat a 'data'"
 
     - name: Completat
       run: echo "Deploy completat $(date -u)"
