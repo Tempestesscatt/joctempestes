@@ -391,27 +391,54 @@ function info3D(v) {
     return CATALEG_3D_NIVELL.find(c => c.var === v) || CATALEG_3D_COLUMNA.find(c => c.var === v) || null;
 }
 
-// ─── STREAMLINES NOMÉS PER VARIABLES DE VENT ───────────────────────
-// Conjunt de claus que SÍ que han de mostrar streamlines.
-// La resta de variables no en dibuixen mai, encara que MOSTRAR_VENT estigui ON.
-const VARS_AMB_STREAMLINES = new Set([
-    'wind_speed_10m',
-    'wind_speed_gust_specific_height_level_above_ground',
-    'wind_gust',
-    'su', 'sv',
+// ─── STREAMLINES per a TOTES les variables EXCEPTE precipitació/neu/núvols ──
+// Llista negra: aquestes variables MAI porten streamlines.
+const VARS_SENSE_STREAMLINES = new Set([
+    // Precipitació
+    'tp',
+    'precip_ground',
+    'rr_sol_gele_ground',
+    // Neu
+    'tsnowp',
+    'neige_ground',
+    'snow_depth_ground_or_water_surface',
+    'water_equivalent_accumulated_snow_ground_or_water_surface',
+    'hteuneige_ground',
+    'hteurneige_ground',
+    'hterneige_ground',
+    'neige_sc_ground',
+    'resr_neige_ground',
+    // Radar simulat
+    'reflectivity_max_dbz_ground_or_water_surface',
+    // Núvols
+    'total_cloud_cover_ground_or_water_surface',
+    'low_cloud_cover',
+    'medium_cloud_cover',
+    'high_cloud_cover',
+    'base_nuage_ground',
+    'plafond_ground',
+    // Satèl·lit
+    'bt_channels_108',
+    'bt_channels_62',
 ]);
 
-// Variables 3D que mostren vent per nivell
-const VARS_3D_AMB_STREAMLINES = new Set(['wind_speed', 'wind_dir', 'u', 'v']);
+// Regex per detectar automàticament qualsevol variable de pluja/neu/núvol
+// encara que no estigui a la llista (per si el manifest en té de noves).
+const REGEX_SENSE_STREAMLINES = /neige|snow|precip|reflectivity|^tp$|tsnowp|cloud|nuage|plafond|^bt_|gele|hail|grele/i;
 
-// Comprova si la variable activa (SFC o 3D) vol streamlines
 function variableActivaTeStreamlines() {
+    // Si és una capa 3D
     if (_capa3DActiva) {
-        // 3D: només les de vent, i només si no és columna
+        // Les variables de columna (shear, storm_speed, etc.) tenen les seves pròpies barbes
         if (_capa3DActiva.nivell === NIVELL_COLUMNA) return false;
-        return VARS_3D_AMB_STREAMLINES.has(_capa3DActiva.var);
+        // Per a la resta de 3D, SÍ streamlines (t, dpt, r, wind_speed, wind_dir, w, pv...)
+        return true;
     }
-    return VARS_AMB_STREAMLINES.has(variableActiva);
+    // Superfície: comprova llista negra + regex
+    const k = normClau(variableActiva);
+    if (VARS_SENSE_STREAMLINES.has(k)) return false;
+    if (REGEX_SENSE_STREAMLINES.test(k)) return false;
+    return true;
 }
 
 const OCULTES_SFC = new Set(['su', 'sv']);
