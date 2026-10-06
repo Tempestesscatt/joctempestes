@@ -5,7 +5,6 @@
 //
 //  NOVETATS:
 //   - Llista 3D curada (CATALEG_3D_*): sense duplicats, sense u/v ni camps tècnics.
-//     Ja NO depèn de manifest.variables_3d (el script 3D no l'escriu).
 //   - Variables per nivell: una sola fila + "chips" de nivell (1000…200 hPa).
 //   - Variables de columna (fitxer ..._col.png): Shear, SRH, DCAPE, LI, LCL, storm motion.
 //   - Storm motion: PNG de velocitat + barbes vectorials (stormmotion_HH_dia.js).
@@ -14,8 +13,10 @@
 //   - Pinch-zoom robust (no es queda enganxat amb dos dits).
 //   - Botó "Sistema" al menú per comprovar i forçar actualitzacions netes.
 //   - CACHE-BUSTING: TOTES les peticions dinàmiques porten ?_cb=timestamp.
-//     Els PNG/JS poden cachejar-se al navegador perquè el nom és únic per hora.
-//     El manifest, info_run i scripts principals sempre es demanen frescos.
+//   - FILTRE DUR de variables: només surten les que tenen nom català al diccionari.
+//     Les claus residuals en anglès (Passat xxx, tsnowp, etc.) s'amaguen.
+//   - STREAMLINES CONDICIONALS: només es dibuixen per variables de vent.
+//     Precipitació, neu, núvols, temperatura, pressió → mai streamlines.
 // ═══════════════════════════════════════════════════════════════════════
 
 const FIT = 'contain';
@@ -73,7 +74,7 @@ const MAX_CACHE_VENT = 20;
 const MAX_CACHE_SONDEIGS = 8;
 
 // ─── Detecció de dispositiu ────────────────────────────────────────
-const ES_MOBIL = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+const ES_MOBIL = /Android|iPhone|iPad|iPad|iPod|Mobile/i.test(navigator.userAgent);
 
 // ─── Rutes ─────────────────────────────────────────────────────────
 const _pathActual = window.location.pathname;
@@ -390,6 +391,29 @@ function info3D(v) {
     return CATALEG_3D_NIVELL.find(c => c.var === v) || CATALEG_3D_COLUMNA.find(c => c.var === v) || null;
 }
 
+// ─── STREAMLINES NOMÉS PER VARIABLES DE VENT ───────────────────────
+// Conjunt de claus que SÍ que han de mostrar streamlines.
+// La resta de variables no en dibuixen mai, encara que MOSTRAR_VENT estigui ON.
+const VARS_AMB_STREAMLINES = new Set([
+    'wind_speed_10m',
+    'wind_speed_gust_specific_height_level_above_ground',
+    'wind_gust',
+    'su', 'sv',
+]);
+
+// Variables 3D que mostren vent per nivell
+const VARS_3D_AMB_STREAMLINES = new Set(['wind_speed', 'wind_dir', 'u', 'v']);
+
+// Comprova si la variable activa (SFC o 3D) vol streamlines
+function variableActivaTeStreamlines() {
+    if (_capa3DActiva) {
+        // 3D: només les de vent, i només si no és columna
+        if (_capa3DActiva.nivell === NIVELL_COLUMNA) return false;
+        return VARS_3D_AMB_STREAMLINES.has(_capa3DActiva.var);
+    }
+    return VARS_AMB_STREAMLINES.has(variableActiva);
+}
+
 const OCULTES_SFC = new Set(['su', 'sv']);
 
 const SECCIONS = [
@@ -697,7 +721,6 @@ function crearEscena() {
     ajustarVista(false);
     crearPanell();
 
-    // 🔑 Iniciem el detector de llegendes CSS un cop creat l'img
     _iniciarObservadorLlegenda();
 }
 
@@ -837,7 +860,6 @@ function activarInteraccio() {
     viewport.addEventListener('pointerdown', e => {
         puntersActius.add(e.pointerId);
 
-        // 🔑 Si hi ha 2+ punters, és un pinch → cancel·lem el drag
         if (puntersActius.size >= 2) {
             arrossegant = false;
             if (pointerActiu !== null) {
@@ -1693,12 +1715,14 @@ function crearPanell() {
                     _ventActual = null;
                     programarRedibuix();
                 } else {
-                    if (_capa3DActiva && _capa3DActiva.nivell !== NIVELL_COLUMNA &&
-                        ['wind_speed','wind_dir','u','v'].includes(_capa3DActiva.var)) {
-                        carregarVent3D(_capa3DActiva.hora, _capa3DActiva.dia, _capa3DActiva.nivell)
-                            .then(c => { _ventActual = c; programarRedibuix(); });
-                    } else if (!_capa3DActiva) {
-                        carregarVent(curIdx).then(v => { _ventActual = v; programarRedibuix(); });
+                    if (variableActivaTeStreamlines()) {
+                        if (_capa3DActiva && _capa3DActiva.nivell !== NIVELL_COLUMNA &&
+                            ['wind_speed','wind_dir','u','v'].includes(_capa3DActiva.var)) {
+                            carregarVent3D(_capa3DActiva.hora, _capa3DActiva.dia, _capa3DActiva.nivell)
+                                .then(c => { _ventActual = c; programarRedibuix(); });
+                        } else if (!_capa3DActiva) {
+                            carregarVent(curIdx).then(v => { _ventActual = v; programarRedibuix(); });
+                        }
                     }
                 }
             } else if (prop === 'MOSTRAR_BARBES') {
@@ -1850,16 +1874,35 @@ function construirPanellParametres() {
     cont.innerHTML = '';
     _filesVariables = [];
 
+    // ═══════════════════════════════════════════════════════════════
+    //  FILTRE DUR: només variables amb nom català al diccionari dur.
+    //  Qualsevol clau residual en anglès (Passat xxx, tsnowp, etc.)
+    //  s'exclou automàticament.
+    // ═══════════════════════════════════════════════════════════════
     const totes = new Set();
     for (const h of totesLesHores) for (const v of h.variables) {
-        if (!OCULTES_SFC.has(normClau(v))) totes.add(v);
+        if (OCULTES_SFC.has(normClau(v))) continue;
+        const k = normClau(v);
+
+        // 1) Descarta noms residuals amb prefix "Passat" (case-insensitive)
+        if (/^passat\s+/i.test(v)) continue;
+        if (/^passat_/i.test(k)) continue;
+
+        // 2) Descarta claus que NO tenen traducció al diccionari dur.
+        //    Només acceptem les que apareixen a NOMS_VARIABLES.
+        if (!NOMS_VARIABLES[k]) continue;
+
+        totes.add(v);
     }
+
     const visibles = new Set();
     const nomsVistos = new Set();
+
     [...totes]
         .sort((a, b) => (prioritatClau(a) - prioritatClau(b)) || a.localeCompare(b))
         .forEach(clau => {
-            const nk = nrm(nomVariable(clau));
+            const nom = nomVariable(clau);
+            const nk = nrm(nom);
             if (nomsVistos.has(nk)) return;
             nomsVistos.add(nk);
             visibles.add(clau);
@@ -2623,6 +2666,10 @@ function dibuixarVent() {
     if (!canvasVent) return;
     const { ctx, W, H } = prepararCtx(canvasVent);
 
+    // 🔑 Si la variable activa no vol streamlines, no dibuixem res.
+    if (!variableActivaTeStreamlines()) return;
+
+    // Capa 3D amb barbes de storm motion
     if (_capa3DActiva && VARS_AMB_BARBES.has(_capa3DActiva.var)) {
         if (window.MOSTRAR_BARBES && window._extentManifest) dibuixarBarbesStorm(ctx, W, H);
         return;
@@ -2853,6 +2900,10 @@ async function refrescarVentIsolines() {
     const token = ++_tokenVI;
     const idx = curIdx, clau = variableActiva;
     _isolinesActuals = null;
+
+    // 🔑 Si la variable no vol streamlines, no cal carregar vent.
+    const volVent = variableActivaTeStreamlines();
+    if (!volVent) _ventActual = null;
     programarRedibuix();
 
     if (_capa3DActiva) {
@@ -2865,7 +2916,7 @@ async function refrescarVentIsolines() {
         return;
     }
     const [vent, iso] = await Promise.all([
-        carregarVent(idx),
+        volVent ? carregarVent(idx) : Promise.resolve(null),
         window.MOSTRAR_ISOLINIES ? carregarIsolines(idx, clau) : Promise.resolve(null),
     ]);
     if (token !== _tokenVI) return;
@@ -3053,4 +3104,4 @@ if (document.readyState === 'loading') {
     inicialitzar();
 }
 
-console.log('✅ mapapngs.js carregat — accés restringit + actualitzacions + pinch fix + cache-busting');
+console.log('✅ mapapngs.js carregat — filtre dur de variables + streamlines condicionals + cache-busting');
