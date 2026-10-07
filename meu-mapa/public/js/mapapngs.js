@@ -17,6 +17,9 @@
 //     Les claus residuals en anglès (Passat xxx, tsnowp, etc.) s'amaguen.
 //   - STREAMLINES CONDICIONALS: només es dibuixen per variables de vent.
 //     Precipitació, neu, núvols, temperatura, pressió → mai streamlines.
+//   - ISOLÍNIES CONDICIONALS: variables com satèl·lit/radar/reflectivitat no en tenen.
+//     El panell desactiva el botó d'isolínies per a aquestes variables.
+//   - BARBES DE STORM MOTION: funcionen per shear_01/03/06 i storm_speed.
 // ═══════════════════════════════════════════════════════════════════════
 
 const FIT = 'contain';
@@ -97,7 +100,7 @@ const CARPETES_NOMS = [
 ];
 
 // ═══════════════════════════════════════════════════════════════════
-//  CACHE-BUSTING: utilitat per afegir ?_cb= a qualsevol URL
+//  CACHE-BUSTING
 // ═══════════════════════════════════════════════════════════════════
 function ambCb(url) {
     if (!url) return url;
@@ -105,10 +108,6 @@ function ambCb(url) {
     const sep = url.includes('?') ? '&' : '?';
     return url + sep + '_cb=' + Date.now();
 }
-
-// ═══════════════════════════════════════════════════════════════════
-//  FETCH amb no-store (evita caché del navegador + service worker)
-// ═══════════════════════════════════════════════════════════════════
 function fetchFresc(url, opts) {
     return fetch(ambCb(url), Object.assign({ cache: 'no-store' }, opts || {}));
 }
@@ -170,11 +169,9 @@ const BARBES_CFG = {
     llargada: 26,
     separacioMin: 38,
 };
-
 const BARBES_PASSADES = [
     ['rgba(15,15,25,0.95)', 1.3],
 ];
-
 const VARS_AMB_BARBES = new Set(['storm_speed', 'shear_01', 'shear_03', 'shear_06']);
 
 const ISO_CFG = {
@@ -285,10 +282,8 @@ function _llevarCache(map, max) {
 function programarRedibuix() {
     guardarVistaDiferit();
     if (_rafPendent) return;
-
     const ara = performance.now();
     const delta = ara - _darrerRedibuix;
-
     if (delta < INTERVAL_MIN_REDRAW) {
         _rafPendent = requestAnimationFrame(() => {
             _rafPendent = null;
@@ -297,7 +292,6 @@ function programarRedibuix() {
         });
         return;
     }
-
     _rafPendent = requestAnimationFrame(() => {
         _rafPendent = null;
         _darrerRedibuix = performance.now();
@@ -360,12 +354,15 @@ const NOMS_VARIABLES_3D = {
     shear_01: 'Shear 0-1 km', shear_03: 'Shear 0-3 km', shear_06: 'Shear 0-6 km',
     srh_01: 'SRH 0-1 km', srh_03: 'SRH 0-3 km',
     dcape: 'DCAPE', lifted_index: 'Lifted Index', lcl_m: 'Base del núvol (LCL)',
+    lfc_m: 'LFC efectiu (≥3 km de convecció lliure)',
     hail_cm: 'Calamarsa potencial', storm_speed: 'Moviment de tempestes (storm motion)',
 };
 
 // ─── Catàleg 3D CURAT ──────────────────────────────────────────────
 const NIVELL_COLUMNA = 'col';
 const NIVELLS_3D = [1000, 925, 850, 700, 500, 300, 200];
+// LFC és una variable de columna: no porta nivell de pressió.
+// El fitxer esperat és ..._lfc_m_col.png i la llegenda ...legend_3d_lfc_m.png.
 
 const CATALEG_3D_NIVELL = [
     { var: 't',          nom: 'Temperatura',         unitat: '°C' },
@@ -384,6 +381,7 @@ const CATALEG_3D_COLUMNA = [
     { var: 'dcape',        nom: 'DCAPE (corrents descendents)',       unitat: 'J/kg' },
     { var: 'lifted_index', nom: 'Lifted Index',                       unitat: '°C' },
     { var: 'lcl_m',        nom: 'Base del núvol (LCL)',               unitat: 'm' },
+    { var: 'lfc_m',        nom: 'LFC efectiu (≥3 km de convecció lliure)', unitat: 'm' },
     { var: 'storm_speed',  nom: 'Moviment de tempestes (barbes)',     unitat: 'km/h' },
 ];
 
@@ -392,13 +390,10 @@ function info3D(v) {
 }
 
 // ─── STREAMLINES per a TOTES les variables EXCEPTE precipitació/neu/núvols ──
-// Llista negra: aquestes variables MAI porten streamlines.
 const VARS_SENSE_STREAMLINES = new Set([
-    // Precipitació
     'tp',
     'precip_ground',
     'rr_sol_gele_ground',
-    // Neu
     'tsnowp',
     'neige_ground',
     'snow_depth_ground_or_water_surface',
@@ -408,6 +403,35 @@ const VARS_SENSE_STREAMLINES = new Set([
     'hterneige_ground',
     'neige_sc_ground',
     'resr_neige_ground',
+    'reflectivity_max_dbz_ground_or_water_surface',
+    'total_cloud_cover_ground_or_water_surface',
+    'low_cloud_cover',
+    'medium_cloud_cover',
+    'high_cloud_cover',
+    'base_nuage_ground',
+    'plafond_ground',
+    'bt_channels_108',
+    'bt_channels_62',
+]);
+
+const REGEX_SENSE_STREAMLINES = /neige|snow|precip|reflectivity|^tp$|tsnowp|cloud|nuage|plafond|^bt_|gele|hail|grele/i;
+
+function variableActivaTeStreamlines() {
+    if (_capa3DActiva) {
+        if (_capa3DActiva.nivell === NIVELL_COLUMNA) return false;
+        return true;
+    }
+    const k = normClau(variableActiva);
+    if (VARS_SENSE_STREAMLINES.has(k)) return false;
+    if (REGEX_SENSE_STREAMLINES.test(k)) return false;
+    return true;
+}
+
+// ─── ISOLÍNIES: variables que NO en tenen ──────────────────────────
+const VARS_SENSE_ISOLINIES = new Set([
+    // Satèl·lit
+    'bt_channels_108',
+    'bt_channels_62',
     // Radar simulat
     'reflectivity_max_dbz_ground_or_water_surface',
     // Núvols
@@ -417,29 +441,24 @@ const VARS_SENSE_STREAMLINES = new Set([
     'high_cloud_cover',
     'base_nuage_ground',
     'plafond_ground',
-    // Satèl·lit
-    'bt_channels_108',
-    'bt_channels_62',
+    // Altres sense sentit
+    'precip_ground',
+    'rr_sol_gele_ground',
 ]);
 
-// Regex per detectar automàticament qualsevol variable de pluja/neu/núvol
-// encara que no estigui a la llista (per si el manifest en té de noves).
-const REGEX_SENSE_STREAMLINES = /neige|snow|precip|reflectivity|^tp$|tsnowp|cloud|nuage|plafond|^bt_|gele|hail|grele/i;
+const REGEX_SENSE_ISOLINIES = /^bt_|reflectivity|cloud|nuage|plafond|precip_ground|rr_sol_gele|base_nuage/i;
 
-function variableActivaTeStreamlines() {
-    // Si és una capa 3D
-    if (_capa3DActiva) {
-        // Les variables de columna (shear, storm_speed, etc.) tenen les seves pròpies barbes
-        if (_capa3DActiva.nivell === NIVELL_COLUMNA) return false;
-        // Per a la resta de 3D, SÍ streamlines (t, dpt, r, wind_speed, wind_dir, w, pv...)
-        return true;
-    }
-    // Superfície: comprova llista negra + regex
+function variableActivaTeIsolines() {
+    if (_capa3DActiva) return true; // les 3D sempre en tenen (si estan generades)
     const k = normClau(variableActiva);
-    if (VARS_SENSE_STREAMLINES.has(k)) return false;
-    if (REGEX_SENSE_STREAMLINES.test(k)) return false;
+    if (VARS_SENSE_ISOLINIES.has(k)) return false;
+    if (REGEX_SENSE_ISOLINIES.test(k)) return false;
     return true;
 }
+
+// Exportem perquè el dock pugui consultar-ho
+window.variableActivaTeIsolines = variableActivaTeIsolines;
+window.variableActivaTeStreamlines = variableActivaTeStreamlines;
 
 const OCULTES_SFC = new Set(['su', 'sv']);
 
@@ -507,12 +526,11 @@ function prioritatClau(clau) {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-//  LLEGENDES CSS (variables sense PNG de llegenda)
+//  LLEGENDES CSS
 // ═══════════════════════════════════════════════════════════════════
 const LLEGENDES_CSS = {
     'convective_index': {
-        titol: 'Índex convectiu',
-        unitat: '',
+        titol: 'Índex convectiu', unitat: '',
         trams: [
             { color: '#4a90e2', valor: '< 1' },
             { color: '#7ed321', valor: '1 - 2' },
@@ -522,8 +540,7 @@ const LLEGENDES_CSS = {
         ],
     },
     'cape': {
-        titol: 'CAPE',
-        unitat: 'J/kg',
+        titol: 'CAPE', unitat: 'J/kg',
         trams: [
             { color: '#3b6fd4', valor: '0 - 500' },
             { color: '#4fc3f7', valor: '500 - 1000' },
@@ -534,8 +551,7 @@ const LLEGENDES_CSS = {
         ],
     },
     'lifted_index': {
-        titol: 'Lifted Index',
-        unitat: '°C',
+        titol: 'Lifted Index', unitat: '°C',
         trams: [
             { color: '#8b1a1a', valor: '< -6' },
             { color: '#e53935', valor: '-6 a -3' },
@@ -545,8 +561,7 @@ const LLEGENDES_CSS = {
         ],
     },
     'dcape': {
-        titol: 'DCAPE',
-        unitat: 'J/kg',
+        titol: 'DCAPE', unitat: 'J/kg',
         trams: [
             { color: '#fff9c4', valor: '< 400' },
             { color: '#ffe082', valor: '400 - 800' },
@@ -556,8 +571,7 @@ const LLEGENDES_CSS = {
         ],
     },
     'shear_01': {
-        titol: 'Shear 0-1 km',
-        unitat: 'm/s',
+        titol: 'Shear 0-1 km', unitat: 'm/s',
         trams: [
             { color: '#dbeafe', valor: '< 5' },
             { color: '#93c5fd', valor: '5 - 10' },
@@ -567,8 +581,7 @@ const LLEGENDES_CSS = {
         ],
     },
     'shear_03': {
-        titol: 'Shear 0-3 km',
-        unitat: 'm/s',
+        titol: 'Shear 0-3 km', unitat: 'm/s',
         trams: [
             { color: '#dbeafe', valor: '< 8' },
             { color: '#93c5fd', valor: '8 - 12' },
@@ -578,8 +591,7 @@ const LLEGENDES_CSS = {
         ],
     },
     'shear_06': {
-        titol: 'Shear 0-6 km',
-        unitat: 'm/s',
+        titol: 'Shear 0-6 km', unitat: 'm/s',
         trams: [
             { color: '#dbeafe', valor: '< 10' },
             { color: '#93c5fd', valor: '10 - 15' },
@@ -589,8 +601,7 @@ const LLEGENDES_CSS = {
         ],
     },
     'srh_01': {
-        titol: 'SRH 0-1 km',
-        unitat: 'm²/s²',
+        titol: 'SRH 0-1 km', unitat: 'm²/s²',
         trams: [
             { color: '#f0fdf4', valor: '< 50' },
             { color: '#bbf7d0', valor: '50 - 100' },
@@ -600,8 +611,7 @@ const LLEGENDES_CSS = {
         ],
     },
     'srh_03': {
-        titol: 'SRH 0-3 km',
-        unitat: 'm²/s²',
+        titol: 'SRH 0-3 km', unitat: 'm²/s²',
         trams: [
             { color: '#f0fdf4', valor: '< 100' },
             { color: '#bbf7d0', valor: '100 - 200' },
@@ -627,15 +637,11 @@ function _mostrarLlegendaCss(clau) {
     if (!clau) return false;
     const def = LLEGENDES_CSS[clau];
     if (!def) return false;
-
     if (_llegendaCssEl && _llegendaCssClauActual === clau) return true;
-
     _eliminarLlegendaCss();
-
     const el = document.createElement('div');
     el.className = 'llegenda-css';
     el.dataset.clau = clau;
-
     let html = `<div class="lc-titol">${def.titol || clau}` +
                (def.unitat ? `<span class="lc-unitat">${def.unitat}</span>` : '') +
                `</div>`;
@@ -649,20 +655,15 @@ function _mostrarLlegendaCss(clau) {
     document.body.appendChild(el);
     _llegendaCssEl = el;
     _llegendaCssClauActual = clau;
-
     if (imgLlegenda) imgLlegenda.style.display = 'none';
     return true;
 }
 
 function _sincronitzarLlegenda() {
     let clau = null;
-    if (_capa3DActiva) {
-        clau = _capa3DActiva.var;
-    } else if (variableActiva) {
-        clau = variableActiva;
-    }
+    if (_capa3DActiva) clau = _capa3DActiva.var;
+    else if (variableActiva) clau = variableActiva;
     if (!clau) return;
-
     if (LLEGENDES_CSS[clau]) {
         _mostrarLlegendaCss(clau);
     } else {
@@ -675,10 +676,8 @@ function _sincronitzarLlegenda() {
 
 function _iniciarObservadorLlegenda() {
     if (!imgLlegenda) return;
-
     const obs = new MutationObserver(() => _sincronitzarLlegenda());
     obs.observe(imgLlegenda, { attributes: true, attributeFilter: ['src', 'style'] });
-
     setInterval(_sincronitzarLlegenda, 400);
     _sincronitzarLlegenda();
 }
@@ -708,46 +707,37 @@ function crearEscena() {
         background: '#1b2330', touchAction: 'none', cursor: 'grab', zIndex: '0',
         WebkitTapHighlightColor: 'transparent',
     });
-
     stage = document.createElement('div');
     stage.style.cssText = 'position:absolute;left:0;top:0;transform-origin:0 0;'
         + 'will-change:transform;backface-visibility:hidden;';
-
     imgFons = crearImatge(1);
     imgDades = crearImatge(2, `opacity:${OPACITAT_DADES};visibility:hidden;image-rendering:auto;`);
     imgVores = crearImatge(3);
     stage.append(imgFons, imgDades, imgVores);
     viewport.appendChild(stage);
-
     canvasVores = crearCanvas(9);
     canvasIsolines = crearCanvas(10);
     canvasVent = crearCanvas(11);
     canvasNoms = crearCanvas(12);
-
     imgLlegenda = document.createElement('img');
     imgLlegenda.className = 'llegenda-mapa';
     document.body.appendChild(imgLlegenda);
-
     imgFons.onload = () => {
         if (!aspecteDelManifest && imgFons.naturalHeight) {
             aspecte = imgFons.naturalWidth / imgFons.naturalHeight;
             ajustarVista(true);
         }
     };
-
     activarInteraccio();
     activarInteraccioPinca();
-
     if (typeof ResizeObserver !== 'undefined') {
         const ro = new ResizeObserver(() => ajustarVista(true));
         ro.observe(viewport);
     } else {
         window.addEventListener('resize', () => ajustarVista(true));
     }
-
     ajustarVista(false);
     crearPanell();
-
     _iniciarObservadorLlegenda();
 }
 
@@ -886,7 +876,6 @@ function activarInteraccio() {
 
     viewport.addEventListener('pointerdown', e => {
         puntersActius.add(e.pointerId);
-
         if (puntersActius.size >= 2) {
             arrossegant = false;
             if (pointerActiu !== null) {
@@ -895,7 +884,6 @@ function activarInteraccio() {
             }
             return;
         }
-
         if (pointerActiu !== null && pointerActiu !== e.pointerId) return;
         pointerActiu = e.pointerId;
         _animVista = null;
@@ -917,9 +905,7 @@ function activarInteraccio() {
 
     const fi = (e) => {
         puntersActius.delete(e.pointerId);
-
         if (e.pointerId !== pointerActiu) return;
-
         const esClicDret = e.button === 2;
         const esTactil = e.pointerType === 'touch' && e.button === 0;
         if (arrossegant && !mogut && puntersActius.size === 0 && (esClicDret || esTactil)) {
@@ -942,7 +928,6 @@ function activarInteraccio() {
         viewport.style.cursor = 'grab';
     });
     viewport.addEventListener('dblclick', () => ajustarVista(false));
-
     viewport.addEventListener('contextmenu', e => e.preventDefault());
     document.addEventListener('contextmenu', e => {
         if (viewport && viewport.contains(e.target)) e.preventDefault();
@@ -967,7 +952,6 @@ function activarInteraccioPinca() {
     viewport.addEventListener('pointerdown', e => {
         if (e.pointerType !== 'touch') return;
         punts.set(e.pointerId, { x: e.clientX, y: e.clientY });
-
         if (punts.size === 2) {
             actiu = true;
             e.stopImmediatePropagation();
@@ -982,20 +966,14 @@ function activarInteraccioPinca() {
     viewport.addEventListener('pointermove', e => {
         if (e.pointerType !== 'touch') return;
         if (!punts.has(e.pointerId)) return;
-
         punts.set(e.pointerId, { x: e.clientX, y: e.clientY });
-
         if (!actiu || punts.size !== 2) return;
-
         e.stopImmediatePropagation();
         e.preventDefault();
-
         const g = calcular();
         const r = viewport.getBoundingClientRect();
-
         vista.x += g.cx - cPrev.x;
         vista.y += g.cy - cPrev.y;
-
         if (dPrev > 0) {
             const factor = g.d / dPrev;
             const nk = Math.min(12, Math.max(0.5, vista.k * factor));
@@ -1006,10 +984,8 @@ function activarInteraccioPinca() {
             vista.y = my - (my - vista.y) * q;
             vista.k = nk;
         }
-
         dPrev = g.d;
         cPrev = { x: g.cx, y: g.cy };
-
         aplicarTransform();
         programarRedibuix();
     }, { capture: true, passive: false });
@@ -1017,7 +993,6 @@ function activarInteraccioPinca() {
     const deixa = e => {
         if (e.pointerType !== 'touch') return;
         punts.delete(e.pointerId);
-
         if (punts.size < 2) {
             actiu = false;
             dPrev = 0;
@@ -1062,7 +1037,6 @@ function volarA(lon, lat, kFinal) {
 //  MENÚ CONTEXTUAL (Skew-T)
 // ═══════════════════════════════════════════════════════════════════
 let _menuCtx = null;
-
 function obrirMenuContextual(px, py, clientX, clientY) {
     tancarMenuContextual();
 
@@ -1087,23 +1061,195 @@ function obrirMenuContextual(px, py, clientX, clientY) {
     menu.innerHTML = `
         <div class="menu-ctx-cap">${lat.toFixed(3)}°N, ${lon.toFixed(3)}°E</div>
         <button id="menuCtxSkewt" class="menu-ctx-boto">
-            <span class="menu-ctx-ico">📈</span>
+            <span class="menu-ctx-ico"></span>
             <span>Skew-T (sondeig vertical)</span>
         </button>
     `;
     document.body.appendChild(menu);
     _menuCtx = menu;
 
+    // Posicionar el menú a prop del clic (sense sortir de la pantalla)
+    const r = menu.getBoundingClientRect();
+    let mx = clientX + 8;
+    let my = clientY + 8;
+    if (mx + r.width > window.innerWidth - 8) mx = clientX - r.width - 8;
+    if (my + r.height > window.innerHeight - 8) my = clientY - r.height - 8;
+    menu.style.left = mx + 'px';
+    menu.style.top = my + 'px';
+
     const boto = menu.querySelector('#menuCtxSkewt');
     boto.addEventListener('click', () => {
+        // Guardem la posició del clic per obrir el Skew-T a prop
+        const posClic = { x: clientX, y: clientY };
         tancarMenuContextual();
-        confirmarSkewT(lat, lon);
+        obrirSkewTFlotant(lat, lon, posClic);
     });
 
     setTimeout(() => {
         document.addEventListener('pointerdown', _tancaMenuFora, true);
     }, 0);
 }
+
+// ═══════════════════════════════════════════════════════════════════
+//  SKEW-T FLOTANT (apareix a prop del clic)
+// ═══════════════════════════════════════════════════════════════════
+let _skewtFlotant = null;
+
+async function obrirSkewTFlotant(lat, lon, posClic) {
+    // Si ja hi ha un skew-t obert, el tanquem
+    tancarSkewTFlotant();
+
+    const el = document.createElement('div');
+    el.className = 'skewt-flotant';
+    el.id = 'skewtFlotant';
+    el.innerHTML = `
+        <div class="skewt-flotant-cap" id="skewtFlotantCap">
+            <div class="skewt-flotant-titol">
+                <span> Skew-T</span>
+                <span class="skewt-flotant-coord">${lat.toFixed(3)}°N, ${lon.toFixed(3)}°E</span>
+            </div>
+            <div class="skewt-flotant-botons">
+                <button class="skewt-flotant-boto-ico" id="skewtFlotantTanca" title="Tanca">✕</button>
+            </div>
+        </div>
+        <div class="skewt-flotant-cos" id="skewtFlotantCos">
+            <div class="skewt-flotant-carregant">
+                <div class="skewt-flotant-spinner"></div>
+                <div>Carregant sondeig...</div>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(el);
+    _skewtFlotant = el;
+
+    // ─── Posicionar a prop del clic ─────────────────────────────
+    posicionarSkewTFlotant(el, posClic);
+
+    // ─── Botó de tancar ─────────────────────────────────────────
+    el.querySelector('#skewtFlotantTanca').addEventListener('click', tancarSkewTFlotant);
+
+    // ─── Arrossegar pel títol (només escriptori) ────────────────
+    ferArrossegable(el, el.querySelector('#skewtFlotantCap'));
+
+    // ─── Carregar el sondeig ────────────────────────────────────
+    const cos = el.querySelector('#skewtFlotantCos');
+    try {
+        const perfil = await construirPerfilPerSkewT(lat, lon);
+        if (!perfil) {
+            cos.innerHTML = '<div class="skewt-flotant-error">No s\'ha pogut carregar el sondeig.<br>Prova-ho d\'aquí uns segons.</div>';
+            return;
+        }
+
+        // Guardem per si el motor extern el vol usar
+        window._skewtPerfilPrecarregat = perfil;
+        window._skewtPuntPrecarregat = { lat, lon, hourIdx: curIdx };
+
+        // Si existeix un motor de dibuix (skewt.js), l'usem
+        if (typeof window.dibuixarSkewT === 'function') {
+            cos.innerHTML = '';
+            window.dibuixarSkewT(cos, perfil);
+        } else if (typeof window.openSkewtModal === 'function') {
+            // Si hi ha un motor extern que pinta en un modal, el tanquem
+            // i deixem que ell faci la feina, però en el nostre contenidor
+            tancarSkewTFlotant();
+            window.openSkewtModal();
+        } else {
+            cos.innerHTML = '<div class="skewt-flotant-error">El mòdul Skew-T no està disponible.</div>';
+        }
+    } catch (e) {
+        console.error('[skewt]', e);
+        cos.innerHTML = `<div class="skewt-flotant-error">Error carregant el sondeig:<br>${e.message}</div>`;
+    }
+}
+
+function tancarSkewTFlotant() {
+    if (_skewtFlotant) {
+        _skewtFlotant.remove();
+        _skewtFlotant = null;
+    }
+}
+
+function posicionarSkewTFlotant(el, posClic) {
+    // Mida objectiu
+    const ample = Math.min(480, window.innerWidth - 24);
+    const alt = Math.min(620, window.innerHeight - 24);
+    el.style.width = ample + 'px';
+    el.style.height = alt + 'px';
+
+    // Si estem a mòbil, el CSS ja el posiciona a pantalla completa
+    if (window.innerWidth <= 860) return;
+
+    // Calcular posició òptima (a prop del clic, sense sortir de la pantalla)
+    let x = posClic.x + 12;
+    let y = posClic.y - 40;
+
+    // Si no cap a la dreta, posar-lo a l'esquerra del clic
+    if (x + ample > window.innerWidth - 12) {
+        x = posClic.x - ample - 12;
+    }
+    // Si no cap avall, apujar-lo
+    if (y + alt > window.innerHeight - 12) {
+        y = window.innerHeight - alt - 12;
+    }
+    // Si no cap a dalt, baixar-lo
+    if (y < 12) y = 12;
+    // Si no cap a l'esquerra, enganxar-lo a l'esquerra
+    if (x < 12) x = 12;
+
+    el.style.left = x + 'px';
+    el.style.top = y + 'px';
+}
+
+// ─── Arrossegar el panell agafant el títol ─────────────────────
+function ferArrossegable(el, cap) {
+    if (!cap) return;
+    let arrossegant = false;
+    let ox = 0, oy = 0;
+    let x0 = 0, y0 = 0;
+
+    cap.addEventListener('pointerdown', e => {
+        // Si el clic és al botó de tancar, no arrosseguem
+        if (e.target.closest && e.target.closest('button')) return;
+        if (window.innerWidth <= 860) return; // a mòbil no arrosseguem
+        arrossegant = true;
+        ox = e.clientX;
+        oy = e.clientY;
+        const r = el.getBoundingClientRect();
+        x0 = r.left;
+        y0 = r.top;
+        cap.setPointerCapture(e.pointerId);
+        e.preventDefault();
+    });
+
+    cap.addEventListener('pointermove', e => {
+        if (!arrossegant) return;
+        const dx = e.clientX - ox;
+        const dy = e.clientY - oy;
+        let nx = x0 + dx;
+        let ny = y0 + dy;
+        // Mantenir dins de la pantalla
+        const r = el.getBoundingClientRect();
+        if (nx < 0) nx = 0;
+        if (ny < 0) ny = 0;
+        if (nx + r.width > window.innerWidth) nx = window.innerWidth - r.width;
+        if (ny + r.height > window.innerHeight) ny = window.innerHeight - r.height;
+        el.style.left = nx + 'px';
+        el.style.top = ny + 'px';
+    });
+
+    const fi = e => {
+        if (!arrossegant) return;
+        arrossegant = false;
+        try { cap.releasePointerCapture(e.pointerId); } catch {}
+    };
+    cap.addEventListener('pointerup', fi);
+    cap.addEventListener('pointercancel', fi);
+}
+
+// Exposem per si es vol tancar des de fora
+window.tancarSkewTFlotant = tancarSkewTFlotant;
+
+
 function _tancaMenuFora(e) {
     if (_menuCtx && !_menuCtx.contains(e.target)) tancarMenuContextual();
 }
@@ -1121,7 +1267,7 @@ function confirmarSkewT(lat, lon) {
     dlg.className = 'skewt-dlg';
     dlg.innerHTML = `
         <div class="skewt-dlg-cos">
-            <div class="skewt-dlg-titol">📈 Skew-T</div>
+            <div class="skewt-dlg-titol"> Skew-T</div>
             <div class="skewt-dlg-text">
                 Vols generar el sondeig vertical per aquest punt?<br>
                 <span class="skewt-dlg-coord">${lat.toFixed(3)}°N, ${lon.toFixed(3)}°E</span>
@@ -1133,11 +1279,9 @@ function confirmarSkewT(lat, lon) {
         </div>
     `;
     document.body.appendChild(dlg);
-
     const tancar = () => dlg.remove();
     dlg.querySelector('#skewtNo').addEventListener('click', tancar);
     dlg.addEventListener('click', e => { if (e.target === dlg) tancar(); });
-
     dlg.querySelector('#skewtSi').addEventListener('click', async () => {
         tancar();
         mostrarCarregantSkewt(lat, lon);
@@ -1150,11 +1294,8 @@ function confirmarSkewT(lat, lon) {
             amagarCarregantSkewt();
             window._skewtPerfilPrecarregat = perfil;
             window._skewtPuntPrecarregat = { lat, lon, hourIdx: curIdx };
-            if (typeof window.openSkewtModal === 'function') {
-                window.openSkewtModal();
-            } else {
-                mostrarErrorSkewt('El mòdul Skew-T no està disponible encara.');
-            }
+            if (typeof window.openSkewtModal === 'function') window.openSkewtModal();
+            else mostrarErrorSkewt('El mòdul Skew-T no està disponible encara.');
         } catch (e) {
             console.error('[skewt]', e);
             mostrarErrorSkewt('Error carregant el sondeig: ' + e.message);
@@ -1194,16 +1335,12 @@ async function construirPerfilPerSkewT(lat, lon) {
     const hora = totesLesHores[curIdx] ? totesLesHores[curIdx].hora : null;
     const dia = totesLesHores[curIdx] ? totesLesHores[curIdx].dia : null;
     if (hora == null || !dia) return null;
-
     const sondeig = await carregarSondeig(hora, dia);
     if (!sondeig) return null;
-
     const perfil = obtenirPerfilSondeig(sondeig, lat, lon);
     if (!perfil) return null;
-
     const t_arr = perfil.t, td_arr = perfil.dpt, u_arr = perfil.u, v_arr = perfil.v, p_arr = perfil.pressions;
     if (!t_arr || !td_arr || !u_arr || !v_arr) return null;
-
     const z = p_arr.map(p => 44330 * (1 - Math.pow(p / 1013.25, 0.1903)));
     const p_out = [], t_out = [], td_out = [], u_out = [], v_out = [], z_out = [];
     for (let i = 0; i < p_arr.length; i++) {
@@ -1222,7 +1359,6 @@ async function construirPerfilPerSkewT(lat, lon) {
 // ═══════════════════════════════════════════════════════════════════
 //  3D + SONDEJOS
 // ═══════════════════════════════════════════════════════════════════
-
 async function descomprimirGzip(buf) {
     if (typeof pako !== 'undefined' && pako.inflate) {
         try { return pako.inflate(new Uint8Array(buf)); } catch {}
@@ -1339,7 +1475,6 @@ async function obtenirSondeigPunt(hora, dia, lat, lon) {
 async function carregarVent3D(hora, dia, nivell) {
     const clau = `${String(hora).padStart(2, '0')}_${dia}_${nivell}`;
     if (_cacheVent3D.has(clau)) return _cacheVent3D.get(clau);
-
     const sondeig = await carregarSondeig(hora, dia);
     if (!sondeig || !sondeig.pressions) {
         _cacheVent3D.set(clau, null);
@@ -1356,7 +1491,6 @@ async function carregarVent3D(hora, dia, nivell) {
         _cacheVent3D.set(clau, null);
         return null;
     }
-
     let lats = sondeig.lats;
     let lons = sondeig.lons;
     if (!lats || !lons) {
@@ -1381,7 +1515,6 @@ async function carregarVent3D(hora, dia, nivell) {
         lats = Array.from({length: nLat}, (_, i) =>
             ext.lat_n - (i / (nLat - 1)) * (ext.lat_n - ext.lat_s));
     }
-
     const nLon = lons.length;
     const nLat = lats.length;
     const u = [], v = [];
@@ -1413,25 +1546,17 @@ async function carregarStorm(hora, dia) {
 
 async function mostrarCapa3D(var3d, nivell) {
     if (!var3d || !nivell) return false;
-
     if (!usuariLoguejat()) {
-        if (typeof window.mostrarAvisLogin === 'function') {
-            window.mostrarAvisLogin(var3d);
-        } else if (typeof window.obrirModal === 'function') {
-            window.obrirModal('modalLogin');
-        }
+        if (typeof window.mostrarAvisLogin === 'function') window.mostrarAvisLogin(var3d);
+        else if (typeof window.obrirModal === 'function') window.obrirModal('modalLogin');
         return false;
     }
-
     const hora = totesLesHores[curIdx] ? totesLesHores[curIdx].hora : null;
     const dia = totesLesHores[curIdx] ? totesLesHores[curIdx].dia : null;
     if (hora == null || !dia) return false;
-
     const clau = `${String(hora).padStart(2, '0')}_${dia}_${var3d}_${nivell}`;
     const urlPng = `${BASE_3D}3d_${clau}.png`;
-
     _capa3DActiva = { var: var3d, nivell, hora, dia, urlPng };
-
     const token = ++_tokenDades;
     const pre = new Image();
     pre.decoding = 'async';
@@ -1447,7 +1572,6 @@ async function mostrarCapa3D(var3d, nivell) {
         _urlDades = null;
     };
     pre.src = ambCb(urlPng);
-
     const esVent = nivell !== NIVELL_COLUMNA && ['wind_speed', 'wind_dir', 'u', 'v'].includes(var3d);
     if (esVent) {
         if (window.MOSTRAR_VENT) {
@@ -1460,7 +1584,6 @@ async function mostrarCapa3D(var3d, nivell) {
     } else {
         _ventActual = null;
     }
-
     if (VARS_AMB_BARBES.has(var3d)) {
         const s = window.MOSTRAR_BARBES ? await carregarStorm(hora, dia) : null;
         if (token !== _tokenDades) return false;
@@ -1468,15 +1591,13 @@ async function mostrarCapa3D(var3d, nivell) {
     } else {
         _stormActual = null;
     }
-
-    if (window.MOSTRAR_ISOLINIES) {
+    if (window.MOSTRAR_ISOLINIES && variableActivaTeIsolines()) {
         const iso = await carregarIsolines3D(clau);
         if (token !== _tokenDades) return false;
         _isolinesActuals = iso;
     } else {
         _isolinesActuals = null;
     }
-
     actualitzarLlegenda();
     programarRedibuix();
     return true;
@@ -1635,10 +1756,6 @@ function crearPanell() {
                 <div class="cap-titol" style="margin-top:2px">Vores</div>
                 <div class="cap-fila" data-prop="MOSTRAR_FRONTERES"><span>Fronteres</span><span class="interruptor"></span></div>
                 <div class="cap-fila" data-prop="MOSTRAR_PROVINCIES"><span>Províncies</span><span class="interruptor"></span></div>
-                <div class="cap-titol">Superposicions</div>
-                <div class="cap-fila" data-prop="MOSTRAR_ISOLINIES"><span>Isolínies</span><span class="interruptor"></span></div>
-                <div class="cap-fila" data-prop="MOSTRAR_VENT"><span>Línies de corrent del vent</span><span class="interruptor"></span></div>
-                <div class="cap-fila" data-prop="MOSTRAR_BARBES"><span>Barbes de storm motion</span><span class="interruptor"></span></div>
                 <div class="cap-titol">Ciutats</div>
                 <label class="ctrl-label">Densitat de noms</label>
                 <select id="selDensitatCiutats" class="ctrl-select">
@@ -1795,11 +1912,8 @@ function crearPanell() {
                 return;
             }
             const estat = window.actualitzacioSistema.estat();
-            if (estat === 'nova') {
-                window.actualitzacioSistema.recarregar();
-            } else {
-                window.actualitzacioSistema.comprovar();
-            }
+            if (estat === 'nova') window.actualitzacioSistema.recarregar();
+            else window.actualitzacioSistema.comprovar();
         });
     }
 }
@@ -1835,7 +1949,6 @@ function construirSeccions3D(cont) {
         const bloc = document.createElement('div');
         bloc.className = 'pp3d-bloc';
         bloc.dataset.var = c.var;
-
         const row = document.createElement('div');
         row.className = 'param-row';
         row.dataset.clau = '3d_' + c.var;
@@ -1847,7 +1960,6 @@ function construirSeccions3D(cont) {
             ultimNivell3D[c.var] = n;
             seleccionar3D(c.var, n);
         });
-
         const chips = document.createElement('div');
         chips.className = 'pp3d-chips';
         NIVELLS_3D.forEach(n => {
@@ -1864,7 +1976,6 @@ function construirSeccions3D(cont) {
             });
             chips.appendChild(b);
         });
-
         bloc.append(row, chips);
         bloc.click = () => row.click();
         nivell.cos.appendChild(bloc);
@@ -1888,7 +1999,7 @@ function construirSeccions3D(cont) {
         col.cos.appendChild(row);
         _filesVariables.push({
             clau: '3d_' + c.var, seccio: '3dcol',
-            nomN: nrm(`${c.nom} ${c.var} 3d tempestes severes cisallament shear helicitat storm motion barbes`),
+            nomN: nrm(`${c.nom} ${c.var} 3d tempestes severes cisallament shear helicitat storm motion barbes lfc conveccio lliure`),
             el: row,
         });
     });
@@ -1901,30 +2012,18 @@ function construirPanellParametres() {
     cont.innerHTML = '';
     _filesVariables = [];
 
-    // ═══════════════════════════════════════════════════════════════
-    //  FILTRE DUR: només variables amb nom català al diccionari dur.
-    //  Qualsevol clau residual en anglès (Passat xxx, tsnowp, etc.)
-    //  s'exclou automàticament.
-    // ═══════════════════════════════════════════════════════════════
     const totes = new Set();
     for (const h of totesLesHores) for (const v of h.variables) {
         if (OCULTES_SFC.has(normClau(v))) continue;
         const k = normClau(v);
-
-        // 1) Descarta noms residuals amb prefix "Passat" (case-insensitive)
         if (/^passat\s+/i.test(v)) continue;
         if (/^passat_/i.test(k)) continue;
-
-        // 2) Descarta claus que NO tenen traducció al diccionari dur.
-        //    Només acceptem les que apareixen a NOMS_VARIABLES.
         if (!NOMS_VARIABLES[k]) continue;
-
         totes.add(v);
     }
 
     const visibles = new Set();
     const nomsVistos = new Set();
-
     [...totes]
         .sort((a, b) => (prioritatClau(a) - prioritatClau(b)) || a.localeCompare(b))
         .forEach(clau => {
@@ -1949,14 +2048,11 @@ function construirPanellParametres() {
                 const d = ordreDinsSeccio(s, a) - ordreDinsSeccio(s, b);
                 return d !== 0 ? d : nomVariable(a).localeCompare(nomVariable(b), 'ca');
             });
-
             const { sec, cos } = crearSeccioPanell(s.id, s.nom, s.color, claus.length);
-
             claus.forEach(clau => {
                 const nom = nomVariable(clau);
                 const unitat = infoVariables[clau] && infoVariables[clau].unitat;
                 const bloquejat = !potVeureVariable(clau);
-
                 const row = document.createElement('div');
                 row.className = 'param-row'
                     + (clau === variableActiva ? ' param-selected' : '')
@@ -1966,22 +2062,16 @@ function construirPanellParametres() {
                 row.title = bloquejat
                     ? 'Inicia sessió per veure aquesta variable'
                     : (unitat ? `${nom} (${unitat})` : nom);
-
                 const cadenat = bloquejat ? ' <span style="opacity:0.7;">🔒</span>' : '';
                 row.innerHTML = `<span>${nom}${cadenat}</span>${unitat ? `<span class="unitat">${unitat}</span>` : ''}`;
-
                 row.addEventListener('click', () => {
                     if (bloquejat) {
-                        if (typeof window.mostrarAvisLogin === 'function') {
-                            window.mostrarAvisLogin(clau);
-                        } else if (typeof window.obrirModal === 'function') {
-                            window.obrirModal('modalLogin');
-                        }
+                        if (typeof window.mostrarAvisLogin === 'function') window.mostrarAvisLogin(clau);
+                        else if (typeof window.obrirModal === 'function') window.obrirModal('modalLogin');
                         return;
                     }
                     seleccionarVariable(clau);
                 });
-
                 cos.appendChild(row);
                 _filesVariables.push({ clau, seccio: s.id, nomN: nrm(nom + ' ' + clau + ' ' + s.nom), el: row });
             });
@@ -2002,6 +2092,8 @@ function construirPanellParametres() {
     _seccionsObertes.add(seccioDe(variableActiva));
     restaurarSeccions();
     actualitzarCapcaleraVariable();
+
+    if (typeof actualitzarControlsDock === 'function') actualitzarControlsDock();
 }
 
 function restaurarSeccions() {
@@ -2014,7 +2106,6 @@ function filtrarVariables(text) {
     const q = nrm(text);
     const cont = document.getElementById('ppLlistaVar');
     if (!cont) return;
-
     if (!q) {
         _filesVariables.forEach(f => f.el.style.display = '');
         cont.querySelectorAll('.sec').forEach(s => s.style.display = '');
@@ -2068,15 +2159,13 @@ function actualitzarCapcaleraVariable() {
         u.textContent = (inf && inf.unitat) ? inf.unitat : '';
     }
     marcarSeleccio3D();
+    if (typeof actualitzarControlsDock === 'function') actualitzarControlsDock();
 }
 
 function seleccionarVariable(clau) {
     if (!potVeureVariable(clau)) {
-        if (typeof window.mostrarAvisLogin === 'function') {
-            window.mostrarAvisLogin(clau);
-        } else if (typeof window.obrirModal === 'function') {
-            window.obrirModal('modalLogin');
-        }
+        if (typeof window.mostrarAvisLogin === 'function') window.mostrarAvisLogin(clau);
+        else if (typeof window.obrirModal === 'function') window.obrirModal('modalLogin');
         return;
     }
     _capa3DActiva = null;
@@ -2103,15 +2192,12 @@ function renderCiutats() {
     const treu = document.getElementById('ppTreuCiu');
     const inp = document.getElementById('ppCercaCiu');
     if (!llista) return;
-
     treu.style.display = _ciutatSel ? 'flex' : 'none';
-
     if (!_ciutats.length) {
         info.textContent = '';
         llista.innerHTML = '<div class="pp-buit">Carregant ciutats...</div>';
         return;
     }
-
     const q = nrm(inp.value);
     let res;
     if (!q) {
@@ -2124,7 +2210,6 @@ function renderCiutats() {
         info.textContent = `${res.length} resultat${res.length === 1 ? '' : 's'}`;
         res = res.slice(0, 60);
     }
-
     llista.innerHTML = '';
     if (!res.length) {
         llista.innerHTML = '<div class="pp-buit">Cap ciutat coincideix amb la cerca</div>';
@@ -2178,14 +2263,12 @@ async function carregarManifest() {
             infoVariables = manifest.variables || {};
             infoVariables3D = manifest.variables_3d || {};
             hores3D = manifest.hores_3d || [];
-
             manifest.hores.sort((a, b) => {
                 const dd = ordreDia(a.dia) - ordreDia(b.dia);
                 if (dd !== 0) return dd;
                 if (ordreDia(a.dia) === 99 && a.dia !== b.dia) return String(a.dia).localeCompare(String(b.dia));
                 return a.hora - b.hora;
             });
-
             totesLesHores = manifest.hores.map((h, i) => ({
                 step: i, hora: h.hora, dia: h.dia, variables: h.variables || []
             }));
@@ -2242,7 +2325,6 @@ function actualitzarDades() {
     const token = ++_tokenDades;
     if (!url) { imgDades.style.visibility = 'hidden'; _urlDades = null; return; }
     if (url === _urlDades) return;
-
     const pre = new Image();
     pre.decoding = 'async';
     pre.onload = () => {
@@ -2500,6 +2582,7 @@ function dibuixarIsolines() {
     if (!canvasIsolines) return;
     const { ctx, W, H } = prepararCtx(canvasIsolines);
     if (!window.MOSTRAR_ISOLINIES || !window._extentManifest) return;
+    if (!variableActivaTeIsolines()) return;
     if (!_isolinesActuals || !Array.isArray(_isolinesActuals.nivells)) return;
 
     ctx.save();
@@ -2574,7 +2657,6 @@ function dibuixarIsolines() {
 function ferBarba(ctx, x, y, u, v, L) {
     const mag = Math.hypot(u, v);
     const sp = Math.round(mag * MS_A_KT / 5) * 5;
-
     if (sp < 5 || mag < 1e-6) {
         for (const [col, lw] of BARBES_PASSADES) {
             ctx.beginPath();
@@ -2584,19 +2666,15 @@ function ferBarba(ctx, x, y, u, v, L) {
         }
         return;
     }
-
     const dx = -u / mag, dy = v / mag;
     const ex = x + dx * L, ey = y + dy * L;
     const px = -dy, py = dx;
     const fl = L * 0.45, pas = L * 0.13;
-
     const n50 = Math.floor(sp / 50);
     const r = sp - n50 * 50;
     const n10 = Math.floor(r / 10);
     const n5 = (r - n10 * 10) >= 5 ? 1 : 0;
-
     const pt = t => [ex - dx * t, ey - dy * t];
-
     const traç = () => {
         ctx.beginPath();
         ctx.moveTo(x, y);
@@ -2623,7 +2701,6 @@ function ferBarba(ctx, x, y, u, v, L) {
             ctx.lineTo(a[0] + px * fl * 0.5 + dx * fl * 0.15, a[1] + py * fl * 0.5 + dy * fl * 0.15);
         }
     };
-
     for (const [col, lw] of BARBES_PASSADES) {
         traç();
         ctx.lineWidth = lw;
@@ -2639,7 +2716,6 @@ function dibuixarBarbesStorm(ctx, W, H) {
     if (!sd || !sd.lats || !sd.lons || !sd.u || !sd.v) return;
     const nLat = sd.lats.length, nLon = sd.lons.length;
     if (nLat < 2 || nLon < 2) return;
-
     const pa = lonLatAPantalla(sd.lons[0], sd.lats[0]);
     const pb = lonLatAPantalla(sd.lons[1], sd.lats[0]);
     const pc = lonLatAPantalla(sd.lons[0], sd.lats[1]);
@@ -2647,7 +2723,6 @@ function dibuixarBarbesStorm(ctx, W, H) {
     const sep = Math.max(Math.abs(pb[0] - pa[0]), Math.abs(pc[1] - pa[1]), 1);
     const salt = Math.max(1, Math.ceil(BARBES_CFG.separacioMin / sep));
     const L = BARBES_CFG.llargada * Math.min(1.25, Math.max(0.85, Math.sqrt(vista.k)));
-
     ctx.save();
     retallarAImatge(ctx);
     ctx.lineCap = 'round';
@@ -2693,15 +2768,16 @@ function dibuixarVent() {
     if (!canvasVent) return;
     const { ctx, W, H } = prepararCtx(canvasVent);
 
-    // 🔑 Si la variable activa no vol streamlines, no dibuixem res.
-    if (!variableActivaTeStreamlines()) return;
-
-    // Capa 3D amb barbes de storm motion
+    // 1) Barbes de storm motion → prioritat absoluta
     if (_capa3DActiva && VARS_AMB_BARBES.has(_capa3DActiva.var)) {
         if (window.MOSTRAR_BARBES && window._extentManifest) dibuixarBarbesStorm(ctx, W, H);
         return;
     }
 
+    // 2) Si la variable activa no vol streamlines, no dibuixem res
+    if (!variableActivaTeStreamlines()) return;
+
+    // 3) Streamlines de vent normals
     if (!window.MOSTRAR_VENT || !window._extentManifest) return;
     const vd = _ventActual;
     if (!vd || !vd.u || !vd.v || !vd.lats || !vd.lons) return;
@@ -2897,16 +2973,11 @@ function dibuixarCiutats() {
 // ═══════════════════════════════════════════════════════════════════
 function mostrarHora(idx) {
     if (idx < 0 || idx >= totesLesHores.length) return;
-
     if (!usuariLoguejat() && idx % 3 !== 0) {
-        if (typeof window.mostrarAvisLogin === 'function') {
-            window.mostrarAvisLogin('aquesta hora');
-        } else if (typeof window.obrirModal === 'function') {
-            window.obrirModal('modalLogin');
-        }
+        if (typeof window.mostrarAvisLogin === 'function') window.mostrarAvisLogin('aquesta hora');
+        else if (typeof window.obrirModal === 'function') window.obrirModal('modalLogin');
         return;
     }
-
     curIdx = idx;
     if (!_animacioActiva) {
         const h = totesLesHores[idx];
@@ -2927,14 +2998,13 @@ async function refrescarVentIsolines() {
     const token = ++_tokenVI;
     const idx = curIdx, clau = variableActiva;
     _isolinesActuals = null;
-
-    // 🔑 Si la variable no vol streamlines, no cal carregar vent.
     const volVent = variableActivaTeStreamlines();
     if (!volVent) _ventActual = null;
+    const volIso = variableActivaTeIsolines();
+    if (!volIso) _isolinesActuals = null;
     programarRedibuix();
-
     if (_capa3DActiva) {
-        const iso = window.MOSTRAR_ISOLINIES
+        const iso = (window.MOSTRAR_ISOLINIES && volIso)
             ? await carregarIsolines3D(`${String(_capa3DActiva.hora).padStart(2, '0')}_${_capa3DActiva.dia}_${_capa3DActiva.var}_${_capa3DActiva.nivell}`)
             : null;
         if (token !== _tokenVI) return;
@@ -2944,7 +3014,7 @@ async function refrescarVentIsolines() {
     }
     const [vent, iso] = await Promise.all([
         volVent ? carregarVent(idx) : Promise.resolve(null),
-        window.MOSTRAR_ISOLINIES ? carregarIsolines(idx, clau) : Promise.resolve(null),
+        (window.MOSTRAR_ISOLINIES && volIso) ? carregarIsolines(idx, clau) : Promise.resolve(null),
     ]);
     if (token !== _tokenVI) return;
     _ventActual = vent;
@@ -2987,7 +3057,6 @@ function construirGraellaHores() {
         else if (dia === 'dema_passat') { classeDia = 'fh-dema2'; textDia = 'd+2'; }
         const actiu = i === curIdx;
         const bloquejada = !usuariLoguejat() && (i % 3 !== 0);
-
         const cell = document.createElement('div');
         cell.className = 'fh-item' + (actiu ? ' active' : '') + (bloquejada ? ' locked' : '');
         cell.dataset.idx = i;
@@ -2998,11 +3067,8 @@ function construirGraellaHores() {
         `;
         cell.addEventListener('click', () => {
             if (bloquejada) {
-                if (typeof window.mostrarAvisLogin === 'function') {
-                    window.mostrarAvisLogin(`hora ${hora}h ${textDia}`);
-                } else if (typeof window.obrirModal === 'function') {
-                    window.obrirModal('modalLogin');
-                }
+                if (typeof window.mostrarAvisLogin === 'function') window.mostrarAvisLogin(`hora ${hora}h ${textDia}`);
+                else if (typeof window.obrirModal === 'function') window.obrirModal('modalLogin');
                 return;
             }
             mostrarHora(i);
@@ -3017,7 +3083,16 @@ function construirGraellaHores() {
 // ═══════════════════════════════════════════════════════════════════
 let _animacioActiva = false;
 let _intervalAnimacio = null;
-const VELOCITAT_ANIMACIO = 1200;
+let VELOCITAT_ANIMACIO = 1200;   // ms entre frames (configurable)
+
+// Velocitats disponibles (ms): més petit = més ràpid
+const VELOCITATS_ANIMACIO = [
+    { valor: 200,  etiqueta: 'Molt ràpid' },
+    { valor: 400,  etiqueta: 'Ràpid' },
+    { valor: 800,  etiqueta: 'Normal' },
+    { valor: 1200, etiqueta: 'Lent' },
+    { valor: 2000, etiqueta: 'Molt lent' },
+];
 
 function pintarBotoPlay() {
     const btn = document.getElementById('btnPlay');
@@ -3033,11 +3108,8 @@ function pintarBotoPlay() {
 function toggleAnimacio() {
     if (!totesLesHores.length) return;
     if (!usuariLoguejat()) {
-        if (typeof window.mostrarAvisLogin === 'function') {
-            window.mostrarAvisLogin('l\'animació');
-        } else if (typeof window.obrirModal === 'function') {
-            window.obrirModal('modalLogin');
-        }
+        if (typeof window.mostrarAvisLogin === 'function') window.mostrarAvisLogin('l\'animació');
+        else if (typeof window.obrirModal === 'function') window.obrirModal('modalLogin');
         return;
     }
     if (_animacioActiva) {
@@ -3055,6 +3127,27 @@ function toggleAnimacio() {
     }
 }
 
+// Canvi de velocitat en calent
+function canviarVelocitatAnimacio(ms) {
+    VELOCITAT_ANIMACIO = ms;
+    if (_animacioActiva) {
+        clearInterval(_intervalAnimacio);
+        _intervalAnimacio = setInterval(() => {
+            mostrarHora((curIdx + 1) % totesLesHores.length);
+        }, VELOCITAT_ANIMACIO);
+    }
+    cfgGuardar({ velocitatAnimacio: ms });
+}
+window.canviarVelocitatAnimacio = canviarVelocitatAnimacio;
+
+// Inicialitzar velocitat des de config
+(function () {
+    if (typeof _cfg.velocitatAnimacio === 'number' &&
+        VELOCITATS_ANIMACIO.some(v => v.valor === _cfg.velocitatAnimacio)) {
+        VELOCITAT_ANIMACIO = _cfg.velocitatAnimacio;
+    }
+})();
+
 // ═══════════════════════════════════════════════════════════════════
 //  INICIALITZACIÓ
 // ═══════════════════════════════════════════════════════════════════
@@ -3062,14 +3155,10 @@ async function inicialitzar() {
     const btnPlay = document.getElementById('btnPlay');
     if (btnPlay) btnPlay.addEventListener('click', toggleAnimacio);
     pintarBotoPlay();
-
     crearEscena();
-
     const hores = await carregarManifest();
-
     const overlay = document.getElementById('loading_overlay');
     if (overlay) overlay.classList.add('hidden');
-
     if (!hores.length) {
         const grid = document.getElementById('fh_grid');
         if (grid) {
@@ -3078,12 +3167,10 @@ async function inicialitzar() {
         }
         return;
     }
-
     imgFons.src = ambCb(PNG_BASE + 'fons.png');
     imgVores.src = ambCb(PNG_BASE + 'vores.png');
     ajustarVista(false);
     restaurarVista();
-
     let idx0 = 0;
     if (_cfg.hora) {
         const i = totesLesHores.findIndex(h => h.hora === _cfg.hora.hora && h.dia === _cfg.hora.dia);
@@ -3091,20 +3178,18 @@ async function inicialitzar() {
     }
     if (!usuariLoguejat() && idx0 % 3 !== 0) idx0 = 0;
     curIdx = idx0;
-
     construirPanellParametres();
     construirGraellaHores();
     mostrarHora(idx0);
     actualitzarLlegenda();
-
     await Promise.all([carregarNoms(), carregarLinies()]);
-
     if (_cfg.ciutat) {
         const q = nrm(_cfg.ciutat);
         _ciutatSel = _ciutats.find(c => c._n === q) || null;
     }
     renderCiutats();
     programarRedibuix();
+    if (typeof actualitzarControlsDock === 'function') actualitzarControlsDock();
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -3125,10 +3210,26 @@ window.addEventListener('tc:logout', () => {
     if (curIdx % 3 !== 0) mostrarHora(0);
 });
 
+// ═══════════════════════════════════════════════════════════════════
+//  API PÚBLICA PER AL DOCK (botons inferiors)
+// ═══════════════════════════════════════════════════════════════════
+window.canviarHora = function (delta) {
+    if (!totesLesHores.length) return;
+    let nou = curIdx + delta;
+    if (nou < 0) nou = 0;
+    if (nou >= totesLesHores.length) nou = totesLesHores.length - 1;
+    mostrarHora(nou);
+};
+window.getCurIdx = function () { return curIdx; };
+window.getTotalHores = function () { return totesLesHores.length; };
+window.esAnimacioActiva = function () { return _animacioActiva; };
+window.getVelocitatAnimacio = function () { return VELOCITAT_ANIMACIO; };
+window.VELOCITATS_ANIMACIO = VELOCITATS_ANIMACIO;
+
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', inicialitzar);
 } else {
     inicialitzar();
 }
 
-console.log('✅ mapapngs.js carregat — filtre dur de variables + streamlines condicionals + cache-busting');
+console.log('✅ mapapngs.js carregat — barbes storm motion + isolínies condicionals + controls dock');

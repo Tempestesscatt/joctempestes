@@ -87,6 +87,134 @@ body::before {
 }
 
 /* ═══════════════════════════════════════════════════════════════════
+   SKEW-T FLOTANT (apareix a prop del clic)
+   ═══════════════════════════════════════════════════════════════════ */
+.skewt-flotant {
+    position: fixed;
+    z-index: 8800;
+    background: var(--panel-2);
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+    font-family: 'Inter', system-ui, sans-serif;
+    color: var(--text-2);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: skewtFlotantIn 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    max-height: calc(100vh - 24px);
+}
+@keyframes skewtFlotantIn {
+    from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.skewt-flotant-cap {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--line);
+    background: rgba(0, 0, 0, 0.15);
+    flex-shrink: 0;
+    cursor: move;
+    user-select: none;
+}
+.skewt-flotant-titol {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.skewt-flotant-coord {
+    font-size: 10px;
+    color: var(--muted);
+    font-family: 'SF Mono', monospace;
+    font-weight: 500;
+}
+.skewt-flotant-botons {
+    display: flex;
+    gap: 4px;
+}
+.skewt-flotant-boto-ico {
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: inherit;
+    font-size: 14px;
+    padding: 0;
+    transition: all 0.15s ease;
+    line-height: 1;
+}
+.skewt-flotant-boto-ico:hover {
+    background: var(--panel-hover);
+    color: var(--text);
+}
+.skewt-flotant-cos {
+    padding: 14px;
+    overflow: auto;
+    flex: 1 1 auto;
+    min-height: 0;
+}
+.skewt-flotant-cos canvas,
+.skewt-flotant-cos svg {
+    display: block;
+    max-width: 100%;
+    height: auto;
+}
+.skewt-flotant-carregant {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 30px 20px;
+    color: var(--muted);
+    font-size: 12px;
+}
+.skewt-flotant-spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid var(--line-strong);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: gira 0.9s linear infinite;
+}
+.skewt-flotant-error {
+    padding: 18px 20px;
+    text-align: center;
+    color: var(--danger);
+    font-size: 12.5px;
+    line-height: 1.5;
+}
+
+/* Mòbil: ocupa tota la pantalla o quasi */
+@media (max-width: 860px) {
+    .skewt-flotant {
+        left: calc(8px + var(--safe-left)) !important;
+        right: calc(8px + var(--safe-right)) !important;
+        top: calc(8px + var(--safe-top)) !important;
+        bottom: calc(8px + var(--safe-bottom)) !important;
+        width: auto !important;
+        max-width: none !important;
+        max-height: none !important;
+        animation: skewtFlotantInMobil 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    @keyframes skewtFlotantInMobil {
+        from { opacity: 0; transform: translateY(20px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
    ETIQUETA D'HORA
    ═══════════════════════════════════════════════════════════════════ */
 #current_time_label {
@@ -810,6 +938,61 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
 .fh-dema2 { color: #f85149; }
 
 /* ═══════════════════════════════════════════════════════════════════
+   DOCK EXTRA
+   ═══════════════════════════════════════════════════════════════════ */
+#dock-extra {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex: 0 0 auto;
+    padding-left: 4px;
+    border-left: 1px solid var(--line);
+    margin-left: 2px;
+}
+#dock-extra button,
+#dock-extra select {
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--text-2);
+    font-family: inherit;
+    font-size: 10.5px;
+    font-weight: 600;
+    border-radius: 5px;
+    padding: 5px 8px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    letter-spacing: 0.3px;
+    height: 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+#dock-extra button:hover:not(:disabled),
+#dock-extra select:hover {
+    background: var(--panel-hover);
+    color: var(--text);
+    border-color: var(--line-strong);
+}
+#dock-extra button.actiu {
+    background: var(--accent-soft);
+    color: var(--accent);
+    border-color: rgba(88,166,255,0.4);
+}
+#dock-extra button:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    color: var(--muted-2);
+}
+#dock-extra button:disabled:hover {
+    background: transparent;
+    border-color: var(--line);
+}
+#dock-extra select {
+    padding: 5px 4px;
+    min-width: 92px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
    LLEGENDA PNG (base)
    ═══════════════════════════════════════════════════════════════════ */
 .llegenda-mapa {
@@ -879,39 +1062,8 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
 .menu-ctx-ico { color: var(--accent); font-weight: 700; font-size: 14px; }
 
 /* ═══════════════════════════════════════════════════════════════════
-   DIÀLEGS SKEW-T
+   DIÀLEGS SKEW-T (només spinner i error; el confirm s'ha eliminat)
    ═══════════════════════════════════════════════════════════════════ */
-.skewt-dlg {
-    position: fixed; inset: 0; z-index: 8600;
-    display: flex; align-items: center; justify-content: center;
-    background: rgba(13, 17, 23, 0.7);
-    backdrop-filter: blur(4px);
-    font-family: 'Inter', system-ui, sans-serif;
-}
-.skewt-dlg-cos {
-    background: var(--panel-2);
-    border: 1px solid var(--line-strong);
-    border-radius: 10px; padding: 20px 24px;
-    max-width: 400px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
-    color: var(--text-2);
-}
-.skewt-dlg-titol { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
-.skewt-dlg-text { font-size: 12.5px; line-height: 1.6; margin-bottom: 18px; }
-.skewt-dlg-coord { color: var(--muted); font-family: 'SF Mono', monospace; font-size: 11px; }
-.skewt-dlg-botons { display: flex; gap: 8px; justify-content: flex-end; }
-.skewt-btn {
-    padding: 8px 16px; border-radius: 6px; cursor: pointer;
-    font-family: inherit; font-size: 12px; font-weight: 600;
-    transition: all 0.15s ease;
-}
-.skewt-btn-no {
-    background: transparent; border: 1px solid var(--line-strong); color: var(--text-2);
-}
-.skewt-btn-no:hover { background: var(--panel-hover); color: var(--text); }
-.skewt-btn-si { background: var(--accent); border: 1px solid var(--accent); color: #0d1117; font-weight: 700; }
-.skewt-btn-si:hover { background: #79b8ff; border-color: #79b8ff; }
-
 .skewt-carregant {
     position: fixed; inset: 0; z-index: 8700;
     display: flex; align-items: center; justify-content: center;
@@ -1119,8 +1271,10 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
         left: calc(10px + var(--safe-left));
         right: calc(10px + var(--safe-right));
         bottom: calc(10px + var(--safe-bottom));
-        height: 52px;
+        height: auto;
+        min-height: 52px;
         padding: 5px;
+        flex-wrap: wrap;
     }
     #btnPlay {
         height: 40px;
@@ -1135,7 +1289,24 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
     .fh-hora { font-size: 11.5px; }
     .fh-dia { font-size: 8.5px; }
 
-    /* 🔑 Amagar el dock quan el panell està obert a mòbil */
+    #dock-extra {
+        width: 100%;
+        justify-content: space-between;
+        border-left: none;
+        border-top: 1px solid var(--line);
+        padding-left: 0;
+        padding-top: 4px;
+        margin-left: 0;
+        margin-top: 2px;
+    }
+    #dock-extra button,
+    #dock-extra select {
+        font-size: 10px;
+        padding: 4px 6px;
+        height: 28px;
+    }
+    #dock-extra select { min-width: 78px; }
+
     body:not(.panell-plegat) #dock {
         transform: translateY(140%);
         opacity: 0;
@@ -1144,13 +1315,13 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
 
     .llegenda-mapa {
         right: calc(10px + var(--safe-right));
-        bottom: calc(76px + var(--safe-bottom));
+        bottom: calc(120px + var(--safe-bottom));
         max-width: 160px;
         max-height: 35vh;
     }
     .llegenda-css {
         right: calc(10px + var(--safe-right));
-        bottom: calc(76px + var(--safe-bottom));
+        bottom: calc(120px + var(--safe-bottom));
         width: 130px;
         font-size: 10px;
         padding: 6px 8px;
@@ -1193,7 +1364,7 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
 
     .banner-nova-versio {
         top: auto;
-        bottom: calc(80px + var(--safe-bottom));
+        bottom: calc(120px + var(--safe-bottom));
         transform: translate(-50%, 140%);
         padding: 10px 12px;
         gap: 8px;
@@ -1205,7 +1376,7 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
 }
 
 @media (max-height: 500px) and (orientation: landscape) {
-    #dock { height: 44px; }
+    #dock { height: auto; }
     #btnPlay { height: 34px; }
     .fh-item { padding: 2px 8px; min-width: 40px; }
     .llegenda-mapa { max-height: 55vh; bottom: calc(64px + var(--safe-bottom)); }
@@ -1221,6 +1392,20 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
 <div id="dock">
     <button id="btnPlay" type="button">▶ Animació</button>
     <div id="fh_grid"></div>
+    <div id="dock-extra">
+        <button id="btnPrev" type="button" title="Hora anterior">◀</button>
+        <button id="btnNext" type="button" title="Hora següent">▶</button>
+        <select id="selVelocitat" title="Velocitat de l'animació">
+            <option value="200">Molt ràpid</option>
+            <option value="400">Ràpid</option>
+            <option value="800">Normal</option>
+            <option value="1200" selected>Lent</option>
+            <option value="2000">Molt lent</option>
+        </select>
+        <button id="btnIsolines" type="button" title="Isolínies">Isolínies</button>
+        <button id="btnVent" type="button" title="Vent">Vent</button>
+        <button id="btnBarbes" type="button" title="Barbes">Barbes</button>
+    </div>
 </div>
 
 <div id="current_time_label"></div>
@@ -1366,10 +1551,119 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
 
 <!-- Visor -->
 <script src="js/mapapngs.js"></script>
+<script src="js/outlook.js"></script>
 <script src="js/skew-t-engine.js"></script>
 <script src="js/skewt.js"></script>
-<script src="js/accesvariable.js"></script>
 <script src="js/actualitzacio.js"></script>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     CONTROLS DEL DOCK
+     ═══════════════════════════════════════════════════════════════════ -->
+<script>
+(function () {
+    'use strict';
+
+    function $(id) { return document.getElementById(id); }
+
+    window.actualitzarControlsDock = function () {
+        const btnIso = $('btnIsolines');
+        const btnVent = $('btnVent');
+        const btnBarb = $('btnBarbes');
+        if (!btnIso) return;
+
+        const teIso = window.variableActivaTeIsolines ? window.variableActivaTeIsolines() : true;
+        if (teIso) {
+            btnIso.disabled = false;
+            btnIso.classList.toggle('actiu', !!window.MOSTRAR_ISOLINIES);
+            btnIso.title = window.MOSTRAR_ISOLINIES ? 'Desactivar isolínies' : 'Activar isolínies';
+        } else {
+            btnIso.disabled = true;
+            btnIso.classList.remove('actiu');
+            btnIso.title = 'Aquesta variable no té isolínies';
+        }
+
+        const teVent = window.variableActivaTeStreamlines ? window.variableActivaTeStreamlines() : true;
+        if (teVent) {
+            btnVent.disabled = false;
+            btnVent.classList.toggle('actiu', !!window.MOSTRAR_VENT);
+        } else {
+            btnVent.disabled = true;
+            btnVent.classList.remove('actiu');
+        }
+
+        let teBarb = false;
+        if (typeof VARS_AMB_BARBES !== 'undefined' && window._capa3DActiva) {
+            teBarb = VARS_AMB_BARBES.has(window._capa3DActiva.var);
+        }
+        if (teBarb) {
+            btnBarb.disabled = false;
+            btnBarb.classList.toggle('actiu', !!window.MOSTRAR_BARBES);
+        } else {
+            btnBarb.disabled = true;
+            btnBarb.classList.remove('actiu');
+        }
+    };
+
+    function inicialitzarControls() {
+        const btnPrev = $('btnPrev');
+        const btnNext = $('btnNext');
+        const selVel = $('selVelocitat');
+        const btnIso = $('btnIsolines');
+        const btnVent = $('btnVent');
+        const btnBarb = $('btnBarbes');
+
+        if (btnPrev) btnPrev.addEventListener('click', () => {
+            if (window.canviarHora) window.canviarHora(-1);
+        });
+        if (btnNext) btnNext.addEventListener('click', () => {
+            if (window.canviarHora) window.canviarHora(+1);
+        });
+
+        if (selVel) {
+            if (window.getVelocitatAnimacio) selVel.value = String(window.getVelocitatAnimacio());
+            selVel.addEventListener('change', () => {
+                const v = parseInt(selVel.value, 10);
+                if (!isNaN(v) && window.canviarVelocitatAnimacio) {
+                    window.canviarVelocitatAnimacio(v);
+                }
+            });
+        }
+
+        if (btnIso) btnIso.addEventListener('click', () => {
+            if (btnIso.disabled) return;
+            window.MOSTRAR_ISOLINIES = !window.MOSTRAR_ISOLINIES;
+            if (typeof guardarCapes === 'function') guardarCapes();
+            if (typeof refrescarVentIsolines === 'function') refrescarVentIsolines();
+            window.actualitzarControlsDock();
+        });
+
+        if (btnVent) btnVent.addEventListener('click', () => {
+            if (btnVent.disabled) return;
+            window.MOSTRAR_VENT = !window.MOSTRAR_VENT;
+            if (typeof guardarCapes === 'function') guardarCapes();
+            if (typeof programarRedibuix === 'function') programarRedibuix();
+            window.actualitzarControlsDock();
+        });
+
+        if (btnBarb) btnBarb.addEventListener('click', () => {
+            if (btnBarb.disabled) return;
+            window.MOSTRAR_BARBES = !window.MOSTRAR_BARBES;
+            if (typeof guardarCapes === 'function') guardarCapes();
+            if (typeof programarRedibuix === 'function') programarRedibuix();
+            window.actualitzarControlsDock();
+        });
+
+        setTimeout(window.actualitzarControlsDock, 800);
+        setTimeout(window.actualitzarControlsDock, 2000);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', inicialitzarControls);
+    } else {
+        inicialitzarControls();
+    }
+})();
+</script>
 
 <!-- ═══════════════════════════════════════════════════════════════════
      MODALS + LOGIN + XAT + PERFIL + INFO RUN
@@ -1378,7 +1672,6 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
 (function () {
     'use strict';
 
-    // ─── Modals ─────────────────────────────────────────────────────
     window.obrirModal = function (id) {
         const el = document.getElementById(id);
         if (el) el.classList.add('active');
@@ -1399,7 +1692,6 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
         }
     });
 
-    // ─── Perfil ──────────────────────────────────────────────────────
     async function obtenirNomUsuari(user) {
         if (!user) return null;
         try {
@@ -1466,7 +1758,6 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
         }
     };
 
-    // ─── UI usuari ───────────────────────────────────────────────────
     async function actualitzarUIUsuari(user) {
         const btnLogin = document.getElementById('ppBtnLogin');
         const btnPerfil = document.getElementById('ppBtnPerfil');
@@ -1494,7 +1785,6 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
     window.haCanviatNom = haCanviatNom;
     window.actualitzarUIUsuari = actualitzarUIUsuari;
 
-    // ─── Info del run ────────────────────────────────────────────────
     function rutaBase() {
         const p = window.location.pathname;
         return p.substring(0, p.lastIndexOf('/') + 1);
@@ -1520,7 +1810,6 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
     }
 
     function formatDataRun(info) {
-        // Si el JSON porta una data ISO del run
         if (info.run_iso) {
             const ms = Date.parse(info.run_iso);
             if (isFinite(ms)) {
@@ -1532,7 +1821,6 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
                 return `${dia}/${mes} · ${hora}:${min}`;
             }
         }
-        // Si porta run_ts (segons o ms)
         if (info.run_ts && isFinite(info.run_ts)) {
             const ms = info.run_ts > 1e12 ? info.run_ts : info.run_ts * 1000;
             const d = new Date(ms);
@@ -1542,7 +1830,6 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
             const min = String(d.getMinutes()).padStart(2, '0');
             return `${dia}/${mes} · ${hora}:${min}`;
         }
-        // Si no hi ha data, mostrem només "avui"
         return 'avui';
     }
 
@@ -1561,115 +1848,12 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
     async function inicialitzarInfoRun() {
         const info = await carregarInfoRun();
         if (info) pintarInfoRun(info);
-
-        // Reconsultar cada 15 min per si canvia el run
         setInterval(async () => {
             const nou = await carregarInfoRun();
             if (nou) pintarInfoRun(nou);
         }, 15 * 60 * 1000);
     }
 
-    function formatDataRun(info) {
-        // Si el JSON porta una data ISO del run
-        if (info.run_iso) {
-            const ms = Date.parse(info.run_iso);
-            if (isFinite(ms)) {
-                const d = new Date(ms);
-                const dia = String(d.getDate()).padStart(2, '0');
-                const mes = String(d.getMonth() + 1).padStart(2, '0');
-                const hora = String(d.getHours()).padStart(2, '0');
-                const min = String(d.getMinutes()).padStart(2, '0');
-                return `${dia}/${mes} · ${hora}:${min}`;
-            }
-        }
-        // Si porta run_ts (segons o ms)
-        if (info.run_ts && isFinite(info.run_ts)) {
-            const ms = info.run_ts > 1e12 ? info.run_ts : info.run_ts * 1000;
-            const d = new Date(ms);
-            const dia = String(d.getDate()).padStart(2, '0');
-            const mes = String(d.getMonth() + 1).padStart(2, '0');
-            const hora = String(d.getHours()).padStart(2, '0');
-            const min = String(d.getMinutes()).padStart(2, '0');
-            return `${dia}/${mes} · ${hora}:${min}`;
-        }
-        // Si no hi ha data, mostrem només "avui"
-        return 'avui';
-    }
-
-    function pintarInfoRun(info) {
-        const el = document.getElementById('info_run');
-        if (!el || !info) return;
-        el.innerHTML = `
-            <span class="punt"></span>
-            <span class="run">${info.run_z || '—'}</span>
-            <span class="sep">·</span>
-            <span class="fa">${formatDataRun(info)}</span>
-        `;
-        el.classList.add('visible');
-    }
-
-    async function inicialitzarInfoRun() {
-        const info = await carregarInfoRun();
-        if (info) pintarInfoRun(info);
-
-        // Reconsultar cada 15 min per si canvia el run
-        setInterval(async () => {
-            const nou = await carregarInfoRun();
-            if (nou) pintarInfoRun(nou);
-        }, 15 * 60 * 1000);
-    }
-
-    function formatDataRun(info) {
-        // Si el JSON porta una data ISO del run
-        if (info.run_iso) {
-            const ms = Date.parse(info.run_iso);
-            if (isFinite(ms)) {
-                const d = new Date(ms);
-                const dia = String(d.getDate()).padStart(2, '0');
-                const mes = String(d.getMonth() + 1).padStart(2, '0');
-                const hora = String(d.getHours()).padStart(2, '0');
-                const min = String(d.getMinutes()).padStart(2, '0');
-                return `${dia}/${mes} · ${hora}:${min}`;
-            }
-        }
-        // Si porta run_ts (segons o ms)
-        if (info.run_ts && isFinite(info.run_ts)) {
-            const ms = info.run_ts > 1e12 ? info.run_ts : info.run_ts * 1000;
-            const d = new Date(ms);
-            const dia = String(d.getDate()).padStart(2, '0');
-            const mes = String(d.getMonth() + 1).padStart(2, '0');
-            const hora = String(d.getHours()).padStart(2, '0');
-            const min = String(d.getMinutes()).padStart(2, '0');
-            return `${dia}/${mes} · ${hora}:${min}`;
-        }
-        // Si no hi ha data, mostrem només "avui"
-        return 'avui';
-    }
-
-    function pintarInfoRun(info) {
-        const el = document.getElementById('info_run');
-        if (!el || !info) return;
-        el.innerHTML = `
-            <span class="punt"></span>
-            <span class="run">${info.run_z || '—'}</span>
-            <span class="sep">·</span>
-            <span class="fa">${formatDataRun(info)}</span>
-        `;
-        el.classList.add('visible');
-    }
-
-    async function inicialitzarInfoRun() {
-        const info = await carregarInfoRun();
-        if (info) pintarInfoRun(info);
-
-        // Reconsultar cada 15 min per si canvia el run
-        setInterval(async () => {
-            const nou = await carregarInfoRun();
-            if (nou) pintarInfoRun(nou);
-        }, 15 * 60 * 1000);
-    }
-
-    // ─── Xat ─────────────────────────────────────────────────────────
     const PUSHER_KEY = '54b645506c85aed5b62e';
     const PUSHER_CLUSTER = 'eu';
     const API_CHAT = 'https://tempestes-cat.pages.dev/api';
@@ -1811,7 +1995,6 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
         } catch (e) {}
     }
 
-    // ─── Radar ───────────────────────────────────────────────────────
     const RADAR_URL = 'https://radar.tempestes.cat/';
     let radarCarregat = false;
     window.obrirRadarModal = function () {
@@ -1823,7 +2006,6 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
         obrirModal('modalRadar');
     };
 
-    // ─── Inicialització ──────────────────────────────────────────────
     async function inicialitzar() {
         if (window._firebaseUser) actualitzarUIUsuari(window._firebaseUser);
         inicialitzarInfoRun();
