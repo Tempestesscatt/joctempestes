@@ -23,7 +23,7 @@ env:
 
 jobs:
   # ════════════════════════════════════════════════════════════════
-  #  JOB 1 (paral·lel): SFC -> PNG
+  #  JOB 1 (paral·lel): SFC + OUTLOOKS -> PNG
   # ════════════════════════════════════════════════════════════════
   png_sfc:
     runs-on: ubuntu-latest
@@ -100,7 +100,10 @@ jobs:
         done
         [ "$OK" = 1 ] || { echo "ERROR: els 3 intents han fallat."; exit 1; }
 
+    # Els outlooks són secundaris: si fallen NO tomben el deploy (continue-on-error).
+    # IMPORTANT: s'executen DESPRÉS de l'SFC, que esborra la carpeta a l'inici.
     - name: Executar outbrakpngs.py (outlooks AROME)
+      continue-on-error: true
       timeout-minutes: 120
       run: |
         set +e
@@ -118,14 +121,8 @@ jobs:
 
           echo "Outlooks PNG: $OUTLOOKS | manifest_outlook.json: $MANIFEST_OUTLOOK | codi: $CODI"
 
-          if [ $CODI -eq 0 ] && [ "$MANIFEST_OUTLOOK" -ge 1 ]; then
-            echo "OK outbrakpngs.py"
-            OK=1
-            break
-          fi
-
-          if [ "$MANIFEST_OUTLOOK" -ge 1 ] && [ "$OUTLOOKS" -ge 1 ]; then
-            echo "OK outbrakpngs.py amb manifest generat (codi $CODI)"
+          if [ "$MANIFEST_OUTLOOK" -ge 1 ]; then
+            echo "OK outbrakpngs.py (codi $CODI)"
             OK=1
             break
           fi
@@ -134,7 +131,7 @@ jobs:
           sleep 30
         done
 
-        [ "$OK" = 1 ] || { echo "ERROR: outbrakpngs.py ha fallat als 3 intents."; exit 1; }
+        [ "$OK" = 1 ] || { echo "AVÍS: outbrakpngs.py ha fallat als 3 intents (el deploy continua sense outlooks)."; exit 1; }
 
     - name: Verificar fitxers generats
       run: |
@@ -143,8 +140,12 @@ jobs:
         [ "$N" -lt 5 ] && { echo "Massa pocs PNG"; exit 1; }
         [ -f "$IMATGES_DIR/manifest.json" ] || { echo "Falta manifest.json"; exit 1; }
         [ -f "$IMATGES_DIR/fons.png" ] || { echo "Falta fons.png"; exit 1; }
-        [ -f "$IMATGES_DIR/manifest_outlook.json" ] || { echo "Falta manifest_outlook.json"; exit 1; }
-        echo "Outlooks PNG: $(find "$IMATGES_DIR" -maxdepth 1 -type f -name '*outlook*.png' | wc -l)"
+        # Els outlooks són opcionals: només avisem
+        if [ -f "$IMATGES_DIR/manifest_outlook.json" ]; then
+          echo "Outlooks PNG: $(find "$IMATGES_DIR" -maxdepth 1 -type f -name '*outlook*.png' | wc -l)"
+        else
+          echo "AVÍS: no hi ha manifest_outlook.json (es publica sense outlooks)"
+        fi
         echo "OK"
 
     # Un sol fitxer .tar és MOLT més ràpid de pujar/baixar que milers de fitxers petits
@@ -232,42 +233,6 @@ jobs:
           sleep 30
         done
         [ "$OK" = 1 ] || { echo "ERROR: els 3 intents han fallat."; exit 1; }
-
-    - name: Executar outbrakpngs.py (outlooks AROME)
-      timeout-minutes: 120
-      run: |
-        set +e
-        cd private-scripts-new
-
-        OK=0
-        for i in 1 2 3; do
-          echo "--- outbrakpngs.py: intent $i/3 ($(date -u +%H:%M:%S) UTC) ---"
-
-          timeout 35m python3 outbrakpngs.py
-          CODI=$?
-
-          OUTLOOKS=$(find "$IMATGES_DIR" -maxdepth 1 -type f -name '*outlook*.png' | wc -l)
-          MANIFEST_OUTLOOK=$(find "$IMATGES_DIR" -maxdepth 1 -type f -name 'manifest_outlook.json' | wc -l)
-
-          echo "Outlooks PNG: $OUTLOOKS | manifest_outlook.json: $MANIFEST_OUTLOOK | codi: $CODI"
-
-          if [ $CODI -eq 0 ] && [ "$MANIFEST_OUTLOOK" -ge 1 ]; then
-            echo "OK outbrakpngs.py"
-            OK=1
-            break
-          fi
-
-          if [ "$MANIFEST_OUTLOOK" -ge 1 ] && [ "$OUTLOOKS" -ge 1 ]; then
-            echo "OK outbrakpngs.py amb manifest generat (codi $CODI)"
-            OK=1
-            break
-          fi
-
-          echo "ERROR outbrakpngs.py (codi $CODI)"
-          sleep 30
-        done
-
-        [ "$OK" = 1 ] || { echo "ERROR: outbrakpngs.py ha fallat als 3 intents."; exit 1; }
 
     - name: Verificar fitxers generats
       run: |
@@ -439,7 +404,7 @@ jobs:
         CARPETES="web_data_NE webdata_waves avis gfsmaps gfsESPmaps previsions_catalunya"
         REMOTE_URL="https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/Tempestesscatt/joctempestes.git"
 
-        # Fitxers del 3D (la resta de web_data_NE/imatges és SFC)
+        # Fitxers del 3D (la resta de web_data_NE/imatges és SFC, outlooks inclosos)
         PAT3D=( -name '3d_*' -o -name 'isolines_3d_*' -o -name 'legend_3d_*' -o -name 'sondeig_*' -o -name 'vent3d_*' -o -name 'stormmotion_*' )
 
         rm -rf /tmp/nou-sfc /tmp/nou-3d
