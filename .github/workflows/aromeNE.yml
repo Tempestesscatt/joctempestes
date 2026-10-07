@@ -53,12 +53,19 @@ jobs:
         python3 -m pip install --retries 5 --upgrade pip
         python3 -m pip install --retries 5 numpy requests tifffile scipy xarray cfgrib eccodes meteofetch matplotlib pillow shapely pyproj cartopy
 
-    - name: Preparar l'script (ruta de sortida i clau)
+    - name: Preparar els scripts (rutes de sortida i clau)
       run: |
         mkdir -p "$IMATGES_DIR"
         cd private-scripts-new
+
+        # SFC principal
         sed -i -E 's|^IMATGES_DIR = .*|IMATGES_DIR = Path(os.environ["IMATGES_DIR"])|' arome_sfc_png.py
-        grep -q 'os.environ\["IMATGES_DIR"\]' arome_sfc_png.py || { echo "No s'ha pogut canviar IMATGES_DIR"; exit 1; }
+        grep -q 'os.environ\["IMATGES_DIR"\]' arome_sfc_png.py || { echo "No s'ha pogut canviar IMATGES_DIR a arome_sfc_png.py"; exit 1; }
+
+        # OUTLOOKS: mateixa carpeta que SFC
+        sed -i -E 's|^IMATGES_DIR = .*|IMATGES_DIR = Path(os.environ["IMATGES_DIR"])|' outbrakpngs.py
+        grep -q 'os.environ\["IMATGES_DIR"\]' outbrakpngs.py || { echo "No s'ha pogut canviar IMATGES_DIR a outbrakpngs.py"; exit 1; }
+
         python3 -c 'import json; cfg = json.load(open("configNE.json", "r", encoding="utf-8-sig")); cfg["api_key"] = "${{ secrets.AROME_API_KEY }}"; json.dump(cfg, open("configNE.json", "w", encoding="utf-8"), indent=2)'
 
     - name: Executar arome_sfc_png.py (3 intents)
@@ -93,6 +100,42 @@ jobs:
         done
         [ "$OK" = 1 ] || { echo "ERROR: els 3 intents han fallat."; exit 1; }
 
+    - name: Executar outbrakpngs.py (outlooks AROME)
+      timeout-minutes: 120
+      run: |
+        set +e
+        cd private-scripts-new
+
+        OK=0
+        for i in 1 2 3; do
+          echo "--- outbrakpngs.py: intent $i/3 ($(date -u +%H:%M:%S) UTC) ---"
+
+          timeout 35m python3 outbrakpngs.py
+          CODI=$?
+
+          OUTLOOKS=$(find "$IMATGES_DIR" -maxdepth 1 -type f -name '*outlook*.png' | wc -l)
+          MANIFEST_OUTLOOK=$(find "$IMATGES_DIR" -maxdepth 1 -type f -name 'manifest_outlook.json' | wc -l)
+
+          echo "Outlooks PNG: $OUTLOOKS | manifest_outlook.json: $MANIFEST_OUTLOOK | codi: $CODI"
+
+          if [ $CODI -eq 0 ] && [ "$MANIFEST_OUTLOOK" -ge 1 ]; then
+            echo "OK outbrakpngs.py"
+            OK=1
+            break
+          fi
+
+          if [ "$MANIFEST_OUTLOOK" -ge 1 ] && [ "$OUTLOOKS" -ge 1 ]; then
+            echo "OK outbrakpngs.py amb manifest generat (codi $CODI)"
+            OK=1
+            break
+          fi
+
+          echo "ERROR outbrakpngs.py (codi $CODI)"
+          sleep 30
+        done
+
+        [ "$OK" = 1 ] || { echo "ERROR: outbrakpngs.py ha fallat als 3 intents."; exit 1; }
+
     - name: Verificar fitxers generats
       run: |
         N=$(find "$IMATGES_DIR" -name "sfc_*.png" -type f | wc -l)
@@ -100,6 +143,8 @@ jobs:
         [ "$N" -lt 5 ] && { echo "Massa pocs PNG"; exit 1; }
         [ -f "$IMATGES_DIR/manifest.json" ] || { echo "Falta manifest.json"; exit 1; }
         [ -f "$IMATGES_DIR/fons.png" ] || { echo "Falta fons.png"; exit 1; }
+        [ -f "$IMATGES_DIR/manifest_outlook.json" ] || { echo "Falta manifest_outlook.json"; exit 1; }
+        echo "Outlooks PNG: $(find "$IMATGES_DIR" -maxdepth 1 -type f -name '*outlook*.png' | wc -l)"
         echo "OK"
 
     # Un sol fitxer .tar és MOLT més ràpid de pujar/baixar que milers de fitxers petits
@@ -187,6 +232,42 @@ jobs:
           sleep 30
         done
         [ "$OK" = 1 ] || { echo "ERROR: els 3 intents han fallat."; exit 1; }
+
+    - name: Executar outbrakpngs.py (outlooks AROME)
+      timeout-minutes: 120
+      run: |
+        set +e
+        cd private-scripts-new
+
+        OK=0
+        for i in 1 2 3; do
+          echo "--- outbrakpngs.py: intent $i/3 ($(date -u +%H:%M:%S) UTC) ---"
+
+          timeout 35m python3 outbrakpngs.py
+          CODI=$?
+
+          OUTLOOKS=$(find "$IMATGES_DIR" -maxdepth 1 -type f -name '*outlook*.png' | wc -l)
+          MANIFEST_OUTLOOK=$(find "$IMATGES_DIR" -maxdepth 1 -type f -name 'manifest_outlook.json' | wc -l)
+
+          echo "Outlooks PNG: $OUTLOOKS | manifest_outlook.json: $MANIFEST_OUTLOOK | codi: $CODI"
+
+          if [ $CODI -eq 0 ] && [ "$MANIFEST_OUTLOOK" -ge 1 ]; then
+            echo "OK outbrakpngs.py"
+            OK=1
+            break
+          fi
+
+          if [ "$MANIFEST_OUTLOOK" -ge 1 ] && [ "$OUTLOOKS" -ge 1 ]; then
+            echo "OK outbrakpngs.py amb manifest generat (codi $CODI)"
+            OK=1
+            break
+          fi
+
+          echo "ERROR outbrakpngs.py (codi $CODI)"
+          sleep 30
+        done
+
+        [ "$OK" = 1 ] || { echo "ERROR: outbrakpngs.py ha fallat als 3 intents."; exit 1; }
 
     - name: Verificar fitxers generats
       run: |
@@ -438,11 +519,12 @@ jobs:
 
         echo "--- Resum ---"
         for c in $CARPETES; do echo "$c: $(find "$P/$c" -type f | wc -l) fitxers"; done
-        echo "imatges sfc: $(find "$IM" -name 'sfc_*.png' | wc -l) PNG"
-        echo "imatges 3d:  $(find "$IM" -name '3d_*.png' | wc -l) PNG"
+        echo "imatges sfc:      $(find "$IM" -name 'sfc_*.png' | wc -l) PNG"
+        echo "imatges outlook:  $(find "$IM" -maxdepth 1 -name '*outlook*.png' | wc -l) PNG"
+        echo "imatges 3d:       $(find "$IM" -name '3d_*.png' | wc -l) PNG"
         du -sh "$P/web_data_NE" || true
         echo "--- Mida per tipus (a web_data_NE/imatges) ---"
-        for pat in 'sfc_*.png' 'isolines_[0-2][0-9]_*.js' 'vent_*.js' '3d_*.png' 'isolines_3d_*.js' 'sondeig_*' 'vent3d_*' 'stormmotion_*'; do
+        for pat in 'sfc_*.png' '*outlook*.png' 'manifest_outlook.json' 'isolines_[0-2][0-9]_*.js' 'vent_*.js' '3d_*.png' 'isolines_3d_*.js' 'sondeig_*' 'vent3d_*' 'stormmotion_*'; do
           find "$IM" -maxdepth 1 -name "$pat" -printf '%s\n' | awk -v p="$pat" '{s+=$1} END {printf "  %-26s %6d fitxers %8.1f MB\n", p, NR, s/1048576}'
         done
 
