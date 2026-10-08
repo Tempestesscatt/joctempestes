@@ -164,7 +164,7 @@
                 boto.classList.remove('carregant');
                 boto.querySelector('.txt').textContent = 'Actualitzar ara';
                 boto.classList.add('nova');
-                estatEl.textContent = '🔔 Nova versió disponible!';
+                estatEl.textContent = '🔔 Noves dades disponibles!';
                 estatEl.className = 'sistema-estat nova';
                 break;
             case 'error':
@@ -187,7 +187,7 @@
         b.innerHTML = `
             <div class="bnv-ico">🔔</div>
             <div class="bnv-text">
-                <strong>Nova versió disponible</strong>
+                <strong>Noves dades disponibles!</strong>
                 <span>Hi ha dades noves al visor</span>
             </div>
             <button class="bnv-btn" id="bnvRecarregar">Actualitzar ara</button>

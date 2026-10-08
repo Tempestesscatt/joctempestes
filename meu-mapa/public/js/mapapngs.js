@@ -117,10 +117,33 @@ window.MOSTRAR_VENT = true;
 window.MOSTRAR_BARBES = true;
 window.MOSTRAR_ISOLINIES = false;
 window.MOSTRAR_CIUTATS = true;
-window.MOSTRAR_FRONTERES = true;
-window.MOSTRAR_PROVINCIES = true;
+window.MOSTRAR_COMARQUES = false;
+const PROPS_CAPES = ['MOSTRAR_VENT', 'MOSTRAR_BARBES', 'MOSTRAR_ISOLINIES', 'MOSTRAR_FRONTERES', 'MOSTRAR_PROVINCIES', 'MOSTRAR_COMARQUES'];
 
-const PROPS_CAPES = ['MOSTRAR_VENT', 'MOSTRAR_BARBES', 'MOSTRAR_ISOLINIES', 'MOSTRAR_FRONTERES', 'MOSTRAR_PROVINCIES'];
+const COMARQUES_CFG = {
+    color: 'rgba(40,45,75,0.70)',
+    halo: 'rgba(255,255,255,0.40)',
+    amplada: 0.7,
+    haloExtra: 1.4,
+};
+
+let _comarques = [];
+async function carregarComarques() {
+    if (_comarques.length) return _comarques;
+    for (const base of CARPETES_NOMS) {
+        try {
+            window.LINEAS_COMARQUES = undefined;
+            await carregarScript(base + 'comarques.js', true);
+            if (Array.isArray(window.LINEAS_COMARQUES) && window.LINEAS_COMARQUES.length) {
+                _comarques = window.LINEAS_COMARQUES;
+                break;
+            }
+        } catch (e) {}
+    }
+    programarRedibuix();
+    return _comarques;
+}
+
 if (_cfg.capes) {
     for (const p of PROPS_CAPES) {
         if (typeof _cfg.capes[p] === 'boolean') window[p] = _cfg.capes[p];
@@ -1756,6 +1779,7 @@ function crearPanell() {
                 <div class="cap-titol" style="margin-top:2px">Vores</div>
                 <div class="cap-fila" data-prop="MOSTRAR_FRONTERES"><span>Fronteres</span><span class="interruptor"></span></div>
                 <div class="cap-fila" data-prop="MOSTRAR_PROVINCIES"><span>Províncies</span><span class="interruptor"></span></div>
+                <div class="cap-fila" data-prop="MOSTRAR_COMARQUES"><span>Comarques</span><span class="interruptor"></span></div>
                 <div class="cap-titol">Ciutats</div>
                 <label class="ctrl-label">Densitat de noms</label>
                 <select id="selDensitatCiutats" class="ctrl-select">
@@ -2356,7 +2380,13 @@ function actualitzarLlegenda() {
     imgLlegenda.onload = () => { imgLlegenda.style.display = 'block'; };
     imgLlegenda.onerror = () => { imgLlegenda.style.display = 'none'; };
     if (_capa3DActiva) {
-        imgLlegenda.src = ambCb(`${BASE_3D}legend_3d_${_capa3DActiva.var}.png`);
+        const a = _capa3DActiva;
+        // Temperatura: llegenda per nivell (legend_3d_t_500.png).
+        // La resta: llegenda única (legend_3d_shear_06.png).
+        const fitxer = (a.var === 't' && a.nivell !== NIVELL_COLUMNA)
+            ? `legend_3d_t_${a.nivell}.png`
+            : `legend_3d_${a.var}.png`;
+        imgLlegenda.src = ambCb(`${BASE_3D}${fitxer}`);
     } else {
         imgLlegenda.src = ambCb(`${PNG_BASE}legend_${variableActiva}.png`);
     }
@@ -2492,24 +2522,34 @@ function pintarTraç(ctx, polilinies, W, H, color, amplada, colorHalo, ampladaHa
     ctx.strokeStyle = colorHalo; ctx.lineWidth = ampladaHalo; ctx.stroke();
     ctx.strokeStyle = color; ctx.lineWidth = amplada; ctx.stroke();
 }
+
+
 function dibuixarVores() {
     if (!canvasVores) return;
     const { ctx, W, H } = prepararCtx(canvasVores);
-    if (!_linies || !window._extentManifest) return;
+    if (!window._extentManifest) return;
     const esc = Math.min(1.8, Math.max(0.8, Math.sqrt(vista.k)));
     ctx.save();
     retallarAImatge(ctx);
-    if (window.MOSTRAR_PROVINCIES && _linies.provincies.length) {
-        const tot = [];
-        for (const p of _linies.provincies) for (const l of (p.linies || [])) tot.push(l);
-        const a = VORES_CFG.provinciaAmplada * esc;
-        pintarTraç(ctx, tot, W, H, VORES_CFG.provinciaColor, a,
-            VORES_CFG.provinciaHalo, a + VORES_CFG.provinciaHaloExtra * esc);
+
+    if (window.MOSTRAR_COMARQUES && _comarques.length) {
+        const a = COMARQUES_CFG.amplada * esc;
+        pintarTraç(ctx, _comarques, W, H, COMARQUES_CFG.color, a,
+            COMARQUES_CFG.halo, a + COMARQUES_CFG.haloExtra * esc);
     }
-    if (window.MOSTRAR_FRONTERES && _linies.fronteres.length) {
-        const a = VORES_CFG.fronteraAmplada * esc;
-        pintarTraç(ctx, _linies.fronteres, W, H, VORES_CFG.fronteraColor, a,
-            VORES_CFG.fronteraHalo, a + VORES_CFG.fronteraHaloExtra * esc);
+    if (_linies) {
+        if (window.MOSTRAR_PROVINCIES && _linies.provincies.length) {
+            const tot = [];
+            for (const p of _linies.provincies) for (const l of (p.linies || [])) tot.push(l);
+            const a = VORES_CFG.provinciaAmplada * esc;
+            pintarTraç(ctx, tot, W, H, VORES_CFG.provinciaColor, a,
+                VORES_CFG.provinciaHalo, a + VORES_CFG.provinciaHaloExtra * esc);
+        }
+        if (window.MOSTRAR_FRONTERES && _linies.fronteres.length) {
+            const a = VORES_CFG.fronteraAmplada * esc;
+            pintarTraç(ctx, _linies.fronteres, W, H, VORES_CFG.fronteraColor, a,
+                VORES_CFG.fronteraHalo, a + VORES_CFG.fronteraHaloExtra * esc);
+        }
     }
     ctx.restore();
 }
@@ -3182,6 +3222,7 @@ async function inicialitzar() {
     construirGraellaHores();
     mostrarHora(idx0);
     actualitzarLlegenda();
+    await Promise.all([carregarNoms(), carregarLinies(), carregarComarques()]);
     await Promise.all([carregarNoms(), carregarLinies()]);
     if (_cfg.ciutat) {
         const q = nrm(_cfg.ciutat);
