@@ -282,6 +282,8 @@ let _animVista = null;
 let _vistaPermesGuardar = false;
 let _tmrVista = null;
 let _capa3DActiva = null;
+let _origDades = null;
+window.getDadesOriginals = () => _origDades;
 
 const ultimNivell3D = {};
 
@@ -1619,12 +1621,14 @@ async function mostrarCapa3D(var3d, nivell) {
     pre.decoding = 'async';
     pre.onload = () => {
         if (token !== _tokenDades) return;
+        _origDades = { img: pre, clau: null, capa3D: { var: var3d, nivell }, url: urlPng };
         imgDades.src = NEGRE_A_BLANC ? negreABlanc(pre, urlPng) : urlPng;
         imgDades.style.visibility = 'visible';
         _urlDades = urlPng;
     };
     pre.onerror = () => {
         if (token !== _tokenDades) return;
+        _origDades = null;
         imgDades.style.visibility = 'hidden';
         _urlDades = null;
     };
@@ -2381,18 +2385,21 @@ function actualitzarDades() {
     if (_capa3DActiva) return;
     const url = construirUrlPng(curIdx, variableActiva);
     const token = ++_tokenDades;
-    if (!url) { imgDades.style.visibility = 'hidden'; _urlDades = null; return; }
+    const clauSnap = variableActiva;
+    if (!url) { imgDades.style.visibility = 'hidden'; _urlDades = null; _origDades = null; return; }
     if (url === _urlDades) return;
     const pre = new Image();
     pre.decoding = 'async';
     pre.onload = () => {
         if (token !== _tokenDades) return;
+        _origDades = { img: pre, clau: clauSnap, capa3D: null, url };
         imgDades.src = NEGRE_A_BLANC ? negreABlanc(pre, url) : url;
         imgDades.style.visibility = 'visible';
         _urlDades = url;
     };
     pre.onerror = () => {
         if (token !== _tokenDades) return;
+        _origDades = null;
         imgDades.style.visibility = 'hidden';
         _urlDades = null;
     };
