@@ -1779,7 +1779,6 @@ function crearPanell() {
                 <div class="cap-titol" style="margin-top:2px">Vores</div>
                 <div class="cap-fila" data-prop="MOSTRAR_FRONTERES"><span>Fronteres</span><span class="interruptor"></span></div>
                 <div class="cap-fila" data-prop="MOSTRAR_PROVINCIES"><span>Províncies</span><span class="interruptor"></span></div>
-                <div class="cap-fila" data-prop="MOSTRAR_COMARQUES"><span>Comarques</span><span class="interruptor"></span></div>
                 <div class="cap-titol">Ciutats</div>
                 <label class="ctrl-label">Densitat de noms</label>
                 <select id="selDensitatCiutats" class="ctrl-select">
@@ -2380,13 +2379,7 @@ function actualitzarLlegenda() {
     imgLlegenda.onload = () => { imgLlegenda.style.display = 'block'; };
     imgLlegenda.onerror = () => { imgLlegenda.style.display = 'none'; };
     if (_capa3DActiva) {
-        const a = _capa3DActiva;
-        // Temperatura: llegenda per nivell (legend_3d_t_500.png).
-        // La resta: llegenda única (legend_3d_shear_06.png).
-        const fitxer = (a.var === 't' && a.nivell !== NIVELL_COLUMNA)
-            ? `legend_3d_t_${a.nivell}.png`
-            : `legend_3d_${a.var}.png`;
-        imgLlegenda.src = ambCb(`${BASE_3D}${fitxer}`);
+        imgLlegenda.src = ambCb(`${BASE_3D}legend_3d_${_capa3DActiva.var}.png`);
     } else {
         imgLlegenda.src = ambCb(`${PNG_BASE}legend_${variableActiva}.png`);
     }
