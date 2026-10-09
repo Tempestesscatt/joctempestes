@@ -247,6 +247,7 @@ const ICO = {
 
 // ─── Estat global ──────────────────────────────────────────────────
 let totesLesHores = [];
+window.totesLesHores = totesLesHores;
 let infoVariables = {};
 let infoVariables3D = {};
 let hores3D = [];
@@ -1354,31 +1355,64 @@ function mostrarErrorSkewt(msg) {
     `;
     document.body.appendChild(ov);
 }
-async function construirPerfilPerSkewT(lat, lon) {
-    const hora = totesLesHores[curIdx] ? totesLesHores[curIdx].hora : null;
-    const dia = totesLesHores[curIdx] ? totesLesHores[curIdx].dia : null;
-    if (hora == null || !dia) return null;
-    const sondeig = await carregarSondeig(hora, dia);
+async function construirPerfilPerSkewT(lat, lon, idxHora) {
+    const idx = (typeof idxHora === 'number') ? idxHora : curIdx;
+    const info = totesLesHores[idx];
+    if (!info) return null;
+    const sondeig = await carregarSondeig(info.hora, info.dia);
     if (!sondeig) return null;
     const perfil = obtenirPerfilSondeig(sondeig, lat, lon);
     if (!perfil) return null;
-    const t_arr = perfil.t, td_arr = perfil.dpt, u_arr = perfil.u, v_arr = perfil.v, p_arr = perfil.pressions;
-    if (!t_arr || !td_arr || !u_arr || !v_arr) return null;
-    const z = p_arr.map(p => 44330 * (1 - Math.pow(p / 1013.25, 0.1903)));
-    const p_out = [], t_out = [], td_out = [], u_out = [], v_out = [], z_out = [];
-    for (let i = 0; i < p_arr.length; i++) {
-        if (t_arr[i] == null || td_arr[i] == null || u_arr[i] == null || v_arr[i] == null) continue;
-        p_out.push(p_arr[i]); t_out.push(t_arr[i]); td_out.push(td_arr[i]);
-        u_out.push(u_arr[i]); v_out.push(v_arr[i]); z_out.push(z[i]);
+
+    const { t, dpt, u, v, pressions } = perfil;
+    if (!t || !dpt || !u || !v || !pressions) return null;
+
+    let pSfc = null;
+    if (window.SkewtEngine && window.SkewtEngine.obtenirPressioSuperficial) {
+        pSfc = window.SkewtEngine.obtenirPressioSuperficial(lat, lon);
     }
-    const ordre = p_out.map((_, i) => i).sort((a, b) => p_out[b] - p_out[a]);
+    const zDe = p => 44330 * (1 - Math.pow(p / 1013.25, 0.1903));
+
+    // Nivells amb totes les dades vàlides, de baix a dalt
+    const niv = [];
+    for (let i = 0; i < pressions.length; i++) {
+        if ([t[i], dpt[i], u[i], v[i]].every(x => x != null && isFinite(x))) {
+            niv.push({ p: pressions[i], t: t[i], td: dpt[i], u: u[i], v: v[i] });
+        }
+    }
+    niv.sort((a, b) => b.p - a.p);
+
+    let sobre = pSfc != null ? niv.filter(n => n.p < pSfc) : niv;   // sobre terra
+    const sota = pSfc != null ? niv.filter(n => n.p >= pSfc) : [];  // sota terra
+
+    // Punt exacte a la pressió del terreny
+    if (pSfc != null && sobre.length >= 2 && sobre[0].p < pSfc - 1) {
+        const a = sobre[0];
+        let punt;
+        const c = sota.length ? sota[sota.length - 1] : null; // nivell vàlid més proper sota terra
+        if (c) {
+            const f = (c.p - pSfc) / ((c.p - a.p) || 1);
+            punt = { p: pSfc, t: c.t + f * (a.t - c.t), td: c.td + f * (a.td - c.td),
+                     u: c.u + f * (a.u - c.u), v: c.v + f * (a.v - c.v) };
+        } else {
+            // El model no té dades sota terra: extrapolem amb els 2 nivells més baixos (lineal en ln p)
+            const b = sobre[1];
+            const f = Math.log(pSfc / a.p) / Math.log(b.p / a.p);
+            const tS = a.t + f * (b.t - a.t);
+            const tdS = Math.min(tS, a.td + f * (b.td - a.td));
+            punt = { p: pSfc, t: tS, td: tdS, u: a.u, v: a.v };
+        }
+        sobre = [punt, ...sobre];
+    }
+
+    if (sobre.length < 3) return null;
     return {
-        p: ordre.map(i => p_out[i]), z: ordre.map(i => z_out[i]),
-        t: ordre.map(i => t_out[i]), td: ordre.map(i => td_out[i]),
-        u: ordre.map(i => u_out[i]), v: ordre.map(i => v_out[i]),
+        p: sobre.map(n => n.p), z: sobre.map(n => zDe(n.p)),
+        t: sobre.map(n => n.t), td: sobre.map(n => n.td),
+        u: sobre.map(n => n.u), v: sobre.map(n => n.v),
     };
 }
-
+window.construirPerfilPerSkewT = construirPerfilPerSkewT;
 // ═══════════════════════════════════════════════════════════════════
 //  3D + SONDEJOS
 // ═══════════════════════════════════════════════════════════════════
@@ -1777,7 +1811,7 @@ function crearPanell() {
         <div class="pp-cos" data-cos="capes">
             <div class="capes-cos">
                 <div class="cap-titol" style="margin-top:2px">Vores</div>
-                <div class="cap-fila" data-prop="MOSTRAR_FRONTERES"><span>Fronteres</span><span class="interruptor"></span></div>
+            
                 <div class="cap-fila" data-prop="MOSTRAR_PROVINCIES"><span>Províncies</span><span class="interruptor"></span></div>
                 <div class="cap-titol">Ciutats</div>
                 <label class="ctrl-label">Densitat de noms</label>
@@ -1796,7 +1830,7 @@ function crearPanell() {
 
                 <div class="cap-titol" style="margin-top:22px;border-top:1px solid var(--line);padding-top:14px;">Sistema</div>
                 <button class="sistema-btn" id="btnComprovarActualitzacio" type="button">
-                    <span class="ico">🔄</span>
+                    <span class="ico"></span>
                     <span class="txt">Comprovar actualitzacions</span>
                 </button>
                 <div class="sistema-estat" id="estatActualitzacio"></div>
@@ -2295,7 +2329,8 @@ async function carregarManifest() {
             totesLesHores = manifest.hores.map((h, i) => ({
                 step: i, hora: h.hora, dia: h.dia, variables: h.variables || []
             }));
-            return totesLesHores;
+window.totesLesHores = totesLesHores;
+return totesLesHores;
         } catch (e) {
             errors.push(e.message);
         }
@@ -3253,6 +3288,16 @@ window.canviarHora = function (delta) {
     if (nou < 0) nou = 0;
     if (nou >= totesLesHores.length) nou = totesLesHores.length - 1;
     mostrarHora(nou);
+};
+
+
+window.mostrarHoraIdx = function (idx) {
+    if (typeof mostrarHora === 'function') mostrarHora(idx);
+};
+window.getHoraInfo = function (idx) {
+    const h = totesLesHores[idx];
+    if (!h) return null;
+    return { hora: h.hora, dia: h.dia, variables: h.variables };
 };
 window.getCurIdx = function () { return curIdx; };
 window.getTotalHores = function () { return totesLesHores.length; };
