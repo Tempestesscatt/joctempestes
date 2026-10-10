@@ -12,10 +12,7 @@ on:
 permissions:
   contents: write
 
-# Mateix grup que AROME i Deploy Manual: s'encuen, no es trepitgen
-concurrency:
-  group: deploy-data
-  cancel-in-progress: false
+
 
 env:
   PYTHONUNBUFFERED: "1"
