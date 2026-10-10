@@ -1,0 +1,59 @@
+name: NETEJA BRANCA DATA
+
+# Compacta la branca 'data' a un sol commit (mateixos fitxers, sense historial).
+# NO desplega res i NO toca Cloudflare.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '30 3 * * 0'   # cada diumenge a les 03:30 UTC
+
+permissions:
+  contents: write
+
+jobs:
+  compactar_data:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    # Mateix grup que els deploys d'AROME i GFS: no escriu a 'data' alhora que ells
+    concurrency:
+      group: deploy-data
+      cancel-in-progress: false
+    steps:
+    - name: Compactar la branca 'data'
+      run: |
+        set -uo pipefail
+        REMOTE_URL="https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/Tempestesscatt/joctempestes.git"
+
+        for INTENT in 1 2 3 4 5; do
+          echo "=== Compactar data (intent $INTENT/5) ==="
+          rm -rf /tmp/dclean
+          if ! git clone -q --depth 1 --branch data "$REMOTE_URL" /tmp/dclean; then
+            sleep 15; continue
+          fi
+          cd /tmp/dclean
+          SHA=$(git rev-parse HEAD)
+          N=$(find . -path ./.git -prune -o -type f -print | wc -l)
+          echo "Fitxers a conservar: $N"
+          [ "$N" -gt 0 ] || { echo "❌ 'data' buida: no toco res"; exit 1; }
+
+          git config user.name "bot-dades"
+          git config user.email "bot@tempestes-cat"
+          git config http.version HTTP/1.1
+          git config http.postBuffer 1048576000
+
+          # Commit orfe amb exactament el mateix contingut
+          git checkout -q --orphan data-compacta
+          git add -A
+          git commit -q -m "data compactada $(date -u +'%Y-%m-%d %H:%M UTC')"
+
+          # Només sobreescriu si 'data' continua sent el que hem llegit
+          if timeout 900 git push --force-with-lease="data:$SHA" origin data-compacta:data; then
+            echo "✅ 'data' compactada a un sol commit"
+            timeout 120 git push origin --delete data-staging 2>/dev/null || true
+            exit 0
+          fi
+          echo "Push fallit ('data' ha canviat?); reintento amb l'estat nou..."
+          cd /; sleep $((RANDOM % 20 + 10))
+        done
+        echo "❌ No s'ha pogut compactar (no passa res: 'data' queda com estava)"
+        exit 1
