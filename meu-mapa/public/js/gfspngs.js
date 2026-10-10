@@ -1,6 +1,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 //  gfspngs.js — Visor GFS (Atlàntic Nord + Europa) — versió completa
 //  Estil idèntic al mapapngs.js (AROME) + Skew-T adaptat al GFS
+//  Ordenació d'hores ROBUSTA (per UTC/local, no per etiqueta de dia)
 // ═══════════════════════════════════════════════════════════════════════
 
 const FIT = 'contain';
@@ -55,7 +56,7 @@ const _pathActual = window.location.pathname;
 const _basePath = _pathActual.substring(0, _pathActual.lastIndexOf('/') + 1);
 
 const CARPETES_CANDIDATES = [
-    './web_data_GFS/imatges/',           // ← RELATIVA PRIMER (la que et funciona!)
+    './web_data_GFS/imatges/',
     _basePath + 'web_data_GFS/imatges/',
     '/web_data_GFS/imatges/',
     '/public/web_data_GFS/imatges/',
@@ -385,7 +386,7 @@ function crearEscena() {
         + 'will-change:transform;backface-visibility:hidden;';
     imgFons = crearImatge(1);
     imgDades = crearImatge(2, `opacity:${OPACITAT_DADES};visibility:hidden;image-rendering:auto;`);
-    imgVores = crearImatge(3);
+    imgVores = crearImatge(5);
     stage.append(imgFons, imgDades, imgVores);
     viewport.appendChild(stage);
     canvasVores = crearCanvas(9);
@@ -809,11 +810,9 @@ function ferArrossegable(el, cap) {
 async function carregarSondeig(hora, dia) {
     const clau = `${String(hora).padStart(2, '0')}_${dia}`;
     
-    // Si ja està a la caché I no és null, retornem
     if (_cacheSondeigs.has(clau)) {
         const cached = _cacheSondeigs.get(clau);
         if (cached) return cached;
-        // Si és null, esborrem i reintentem
         _cacheSondeigs.delete(clau);
     }
     
@@ -839,7 +838,6 @@ async function carregarSondeig(hora, dia) {
             const buf = await r.arrayBuffer();
             console.log('[sondeig] Baixat:', buf.byteLength, 'bytes');
             
-            // Descomprimir
             let u8;
             if (typeof pako !== 'undefined' && pako.inflate) {
                 u8 = pako.inflate(new Uint8Array(buf));
@@ -850,7 +848,6 @@ async function carregarSondeig(hora, dia) {
             }
             console.log('[sondeig] Descomprimit:', u8.byteLength, 'bytes');
             
-            // Decodificar msgpack
             const dades = msgpack.decode(u8);
             console.log('[sondeig] ✅ OK de:', url);
             console.log('[sondeig] Nivells:', dades.pressions?.length);
@@ -865,13 +862,9 @@ async function carregarSondeig(hora, dia) {
     }
     
     console.warn('[sondeig] ❌ Cap ruta ha funcionat per a', clau);
-    // NO guardem null a la caché per poder reintentar
     return null;
 }
 
-// ─────────────────────────────────────────────────────────────
-//  Altitud del terreny des de altitudegfs.js
-// ─────────────────────────────────────────────────────────────
 function obtenirAltitud(lat, lon) {
     const A = window.ALTITUD_GFS;
     if (!A || !A.alt || !A.nlat || !A.nlon) return 0;
@@ -891,9 +884,6 @@ function obtenirAltitud(lat, lon) {
 }
 window.obtenirAltitud = obtenirAltitud;
 
-// ─────────────────────────────────────────────────────────────
-//  Càrrega del perfil amb altitud
-// ─────────────────────────────────────────────────────────────
 async function carregarPerfilGFS(lat, lon, idxHora) {
     const idx = (typeof idxHora === 'number') ? idxHora : curIdx;
     const info = totesLesHores[idx];
@@ -912,11 +902,9 @@ async function carregarPerfilGFS(lat, lon, idxHora) {
         return null;
     }
 
-    // ⭐ OBTENIR L'ALTITUD DEL TERRENY
     const altitud = obtenirAltitud(lat, lon);
     console.log('[skewt] Altitud terreny:', altitud, 'm a', lat, lon);
 
-    // ⭐ PASSAR-LA AL MOTOR
     const perfil = E.extreurePerfilGFS(sondeig, lat, lon, altitud);
     if (!perfil) {
         console.warn('[skewt] extreurePerfilGFS ha retornat null');
@@ -1055,7 +1043,6 @@ function dibuixarSkewTGFS(canvas, perfil, idx, vent, lat, lon) {
         return padL + fracT * w + dxSkew;
     }
 
-    // Graella isobares
     ctx.strokeStyle = T.grid;
     ctx.lineWidth = 0.6;
     [1000, 925, 850, 700, 600, 500, 400, 300, 250, 200, 150, 100].forEach(p => {
@@ -1069,7 +1056,6 @@ function dibuixarSkewTGFS(canvas, perfil, idx, vent, lat, lon) {
         ctx.stroke();
     });
 
-    // Isotermes
     ctx.strokeStyle = T.isoterma;
     ctx.lineWidth = 0.5;
     for (let t = -100; t <= 50; t += 10) {
@@ -1084,7 +1070,6 @@ function dibuixarSkewTGFS(canvas, perfil, idx, vent, lat, lon) {
         ctx.stroke();
     }
 
-    // Adiabàtiques seques
     ctx.strokeStyle = T.adiabaticaSeca;
     ctx.lineWidth = 0.4;
     const RD_CP = 287.05 / 1004.6;
@@ -1102,7 +1087,6 @@ function dibuixarSkewTGFS(canvas, perfil, idx, vent, lat, lon) {
         ctx.stroke();
     }
 
-    // Adiabàtiques humides
     const E = window.SkewtEngine;
     if (E && E.gradientHumit) {
         ctx.strokeStyle = T.adiabaticaHumida;
@@ -1125,9 +1109,7 @@ function dibuixarSkewTGFS(canvas, perfil, idx, vent, lat, lon) {
         }
     }
 
-    // Zona CAPE/CIN
     if (idx && idx.tParcela) {
-        // CIN
         if (idx.lfc_p) {
             ctx.fillStyle = T.cinArea;
             ctx.beginPath();
@@ -1148,7 +1130,6 @@ function dibuixarSkewTGFS(canvas, perfil, idx, vent, lat, lon) {
             ctx.closePath();
             ctx.fill();
         }
-        // CAPE
         if (idx.lfc_p && idx.el_p) {
             ctx.fillStyle = T.capeArea;
             ctx.beginPath();
@@ -1171,7 +1152,6 @@ function dibuixarSkewTGFS(canvas, perfil, idx, vent, lat, lon) {
         }
     }
 
-    // Temperatura ambient
     ctx.strokeStyle = T.temperatura;
     ctx.lineWidth = 2.2;
     ctx.beginPath();
@@ -1182,7 +1162,6 @@ function dibuixarSkewTGFS(canvas, perfil, idx, vent, lat, lon) {
     });
     ctx.stroke();
 
-    // Punt de rosada
     ctx.strokeStyle = T.rosada;
     ctx.lineWidth = 2;
     ctx.beginPath();
@@ -1193,7 +1172,6 @@ function dibuixarSkewTGFS(canvas, perfil, idx, vent, lat, lon) {
     });
     ctx.stroke();
 
-    // Parcel·la
     if (idx && idx.tParcela) {
         ctx.strokeStyle = T.parcela;
         ctx.lineWidth = 1.4;
@@ -1211,7 +1189,6 @@ function dibuixarSkewTGFS(canvas, perfil, idx, vent, lat, lon) {
         ctx.setLineDash([]);
     }
 
-    // Etiquetes eix Y (pressió)
     ctx.fillStyle = T.text;
     ctx.font = '10px Inter, Arial, sans-serif';
     ctx.textAlign = 'right';
@@ -1220,7 +1197,6 @@ function dibuixarSkewTGFS(canvas, perfil, idx, vent, lat, lon) {
         ctx.fillText(String(p), padL - 4, y + 3);
     });
 
-    // Etiquetes eix X (temperatura)
     ctx.textAlign = 'center';
     ctx.font = '9px Inter, Arial, sans-serif';
     ctx.fillStyle = T.textDim;
@@ -1230,7 +1206,6 @@ function dibuixarSkewTGFS(canvas, perfil, idx, vent, lat, lon) {
         ctx.fillText(t + '°', x, padT + h + 16);
     }
 
-    // Marc
     ctx.strokeStyle = T.gridForta;
     ctx.lineWidth = 1;
     ctx.strokeRect(padL, padT, w, h);
@@ -1631,12 +1606,51 @@ function renderCiutats() {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-//  MANIFEST
+//  MANIFEST — ORDENACIÓ ROBUSTA PER UTC/LOCAL
 // ═══════════════════════════════════════════════════════════════════
-function ordreDia(dia) {
-    const fixos = { ahir: -1, avui: 0, dema: 1, dema_passat: 2 };
-    return (dia in fixos) ? fixos[dia] : 99;
+
+/**
+ * Converteix una hora del manifest a un timestamp (ms) utilitzable per ordenar.
+ * Prioritat:
+ *   1) `utc` (format ISO) → més fiable
+ *   2) `local` (format ISO)
+ *   3) Fallback: reconstrucció a partir de `dia` + `hora` + `step`
+ */
+function horaATimestamp(h) {
+    if (h.utc) {
+        const t = Date.parse(h.utc);
+        if (isFinite(t)) return t;
+    }
+    if (h.local) {
+        const t = Date.parse(h.local);
+        if (isFinite(t)) return t;
+    }
+    if (typeof h.hora === 'number') {
+        const ordreDies = { 'ahir': -1, 'avui': 0, 'dema': 1, 'dema_passat': 2 };
+        const baseDia = (h.dia in ordreDies)
+            ? ordreDies[h.dia] * 24 * 60 * 60 * 1000
+            : 99 * 24 * 60 * 60 * 1000;
+        return baseDia + h.hora * 60 * 60 * 1000;
+    }
+    return 0;
 }
+
+/**
+ * Ordena les hores del manifest cronològicament.
+ * Prioritat: utc > local > (dia, hora).
+ */
+function ordenarHoresManifest(hores) {
+    if (!Array.isArray(hores) || hores.length < 2) return hores;
+    return hores.slice().sort((a, b) => {
+        const ta = horaATimestamp(a);
+        const tb = horaATimestamp(b);
+        if (ta !== tb) return ta - tb;
+        const sa = typeof a.step === 'number' ? a.step : 0;
+        const sb = typeof b.step === 'number' ? b.step : 0;
+        return sa - sb;
+    });
+}
+
 async function provarManifest(base) {
     const r = await fetchFresc(base + 'manifest.json');
     if (!r.ok) throw new Error('HTTP ' + r.status);
@@ -1654,15 +1668,31 @@ async function carregarManifest() {
             if (manifest.aspect) { aspecte = manifest.aspect; aspecteDelManifest = true; }
             if (manifest.extent) window._extentManifest = manifest.extent;
             infoVariables = manifest.variables || {};
-            manifest.hores.sort((a, b) => {
-                const dd = ordreDia(a.dia) - ordreDia(b.dia);
-                if (dd !== 0) return dd;
-                return a.hora - b.hora;
-            });
-            totesLesHores = manifest.hores.map((h, i) => ({
-                step: i, hora: h.hora, dia: h.dia, variables: h.variables || []
+
+            // ORDENACIÓ ROBUSTA
+            const horesOrdenades = ordenarHoresManifest(manifest.hores);
+
+            totesLesHores = horesOrdenades.map((h, i) => ({
+                step: (typeof h.step === 'number') ? h.step : i,
+                hora: h.hora,
+                dia: h.dia,
+                utc: h.utc || null,
+                local: h.local || null,
+                variables: h.variables || [],
             }));
             window.totesLesHores = totesLesHores;
+
+            // Log de verificació
+            if (totesLesHores.length) {
+                const primera = totesLesHores[0];
+                const ultima = totesLesHores[totesLesHores.length - 1];
+                console.log('[manifest] ' + totesLesHores.length + ' hores ordenades');
+                console.log('  Primera: ' + primera.dia + ' ' + primera.hora + 'h' +
+                            (primera.utc ? ' (' + primera.utc + ' UTC)' : ''));
+                console.log('  Última:  ' + ultima.dia + ' ' + ultima.hora + 'h' +
+                            (ultima.utc ? ' (' + ultima.utc + ' UTC)' : ''));
+            }
+
             return totesLesHores;
         } catch (e) { errors.push(e.message); }
     }
