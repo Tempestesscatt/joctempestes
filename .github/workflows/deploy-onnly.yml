@@ -6,62 +6,101 @@ on:
 permissions:
   contents: write
 
+# Mismo grupo que AROME y GFS: se encolan, no se pisan
+concurrency:
+  group: deploy-data
+  cancel-in-progress: false
+
+env:
+  CARPETES: "web_data_NE webdata_waves avis gfsmaps gfsESPmaps previsions_catalunya web_data_GFS"
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 90
 
     steps:
     - uses: actions/checkout@v4
       with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        fetch-depth: 0
+        token: ${{ secrets.PRIVATE_REPO_TOKEN }}
+        fetch-depth: 1
 
-    # ❌ Eliminat: ja no cal el submodule per al deploy
-    # - name: 🔐 Checkout private submodule
-    #   run: |
-    #     git config --global url."https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/".insteadOf "https://github.com/"
-    #     git submodule update --init --recursive
-
-    - name: 📥 Afegir dades de la branca 'data' (sense esborrar res)
+    - name: 📥 Afegir dades de la branca 'data'
       run: |
-        P="meu-mapa/public"
-        CARPETES="web_data_NE webdata_waves avis previsions_catalunya gfsmaps gfsESPmaps"
-
-        git fetch origin data
-        rm -rf /tmp/data-branch
-        git worktree add /tmp/data-branch origin/data
-
+        set -euo pipefail
+        P="$GITHUB_WORKSPACE/meu-mapa/public"
         mkdir -p "$P/js"
+
+        # Si GitHub no respon, ABORTEM: no volem desplegar una web incompleta
+        OK=0
+        for i in 1 2 3 4 5; do
+          if git fetch --depth=1 origin data; then OK=1; break; fi
+          sleep 10
+        done
+        [ "$OK" = 1 ] || { echo "❌ No puc baixar la branca data"; exit 1; }
+
+        git worktree prune
+        rm -rf /tmp/data-branch
+        git worktree add -f /tmp/data-branch FETCH_HEAD
+
         for c in $CARPETES; do
-          mkdir -p "$P/$c"
-          cp -r /tmp/data-branch/$c/. "$P/$c/" 2>/dev/null || echo "⚠️  $c no trobat a data"
+          if [ -d "/tmp/data-branch/$c" ]; then
+            rm -rf "$P/$c"; mkdir -p "$P/$c"
+            cp -r "/tmp/data-branch/$c/." "$P/$c/"
+          else
+            echo "⚠️  $c no trobat a data (s'ignora)"
+          fi
         done
         cp /tmp/data-branch/js/status.js "$P/js/status.js" 2>/dev/null || echo "⚠️  status.js no trobat a data"
 
         git worktree remove /tmp/data-branch --force
-        echo "✅ Dades de 'data' afegides sobre main (només filesystem, no es commiteja res)"
+        echo "✅ Dades de 'data' afegides (només filesystem, no es commiteja res)"
 
     - name: 📊 Resum abans del deploy
       run: |
-        P="meu-mapa/public"
+        P="$GITHUB_WORKSPACE/meu-mapa/public"
         echo "--- Arrel de public/ ---"
         find "$P" -maxdepth 1 -type f
         [ -f "$P/selector.html" ] && echo "✅ selector.html present" || echo "❌ selector.html NO present"
-        echo "--- Carpetes ---"
-        for dir in "$P"/*/; do
-          echo "  $(basename "$dir"): $(find "$dir" -type f | wc -l) fitxers"
+        echo "--- Carpetes dinàmiques ---"
+        for c in $CARPETES; do
+          echo "  $c: $(find "$P/$c" -type f 2>/dev/null | wc -l) fitxers"
         done
         echo "TOTAL: $(find "$P" -type f | wc -l) fitxers"
 
-    - name: 🚀 DEPLOY a Cloudflare
+    - name: 🔎 Comprovar límits de Cloudflare Pages
       run: |
-        cd meu-mapa
-        npm install -g wrangler
-        wrangler pages deploy public --project-name=tempestes-cat --branch=main --commit-dirty=true
+        P="$GITHUB_WORKSPACE/meu-mapa/public"
+        # Pages: màx. 25 MiB per fitxer i 20.000 fitxers per deploy
+        find "$P" -type f -size +25M -print -delete || true
+        N=$(find "$P" -type f | wc -l)
+        echo "Total fitxers: $N (límit Pages: 20000)"
+        if [ "$N" -gt 19000 ]; then
+          echo "Massa fitxers: elimino isolínies opcionals (3D i GFS)"
+          find "$P/web_data_NE/imatges" -maxdepth 1 -name 'isolines_3d_*' -delete 2>/dev/null || true
+          find "$P/web_data_GFS/imatges" -maxdepth 1 -name 'isolines_*' -delete 2>/dev/null || true
+          N=$(find "$P" -type f | wc -l)
+          echo "Total fitxers ara: $N"
+        fi
+        [ "$N" -le 19900 ] || { echo "❌ Encara massa fitxers per a Cloudflare Pages"; exit 1; }
+
+    - name: 🚀 DEPLOY a Cloudflare
+      timeout-minutes: 70
       env:
         CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        WRANGLER_SEND_METRICS: "false"
+      run: |
+        cd meu-mapa
+        for i in 1 2 3; do npm install -g wrangler && break; sleep 10; done
+        for i in 1 2 3; do
+          echo "--- deploy intent $i/3 ($(date -u +%H:%M:%S) UTC) ---"
+          if timeout 25m wrangler pages deploy public --project-name=tempestes-cat --branch=main --commit-dirty=true; then
+            echo "✅ Deploy OK"; exit 0
+          fi
+          sleep 20
+        done
+        echo "❌ El deploy ha fallat 3 vegades"; exit 1
 
     - name: 🎉 Confirmació
-      run: echo "🎉 Deploy completat a https://tempestes-cat.pages.dev/"
+      run: echo "🎉 Deploy completat a https://tempestes-cat.pages.dev/ ($(date -u))"

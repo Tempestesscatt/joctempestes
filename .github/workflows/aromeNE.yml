@@ -17,6 +17,9 @@ concurrency:
 env:
   PYTHONUNBUFFERED: "1"
   PIP_DISABLE_PIP_VERSION_CHECK: "1"
+  # Carpetes dinàmiques de la web (gestionades per diferents workflows).
+  # AROME només substitueix web_data_NE; la resta es conserven tal com són a 'data'.
+  CARPETES: "web_data_NE webdata_waves avis gfsmaps gfsESPmaps previsions_catalunya web_data_GFS"
   # "1" = esborra les isolínies 3D abans de publicar (≈2.900 fitxers menys => deploy més ràpid).
   # Al visor les isolínies vénen desactivades per defecte.
   ELIMINAR_ISOLINIES_3D: "0"
@@ -401,7 +404,6 @@ jobs:
       run: |
         set -euo pipefail
         P="$GITHUB_WORKSPACE/meu-mapa/public"
-        CARPETES="web_data_NE webdata_waves avis gfsmaps gfsESPmaps previsions_catalunya"
         REMOTE_URL="https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/Tempestesscatt/joctempestes.git"
 
         # Fitxers del 3D (la resta de web_data_NE/imatges és SFC, outlooks inclosos)
@@ -543,7 +545,6 @@ jobs:
         # Sense -e: gestionem els errors a mà (reintents)
         set -uo pipefail
         P="$GITHUB_WORKSPACE/meu-mapa/public"
-        CARPETES="web_data_NE webdata_waves avis gfsmaps gfsESPmaps previsions_catalunya"
         REMOTE_URL="https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/Tempestesscatt/joctempestes.git"
         EXPECT=$(cat "$RUNNER_TEMP/data_sha")
         MSG="arome png $(date -u +'%Y-%m-%d %H:%M UTC')"

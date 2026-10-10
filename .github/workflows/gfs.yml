@@ -1,0 +1,235 @@
+name: GFS PNG (SFC + nivells + sondeigs)
+
+# Automàtic cada 6 h (cron) + manual amb "Run workflow".
+# GFS publica els runs 00/06/12/18Z i queden complets ~4h30-5h després.
+# Per això el cron va a les 05:15, 11:15, 17:15 i 23:15 UTC (el script tria
+# sol l'últim run disponible, i si falta, retrocedeix 6 h).
+on:
+  schedule:
+    - cron: '15 5,11,17,23 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# Mateix grup que AROME i Deploy Manual: s'encuen, no es trepitgen
+concurrency:
+  group: deploy-data
+  cancel-in-progress: false
+
+env:
+  PYTHONUNBUFFERED: "1"
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+  # Mateixa llista que l'AROME. GFS només substitueix web_data_GFS.
+  CARPETES: "web_data_NE webdata_waves avis gfsmaps gfsESPmaps previsions_catalunya web_data_GFS"
+
+jobs:
+  # ════════════ JOB 1: GFS -> PNG ════════════
+  png_gfs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    env:
+      GFS_OUTPUT_DIR: ${{ github.workspace }}/out-gfs/imatges
+    steps:
+    - name: Clonar private-scripts
+      run: |
+        for i in 1 2 3 4; do
+          rm -rf private-scripts-new
+          if git clone --depth 1 "https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/Tempestesscatt/Scripts.git" private-scripts-new; then break; fi
+          [ "$i" = 4 ] && { echo "No s'ha pogut clonar private-scripts"; exit 1; }
+          sleep 15
+        done
+
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Instal·lar dependències
+      run: |
+        for i in 1 2 3; do
+          sudo apt-get update -qq && sudo apt-get install -y -qq libeccodes-dev libgeos-dev libproj-dev proj-data proj-bin && break
+          sleep 15
+        done
+        python3 -m pip install --retries 5 --upgrade pip
+        python3 -m pip install --retries 5 numpy requests scipy xarray cfgrib eccodes matplotlib pillow msgpack herbie-data
+
+    - name: Executar gfspngs.py (3 intents)
+      timeout-minutes: 340
+      run: |
+        set +e
+        cd private-scripts-new
+        HORES=$(seq -s, 0 6 378)     # 0,6,12,...,378 (64 passos)
+        echo "Hores: $HORES"
+        OK=0
+        INICI=$(date +%s)
+        PRESSUPOST=$(( 330 * 60 ))
+        TOPALL=$(( 150 * 60 ))
+        for i in 1 2 3; do
+          RESTA=$(( PRESSUPOST - ($(date +%s) - INICI) ))
+          [ "$RESTA" -lt 600 ] && { echo "Sense temps per a més intents"; break; }
+          LIMIT=$(( RESTA < TOPALL ? RESTA : TOPALL ))
+          echo "--- gfspngs.py: intent $i/3 (límit $(( LIMIT / 60 )) min) ---"
+          rm -rf "$GFS_OUTPUT_DIR"; mkdir -p "$GFS_OUTPUT_DIR"
+          timeout "${LIMIT}s" python3 gfspngs.py --hores "$HORES"
+          CODI=$?
+          N=$(find "$GFS_OUTPUT_DIR" -name "sfc_*.png" -type f | wc -l)
+          S=$(find "$GFS_OUTPUT_DIR" -name "sondeig_*.msgpack.gz" -type f | wc -l)
+          echo "codi $CODI | sfc PNG: $N | sondeigs: $S"
+          if [ $CODI -eq 0 ] && [ "$N" -ge 5 ] && [ -f "$GFS_OUTPUT_DIR/manifest.json" ]; then
+            OK=1; break
+          fi
+          sleep 30
+        done
+        [ "$OK" = 1 ] || { echo "ERROR: els 3 intents han fallat."; exit 1; }
+
+    - name: Verificar fitxers
+      run: |
+        D="$GFS_OUTPUT_DIR"
+        echo "sfc: $(find "$D" -name 'sfc_*.png' | wc -l) | alt: $(find "$D" -name 'alt_*.png' | wc -l) | sondeigs: $(find "$D" -name 'sondeig_*' | wc -l) | total: $(find "$D" -type f | wc -l)"
+        du -sh "$D"
+        [ -f "$D/manifest.json" ] || { echo "Falta manifest.json"; exit 1; }
+        [ "$(find "$D" -name 'sondeig_*' | wc -l)" -ge 1 ] || { echo "Cap sondeig"; exit 1; }
+        python3 - <<'PY'
+        import json, os
+        m = json.load(open(os.path.join(os.environ["GFS_OUTPUT_DIR"], "manifest.json"), encoding="utf-8"))
+        print("Hores al manifest:", m.get("total_hores"))
+        if not m.get("total_hores") or not m.get("extent"):
+            raise SystemExit("Manifest incomplet: no es publicarà")
+        PY
+
+    - name: Empaquetar
+      run: tar -cf "$GITHUB_WORKSPACE/gfs.tar" -C "$GFS_OUTPUT_DIR" . && ls -lh "$GITHUB_WORKSPACE/gfs.tar"
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: png-gfs
+        path: gfs.tar
+        compression-level: 0
+        retention-days: 2
+        if-no-files-found: error
+
+  # ════════════ JOB 2: DEPLOY (només substitueix web_data_GFS) ════════════
+  deploy:
+    needs: [png_gfs]
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.PRIVATE_REPO_TOKEN }}
+        fetch-depth: 1
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: png-gfs
+        path: /tmp/art-gfs
+
+    - name: Assemblar web (estàtics + data + GFS nou)
+      id: assemble
+      run: |
+        set -euo pipefail
+        P="$GITHUB_WORKSPACE/meu-mapa/public"
+        mkdir -p "$P/js"
+
+        # 1) Baixar la branca 'data' (si GitHub no respon, ABORTEM: no volem perdre res)
+        OK=0
+        for i in 1 2 3 4 5; do
+          if git fetch --depth=1 origin data; then OK=1; break; fi
+          sleep 10
+        done
+        [ "$OK" = 1 ] || { echo "No puc baixar la branca data"; exit 1; }
+        git worktree prune
+        git worktree add -f /tmp/data-branch FETCH_HEAD
+
+        # 2) Posar a la web l'estat actual de TOTES les carpetes dinàmiques
+        for c in $CARPETES; do
+          if [ -d "/tmp/data-branch/$c" ]; then
+            rm -rf "$P/$c"; mkdir -p "$P/$c"
+            cp -r "/tmp/data-branch/$c/." "$P/$c/"
+          else
+            echo "  $c no existeix a data (s'ignora)"
+          fi
+        done
+        cp /tmp/data-branch/js/status.js "$P/js/status.js" 2>/dev/null || true
+        git worktree remove /tmp/data-branch --force
+
+        # 3) Substituir NOMÉS web_data_GFS pel nou
+        rm -rf "$P/web_data_GFS"
+        mkdir -p "$P/web_data_GFS/imatges"
+        tar -xf /tmp/art-gfs/gfs.tar -C "$P/web_data_GFS/imatges"
+
+        echo "--- Resum ---"
+        for c in $CARPETES; do echo "$c: $(find "$P/$c" -type f 2>/dev/null | wc -l) fitxers"; done
+        echo "TOTAL: $(find "$P" -type f | wc -l)"
+
+    - name: Comprovar límits de Cloudflare Pages
+      run: |
+        P="$GITHUB_WORKSPACE/meu-mapa/public"
+        find "$P" -type f -size +25M -print -delete || true
+        N=$(find "$P" -type f | wc -l)
+        echo "Total fitxers: $N (límit 20000)"
+        if [ "$N" -gt 19000 ]; then
+          echo "Massa fitxers: elimino isolínies GFS (opcionals)"
+          find "$P/web_data_GFS/imatges" -maxdepth 1 -name 'isolines_*' -delete || true
+          N=$(find "$P" -type f | wc -l); echo "Ara: $N"
+        fi
+        [ "$N" -le 19900 ] || { echo "Encara massa fitxers"; exit 1; }
+
+    - name: Deploy a Cloudflare
+      timeout-minutes: 80
+      env:
+        CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        WRANGLER_SEND_METRICS: "false"
+      run: |
+        cd meu-mapa
+        for i in 1 2 3; do npm install -g wrangler && break; sleep 10; done
+        for i in 1 2 3; do
+          echo "--- deploy intent $i/3 ---"
+          if timeout 25m wrangler pages deploy public --project-name=tempestes-cat --branch=main --commit-dirty=true; then
+            echo "Deploy OK"; exit 0
+          fi
+          sleep 20
+        done
+        echo "El deploy ha fallat 3 vegades"; exit 1
+
+    # Guarda a 'data' NOMÉS web_data_GFS, a sobre de l'últim estat de 'data'.
+    # Push normal (sense --force): si algú altre ha pujat mentrestant, es rebutja
+    # i es repeteix partint de la 'data' nova. Mai trepitja les altres carpetes.
+    - name: Guardar web_data_GFS a la branca 'data'
+      if: always() && steps.assemble.outcome == 'success'
+      timeout-minutes: 60
+      run: |
+        set -uo pipefail
+        P="$GITHUB_WORKSPACE/meu-mapa/public"
+        REMOTE_URL="https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/Tempestesscatt/joctempestes.git"
+        MSG="gfs png $(date -u +'%Y-%m-%d %H:%M UTC')"
+
+        for INTENT in 1 2 3 4 5 6; do
+          echo "=== Guardar a data (intent $INTENT/6) ==="
+          rm -rf /tmp/dpub
+          if ! git clone -q --depth 1 --branch data "$REMOTE_URL" /tmp/dpub; then
+            sleep 15; continue
+          fi
+          cd /tmp/dpub
+          git config user.name "bot-dades"
+          git config user.email "bot@tempestes-cat"
+          git config http.version HTTP/1.1
+          git config http.postBuffer 1048576000
+          git config core.compression 1
+          git config gc.auto 0
+
+          rm -rf web_data_GFS
+          cp -r "$P/web_data_GFS" ./web_data_GFS
+          git add -A web_data_GFS
+          if git diff --cached --quiet; then echo "Sense canvis"; exit 0; fi
+          git commit -q -m "$MSG"
+
+          if timeout 900 git push origin HEAD:refs/heads/data; then
+            echo "Publicat a 'data'"; exit 0
+          fi
+          echo "Push fallit (potser 'data' ha canviat); reintento..."
+          cd /; sleep $((RANDOM % 20 + 10))
+        done
+        echo "No s'ha pogut guardar a data (la web SÍ s'ha desplegat a Cloudflare)"
+        exit 1
