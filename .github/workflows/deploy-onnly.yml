@@ -6,10 +6,7 @@ on:
 permissions:
   contents: write
 
-# Mismo grupo que AROME y GFS: se encolan, no se pisan
-concurrency:
-  group: deploy-data
-  cancel-in-progress: false
+
 
 env:
   CARPETES: "web_data_NE webdata_waves avis gfsmaps gfsESPmaps previsions_catalunya web_data_GFS"
