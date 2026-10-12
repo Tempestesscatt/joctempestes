@@ -87,6 +87,56 @@ body::before {
 }
 
 /* ═══════════════════════════════════════════════════════════════════
+   BÀNER ADMIN
+   ═══════════════════════════════════════════════════════════════════ */
+.admin-badge {
+    position: fixed;
+    top: calc(14px + var(--safe-top));
+    right: calc(16px + var(--safe-right));
+    z-index: 9999;
+    display: none;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 14px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 215, 0, 0.08));
+    border: 1px solid rgba(255, 215, 0, 0.5);
+    color: var(--gold);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    pointer-events: none;
+    box-shadow: 0 4px 16px rgba(255, 215, 0, 0.15);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    animation: adminBadgeIn 0.3s ease-out;
+}
+.admin-badge.visible { display: inline-flex; }
+.admin-badge .admin-badge-punt {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--gold);
+    box-shadow: 0 0 8px var(--gold);
+    animation: pols 2s ease-in-out infinite;
+}
+@keyframes adminBadgeIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+@media (max-width: 860px) {
+    .admin-badge {
+        top: auto;
+        bottom: calc(120px + var(--safe-bottom));
+        right: calc(10px + var(--safe-right));
+        font-size: 10.5px;
+        padding: 6px 12px;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
    SKEW-T FLOTANT
    ═══════════════════════════════════════════════════════════════════ */
 .skewt-flotant {
@@ -1303,6 +1353,8 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
 
 <div id="map"></div>
 
+
+
 <button id="btn-obrir-panell" type="button">
     <i class="fa-solid fa-bars"></i> Panell
 </button>
@@ -1371,14 +1423,22 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
                 <label>Nom <span style="color:var(--warn);font-size:9px;">(només 1 canvi)</span></label>
                 <input type="text" id="perfilNom" placeholder="El teu nom..." maxlength="20">
             </div>
-            <div class="camp">
-                <label>Email</label>
-                <input type="email" id="perfilEmail" disabled>
-            </div>
-            <div class="camp">
-                <label>Pla actual</label>
-                <input type="text" id="perfilPla" disabled>
-            </div>
+<div class="camp">
+    <label>Email</label>
+    <input type="email" id="perfilEmail" disabled>
+</div>
+
+<!-- AFEGEIX AIXÒ -->
+<div class="camp">
+    <label>Rol</label>
+    <input type="text" id="perfilRol" disabled value="Usuari">
+</div>
+<!-- FI -->
+
+<div class="camp">
+    <label>Pla actual</label>
+    <input type="text" id="perfilPla" disabled>
+</div>
             <div style="display:flex;gap:8px;margin-top:16px;">
                 <button class="skewt-btn skewt-btn-si" id="btnDesarPerfil" onclick="desarPerfil()" style="flex:1;">
                     Desar
@@ -1498,8 +1558,7 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
 </script>
 
 <!-- ═══════════════════════════════════════════════════════════════════
-     DETECCIÓ D'ADMINS (branca /admin/{email} = true)
-     S'executa ABANS que el sistema de plans es carregui.
+     DETECCIÓ D'ADMINS (branca /admin - càrrega completa)
      ═══════════════════════════════════════════════════════════════════ -->
 <script>
 (function () {
@@ -1507,42 +1566,53 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
 
     const DB_URL = 'https://tempestescat-default-rtdb.europe-west1.firebasedatabase.app';
     let esAdmin = false;
+    let _adminsCache = null;
 
-    async function comprovarAdmin(email) {
-        if (!email) return false;
+    /* Carrega tota la branca /admin/ un sol cop i la guarda a memòria */
+    async function carregarAdmins() {
+        if (_adminsCache !== null) return _adminsCache;
         try {
-            const r = await fetch(
-                `${DB_URL}/admin/${encodeURIComponent(email.toLowerCase())}.json`,
-                { cache: 'no-store' }
-            );
-            if (!r.ok) return false;
-            const v = await r.json();
-            return v === true;
+            const r = await fetch(`${DB_URL}/admin.json`, { cache: 'no-store' });
+            if (!r.ok) { _adminsCache = {}; return {}; }
+            const d = await r.json();
+            _adminsCache = d || {};
+            return _adminsCache;
         } catch (e) {
-            return false;
+            _adminsCache = {};
+            return {};
         }
     }
 
-    /* Intercepta l'event tc:login ABANS que altres listeners el processin */
+    /* Comprova si l'email és admin */
+    async function comprovarAdmin(email) {
+        if (!email) return false;
+        const admins = await carregarAdmins();
+        // Firebase guarda els punts com a comes a les claus
+        const clauFirebase = email.toLowerCase().replace(/\./g, ',');
+        return admins[clauFirebase] === true;
+    }
+
     window.addEventListener('tc:login', function (e) {
         const user = e.detail || window._firebaseUser;
         if (!user || !user.email) return;
-
-        // Comprovem l'admin i guardem el resultat a una variable global
-        // El sistema de plans consultarà window._esAdmin abans de carregar
-        // el pla de Firebase.
         comprovarAdmin(user.email).then(function (admin) {
             esAdmin = admin;
             window._esAdmin = admin;
             if (admin) {
                 console.log('[Admin] Usuari admin detectat:', user.email, '→ pla Professional');
-                // Si el sistema de plans ja s'ha carregat, actualitza la UI
                 if (typeof window.actualitzarUIPla === 'function') {
                     window.actualitzarUIPla();
                 }
+            } else {
+                console.log('[Admin] Usuari NO admin:', user.email);
             }
         });
-    }, true); // capture: true → s'executa ABANS que els altres listeners
+    }, true);
+
+    window.addEventListener('tc:logout', function () {
+        esAdmin = false;
+        window._esAdmin = false;
+    });
 
     window.esAdminActual = function () { return esAdmin; };
 })();
@@ -1679,7 +1749,6 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
             plaActual = 'gratuït';
         }
 
-        // Re-comprova admin per si la crida anterior no havia acabat
         if (window._esAdmin === true) {
             plaActual = 'professional';
         }
@@ -2033,21 +2102,31 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
         return false;
     }
 
-    window.openProfile = async function () {
-        const user = window._firebaseUser;
-        if (!user) { obrirModal('modalLogin'); return; }
-        const nom = await obtenirNomUsuari(user);
-        const canviat = await haCanviatNom(user);
-        document.getElementById('perfilNom').value = nom || '';
-        document.getElementById('perfilEmail').value = user.email || '';
-        document.getElementById('perfilPla').value = (window.getConfigPla ? window.getConfigPla().nom : 'Gratuït');
-        const inp = document.getElementById('perfilNom');
-        inp.disabled = canviat;
-        inp.title = canviat ? 'El nom només es pot canviar 1 vegada' : '';
-        const btn = document.getElementById('btnDesarPerfil');
-        if (btn) btn.disabled = canviat;
-        obrirModal('modalPerfil');
-    };
+window.openProfile = async function () {
+    const user = window._firebaseUser;
+    if (!user) { obrirModal('modalLogin'); return; }
+    const nom = await obtenirNomUsuari(user);
+    const canviat = await haCanviatNom(user);
+    document.getElementById('perfilNom').value = nom || '';
+    document.getElementById('perfilEmail').value = user.email || '';
+    document.getElementById('perfilPla').value = (window.getConfigPla ? window.getConfigPla().nom : 'Gratuït');
+
+    // Mostra el rol (Admin o Usuari)
+    const rolInp = document.getElementById('perfilRol');
+    if (rolInp) {
+        const esAdmin = window._esAdmin === true || (window.esAdminActual && window.esAdminActual());
+        rolInp.value = esAdmin ? 'Administrador' : 'Usuari';
+        rolInp.style.color = esAdmin ? '#ffd700' : '';
+        rolInp.style.fontWeight = esAdmin ? '700' : '';
+    }
+
+    const inp = document.getElementById('perfilNom');
+    inp.disabled = canviat;
+    inp.title = canviat ? 'El nom només es pot canviar 1 vegada' : '';
+    const btn = document.getElementById('btnDesarPerfil');
+    if (btn) btn.disabled = canviat;
+    obrirModal('modalPerfil');
+};
 
     window.desarPerfil = async function () {
         const user = window._firebaseUser;
