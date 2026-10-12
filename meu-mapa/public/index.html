@@ -153,9 +153,11 @@ section{padding:80px 0}
 .card > p.sub{color:var(--muted);font-size:14px;margin-bottom:20px}
 .field{margin-bottom:14px}
 .field label{display:block;font-weight:500;font-size:13px;margin-bottom:5px;color:var(--muted)}
-.field input[type=text],.field input[type=email],.field textarea{width:100%;padding:11px 14px;border:1px solid var(--line);border-radius:10px;font-family:inherit;font-size:14px;background:var(--bg);color:var(--text);transition:border-color .2s,box-shadow .2s}
-.field input:focus,.field textarea:focus{outline:none;border-color:var(--text);box-shadow:0 0 0 3px var(--accent-soft)}
+.field input[type=text],.field input[type=email],.field select,.field textarea{width:100%;padding:11px 14px;border:1px solid var(--line);border-radius:10px;font-family:inherit;font-size:14px;background:var(--bg);color:var(--text);transition:border-color .2s,box-shadow .2s}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--text);box-shadow:0 0 0 3px var(--accent-soft)}
 .field textarea{resize:vertical;min-height:100px}
+.field select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b6b6b' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
+.field select option{background:var(--bg);color:var(--text)}
 .check{display:flex;gap:10px;align-items:flex-start;margin:4px 0 18px;font-size:12.5px;color:var(--muted);line-height:1.5}
 .check input{width:16px;height:16px;margin-top:3px;accent-color:var(--text);flex-shrink:0}
 .check a{color:var(--text);text-decoration:underline;text-underline-offset:2px}
@@ -170,6 +172,13 @@ a.contact-item:hover{border-color:var(--text);transform:translateX(2px)}
 .chat-card p.sub{color:var(--muted)}
 .live{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--text);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px}
 .live::before{content:"";width:6px;height:6px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 3px rgba(34,197,94,.15)}
+
+/* Previsualització del correu */
+.previsualitzacio{background:var(--bg-2);border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin-top:14px;font-size:12px;color:var(--muted);line-height:1.5}
+.previsualitzacio .titol{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text);margin-bottom:6px;display:flex;align-items:center;gap:6px;opacity:.7}
+.previsualitzacio .linia{display:flex;gap:8px;margin-bottom:3px}
+.previsualitzacio .linia .etiqueta{color:var(--muted);min-width:60px;flex-shrink:0}
+.previsualitzacio .linia strong{color:var(--text);font-weight:600}
 
 /* ===== FOOTER ===== */
 footer{padding:48px 0 28px;border-top:1px solid var(--line);background:var(--bg)}
@@ -381,18 +390,47 @@ footer{padding:48px 0 28px;border-top:1px solid var(--line);background:var(--bg)
     <div class="contact-grid">
       <div class="card">
         <h3>Envia'ns un missatge</h3>
-        <p class="sub">Et respondrem en 24 hores.</p>
-        <form id="contactForm" onsubmit="sendEmail(event)">
-          <div class="field"><label for="contactName">El teu nom</label><input type="text" id="contactName" required></div>
-          <div class="field"><label for="contactEmail">Correu electrònic</label><input type="email" id="contactEmail" required></div>
-          <div class="field"><label for="contactMessage">Missatge</label><textarea id="contactMessage" rows="4" required></textarea></div>
+        <p class="sub">S'obre el teu client de correu amb tot ja preparat. Només caldrà que premis "Enviar".</p>
+        <form id="contactForm" onsubmit="obrirCorreuContacte(event)">
+          <div class="field">
+            <label for="contactTema">Sobre què vols parlar?</label>
+            <select id="contactTema" required>
+              <option value="Consulta general">Consulta general</option>
+              <option value="Problema tècnic">Problema tècnic</option>
+              <option value="Suggeriment">Suggeriment</option>
+              <option value="Col·laboració">Col·laboració</option>
+              <option value="Premsa o mitjans">Premsa o mitjans</option>
+              <option value="Facturació">Facturació</option>
+              <option value="Altre">Altre</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="contactName">El teu nom</label>
+            <input type="text" id="contactName" placeholder="Com et dius?" required maxlength="80">
+          </div>
+          <div class="field">
+            <label for="contactEmail">Correu electrònic</label>
+            <input type="email" id="contactEmail" placeholder="exemple@correu.com" required maxlength="120">
+          </div>
+          <div class="field">
+            <label for="contactMessage">Missatge</label>
+            <textarea id="contactMessage" placeholder="Escriu el teu missatge aquí..." rows="4" required maxlength="2000"></textarea>
+          </div>
           <div class="check">
             <input type="checkbox" id="contactPrivacy" required>
             <label for="contactPrivacy">He llegit i accepto la <a href="privacitat/privacitat.html" target="_blank" rel="noopener">Política de Privacitat</a>. Les meves dades seran tractades per respondre a la meva consulta.</label>
           </div>
-          <button type="submit" class="btn btn-primary btn-lg" id="contactSubmitBtn" style="width:100%"><i class="fa-regular fa-envelope"></i> Enviar missatge</button>
+          <button type="submit" class="btn btn-primary btn-lg" style="width:100%">
+            <i class="fa-solid fa-envelope"></i> Obrir Gmail amb el missatge
+          </button>
         </form>
         <div id="contactFeedback"></div>
+
+        <div class="previsualitzacio" id="contactPrev">
+          <div class="titol"><i class="fa-solid fa-eye"></i> Això és el que s'enviarà:</div>
+          <div class="linia"><span class="etiqueta">A:</span><strong>tempestescat@gmail.com</strong></div>
+          <div class="linia"><span class="etiqueta">Assumpte:</span><strong id="contactPrevAssumpte">[Consulta general] Nou missatge de contacte</strong></div>
+        </div>
       </div>
 
       <div class="side-stack">
@@ -477,8 +515,6 @@ onAuthStateChanged(auth, u => {
   window.dispatchEvent(new CustomEvent('tc:login', { detail: u }));
 });
 </script>
-
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 
 <script>
 /* ===== TEMA (fosc per defecte) ===== */
@@ -573,47 +609,86 @@ function setCookies(v){ try { localStorage.setItem('cookieConsent', v); } catch(
 checkCookies();
 document.getElementById('yr').textContent = new Date().getFullYear();
 
-/* ===== CONTACTE (EmailJS) ===== */
-emailjs.init("B_0l9EP7EjOgwnchm");
-const EMAILJS_SERVICE_ID = "service_pbk80lk", EMAILJS_TEMPLATE_ID = "template_5nn4feh";
-const DAY_MS = 24 * 60 * 60 * 1000;
+/* ===== CONTACTE — Obre Gmail amb tot preparat ===== */
+(function () {
+  const EMAIL_DESTI = 'tempestescat@gmail.com';
 
-function tempsRestant(){
-  let last = null; try { last = localStorage.getItem('lastContactSent'); } catch(e){}
-  if (!last) return null;
-  const rest = DAY_MS - (Date.now() - parseInt(last));
-  if (rest <= 0) return null;
-  const h = Math.floor(rest / 3600000), m = Math.floor((rest % 3600000) / 60000);
-  return h > 0 ? `${h}h ${m}min` : `${m} minuts`;
-}
-function showFeedback(msg, ok){
-  const f = document.getElementById('contactFeedback');
-  f.style.display = 'block'; f.textContent = msg; f.style.color = ok ? '#22c55e' : '#ef4444';
-}
-function sendEmail(e){
-  e.preventDefault();
-  const name = document.getElementById('contactName').value.trim();
-  const email = document.getElementById('contactEmail').value.trim();
-  const message = document.getElementById('contactMessage').value.trim();
-  const btn = document.getElementById('contactSubmitBtn');
-  const t = tempsRestant();
-  if (t) return showFeedback('Ja has enviat un missatge recentment. Pots tornar a enviar en ' + t + '.', false);
-  if (!name || !email || !message) return showFeedback('Si us plau, omple tots els camps.', false);
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return showFeedback('Introdueix un correu electrònic vàlid.', false);
-  if (!document.getElementById('contactPrivacy').checked) return showFeedback('Has d\'acceptar la política de privacitat.', false);
-  btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enviant...';
-  const params = { name, email, message, date: new Date().toLocaleString('ca-ES') };
-  emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, params).then(() => {
-    try { localStorage.setItem('lastContactSent', Date.now().toString()); } catch(e){}
-    showFeedback('Missatge enviat correctament! Et respondrem en 24h.', true);
-    document.getElementById('contactForm').reset();
-  }).catch(err => {
-    console.error('EmailJS:', err);
-    showFeedback('Error en enviar el missatge. Prova de nou més tard.', false);
-  }).finally(() => {
-    btn.disabled = false; btn.innerHTML = '<i class="fa-regular fa-envelope"></i> Enviar missatge';
+  function $(s) { return document.querySelector(s); }
+
+  function showFeedback(msg, ok) {
+    const f = $('#contactFeedback');
+    if (!f) return;
+    f.style.display = 'block';
+    f.textContent = msg;
+    f.style.color = ok ? '#22c55e' : '#ef4444';
+  }
+
+  /* Actualitza la previsualització en temps real */
+  function actualitzarPrev() {
+    const tema = $('#contactTema') ? $('#contactTema').value : 'Consulta general';
+    const el = $('#contactPrevAssumpte');
+    if (el) el.textContent = '[' + tema + '] Nou missatge de contacte';
+  }
+
+  ['#contactTema'].forEach(sel => {
+    const el = $(sel);
+    if (el) {
+      el.addEventListener('input', actualitzarPrev);
+      el.addEventListener('change', actualitzarPrev);
+    }
   });
-}
+
+  window.obrirCorreuContacte = function (e) {
+    e.preventDefault();
+
+    const tema = $('#contactTema').value || 'Consulta general';
+    const nom = $('#contactName').value.trim();
+    const email = $('#contactEmail').value.trim();
+    const missatge = $('#contactMessage').value.trim();
+
+    // Validacions
+    if (nom.length < 2) { showFeedback('Escriu el teu nom si us plau.', false); $('#contactName').focus(); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showFeedback('El correu no sembla vàlid.', false); $('#contactEmail').focus(); return; }
+    if (missatge.length < 10) { showFeedback('El missatge és massa curt (mínim 10 caràcters).', false); $('#contactMessage').focus(); return; }
+    if (!$('#contactPrivacy').checked) { showFeedback('Has d\'acceptar la política de privacitat.', false); return; }
+
+    // Construir assumpte i cos
+    const assumpte = '[' + tema + '] Nou missatge de contacte';
+    const cos = [
+      'Hola equip de Tempestes.cat,',
+      '',
+      missatge,
+      '',
+      '---',
+      'Nom: ' + nom,
+      'Correu de contacte: ' + email,
+      'Tema: ' + tema,
+      '',
+      'Enviat des de la pàgina principal de tempestes.cat'
+    ].join('\n');
+
+    // Obrir Gmail
+    const urlGmail = 'https://mail.google.com/mail/?view=cm&fs=1'
+      + '&to=' + encodeURIComponent(EMAIL_DESTI)
+      + '&su=' + encodeURIComponent(assumpte)
+      + '&body=' + encodeURIComponent(cos);
+
+    window.open(urlGmail, '_blank', 'noopener,noreferrer');
+
+    showFeedback('✓ Gmail obert amb el missatge preparat. Només cal enviar-lo.', true);
+
+    // Reset opcional
+    setTimeout(() => {
+      if (confirm('Vols buidar el formulari? (ja has obert Gmail)')) {
+        $('#contactForm').reset();
+        actualitzarPrev();
+      }
+    }, 1500);
+  };
+
+  /* Inicialitzar */
+  actualitzarPrev();
+})();
 </script>
 
 <!-- ═══════════════════════════════════════════════════════════════════
@@ -645,83 +720,57 @@ function sendEmail(e){
 </script>
 
 <!-- ═══════════════════════════════════════════════════════════════════
-     DETECCIÓ D'ADMINS (branca /admin/{email} = true)
+     DETECCIÓ D'ADMINS (branca /admin - càrrega completa)
      ═══════════════════════════════════════════════════════════════════ -->
 <script>
 (function () {
     'use strict';
 
     const DB_URL = 'https://tempestescat-default-rtdb.europe-west1.firebasedatabase.app';
+    let esAdmin = false;
+    let _adminsCache = null;
 
-    /* Comprova si un email està a la branca /admin/ de Firebase */
-    async function esAdmin(email) {
-        if (!email) return false;
+    async function carregarAdmins() {
+        if (_adminsCache !== null) return _adminsCache;
         try {
-            const r = await fetch(
-                `${DB_URL}/admin/${encodeURIComponent(email.toLowerCase())}.json`,
-                { cache: 'no-store' }
-            );
-            if (!r.ok) return false;
-            const v = await r.json();
-            return v === true;
+            const r = await fetch(`${DB_URL}/admin.json`, { cache: 'no-store' });
+            if (!r.ok) { _adminsCache = {}; return {}; }
+            const d = await r.json();
+            _adminsCache = d || {};
+            return _adminsCache;
         } catch (e) {
-            return false;
+            _adminsCache = {};
+            return {};
         }
     }
 
-    /* Quan l'usuari inicia sessió, comprova si és admin */
-    window.addEventListener('tc:login', async (e) => {
+    async function comprovarAdmin(email) {
+        if (!email) return false;
+        const admins = await carregarAdmins();
+        const clauFirebase = email.toLowerCase().replace(/\./g, ',');
+        return admins[clauFirebase] === true;
+    }
+
+    window.addEventListener('tc:login', function (e) {
         const user = e.detail || window._firebaseUser;
         if (!user || !user.email) return;
+        comprovarAdmin(user.email).then(function (admin) {
+            esAdmin = admin;
+            window._esAdmin = admin;
+            if (admin) {
+                console.log('[Admin] Usuari admin detectat:', user.email, '→ pla Professional');
+            } else {
+                console.log('[Admin] Usuari NO admin:', user.email);
+            }
+        });
+    }, true);
 
-        const admin = await esAdmin(user.email);
-        if (!admin) return;
-
-        // És admin → desbloqueja el pla Professional automàticament
-        window._esAdmin = true;
-        console.log('[Admin] Usuari admin detectat:', user.email);
-
-        // Sobreescriu el pla actual
-        if (typeof window.getPlaUsuari === 'function') {
-            const originalGetPla = window.getPlaUsuari;
-            window.getPlaUsuari = function () {
-                return 'professional';
-            };
-        }
-        if (typeof window.getConfigPla === 'function') {
-            const originalGetConfig = window.getConfigPla;
-            window.getConfigPla = function () {
-                return {
-                    nom: 'Professional',
-                    variablesBasiques: true,
-                    variablesAvançades: true,
-                    totesLesHores: true,
-                    skewT: true,
-                    nivellsPressio: true,
-                    parametres3D: true,
-                    radar3h: true,
-                    radar24h: true,
-                    animacio: true,
-                    isolinies: true,
-                    barbes: true,
-                    vent: true,
-                };
-            };
-        }
-
-        // Actualitza la UI
-        if (typeof window.actualitzarUIPla === 'function') {
-            window.actualitzarUIPla();
-        }
+    window.addEventListener('tc:logout', function () {
+        esAdmin = false;
+        window._esAdmin = false;
     });
 
-    /* També quan el visor comprova el pla manualment */
-    window.esAdminActual = async function () {
-        if (!window._firebaseUser || !window._firebaseUser.email) return false;
-        return await esAdmin(window._firebaseUser.email);
-    };
-
-    window.esAdmin = esAdmin;
+    window.esAdminActual = function () { return esAdmin; };
 })();
 </script>
 

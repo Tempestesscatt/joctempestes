@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0d1117">
+<title>Contacte · Tempestes.cat</title>
+
+<link rel="icon" type="image/png" href="../img/favicon.png">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+:root {
+    --bg: #0d1117;
+    --panel-2: #161b22;
+    --panel-hover: #1c2128;
+    --line: rgba(240, 246, 252, 0.07);
+    --line-strong: rgba(240, 246, 252, 0.15);
+    --accent: #58a6ff;
+    --accent-soft: rgba(88, 166, 255, 0.12);
+    --gold: #ffd700;
+    --gold-soft: rgba(255, 215, 0, 0.10);
+    --gold-line: rgba(255, 215, 0, 0.35);
+    --ok: #3fb950;
+    --danger: #f85149;
+    --text: #f0f6fc;
+    --text-2: #c9d1d9;
+    --muted: #8b949e;
+    --muted-2: #6e7681;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+    margin: 0; padding: 0;
+    background: var(--bg); color: var(--text);
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 14px; line-height: 1.5;
+    -webkit-text-size-adjust: 100%;
+    overscroll-behavior-y: none;
+    min-height: 100vh;
+}
+
+body {
+    padding: calc(32px + var(--safe-top)) 16px calc(32px + var(--safe-bottom));
+    background:
+        radial-gradient(ellipse at top, rgba(88, 166, 255, 0.06), transparent 50%),
+        var(--bg);
+}
+
+.capcalera {
+    max-width: 720px;
+    margin: 0 auto 36px;
+    text-align: center;
+}
+.capcalera h1 {
+    font-size: clamp(24px, 4vw, 32px);
+    font-weight: 800;
+    margin: 0 0 10px;
+    letter-spacing: -0.5px;
+}
+.capcalera p {
+    color: var(--muted);
+    margin: 0;
+    font-size: 14.5px;
+    line-height: 1.6;
+    max-width: 500px;
+    margin-inline: auto;
+}
+
+.grid {
+    max-width: 720px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.card {
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 24px;
+    transition: border-color 0.2s ease;
+}
+.card:hover {
+    border-color: var(--line-strong);
+}
+
+.card h2 {
+    font-size: 17px;
+    font-weight: 700;
+    margin: 0 0 4px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.card h2 i {
+    color: var(--accent);
+    font-size: 16px;
+    width: 24px;
+    text-align: center;
+}
+.card > p.sub {
+    color: var(--muted);
+    font-size: 13px;
+    margin: 0 0 20px;
+}
+
+/* Formulari */
+.field {
+    margin-bottom: 14px;
+}
+.field label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+}
+.field input,
+.field select,
+.field textarea {
+    width: 100%;
+    padding: 11px 14px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 13.5px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.field input::placeholder,
+.field textarea::placeholder {
+    color: var(--muted-2);
+}
+.field textarea {
+    resize: vertical;
+    min-height: 120px;
+    font-family: inherit;
+}
+.field select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b949e' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 36px;
+}
+.field select option {
+    background: var(--bg);
+    color: var(--text);
+}
+
+.btn-enviar {
+    width: 100%;
+    padding: 13px 20px;
+    border-radius: 8px;
+    border: none;
+    background: linear-gradient(135deg, var(--gold), #ffb300);
+    color: #1b1030;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.15s ease;
+    letter-spacing: 0.2px;
+    margin-top: 8px;
+}
+.btn-enviar:hover {
+    background: linear-gradient(135deg, #ffdf33, #ffc233);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(255, 215, 0, 0.25);
+}
+.btn-enviar:active {
+    transform: translateY(0);
+}
+.btn-enviar i {
+    font-size: 15px;
+}
+
+.previsualitzacio {
+    margin-top: 20px;
+    padding: 14px 16px;
+    background: var(--bg);
+    border: 1px dashed var(--line-strong);
+    border-radius: 10px;
+    font-size: 12.5px;
+    color: var(--muted);
+    line-height: 1.6;
+}
+.previsualitzacio strong {
+    color: var(--text-2);
+    font-weight: 600;
+}
+.previsualitzacio .titol {
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--accent);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.previsualitzacio .linia {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+.previsualitzacio .linia .etiqueta {
+    color: var(--muted-2);
+    min-width: 70px;
+    flex-shrink: 0;
+}
+
+/* Targetes de contacte directe */
+.contactes-directes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin-top: 4px;
+}
+.contacte-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    text-decoration: none;
+    color: var(--text-2);
+    transition: all 0.15s ease;
+}
+.contacte-item:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    background: var(--accent-soft);
+}
+.contacte-item .icona {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--accent-soft);
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+}
+.contacte-item .text {
+    flex: 1;
+    min-width: 0;
+}
+.contacte-item .text b {
+    display: block;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 2px;
+}
+.contacte-item .text span {
+    display: block;
+    font-size: 12px;
+    color: var(--muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Botó tornar */
+.peu {
+    max-width: 720px;
+    margin: 40px auto 0;
+    padding-top: 22px;
+    border-top: 1px solid var(--line);
+    text-align: center;
+}
+.peu a {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 13px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    transition: all 0.15s ease;
+}
+.peu a:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: var(--accent-soft);
+}
+
+/* Toast */
+.toast {
+    position: fixed;
+    bottom: calc(24px + var(--safe-bottom));
+    left: 50%;
+    transform: translate(-50%, 20px);
+    padding: 12px 22px;
+    background: rgba(13, 17, 23, 0.96);
+    border: 1px solid var(--line-strong);
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    box-shadow: 0 10px 32px rgba(0, 0, 0, 0.6);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    z-index: 100;
+    max-width: calc(100vw - 32px);
+    text-align: center;
+}
+.toast.visible { opacity: 1; transform: translate(-50%, 0); }
+.toast.ok { border-color: rgba(63, 185, 80, 0.5); color: #7ee787; }
+.toast.error { border-color: rgba(248, 81, 73, 0.5); color: #ff7b72; }
+
+@media (max-width: 640px) {
+    body { padding: calc(20px + var(--safe-top)) 12px calc(20px + var(--safe-bottom)); }
+    .card { padding: 20px 18px; }
+    .contactes-directes { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<header class="capcalera">
+    <h1>Contacte</h1>
+    <p>Tens alguna pregunta, suggeriment o vols col·laborar amb nosaltres? Ens encantará sentir-te.</p>
+</header>
+
+<main class="grid">
+
+    <!-- CARD: Formulari que obre Gmail -->
+    <div class="card">
+        <h2><i class="fa-solid fa-paper-plane"></i>Envia'ns un missatge</h2>
+        <p class="sub">S'obre el teu client de correu amb tot ja preparat. Només caldrà que premis "Enviar".</p>
+
+        <form id="formContacte" onsubmit="obrirCorreu(event)">
+            <div class="field">
+                <label for="tema">Sobre què vols parlar?</label>
+                <select id="tema" required>
+                    <option value="Consulta general">Consulta general</option>
+                    <option value="Problema tècnic">Problema tècnic</option>
+                    <option value="Suggeriment">Suggeriment</option>
+                    <option value="Col·laboració">Col·laboració</option>
+                    <option value="Premsa o mitjans">Premsa o mitjans</option>
+                    <option value="Facturació">Facturació</option>
+                    <option value="Altre">Altre</option>
+                </select>
+            </div>
+
+            <div class="field">
+                <label for="nom">El teu nom</label>
+                <input type="text" id="nom" placeholder="Com et dius?" required maxlength="80">
+            </div>
+
+            <div class="field">
+                <label for="email">El teu correu electrònic</label>
+                <input type="email" id="email" placeholder="exemple@correu.com" required maxlength="120">
+            </div>
+
+            <div class="field">
+                <label for="missatge">Missatge</label>
+                <textarea id="missatge" placeholder="Escriu el teu missatge aquí..." required maxlength="2000"></textarea>
+            </div>
+
+            <button type="submit" class="btn-enviar">
+                <i class="fa-solid fa-envelope"></i>
+                Obrir Gmail amb el missatge
+            </button>
+        </form>
+
+        <div class="previsualitzacio" id="previsualitzacio">
+            <div class="titol"><i class="fa-solid fa-eye"></i> Això és el que s'enviarà:</div>
+            <div class="linia"><span class="etiqueta">A:</span><strong>tempestescat@gmail.com</strong></div>
+            <div class="linia"><span class="etiqueta">Assumpte:</span><strong id="prevAssumpte">[Consulta general] Nou missatge de contacte</strong></div>
+            <div class="linia"><span class="etiqueta">Cos:</span><strong id="prevCos">Encara no has omplert res</strong></div>
+        </div>
+    </div>
+
+    <!-- CARD: Contacte directe -->
+    <div class="card">
+        <h2><i class="fa-solid fa-bolt"></i>Contacte directe</h2>
+        <p class="sub">Si prefereixes, pots contactar-nos per aquests canals.</p>
+
+        <div class="contactes-directes">
+            <a href="mailto:tempestescat@gmail.com" class="contacte-item">
+                <div class="icona"><i class="fa-solid fa-envelope"></i></div>
+                <div class="text">
+                    <b>Correu</b>
+                    <span>tempestescat@gmail.com</span>
+                </div>
+            </a>
+
+            <a href="https://x.com/tempestes_cat" target="_blank" rel="noopener" class="contacte-item">
+                <div class="icona"><i class="fa-brands fa-x-twitter"></i></div>
+                <div class="text">
+                    <b>X (Twitter)</b>
+                    <span>@tempestes_cat</span>
+                </div>
+            </a>
+
+            <a href="https://www.instagram.com/tempestes.cat/" target="_blank" rel="noopener" class="contacte-item">
+                <div class="icona"><i class="fa-brands fa-instagram"></i></div>
+                <div class="text">
+                    <b>Instagram</b>
+                    <span>@tempestes.cat</span>
+                </div>
+            </a>
+        </div>
+    </div>
+
+</main>
+
+<footer class="peu">
+    <a href="/">
+        <i class="fa-solid fa-arrow-left"></i>
+        Tornar a la pàgina principal
+    </a>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function () {
+    'use strict';
+
+    const EMAIL_DESTI = 'tempestescat@gmail.com';
+
+    function $(sel) { return document.querySelector(sel); }
+
+    let toastTimer = null;
+    function mostrarToast(msg, tipus) {
+        const t = $('#toast');
+        if (!t) return;
+        t.textContent = msg;
+        t.className = 'toast visible' + (tipus ? ' ' + tipus : '');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => t.classList.remove('visible'), 3500);
+    }
+
+    /* Actualitza la previsualització en temps real */
+    function actualitzarPrevisualitzacio() {
+        const tema = $('#tema').value || 'Consulta general';
+        const nom = $('#nom').value.trim() || '(el teu nom)';
+        const email = $('#email').value.trim() || '(el teu correu)';
+        const missatge = $('#missatge').value.trim() || '(el teu missatge)';
+
+        $('#prevAssumpte').textContent = '[' + tema + '] Nou missatge de contacte';
+
+        const cosCurt = missatge.length > 80 ? missatge.substring(0, 80) + '...' : missatge;
+        $('#prevCos').textContent = nom + ' (' + email + ') · ' + cosCurt;
+    }
+
+    ['#tema', '#nom', '#email', '#missatge'].forEach(sel => {
+        const el = $(sel);
+        if (el) {
+            el.addEventListener('input', actualitzarPrevisualitzacio);
+            el.addEventListener('change', actualitzarPrevisualitzacio);
+        }
+    });
+
+    /* Obrir Gmail amb tot preparat */
+    window.obrirCorreu = function (e) {
+        e.preventDefault();
+
+        const tema = $('#tema').value || 'Consulta general';
+        const nom = $('#nom').value.trim();
+        const email = $('#email').value.trim();
+        const missatge = $('#missatge').value.trim();
+
+        // Validacions bàsiques
+        if (nom.length < 2) {
+            mostrarToast('Escriu el teu nom si us plau', 'error');
+            $('#nom').focus();
+            return;
+        }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            mostrarToast('El correu no sembla vàlid', 'error');
+            $('#email').focus();
+            return;
+        }
+        if (missatge.length < 10) {
+            mostrarToast('El missatge és massa curt', 'error');
+            $('#missatge').focus();
+            return;
+        }
+
+        // Construir l'assumpte i el cos
+        const assumpte = '[' + tema + '] Nou missatge de contacte';
+        const cos = [
+            'Hola equip de Tempestes.cat,',
+            '',
+            missatge,
+            '',
+            '---',
+            'Nom: ' + nom,
+            'Correu de contacte: ' + email,
+            'Tema: ' + tema,
+            '',
+            'Enviat des de la pàgina de contacte de tempestes.cat'
+        ].join('\n');
+
+        // Obrir Gmail amb tot preparat
+        const urlGmail = 'https://mail.google.com/mail/?view=cm&fs=1'
+            + '&to=' + encodeURIComponent(EMAIL_DESTI)
+            + '&su=' + encodeURIComponent(assumpte)
+            + '&body=' + encodeURIComponent(cos);
+
+        // Obrir en una pestanya nova
+        window.open(urlGmail, '_blank', 'noopener,noreferrer');
+
+        mostrarToast('Gmail obert amb el missatge preparat', 'ok');
+
+        // Opcional: reset del formulari després d'un temps
+        setTimeout(() => {
+            if (confirm('Vols buidar el formulari? (ja has obert Gmail)')) {
+                $('#formContacte').reset();
+                actualitzarPrevisualitzacio();
+            }
+        }, 1500);
+    };
+
+    /* Inicialitzar */
+    actualitzarPrevisualitzacio();
+
+})();
+</script>
+
+</body>
+</html>
