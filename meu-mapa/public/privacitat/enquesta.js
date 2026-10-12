@@ -865,7 +865,7 @@ function mostrarBotoAdmin(mostrar) {
   btn.id = 'enqAdminToggle';
   btn.className = 'enq-admin-toggle';
   btn.type = 'button';
-  btn.innerHTML = '📊 Panell admin';
+  btn.innerHTML = 'Panell admin';
   btn.addEventListener('click', () => carregarAdmin());
   document.body.appendChild(btn);
 }

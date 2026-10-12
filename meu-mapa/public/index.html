@@ -78,6 +78,14 @@ h1,h2,h3{font-family:var(--display);letter-spacing:-.02em;line-height:1.2}
 .hero-links{margin-top:28px;display:flex;gap:24px;font-weight:500;font-size:14px;color:var(--muted)}
 .hero-links a{transition:.2s}
 .hero-links a:hover{color:var(--text)}
+
+/* Botó Radar amb PNG propi */
+.btn-radar{padding:8px 24px 8px 12px}
+.btn-radar .radar-png{width:36px;height:36px;object-fit:contain;flex-shrink:0;display:block}
+.btn-radar .radar-txt{display:flex;flex-direction:column;line-height:1.1;text-align:left}
+.btn-radar .radar-txt b{font-size:13.5px;font-weight:700;color:var(--text)}
+.btn-radar .radar-txt span{font-size:10.5px;color:var(--muted);font-weight:500;letter-spacing:.3px;text-transform:uppercase}
+
 .frame{border:1px solid var(--line);border-radius:var(--r);background:var(--bg-2);box-shadow:var(--shadow-lg);overflow:hidden;transition:transform .4s,box-shadow .4s}
 .frame:hover{transform:translateY(-4px);box-shadow:0 20px 60px rgba(0,0,0,.12)}
 :root[data-theme="dark"] .frame:hover{box-shadow:0 20px 60px rgba(0,0,0,.6)}
@@ -125,6 +133,29 @@ section{padding:80px 0}
 .person .links a{width:34px;height:34px;border:1px solid var(--line);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--muted);transition:.2s;font-size:13px}
 .person .links a:hover{color:var(--bg);background:var(--text);border-color:var(--text)}
 
+/* ===== VÍDEO "QUI SOM" ===== */
+.video-block{margin-top:24px;position:relative;border-radius:var(--r);overflow:hidden;background:#000;box-shadow:var(--shadow-lg);aspect-ratio:16/9;border:1px solid var(--line);cursor:pointer}
+.video-block video{width:100%;height:100%;display:block;object-fit:cover}
+.video-overlay{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(180deg, rgba(0,0,0,.15) 0%, rgba(0,0,0,.55) 100%);opacity:1;transition:opacity .3s ease}
+.video-overlay.hidden{opacity:0;pointer-events:none}
+.video-play{width:88px;height:88px;border-radius:50%;background:rgba(255,255,255,.95);color:#111;display:flex;align-items:center;justify-content:center;font-size:32px;border:none;cursor:pointer;box-shadow:0 8px 40px rgba(0,0,0,.5);transition:transform .25s ease,box-shadow .25s ease;padding-left:6px}
+.video-play:hover{transform:scale(1.08);box-shadow:0 12px 50px rgba(0,0,0,.6)}
+.video-play i{color:#111;font-size:30px}
+.video-title{position:absolute;bottom:24px;left:28px;right:28px;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.6)}
+.video-title h3{font-family:var(--display);font-size:22px;font-weight:700;margin:0 0 4px;color:#fff}
+.video-title p{font-size:13.5px;opacity:.9;margin:0;line-height:1.5;max-width:600px}
+.video-badge{position:absolute;top:20px;left:20px;background:rgba(255,255,255,.12);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.25);color:#fff;font-size:11px;font-weight:700;padding:6px 14px;border-radius:20px;text-transform:uppercase;letter-spacing:1.5px;display:inline-flex;align-items:center;gap:8px}
+.video-badge::before{content:"";width:8px;height:8px;border-radius:50%;background:#ef4444;box-shadow:0 0 0 4px rgba(239,68,68,.25);animation:pulse 1.6s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.2);opacity:.7}}
+.video-controls{position:absolute;bottom:0;left:0;right:0;z-index:3;padding:14px 20px;display:flex;align-items:center;gap:12px;background:linear-gradient(0deg, rgba(0,0,0,.75) 0%, transparent 100%);opacity:0;transition:opacity .25s ease}
+.video-block:hover .video-controls,
+.video-block.playing .video-controls{opacity:1}
+.video-controls button{background:transparent;border:none;color:#fff;font-size:16px;cursor:pointer;padding:6px;border-radius:50%;transition:.2s;width:36px;height:36px;display:flex;align-items:center;justify-content:center}
+.video-controls button:hover{background:rgba(255,255,255,.15)}
+.video-progress{flex:1;height:5px;background:rgba(255,255,255,.25);border-radius:3px;cursor:pointer;position:relative;overflow:hidden}
+.video-progress-bar{height:100%;background:#fff;border-radius:3px;width:0%;transition:width .1s linear}
+.video-time{color:#fff;font-size:12px;font-variant-numeric:tabular-nums;font-weight:500}
+
 /* ===== PLANS ===== */
 .dev-banner{display:inline-flex;align-items:center;gap:8px;margin-bottom:24px;padding:6px 16px;border-radius:20px;background:var(--accent-soft);border:1px solid var(--line);font-weight:500;font-size:13px;color:var(--muted)}
 .toggle{display:flex;width:fit-content;margin-bottom:32px;padding:4px;border:1px solid var(--line);border-radius:30px;background:var(--card)}
@@ -168,12 +199,6 @@ a.contact-item:hover{border-color:var(--text);transform:translateX(2px)}
 .contact-item i{width:36px;height:36px;border-radius:50%;background:var(--accent-soft);color:var(--text);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
 .contact-item b{display:block;font-size:13.5px;font-weight:600}
 .contact-item span{font-size:12px;color:var(--muted)}
-.chat-card{background:var(--accent-soft);border:1px solid var(--line);color:var(--text)}
-.chat-card p.sub{color:var(--muted)}
-.live{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--text);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px}
-.live::before{content:"";width:6px;height:6px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 3px rgba(34,197,94,.15)}
-
-/* Previsualització del correu */
 .previsualitzacio{background:var(--bg-2);border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin-top:14px;font-size:12px;color:var(--muted);line-height:1.5}
 .previsualitzacio .titol{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text);margin-bottom:6px;display:flex;align-items:center;gap:6px;opacity:.7}
 .previsualitzacio .linia{display:flex;gap:8px;margin-bottom:3px}
@@ -194,62 +219,14 @@ footer{padding:48px 0 28px;border-top:1px solid var(--line);background:var(--bg)
 #cookieBanner span{flex:1;min-width:200px;color:var(--muted)}
 
 /* ===== NOTIFICACIÓ DE COMPRA ===== */
-.purchase-toast{
-  position:fixed;top:50%;left:50%;
-  transform:translate(-50%,-50%) scale(.9);
-  z-index:99999;
-  background:var(--card);
-  border:2px solid var(--text);
-  border-radius:18px;
-  padding:36px 44px;
-  box-shadow:0 24px 80px rgba(0,0,0,.5);
-  text-align:center;
-  opacity:0;pointer-events:none;
-  transition:opacity .3s ease,transform .35s cubic-bezier(.4,0,.2,1);
-  max-width:400px;width:calc(100vw - 32px);
-}
-.purchase-toast.visible{
-  opacity:1;
-  transform:translate(-50%,-50%) scale(1);
-  pointer-events:auto;
-}
-.purchase-toast .pt-icon{
-  width:72px;height:72px;border-radius:50%;
-  background:#22c55e;color:#fff;
-  display:flex;align-items:center;justify-content:center;
-  font-size:36px;margin:0 auto 18px;
-  animation:pt-pop .5s cubic-bezier(.4,0,.2,1);
-}
-@keyframes pt-pop{
-  0%{transform:scale(0)}
-  60%{transform:scale(1.15)}
-  100%{transform:scale(1)}
-}
-.purchase-toast h3{
-  font-family:var(--display);font-size:24px;font-weight:700;
-  margin:0 0 10px;color:var(--text);
-}
-.purchase-toast p{
-  font-size:14px;color:var(--muted);margin:0 0 6px;line-height:1.5;
-}
-.purchase-toast .pt-plan{
-  display:inline-block;margin-top:16px;
-  padding:8px 20px;
-  background:var(--accent-soft);
-  border:1px solid var(--line);
-  border-radius:24px;
-  font-size:14px;font-weight:700;color:var(--text);
-  text-transform:uppercase;letter-spacing:.8px;
-}
-.purchase-toast .pt-close{
-  margin-top:22px;
-  padding:12px 32px;
-  background:var(--text);color:var(--bg);
-  border:none;border-radius:26px;
-  font-family:inherit;font-size:14px;font-weight:700;
-  cursor:pointer;transition:opacity .2s;
-  letter-spacing:.3px;
-}
+.purchase-toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.9);z-index:99999;background:var(--card);border:2px solid var(--text);border-radius:18px;padding:36px 44px;box-shadow:0 24px 80px rgba(0,0,0,.5);text-align:center;opacity:0;pointer-events:none;transition:opacity .3s ease,transform .35s cubic-bezier(.4,0,.2,1);max-width:400px;width:calc(100vw - 32px)}
+.purchase-toast.visible{opacity:1;transform:translate(-50%,-50%) scale(1);pointer-events:auto}
+.purchase-toast .pt-icon{width:72px;height:72px;border-radius:50%;background:#22c55e;color:#fff;display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 18px;animation:pt-pop .5s cubic-bezier(.4,0,.2,1)}
+@keyframes pt-pop{0%{transform:scale(0)}60%{transform:scale(1.15)}100%{transform:scale(1)}}
+.purchase-toast h3{font-family:var(--display);font-size:24px;font-weight:700;margin:0 0 10px;color:var(--text)}
+.purchase-toast p{font-size:14px;color:var(--muted);margin:0 0 6px;line-height:1.5}
+.purchase-toast .pt-plan{display:inline-block;margin-top:16px;padding:8px 20px;background:var(--accent-soft);border:1px solid var(--line);border-radius:24px;font-size:14px;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:.8px}
+.purchase-toast .pt-close{margin-top:22px;padding:12px 32px;background:var(--text);color:var(--bg);border:none;border-radius:26px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;transition:opacity .2s;letter-spacing:.3px}
 .purchase-toast .pt-close:hover{opacity:.85}
 
 /* ===== RESPONSIVE ===== */
@@ -268,10 +245,17 @@ footer{padding:48px 0 28px;border-top:1px solid var(--line);background:var(--bg)
   .hero h1{font-size:clamp(28px,7vw,40px)}
   .hero-actions{flex-direction:column}
   .hero-actions .btn{width:100%;justify-content:center}
+  .btn-radar{justify-content:center}
   .purchase-toast{padding:28px 24px}
   .purchase-toast h3{font-size:20px}
+  .video-play{width:68px;height:68px;font-size:24px}
+  .video-play i{font-size:22px}
+  .video-title{bottom:16px;left:18px;right:18px}
+  .video-title h3{font-size:17px}
+  .video-title p{font-size:12px}
+  .video-badge{top:14px;left:14px;font-size:10px;padding:5px 10px}
 }
-@media(prefers-reduced-motion:reduce){*{transition:none!important}html{scroll-behavior:auto}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}html{scroll-behavior:auto}}
 </style>
 </head>
 <body>
@@ -280,8 +264,8 @@ footer{padding:48px 0 28px;border-top:1px solid var(--line);background:var(--bg)
   <div class="wrap">
     <a href="#" class="logo">TEMPESTES<b>.CAT</b></a>
     <nav class="nav-links">
-      <a href="#workspace">Funcions</a>
-      <a href="#equip">Equip</a>
+      <a href="#workspace">Funcions/models</a>
+      <a href="#equip">Equip/Qui som?</a>
       <a href="#plans">Plans</a>
       <a href="#contacte">Contacte</a>
     </nav>
@@ -295,6 +279,7 @@ footer{padding:48px 0 28px;border-top:1px solid var(--line);background:var(--bg)
 </header>
 
 <main>
+<!-- ═══════════════ HERO 1 · VISOR AROME ═══════════════ -->
 <div class="hero">
   <div class="wrap">
     <div>
@@ -303,16 +288,47 @@ footer{padding:48px 0 28px;border-top:1px solid var(--line);background:var(--bg)
       <p class="lead">Model AROME a 1,3 km, radar en viu, Skew-T i paràmetres de tempestes severes. Fet per a qui necessita precisió.</p>
       <div class="hero-actions">
         <a href="arome-cat.html" class="btn btn-primary btn-lg">Obrir el visor AROME <i class="fa-solid fa-arrow-right"></i></a>
-        <a href="https://radar.tempestes.cat/" class="btn btn-ghost btn-lg"><i class="fa-solid fa-satellite-dish"></i> Radar en viu</a>
+        <a href="arome-cat.html" class="btn btn-ghost btn-lg btn-radar">
+         
+          <span class="radar-txt">
+            <b>Obrir</b>
+            <span></span>
+          </span>
+        </a>
       </div>
       <div class="hero-links">
-        <a href="episodis_catalunya.html"><i class="fa-solid fa-bolt"></i> Fòrum d'episodis</a>
+        <a href="episodis_catalunya.html"><i class=""></i> Fòrum d'episodis</a>
         <a href="privacitat/preus.html"><i class="fa-solid fa-tags"></i> Plans</a>
       </div>
     </div>
     <div class="frame">
       <div class="frame-bar"><i></i><i></i><i></i></div>
       <div class="shot"><img src="img/hero-visor.png" alt="Visor AROME de TEMPESTES.CAT" onerror="this.replaceWith(document.createTextNode('img/hero-visor.png'))"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ HERO 2 · RADAR EN VIU ═══════════════ -->
+<div class="hero">
+  <div class="wrap">
+    <div>
+      <span class="hero-badge">Directe · Sense filtres · Actualitzat cada pocs minuts</span>
+      <h1>Radar en viu <span>d'alta resolució</span></h1>
+      <p class="lead">Connecta't amb el radar en viu de TEMPESTES.CAT, fet per a qui necessita precisió.</p>
+      <div class="hero-actions">
+        <a href="https://radar.tempestes.cat/" class="btn btn-primary btn-lg">Obrir radar <i class="fa-solid fa-arrow-right"></i></a>
+       
+          
+          <span class="radar-txt">
+            <b></b>
+            <span></span>
+          </span>
+        </a>
+      </div>
+    </div>
+    <div class="frame">
+      <div class="frame-bar"><i></i><i></i><i></i></div>
+      <div class="shot"><img src="img/radar-icon.png" alt="Radar en viu de TEMPESTES.CAT" onerror="this.replaceWith(document.createTextNode('img/radar-preview.png'))"></div>
     </div>
   </div>
 </div>
@@ -362,6 +378,35 @@ footer{padding:48px 0 28px;border-top:1px solid var(--line);background:var(--bg)
           <a href="https://x.com/Lameteo_cat" target="_blank" rel="noopener" aria-label="X"><i class="fa-brands fa-x-twitter"></i></a>
           <a href="https://www.instagram.com/lameteo.cat/" target="_blank" rel="noopener" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
         </div>
+      </div>
+    </div>
+
+    <!-- ═══════════ VÍDEO QUI SOM ═══════════ -->
+    <div class="video-block" id="videoBlock">
+      <video id="videoQuiSom" preload="metadata" playsinline poster="img/quisom-poster.jpg">
+        <source src="articles/quisom.mp4" type="video/mp4">
+      </video>
+
+      <div class="video-badge">Els millors moments</div>
+
+      <div class="video-overlay" id="videoOverlay">
+        <button type="button" class="video-play" id="videoPlayBtn" aria-label="Reproduir vídeo">
+          <i class="fa-solid fa-play"></i>
+        </button>
+        <div class="video-title">
+          <h3>Caçant fenòmens a Catalunya</h3>
+          <p>Els millors moments dels nostres seguiments: tempestes severes, calamarsa, llamps i estructures espectaculars.</p>
+        </div>
+      </div>
+
+      <div class="video-controls" id="videoControls">
+        <button type="button" id="vPlay" aria-label="Play/Pausa"><i class="fa-solid fa-play"></i></button>
+        <button type="button" id="vMute" aria-label="So"><i class="fa-solid fa-volume-high"></i></button>
+        <div class="video-progress" id="vProgress">
+          <div class="video-progress-bar" id="vProgressBar"></div>
+        </div>
+        <span class="video-time" id="vTime">0:00 / 0:00</span>
+        <button type="button" id="vFullscreen" aria-label="Pantalla completa"><i class="fa-solid fa-expand"></i></button>
       </div>
     </div>
   </div>
@@ -505,13 +550,40 @@ window.logoutUser = async () => { try { await signOut(auth); } catch (e) { conso
 window.openProfile = () => { if (confirm('Vols tancar la sessió?')) window.logoutUser(); };
 onAuthStateChanged(auth, u => {
   window._firebaseUser = u;
-  const pill = document.getElementById('userPill'), btn = document.getElementById('btnGoogleLogin');
-  if (!u) { pill.style.display = 'none'; btn.style.display = ''; window.dispatchEvent(new CustomEvent('tc:logout')); return; }
-  pill.style.display = 'flex'; btn.style.display = 'none';
-  const n = u.displayName || (u.email ? u.email.split('@')[0] : 'Usuari');
-  document.getElementById('userDisplayName').textContent = n;
+  const pill = document.getElementById('userPill');
+  const btn = document.getElementById('btnGoogleLogin');
   const av = document.getElementById('userAvatar');
-  if (u.photoURL) av.innerHTML = '<img src="' + u.photoURL + '" alt="">'; else av.textContent = n[0].toUpperCase();
+  const nm = document.getElementById('userDisplayName');
+
+  if (!u) {
+    pill.style.display = 'none';
+    btn.style.display = '';
+    window.dispatchEvent(new CustomEvent('tc:logout'));
+    return;
+  }
+
+  pill.style.display = 'flex';
+  btn.style.display = 'none';
+
+  // Nom: prioritzem displayName, si no, la part del correu abans de @
+  const nom = (u.displayName || '').trim() || (u.email ? u.email.split('@')[0] : 'Usuari');
+  nm.textContent = nom;
+
+  // Avatar: intentem carregar la foto, si falla mostrem la inicial
+  const inicial = nom[0].toUpperCase();
+  if (u.photoURL) {
+    av.innerHTML = '';
+    const img = document.createElement('img');
+    img.src = u.photoURL;
+    img.alt = '';
+    img.referrerPolicy = 'no-referrer';
+    img.onerror = () => { av.innerHTML = ''; av.textContent = inicial; };
+    img.onload = () => { av.innerHTML = ''; av.appendChild(img); };
+    av.textContent = inicial; // fallback inicial mentre carrega
+  } else {
+    av.textContent = inicial;
+  }
+
   window.dispatchEvent(new CustomEvent('tc:login', { detail: u }));
 });
 </script>
@@ -609,12 +681,10 @@ function setCookies(v){ try { localStorage.setItem('cookieConsent', v); } catch(
 checkCookies();
 document.getElementById('yr').textContent = new Date().getFullYear();
 
-/* ===== CONTACTE — Obre Gmail amb tot preparat ===== */
+/* ===== CONTACTE ===== */
 (function () {
   const EMAIL_DESTI = 'tempestescat@gmail.com';
-
   function $(s) { return document.querySelector(s); }
-
   function showFeedback(msg, ok) {
     const f = $('#contactFeedback');
     if (!f) return;
@@ -622,14 +692,11 @@ document.getElementById('yr').textContent = new Date().getFullYear();
     f.textContent = msg;
     f.style.color = ok ? '#22c55e' : '#ef4444';
   }
-
-  /* Actualitza la previsualització en temps real */
   function actualitzarPrev() {
     const tema = $('#contactTema') ? $('#contactTema').value : 'Consulta general';
     const el = $('#contactPrevAssumpte');
     if (el) el.textContent = '[' + tema + '] Nou missatge de contacte';
   }
-
   ['#contactTema'].forEach(sel => {
     const el = $(sel);
     if (el) {
@@ -637,22 +704,16 @@ document.getElementById('yr').textContent = new Date().getFullYear();
       el.addEventListener('change', actualitzarPrev);
     }
   });
-
   window.obrirCorreuContacte = function (e) {
     e.preventDefault();
-
     const tema = $('#contactTema').value || 'Consulta general';
     const nom = $('#contactName').value.trim();
     const email = $('#contactEmail').value.trim();
     const missatge = $('#contactMessage').value.trim();
-
-    // Validacions
     if (nom.length < 2) { showFeedback('Escriu el teu nom si us plau.', false); $('#contactName').focus(); return; }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showFeedback('El correu no sembla vàlid.', false); $('#contactEmail').focus(); return; }
     if (missatge.length < 10) { showFeedback('El missatge és massa curt (mínim 10 caràcters).', false); $('#contactMessage').focus(); return; }
     if (!$('#contactPrivacy').checked) { showFeedback('Has d\'acceptar la política de privacitat.', false); return; }
-
-    // Construir assumpte i cos
     const assumpte = '[' + tema + '] Nou missatge de contacte';
     const cos = [
       'Hola equip de Tempestes.cat,',
@@ -666,18 +727,12 @@ document.getElementById('yr').textContent = new Date().getFullYear();
       '',
       'Enviat des de la pàgina principal de tempestes.cat'
     ].join('\n');
-
-    // Obrir Gmail
     const urlGmail = 'https://mail.google.com/mail/?view=cm&fs=1'
       + '&to=' + encodeURIComponent(EMAIL_DESTI)
       + '&su=' + encodeURIComponent(assumpte)
       + '&body=' + encodeURIComponent(cos);
-
     window.open(urlGmail, '_blank', 'noopener,noreferrer');
-
     showFeedback('✓ Gmail obert amb el missatge preparat. Només cal enviar-lo.', true);
-
-    // Reset opcional
     setTimeout(() => {
       if (confirm('Vols buidar el formulari? (ja has obert Gmail)')) {
         $('#contactForm').reset();
@@ -685,15 +740,103 @@ document.getElementById('yr').textContent = new Date().getFullYear();
       }
     }, 1500);
   };
-
-  /* Inicialitzar */
   actualitzarPrev();
+})();
+
+/* ===== VÍDEO QUI SOM ===== */
+(function(){
+  const block = document.getElementById('videoBlock');
+  const video = document.getElementById('videoQuiSom');
+  const overlay = document.getElementById('videoOverlay');
+  const bigPlay = document.getElementById('videoPlayBtn');
+  const vPlay = document.getElementById('vPlay');
+  const vMute = document.getElementById('vMute');
+  const vFullscreen = document.getElementById('vFullscreen');
+  const vProgress = document.getElementById('vProgress');
+  const vBar = document.getElementById('vProgressBar');
+  const vTime = document.getElementById('vTime');
+  if (!block || !video) return;
+
+  let amagat = false;
+
+  function formatTemps(s) {
+    if (!isFinite(s) || s < 0) s = 0;
+    const m = Math.floor(s / 60);
+    const seg = Math.floor(s % 60);
+    return m + ':' + (seg < 10 ? '0' : '') + seg;
+  }
+  function actualitzarTemps() {
+    vTime.textContent = formatTemps(video.currentTime) + ' / ' + formatTemps(video.duration);
+    const pct = video.duration ? (video.currentTime / video.duration) * 100 : 0;
+    vBar.style.width = pct + '%';
+  }
+  function amagarOverlay() { if (amagat) return; overlay.classList.add('hidden'); amagat = true; }
+  function mostrarOverlay() { overlay.classList.remove('hidden'); amagat = false; }
+  function play() {
+    video.play().catch(()=>{});
+    block.classList.add('playing');
+    amagarOverlay();
+    vPlay.innerHTML = '<i class="fa-solid fa-pause"></i>';
+  }
+  function pause() {
+    video.pause();
+    vPlay.innerHTML = '<i class="fa-solid fa-play"></i>';
+  }
+
+  bigPlay.addEventListener('click', e => { e.stopPropagation(); play(); });
+  block.addEventListener('click', e => {
+    if (e.target.closest('.video-controls')) return;
+    if (video.paused) play(); else pause();
+  });
+  vPlay.addEventListener('click', e => { e.stopPropagation(); if (video.paused) play(); else pause(); });
+  vMute.addEventListener('click', e => {
+    e.stopPropagation();
+    video.muted = !video.muted;
+    vMute.innerHTML = video.muted
+      ? '<i class="fa-solid fa-volume-xmark"></i>'
+      : '<i class="fa-solid fa-volume-high"></i>';
+  });
+  vFullscreen.addEventListener('click', e => {
+    e.stopPropagation();
+    if (!document.fullscreenElement) {
+      (block.requestFullscreen || block.webkitRequestFullscreen || block.msRequestFullscreen).call(block);
+    } else {
+      document.exitFullscreen();
+    }
+  });
+  vProgress.addEventListener('click', e => {
+    e.stopPropagation();
+    const rect = vProgress.getBoundingClientRect();
+    const pct = (e.clientX - rect.left) / rect.width;
+    if (video.duration) video.currentTime = pct * video.duration;
+  });
+
+  video.addEventListener('timeupdate', actualitzarTemps);
+  video.addEventListener('loadedmetadata', actualitzarTemps);
+  video.addEventListener('play', () => { block.classList.add('playing'); vPlay.innerHTML = '<i class="fa-solid fa-pause"></i>'; amagarOverlay(); });
+  video.addEventListener('pause', () => { vPlay.innerHTML = '<i class="fa-solid fa-play"></i>'; });
+  video.addEventListener('ended', () => {
+    pause();
+    mostrarOverlay();
+    block.classList.remove('playing');
+    video.currentTime = 0;
+  });
+
+  let timeoutControls;
+  function reiniciarTimeout() {
+    clearTimeout(timeoutControls);
+    timeoutControls = setTimeout(() => {
+      if (!video.paused) block.classList.remove('playing');
+    }, 3000);
+  }
+  block.addEventListener('mousemove', () => {
+    block.classList.add('playing');
+    reiniciarTimeout();
+  });
 })();
 </script>
 
-<!-- ═══════════════════════════════════════════════════════════════════
-     COMUNICACIÓ AMB preus.html (postMessage)
-     ═══════════════════════════════════════════════════════════════════ -->
+<!-- ═══════════ COMUNICACIÓ AMB preus.html (postMessage) ═══════════ -->
 <script>
 (function () {
     'use strict';
@@ -719,17 +862,13 @@ document.getElementById('yr').textContent = new Date().getFullYear();
 })();
 </script>
 
-<!-- ═══════════════════════════════════════════════════════════════════
-     DETECCIÓ D'ADMINS (branca /admin - càrrega completa)
-     ═══════════════════════════════════════════════════════════════════ -->
+<!-- ═══════════ DETECCIÓ D'ADMINS ═══════════ -->
 <script>
 (function () {
     'use strict';
-
     const DB_URL = 'https://tempestescat-default-rtdb.europe-west1.firebasedatabase.app';
     let esAdmin = false;
     let _adminsCache = null;
-
     async function carregarAdmins() {
         if (_adminsCache !== null) return _adminsCache;
         try {
@@ -738,69 +877,51 @@ document.getElementById('yr').textContent = new Date().getFullYear();
             const d = await r.json();
             _adminsCache = d || {};
             return _adminsCache;
-        } catch (e) {
-            _adminsCache = {};
-            return {};
-        }
+        } catch (e) { _adminsCache = {}; return {}; }
     }
-
     async function comprovarAdmin(email) {
         if (!email) return false;
         const admins = await carregarAdmins();
         const clauFirebase = email.toLowerCase().replace(/\./g, ',');
         return admins[clauFirebase] === true;
     }
-
     window.addEventListener('tc:login', function (e) {
         const user = e.detail || window._firebaseUser;
         if (!user || !user.email) return;
         comprovarAdmin(user.email).then(function (admin) {
             esAdmin = admin;
             window._esAdmin = admin;
-            if (admin) {
-                console.log('[Admin] Usuari admin detectat:', user.email, '→ pla Professional');
-            } else {
-                console.log('[Admin] Usuari NO admin:', user.email);
-            }
+            if (admin) console.log('[Admin] Usuari admin detectat:', user.email, '→ pla Professional');
+            else console.log('[Admin] Usuari NO admin:', user.email);
         });
     }, true);
-
     window.addEventListener('tc:logout', function () {
         esAdmin = false;
         window._esAdmin = false;
     });
-
     window.esAdminActual = function () { return esAdmin; };
 })();
 </script>
 
-<!-- ═══════════════════════════════════════════════════════════════════
-     REFRESC AUTOMÀTIC EN TORNAR DE STRIPE
-     ═══════════════════════════════════════════════════════════════════ -->
+<!-- ═══════════ REFRESC AUTOMÀTIC EN TORNAR DE STRIPE ═══════════ -->
 <script>
 (function () {
     'use strict';
     const params = new URLSearchParams(location.search);
     if (!params.has('success')) return;
-
     history.replaceState({}, '', location.pathname);
-
     const toast = document.getElementById('purchaseToast');
     const planEl = document.getElementById('purchaseToastPlan');
     const DB_URL = 'https://tempestescat-default-rtdb.europe-west1.firebasedatabase.app';
     const noms = { 'entusiasta': 'Entusiasta', 'professional': 'Professional', 'equips': 'Equips', 'gratuït': 'Gratuït' };
-
     async function carregarPla(user) {
         try {
             const token = await user.getIdToken();
             const r = await fetch(`${DB_URL}/users/${encodeURIComponent(user.uid)}/pla.json?auth=${token}`, { cache: 'no-store' });
             if (!r.ok) return null;
             return await r.json();
-        } catch (e) {
-            return null;
-        }
+        } catch (e) { return null; }
     }
-
     let intent = 0;
     const esperar = setInterval(async () => {
         intent++;
@@ -809,19 +930,12 @@ document.getElementById('yr').textContent = new Date().getFullYear();
             return;
         }
         clearInterval(esperar);
-
         const pla = await carregarPla(window._firebaseUser);
         if (planEl && pla && noms[pla]) planEl.textContent = noms[pla];
-
         if (toast) toast.classList.add('visible');
-
         window.dispatchEvent(new CustomEvent('tc:login', { detail: window._firebaseUser }));
-
-        setTimeout(() => {
-            if (toast) toast.classList.remove('visible');
-        }, 8000);
+        setTimeout(() => { if (toast) toast.classList.remove('visible'); }, 8000);
     }, 500);
-
     setTimeout(() => clearInterval(esperar), 20000);
 })();
 </script>

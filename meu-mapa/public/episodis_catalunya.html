@@ -1,578 +1,559 @@
 <!DOCTYPE html>
-<html lang="ca">
+<html lang="ca" data-theme="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Galeria de Fotos - Tempestes.cat</title>
-    
-    <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QDWCZ0Z9XF"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-QDWCZ0Z9XF');
-    </script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Galeria de fotos · TEMPESTES.CAT</title>
+<meta name="description" content="Galeria de fotografies de tempestes, llamps, calamarsa i fenòmens severs capturades a Catalunya." />
+<meta name="robots" content="index, follow" />
+<link rel="icon" type="image/png" href="img/favicon.png" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
 
-    <!-- Google AdSense -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1675456750465139"
-         crossorigin="anonymous"></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-QDWCZ0Z9XF"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-QDWCZ0Z9XF');
+</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1675456750465139" crossorigin="anonymous"></script>
 
-    <link rel="icon" type="image/png" href="img/favicon.png">
-    
-    <style>
+<style>
+/* ===== RESET I VARIABLES ===== */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#ffffff; --bg-2:#f7f7f7; --card:#ffffff; --line:#e5e5e5;
+  --text:#111111; --muted:#6b6b6b; --accent:#111111; --accent-soft:#f0f0f0;
+  --shadow:0 2px 12px rgba(0,0,0,.04); --shadow-lg:0 12px 40px rgba(0,0,0,.08);
+  --r:12px; --font:'Inter',-apple-system,system-ui,sans-serif; --display:'Space Grotesk','Inter',sans-serif;
+  --ok:#22c55e; --danger:#ef4444;
+}
+:root[data-theme="dark"]{
+  --bg:#0a0a0a; --bg-2:#141414; --card:#1a1a1a; --line:#2a2a2a;
+  --text:#f0f0f0; --muted:#a0a0a0; --accent:#f0f0f0; --accent-soft:#222222;
+  --shadow:0 2px 12px rgba(0,0,0,.3); --shadow-lg:0 12px 40px rgba(0,0,0,.5);
+  --ok:#22c55e; --danger:#ef4444;
+}
+html{scroll-behavior:smooth;scroll-padding-top:80px}
+body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.6;font-size:16px;padding-top:64px;transition:background .3s,color .3s}
+a{color:inherit;text-decoration:none}
+img{display:block;max-width:100%}
+button{font-family:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--text);outline-offset:2px}
+.wrap{max-width:1280px;margin:0 auto;padding:0 24px}
+h1,h2,h3{font-family:var(--display);letter-spacing:-.02em;line-height:1.2}
 
-        :root {
-            --bg: #0a0f18;
-            --bg2: #111927;
-            --bg3: #182233;
-            --border: #1e2d42;
-            --border2: #263548;
-            --text: #dde4ee;
-            --text2: #8899b4;
-            --text3: #556680;
-            --accent: #4a90d9;
-            --accent2: #5da0e9;
-            --danger: #e05555;
-            --success: #45b070;
-            --warning: #d9a040;
-            --purple: #8e6fc4;
-            --radius: 10px;
-            --radius-sm: 6px;
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            background: linear-gradient(180deg, #0a0f18 0%, #0d1520 50%, #111927 100%);
-            color: var(--text);
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            min-height: 100vh;
-            padding: 12px;
-            font-size: 15px;
-            -webkit-tap-highlight-color: transparent;
-            -webkit-font-smoothing: antialiased;
-            overflow-x: hidden;
-        }
-        .container { max-width: 900px; margin: 0 auto; overflow-x: hidden; }
+/* ===== NAV ===== */
+.nav{position:fixed;top:0;left:0;right:0;height:64px;z-index:100;background:var(--bg);border-bottom:1px solid var(--line);transition:background .3s,border-color .3s}
+.nav .wrap{height:100%;display:flex;align-items:center;gap:20px}
+.logo{font-family:var(--display);font-weight:700;font-size:20px;letter-spacing:.02em;color:var(--text)}
+.logo b{font-weight:400;color:var(--muted)}
+.nav-links{display:flex;gap:2px;margin-left:auto}
+.nav-links a{font-size:13px;font-weight:500;color:var(--muted);padding:6px 14px;border-radius:20px;transition:.2s}
+.nav-links a:hover{color:var(--text);background:var(--accent-soft)}
+.nav-links a.on{color:var(--text);background:var(--accent-soft)}
+.nav-actions{display:flex;align-items:center;gap:8px}
+.icon-btn{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--text);font-size:14px;transition:.2s;display:flex;align-items:center;justify-content:center}
+.icon-btn:hover{background:var(--accent-soft);border-color:var(--muted)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 22px;border-radius:28px;font-weight:600;font-size:13px;border:1px solid transparent;transition:all .2s ease;letter-spacing:.01em}
+.btn-primary{background:var(--text);color:var(--bg);border-color:var(--text)}
+.btn-primary:hover{opacity:.85;transform:translateY(-1px)}
+.btn-ghost{background:transparent;border-color:var(--line);color:var(--text)}
+.btn-ghost:hover{border-color:var(--text);transform:translateY(-1px)}
+#userPill{display:none;align-items:center;gap:8px;padding:4px 12px 4px 4px;border:1px solid var(--line);border-radius:30px;font-size:13px;font-weight:500;cursor:pointer;transition:.2s}
+#userPill:hover{border-color:var(--text)}
+#userAvatar{width:26px;height:26px;border-radius:50%;background:var(--text);color:var(--bg);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;overflow:hidden}
+#userAvatar img{width:100%;height:100%;object-fit:cover}
 
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: var(--bg2);
-            border: 1px solid var(--border);
-            padding: 8px 16px;
-            border-radius: 30px;
-        }
-        .logo svg { flex-shrink: 0; }
-        .title { font-size: 18px; font-weight: 700; }
-        .title span { color: var(--accent2); }
-        .btn {
-            padding: 8px 16px;
-            border-radius: 25px;
-            border: none;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: 600;
-            font-family: inherit;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.2s;
-            white-space: nowrap;
-        }
-        .btn-accent { background: var(--accent); color: #fff; }
-        .btn-accent:hover { background: var(--accent2); transform: translateY(-1px); }
-        .btn-accent:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-        .btn-home { background: var(--bg3); border: 1px solid var(--border); color: var(--text2); }
-        .btn-home:hover { border-color: var(--accent); color: var(--text); }
-        .btn-outline {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--text2);
-            font-size: 10px;
-            padding: 5px 12px;
-            border-radius: 25px;
-        }
-        .btn-outline:hover { border-color: var(--accent); color: var(--text); }
+/* ===== CAPÇALERA ===== */
+.capcalera{max-width:1280px;margin:0 auto;padding:60px 24px 30px;text-align:center}
+.capcalera .eyebrow{display:inline-flex;align-items:center;gap:10px;color:var(--muted);font-size:11px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;margin-bottom:18px}
+.capcalera .eyebrow::before,
+.capcalera .eyebrow::after{content:"";width:24px;height:1px;background:var(--muted)}
+.capcalera h1{font-size:clamp(32px,5vw,54px);font-weight:700;margin-bottom:14px}
+.capcalera h1 span{color:var(--muted);font-weight:400}
+.capcalera p{color:var(--muted);max-width:600px;margin:0 auto;font-size:16px;line-height:1.7}
 
-        .user-pill {
-            display: none;
-            align-items: center;
-            gap: 8px;
-            background: var(--bg2);
-            border: 1px solid var(--border);
-            padding: 5px 14px;
-            border-radius: 25px;
-            font-size: 12px;
-        }
-        .avatar {
-            width: 28px; height: 28px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--accent), var(--accent2));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            color: #fff;
-            font-size: 12px;
-        }
+/* ===== BARRA DE CÀRREGA ===== */
+.loading-bar{
+  max-width:1280px;margin:24px auto 0;padding:0 24px;
+  opacity:0;max-height:0;overflow:hidden;
+  transition:opacity .3s ease,max-height .3s ease;
+}
+.loading-bar.on{opacity:1;max-height:80px}
+.loading-inner{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+  padding:16px 22px;display:flex;flex-direction:column;gap:10px;
+  box-shadow:var(--shadow);
+}
+.loading-top{display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:13px;color:var(--muted)}
+.loading-top .lbl{display:inline-flex;align-items:center;gap:8px;font-weight:600;color:var(--text)}
+.loading-top .lbl i{color:var(--text);animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-track{height:6px;background:var(--bg-2);border-radius:999px;overflow:hidden}
+.loading-fill{height:100%;width:0%;background:var(--text);border-radius:999px;transition:width .3s ease}
 
-        /* CALENDARI */
-        .cal-toggle {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 8px;
-            cursor: pointer;
-            background: var(--bg2);
-            border: 1px solid var(--border);
-            padding: 14px 16px;
-            border-radius: var(--radius);
-            font-size: 14px;
-            font-weight: 600;
-            user-select: none;
-            transition: all 0.2s;
-            touch-action: manipulation;
-        }
-        .cal-toggle:active { border-color: var(--accent); }
-        .cal-toggle.open { border-color: var(--accent); background: rgba(74,144,217,0.05); }
-        .cal-toggle svg { flex-shrink: 0; transition: transform 0.3s; }
-        .cal-toggle.open svg.arrow { transform: rotate(180deg); }
-        .cal-toggle span { flex: 1; }
-        .cal-toggle .badge-count {
-            font-size: 10px;
-            color: var(--success);
-            font-weight: 700;
-            background: rgba(69,176,112,0.12);
-            padding: 2px 8px;
-            border-radius: 10px;
-        }
+/* ===== TOGGLE CALENDARI ===== */
+.cal-toggle{max-width:1280px;margin:24px auto 0;padding:0 24px}
+.cal-toggle-btn{
+  width:100%;display:flex;align-items:center;gap:14px;
+  padding:16px 22px;background:var(--card);border:1px solid var(--line);
+  border-radius:var(--r);cursor:pointer;user-select:none;
+  transition:all .2s ease;font-family:inherit;color:var(--text);
+  box-shadow:var(--shadow);
+}
+.cal-toggle-btn:hover{border-color:var(--muted);transform:translateY(-1px)}
+.cal-toggle-btn.open{border-color:var(--text)}
+.cal-toggle-btn svg.cal-ico,
+.cal-toggle-btn i.cal-ico{width:22px;height:22px;font-size:20px;color:var(--text);flex-shrink:0}
+.cal-toggle-btn .cal-lbl{flex:1;font-size:15px;font-weight:600;text-align:left}
+.cal-toggle-btn .cal-badge{
+  font-size:11.5px;font-weight:700;color:var(--text);
+  background:var(--accent-soft);padding:3px 10px;border-radius:999px;
+  border:1px solid var(--line);
+}
+.cal-toggle-btn svg.arrow,
+.cal-toggle-btn i.arrow{width:16px;height:16px;font-size:14px;color:var(--muted);transition:transform .3s ease}
+.cal-toggle-btn.open i.arrow{transform:rotate(180deg);color:var(--text)}
 
-        .calendar-wrap {
-            display: none;
-            background: var(--bg2);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 10px 8px;
-            margin-bottom: 12px;
-            animation: slideDown 0.3s ease;
-            width: 100%;
-            overflow: hidden;
-        }
-        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-        .calendar-wrap.open { display: block; }
+/* ===== CALENDARI OBERT ===== */
+.cal-wrap{max-width:1280px;margin:0 auto;padding:0 24px;display:none}
+.cal-wrap.open{display:block;animation:slideDown .3s ease}
+@keyframes slideDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.cal-box{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+  padding:22px;margin-top:12px;box-shadow:var(--shadow);
+}
+.cal-nav{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+.cal-nav button{
+  width:40px;height:40px;border-radius:50%;border:1px solid var(--line);
+  background:transparent;color:var(--text);cursor:pointer;transition:.2s;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.cal-nav button:hover:not(:disabled){background:var(--accent-soft);border-color:var(--text)}
+.cal-nav button:disabled{opacity:.3;cursor:not-allowed}
+.cal-nav .month-title{flex:1;text-align:center;font-family:var(--display);font-size:18px;font-weight:700}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.cal-grid .day-hdr{text-align:center;font-size:10.5px;color:var(--muted);padding:8px 0;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+.cal-grid .day{
+  aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  border-radius:10px;font-size:14px;font-weight:600;border:2px solid transparent;
+  transition:all .15s ease;color:var(--muted);opacity:.3;cursor:default;
+}
+.cal-grid .day.has-obs{cursor:pointer;color:var(--text);opacity:1;background:var(--accent-soft);border-color:var(--line)}
+.cal-grid .day.has-obs:hover{background:var(--text);color:var(--bg);transform:scale(1.05);border-color:var(--text)}
+.cal-grid .day.today.has-obs{border-color:var(--text);box-shadow:0 0 0 2px var(--bg),0 0 0 3px var(--text)}
+.cal-grid .day.today:not(.has-obs){opacity:.4;border-color:var(--line)}
+.cal-grid .day.selected{background:var(--text);color:var(--bg);border-color:var(--text);transform:scale(1.05)}
+.cal-grid .day.other{opacity:0;pointer-events:none}
+.cal-grid .day .day-count{font-size:9px;font-weight:700;margin-top:1px;opacity:.9}
 
-        .cal-nav {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 12px;
-            padding: 0 4px;
-        }
-        .cal-nav button {
-            background: var(--bg3);
-            border: 1px solid var(--border);
-            color: var(--text);
-            width: 36px; height: 36px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-            touch-action: manipulation;
-            flex-shrink: 0;
-        }
-        .cal-nav button:active {
-            background: var(--accent);
-            border-color: var(--accent);
-            color: #fff;
-            transform: scale(0.95);
-        }
-        .cal-nav button:disabled {
-            opacity: 0.25;
-            cursor: not-allowed;
-        }
-        .cal-nav button:disabled:active { background: var(--bg3); border-color: var(--border); color: var(--text); transform: none; }
-        .cal-nav .month-label {
-            font-size: 15px;
-            font-weight: 700;
-            text-align: center;
-            color: var(--accent2);
-            flex: 1;
-            padding: 0 8px;
-        }
-        .cal-hint {
-            text-align: center;
-            font-size: 10px;
-            color: var(--text3);
-            margin-top: 8px;
-        }
+/* ===== FORMULARI ADMIN ===== */
+.form-admin{max-width:1280px;margin:24px auto 0;padding:0 24px;display:none}
+.form-admin.open{display:block}
+.form-box{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+  padding:24px;box-shadow:var(--shadow);
+}
+.form-box h3{
+  font-family:var(--display);font-size:17px;font-weight:700;margin-bottom:14px;
+  display:flex;align-items:center;gap:10px;
+}
+.form-box h3 i{color:var(--muted)}
+.form-box textarea{
+  width:100%;min-height:80px;resize:vertical;padding:12px 14px;
+  background:var(--bg-2);border:1px solid var(--line);border-radius:10px;
+  color:var(--text);font-family:inherit;font-size:14px;line-height:1.5;
+}
+.form-box textarea:focus{outline:none;border-color:var(--text)}
+.img-row{display:flex;gap:12px;margin:14px 0;flex-wrap:wrap}
+.img-slot{
+  width:90px;height:90px;border-radius:10px;border:2px dashed var(--line);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  overflow:hidden;transition:.2s;background:var(--bg-2);flex-shrink:0;
+}
+.img-slot:hover{border-color:var(--text);background:var(--accent-soft)}
+.img-slot img{width:100%;height:100%;object-fit:cover}
+.img-slot i{color:var(--muted);font-size:22px}
+.img-slot.has-img{border-style:solid;border-color:var(--line)}
+.form-hint{font-size:12px;color:var(--muted);margin-top:8px}
+.form-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:14px}
 
-        .cal-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 3px;
-            width: 100%;
-        }
-        .cal-grid .day-hdr {
-            text-align: center;
-            font-size: 10px;
-            color: var(--text3);
-            padding: 6px 0;
-            font-weight: 700;
-            letter-spacing: 0.3px;
-            text-transform: uppercase;
-        }
-        .cal-grid .day {
-            aspect-ratio: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            border-radius: 8px;
-            cursor: default;
-            font-size: 14px;
-            font-weight: 600;
-            border: 2px solid transparent;
-            transition: all 0.15s ease;
-            position: relative;
-            touch-action: manipulation;
-            min-width: 0;
-            width: 100%;
-            color: var(--text3);
-            opacity: 0.25;
-        }
-        /* Nomes els dies amb fotos son interactius i visibles */
-        .cal-grid .day.has-obs {
-            cursor: pointer;
-            color: #fff;
-            font-weight: 700;
-            opacity: 1;
-        }
-        .cal-grid .day.has-obs:active {
-            background: var(--bg3);
-            border-color: var(--accent);
-            transform: scale(0.93);
-        }
-        .cal-grid .day.today.has-obs {
-            border-color: var(--accent);
-            box-shadow: 0 0 12px rgba(74, 144, 217, 0.2);
-        }
-        .cal-grid .day.today:not(.has-obs) {
-            opacity: 0.4;
-            border-color: var(--border2);
-        }
-        .cal-grid .day.selected {
-            background: linear-gradient(135deg, var(--accent), #3a7bc8);
-            color: #fff;
-            border-color: var(--accent2);
-            box-shadow: 0 3px 15px rgba(74, 144, 217, 0.3);
-            font-weight: 800;
-            transform: scale(1.05);
-            opacity: 1;
-        }
-        .cal-grid .day.other { opacity: 0; pointer-events: none; }
-        .cal-grid .day .day-count {
-            font-size: 9px;
-            color: rgba(255,255,255,0.85);
-            margin-top: 1px;
-            font-weight: 700;
-        }
-        .cal-grid .day.has-obs:not(.selected) {
-            background: rgba(69, 176, 112, 0.14);
-        }
-        .cal-grid .day.has-obs:not(.selected) .day-count { color: var(--success); }
+.not-authorized{max-width:1280px;margin:24px auto 0;padding:0 24px}
+.not-auth-box{
+  background:var(--card);border:1px dashed var(--line);border-radius:var(--r);
+  padding:20px;text-align:center;color:var(--muted);font-size:13.5px;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+}
+.not-auth-box i{color:var(--muted);font-size:18px}
 
-        @media (max-width: 400px) {
-            .calendar-wrap { padding: 8px 6px; }
-            .cal-grid { gap: 2px; }
-            .cal-grid .day { font-size: 13px; border-radius: 7px; }
-            .cal-grid .day-hdr { font-size: 9px; padding: 5px 0; }
-            .cal-nav button { width: 34px; height: 34px; }
-            .cal-nav .month-label { font-size: 14px; }
-        }
+/* ═══════════════════════════════════════════════════════════
+   GALERIA · QUADRES INDEPENDENTS (cada imatge un marc propi)
+   ═══════════════════════════════════════════════════════════ */
+.gallery-section{max-width:1280px;margin:0 auto;padding:40px 24px 80px}
+.gallery-head{
+  display:flex;justify-content:space-between;align-items:baseline;
+  gap:12px;flex-wrap:wrap;margin-bottom:24px;
+}
+.gallery-head h2{font-family:var(--display);font-size:22px;font-weight:700}
+.gallery-head .count{font-size:13px;color:var(--muted);font-weight:500}
 
-        /* FORMULARI PUJADA (nomes visible per l'ID autoritzada) */
-        .form {
-            display: none;
-            background: var(--bg2);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 16px;
-            margin-bottom: 12px;
-        }
-        .form.open { display: block; }
-        .form textarea {
-            width: 100%;
-            background: var(--bg3);
-            border: 1px solid var(--border);
-            color: var(--text);
-            padding: 12px;
-            border-radius: var(--radius-sm);
-            font-family: inherit;
-            font-size: 13px;
-            resize: vertical;
-            min-height: 60px;
-            max-height: 130px;
-        }
-        .form textarea:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 2px rgba(74,144,217,0.1); }
-        .form-row { display: flex; gap: 10px; margin-top: 10px; align-items: center; flex-wrap: wrap; }
-        .img-upload {
-            width: 70px; height: 70px;
-            border-radius: var(--radius-sm);
-            border: 2px dashed var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            flex-shrink: 0;
-            overflow: hidden;
-            transition: all 0.2s;
-        }
-        .img-upload:hover { border-color: var(--accent); background: rgba(74,144,217,0.05); }
-        .img-upload svg { opacity: 0.4; transition: opacity 0.2s; }
-        .img-upload:hover svg { opacity: 0.7; }
-        .img-upload img { width: 100%; height: 100%; object-fit: cover; }
-        .img-upload.has-img { border-style: solid; border-color: var(--border2); }
-        .form-label { font-size: 10px; color: var(--text3); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+/* Graella de "quadres" (cada imatge és un marc) */
+.gallery-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+  gap:20px;
+}
 
-        .not-authorized {
-            background: var(--bg2);
-            border: 1px dashed var(--border);
-            border-radius: var(--radius);
-            padding: 14px 16px;
-            margin-bottom: 12px;
-            font-size: 12px;
-            color: var(--text3);
-            text-align: center;
-        }
+/* Targeta = un quadre de museu */
+.photo-card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:8px;
+  padding:14px 14px 10px;
+  box-shadow:var(--shadow);
+  transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s ease,border-color .25s ease;
+  cursor:pointer;
+  position:relative;
+  display:flex;
+  flex-direction:column;
+}
+.photo-card:hover{
+  transform:translateY(-6px) rotate(-0.3deg);
+  box-shadow:0 24px 60px rgba(0,0,0,.16);
+  border-color:var(--muted);
+}
+:root[data-theme="dark"] .photo-card:hover{
+  box-shadow:0 24px 60px rgba(0,0,0,.7),0 0 0 1px rgba(240,240,240,.06);
+}
 
-        /* GALERIA GRID */
-        .gallery-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 12px;
-        }
-        .photo-card {
-            background: var(--bg2);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            overflow: hidden;
-            transition: all 0.2s;
-            cursor: pointer;
-            position: relative;
-        }
-        .photo-card:hover { border-color: var(--accent); transform: translateY(-2px); }
-        .photo-card .ph-img-wrap {
-            width: 100%;
-            aspect-ratio: 4/3;
-            overflow: hidden;
-            background: var(--bg3);
-        }
-        .photo-card img {
-            width: 100%; height: 100%;
-            object-fit: cover;
-            display: block;
-        }
-        .photo-card .ph-img-wrap.ph-multi {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 2px;
-        }
-        .photo-card .ph-img-wrap.ph-multi img { aspect-ratio: 1/1; }
-        .photo-card .ph-caption {
-            padding: 8px 10px;
-            font-size: 11px;
-            color: var(--text2);
-            line-height: 1.4;
-            max-height: 3em;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .photo-card .ph-meta {
-            padding: 0 10px 8px;
-            font-size: 9px;
-            color: var(--text3);
-        }
-        .photo-card .ph-del {
-            position: absolute;
-            top: 6px; right: 6px;
-            background: rgba(10,15,24,0.75);
-            border: none;
-            color: #fff;
-            width: 26px; height: 26px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-        }
-        .photo-card .ph-del:hover { background: var(--danger); }
+/* Marc del quadre (padding + ombra interior com un paspartú) */
+.photo-frame{
+  position:relative;
+  background:var(--bg-2);
+  border-radius:4px;
+  padding:6px;
+  box-shadow:inset 0 0 0 1px var(--line);
+  overflow:hidden;
+  aspect-ratio:4/3;
+}
+.photo-frame img{
+  width:100%;height:100%;object-fit:cover;display:block;border-radius:2px;
+  transition:transform .5s cubic-bezier(.2,.8,.2,1);
+}
+.photo-card:hover .photo-frame img{transform:scale(1.05)}
 
-        .empty { text-align: center; padding: 50px 20px; color: var(--text3); font-size: 13px; }
-        .empty svg { margin-bottom: 12px; opacity: 0.4; }
+/* Etiqueta del quadre */
+.photo-label{
+  display:flex;justify-content:space-between;align-items:flex-start;
+  gap:10px;margin-top:12px;padding:0 2px;
+}
+.photo-label .lbl-left{flex:1;min-width:0}
+.photo-label .lbl-caption{
+  font-size:13px;font-weight:600;color:var(--text);
+  line-height:1.4;overflow:hidden;display:-webkit-box;
+  -webkit-line-clamp:2;-webkit-box-orient:vertical;
+}
+.photo-label .lbl-meta{
+  font-size:11px;color:var(--muted);margin-top:4px;
+  display:flex;gap:8px;align-items:center;flex-wrap:wrap;
+}
+.photo-label .lbl-meta i{font-size:10px}
+.photo-label .num{
+  font-family:var(--display);font-size:11px;font-weight:700;
+  color:var(--muted);letter-spacing:.5px;flex-shrink:0;
+  border:1px solid var(--line);border-radius:4px;padding:2px 7px;
+}
 
-        .img-modal {
-            position: fixed; inset: 0;
-            background: rgba(0,0,0,0.93);
-            z-index: 9999;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            flex-direction: column;
-            padding: 20px;
-        }
-        .img-modal.open { display: flex; }
-        .img-modal img { max-width: 92vw; max-height: 80vh; border-radius: 10px; }
-        .img-modal .modal-caption {
-            color: var(--text2);
-            font-size: 13px;
-            margin-top: 14px;
-            max-width: 600px;
-            text-align: center;
-        }
+/* Botó eliminar */
+.photo-del{
+  position:absolute;top:22px;right:22px;z-index:3;
+  width:30px;height:30px;border-radius:50%;
+  background:rgba(0,0,0,.75);border:none;color:#fff;
+  display:none;align-items:center;justify-content:center;
+  cursor:pointer;backdrop-filter:blur(4px);
+  transition:.2s;
+}
+.photo-card:hover .photo-del{display:flex}
+.photo-del:hover{background:var(--danger)}
 
-        .auth-overlay {
-            position: fixed; inset: 0;
-            background: rgba(0,0,0,0.7);
-            z-index: 9998;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(4px);
-        }
-        .auth-overlay.open { display: flex; }
-        .auth-box {
-            background: var(--bg2);
-            border: 1px solid var(--border2);
-            border-radius: var(--radius);
-            padding: 24px;
-            text-align: center;
-            width: 310px;
-            max-width: 92vw;
-            box-shadow: 0 8px 40px rgba(0,0,0,0.5);
-        }
-        .auth-box h3 { margin-bottom: 16px; font-size: 15px; }
+/* Subtargeta per agrupament (si una publicació té diverses fotos) */
+.photo-group{margin-bottom:32px}
+.photo-group-head{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:12px;margin-bottom:14px;flex-wrap:wrap;
+}
+.photo-group-head .grp-caption{
+  font-family:var(--display);font-size:16px;font-weight:700;color:var(--text);
+}
+.photo-group-head .grp-meta{
+  font-size:12px;color:var(--muted);display:flex;gap:10px;align-items:center;
+}
+.photo-group-head .grp-del{
+  background:transparent;border:1px solid var(--line);color:var(--muted);
+  padding:6px 12px;border-radius:999px;font-size:11.5px;font-weight:600;
+  cursor:pointer;transition:.2s;display:inline-flex;align-items:center;gap:6px;
+}
+.photo-group-head .grp-del:hover{border-color:var(--danger);color:var(--danger)}
 
-        .footer { text-align: center; padding: 20px; color: var(--text3); font-size: 10px; margin-top: 20px; }
-    </style>
+.photo-group .photo-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+  gap:16px;
+}
+
+/* Estat buit */
+.empty{
+  grid-column:1/-1;text-align:center;padding:80px 20px;
+  color:var(--muted);font-size:14px;
+}
+.empty i{font-size:52px;opacity:.3;margin-bottom:16px;display:block}
+
+/* ===== LIGHTBOX ===== */
+.lightbox{
+  position:fixed;inset:0;z-index:9999;
+  background:rgba(0,0,0,.94);backdrop-filter:blur(8px);
+  display:none;align-items:center;justify-content:center;
+  flex-direction:column;padding:24px;
+}
+.lightbox.open{display:flex;animation:lbIn .25s ease}
+@keyframes lbIn{from{opacity:0}to{opacity:1}}
+.lightbox-img-wrap{
+  max-width:92vw;max-height:78vh;
+  border-radius:8px;overflow:hidden;
+  box-shadow:0 40px 100px rgba(0,0,0,.7);
+  background:var(--bg);
+  padding:8px;
+}
+.lightbox img{max-width:100%;max-height:78vh;display:block;border-radius:4px}
+.lightbox .lb-caption{
+  color:#f0f0f0;font-size:14px;margin-top:20px;
+  max-width:700px;text-align:center;line-height:1.6;
+}
+.lightbox .lb-meta{color:#a0a0a0;font-size:12px;margin-top:8px}
+.lightbox-close{
+  position:absolute;top:20px;right:20px;
+  width:44px;height:44px;border-radius:50%;
+  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);
+  color:#fff;font-size:18px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:.2s;backdrop-filter:blur(8px);
+}
+.lightbox-close:hover{background:rgba(255,255,255,.2);transform:rotate(90deg)}
+.lightbox-nav{
+  position:absolute;top:50%;transform:translateY(-50%);
+  width:48px;height:48px;border-radius:50%;
+  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);
+  color:#fff;font-size:18px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:.2s;backdrop-filter:blur(8px);
+}
+.lightbox-nav:hover{background:rgba(255,255,255,.2)}
+.lightbox-nav.prev{left:20px}
+.lightbox-nav.next{right:20px}
+
+/* ===== FOOTER ===== */
+footer{padding:48px 0 28px;border-top:1px solid var(--line);background:var(--bg)}
+.foot-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:28px;margin-bottom:32px;max-width:1280px;margin-left:auto;margin-right:auto;padding:0 24px}
+.foot-grid h4{font-size:14px;margin-bottom:12px;color:var(--text);font-weight:600}
+.foot-grid a{display:block;color:var(--muted);font-size:13.5px;margin-bottom:8px;transition:.2s}
+.foot-grid a:hover{color:var(--text)}
+.foot-bottom{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:20px 24px 0;border-top:1px solid var(--line);color:var(--muted);font-size:12.5px;max-width:1280px;margin:0 auto}
+
+/* ===== AUTH OVERLAY ===== */
+.auth-overlay{
+  position:fixed;inset:0;z-index:9998;
+  background:rgba(0,0,0,.75);backdrop-filter:blur(8px);
+  display:none;align-items:center;justify-content:center;padding:24px;
+}
+.auth-overlay.open{display:flex;animation:lbIn .25s ease}
+.auth-box{
+  background:var(--card);border:1px solid var(--line);border-radius:16px;
+  padding:32px 28px;text-align:center;max-width:360px;width:100%;
+  box-shadow:0 24px 80px rgba(0,0,0,.5);
+}
+.auth-box h3{font-family:var(--display);font-size:20px;font-weight:700;margin-bottom:6px}
+.auth-box p{color:var(--muted);font-size:13.5px;margin-bottom:20px}
+.auth-box .btn{width:100%;padding:13px 20px}
+
+@media(max-width:700px){
+  .nav-links{display:none}
+  .nav-actions{margin-left:auto}
+  .capcalera{padding:40px 20px 20px}
+  .gallery-grid{grid-template-columns:1fr;gap:18px}
+  .photo-group .photo-grid{grid-template-columns:1fr;gap:14px}
+  .photo-card:hover{transform:none}
+  .cal-grid .day{font-size:12px}
+  .foot-grid{grid-template-columns:1fr 1fr;gap:20px}
+  .lightbox-nav{width:40px;height:40px}
+  .lightbox-nav.prev{left:10px}
+  .lightbox-nav.next{right:10px}
+  .lightbox-close{top:14px;right:14px;width:38px;height:38px}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}html{scroll-behavior:auto}}
+</style>
 </head>
 <body>
 
-<div class="container">
-    <div class="header">
-        <div class="logo">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent2)" stroke-width="2">
-                <rect x="3" y="3" width="18" height="18" rx="3"/>
-                <circle cx="8.5" cy="8.5" r="1.5" fill="var(--accent2)" stroke="none"/>
-                <circle cx="15.5" cy="8.5" r="1.5" fill="var(--accent2)" stroke="none"/>
-                <path d="M8 14c1.5 2 4 3 6 3s4.5-1 6-3"/>
-            </svg>
-            <div class="title">Galeria <span>de fotos</span></div>
-        </div>
-        <div style="display:flex;gap:8px;align-items:center;">
-            <a href="index.html" class="btn btn-home">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-                Inici
-            </a>
-            <button class="btn btn-accent" id="btn-login" onclick="openAuth()">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
-                Entrar
-            </button>
-            <div class="user-pill" id="user-pill">
-                <div class="avatar" id="user-avatar">?</div>
-                <span id="user-name">Usuari</span>
-                <button class="btn-outline" onclick="logoutUser()">Sortir</button>
-            </div>
-        </div>
+<!-- ═══════════════ NAV ═══════════════ -->
+<header class="nav">
+  <div class="wrap">
+    <a href="index.html" class="logo">TEMPESTES<b>.CAT</b></a>
+    <nav class="nav-links">
+      <a href="index.html">Inici</a>
+      <a href="arome-cat.html">Visor AROME</a>
+      <a href="https://radar.tempestes.cat/" target="_blank" rel="noopener">Radar</a>
+      <a href="episodis_catalunya.html">Episodis</a>
+      <a href="galeria.html" class="on">Galeria</a>
+    </nav>
+    <div class="nav-actions">
+      <button class="icon-btn" id="themeBtn" aria-label="Canviar tema"><i class="fa-solid fa-sun"></i></button>
+      <button class="btn btn-ghost" id="btnGoogleLogin" onclick="openAuth()"><i class="fa-brands fa-google"></i> Iniciar sessió</button>
+      <div id="userPill" onclick="openProfile()"><div id="userAvatar">U</div><span id="userDisplayName">Usuari</span></div>
+      <a href="index.html" class="btn btn-primary">Inici</a>
     </div>
+  </div>
+</header>
 
-    <div class="cal-toggle" id="cal-toggle" onclick="toggleCalendar()">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent2)" stroke-width="2">
-            <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
-        </svg>
-        <span id="cal-label">Totes les fotos</span>
-        <span class="badge-count" id="cal-badge" style="display:none;"></span>
-        <svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+<!-- ═══════════════ CAPÇALERA ═══════════════ -->
+<header class="capcalera">
+  <span class="eyebrow">Arxiu visual</span>
+  <h1>Galeria <span>de fotos</span></h1>
+  <p>Els millors moments capturats pels nostres col·laboradors: tempestes severes, llamps, calamarsa i estructures espectaculars per tot Catalunya.</p>
+</header>
+
+<!-- ═══════════════ BARRA DE CÀRREGA ═══════════════ -->
+<div class="loading-bar" id="loadingBar">
+  <div class="loading-inner">
+    <div class="loading-top">
+      <span class="lbl"><i class="fa-solid fa-spinner"></i> Carregant fotografies…</span>
+      <span id="loadingPct">0%</span>
     </div>
-
-    <div class="calendar-wrap" id="calendar-wrap">
-        <div class="cal-nav">
-            <button id="cal-prev" onclick="changeMonth(-1)" aria-label="Mes anterior">&#9664;</button>
-            <span class="month-label" id="cal-title"></span>
-            <button id="cal-next" onclick="changeMonth(1)" aria-label="Mes següent">&#9654;</button>
-        </div>
-        <div class="cal-grid" id="cal-grid"></div>
-        <div class="cal-hint">Només es mostren els dies amb fotos publicades</div>
-    </div>
-
-    <!-- Formulari de pujada: nomes visible si l'usuari te la UID autoritzada -->
-    <div class="form" id="form">
-        <div class="form-label">Nova foto</div>
-        <textarea id="obs-text" placeholder="Descripció de la foto (opcional)" maxlength="300"></textarea>
-        <div class="form-row">
-            <div class="img-upload" id="img-up-1" onclick="document.getElementById('img-in-1').click()">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-            </div>
-            <div class="img-upload" id="img-up-2" onclick="document.getElementById('img-in-2').click()">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-            </div>
-            <div class="img-upload" id="img-up-3" onclick="document.getElementById('img-in-3').click()">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-            </div>
-            <input type="file" id="img-in-1" accept="image/*" style="display:none" onchange="handleImg(1)">
-            <input type="file" id="img-in-2" accept="image/*" style="display:none" onchange="handleImg(2)">
-            <input type="file" id="img-in-3" accept="image/*" style="display:none" onchange="handleImg(3)">
-            <button class="btn btn-accent" id="btn-publish" onclick="publishPhoto()" style="margin-left:auto;">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-                Publicar
-            </button>
-        </div>
-        <div class="form-hint" style="font-size:10px;color:var(--text3);margin-top:8px;">Màxim 3 fotos per publicació</div>
-    </div>
-
-    <div class="not-authorized" id="not-authorized" style="display:none;">
-        Només l'administrador pot publicar noves fotos a la galeria.
-    </div>
-
-    <div class="gallery-grid" id="gallery-grid">
-        <div class="empty">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
-            </svg>
-            <p>Carregant galeria...</p>
-        </div>
-    </div>
-
-    <div class="footer">Tempestes.cat · Galeria de Fotos</div>
+    <div class="loading-track"><div class="loading-fill" id="loadingFill"></div></div>
+  </div>
 </div>
 
-<div class="img-modal" id="img-modal" onclick="closeImgModal()">
-    <img id="img-modal-img" src="" alt="">
-    <div class="modal-caption" id="img-modal-caption"></div>
+<!-- ═══════════════ FILTRE PER DATA ═══════════════ -->
+<div class="cal-toggle">
+  <button type="button" class="cal-toggle-btn" id="calToggleBtn" onclick="toggleCalendar()">
+    <i class="fa-regular fa-calendar cal-ico"></i>
+    <span class="cal-lbl" id="calLabel">Totes les fotos</span>
+    <span class="cal-badge" id="calBadge" style="display:none;">0 fotos</span>
+    <i class="fa-solid fa-chevron-down arrow"></i>
+  </button>
 </div>
 
-<div class="auth-overlay" id="auth-overlay" onclick="closeAuth(event)">
-    <div class="auth-box" onclick="event.stopPropagation()">
-        <h3>Inicia sessió</h3>
-        <button class="btn btn-accent" onclick="loginGoogle()" style="width:100%;justify-content:center;padding:10px;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-            Continuar amb Google
-        </button>
+<div class="cal-wrap" id="calWrap">
+  <div class="cal-box">
+    <div class="cal-nav">
+      <button id="calPrev" onclick="changeMonth(-1)" aria-label="Mes anterior"><i class="fa-solid fa-chevron-left"></i></button>
+      <span class="month-title" id="calTitle">—</span>
+      <button id="calNext" onclick="changeMonth(1)" aria-label="Mes següent"><i class="fa-solid fa-chevron-right"></i></button>
     </div>
+    <div class="cal-grid" id="calGrid"></div>
+  </div>
 </div>
+
+<!-- ═══════════════ FORMULARI ADMIN ═══════════════ -->
+<div class="form-admin" id="formAdmin">
+  <div class="form-box">
+    <h3><i class="fa-solid fa-cloud-arrow-up"></i> Publicar noves fotos</h3>
+    <textarea id="obsText" placeholder="Descripció de les fotos (opcional)" maxlength="300"></textarea>
+    <div class="img-row">
+      <div class="img-slot" id="imgSlot1" onclick="document.getElementById('imgIn1').click()"><i class="fa-regular fa-image"></i></div>
+      <div class="img-slot" id="imgSlot2" onclick="document.getElementById('imgIn2').click()"><i class="fa-regular fa-image"></i></div>
+      <div class="img-slot" id="imgSlot3" onclick="document.getElementById('imgIn3').click()"><i class="fa-regular fa-image"></i></div>
+      <input type="file" id="imgIn1" accept="image/*" hidden onchange="handleImg(1)">
+      <input type="file" id="imgIn2" accept="image/*" hidden onchange="handleImg(2)">
+      <input type="file" id="imgIn3" accept="image/*" hidden onchange="handleImg(3)">
+    </div>
+    <p class="form-hint">Fins a 3 fotos per publicació · Màxim 5 MB per imatge</p>
+    <div class="form-actions">
+      <button class="btn btn-primary" id="btnPublish" onclick="publishPhoto()">
+        <i class="fa-solid fa-paper-plane"></i> Publicar
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="not-authorized" id="notAuth">
+  <div class="not-auth-box">
+    <i class="fa-solid fa-lock"></i>
+    Només l'administrador pot publicar noves fotografies a la galeria.
+  </div>
+</div>
+
+<!-- ═══════════════ GALERIA ═══════════════ -->
+<section class="gallery-section">
+  <div class="gallery-head">
+    <h2>Fotografies</h2>
+    <span class="count" id="galleryCount">—</span>
+  </div>
+  <div class="gallery-grid" id="galleryGrid">
+    <div class="empty">
+      <i class="fa-solid fa-images"></i>
+      <p>Carregant…</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ FOOTER ═══════════════ -->
+<footer>
+  <div class="foot-grid">
+    <div><h4>TEMPESTES.CAT</h4><a href="index.html#workspace">Funcions</a><a href="index.html#plans">Plans</a><a href="index.html#equip">Equip</a><a href="index.html#contacte">Contacte</a></div>
+    <div><h4>Eines</h4><a href="arome-cat.html">Visor AROME</a><a href="https://radar.tempestes.cat/">Radar en viu</a><a href="episodis_catalunya.html">Fòrum d'episodis</a></div>
+    <div><h4>Segueix-nos</h4><a href="https://x.com/tempestes_cat" target="_blank" rel="noopener">X</a><a href="https://www.instagram.com/tempestes.cat/" target="_blank" rel="noopener">Instagram</a><a href="mailto:tempestescat@gmail.com">Gmail</a></div>
+    <div>
+      <h4>Legal</h4>
+      <a href="privacitat/privacitat.html">Privacitat</a>
+      <a href="privacitat/termes.html">Termes i condicions</a>
+      <a href="privacitat/negoci.html">Avís de negoci</a>
+      <a href="privacitat/preus.html">Preus i facturació</a>
+    </div>
+  </div>
+  <div class="foot-bottom">
+    <span>Dades de Meteo-France, NOAA i ECMWF. Mapes elaborats per TEMPESTES.CAT.</span>
+    <span>© <span id="yr"></span> TEMPESTES.CAT</span>
+  </div>
+</footer>
+
+<!-- ═══════════════ LIGHTBOX ═══════════════ -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+  <button class="lightbox-close" onclick="closeLightbox()" aria-label="Tancar"><i class="fa-solid fa-xmark"></i></button>
+  <button class="lightbox-nav prev" id="lbPrev" onclick="event.stopPropagation();navLightbox(-1)" aria-label="Anterior"><i class="fa-solid fa-chevron-left"></i></button>
+  <button class="lightbox-nav next" id="lbNext" onclick="event.stopPropagation();navLightbox(1)" aria-label="Següent"><i class="fa-solid fa-chevron-right"></i></button>
+  <div class="lightbox-img-wrap" onclick="event.stopPropagation()">
+    <img id="lbImg" src="" alt="">
+  </div>
+  <div class="lb-caption" id="lbCaption"></div>
+  <div class="lb-meta" id="lbMeta"></div>
+</div>
+
+<!-- ═══════════════ AUTH OVERLAY ═══════════════ -->
+<div class="auth-overlay" id="authOverlay" onclick="closeAuth(event)">
+  <div class="auth-box" onclick="event.stopPropagation()">
+    <h3>Inicia sessió</h3>
+    <p>Per publicar o eliminar fotos necessites iniciar sessió amb Google.</p>
+    <button class="btn btn-primary" onclick="loginGoogle()">
+      <i class="fa-brands fa-google"></i> Continuar amb Google
+    </button>
+  </div>
+</div>
+
+<script>
+/* ===== TEMA ===== */
+(function(){
+  const root = document.documentElement, btn = document.getElementById('themeBtn');
+  const apply = t => {
+    root.dataset.theme = t;
+    btn.innerHTML = t === 'dark' ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+  };
+  apply('dark');
+  btn.onclick = () => apply(root.dataset.theme === 'dark' ? 'light' : 'dark');
+  document.getElementById('yr').textContent = new Date().getFullYear();
+})();
+</script>
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
@@ -580,17 +561,19 @@ import { getDatabase, ref, push, get, remove } from 'https://www.gstatic.com/fir
 import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 
 const fc = {
-    apiKey: "AIzaSyBGcGUk2gsoDaHkg9Yv-nqMJ5_x-QPTMS8",
-    authDomain: "tempestescat.firebaseapp.com",
-    databaseURL: "https://tempestescat-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "tempestescat",
-    storageBucket: "tempestescat.firebasestorage.app",
-    messagingSenderId: "683240351775",
-    appId: "1:683240351775:web:bc65d73249537b9cc28d2a"
+  apiKey: "AIzaSyBGcGUk2gsoDaHkg9Yv-nqMJ5_x-QPTMS8",
+  authDomain: "tempestescat.firebaseapp.com",
+  databaseURL: "https://tempestescat-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "tempestescat",
+  storageBucket: "tempestescat.firebasestorage.app",
+  messagingSenderId: "683240351775",
+  appId: "1:683240351775:web:bc65d73249537b9cc28d2a"
 };
 
-// Unica UID autoritzada a publicar fotos
-const ADMIN_UID = "86Ljz4YlGag8w6BxJpziaxD3cX92";
+const ADMIN_EMAILS = [
+  'tempestescat@gmail.com',
+
+];
 
 const app = initializeApp(fc);
 const db = getDatabase(app);
@@ -598,312 +581,420 @@ const auth = getAuth(app);
 
 let user = null;
 let imgs = { 1: null, 2: null, 3: null };
-
-// dataKeys: totes les dates (YYYY-MM-DD) que tenen fotos, amb comptador
 let dayCounts = {};
-// monthsWithData: set de "YYYY-M" que tenen almenys una foto
 let monthsWithData = new Set();
-// llista ordenada de mesos amb dades (per navegar nomes entre ells)
 let sortedMonths = [];
-let curMonthIdx = -1; // index dins sortedMonths
-let selDateKey = null; // null = totes les fotos
+let curMonthIdx = -1;
+let selDateKey = null;
 let calOpen = false;
 let allPhotos = [];
+let visiblePhotos = [];
+let lbIndex = 0;
 
-function dk(d) { return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
-function mk(y,m) { return y+'-'+m; }
-function fd(d) { const mm=['Gener','Febrer','Març','Abril','Maig','Juny','Juliol','Agost','Setembre','Octubre','Novembre','Desembre']; return d.getDate()+' de '+mm[d.getMonth()]+' '+d.getFullYear(); }
-function esc(t) { return (t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function ago(ts) { if(!ts)return''; const m=Math.floor((Date.now()-ts)/60000); if(m<1)return'Ara'; if(m<60)return'Fa '+m+' min'; const h=Math.floor(m/60); if(h<24)return'Fa '+h+' h'; return'Fa '+Math.floor(h/24)+' d'; }
+/* Helpers */
+const $ = s => document.querySelector(s);
+const esc = t => (t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const dk = d => d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const fd = d => { const m=['Gener','Febrer','Març','Abril','Maig','Juny','Juliol','Agost','Setembre','Octubre','Novembre','Desembre']; return d.getDate()+' '+m[d.getMonth()]+' '+d.getFullYear(); };
+const ago = ts => { if(!ts)return''; const s=Math.floor((Date.now()-ts)/1000); if(s<60)return'Ara'; const m=Math.floor(s/60); if(m<60)return'Fa '+m+' min'; const h=Math.floor(m/60); if(h<24)return'Fa '+h+' h'; return'Fa '+Math.floor(h/24)+' d'; };
 
-// Auth
-window.openAuth = function() { document.getElementById('auth-overlay')?.classList.add('open'); };
-window.closeAuth = function(e) {
-    if(e && e.target !== e.currentTarget) return;
-    document.getElementById('auth-overlay')?.classList.remove('open');
+/* Comprova si l'usuari actual és admin (per correu) */
+function esAdminGaleria() {
+  if (!user || !user.email) return false;
+  const correu = user.email.toLowerCase();
+  return ADMIN_EMAILS.map(e => e.toLowerCase()).includes(correu);
+}
+
+/* ===== BARRA DE CÀRREGA ===== */
+let loadCurrent = 0;
+function showLoading() { $('#loadingBar').classList.add('on'); }
+function hideLoading() { setTimeout(() => $('#loadingBar').classList.remove('on'), 400); }
+function setProgress(pct) {
+  loadCurrent = Math.min(100, Math.max(loadCurrent, pct));
+  $('#loadingFill').style.width = loadCurrent + '%';
+  $('#loadingPct').textContent = Math.round(loadCurrent) + '%';
+}
+
+/* ===== AUTH ===== */
+window.openAuth = () => $('#authOverlay').classList.add('open');
+window.closeAuth = e => {
+  if (e && e.target !== e.currentTarget) return;
+  $('#authOverlay').classList.remove('open');
 };
-window.loginGoogle = async function() {
-    try {
-        await signInWithPopup(auth, new GoogleAuthProvider());
-        document.getElementById('auth-overlay')?.classList.remove('open');
-    } catch(e) { alert(e.message); }
+window.loginGoogle = async () => {
+  try {
+    await signInWithPopup(auth, new GoogleAuthProvider());
+    $('#authOverlay').classList.remove('open');
+  } catch (e) { alert(e.message); }
 };
-window.logoutUser = async function() {
-    if(confirm('Tancar sessió?')) {
-        await signOut(auth);
-        imgs = {1:null,2:null,3:null}; updateImgPreview();
-    }
+window.logoutUser = async () => {
+  if (confirm('Tancar sessió?')) {
+    await signOut(auth);
+    imgs = {1:null,2:null,3:null};
+    updateImgPreview();
+  }
+};
+window.openProfile = () => {
+  if (confirm('Vols tancar la sessió?')) window.logoutUser();
 };
 
-// Imatges (fins a 3)
-window.handleImg = function(n) {
-    const input = document.getElementById('img-in-'+n);
-    const f = input.files[0];
-    if(!f) return;
-    if(f.size > 5*1024*1024) { alert('Màxim 5MB'); return; }
-    const r = new FileReader();
-    r.onload = e => { imgs[n] = e.target.result; updateImgPreview(); };
-    r.readAsDataURL(f);
+/* ===== IMATGES FORMULARI ===== */
+window.handleImg = n => {
+  const input = document.getElementById('imgIn'+n);
+  const f = input.files[0];
+  if (!f) return;
+  if (f.size > 5*1024*1024) { alert('Màxim 5 MB'); return; }
+  const r = new FileReader();
+  r.onload = e => { imgs[n] = e.target.result; updateImgPreview(); };
+  r.readAsDataURL(f);
 };
 function updateImgPreview() {
-    const svg = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
-    [1,2,3].forEach(n => {
-        const up = document.getElementById('img-up-'+n);
-        if(!up) return;
-        if(imgs[n]) { up.innerHTML = '<img src="'+imgs[n]+'">'; up.classList.add('has-img'); }
-        else { up.innerHTML = svg; up.classList.remove('has-img'); }
-    });
+  [1,2,3].forEach(n => {
+    const slot = document.getElementById('imgSlot'+n);
+    if (!slot) return;
+    if (imgs[n]) { slot.innerHTML = '<img src="'+imgs[n]+'">'; slot.classList.add('has-img'); }
+    else { slot.innerHTML = '<i class="fa-regular fa-image"></i>'; slot.classList.remove('has-img'); }
+  });
 }
-
-window.publishPhoto = async function() {
-    if(!user || user.uid !== ADMIN_UID) { alert('No autoritzat'); return; }
-    const images = [imgs[1], imgs[2], imgs[3]].filter(Boolean);
-    if(images.length === 0) { alert('Selecciona almenys una imatge'); return; }
-    if(images.length > 3) { alert('Màxim 3 fotos per publicació'); return; }
-    const caption = document.getElementById('obs-text')?.value?.trim() || '';
-    const now = new Date();
-    const photo = {
-        uid: user.uid,
-        nick: user.displayName || 'Admin',
-        caption: caption,
-        images: images,
-        dateKey: dk(now),
-        timestamp: Date.now()
-    };
-    try {
-        await push(ref(db, 'gallery'), photo);
-        document.getElementById('obs-text').value = '';
-        imgs = {1:null,2:null,3:null}; updateImgPreview();
-        await loadAll();
-        selDateKey = null;
-        renderCalToggleLabel();
-        renderGallery();
-    } catch(e) { alert('Error: '+e.message); }
-};
-
-window.delPhoto = async function(key, uidOwner) {
-    if(!user || user.uid !== uidOwner) { alert('No pots eliminar això'); return; }
-    if(!confirm('Eliminar aquesta foto?')) return;
-    try {
-        await remove(ref(db, 'gallery/'+key));
-        await loadAll();
-        renderGallery();
-        if(calOpen) renderCal();
-    } catch(e) { alert('Error: '+e.message); }
-};
-
-// Calendari — nomes navega entre mesos amb dades
-window.toggleCalendar = function() {
-    if(sortedMonths.length === 0) return; // sense dades, no obrim
-    calOpen = !calOpen;
-    document.getElementById('calendar-wrap')?.classList.toggle('open', calOpen);
-    document.getElementById('cal-toggle')?.classList.toggle('open', calOpen);
-    if(calOpen) {
-        if(curMonthIdx === -1) curMonthIdx = sortedMonths.length - 1; // mes mes recent amb dades
-        renderCal();
-    }
-};
-
-window.changeMonth = function(d) {
-    const next = curMonthIdx + d;
-    if(next < 0 || next >= sortedMonths.length) return; // no hi ha dades, no es mou
-    curMonthIdx = next;
-    renderCal();
-};
-
-window.selectDay = function(dateKey) {
-    selDateKey = dateKey;
-    const [y,m,day] = dateKey.split('-').map(Number);
-    document.getElementById('cal-label').textContent = fd(new Date(y, m-1, day));
-    document.getElementById('cal-badge').style.display = 'none';
-    document.getElementById('calendar-wrap')?.classList.remove('open');
-    document.getElementById('cal-toggle')?.classList.remove('open');
-    calOpen = false;
-    renderGallery();
-};
-
-window.selectAll = function() {
-    selDateKey = null;
-    renderCalToggleLabel();
-    document.getElementById('calendar-wrap')?.classList.remove('open');
-    document.getElementById('cal-toggle')?.classList.remove('open');
-    calOpen = false;
-    renderGallery();
-};
-
-function renderCalToggleLabel() {
-    const label = document.getElementById('cal-label');
-    const badge = document.getElementById('cal-badge');
-    if(!label) return;
-    if(selDateKey) {
-        const [y,m,day] = selDateKey.split('-').map(Number);
-        label.textContent = fd(new Date(y, m-1, day));
-    } else {
-        label.textContent = 'Totes les fotos';
-    }
-    if(badge) {
-        if(allPhotos.length) { badge.style.display='inline-block'; badge.textContent = allPhotos.length + ' fotos'; }
-        else badge.style.display = 'none';
-    }
-}
-
-function renderCal() {
-    const grid = document.getElementById('cal-grid');
-    const title = document.getElementById('cal-title');
-    const prevBtn = document.getElementById('cal-prev');
-    const nextBtn = document.getElementById('cal-next');
-    if(!grid || !title) return;
-
-    if(sortedMonths.length === 0) { grid.innerHTML = ''; title.textContent = ''; return; }
-
-    const [year, month] = sortedMonths[curMonthIdx].split('-').map(Number);
-    const mNames = ['Gener','Febrer','Març','Abril','Maig','Juny','Juliol','Agost','Setembre','Octubre','Novembre','Desembre'];
-    title.textContent = mNames[month] + ' ' + year;
-
-    prevBtn.disabled = curMonthIdx <= 0;
-    nextBtn.disabled = curMonthIdx >= sortedMonths.length - 1;
-
-    const ds = ['Dg','Dl','Dt','Dc','Dj','Dv','Ds'];
-    let h = '';
-    ds.forEach(d => h += '<div class="day-hdr">'+d+'</div>');
-
-    const firstDow = new Date(year, month, 1).getDay();
-    const daysInMonth = new Date(year, month+1, 0).getDate();
-    const today = dk(new Date());
-
-    for(let i=0;i<firstDow;i++) h += '<div class="day other"></div>';
-
-    for(let d=1; d<=daysInMonth; d++) {
-        const key = year+'-'+String(month+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
-        const count = dayCounts[key] || 0;
-        let cls = 'day';
-        if(key === today) cls += ' today';
-        if(count > 0) cls += ' has-obs';
-        if(key === selDateKey) cls += ' selected';
-        const onclick = count > 0 ? ' onclick="selectDay(\''+key+'\')"' : '';
-        h += '<div class="'+cls+'"'+onclick+'>'+d+(count?'<span class="day-count">'+count+'</span>':'')+'</div>';
-    }
-    grid.innerHTML = h;
-}
-
-// Renderitzat de la galeria (grid de fotos)
-function renderGallery() {
-    const grid = document.getElementById('gallery-grid');
-    if(!grid) return;
-    let photos = selDateKey ? allPhotos.filter(p => p.dateKey === selDateKey) : allPhotos;
-    photos = photos.slice().sort((a,b) => (b.timestamp||0)-(a.timestamp||0));
-
-    if(photos.length === 0) {
-        grid.innerHTML = '<div class="empty" style="grid-column:1/-1;">'+
-            '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" opacity="0.4"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>'+
-            '<p>Encara no hi ha fotos publicades'+(selDateKey?' aquest dia':'')+'</p></div>';
-        return;
-    }
-
-    grid.innerHTML = '';
-    photos.forEach(p => {
-        const isOwn = user && user.uid === p.uid;
-        const imgList = p.images && p.images.length ? p.images : (p.image ? [p.image] : []);
-        const card = document.createElement('div');
-        card.className = 'photo-card';
-        let imgsHtml = '';
-        if(imgList.length === 1) {
-            imgsHtml = '<div class="ph-img-wrap"><img src="'+esc(imgList[0])+'" loading="lazy" onclick="openImg(\''+p.key+'\',0)"></div>';
-        } else {
-            imgsHtml = '<div class="ph-img-wrap ph-multi">';
-            imgList.forEach((im,i) => imgsHtml += '<img src="'+esc(im)+'" loading="lazy" onclick="event.stopPropagation();openImg(\''+p.key+'\','+i+')">');
-            imgsHtml += '</div>';
-        }
-        card.innerHTML =
-            imgsHtml +
-            (p.caption ? '<div class="ph-caption">'+esc(p.caption)+'</div>' : '')+
-            '<div class="ph-meta">'+ago(p.timestamp)+(imgList.length>1?' · '+imgList.length+' fotos':'')+'</div>'+
-            (isOwn ? '<button class="ph-del" title="Eliminar" onclick="event.stopPropagation();delPhoto(\''+p.key+'\',\''+p.uid+'\')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button>' : '');
-        grid.appendChild(card);
-    });
-}
-
-window.openImg = function(key, idx) {
-    const p = allPhotos.find(x => x.key === key);
-    if(!p) return;
-    const imgList = p.images && p.images.length ? p.images : (p.image ? [p.image] : []);
-    const src = imgList[idx || 0] || imgList[0];
-    document.getElementById('img-modal-img').src = src;
-    document.getElementById('img-modal-caption').textContent = p.caption || '';
-    document.getElementById('img-modal').classList.add('open');
-};
-window.closeImgModal = function() { document.getElementById('img-modal')?.classList.remove('open'); };
-
-async function loadAll() {
-    try {
-        const snap = await get(ref(db, 'gallery'));
-        allPhotos = [];
-        dayCounts = {};
-        monthsWithData = new Set();
-        if(snap.exists()) {
-            Object.entries(snap.val()).forEach(([key, v]) => {
-                allPhotos.push({ key, ...v });
-                if(v.dateKey) {
-                    dayCounts[v.dateKey] = (dayCounts[v.dateKey]||0) + 1;
-                    const [y,m] = v.dateKey.split('-');
-                    monthsWithData.add(y+'-'+(parseInt(m,10)-1));
-                }
-            });
-        }
-        sortedMonths = Array.from(monthsWithData).sort((a,b) => {
-            const [ya,ma] = a.split('-').map(Number);
-            const [yb,mb] = b.split('-').map(Number);
-            return (ya*12+ma) - (yb*12+mb);
-        });
-        curMonthIdx = sortedMonths.length ? sortedMonths.length - 1 : -1;
-        renderCalToggleLabel();
-    } catch(e) { console.error(e); }
-}
-
-function updateUploadUI() {
-    const form = document.getElementById('form');
-    const notAuth = document.getElementById('not-authorized');
-    if(!form || !notAuth) return;
-    if(user && user.uid === ADMIN_UID) {
-        form.classList.add('open');
-        notAuth.style.display = 'none';
-    } else {
-        form.classList.remove('open');
-        notAuth.style.display = user ? 'block' : 'none';
-    }
-}
-
-onAuthStateChanged(auth, async (u) => {
-    user = u;
-    const lb = document.getElementById('btn-login');
-    const up = document.getElementById('user-pill');
-    const av = document.getElementById('user-avatar');
-    const nm = document.getElementById('user-name');
-    if(u) {
-        if(lb) lb.style.display = 'none';
-        if(up) up.style.display = 'flex';
-        if(nm) nm.textContent = u.displayName || u.email?.split('@')[0] || 'Usuari';
-        if(av) av.textContent = (u.displayName||'U')[0].toUpperCase();
-    } else {
-        if(lb) lb.style.display = 'inline-flex';
-        if(up) up.style.display = 'none';
-        img1 = null; updateImgPreview();
-    }
-    updateUploadUI();
-    renderGallery();
-});
-
-document.addEventListener('keydown', e => {
-    if(e.key === 'Escape') {
-        closeImgModal();
-        document.getElementById('auth-overlay')?.classList.remove('open');
-    }
-});
-
-(async () => {
+window.publishPhoto = async () => {
+  if (!esAdminGaleria()) { alert('No autoritzat'); return; }
+  const images = [imgs[1], imgs[2], imgs[3]].filter(Boolean);
+  if (!images.length) { alert('Selecciona almenys una imatge'); return; }
+  const caption = ($('#obsText')?.value || '').trim();
+  const now = new Date();
+  const photo = {
+    uid: user.uid,
+    nick: user.displayName || 'Admin',
+    caption,
+    images,
+    dateKey: dk(now),
+    timestamp: Date.now()
+  };
+  try {
+    const btn = $('#btnPublish');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Publicant…';
+    await push(ref(db, 'gallery'), photo);
+    $('#obsText').value = '';
+    imgs = {1:null,2:null,3:null};
+    updateImgPreview();
     await loadAll();
-    updateUploadUI();
     renderGallery();
+  } catch (e) {
+    alert('Error: ' + e.message);
+  } finally {
+    const btn = $('#btnPublish');
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Publicar'; }
+  }
+};
+window.delPhoto = async (key, uidOwner) => {
+  if (!user || (user.uid !== uidOwner && !esAdminGaleria())) {
+    alert('No pots eliminar això');
+    return;
+  }
+  if (!confirm('Eliminar aquesta foto?')) return;
+  try {
+    await remove(ref(db, 'gallery/'+key));
+    await loadAll();
+    renderGallery();
+    if (calOpen) renderCal();
+  } catch (e) { alert('Error: ' + e.message); }
+};
+
+/* ===== CALENDARI ===== */
+window.toggleCalendar = () => {
+  if (!sortedMonths.length) return;
+  calOpen = !calOpen;
+  $('#calWrap').classList.toggle('open', calOpen);
+  $('#calToggleBtn').classList.toggle('open', calOpen);
+  if (calOpen) {
+    if (curMonthIdx === -1) curMonthIdx = sortedMonths.length - 1;
+    renderCal();
+  }
+};
+window.changeMonth = d => {
+  const next = curMonthIdx + d;
+  if (next < 0 || next >= sortedMonths.length) return;
+  curMonthIdx = next;
+  renderCal();
+};
+window.selectDay = key => {
+  selDateKey = key;
+  const [y,m,day] = key.split('-').map(Number);
+  $('#calLabel').textContent = fd(new Date(y, m-1, day));
+  $('#calBadge').style.display = 'none';
+  $('#calWrap').classList.remove('open');
+  $('#calToggleBtn').classList.remove('open');
+  calOpen = false;
+  renderGallery();
+};
+window.selectAll = () => {
+  selDateKey = null;
+  renderCalToggleLabel();
+  renderGallery();
+};
+function renderCalToggleLabel() {
+  const label = $('#calLabel'), badge = $('#calBadge');
+  if (!label) return;
+  if (selDateKey) {
+    const [y,m,day] = selDateKey.split('-').map(Number);
+    label.textContent = fd(new Date(y, m-1, day));
+    badge.style.display = 'none';
+  } else {
+    label.textContent = 'Totes les fotos';
+    if (allPhotos.length) { badge.style.display = 'inline-block'; badge.textContent = allPhotos.length + ' fotos'; }
+    else badge.style.display = 'none';
+  }
+}
+function renderCal() {
+  const grid = $('#calGrid'), title = $('#calTitle');
+  if (!grid || !title) return;
+  if (!sortedMonths.length) { grid.innerHTML = ''; title.textContent = ''; return; }
+  const [y, m] = sortedMonths[curMonthIdx].split('-').map(Number);
+  const mNames = ['Gener','Febrer','Març','Abril','Maig','Juny','Juliol','Agost','Setembre','Octubre','Novembre','Desembre'];
+  title.textContent = mNames[m] + ' ' + y;
+  $('#calPrev').disabled = curMonthIdx <= 0;
+  $('#calNext').disabled = curMonthIdx >= sortedMonths.length - 1;
+  const ds = ['Dg','Dl','Dt','Dc','Dj','Dv','Ds'];
+  let h = '';
+  ds.forEach(d => h += '<div class="day-hdr">'+d+'</div>');
+  const firstDow = new Date(y, m, 1).getDay();
+  const daysInMonth = new Date(y, m+1, 0).getDate();
+  const today = dk(new Date());
+  for (let i=0;i<firstDow;i++) h += '<div class="day other"></div>';
+  for (let d=1; d<=daysInMonth; d++) {
+    const key = y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    const count = dayCounts[key] || 0;
+    let cls = 'day';
+    if (key === today) cls += ' today';
+    if (count > 0) cls += ' has-obs';
+    if (key === selDateKey) cls += ' selected';
+    const onclick = count > 0 ? ' onclick="selectDay(\''+key+'\')"' : '';
+    h += '<div class="'+cls+'"'+onclick+'>'+d+(count?'<span class="day-count">'+count+'</span>':'')+'</div>';
+  }
+  grid.innerHTML = h;
+}
+
+/* ===== GALERIA =====
+   Cada imatge es mostra com un "quadre" independent.
+   Si una publicació té diverses imatges, es mostren en un mateix grup
+   però CADA IMATGE té el seu propi marc (no dins d'un marc comú). */
+function renderGallery() {
+  const grid = $('#galleryGrid'), count = $('#galleryCount');
+  if (!grid) return;
+
+  let photos = selDateKey ? allPhotos.filter(p => p.dateKey === selDateKey) : allPhotos;
+  photos = photos.slice().sort((a,b) => (b.timestamp||0)-(a.timestamp||0));
+  visiblePhotos = photos;
+
+  const totalImgs = photos.reduce((sum, p) => sum + ((p.images && p.images.length) || (p.image ? 1 : 0)), 0);
+  count.textContent = totalImgs + (totalImgs === 1 ? ' fotografia' : ' fotografies');
+
+  if (!photos.length) {
+    grid.innerHTML = '<div class="empty">' +
+      '<i class="fa-solid fa-images"></i>' +
+      '<p>Encara no hi ha fotos publicades' + (selDateKey ? ' aquest dia' : '') + '</p></div>';
+    return;
+  }
+
+  grid.innerHTML = '';
+  let imgIndex = 0;
+
+  photos.forEach(p => {
+    const isOwn = user && user.uid === p.uid;
+    const imgList = p.images && p.images.length ? p.images : (p.image ? [p.image] : []);
+    if (!imgList.length) return;
+
+    // Si la publicació té una sola imatge → una targeta individual dins la graella
+    // Si en té diverses → un grup amb un contenidor intern (cada imatge amb el seu marc)
+    if (imgList.length === 1) {
+      const card = makePhotoCard(p, imgList[0], imgIndex, isOwn);
+      grid.appendChild(card);
+      imgIndex++;
+    } else {
+      const group = document.createElement('div');
+      group.className = 'photo-group';
+      group.style.gridColumn = '1 / -1';
+
+      const head = document.createElement('div');
+      head.className = 'photo-group-head';
+      head.innerHTML = `
+        <div class="grp-caption">${p.caption ? esc(p.caption) : 'Sense títol'}</div>
+        <div class="grp-meta">
+          <span><i class="fa-regular fa-clock"></i> ${ago(p.timestamp)}</span>
+          <span>· ${imgList.length} fotos</span>
+          ${isOwn ? `<button class="grp-del" onclick="event.stopPropagation();delPhoto('${p.key}','${p.uid}')"><i class="fa-solid fa-trash"></i> Eliminar</button>` : ''}
+        </div>
+      `;
+      group.appendChild(head);
+
+      const inner = document.createElement('div');
+      inner.className = 'photo-grid';
+      imgList.forEach(im => {
+        const card = makePhotoCard({ ...p, caption: '' }, im, imgIndex, false);
+        inner.appendChild(card);
+        imgIndex++;
+      });
+      group.appendChild(inner);
+      grid.appendChild(group);
+    }
+  });
+}
+
+/* Crea una targeta de foto (un "quadre" independent) */
+function makePhotoCard(p, imgSrc, idx, showDel) {
+  const card = document.createElement('article');
+  card.className = 'photo-card';
+  card.onclick = () => openLightbox(idx);
+  card.innerHTML =
+    (showDel ? `<button class="photo-del" title="Eliminar" onclick="event.stopPropagation();delPhoto('${p.key}','${p.uid}')"><i class="fa-solid fa-trash"></i></button>` : '') +
+    `<div class="photo-frame"><img src="${esc(imgSrc)}" loading="lazy" alt=""></div>` +
+    `<div class="photo-label">
+       <div class="lbl-left">
+         ${p.caption ? `<div class="lbl-caption">${esc(p.caption)}</div>` : `<div class="lbl-caption" style="color:var(--muted);font-weight:400;">—</div>`}
+         <div class="lbl-meta">
+           <span><i class="fa-regular fa-clock"></i> ${ago(p.timestamp)}</span>
+         </div>
+       </div>
+       <span class="num">#${String(idx+1).padStart(2,'0')}</span>
+     </div>`;
+  return card;
+}
+
+/* ===== LIGHTBOX ===== */
+window.openLightbox = idx => {
+  lbIndex = idx;
+  renderLightbox();
+  $('#lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+};
+window.closeLightbox = e => {
+  if (e && e.target !== e.currentTarget && !e.target.closest('.lightbox-close')) return;
+  $('#lightbox').classList.remove('open');
+  document.body.style.overflow = '';
+};
+window.navLightbox = d => {
+  const flat = flattenPhotos();
+  if (!flat.length) return;
+  lbIndex = (lbIndex + d + flat.length) % flat.length;
+  renderLightbox();
+};
+function flattenPhotos() {
+  const flat = [];
+  visiblePhotos.forEach(p => {
+    const imgs = p.images && p.images.length ? p.images : (p.image ? [p.image] : []);
+    imgs.forEach(src => flat.push({ photo: p, src }));
+  });
+  return flat;
+}
+function renderLightbox() {
+  const flat = flattenPhotos();
+  const item = flat[lbIndex];
+  if (!item) return;
+  $('#lbImg').src = item.src;
+  $('#lbCaption').textContent = item.photo.caption || '';
+  const data = item.photo.timestamp ? new Date(item.photo.timestamp).toLocaleDateString('ca-ES', { day:'numeric', month:'long', year:'numeric' }) : '';
+  $('#lbMeta').textContent = (data ? data + ' · ' : '') + 'Foto ' + (lbIndex+1) + ' de ' + flat.length;
+  const multiple = flat.length > 1;
+  $('#lbPrev').style.display = multiple ? '' : 'none';
+  $('#lbNext').style.display = multiple ? '' : 'none';
+}
+
+/* ===== CARREGAR TOT ===== */
+async function loadAll() {
+  showLoading();
+  setProgress(10);
+  try {
+    const snap = await get(ref(db, 'gallery'));
+    setProgress(60);
+    allPhotos = [];
+    dayCounts = {};
+    monthsWithData = new Set();
+    if (snap.exists()) {
+      const val = snap.val();
+      Object.entries(val).forEach(([key, v]) => {
+        allPhotos.push({ key, ...v });
+        if (v.dateKey) {
+          dayCounts[v.dateKey] = (dayCounts[v.dateKey] || 0) + 1;
+          const [y, m] = v.dateKey.split('-');
+          monthsWithData.add(y + '-' + (parseInt(m,10)-1));
+        }
+      });
+    }
+    sortedMonths = Array.from(monthsWithData).sort((a,b) => {
+      const [ya,ma] = a.split('-').map(Number);
+      const [yb,mb] = b.split('-').map(Number);
+      return (ya*12+ma) - (yb*12+mb);
+    });
+    curMonthIdx = sortedMonths.length ? sortedMonths.length - 1 : -1;
+    setProgress(100);
+    renderCalToggleLabel();
+    hideLoading();
+  } catch(e) {
+    console.error(e);
+    setProgress(100);
+    hideLoading();
+  }
+}
+
+/* ===== UI UPLOAD ===== */
+function updateUploadUI() {
+  const form = $('#formAdmin'), notAuth = $('#notAuth');
+  if (!form || !notAuth) return;
+  if (esAdminGaleria()) {
+    form.classList.add('open');
+    notAuth.style.display = 'none';
+  } else {
+    form.classList.remove('open');
+    notAuth.style.display = user ? 'block' : 'none';
+  }
+}
+
+/* ===== AUTH STATE ===== */
+onAuthStateChanged(auth, async u => {
+  user = u;
+  window._firebaseUser = u;
+
+  const lb = $('#btnGoogleLogin');
+  const up = $('#userPill');
+  const av = $('#userAvatar');
+  const nm = $('#userDisplayName');
+  if (u) {
+    if (lb) lb.style.display = 'none';
+    if (up) up.style.display = 'flex';
+    if (nm) nm.textContent = u.displayName || (u.email ? u.email.split('@')[0] : 'Usuari');
+    if (av) {
+      if (u.photoURL) av.innerHTML = '<img src="'+u.photoURL+'" alt="">';
+      else av.textContent = (u.displayName || 'U')[0].toUpperCase();
+    }
+    console.log('%c[Galeria] Usuari loguejat:', 'color:#22c55e;font-weight:bold', {
+      uid: u.uid, email: u.email, nom: u.displayName, esAdmin: esAdminGaleria()
+    });
+  } else {
+    if (lb) lb.style.display = 'inline-flex';
+    if (up) up.style.display = 'none';
+  }
+  updateUploadUI();
+  renderGallery();
+});
+
+/* ===== ESC ===== */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    closeLightbox();
+    $('#authOverlay')?.classList.remove('open');
+  }
+  if ($('#lightbox').classList.contains('open')) {
+    if (e.key === 'ArrowLeft') navLightbox(-1);
+    if (e.key === 'ArrowRight') navLightbox(1);
+  }
+});
+
+/* ===== INIT ===== */
+(async () => {
+  await loadAll();
+  updateUploadUI();
+  renderGallery();
 })();
 </script>
 
