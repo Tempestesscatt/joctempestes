@@ -3,7 +3,7 @@
  * Rep esdeveniments de Stripe i actualitza el camp pla a Firebase.
  */
 
-const FIREBASE_DB = 'https://tempestescat-default-rtdb.firebaseio.com';
+const FIREBASE_DB = 'https://tempestescat-default-rtdb.europe-west1.firebasedatabase.app';
 
 async function setPlaFirebase(uid, pla, env) {
     const url = `${FIREBASE_DB}/users/${encodeURIComponent(uid)}/pla.json?auth=${env.FIREBASE_SECRET}`;

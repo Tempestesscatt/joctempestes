@@ -184,6 +184,65 @@ footer{padding:48px 0 28px;border-top:1px solid var(--line);background:var(--bg)
 #cookieBanner.on{display:flex}
 #cookieBanner span{flex:1;min-width:200px;color:var(--muted)}
 
+/* ===== NOTIFICACIÓ DE COMPRA ===== */
+.purchase-toast{
+  position:fixed;top:50%;left:50%;
+  transform:translate(-50%,-50%) scale(.9);
+  z-index:99999;
+  background:var(--card);
+  border:2px solid var(--text);
+  border-radius:18px;
+  padding:36px 44px;
+  box-shadow:0 24px 80px rgba(0,0,0,.5);
+  text-align:center;
+  opacity:0;pointer-events:none;
+  transition:opacity .3s ease,transform .35s cubic-bezier(.4,0,.2,1);
+  max-width:400px;width:calc(100vw - 32px);
+}
+.purchase-toast.visible{
+  opacity:1;
+  transform:translate(-50%,-50%) scale(1);
+  pointer-events:auto;
+}
+.purchase-toast .pt-icon{
+  width:72px;height:72px;border-radius:50%;
+  background:#22c55e;color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-size:36px;margin:0 auto 18px;
+  animation:pt-pop .5s cubic-bezier(.4,0,.2,1);
+}
+@keyframes pt-pop{
+  0%{transform:scale(0)}
+  60%{transform:scale(1.15)}
+  100%{transform:scale(1)}
+}
+.purchase-toast h3{
+  font-family:var(--display);font-size:24px;font-weight:700;
+  margin:0 0 10px;color:var(--text);
+}
+.purchase-toast p{
+  font-size:14px;color:var(--muted);margin:0 0 6px;line-height:1.5;
+}
+.purchase-toast .pt-plan{
+  display:inline-block;margin-top:16px;
+  padding:8px 20px;
+  background:var(--accent-soft);
+  border:1px solid var(--line);
+  border-radius:24px;
+  font-size:14px;font-weight:700;color:var(--text);
+  text-transform:uppercase;letter-spacing:.8px;
+}
+.purchase-toast .pt-close{
+  margin-top:22px;
+  padding:12px 32px;
+  background:var(--text);color:var(--bg);
+  border:none;border-radius:26px;
+  font-family:inherit;font-size:14px;font-weight:700;
+  cursor:pointer;transition:opacity .2s;
+  letter-spacing:.3px;
+}
+.purchase-toast .pt-close:hover{opacity:.85}
+
 /* ===== RESPONSIVE ===== */
 @media(max-width:1000px){
   .hero .wrap{grid-template-columns:1fr;gap:40px}
@@ -200,6 +259,8 @@ footer{padding:48px 0 28px;border-top:1px solid var(--line);background:var(--bg)
   .hero h1{font-size:clamp(28px,7vw,40px)}
   .hero-actions{flex-direction:column}
   .hero-actions .btn{width:100%;justify-content:center}
+  .purchase-toast{padding:28px 24px}
+  .purchase-toast h3{font-size:20px}
 }
 @media(prefers-reduced-motion:reduce){*{transition:none!important}html{scroll-behavior:auto}}
 </style>
@@ -373,6 +434,20 @@ footer{padding:48px 0 28px;border-top:1px solid var(--line);background:var(--bg)
   <button class="btn btn-primary" onclick="setCookies('accepted')">Acceptar</button>
 </div>
 
+<!-- NOTIFICACIÓ DE COMPRA EXITOSA -->
+<div id="purchaseToast" class="purchase-toast" role="alert">
+  <div class="pt-icon">
+    <i class="fa-solid fa-check"></i>
+  </div>
+  <h3>Pla activat!</h3>
+  <p>La teva subscripció s'ha activat correctament.</p>
+  <p>Ara ja tens accés a totes les funcions del teu pla.</p>
+  <span class="pt-plan" id="purchaseToastPlan">Entusiasta</span>
+  <button class="pt-close" onclick="document.getElementById('purchaseToast').classList.remove('visible')">
+    Continuar
+  </button>
+</div>
+
 <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
 
 <script type="module">
@@ -446,7 +521,6 @@ document.getElementById('featGrid').innerHTML = FEATURES.map(f => `
   </div>`).join('');
 
 /* ===== PLANS ===== */
-/* Preus en € coincidents amb Stripe (test i live) */
 const PLANS = [
   { n:'Gratuït', m:0, y:0, s:'Per començar', pop:false, cta:'Pla actual',
     url:null,
@@ -572,6 +646,7 @@ function sendEmail(e){
 
 <!-- ═══════════════════════════════════════════════════════════════════
      REFRESC AUTOMÀTIC EN TORNAR DE STRIPE
+     Mostra la notificació central de confirmació
      ═══════════════════════════════════════════════════════════════════ -->
 <script>
 (function () {
@@ -581,14 +656,44 @@ function sendEmail(e){
 
     history.replaceState({}, '', location.pathname);
 
-    const esperar = setInterval(() => {
-        if (window._firebaseUser) {
-            clearInterval(esperar);
-            window.dispatchEvent(new CustomEvent('tc:login', { detail: window._firebaseUser }));
-            alert('Pla actualitzat correctament!');
+    const toast = document.getElementById('purchaseToast');
+    const planEl = document.getElementById('purchaseToastPlan');
+    const DB_URL = 'https://tempestescat-default-rtdb.europe-west1.firebasedatabase.app';
+    const noms = { 'entusiasta': 'Entusiasta', 'professional': 'Professional', 'equips': 'Equips', 'gratuït': 'Gratuït' };
+
+    async function carregarPla(user) {
+        try {
+            const token = await user.getIdToken();
+            const r = await fetch(`${DB_URL}/users/${encodeURIComponent(user.uid)}/pla.json?auth=${token}`, { cache: 'no-store' });
+            if (!r.ok) return null;
+            return await r.json();
+        } catch (e) {
+            return null;
         }
+    }
+
+    let intent = 0;
+    const esperar = setInterval(async () => {
+        intent++;
+        if (!window._firebaseUser) {
+            if (intent > 30) clearInterval(esperar);
+            return;
+        }
+        clearInterval(esperar);
+
+        const pla = await carregarPla(window._firebaseUser);
+        if (planEl && pla && noms[pla]) planEl.textContent = noms[pla];
+
+        if (toast) toast.classList.add('visible');
+
+        window.dispatchEvent(new CustomEvent('tc:login', { detail: window._firebaseUser }));
+
+        setTimeout(() => {
+            if (toast) toast.classList.remove('visible');
+        }, 8000);
     }, 500);
-    setTimeout(() => clearInterval(esperar), 15000);
+
+    setTimeout(() => clearInterval(esperar), 20000);
 })();
 </script>
 
