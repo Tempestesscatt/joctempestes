@@ -25,6 +25,9 @@
     --gold-soft: rgba(255, 215, 0, 0.10);
     --gold-line: rgba(255, 215, 0, 0.35);
     --ok: #3fb950;
+    --warn: #d29922;
+    --warn-soft: rgba(210, 153, 34, 0.12);
+    --warn-line: rgba(210, 153, 34, 0.35);
     --danger: #f85149;
     --text: #f0f6fc;
     --text-2: #c9d1d9;
@@ -69,6 +72,45 @@ body {
     line-height: 1.6;
 }
 
+/* Avisar que els plans premium encara no estan disponibles */
+.avis-aviat {
+    max-width: 1080px;
+    margin: 0 auto 28px;
+    padding: 16px 20px;
+    background: var(--warn-soft);
+    border: 1px solid var(--warn-line);
+    border-radius: 12px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    color: var(--text-2);
+}
+.avis-aviat .icona {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--warn);
+    color: #1b1030;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 800;
+    flex-shrink: 0;
+}
+.avis-aviat .text h3 {
+    margin: 0 0 4px;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--warn);
+}
+.avis-aviat .text p {
+    margin: 0;
+    font-size: 13.5px;
+    line-height: 1.5;
+    color: var(--text-2);
+}
+
 .cicle {
     display: inline-flex;
     margin: 28px auto 0;
@@ -77,6 +119,8 @@ body {
     border: 1px solid var(--line);
     border-radius: 10px;
     position: relative;
+    opacity: 0.55;
+    pointer-events: none;
 }
 .cicle button {
     position: relative;
@@ -183,12 +227,23 @@ body {
 .pla-card.destacat { border-color: var(--gold-line); }
 .pla-card.actiu { border-color: var(--accent); }
 
+/* Targetes "properament" */
+.pla-card.properament {
+    opacity: 0.7;
+}
+.pla-card.properament:hover {
+    transform: none;
+    border-color: var(--line);
+}
+
 .pla-capcalera {
     display: flex;
     align-items: center;
     justify-content: space-between;
     margin-bottom: 6px;
     min-height: 24px;
+    gap: 8px;
+    flex-wrap: wrap;
 }
 .pla-nom {
     font-size: 17px;
@@ -214,6 +269,11 @@ body {
     color: var(--accent);
     background: var(--accent-soft);
     border: 1px solid rgba(88, 166, 255, 0.3);
+}
+.pla-tag.aviat {
+    color: var(--warn);
+    background: var(--warn-soft);
+    border: 1px solid var(--warn-line);
 }
 
 .pla-desc {
@@ -331,6 +391,18 @@ body {
 }
 @keyframes gira { to { transform: rotate(360deg); } }
 
+/* Botó "properament" amb estil especial */
+.pla-btn.aviat {
+    background: transparent;
+    border: 1px dashed var(--warn-line);
+    color: var(--warn);
+}
+.pla-btn.aviat:hover:not(:disabled) {
+    background: var(--warn-soft);
+    border-color: var(--warn);
+    color: var(--warn);
+}
+
 .faq {
     max-width: 720px;
     margin: 64px auto 0;
@@ -419,12 +491,14 @@ body {
 .toast.visible { opacity: 1; transform: translate(-50%, 0); }
 .toast.error { border-color: rgba(248, 81, 73, 0.5); color: #ff7b72; }
 .toast.ok { border-color: rgba(63, 185, 80, 0.5); color: #7ee787; }
+.toast.info { border-color: var(--warn-line); color: var(--warn); }
 
 @media (max-width: 640px) {
     body { padding: calc(20px + var(--safe-top)) 12px calc(20px + var(--safe-bottom)); }
     .plans-grid { grid-template-columns: 1fr; gap: 10px; }
     .pla-card { padding: 20px 18px; }
     .pla-preu .xifra { font-size: 30px; }
+    .avis-aviat { padding: 14px 16px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -448,6 +522,14 @@ body {
     </div>
 </header>
 
+<div class="avis-aviat">
+    <div class="icona">!</div>
+    <div class="text">
+        <h3>Els plans premium arribaran aviat</h3>
+        <p>Estem acabant de configurar el sistema de subscripcions. De moment, el pla <strong>Gratuït</strong> ja està disponible amb totes les funcions essencials. Els plans Entusiasta, Professional i Equips s'activaran en uns mesos.</p>
+    </div>
+</div>
+
 <div class="estat-usuari" id="estatUsuari">
     <span class="punt"></span>
     <span id="estatText">Comprovant sessió…</span>
@@ -456,9 +538,10 @@ body {
 
 <main class="plans-grid">
 
-    <div class="pla-card" data-pla="gratuït">
+    <div class="pla-card actiu" data-pla="gratuït">
         <div class="pla-capcalera">
             <h2 class="pla-nom">Gratuït</h2>
+            <span class="pla-tag actual">Disponible</span>
         </div>
         <p class="pla-desc">Per començar a explorar el visor amb les eines essencials.</p>
         <div class="pla-preu">
@@ -475,13 +558,13 @@ body {
             <li class="no">Skew-T i variables avançades</li>
             <li class="no">Nivells de pressió</li>
         </ul>
-        <button class="pla-btn" disabled>Pla actual per defecte</button>
+        <button class="pla-btn" disabled>Pla actual</button>
     </div>
 
-    <div class="pla-card destacat" data-pla="entusiasta">
+    <div class="pla-card properament" data-pla="entusiasta">
         <div class="pla-capcalera">
             <h2 class="pla-nom">Entusiasta</h2>
-            <span class="pla-tag recomanat">Recomanat</span>
+            <span class="pla-tag aviat">Properament</span>
         </div>
         <p class="pla-desc">Per a aficionats que volen anar un pas més enllà.</p>
         <div class="pla-preu" data-preu-pla="entusiasta">
@@ -497,12 +580,13 @@ body {
             <li>Radar ampliat (3 h)</li>
             <li>Animació sense límits</li>
         </ul>
-        <button class="pla-btn primary" data-comprar="entusiasta">Subscriure'm</button>
+        <button class="pla-btn aviat" data-aviat="entusiasta">Properament</button>
     </div>
 
-    <div class="pla-card" data-pla="professional">
+    <div class="pla-card properament" data-pla="professional">
         <div class="pla-capcalera">
             <h2 class="pla-nom">Professional</h2>
+            <span class="pla-tag aviat">Properament</span>
         </div>
         <p class="pla-desc">Per a meteoròlegs, storm chasers i professionals del sector.</p>
         <div class="pla-preu" data-preu-pla="professional">
@@ -518,12 +602,13 @@ body {
             <li>Storm motion</li>
             <li>Radar 24 h complet</li>
         </ul>
-        <button class="pla-btn primary" data-comprar="professional">Subscriure'm</button>
+        <button class="pla-btn aviat" data-aviat="professional">Properament</button>
     </div>
 
-    <div class="pla-card" data-pla="equips">
+    <div class="pla-card properament" data-pla="equips">
         <div class="pla-capcalera">
             <h2 class="pla-nom">Equips</h2>
+            <span class="pla-tag aviat">Properament</span>
         </div>
         <p class="pla-desc">Per a mitjans, agències, universitats i grups de recerca.</p>
         <div class="pla-preu">
@@ -538,7 +623,7 @@ body {
             <li>Personalització de capes</li>
             <li>Facturació a nom d'empresa</li>
         </ul>
-        <button class="pla-btn" data-comprar="equips">Contactar</button>
+        <button class="pla-btn aviat" data-aviat="equips">Properament</button>
     </div>
 
 </main>
@@ -546,34 +631,34 @@ body {
 <section class="faq">
     <h2>Preguntes freqüents</h2>
 
+    <details class="faq-item" open>
+        <summary>Quan estaran disponibles els plans premium?</summary>
+        <div class="resposta">Estem acabant de configurar el sistema de subscripcions. Els plans Entusiasta, Professional i Equips s'activaran en uns mesos. De moment pots gaudir del pla Gratuït amb totes les funcions essencials del visor.</div>
+    </details>
+
+    <details class="faq-item">
+        <summary>Què puc fer amb el pla Gratuït?</summary>
+        <div class="resposta">El pla Gratuït inclou totes les hores del model, variables de superfície, CAPE/CIN, isoterma 0 °C, animació temporal, isolínies, vent i radar bàsic. És la manera ideal de començar a explorar el visor.</div>
+    </details>
+
     <details class="faq-item">
         <summary>Puc cancel·lar quan vulgui?</summary>
-        <div class="resposta">Sí. Pots cancel·lar la subscripció en qualsevol moment des del teu perfil o des del portal de Stripe. Mantindràs l'accés fins al final del període ja pagat.</div>
+        <div class="resposta">Sí. Un cop els plans premium estiguin disponibles, podràs cancel·lar la subscripció en qualsevol moment des del teu perfil o des del portal de Stripe. Mantindràs l'accés fins al final del període ja pagat.</div>
     </details>
 
     <details class="faq-item">
-        <summary>Com funciona la facturació anual?</summary>
-        <div class="resposta">Es cobra un sol pagament per tot l'any amb un descompte respecte al pla mensual. Si cancel·les, no es renova en acabar el període.</div>
-    </details>
-
-    <details class="faq-item">
-        <summary>Quins mètodes de pagament accepteu?</summary>
-        <div class="resposta">Targeta de crèdit o dèbit (Visa, Mastercard, Amex) i Apple Pay o Google Pay. Els pagaments es processen de manera segura a través de Stripe; nosaltres no veiem mai les teves dades bancàries.</div>
+        <summary>Quins mètodes de pagament acceptareu?</summary>
+        <div class="resposta">Targeta de crèdit o dèbit (Visa, Mastercard, Amex) i Apple Pay o Google Pay. Els pagaments es processaran de manera segura a través de Stripe; nosaltres no veurem mai les teves dades bancàries.</div>
     </details>
 
     <details class="faq-item">
         <summary>Puc canviar de pla més endavant?</summary>
-        <div class="resposta">Sí. Pots pujar o baixar de pla en qualsevol moment. Stripe ajusta automàticament el càrrec proporcional al temps restant.</div>
+        <div class="resposta">Sí. Un cop activats els plans premium, podràs pujar o baixar de pla en qualsevol moment. Stripe ajustarà automàticament el càrrec proporcional al temps restant.</div>
     </details>
 
     <details class="faq-item">
-        <summary>Necessito compte per subscriure'm?</summary>
-        <div class="resposta">Sí. Cal iniciar sessió amb Google al visor abans de subscriure't, perquè el pla quedi associat al teu compte i es desbloquegi automàticament.</div>
-    </details>
-
-    <details class="faq-item">
-        <summary>Feu factures?</summary>
-        <div class="resposta">Sí. Stripe genera automàticament les factures. Per al pla Equips podem emetre factura a nom d'empresa amb CIF. Contacta'ns si ho necessites.</div>
+        <summary>Com m'avisareu quan estiguin disponibles?</summary>
+        <div class="resposta">T'enviarem un correu electrònic i ho publicarem a les nostres xarxes socials (X i Instagram). També ho veuràs destacat a la portada del visor.</div>
     </details>
 </section>
 
@@ -589,6 +674,7 @@ body {
 <script>
     window.BACKEND_URL = 'https://tempestes.cat/api';
     window.RETORN_URL = 'https://tempestes.cat/?success=1';
+    window.PLANS_ACTIUS = false; // ⚠️ Canvia a true quan els plans estiguin llestos
 </script>
 
 <script type="module">
@@ -623,7 +709,7 @@ body {
     function $(s) { return document.querySelector(s); }
     function $$(s) { return document.querySelectorAll(s); }
 
-    /* Preus en cèntims. Coincideixen exactament amb els preus de Stripe. */
+    /* Preus en cèntims */
     const PREUS = {
         entusiasta:   { mensual: 499,  anual: 4990 },
         professional: { mensual: 999,  anual: 9999 }
@@ -683,7 +769,7 @@ body {
         t.textContent = msg;
         t.className = 'toast visible' + (tipus ? ' ' + tipus : '');
         clearTimeout(toastTimer);
-        toastTimer = setTimeout(() => t.classList.remove('visible'), 3500);
+        toastTimer = setTimeout(() => t.classList.remove('visible'), 4000);
     }
     window.mostrarToast = mostrarToast;
 
@@ -722,9 +808,8 @@ body {
 
         if (!user) {
             box.classList.remove('ok');
-            text.innerHTML = 'No has iniciat sessió. Inicia sessió al visor per subscriure\'t.';
+            text.innerHTML = 'No has iniciat sessió. Inicia sessió al visor per accedir al teu perfil.';
             plaEl.textContent = 'Anònim';
-            marcarPlaActiu('gratuït');
             return;
         }
 
@@ -734,55 +819,9 @@ body {
         box.classList.add('ok');
         text.innerHTML = `Connectat com a <span class="nom">${escapar(nom)}</span>`;
         plaEl.textContent = nomPla(pla);
-        marcarPlaActiu(pla);
     }
 
-    function marcarPlaActiu(pla) {
-        $$('.pla-card').forEach(card => {
-            card.classList.toggle('actiu', card.dataset.pla === pla);
-        });
-
-        $$('.pla-btn[data-comprar]').forEach(btn => {
-            const target = btn.dataset.comprar;
-            const card = btn.closest('.pla-card');
-            const esActual = card && card.dataset.pla === pla;
-
-            if (esActual) {
-                btn.disabled = true;
-                btn.textContent = 'El teu pla actual';
-                btn.classList.remove('primary');
-                return;
-            }
-
-            btn.disabled = false;
-
-            if (target === 'equips') {
-                btn.textContent = 'Contactar';
-                btn.classList.remove('primary');
-            } else if (pla === 'gratuït') {
-                btn.textContent = 'Subscriure\'m';
-                btn.classList.add('primary');
-            } else {
-                btn.textContent = 'Canviar-hi';
-                btn.classList.remove('primary');
-            }
-        });
-
-        $$('.pla-card').forEach(card => {
-            const tag = card.querySelector('.pla-tag.actual');
-            const esActiu = card.dataset.pla === pla;
-            if (esActiu && pla !== 'gratuït' && !tag) {
-                const nouTag = document.createElement('span');
-                nouTag.className = 'pla-tag actual';
-                nouTag.textContent = 'El teu pla';
-                const cap = card.querySelector('.pla-capcalera');
-                if (cap) cap.appendChild(nouTag);
-            } else if ((!esActiu || pla === 'gratuït') && tag) {
-                tag.remove();
-            }
-        });
-    }
-
+    /* ─── Comunicació amb el visor ─────────────────────────────── */
     function demanarUsuariAlVisor() {
         if (window.parent && window.parent !== window) {
             try { window.parent.postMessage({ tipus: 'preus:demanaUsuari' }, '*'); } catch (e) {}
@@ -801,68 +840,14 @@ body {
         }
     });
 
-    async function iniciarCompra(plaTriat, boto) {
-        const user = window._firebaseUser;
-        if (!user) {
-            mostrarToast('Inicia sessió al visor per subscriure\'t', 'error');
-            if (window.parent && window.parent !== window) {
-                try { window.parent.postMessage({ tipus: 'preus:obreLogin' }, '*'); } catch (e) {}
-            }
-            if (window.opener && !window.opener.closed) {
-                try { window.opener.postMessage({ tipus: 'preus:obreLogin' }, '*'); } catch (e) {}
-            }
-            return;
-        }
-
-        const original = boto.textContent;
-        boto.classList.add('carregant');
-        boto.innerHTML = '<span class="spinner"></span> Redirigint…';
-
-        try {
-            const r = await fetch(window.BACKEND_URL + '/create-checkout', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    uid: user.uid,
-                    email: user.email,
-                    pla: plaTriat,
-                    cicle: cicleActual,
-                    returnUrl: window.RETORN_URL
-                })
-            });
-
-            if (!r.ok) throw new Error('HTTP ' + r.status);
-            const d = await r.json();
-            if (!d || !d.url) throw new Error('Resposta sense URL');
-
-            window.location.href = d.url;
-        } catch (e) {
-            console.error('[Compra]', e);
-            mostrarToast('No s\'ha pogut iniciar el pagament. Torna-ho a provar.', 'error');
-            boto.classList.remove('carregant');
-            boto.textContent = original;
-        }
-    }
-
+    /* ─── Clic als botons "Properament" ────────────────────────── */
     document.addEventListener('click', (e) => {
-        const boto = e.target.closest('.pla-btn[data-comprar]');
-        if (!boto || boto.disabled) return;
+        const boto = e.target.closest('.pla-btn[data-aviat]');
+        if (!boto) return;
         e.preventDefault();
-        const pla = boto.dataset.comprar;
-
-        if (pla === 'equips') {
-            const user = window._firebaseUser;
-            if (!user) {
-                mostrarToast('Inicia sessió per contactar', 'error');
-                return;
-            }
-            const assumpte = encodeURIComponent('Pla Equips · Tempestes.cat');
-            const cos = encodeURIComponent(`Hola,\n\nSoc ${user.email} i estic interessat/da en el pla Equips.\n\nGràcies!`);
-            window.location.href = `mailto:hola@tempestes.cat?subject=${assumpte}&body=${cos}`;
-            return;
-        }
-
-        iniciarCompra(pla, boto);
+        const pla = boto.dataset.aviat;
+        const noms = { entusiasta: 'Entusiasta', professional: 'Professional', equips: 'Equips' };
+        mostrarToast(`El pla ${noms[pla] || ''} estarà disponible properament`, 'info');
     });
 
     window.addEventListener('preus:user', (e) => pintarEstatUsuari(e.detail));

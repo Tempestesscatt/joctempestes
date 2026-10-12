@@ -645,8 +645,88 @@ function sendEmail(e){
 </script>
 
 <!-- ═══════════════════════════════════════════════════════════════════
+     DETECCIÓ D'ADMINS (branca /admin/{email} = true)
+     ═══════════════════════════════════════════════════════════════════ -->
+<script>
+(function () {
+    'use strict';
+
+    const DB_URL = 'https://tempestescat-default-rtdb.europe-west1.firebasedatabase.app';
+
+    /* Comprova si un email està a la branca /admin/ de Firebase */
+    async function esAdmin(email) {
+        if (!email) return false;
+        try {
+            const r = await fetch(
+                `${DB_URL}/admin/${encodeURIComponent(email.toLowerCase())}.json`,
+                { cache: 'no-store' }
+            );
+            if (!r.ok) return false;
+            const v = await r.json();
+            return v === true;
+        } catch (e) {
+            return false;
+        }
+    }
+
+    /* Quan l'usuari inicia sessió, comprova si és admin */
+    window.addEventListener('tc:login', async (e) => {
+        const user = e.detail || window._firebaseUser;
+        if (!user || !user.email) return;
+
+        const admin = await esAdmin(user.email);
+        if (!admin) return;
+
+        // És admin → desbloqueja el pla Professional automàticament
+        window._esAdmin = true;
+        console.log('[Admin] Usuari admin detectat:', user.email);
+
+        // Sobreescriu el pla actual
+        if (typeof window.getPlaUsuari === 'function') {
+            const originalGetPla = window.getPlaUsuari;
+            window.getPlaUsuari = function () {
+                return 'professional';
+            };
+        }
+        if (typeof window.getConfigPla === 'function') {
+            const originalGetConfig = window.getConfigPla;
+            window.getConfigPla = function () {
+                return {
+                    nom: 'Professional',
+                    variablesBasiques: true,
+                    variablesAvançades: true,
+                    totesLesHores: true,
+                    skewT: true,
+                    nivellsPressio: true,
+                    parametres3D: true,
+                    radar3h: true,
+                    radar24h: true,
+                    animacio: true,
+                    isolinies: true,
+                    barbes: true,
+                    vent: true,
+                };
+            };
+        }
+
+        // Actualitza la UI
+        if (typeof window.actualitzarUIPla === 'function') {
+            window.actualitzarUIPla();
+        }
+    });
+
+    /* També quan el visor comprova el pla manualment */
+    window.esAdminActual = async function () {
+        if (!window._firebaseUser || !window._firebaseUser.email) return false;
+        return await esAdmin(window._firebaseUser.email);
+    };
+
+    window.esAdmin = esAdmin;
+})();
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════════════
      REFRESC AUTOMÀTIC EN TORNAR DE STRIPE
-     Mostra la notificació central de confirmació
      ═══════════════════════════════════════════════════════════════════ -->
 <script>
 (function () {

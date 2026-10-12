@@ -173,9 +173,6 @@ body::before {
     }
 }
 
-/* ═══════════════════════════════════════════════════════════════════
-   ETIQUETA D'HORA
-   ═══════════════════════════════════════════════════════════════════ */
 #current_time_label {
     position: fixed;
     top: calc(14px + var(--safe-top));
@@ -198,9 +195,6 @@ body::before {
 body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
 #current_time_label:empty { display: none; }
 
-/* ═══════════════════════════════════════════════════════════════════
-   INFO RUN
-   ═══════════════════════════════════════════════════════════════════ */
 #info_run {
     position: fixed;
     top: calc(14px + var(--safe-top));
@@ -230,9 +224,6 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
 #info_run .sep { color: var(--muted-2); }
 #info_run .fa { color: var(--muted); font-size: 11px; }
 
-/* ═══════════════════════════════════════════════════════════════════
-   PANELL LATERAL
-   ═══════════════════════════════════════════════════════════════════ */
 #panell-pro {
     position: fixed; top: 0; left: 0; bottom: 0;
     width: var(--panel-width); z-index: 700;
@@ -489,9 +480,6 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
     text-align: center; padding: 22px 10px;
 }
 
-/* ═══════════════════════════════════════════════════════════════════
-   SELECTOR D'ALÇADES
-   ═══════════════════════════════════════════════════════════════════ */
 .param-altura-grup {
     margin: 1px 0;
     border-radius: 6px;
@@ -673,9 +661,6 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
 }
 .cap-reset:hover { color: var(--text); background: var(--panel-hover); }
 
-/* ═══════════════════════════════════════════════════════════════════
-   SISTEMA (botó d'actualitzacions)
-   ═══════════════════════════════════════════════════════════════════ */
 .sistema-btn {
     width: 100%;
     display: flex; align-items: center; justify-content: center;
@@ -781,9 +766,6 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
 .toast-sistema.ok    { border-color: rgba(63, 185, 80, 0.5); color: #7ee787; }
 .toast-sistema.error { border-color: rgba(248, 81, 73, 0.5); color: #ff7b72; }
 
-/* ═══════════════════════════════════════════════════════════════════
-   LLEGENDES CSS
-   ═══════════════════════════════════════════════════════════════════ */
 .llegenda-css {
     position: fixed;
     right: calc(16px + var(--safe-right));
@@ -813,9 +795,6 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
 }
 .llegenda-css .lc-valor { font-variant-numeric: tabular-nums; }
 
-/* ═══════════════════════════════════════════════════════════════════
-   DOCK INFERIOR
-   ═══════════════════════════════════════════════════════════════════ */
 #dock {
     position: fixed;
     left: calc(var(--panel-width) + 16px + var(--safe-left));
@@ -1518,6 +1497,57 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
 })();
 </script>
 
+<!-- ═══════════════════════════════════════════════════════════════════
+     DETECCIÓ D'ADMINS (branca /admin/{email} = true)
+     S'executa ABANS que el sistema de plans es carregui.
+     ═══════════════════════════════════════════════════════════════════ -->
+<script>
+(function () {
+    'use strict';
+
+    const DB_URL = 'https://tempestescat-default-rtdb.europe-west1.firebasedatabase.app';
+    let esAdmin = false;
+
+    async function comprovarAdmin(email) {
+        if (!email) return false;
+        try {
+            const r = await fetch(
+                `${DB_URL}/admin/${encodeURIComponent(email.toLowerCase())}.json`,
+                { cache: 'no-store' }
+            );
+            if (!r.ok) return false;
+            const v = await r.json();
+            return v === true;
+        } catch (e) {
+            return false;
+        }
+    }
+
+    /* Intercepta l'event tc:login ABANS que altres listeners el processin */
+    window.addEventListener('tc:login', function (e) {
+        const user = e.detail || window._firebaseUser;
+        if (!user || !user.email) return;
+
+        // Comprovem l'admin i guardem el resultat a una variable global
+        // El sistema de plans consultarà window._esAdmin abans de carregar
+        // el pla de Firebase.
+        comprovarAdmin(user.email).then(function (admin) {
+            esAdmin = admin;
+            window._esAdmin = admin;
+            if (admin) {
+                console.log('[Admin] Usuari admin detectat:', user.email, '→ pla Professional');
+                // Si el sistema de plans ja s'ha carregat, actualitza la UI
+                if (typeof window.actualitzarUIPla === 'function') {
+                    window.actualitzarUIPla();
+                }
+            }
+        });
+    }, true); // capture: true → s'executa ABANS que els altres listeners
+
+    window.esAdminActual = function () { return esAdmin; };
+})();
+</script>
+
 <script>
 (function(){
     'use strict';
@@ -1633,6 +1663,13 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
 
     async function carregarPlaServidor(user) {
         if (!user) { plaActual = 'gratuït'; return; }
+
+        // Si és admin, assigna Professional directament
+        if (window._esAdmin === true) {
+            plaActual = 'professional';
+            return;
+        }
+
         try {
             const token = await user.getIdToken();
             const r = await fetch(`${DB_URL}/users/${encodeURIComponent(user.uid)}/pla.json?auth=${token}`, { cache: 'no-store' });
@@ -1641,10 +1678,16 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
         } catch (e) {
             plaActual = 'gratuït';
         }
+
+        // Re-comprova admin per si la crida anterior no havia acabat
+        if (window._esAdmin === true) {
+            plaActual = 'professional';
+        }
     }
 
     function getPlaUsuari() {
         if (!window._firebaseUser) return 'gratuït';
+        if (window._esAdmin === true) return 'professional';
         return plaActual;
     }
 
@@ -1749,9 +1792,11 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
         await carregarPlaServidor(e.detail || window._firebaseUser);
         actualitzarUIPla();
         setTimeout(actualitzarUIPla, 600);
+        setTimeout(actualitzarUIPla, 1500);
     });
     window.addEventListener('tc:logout', () => {
         plaActual = 'gratuït';
+        window._esAdmin = false;
         actualitzarUIPla();
         setTimeout(actualitzarUIPla, 600);
     });
@@ -2298,9 +2343,6 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
 })();
 </script>
 
-<!-- ═══════════════════════════════════════════════════════════════════
-     COMUNICACIÓ AMB preus.html (postMessage)
-     ═══════════════════════════════════════════════════════════════════ -->
 <script>
 (function () {
     'use strict';
@@ -2329,9 +2371,6 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
 })();
 </script>
 
-<!-- ═══════════════════════════════════════════════════════════════════
-     REFRESC AUTOMÀTIC EN TORNAR DE STRIPE
-     ═══════════════════════════════════════════════════════════════════ -->
 <script>
 (function () {
     'use strict';
