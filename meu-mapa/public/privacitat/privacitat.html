@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ca" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Política de privacitat · TEMPESTES.CAT</title>
+<meta name="description" content="Política de privacitat de TEMPESTES.CAT: tractament de dades personals, cookies i drets dels usuaris." />
+<meta name="robots" content="index, follow" />
+<link rel="icon" type="image/png" href="../img/favicon.png" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#ffffff; --bg-2:#f7f7f7; --card:#ffffff; --line:#e5e5e5;
+  --text:#111111; --muted:#6b6b6b; --accent:#111111; --accent-soft:#f0f0f0;
+  --shadow:0 2px 12px rgba(0,0,0,.04); --shadow-lg:0 12px 40px rgba(0,0,0,.08);
+  --r:12px; --font:'Inter',-apple-system,system-ui,sans-serif; --display:'Space Grotesk','Inter',sans-serif;
+}
+:root[data-theme="dark"]{
+  --bg:#0a0a0a; --bg-2:#141414; --card:#1a1a1a; --line:#2a2a2a;
+  --text:#f0f0f0; --muted:#a0a0a0; --accent:#f0f0f0; --accent-soft:#222222;
+  --shadow:0 2px 12px rgba(0,0,0,.3); --shadow-lg:0 12px 40px rgba(0,0,0,.5);
+}
+html{scroll-behavior:smooth;scroll-padding-top:80px}
+body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.7;font-size:16px;padding-top:64px;transition:background .3s,color .3s}
+a{color:inherit;text-decoration:none}
+img{display:block;max-width:100%}
+button{font-family:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--text);outline-offset:2px}
+.wrap{max-width:820px;margin:0 auto;padding:0 24px}
+h1,h2,h3{font-family:var(--display);letter-spacing:-.02em;line-height:1.2}
+
+/* NAV */
+.nav{position:fixed;top:0;left:0;right:0;height:64px;z-index:100;background:var(--bg);border-bottom:1px solid var(--line);transition:background .3s,border-color .3s}
+.nav .wrap{max-width:1120px;height:100%;display:flex;align-items:center;gap:20px}
+.logo{font-family:var(--display);font-weight:700;font-size:20px;letter-spacing:.02em;color:var(--text)}
+.logo b{font-weight:400;color:var(--muted)}
+.nav-actions{display:flex;align-items:center;gap:8px;margin-left:auto}
+.icon-btn{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--text);font-size:14px;transition:.2s;display:flex;align-items:center;justify-content:center}
+.icon-btn:hover{background:var(--accent-soft);border-color:var(--muted)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 22px;border-radius:28px;font-weight:600;font-size:13px;border:1px solid transparent;transition:all .2s ease;letter-spacing:.01em}
+.btn-ghost{background:transparent;border-color:var(--line);color:var(--text)}
+.btn-ghost:hover{border-color:var(--text);transform:translateY(-1px)}
+
+/* CONTINGUT */
+main{padding:60px 0 80px}
+.legal-head{margin-bottom:40px;padding-bottom:28px;border-bottom:1px solid var(--line)}
+.legal-head .eyebrow{display:inline-flex;align-items:center;gap:10px;color:var(--muted);font-size:11px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;margin-bottom:16px}
+.legal-head .eyebrow::before{content:"";width:24px;height:1px;background:var(--muted)}
+.legal-head h1{font-size:clamp(30px,4.5vw,44px);font-weight:700;color:var(--text)}
+.legal-head p.updated{margin-top:14px;color:var(--muted);font-size:14px}
+.legal-head p.updated i{margin-right:6px}
+
+.legal-body h2{font-size:22px;font-weight:700;margin:38px 0 12px;color:var(--text);display:flex;align-items:center;gap:10px}
+.legal-body h2 .num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:var(--accent-soft);color:var(--text);font-size:13px;font-family:var(--font);font-weight:700;flex-shrink:0}
+.legal-body h3{font-size:17px;font-weight:700;margin:24px 0 8px;color:var(--text)}
+.legal-body p{color:var(--muted);font-size:15px;margin-bottom:14px}
+.legal-body ul{list-style:none;margin:8px 0 16px;padding-left:0;display:flex;flex-direction:column;gap:8px}
+.legal-body ul li{position:relative;padding-left:22px;color:var(--muted);font-size:15px}
+.legal-body ul li::before{content:"";position:absolute;left:0;top:11px;width:8px;height:8px;border-radius:50%;background:var(--text);opacity:.5}
+.legal-body a{color:var(--text);text-decoration:underline;text-underline-offset:2px}
+.legal-body strong{color:var(--text);font-weight:600}
+
+.callout{background:var(--bg-2);border:1px solid var(--line);border-left:3px solid var(--text);border-radius:10px;padding:16px 20px;margin:18px 0;font-size:14.5px;color:var(--muted)}
+.callout i{color:var(--text);margin-right:8px}
+.callout strong{color:var(--text)}
+
+.table-wrap{overflow-x:auto;margin:16px 0 20px;border:1px solid var(--line);border-radius:10px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+table th,table td{padding:12px 16px;text-align:left;border-bottom:1px solid var(--line);color:var(--muted);vertical-align:top}
+table th{background:var(--bg-2);color:var(--text);font-weight:600;font-size:13px}
+table tr:last-child td{border-bottom:0}
+
+.legal-foot{margin-top:50px;padding-top:24px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:14px;justify-content:space-between;align-items:center;font-size:13.5px;color:var(--muted)}
+.legal-foot a{color:var(--muted);transition:.2s}
+.legal-foot a:hover{color:var(--text)}
+.legal-foot .links{display:flex;gap:18px;flex-wrap:wrap}
+
+@media(max-width:600px){
+  main{padding:40px 0 60px}
+  .legal-body h2{font-size:19px}
+  table th,table td{padding:10px 12px;font-size:13px}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap">
+    <a href="../index.html" class="logo">TEMPESTES<b>.CAT</b></a>
+    <div class="nav-actions">
+      <button class="icon-btn" id="themeBtn" aria-label="Canviar tema"><i class="fa-solid fa-sun"></i></button>
+      <a href="../index.html" class="btn btn-ghost"><i class="fa-solid fa-arrow-left"></i> Tornar</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <div class="legal-head">
+      <span class="eyebrow">Legal</span>
+      <h1>Política de privacitat</h1>
+      <p class="updated"><i class="fa-regular fa-calendar"></i>Darrera actualització: <span id="updateDate"></span></p>
+    </div>
+
+    <div class="legal-body">
+      <p>A TEMPESTES.CAT ens prenem seriosament la teva privacitat. Aquesta política explica quines dades personals recollim, amb quina finalitat, sobre quina base legal, quant de temps les conservem i quins drets tens sobre elles, d'acord amb el <strong>Reglament General de Protecció de Dades (RGPD)</strong> i la <strong>Llei Orgànica 3/2018 (LOPDGDD)</strong>.</p>
+
+      <div class="callout">
+        <i class="fa-solid fa-shield-halved"></i>
+        <strong>Resum ràpid:</strong> recollim el mínim imprescindible per oferir el Servei (contacte, analítica anònima i anuncis). No venem les teves dades a tercers i pots exercir els teus drets escrivint-nos.
+      </div>
+
+      <h2><span class="num">1</span>Responsable del tractament</h2>
+      <p>El responsable del tractament de les teves dades és:</p>
+      <ul>
+        <li><strong>Identitat:</strong> Simo Garcia (TEMPESTES.CAT)</li>
+        <li><strong>Correu de contacte:</strong> <a href="mailto:tempestescat@gmail.com">tempestescat@gmail.com</a></li>
+        <li><strong>Àmbit d'activitat:</strong> divulgació i visualització meteorològica</li>
+      </ul>
+
+      <h2><span class="num">2</span>Quines dades recollim</h2>
+      <p>En funció de com utilitzis el Servei, podem tractar les categories de dades següents:</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Origen</th>
+              <th>Dades</th>
+              <th>Finalitat</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Formulari de contacte</td>
+              <td>Nom i correu electrònic</td>
+              <td>Respondre la teva consulta o suggeriment</td>
+            </tr>
+            <tr>
+              <td>Inici de sessió amb Google</td>
+              <td>Nom, correu, foto de perfil i identificador únic</td>
+              <td>Autenticació i accés a funcions personalitzades</td>
+            </tr>
+            <tr>
+              <td>Navegació (Google Analytics)</td>
+              <td>Dades d'ús anonimitzades (pàgines vistes, dispositiu, país, durada)</td>
+              <td>Analitzar el funcionament i millorar el Servei</td>
+            </tr>
+            <tr>
+              <td>Publicitat (Google AdSense)</td>
+              <td>Cookies de tercers per mostrar anuncis</td>
+              <td>Finançar el manteniment del projecte</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>No recollim dades especialment sensibles ni categories especials de dades.</p>
+
+      <h2><span class="num">3</span>Base legal del tractament</h2>
+      <p>Tractem les teves dades sobre les bases legals següents:</p>
+      <ul>
+        <li><strong>Consentiment</strong> (art. 6.1.a RGPD): quan ens escrius pel formulari de contacte o acceptes les cookies analítiques i publicitàries.</li>
+        <li><strong>Execució d'un contracte o relació</strong> (art. 6.1.b RGPD): quan inicies sessió amb Google per accedir a funcions del Servei.</li>
+        <li><strong>Interès legítim</strong> (art. 6.1.f RGPD): per garantir la seguretat i el bon funcionament del lloc.</li>
+      </ul>
+
+      <h2><span class="num">4</span>Quant de temps conservem les dades</h2>
+      <ul>
+        <li><strong>Contacte:</strong> fins a 12 mesos des del darrer missatge, per donar continuïtat a la conversa.</li>
+        <li><strong>Compte d'usuari:</strong> mentre mantinguis la sessió activa. Si sol·licites la supressió, s'eliminen en un termini màxim de 30 dies.</li>
+        <li><strong>Analítica:</strong> segons la configuració de Google Analytics (per defecte, 14 mesos).</li>
+        <li><strong>Cookies publicitàries:</strong> segons les polítiques de Google AdSense.</li>
+      </ul>
+
+      <h2><span class="num">5</span>Destinataris i encarregats del tractament</h2>
+      <p>No venem ni cedim les teves dades a tercers amb finalitats comercials. Tot i això, per oferir el Servei utilitzem proveïdors que actuen com a encarregats del tractament:</p>
+      <ul>
+        <li><strong>Google LLC</strong> (Firebase Authentication, Google Analytics, Google AdSense): autenticació, analítica i publicitat.</li>
+        <li><strong>EmailJS</strong>: enviament dels missatges del formulari de contacte al nostre correu.</li>
+        <li><strong>Cloudflare</strong> (segons desplegament): allotjament i seguretat del lloc.</li>
+      </ul>
+      <p>Alguns d'aquests proveïdors poden transferir dades fora de l'Espai Econòmic Europeu. En aquests casos, es garanteix un nivell de protecció adequat mitjançant clàusules contractuals tipus aprovades per la Comissió Europea.</p>
+
+      <h2><span class="num">6</span>Els teus drets</h2>
+      <p>Com a usuari, tens dret a:</p>
+      <ul>
+        <li><strong>Accedir</strong> a les teves dades personals que tractem.</li>
+        <li><strong>Rectificar</strong> dades inexactes o incompletes.</li>
+        <li><strong>Suprimir</strong> les teves dades ("dret a l'oblit").</li>
+        <li><strong>Limitar</strong> o <strong>oposar-te</strong> al tractament.</li>
+        <li><strong>Portabilitat</strong>: rebre les teves dades en un format estructurat.</li>
+        <li><strong>Retirar el consentiment</strong> en qualsevol moment.</li>
+        <li><strong>Presentar una reclamació</strong> davant l'Agència Espanyola de Protecció de Dades (<a href="https://www.aepd.es" target="_blank" rel="noopener">www.aepd.es</a>).</li>
+      </ul>
+      <p>Per exercir qualsevol d'aquests drets, escriu-nos a <a href="mailto:tempestescat@gmail.com">tempestescat@gmail.com</a> indicant el dret que vols exercir i adjuntant una còpia d'un document identificatiu si és necessari.</p>
+
+      <h2><span class="num">7</span>Cookies i tecnologies similars</h2>
+      <p>Utilitzem cookies pròpies i de tercers per:</p>
+      <ul>
+        <li><strong>Funcionament bàsic:</strong> recordar preferències com el tema clar/fosc o l'estat del bàner de cookies.</li>
+        <li><strong>Analítica:</strong> mesurar de manera anònima com s'utilitza el lloc (Google Analytics).</li>
+        <li><strong>Publicitat:</strong> mostrar anuncis personalitzats o no personalitzats (Google AdSense).</li>
+      </ul>
+      <p>Pots acceptar o rebutjar les cookies no essencials des del bàner que apareix en carregar el lloc. També pots gestionar-les o eliminar-les des de la configuració del teu navegador.</p>
+
+      <h2><span class="num">8</span>Menors d'edat</h2>
+      <p>El Servei no està dirigit a menors de 14 anys. Si ets menor d'aquesta edat, no ens facilitis dades personals sense el consentiment dels teus pares o tutors.</p>
+
+      <h2><span class="num">9</span>Seguretat</h2>
+      <p>Apliquem mesures tècniques i organitzatives raonables per protegir les teves dades davant accessos no autoritzats, pèrdues o alteracions. Tot i això, cap sistema és 100% infal·lible.</p>
+
+      <h2><span class="num">10</span>Canvis en aquesta política</h2>
+      <p>Podem actualitzar aquesta política per adaptar-la a canvis legislatius o de funcionament del Servei. La data de l'última actualització apareix a la part superior d'aquesta pàgina.</p>
+
+      <h2><span class="num">11</span>Contacte</h2>
+      <p>Per a qualsevol dubte sobre aquesta política o sobre el tractament de les teves dades, pots escriure'ns a <a href="mailto:tempestescat@gmail.com">tempestescat@gmail.com</a>.</p>
+
+      <div class="legal-foot">
+        <span>© <span id="yr"></span> TEMPESTES.CAT</span>
+        <div class="links">
+          <a href="privacitat.html">Privacitat</a>
+          <a href="termes.html">Termes</a>
+          <a href="negoci.html">Avís de negoci</a>
+          <a href="preus.html">Preus</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+/* Tema fosc per defecte */
+(function(){
+  const root = document.documentElement, btn = document.getElementById('themeBtn');
+  const apply = t => {
+    root.dataset.theme = t;
+    btn.innerHTML = t === 'dark' ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+  };
+  apply('dark');
+  btn.onclick = () => apply(root.dataset.theme === 'dark' ? 'light' : 'dark');
+})();
+document.getElementById('yr').textContent = new Date().getFullYear();
+document.getElementById('updateDate').textContent = new Date().toLocaleDateString('ca-ES', { year:'numeric', month:'long', day:'numeric' });
+</script>
+
+</body>
+</html>

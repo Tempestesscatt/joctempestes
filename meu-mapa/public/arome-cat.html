@@ -87,7 +87,7 @@ body::before {
 }
 
 /* ═══════════════════════════════════════════════════════════════════
-   SKEW-T FLOTANT (apareix a prop del clic)
+   SKEW-T FLOTANT
    ═══════════════════════════════════════════════════════════════════ */
 .skewt-flotant {
     position: fixed;
@@ -133,79 +133,38 @@ body::before {
     font-family: 'SF Mono', monospace;
     font-weight: 500;
 }
-.skewt-flotant-botons {
-    display: flex;
-    gap: 4px;
-}
+.skewt-flotant-botons { display: flex; gap: 4px; }
 .skewt-flotant-boto-ico {
-    background: none;
-    border: none;
-    color: var(--muted);
-    cursor: pointer;
-    width: 26px;
-    height: 26px;
+    background: none; border: none; color: var(--muted);
+    cursor: pointer; width: 26px; height: 26px;
     border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: inherit;
-    font-size: 14px;
-    padding: 0;
-    transition: all 0.15s ease;
-    line-height: 1;
+    display: flex; align-items: center; justify-content: center;
+    font-family: inherit; font-size: 14px; padding: 0;
+    transition: all 0.15s ease; line-height: 1;
 }
-.skewt-flotant-boto-ico:hover {
-    background: var(--panel-hover);
-    color: var(--text);
-}
-.skewt-flotant-cos {
-    padding: 14px;
-    overflow: auto;
-    flex: 1 1 auto;
-    min-height: 0;
-}
+.skewt-flotant-boto-ico:hover { background: var(--panel-hover); color: var(--text); }
+.skewt-flotant-cos { padding: 14px; overflow: auto; flex: 1 1 auto; min-height: 0; }
 .skewt-flotant-cos canvas,
-.skewt-flotant-cos svg {
-    display: block;
-    max-width: 100%;
-    height: auto;
-}
+.skewt-flotant-cos svg { display: block; max-width: 100%; height: auto; }
 .skewt-flotant-carregant {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    padding: 30px 20px;
-    color: var(--muted);
-    font-size: 12px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 12px; padding: 30px 20px; color: var(--muted); font-size: 12px;
 }
 .skewt-flotant-spinner {
-    width: 32px;
-    height: 32px;
+    width: 32px; height: 32px;
     border: 3px solid var(--line-strong);
-    border-top-color: var(--accent);
-    border-radius: 50%;
+    border-top-color: var(--accent); border-radius: 50%;
     animation: gira 0.9s linear infinite;
 }
-.skewt-flotant-error {
-    padding: 18px 20px;
-    text-align: center;
-    color: var(--danger);
-    font-size: 12.5px;
-    line-height: 1.5;
-}
+.skewt-flotant-error { padding: 18px 20px; text-align: center; color: var(--danger); font-size: 12.5px; line-height: 1.5; }
 
-/* Mòbil: ocupa tota la pantalla o quasi */
 @media (max-width: 860px) {
     .skewt-flotant {
         left: calc(8px + var(--safe-left)) !important;
         right: calc(8px + var(--safe-right)) !important;
         top: calc(8px + var(--safe-top)) !important;
         bottom: calc(8px + var(--safe-bottom)) !important;
-        width: auto !important;
-        max-width: none !important;
-        max-height: none !important;
+        width: auto !important; max-width: none !important; max-height: none !important;
         animation: skewtFlotantInMobil 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     }
     @keyframes skewtFlotantInMobil {
@@ -222,8 +181,7 @@ body::before {
     top: calc(14px + var(--safe-top));
     left: calc(var(--panel-width) + ((100vw - var(--panel-width)) / 2) + var(--safe-left));
     transform: translateX(-50%);
-    z-index: 950;
-    min-height: 34px;
+    z-index: 950; min-height: 34px;
     display: flex; align-items: center;
     padding: 7px 16px;
     border: 1px solid var(--line-strong);
@@ -247,8 +205,7 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
     position: fixed;
     top: calc(14px + var(--safe-top));
     right: calc(16px + var(--safe-right));
-    z-index: 950;
-    min-height: 34px;
+    z-index: 950; min-height: 34px;
     display: none; align-items: center; gap: 8px;
     padding: 7px 14px;
     border: 1px solid var(--line-strong);
@@ -310,8 +267,7 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
 
 .pp-cap {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 14px 16px 10px;
-    flex-shrink: 0;
+    padding: 14px 16px 10px; flex-shrink: 0;
 }
 .pp-titol {
     font-size: 11.5px; font-weight: 700; color: var(--text);
@@ -322,8 +278,7 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
     background: transparent; border: 1px solid var(--line); color: var(--muted);
     width: 26px; height: 26px; border-radius: 6px; cursor: pointer;
     display: flex; align-items: center; justify-content: center; padding: 0;
-    transition: all 0.15s ease;
-    flex-shrink: 0;
+    transition: all 0.15s ease; flex-shrink: 0;
 }
 .pp-plega:hover { color: var(--text); background: var(--panel-hover); border-color: var(--line-strong); }
 .pp-plega svg { display: block; }
@@ -334,11 +289,9 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
     flex-shrink: 0;
 }
 .pp-user-bar button {
-    flex: 1;
-    padding: 8px 10px;
+    flex: 1; padding: 8px 10px;
     font-size: 11px; font-weight: 600;
-    border-radius: 6px;
-    cursor: pointer;
+    border-radius: 6px; cursor: pointer;
     border: 1px solid var(--line);
     background: transparent;
     color: var(--text-2);
@@ -363,14 +316,41 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
 }
 .pp-user-bar button .avatar img { width: 100%; height: 100%; object-fit: cover; }
 
+.pp-pla {
+    margin: 0 14px 10px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    background: rgba(255, 215, 0, 0.08);
+    border: 1px solid rgba(255, 215, 0, 0.28);
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 11px; color: var(--gold);
+    flex-shrink: 0;
+    gap: 8px;
+}
+.pp-pla .label { font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase; font-size: 9.5px; opacity: 0.75; }
+.pp-pla .valor { font-weight: 700; }
+.pp-pla .upgrade {
+    background: var(--gold); color: #1b1030; border: none;
+    padding: 4px 9px; border-radius: 5px;
+    font-size: 10px; font-weight: 700; cursor: pointer;
+    font-family: inherit;
+    white-space: nowrap;
+    transition: background 0.15s ease;
+}
+.pp-pla .upgrade:hover { background: #ffdf33; }
+.pp-pla.premium {
+    background: rgba(88, 166, 255, 0.08);
+    border-color: rgba(88, 166, 255, 0.28);
+    color: var(--accent);
+}
+
 .pp-actual {
     margin: 0 14px 12px;
     padding: 9px 12px;
     border-radius: 6px;
     background: var(--accent-soft);
     border: 1px solid rgba(88, 166, 255, 0.25);
-    font-size: 12.5px;
-    color: var(--accent);
+    font-size: 12.5px; color: var(--accent);
     font-weight: 600;
     display: flex; justify-content: space-between; gap: 8px;
     align-items: center;
@@ -479,9 +459,23 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
     box-shadow: inset 2px 0 0 var(--accent);
 }
 .param-row.premium-bloquejat {
-    opacity: 0.4;
-    filter: grayscale(0.7);
-    cursor: not-allowed;
+    opacity: 0.45;
+    filter: grayscale(0.6);
+    cursor: pointer;
+    position: relative;
+}
+.param-row.premium-bloquejat::after {
+    content: '\f023';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    position: absolute;
+    right: 32px;
+    color: var(--gold);
+    font-size: 10px;
+}
+.param-row.premium-bloquejat:hover {
+    background: rgba(255, 215, 0, 0.08);
+    opacity: 0.75;
 }
 .param-row .unitat {
     font-size: 9.5px; color: var(--muted-2);
@@ -512,8 +506,9 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
     border-color: rgba(88, 166, 255, 0.2);
 }
 .param-altura-grup.premium-bloquejat {
-    opacity: 0.4;
-    filter: grayscale(0.7);
+    opacity: 0.45;
+    filter: grayscale(0.6);
+    cursor: pointer;
 }
 .param-altura-cap {
     display: flex; align-items: center; gap: 8px;
@@ -532,7 +527,7 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
     min-width: 0;
 }
 .param-altura-nom .nom { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.param-altura-nom .cadenat { font-size: 10px; opacity: 0.7; }
+.param-altura-nom .cadenat { font-size: 10px; opacity: 0.7; color: var(--gold); }
 .param-altura-valor {
     font-size: 10px;
     color: var(--muted);
@@ -603,7 +598,6 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
 }
 .param-altura-opcio.activa .km { color: var(--accent); opacity: 0.8; }
 
-/* Ciutats */
 .ciu-fila {
     display: flex; align-items: center; gap: 10px;
     padding: 7px 10px; margin: 0;
@@ -631,7 +625,6 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
 }
 .ciu-treu:hover { color: var(--text); background: var(--panel-hover); }
 
-/* Capes */
 .capes-cos { padding: 8px 16px 18px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
 .cap-titol {
     font-size: 9.5px; font-weight: 700; color: var(--muted);
@@ -685,35 +678,22 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
    ═══════════════════════════════════════════════════════════════════ */
 .sistema-btn {
     width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 10px 12px;
-    margin-top: 4px;
+    display: flex; align-items: center; justify-content: center;
+    gap: 8px; padding: 10px 12px; margin-top: 4px;
     border-radius: 8px;
     border: 1px solid var(--line-strong);
     background: var(--panel-2);
     color: var(--text);
-    font-family: inherit;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.15s ease;
+    font-family: inherit; font-size: 12px; font-weight: 600;
+    cursor: pointer; transition: all 0.15s ease;
 }
 .sistema-btn:hover {
     background: var(--panel-hover);
     border-color: var(--accent);
     color: var(--accent);
 }
-.sistema-btn:disabled {
-    opacity: 0.55;
-    cursor: wait;
-}
-.sistema-btn.carregant .ico {
-    display: inline-block;
-    animation: gira 1s linear infinite;
-}
+.sistema-btn:disabled { opacity: 0.55; cursor: wait; }
+.sistema-btn.carregant .ico { display: inline-block; animation: gira 1s linear infinite; }
 .sistema-btn.nova {
     background: rgba(255, 215, 0, 0.12);
     border-color: rgba(255, 215, 0, 0.5);
@@ -727,19 +707,13 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
 .sistema-btn .ico { display: inline-block; }
 
 .sistema-estat {
-    margin-top: 8px;
-    padding: 6px 10px;
-    border-radius: 6px;
-    font-size: 10.5px;
-    font-weight: 500;
-    text-align: center;
-    color: var(--muted);
+    margin-top: 8px; padding: 6px 10px;
+    border-radius: 6px; font-size: 10.5px; font-weight: 500;
+    text-align: center; color: var(--muted);
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid var(--line);
     min-height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex; align-items: center; justify-content: center;
 }
 .sistema-estat:empty { display: none; }
 .sistema-estat.ok     { color: var(--ok); border-color: rgba(63, 185, 80, 0.3); background: rgba(63, 185, 80, 0.08); }
@@ -747,16 +721,12 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
 .sistema-estat.error  { color: var(--danger); border-color: rgba(248, 81, 73, 0.3); background: rgba(248, 81, 73, 0.08); }
 .sistema-estat.comprovant { color: var(--accent); border-color: rgba(88, 166, 255, 0.3); background: rgba(88, 166, 255, 0.08); }
 
-/* Banner flotant de nova versió */
 .banner-nova-versio {
     position: fixed;
     top: calc(14px + var(--safe-top));
-    left: 50%;
-    transform: translate(-50%, -140%);
+    left: 50%; transform: translate(-50%, -140%);
     z-index: 9600;
-    display: flex;
-    align-items: center;
-    gap: 12px;
+    display: flex; align-items: center; gap: 12px;
     padding: 10px 14px;
     background: rgba(13, 17, 23, 0.96);
     border: 1px solid rgba(255, 215, 0, 0.5);
@@ -772,15 +742,9 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
 }
 .banner-nova-versio.visible { transform: translate(-50%, 0); }
 .banner-nova-versio .bnv-ico { font-size: 20px; flex-shrink: 0; }
-.banner-nova-versio .bnv-text {
-    display: flex; flex-direction: column; gap: 1px; min-width: 0;
-}
-.banner-nova-versio .bnv-text strong {
-    font-size: 12.5px; color: var(--gold); font-weight: 700;
-}
-.banner-nova-versio .bnv-text span {
-    font-size: 10.5px; color: var(--muted);
-}
+.banner-nova-versio .bnv-text { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.banner-nova-versio .bnv-text strong { font-size: 12.5px; color: var(--gold); font-weight: 700; }
+.banner-nova-versio .bnv-text span { font-size: 10.5px; color: var(--muted); }
 .banner-nova-versio .bnv-btn {
     background: var(--gold); color: #1b1030; border: none;
     padding: 7px 14px; border-radius: 6px;
@@ -795,32 +759,25 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
 }
 .banner-nova-versio .bnv-tanca:hover { color: var(--text); }
 
-/* Toast sistema */
 .toast-sistema {
     position: fixed;
     bottom: calc(80px + var(--safe-bottom));
-    left: 50%;
-    transform: translate(-50%, 20px);
-    z-index: 9700;
+    left: 50%; transform: translate(-50%, 20px);
+    z-index: 10100;
     padding: 9px 16px;
     background: rgba(13, 17, 23, 0.95);
     border: 1px solid var(--line-strong);
     border-radius: 8px;
     font-family: 'Inter', system-ui, sans-serif;
-    font-size: 12px;
-    font-weight: 600;
+    font-size: 12px; font-weight: 600;
     color: var(--text);
     box-shadow: 0 6px 22px rgba(0, 0, 0, 0.5);
-    opacity: 0;
-    pointer-events: none;
+    opacity: 0; pointer-events: none;
     transition: opacity 0.25s ease, transform 0.25s ease;
     max-width: calc(100vw - 32px);
     white-space: nowrap;
 }
-.toast-sistema.visible {
-    opacity: 1;
-    transform: translate(-50%, 0);
-}
+.toast-sistema.visible { opacity: 1; transform: translate(-50%, 0); }
 .toast-sistema.ok    { border-color: rgba(63, 185, 80, 0.5); color: #7ee787; }
 .toast-sistema.error { border-color: rgba(248, 81, 73, 0.5); color: #ff7b72; }
 
@@ -848,13 +805,8 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
     font-size: 11.5px; font-weight: 700; margin-bottom: 6px; color: #fff;
     letter-spacing: 0.2px;
 }
-.llegenda-css .lc-unitat {
-    font-size: 10px; opacity: 0.7; font-weight: 500; margin-left: 4px;
-}
-.llegenda-css .lc-fila {
-    display: flex; align-items: center; gap: 6px;
-    margin: 2px 0; font-size: 10.5px;
-}
+.llegenda-css .lc-unitat { font-size: 10px; opacity: 0.7; font-weight: 500; margin-left: 4px; }
+.llegenda-css .lc-fila { display: flex; align-items: center; gap: 6px; margin: 2px 0; font-size: 10.5px; }
 .llegenda-css .lc-color {
     width: 22px; height: 11px; border-radius: 2px;
     flex-shrink: 0; border: 1px solid rgba(0, 0, 0, 0.35);
@@ -926,9 +878,12 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
     filter: grayscale(0.7);
 }
 .fh-item.locked::after {
-    content: '🔒';
+    content: '\f023';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
     position: absolute; top: 1px; right: 2px;
     font-size: 7px;
+    color: var(--gold);
 }
 .fh-hora { font-weight: 600; }
 .fh-dia { font-size: 8px; opacity: 0.7; margin-top: -1px; text-transform: uppercase; letter-spacing: 0.3px; }
@@ -937,15 +892,9 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
 .fh-dema  { color: #d29922; }
 .fh-dema2 { color: #f85149; }
 
-/* ═══════════════════════════════════════════════════════════════════
-   DOCK EXTRA
-   ═══════════════════════════════════════════════════════════════════ */
 #dock-extra {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    flex: 0 0 auto;
-    padding-left: 4px;
+    display: flex; align-items: center; gap: 4px;
+    flex: 0 0 auto; padding-left: 4px;
     border-left: 1px solid var(--line);
     margin-left: 2px;
 }
@@ -954,47 +903,27 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
     background: transparent;
     border: 1px solid var(--line);
     color: var(--text-2);
-    font-family: inherit;
-    font-size: 10.5px;
-    font-weight: 600;
-    border-radius: 5px;
-    padding: 5px 8px;
-    cursor: pointer;
-    transition: all 0.15s ease;
-    letter-spacing: 0.3px;
-    height: 30px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    font-family: inherit; font-size: 10.5px; font-weight: 600;
+    border-radius: 5px; padding: 5px 8px;
+    cursor: pointer; transition: all 0.15s ease;
+    letter-spacing: 0.3px; height: 30px;
+    display: inline-flex; align-items: center; justify-content: center;
 }
 #dock-extra button:hover:not(:disabled),
 #dock-extra select:hover {
-    background: var(--panel-hover);
-    color: var(--text);
+    background: var(--panel-hover); color: var(--text);
     border-color: var(--line-strong);
 }
 #dock-extra button.actiu {
-    background: var(--accent-soft);
-    color: var(--accent);
+    background: var(--accent-soft); color: var(--accent);
     border-color: rgba(88,166,255,0.4);
 }
 #dock-extra button:disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
-    color: var(--muted-2);
+    opacity: 0.3; cursor: not-allowed; color: var(--muted-2);
 }
-#dock-extra button:disabled:hover {
-    background: transparent;
-    border-color: var(--line);
-}
-#dock-extra select {
-    padding: 5px 4px;
-    min-width: 92px;
-}
+#dock-extra button:disabled:hover { background: transparent; border-color: var(--line); }
+#dock-extra select { padding: 5px 4px; min-width: 92px; }
 
-/* ═══════════════════════════════════════════════════════════════════
-   LLEGENDA PNG (base)
-   ═══════════════════════════════════════════════════════════════════ */
 .llegenda-mapa {
     position: fixed;
     right: calc(16px + var(--safe-right));
@@ -1009,9 +938,6 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
     -webkit-backdrop-filter: blur(12px);
 }
 
-/* ═══════════════════════════════════════════════════════════════════
-   PANTALLA DE CÀRREGA
-   ═══════════════════════════════════════════════════════════════════ */
 #loading_overlay {
     position: fixed; inset: 0; z-index: 9999;
     display: flex; align-items: center; justify-content: center;
@@ -1029,9 +955,6 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
 }
 @keyframes gira { to { transform: rotate(360deg); } }
 
-/* ═══════════════════════════════════════════════════════════════════
-   MENÚ CONTEXTUAL
-   ═══════════════════════════════════════════════════════════════════ */
 .menu-ctx {
     position: fixed; z-index: 8500;
     background: rgba(13, 17, 23, 0.96);
@@ -1061,9 +984,6 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
 .menu-ctx-boto:hover { background: var(--panel-hover); color: var(--text); }
 .menu-ctx-ico { color: var(--accent); font-weight: 700; font-size: 14px; }
 
-/* ═══════════════════════════════════════════════════════════════════
-   DIÀLEGS SKEW-T (només spinner i error; el confirm s'ha eliminat)
-   ═══════════════════════════════════════════════════════════════════ */
 .skewt-carregant {
     position: fixed; inset: 0; z-index: 8700;
     display: flex; align-items: center; justify-content: center;
@@ -1103,9 +1023,6 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
     font-size: 12px; font-weight: 700;
 }
 
-/* ═══════════════════════════════════════════════════════════════════
-   MODALS
-   ═══════════════════════════════════════════════════════════════════ */
 .modal-overlay {
     position: fixed; inset: 0; z-index: 10000;
     display: none; align-items: center; justify-content: center;
@@ -1164,7 +1081,74 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
 .camp input:focus { border-color: var(--accent); }
 .camp input:disabled { opacity: 0.5; cursor: not-allowed; }
 
-/* Xat */
+.skewt-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    gap: 8px; padding: 10px 18px;
+    border-radius: 8px;
+    border: 1px solid var(--line-strong);
+    background: var(--panel-2);
+    color: var(--text);
+    font-family: inherit; font-size: 12.5px; font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+.skewt-btn:hover { background: var(--panel-hover); border-color: var(--accent); color: var(--accent); }
+.skewt-btn-si {
+    background: var(--accent-soft);
+    border-color: rgba(88, 166, 255, 0.4);
+    color: var(--accent);
+}
+.skewt-btn-si:hover { background: rgba(88, 166, 255, 0.2); }
+.skewt-btn-no { color: var(--muted); }
+
+.pla-btn {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    width: 100%; padding: 11px 18px;
+    border-radius: 8px;
+    border: 1px solid var(--line-strong);
+    background: var(--panel-2);
+    color: var(--text);
+    font-family: inherit; font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-decoration: none;
+}
+.pla-btn:hover { background: var(--panel-hover); border-color: var(--accent); color: var(--accent); }
+.pla-btn.primary {
+    background: linear-gradient(135deg, var(--gold), #ffb300);
+    border-color: transparent;
+    color: #1b1030;
+    font-weight: 700;
+}
+.pla-btn.primary:hover {
+    background: linear-gradient(135deg, #ffdf33, #ffc233);
+    color: #1b1030;
+    border-color: transparent;
+}
+
+.upgrade-avis {
+    display: none;
+    margin-bottom: 14px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: rgba(248, 81, 73, 0.08);
+    border: 1px solid rgba(248, 81, 73, 0.3);
+    color: #ff7b72;
+    font-size: 12.5px; font-weight: 600; line-height: 1.5;
+    word-break: break-word;
+}
+.upgrade-avis.visible { display: block; }
+
+#btnPlay.bloquejat, #dock-extra button.bloquejat { opacity: 0.45; }
+#btnPlay.bloquejat::after, #dock-extra button.bloquejat::after {
+    content: '\f023';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    font-size: 8px; margin-left: 5px;
+    color: var(--gold);
+}
+.upgrade-avis small { display: block; margin-top: 2px; font-weight: 500; color: var(--muted); }
+
 .xat-msgs {
     flex: 1; overflow-y: auto;
     padding: 12px 16px;
@@ -1209,13 +1193,9 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
 }
 .xat-peu button:disabled { opacity: 0.4; cursor: not-allowed; }
 
-/* Radar */
 .radar-body { flex: 1; position: relative; background: #000; min-height: 400px; }
 .radar-body iframe { width: 100%; height: 100%; border: none; display: block; min-height: 400px; }
 
-/* ═══════════════════════════════════════════════════════════════════
-   RESPONSIVE — MÒBIL
-   ═══════════════════════════════════════════════════════════════════ */
 @media (max-width: 860px) {
     :root { --panel-width: 100vw; }
 
@@ -1226,20 +1206,14 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
         padding-bottom: var(--safe-bottom);
     }
 
-    .pp-cap {
-        padding: 12px 14px 10px;
-        gap: 10px;
-    }
+    .pp-cap { padding: 12px 14px 10px; gap: 10px; }
     .pp-plega {
-        width: 38px;
-        height: 38px;
+        width: 38px; height: 38px;
         border-radius: 10px;
         background: var(--panel-2);
         border: 1px solid var(--line-strong);
         color: var(--text);
-        position: relative;
-        z-index: 10;
-        flex-shrink: 0;
+        position: relative; z-index: 10; flex-shrink: 0;
     }
     .pp-plega svg { width: 18px; height: 18px; }
 
@@ -1247,8 +1221,7 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
         top: calc(10px + var(--safe-top));
         left: calc(10px + var(--safe-left));
         z-index: 800;
-        padding: 10px 14px;
-        font-size: 13px;
+        padding: 10px 14px; font-size: 13px;
     }
 
     #current_time_label {
@@ -1271,94 +1244,55 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
         left: calc(10px + var(--safe-left));
         right: calc(10px + var(--safe-right));
         bottom: calc(10px + var(--safe-bottom));
-        height: auto;
-        min-height: 52px;
-        padding: 5px;
-        flex-wrap: wrap;
+        height: auto; min-height: 52px;
+        padding: 5px; flex-wrap: wrap;
     }
-    #btnPlay {
-        height: 40px;
-        padding: 0 12px;
-        font-size: 10px;
-    }
-    .fh-item {
-        min-width: 46px;
-        padding: 5px 9px;
-        font-size: 11px;
-    }
+    #btnPlay { height: 40px; padding: 0 12px; font-size: 10px; }
+    .fh-item { min-width: 46px; padding: 5px 9px; font-size: 11px; }
     .fh-hora { font-size: 11.5px; }
     .fh-dia { font-size: 8.5px; }
 
     #dock-extra {
-        width: 100%;
-        justify-content: space-between;
-        border-left: none;
-        border-top: 1px solid var(--line);
-        padding-left: 0;
-        padding-top: 4px;
-        margin-left: 0;
-        margin-top: 2px;
+        width: 100%; justify-content: space-between;
+        border-left: none; border-top: 1px solid var(--line);
+        padding-left: 0; padding-top: 4px;
+        margin-left: 0; margin-top: 2px;
     }
     #dock-extra button,
-    #dock-extra select {
-        font-size: 10px;
-        padding: 4px 6px;
-        height: 28px;
-    }
+    #dock-extra select { font-size: 10px; padding: 4px 6px; height: 28px; }
     #dock-extra select { min-width: 78px; }
 
     body:not(.panell-plegat) #dock {
         transform: translateY(140%);
-        opacity: 0;
-        pointer-events: none;
+        opacity: 0; pointer-events: none;
     }
 
     .llegenda-mapa {
         right: calc(10px + var(--safe-right));
         bottom: calc(120px + var(--safe-bottom));
-        max-width: 160px;
-        max-height: 35vh;
+        max-width: 160px; max-height: 35vh;
     }
     .llegenda-css {
         right: calc(10px + var(--safe-right));
         bottom: calc(120px + var(--safe-bottom));
-        width: 130px;
-        font-size: 10px;
-        padding: 6px 8px;
+        width: 130px; font-size: 10px; padding: 6px 8px;
     }
 
-    .pp-cos {
-        min-height: 0;
-        flex: 1 1 0;
-        overflow: hidden;
-    }
+    .pp-cos { min-height: 0; flex: 1 1 0; overflow: hidden; }
     .pp-llista {
-        min-height: 0;
-        flex: 1 1 0;
-        overflow-y: auto;
+        min-height: 0; flex: 1 1 0; overflow-y: auto;
         -webkit-overflow-scrolling: touch;
     }
     .pp-tabs { flex-shrink: 0; }
-    .pp-user-bar,
-    .pp-actual,
-    .pp-cerca,
-    .ciu-info,
-    .ciu-treu { flex-shrink: 0; }
+    .pp-user-bar, .pp-actual, .pp-cerca, .ciu-info, .ciu-treu { flex-shrink: 0; }
 
-    .modal-cos {
-        max-width: 96vw;
-        max-height: 88vh;
-    }
+    .modal-cos { max-width: 96vw; max-height: 88vh; }
     .modal-cap { padding: 12px 14px; }
     .modal-body { padding: 14px; }
     .modal-tanca {
-        width: 34px;
-        height: 34px;
-        border-radius: 8px;
+        width: 34px; height: 34px; border-radius: 8px;
         background: var(--panel-2);
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        display: flex; align-items: center; justify-content: center;
         font-size: 16px;
     }
 
@@ -1366,12 +1300,9 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
         top: auto;
         bottom: calc(120px + var(--safe-bottom));
         transform: translate(-50%, 140%);
-        padding: 10px 12px;
-        gap: 8px;
+        padding: 10px 12px; gap: 8px;
     }
-    .banner-nova-versio.visible {
-        transform: translate(-50%, 0);
-    }
+    .banner-nova-versio.visible { transform: translate(-50%, 0); }
     .banner-nova-versio .bnv-text span { display: none; }
 }
 
@@ -1383,11 +1314,19 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
     .pp-cap { padding: 8px 14px 6px; }
     .pp-plega { width: 32px; height: 32px; }
 }
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
 </style>
 </head>
 <body>
 
 <div id="map"></div>
+
+<button id="btn-obrir-panell" type="button">
+    <i class="fa-solid fa-bars"></i> Panell
+</button>
 
 <div id="dock">
     <button id="btnPlay" type="button">▶ Animació</button>
@@ -1405,6 +1344,12 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
         <button id="btnIsolines" type="button" title="Isolínies">Isolínies</button>
         <button id="btnVent" type="button" title="Vent">Vent</button>
         <button id="btnBarbes" type="button" title="Barbes">Barbes</button>
+        <button id="btnXat" type="button" title="Xat en directe">
+            <i class="fa-solid fa-comment"></i>
+        </button>
+        <button id="btnRadar" type="button" title="Radar en viu">
+            <i class="fa-solid fa-satellite-dish"></i>
+        </button>
     </div>
 </div>
 
@@ -1416,14 +1361,13 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
     <div>Carregant visor…</div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════════════════
-     MODAL LOGIN
-     ═══════════════════════════════════════════════════════════════════ -->
+<div id="toastSistema" class="toast-sistema" role="status" aria-live="polite"></div>
+
 <div id="modalLogin" class="modal-overlay">
     <div class="modal-cos">
         <div class="modal-cap">
             <div class="modal-titol">Iniciar sessió</div>
-            <button class="modal-tanca" onclick="tancarModal('modalLogin')">✕</button>
+            <button class="modal-tanca" onclick="tancarModal('modalLogin')" aria-label="Tancar">✕</button>
         </div>
         <div class="modal-body">
             <p style="font-size:12.5px;color:var(--muted);margin:0 0 16px;line-height:1.5;">
@@ -1437,14 +1381,11 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
     </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════════════════
-     MODAL PERFIL
-     ═══════════════════════════════════════════════════════════════════ -->
 <div id="modalPerfil" class="modal-overlay">
     <div class="modal-cos">
         <div class="modal-cap">
             <div class="modal-titol">El meu perfil</div>
-            <button class="modal-tanca" onclick="tancarModal('modalPerfil')">✕</button>
+            <button class="modal-tanca" onclick="tancarModal('modalPerfil')" aria-label="Tancar">✕</button>
         </div>
         <div class="modal-body">
             <div class="camp">
@@ -1455,11 +1396,15 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
                 <label>Email</label>
                 <input type="email" id="perfilEmail" disabled>
             </div>
+            <div class="camp">
+                <label>Pla actual</label>
+                <input type="text" id="perfilPla" disabled>
+            </div>
             <div style="display:flex;gap:8px;margin-top:16px;">
                 <button class="skewt-btn skewt-btn-si" id="btnDesarPerfil" onclick="desarPerfil()" style="flex:1;">
                     Desar
                 </button>
-                <button class="skewt-btn skewt-btn-no" onclick="logoutUser()" style="flex:1;color:var(--danger);border-color:rgba(248,81,73,0.4);">
+                <button class="skewt-btn skewt-btn-no" onclick="logoutUser()" style="flex:1;">
                     Sortir
                 </button>
             </div>
@@ -1467,14 +1412,43 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
     </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════════════════
-     MODAL XAT
-     ═══════════════════════════════════════════════════════════════════ -->
+<div id="modalUpgrade" class="modal-overlay">
+    <div class="modal-cos" style="max-width:440px;">
+        <div class="modal-cap">
+            <div class="modal-titol">
+                <i class="fa-solid fa-lock" style="color:var(--gold);margin-right:8px;"></i>
+                Cal un pla de pagament
+            </div>
+            <button class="modal-tanca" onclick="tancarModal('modalUpgrade')" aria-label="Tancar">✕</button>
+        </div>
+        <div class="modal-body">
+            <p id="upgradeDesc" style="font-size:13px;color:var(--text-2);margin:0 0 14px;line-height:1.6;">
+                Aquesta variable no està disponible al pla gratuït.
+            </p>
+            <div id="upgradeAvis" class="upgrade-avis" role="alert"></div>
+            <div id="upgradePlaNecessari" style="background:var(--accent-soft);border:1px solid rgba(88,166,255,0.3);border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:12.5px;color:var(--accent);font-weight:600;">
+                Pla recomanat: <span id="upgradePlaNom">Entusiasta</span>
+            </div>
+            <a href="privacitat/preus.html" class="pla-btn primary" style="margin-bottom:8px;">
+                <i class="fa-solid fa-tags"></i>
+                Veure tots els plans
+            </a>
+            <button id="upgradeBtnLogin" class="pla-btn" onclick="tancarModal('modalUpgrade'); obrirModal('modalLogin');">
+                <i class="fa-brands fa-google"></i>
+                Iniciar sessió
+            </button>
+            <button id="upgradeBtnTanca" class="pla-btn" style="display:none;" onclick="tancarModal('modalUpgrade')">
+                Tancar
+            </button>
+        </div>
+    </div>
+</div>
+
 <div id="modalXat" class="modal-overlay">
     <div class="modal-cos" style="max-width:480px;">
         <div class="modal-cap">
             <div class="modal-titol"><i class="fas fa-comment" style="color:var(--gold);margin-right:6px;"></i>Xat en directe</div>
-            <button class="modal-tanca" onclick="tancarModal('modalXat')">✕</button>
+            <button class="modal-tanca" onclick="tancarModal('modalXat')" aria-label="Tancar">✕</button>
         </div>
         <div class="xat-msgs" id="xatMsgs">
             <div style="text-align:center;color:var(--muted);padding:20px;font-size:13px;">Carregant missatges...</div>
@@ -1486,14 +1460,11 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
     </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════════════════
-     MODAL RADAR
-     ═══════════════════════════════════════════════════════════════════ -->
 <div id="modalRadar" class="modal-overlay" style="padding:12px;">
     <div class="modal-cos" style="max-width:1100px;width:96vw;max-height:92vh;">
         <div class="modal-cap">
             <div class="modal-titol"><i class="fas fa-satellite-dish" style="color:var(--accent);margin-right:6px;"></i>Radar en temps real</div>
-            <button class="modal-tanca" onclick="tancarModal('modalRadar')">✕</button>
+            <button class="modal-tanca" onclick="tancarModal('modalRadar')" aria-label="Tancar">✕</button>
         </div>
         <div class="radar-body">
             <iframe id="radarIframe" src="" title="Radar"></iframe>
@@ -1507,9 +1478,312 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
     </div>
 </noscript>
 
-<!-- ═══════════════════════════════════════════════════════════════════
-     FIREBASE AUTH
-     ═══════════════════════════════════════════════════════════════════ -->
+<script>
+(function () {
+    'use strict';
+
+    window.obrirModal = function (id) {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('active');
+    };
+    window.tancarModal = function (id) {
+        const el = document.getElementById(id);
+        if (el) el.classList.remove('active');
+    };
+
+    document.querySelectorAll('.modal-overlay').forEach(m => {
+        m.addEventListener('click', e => { if (e.target === m) m.classList.remove('active'); });
+    });
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') {
+            document.querySelectorAll('.modal-overlay.active').forEach(m => m.classList.remove('active'));
+        }
+    });
+
+    window.escHtml = function (s) {
+        return String(s == null ? '' : s)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    };
+
+    let toastTimer = null;
+    window.mostrarToast = function (msg, tipus) {
+        const t = document.getElementById('toastSistema');
+        if (!t) return;
+        t.textContent = msg;
+        t.className = 'toast-sistema visible' + (tipus ? ' ' + tipus : '');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => t.classList.remove('visible'), 3200);
+    };
+})();
+</script>
+
+<script>
+(function(){
+    'use strict';
+
+    const DB_URL = 'https://tempestescat-default-rtdb.firebaseio.com';
+
+    const PLANS = {
+        gratuït: {
+            nom: 'Gratuït',
+            variablesBasiques: true,
+            variablesAvançades: false,
+            totesLesHores: true,
+            skewT: false,
+            nivellsPressio: false,
+            parametres3D: false,
+            radar3h: false,
+            radar24h: false,
+            animacio: true,
+            isolinies: true,
+            barbes: false,
+            vent: true,
+        },
+        entusiasta: {
+            nom: 'Entusiasta',
+            variablesBasiques: true,
+            variablesAvançades: true,
+            totesLesHores: true,
+            skewT: true,
+            nivellsPressio: false,
+            parametres3D: false,
+            radar3h: true,
+            radar24h: false,
+            animacio: true,
+            isolinies: true,
+            barbes: true,
+            vent: true,
+        },
+        professional: {
+            nom: 'Professional',
+            variablesBasiques: true,
+            variablesAvançades: true,
+            totesLesHores: true,
+            skewT: true,
+            nivellsPressio: true,
+            parametres3D: true,
+            radar3h: true,
+            radar24h: true,
+            animacio: true,
+            isolinies: true,
+            barbes: true,
+            vent: true,
+        },
+        equips: {
+            nom: 'Equips',
+            variablesBasiques: true,
+            variablesAvançades: true,
+            totesLesHores: true,
+            skewT: true,
+            nivellsPressio: true,
+            parametres3D: true,
+            radar3h: true,
+            radar24h: true,
+            animacio: true,
+            isolinies: true,
+            barbes: true,
+            vent: true,
+        }
+    };
+
+    const NOMS_NIVELL = ['Gratuït', 'Entusiasta', 'Professional'];
+    const RE_PRO = /shear|cisallament|srh|helicitat|dcape|\blcl\b|\blfc\b|lifted|\bli\b|\behi\b|\bscp\b|\bstp\b|storm|moviment de tempest|nivells?[ _]?(de[ _])?pressio|\b(1000|925|850|700|600|500|400|300|250|200) ?hpa/;
+
+    const RE_BASIC = /temperatura|\btemp\b|\bt2m\b|\bvent\b|\bwind\b|ratxa|\bgust|humitat|\bhumidity\b|\brh\b|pressio|\bpressure\b|\bmslp\b|precipit|\brain\b|neu|\bsnow\b|núvol|\bnuvol|\bcloud\b|visibilitat|\bvisibility\b|\bcape\b|\bcin\b|\bmucape\b|\bmlcape\b|\bsbcape\b|isoterma|isoterm|zero|\b0 ?°?c\b|\b0 ?graus\b/;
+
+    function normalitza(s) {
+        return String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    }
+    function nivellNecessari(varId, label) {
+        const t = normalitza(varId + ' ' + label);
+        if (/skew/.test(t)) return 1;
+        if (RE_PRO.test(t)) return 2;
+        if (RE_BASIC.test(t)) return 0;
+        return 1;
+    }
+    function rang(pla) {
+        return pla === 'equips' ? 2 : ['gratuït', 'entusiasta', 'professional'].indexOf(pla);
+    }
+    function infoFila(row) {
+        const varId = row.dataset.var || row.dataset.varId || row.dataset.id || '';
+        const nomEl = row.querySelector('.nom');
+        let label;
+        if (nomEl) label = nomEl.textContent;
+        else {
+            const c = row.cloneNode(true);
+            c.querySelectorAll('.unitat, .param-altura-opcions').forEach(x => x.remove());
+            label = c.textContent;
+        }
+        return { varId, label: (label || '').trim().replace(/\s+/g, ' ') };
+    }
+    function esNivellPressio(opcio) {
+        const h = opcio && opcio.querySelector('.hpa');
+        if (!h) return false;
+        const n = parseInt(h.textContent, 10);
+        return !isNaN(n) && n >= 200 && n <= 1000;
+    }
+
+    let plaActual = 'gratuït';
+
+    function normalitzarPla(v) {
+        const k = String(v || '').trim().toLowerCase().replace('gratuit', 'gratuït');
+        return PLANS[k] ? k : 'gratuït';
+    }
+
+    async function carregarPlaServidor(user) {
+        if (!user) { plaActual = 'gratuït'; return; }
+        try {
+            const token = await user.getIdToken();
+            const r = await fetch(`${DB_URL}/users/${encodeURIComponent(user.uid)}/pla.json?auth=${token}`, { cache: 'no-store' });
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            plaActual = normalitzarPla(await r.json());
+        } catch (e) {
+            plaActual = 'gratuït';
+        }
+    }
+
+    function getPlaUsuari() {
+        if (!window._firebaseUser) return 'gratuït';
+        return plaActual;
+    }
+
+    function getConfigPla() {
+        return PLANS[getPlaUsuari()] || PLANS['gratuït'];
+    }
+
+    function variableBloquejada(varId, label) {
+        return rang(getPlaUsuari()) < nivellNecessari(varId, label);
+    }
+
+    window.mostrarUpgrade = function(varNom, plaRecomanat) {
+        const user = window._firebaseUser;
+        const cfg = getConfigPla();
+        const desc = document.getElementById('upgradeDesc');
+        const plaNom = document.getElementById('upgradePlaNom');
+        const avis = document.getElementById('upgradeAvis');
+        const btnLogin = document.getElementById('upgradeBtnLogin');
+        const btnTanca = document.getElementById('upgradeBtnTanca');
+        const esHora = varNom === 'Aquesta hora';
+
+        if (plaNom) plaNom.textContent = plaRecomanat || 'Professional';
+
+        if (user) {
+            const correu = user.email || 'aquest compte';
+            if (desc) desc.textContent = esHora
+                ? `Aquesta hora no està disponible al pla ${cfg.nom}.`
+                : `«${varNom}» no està disponible al pla ${cfg.nom}.`;
+            if (avis) {
+                avis.innerHTML = `Aquest correu no té accés a aquesta funció.<small>${escHtml(correu)} · Pla ${escHtml(cfg.nom)}</small>`;
+                avis.classList.add('visible');
+            }
+            if (btnLogin) btnLogin.style.display = 'none';
+            if (btnTanca) btnTanca.style.display = 'flex';
+        } else {
+            if (desc) desc.textContent = esHora
+                ? 'Aquesta hora requereix iniciar sessió i tenir un pla de pagament.'
+                : `«${varNom}» no està disponible al pla Gratuït.`;
+            if (avis) { avis.textContent = ''; avis.classList.remove('visible'); }
+            if (btnLogin) btnLogin.style.display = 'flex';
+            if (btnTanca) btnTanca.style.display = 'none';
+        }
+        obrirModal('modalUpgrade');
+    };
+
+    document.addEventListener('click', function(e) {
+        const row = e.target.closest('.param-row, .param-altura-grup');
+        if (!row) return;
+        const { varId, label } = infoFila(row);
+        let nivell = nivellNecessari(varId, label);
+        if (esNivellPressio(e.target.closest('.param-altura-opcio'))) nivell = 2;
+        if (rang(getPlaUsuari()) < nivell) {
+            e.preventDefault();
+            e.stopPropagation();
+            window.mostrarUpgrade(label || 'Aquesta variable', NOMS_NIVELL[nivell]);
+        }
+    }, true);
+
+    document.addEventListener('click', function(e) {
+        const b = e.target.closest('#btnPlay, #btnIsolines, #btnBarbes, .menu-ctx-boto');
+        if (!b) return;
+        const cfg = getConfigPla();
+        let nom = '', pla = '';
+        if (b.id === 'btnBarbes' && !cfg.barbes && !b.disabled) { nom = 'Barbes (storm motion)'; pla = 'Professional'; }
+        else if (b.classList.contains('menu-ctx-boto') && /skew/.test(normalitza(b.textContent)) && !cfg.skewT) {
+            nom = 'Skew-T'; pla = 'Entusiasta';
+            const m = b.closest('.menu-ctx'); if (m) m.remove();
+        }
+        if (!nom) return;
+        e.preventDefault();
+        e.stopPropagation();
+        window.mostrarUpgrade(nom, pla);
+    }, true);
+
+    function actualitzarUIPla() {
+        const pla = getPlaUsuari();
+        const cfg = PLANS[pla];
+        const el = document.getElementById('ppPlaValor');
+        const box = document.getElementById('ppPlaBox');
+        if (el) el.textContent = cfg.nom;
+        if (box) box.classList.toggle('premium', pla !== 'gratuït');
+
+        document.querySelectorAll('.param-row, .param-altura-grup').forEach(row => {
+            const { varId, label } = infoFila(row);
+            row.classList.toggle('premium-bloquejat', variableBloquejada(varId, label));
+        });
+
+        document.querySelectorAll('.fh-item').forEach(item => {
+            item.classList.remove('locked');
+        });
+
+        [['btnPlay', cfg.animacio], ['btnIsolines', cfg.isolinies], ['btnBarbes', cfg.barbes]].forEach(([id, ok]) => {
+            const b = document.getElementById(id);
+            if (b) b.classList.toggle('bloquejat', !ok);
+        });
+
+        const inpPla = document.getElementById('perfilPla');
+        if (inpPla) inpPla.value = cfg.nom;
+    }
+
+    window.addEventListener('tc:login', async (e) => {
+        await carregarPlaServidor(e.detail || window._firebaseUser);
+        actualitzarUIPla();
+        setTimeout(actualitzarUIPla, 600);
+    });
+    window.addEventListener('tc:logout', () => {
+        plaActual = 'gratuït';
+        actualitzarUIPla();
+        setTimeout(actualitzarUIPla, 600);
+    });
+
+    window.getPlaUsuari = getPlaUsuari;
+    window.getConfigPla = getConfigPla;
+    window.variableBloquejada = variableBloquejada;
+    window.actualitzarUIPla = actualitzarUIPla;
+
+    let tObs = null;
+    const obs = new MutationObserver(muts => {
+        const rellevant = muts.some(m =>
+            (m.target.closest && m.target.closest('#panell-pro, #fh_grid')) ||
+            Array.prototype.some.call(m.addedNodes, n => n.nodeType === 1 && (n.id === 'panell-pro' || n.id === 'fh_grid'))
+        );
+        if (!rellevant) return;
+        clearTimeout(tObs);
+        tObs = setTimeout(actualitzarUIPla, 120);
+    });
+
+    function iniciar() {
+        obs.observe(document.body, { childList: true, subtree: true });
+        setTimeout(actualitzarUIPla, 500);
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', iniciar);
+    } else {
+        iniciar();
+    }
+})();
+</script>
+
 <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
     import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
@@ -1533,8 +1807,16 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
     window._firebaseUser = null;
 
     window.loginWithGoogle = async () => {
-        try { await signInWithPopup(auth, new GoogleAuthProvider()); }
-        catch (e) { console.error('[Auth]', e); }
+        try {
+            await signInWithPopup(auth, new GoogleAuthProvider());
+            tancarModal('modalLogin');
+            tancarModal('modalUpgrade');
+        } catch (e) {
+            console.error('[Auth]', e);
+            if (e && e.code !== 'auth/popup-closed-by-user' && e.code !== 'auth/cancelled-popup-request') {
+                mostrarToast('No s\'ha pogut iniciar sessió', 'error');
+            }
+        }
     };
 
     window.logoutUser = async () => {
@@ -1553,18 +1835,15 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
 <script src="js/gfspngs.js"></script>
 <script src="js/models.js"></script>
 <script src="dades/altitude.js"></script>
-<script src="dades/paletes.js"></script>  
+<script src="dades/paletes.js"></script>
 <script src="js/skew-t-engine.js"></script>
 <script src="js/skewt.js"></script>
-<script src="js/valor.js"></script> 
+<script src="js/valor.js"></script>
 <script src="js/outlook.js"></script>
 <script src="dades/sars-panell.js"></script>
 <script src="js/novetats.js"></script>
 <script src="js/actualitzacio.js"></script>
 
-<!-- ═══════════════════════════════════════════════════════════════════
-     CONTROLS DEL DOCK
-     ═══════════════════════════════════════════════════════════════════ -->
 <script>
 (function () {
     'use strict';
@@ -1575,7 +1854,7 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
         const btnIso = $('btnIsolines');
         const btnVent = $('btnVent');
         const btnBarb = $('btnBarbes');
-        if (!btnIso) return;
+        if (!btnIso || !btnVent || !btnBarb) return;
 
         const teIso = window.variableActivaTeIsolines ? window.variableActivaTeIsolines() : true;
         if (teIso) {
@@ -1617,21 +1896,17 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
         const btnIso = $('btnIsolines');
         const btnVent = $('btnVent');
         const btnBarb = $('btnBarbes');
+        const btnXat = $('btnXat');
+        const btnRadar = $('btnRadar');
 
-        if (btnPrev) btnPrev.addEventListener('click', () => {
-            if (window.canviarHora) window.canviarHora(-1);
-        });
-        if (btnNext) btnNext.addEventListener('click', () => {
-            if (window.canviarHora) window.canviarHora(+1);
-        });
+        if (btnPrev) btnPrev.addEventListener('click', () => { if (window.canviarHora) window.canviarHora(-1); });
+        if (btnNext) btnNext.addEventListener('click', () => { if (window.canviarHora) window.canviarHora(+1); });
 
         if (selVel) {
             if (window.getVelocitatAnimacio) selVel.value = String(window.getVelocitatAnimacio());
             selVel.addEventListener('change', () => {
                 const v = parseInt(selVel.value, 10);
-                if (!isNaN(v) && window.canviarVelocitatAnimacio) {
-                    window.canviarVelocitatAnimacio(v);
-                }
+                if (!isNaN(v) && window.canviarVelocitatAnimacio) window.canviarVelocitatAnimacio(v);
             });
         }
 
@@ -1659,6 +1934,14 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
             window.actualitzarControlsDock();
         });
 
+        if (btnXat) btnXat.addEventListener('click', () => {
+            if (window.toggleXat) window.toggleXat();
+        });
+
+        if (btnRadar) btnRadar.addEventListener('click', () => {
+            if (window.obrirRadarModal) window.obrirRadarModal();
+        });
+
         setTimeout(window.actualitzarControlsDock, 800);
         setTimeout(window.actualitzarControlsDock, 2000);
     }
@@ -1671,54 +1954,37 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
 })();
 </script>
 
-<!-- ═══════════════════════════════════════════════════════════════════
-     MODALS + LOGIN + XAT + PERFIL + INFO RUN
-     ═══════════════════════════════════════════════════════════════════ -->
 <script>
 (function () {
     'use strict';
 
-    window.obrirModal = function (id) {
-        const el = document.getElementById(id);
-        if (el) el.classList.add('active');
-    };
-    window.tancarModal = function (id) {
-        const el = document.getElementById(id);
-        if (el) el.classList.remove('active');
-    };
-
-    document.querySelectorAll('.modal-overlay').forEach(m => {
-        m.addEventListener('click', e => {
-            if (e.target === m) m.classList.remove('active');
-        });
-    });
-    document.addEventListener('keydown', e => {
-        if (e.key === 'Escape') {
-            document.querySelectorAll('.modal-overlay.active').forEach(m => m.classList.remove('active'));
-        }
-    });
+    const DB_URL = 'https://tempestescat-default-rtdb.firebaseio.com';
 
     async function obtenirNomUsuari(user) {
         if (!user) return null;
         try {
-            const r = await fetch(`https://tempestescat-default-rtdb.firebaseio.com/users/${user.uid}.json`);
+            const r = await fetch(`${DB_URL}/users/${encodeURIComponent(user.uid)}.json`);
             const d = await r.json();
             if (d && d.nomPersonalitzat) return d.nomPersonalitzat;
         } catch (e) {}
-        const local = localStorage.getItem(`nom_usuari_${user.uid}`);
-        if (local) return local;
+        try {
+            const local = localStorage.getItem(`nom_usuari_${user.uid}`);
+            if (local) return local;
+        } catch (e) {}
         return user.displayName || (user.email ? user.email.split('@')[0] : 'Usuari');
     }
 
     async function haCanviatNom(user) {
         if (!user) return false;
         try {
-            const r = await fetch(`https://tempestescat-default-rtdb.firebaseio.com/users/${user.uid}.json`);
+            const r = await fetch(`${DB_URL}/users/${encodeURIComponent(user.uid)}.json`);
             const d = await r.json();
             if (d && d.nomCanviat === true) return true;
         } catch (e) {}
-        const local = localStorage.getItem(`nom_info_${user.uid}`);
-        if (local) { try { return JSON.parse(local).canviat === true; } catch (e) {} }
+        try {
+            const local = localStorage.getItem(`nom_info_${user.uid}`);
+            if (local) return JSON.parse(local).canviat === true;
+        } catch (e) {}
         return false;
     }
 
@@ -1727,11 +1993,14 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
         if (!user) { obrirModal('modalLogin'); return; }
         const nom = await obtenirNomUsuari(user);
         const canviat = await haCanviatNom(user);
-        document.getElementById('perfilNom').value = nom;
+        document.getElementById('perfilNom').value = nom || '';
         document.getElementById('perfilEmail').value = user.email || '';
+        document.getElementById('perfilPla').value = (window.getConfigPla ? window.getConfigPla().nom : 'Gratuït');
         const inp = document.getElementById('perfilNom');
         inp.disabled = canviat;
         inp.title = canviat ? 'El nom només es pot canviar 1 vegada' : '';
+        const btn = document.getElementById('btnDesarPerfil');
+        if (btn) btn.disabled = canviat;
         obrirModal('modalPerfil');
     };
 
@@ -1739,13 +2008,13 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
         const user = window._firebaseUser;
         if (!user) return;
         const nom = document.getElementById('perfilNom').value.trim();
-        if (nom.length < 3) { alert('El nom ha de tenir mínim 3 caràcters'); return; }
-        if (nom.length > 20) { alert('El nom ha de tenir màxim 20 caràcters'); return; }
+        if (nom.length < 3) { mostrarToast('El nom ha de tenir mínim 3 caràcters', 'error'); return; }
+        if (nom.length > 20) { mostrarToast('El nom ha de tenir màxim 20 caràcters', 'error'); return; }
         const jaCanviat = await haCanviatNom(user);
-        if (jaCanviat) { alert('El nom ja s\'ha canviat un cop'); return; }
+        if (jaCanviat) { mostrarToast('El nom ja s\'ha canviat un cop', 'error'); return; }
         try {
             const token = await user.getIdToken();
-            await fetch(`https://tempestescat-default-rtdb.firebaseio.com/users/${user.uid}.json?auth=${token}`, {
+            const r = await fetch(`${DB_URL}/users/${encodeURIComponent(user.uid)}.json?auth=${token}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -1754,13 +2023,16 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
                     dataCanvi: new Date().toISOString()
                 })
             });
-            localStorage.setItem(`nom_usuari_${user.uid}`, nom);
-            localStorage.setItem(`nom_info_${user.uid}`, JSON.stringify({ canviat: true }));
-            alert('Nom canviat correctament!');
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            try {
+                localStorage.setItem(`nom_usuari_${user.uid}`, nom);
+                localStorage.setItem(`nom_info_${user.uid}`, JSON.stringify({ canviat: true }));
+            } catch (e) {}
+            mostrarToast('Nom canviat correctament', 'ok');
             tancarModal('modalPerfil');
             actualitzarUIUsuari(user);
         } catch (e) {
-            alert('Error guardant el nom');
+            mostrarToast('Error guardant el nom', 'error');
         }
     };
 
@@ -1769,14 +2041,14 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
         const btnPerfil = document.getElementById('ppBtnPerfil');
         if (!btnLogin || !btnPerfil) return;
         if (user) {
-            const nom = await obtenirNomUsuari(user);
+            const nom = (await obtenirNomUsuari(user)) || 'Usuari';
             const inicial = nom.charAt(0).toUpperCase();
             const foto = user.photoURL || '';
             btnLogin.style.display = 'none';
             btnPerfil.style.display = 'flex';
             btnPerfil.innerHTML = `
-                <span class="avatar">${foto ? `<img src="${foto}" alt="">` : inicial}</span>
-                <span>${nom}</span>
+                <span class="avatar">${foto ? `<img src="${escHtml(foto)}" alt="">` : escHtml(inicial)}</span>
+                <span>${escHtml(nom)}</span>
             `;
         } else {
             btnLogin.style.display = 'flex';
@@ -1790,6 +2062,13 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
     window.obtenirNomUsuari = obtenirNomUsuari;
     window.haCanviatNom = haCanviatNom;
     window.actualitzarUIUsuari = actualitzarUIUsuari;
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const btnLogin = document.getElementById('ppBtnLogin');
+        const btnPerfil = document.getElementById('ppBtnPerfil');
+        if (btnLogin) btnLogin.addEventListener('click', () => obrirModal('modalLogin'));
+        if (btnPerfil) btnPerfil.addEventListener('click', () => openProfile());
+    });
 
     function rutaBase() {
         const p = window.location.pathname;
@@ -1816,27 +2095,16 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
     }
 
     function formatDataRun(info) {
-        if (info.run_iso) {
-            const ms = Date.parse(info.run_iso);
-            if (isFinite(ms)) {
-                const d = new Date(ms);
-                const dia = String(d.getDate()).padStart(2, '0');
-                const mes = String(d.getMonth() + 1).padStart(2, '0');
-                const hora = String(d.getHours()).padStart(2, '0');
-                const min = String(d.getMinutes()).padStart(2, '0');
-                return `${dia}/${mes} · ${hora}:${min}`;
-            }
-        }
-        if (info.run_ts && isFinite(info.run_ts)) {
-            const ms = info.run_ts > 1e12 ? info.run_ts : info.run_ts * 1000;
-            const d = new Date(ms);
-            const dia = String(d.getDate()).padStart(2, '0');
-            const mes = String(d.getMonth() + 1).padStart(2, '0');
-            const hora = String(d.getHours()).padStart(2, '0');
-            const min = String(d.getMinutes()).padStart(2, '0');
-            return `${dia}/${mes} · ${hora}:${min}`;
-        }
-        return 'avui';
+        let ms = NaN;
+        if (info.run_iso) ms = Date.parse(info.run_iso);
+        else if (info.run_ts && isFinite(info.run_ts)) ms = info.run_ts > 1e12 ? info.run_ts : info.run_ts * 1000;
+        if (!isFinite(ms)) return 'avui';
+        const d = new Date(ms);
+        const dia = String(d.getDate()).padStart(2, '0');
+        const mes = String(d.getMonth() + 1).padStart(2, '0');
+        const hora = String(d.getHours()).padStart(2, '0');
+        const min = String(d.getMinutes()).padStart(2, '0');
+        return `${dia}/${mes} · ${hora}:${min}`;
     }
 
     function pintarInfoRun(info) {
@@ -1844,9 +2112,9 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
         if (!el || !info) return;
         el.innerHTML = `
             <span class="punt"></span>
-            <span class="run">${info.run_z || '—'}</span>
+            <span class="run">${escHtml(info.run_z || '—')}</span>
             <span class="sep">·</span>
-            <span class="fa">${formatDataRun(info)}</span>
+            <span class="fa">${escHtml(formatDataRun(info))}</span>
         `;
         el.classList.add('visible');
     }
@@ -1866,23 +2134,20 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
     let pusherInicialitzat = false;
     const missatgesVistos = new Set();
 
-    function escHtml(s) {
-        return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-    }
-
     function formatHora(ts) {
         if (!ts) return '';
         const d = new Date(ts);
         return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
     }
-
     function colorAvatar(nom) {
         const colors = ['#4080c0', '#c04040', '#40a060', '#c08020', '#8040c0', '#20a0a0', '#c04080'];
         let h = 0;
         for (let i = 0; i < (nom || '').length; i++) h = (h * 31 + nom.charCodeAt(i)) & 0xffff;
         return colors[h % colors.length];
     }
-
+    function fotoSegura(url) {
+        return typeof url === 'string' && /^https:\/\//i.test(url) && url.length < 2000;
+    }
     function afegirMissatge(msg) {
         const c = document.getElementById('xatMsgs');
         if (!c) return;
@@ -1892,15 +2157,17 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
         if (missatgesVistos.size > 200) {
             [...missatgesVistos].slice(0, 50).forEach(x => missatgesVistos.delete(x));
         }
+        if (c.querySelector(':scope > div[style*="text-align:center"]')) c.innerHTML = '';
+
         const esSistema = msg.type === 'system';
         const div = document.createElement('div');
         div.className = 'xat-msg';
         if (esSistema) {
             div.innerHTML = `<div style="text-align:center;color:var(--muted);font-size:11px;font-style:italic;">${escHtml(msg.text)}</div>`;
         } else {
-            const avatar = msg.photo && msg.photo.length < 5000
+            const avatar = fotoSegura(msg.photo)
                 ? `<img src="${escHtml(msg.photo)}" alt="">`
-                : (msg.nick || '?').charAt(0).toUpperCase();
+                : escHtml((msg.nick || '?').charAt(0).toUpperCase());
             const bg = colorAvatar(msg.nick || 'X');
             div.innerHTML = `
                 <div class="xat-msg-cap">
@@ -1919,8 +2186,7 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
     window.toggleXat = function () {
         const m = document.getElementById('modalXat');
         if (!m) return;
-        const obert = m.classList.contains('active');
-        if (obert) { tancarModal('modalXat'); return; }
+        if (m.classList.contains('active')) { tancarModal('modalXat'); return; }
         obrirModal('modalXat');
         carregarMissatgesXat();
         const inp = document.getElementById('xatInput');
@@ -1939,7 +2205,7 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
             if (msgs && msgs.length) msgs.slice(-30).forEach(afegirMissatge);
             else c.innerHTML = '<div style="text-align:center;color:var(--muted);padding:20px;font-size:13px;">Encara no hi ha missatges</div>';
         } catch (e) {
-            c.innerHTML = '<div style="text-align:center;color:var(--muted);padding:20px;font-size:13px;">Error carregant xat</div>';
+            c.innerHTML = '<div style="text-align:center;color:var(--muted);padding:20px;font-size:13px;">Error carregant el xat</div>';
         }
     }
 
@@ -1948,7 +2214,7 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
         const text = inp?.value?.trim();
         if (!text) return;
         const user = window._firebaseUser;
-        if (!user) { obrirModal('modalLogin'); return; }
+        if (!user) { tancarModal('modalXat'); obrirModal('modalLogin'); return; }
         const nick = await obtenirNomUsuari(user);
         const btn = document.getElementById('xatSendBtn');
         if (btn) { btn.disabled = true; btn.textContent = '...'; }
@@ -1963,9 +2229,12 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
                 })
             });
             const d = await r.json();
-            if (d.ok) { inp.value = ''; actualitzarBotoEnviar(); }
-        } catch (e) { console.error('[Xat]', e); }
-        finally {
+            if (d.ok) { inp.value = ''; }
+            else mostrarToast('No s\'ha pogut enviar el missatge', 'error');
+        } catch (e) {
+            console.error('[Xat]', e);
+            mostrarToast('Error enviant el missatge', 'error');
+        } finally {
             if (btn) btn.textContent = 'Enviar';
             actualitzarBotoEnviar();
         }
@@ -1977,6 +2246,9 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
         if (!inp || !btn) return;
         btn.disabled = !(inp.value.trim().length > 0 && window._firebaseUser);
     }
+
+    window.addEventListener('tc:login', actualitzarBotoEnviar);
+    window.addEventListener('tc:logout', actualitzarBotoEnviar);
 
     document.addEventListener('DOMContentLoaded', () => {
         const inp = document.getElementById('xatInput');
@@ -2024,9 +2296,61 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
         inicialitzar();
     }
 })();
+</script>
 
+<!-- ═══════════════════════════════════════════════════════════════════
+     COMUNICACIÓ AMB preus.html (postMessage)
+     ═══════════════════════════════════════════════════════════════════ -->
+<script>
+(function () {
+    'use strict';
+    window.addEventListener('message', (e) => {
+        const d = e.data;
+        if (!d || typeof d !== 'object') return;
+        if (d.tipus === 'preus:demanaUsuari') {
+            try {
+                e.source.postMessage({
+                    tipus: 'visor:usuari',
+                    user: window._firebaseUser
+                        ? {
+                            uid: window._firebaseUser.uid,
+                            email: window._firebaseUser.email,
+                            displayName: window._firebaseUser.displayName,
+                            photoURL: window._firebaseUser.photoURL
+                          }
+                        : null
+                }, '*');
+            } catch (err) {}
+        }
+        if (d.tipus === 'preus:obreLogin') {
+            if (typeof window.obrirModal === 'function') window.obrirModal('modalLogin');
+        }
+    });
+})();
+</script>
 
+<!-- ═══════════════════════════════════════════════════════════════════
+     REFRESC AUTOMÀTIC EN TORNAR DE STRIPE
+     ═══════════════════════════════════════════════════════════════════ -->
+<script>
+(function () {
+    'use strict';
+    const params = new URLSearchParams(location.search);
+    if (!params.has('success')) return;
 
+    history.replaceState({}, '', location.pathname);
+
+    const esperar = setInterval(() => {
+        if (window._firebaseUser) {
+            clearInterval(esperar);
+            window.dispatchEvent(new CustomEvent('tc:login', { detail: window._firebaseUser }));
+            if (typeof window.mostrarToast === 'function') {
+                window.mostrarToast('Pla actualitzat correctament', 'ok');
+            }
+        }
+    }, 500);
+    setTimeout(() => clearInterval(esperar), 15000);
+})();
 </script>
 
 </body>

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ca" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Termes i condicions · TEMPESTES.CAT</title>
+<meta name="description" content="Termes i condicions d'ús de TEMPESTES.CAT: visor meteorològic, radar en viu i serveis associats." />
+<meta name="robots" content="index, follow" />
+<link rel="icon" type="image/png" href="../img/favicon.png" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#ffffff; --bg-2:#f7f7f7; --card:#ffffff; --line:#e5e5e5;
+  --text:#111111; --muted:#6b6b6b; --accent:#111111; --accent-soft:#f0f0f0;
+  --shadow:0 2px 12px rgba(0,0,0,.04); --shadow-lg:0 12px 40px rgba(0,0,0,.08);
+  --r:12px; --font:'Inter',-apple-system,system-ui,sans-serif; --display:'Space Grotesk','Inter',sans-serif;
+}
+:root[data-theme="dark"]{
+  --bg:#0a0a0a; --bg-2:#141414; --card:#1a1a1a; --line:#2a2a2a;
+  --text:#f0f0f0; --muted:#a0a0a0; --accent:#f0f0f0; --accent-soft:#222222;
+  --shadow:0 2px 12px rgba(0,0,0,.3); --shadow-lg:0 12px 40px rgba(0,0,0,.5);
+}
+html{scroll-behavior:smooth;scroll-padding-top:80px}
+body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.7;font-size:16px;padding-top:64px;transition:background .3s,color .3s}
+a{color:inherit;text-decoration:none}
+img{display:block;max-width:100%}
+button{font-family:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--text);outline-offset:2px}
+.wrap{max-width:820px;margin:0 auto;padding:0 24px}
+h1,h2,h3{font-family:var(--display);letter-spacing:-.02em;line-height:1.2}
+
+/* NAV */
+.nav{position:fixed;top:0;left:0;right:0;height:64px;z-index:100;background:var(--bg);border-bottom:1px solid var(--line);transition:background .3s,border-color .3s}
+.nav .wrap{max-width:1120px;height:100%;display:flex;align-items:center;gap:20px}
+.logo{font-family:var(--display);font-weight:700;font-size:20px;letter-spacing:.02em;color:var(--text)}
+.logo b{font-weight:400;color:var(--muted)}
+.nav-actions{display:flex;align-items:center;gap:8px;margin-left:auto}
+.icon-btn{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--text);font-size:14px;transition:.2s;display:flex;align-items:center;justify-content:center}
+.icon-btn:hover{background:var(--accent-soft);border-color:var(--muted)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 22px;border-radius:28px;font-weight:600;font-size:13px;border:1px solid transparent;transition:all .2s ease;letter-spacing:.01em}
+.btn-ghost{background:transparent;border-color:var(--line);color:var(--text)}
+.btn-ghost:hover{border-color:var(--text);transform:translateY(-1px)}
+
+/* CONTINGUT */
+main{padding:60px 0 80px}
+.legal-head{margin-bottom:40px;padding-bottom:28px;border-bottom:1px solid var(--line)}
+.legal-head .eyebrow{display:inline-flex;align-items:center;gap:10px;color:var(--muted);font-size:11px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;margin-bottom:16px}
+.legal-head .eyebrow::before{content:"";width:24px;height:1px;background:var(--muted)}
+.legal-head h1{font-size:clamp(30px,4.5vw,44px);font-weight:700;color:var(--text)}
+.legal-head p.updated{margin-top:14px;color:var(--muted);font-size:14px}
+.legal-head p.updated i{margin-right:6px}
+
+.legal-body h2{font-size:22px;font-weight:700;margin:38px 0 12px;color:var(--text);display:flex;align-items:center;gap:10px}
+.legal-body h2 .num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:var(--accent-soft);color:var(--text);font-size:13px;font-family:var(--font);font-weight:700;flex-shrink:0}
+.legal-body h3{font-size:17px;font-weight:700;margin:24px 0 8px;color:var(--text)}
+.legal-body p{color:var(--muted);font-size:15px;margin-bottom:14px}
+.legal-body ul{list-style:none;margin:8px 0 16px;padding-left:0;display:flex;flex-direction:column;gap:8px}
+.legal-body ul li{position:relative;padding-left:22px;color:var(--muted);font-size:15px}
+.legal-body ul li::before{content:"";position:absolute;left:0;top:11px;width:8px;height:8px;border-radius:50%;background:var(--text);opacity:.5}
+.legal-body a{color:var(--text);text-decoration:underline;text-underline-offset:2px}
+.legal-body strong{color:var(--text);font-weight:600}
+.callout{background:var(--bg-2);border:1px solid var(--line);border-left:3px solid var(--text);border-radius:10px;padding:16px 20px;margin:18px 0;font-size:14.5px;color:var(--muted)}
+.callout i{color:var(--text);margin-right:8px}
+.callout strong{color:var(--text)}
+
+.legal-foot{margin-top:50px;padding-top:24px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:14px;justify-content:space-between;align-items:center;font-size:13.5px;color:var(--muted)}
+.legal-foot a{color:var(--muted);transition:.2s}
+.legal-foot a:hover{color:var(--text)}
+.legal-foot .links{display:flex;gap:18px;flex-wrap:wrap}
+
+@media(max-width:600px){
+  main{padding:40px 0 60px}
+  .legal-body h2{font-size:19px}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap">
+    <a href="../index.html" class="logo">TEMPESTES<b>.CAT</b></a>
+    <div class="nav-actions">
+      <button class="icon-btn" id="themeBtn" aria-label="Canviar tema"><i class="fa-solid fa-sun"></i></button>
+      <a href="../index.html" class="btn btn-ghost"><i class="fa-solid fa-arrow-left"></i> Tornar</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <div class="legal-head">
+      <span class="eyebrow">Legal</span>
+      <h1>Termes i condicions d'ús</h1>
+      <p class="updated"><i class="fa-regular fa-calendar"></i>Darrera actualització: <span id="updateDate"></span></p>
+    </div>
+
+    <div class="legal-body">
+      <p>Benvingut/da a <strong>TEMPESTES.CAT</strong>. Aquests termes i condicions regulen l'accés i l'ús del lloc web <strong>tempestes.cat</strong>, del visor AROME, del radar en viu i de qualsevol altre servei ofert sota la marca TEMPESTES.CAT (d'ara endavant, "el Servei").</p>
+
+      <p>En accedir o utilitzar el Servei, acceptes aquests termes en la seva totalitat. Si no hi estàs d'acord, et demanem que no utilitzis el Servei.</p>
+
+      <div class="callout">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <strong>Avis important:</strong> TEMPESTES.CAT és una eina d'informació i divulgació meteorològica. Les dades que mostrem són orientatives i <strong>no substitueixen</strong> els avisos oficials d'AEMET, Meteocat, Protecció Civil o qualsevol altre organisme competent.
+      </div>
+
+      <h2><span class="num">1</span>Objecte del Servei</h2>
+      <p>TEMPESTES.CAT ofereix visualitzacions meteorològiques basades en models numèrics (principalment AROME), radar en viu, sondejos Skew-T i paràmetres de convecció, amb l'objectiu de facilitar la comprensió i el seguiment de fenòmens meteorològics, especialment a Catalunya.</p>
+      <p>El Servei es presta "tal com és" i pot ser modificat, ampliat o interromput en qualsevol moment sense avís previ.</p>
+
+      <h2><span class="num">2</span>Condicions d'accés i ús</h2>
+      <p>L'ús del Servei implica:</p>
+      <ul>
+        <li>Fer un ús personal i no comercial de les dades, excepte autorització expressa.</li>
+        <li>No reproduir, redistribuir ni revendre les visualitzacions o dades sense citar la font i sense permís.</li>
+        <li>No intentar accedir a zones restringides, alterar el funcionament del lloc o sobrecarregar els servidors.</li>
+        <li>No utilitzar el Servei per difondre informació falsa, alarmista o que pugui generar perjudicis a tercers.</li>
+      </ul>
+
+      <h2><span class="num">3</span>Comptes d'usuari</h2>
+      <p>Alguns serveis poden requerir l'autenticació mitjançant un compte de Google. Ets responsable de mantenir la confidencialitat de les teves credencials i de totes les activitats que es facin amb el teu compte.</p>
+      <p>Ens reservem el dret de suspendre o cancel·lar comptes que incompleixin aquests termes o facin un ús abusiu del Servei.</p>
+
+      <h2><span class="num">4</span>Propietat intel·lectual</h2>
+      <p>El disseny, el codi, els textos, els logotips i les visualitzacions pròpies de TEMPESTES.CAT són propietat dels seus autors i estan protegits per la legislació de propietat intel·lectual.</p>
+      <p>Les dades meteorològiques originals provenen de fonts públiques com <strong>Meteo-France</strong>, <strong>NOAA</strong>, <strong>ECMWF</strong> i altres organismes. El tractament, la representació gràfica i la composició final són responsabilitat de TEMPESTES.CAT.</p>
+
+      <h2><span class="num">5</span>Limitació de responsabilitat</h2>
+      <p>TEMPESTES.CAT no garanteix l'exactitud, la disponibilitat ni la continuïtat del Servei. Les previsions meteorològiques són, per naturalesa, incertes i poden variar respecte a la realitat.</p>
+      <p>En cap cas TEMPESTES.CAT serà responsable de danys directes o indirectes derivats de l'ús o de la impossibilitat d'ús del Servei, incloent-hi decisions preses a partir de la informació mostrada.</p>
+
+      <h2><span class="num">6</span>Enllaços a tercers</h2>
+      <p>El Servei pot contenir enllaços a llocs externs (per exemple, xarxes socials, col·laboradors o fonts de dades). No ens fem responsables del contingut ni de les polítiques d'aquests llocs.</p>
+
+      <h2><span class="num">7</span>Modificacions dels termes</h2>
+      <p>Ens reservem el dret de modificar aquests termes en qualsevol moment. Les modificacions entraran en vigor des del moment de la seva publicació en aquesta pàgina. Et recomanem revisar-los periòdicament.</p>
+
+      <h2><span class="num">8</span>Legislació</h2>
+      <p>Qualsevol controvèrsia derivada de l'ús del Servei se sotmetrà legalment.</p>
+
+      <h2><span class="num">9</span>Contacte</h2>
+      <p>Per a qualsevol dubte sobre aquests termes, pots escriure'ns a <a href="mailto:tempestescat@gmail.com">tempestescat@gmail.com</a>.</p>
+
+      <div class="legal-foot">
+        <span>© <span id="yr"></span> TEMPESTES.CAT</span>
+        <div class="links">
+          <a href="privacitat.html">Privacitat</a>
+          <a href="termes.html">Termes</a>
+          <a href="negoci.html">Avís de negoci</a>
+          <a href="preus.html">Preus</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+/* Tema fosc per defecte */
+(function(){
+  const root = document.documentElement, btn = document.getElementById('themeBtn');
+  const apply = t => {
+    root.dataset.theme = t;
+    btn.innerHTML = t === 'dark' ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+  };
+  apply('dark');
+  btn.onclick = () => apply(root.dataset.theme === 'dark' ? 'light' : 'dark');
+})();
+document.getElementById('yr').textContent = new Date().getFullYear();
+document.getElementById('updateDate').textContent = new Date().toLocaleDateString('ca-ES', { year:'numeric', month:'long', day:'numeric' });
+</script>
+
+</body>
+</html>

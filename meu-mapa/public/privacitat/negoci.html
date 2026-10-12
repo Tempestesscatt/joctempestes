@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="ca" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Avís de negoci · TEMPESTES.CAT</title>
+<meta name="description" content="Avís de negoci de TEMPESTES.CAT: model de finançament, eficiència dels plans, servei per a empreses i transparència." />
+<meta name="robots" content="index, follow" />
+<link rel="icon" type="image/png" href="../img/favicon.png" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#ffffff; --bg-2:#f7f7f7; --card:#ffffff; --line:#e5e5e5;
+  --text:#111111; --muted:#6b6b6b; --accent:#111111; --accent-soft:#f0f0f0;
+  --shadow:0 2px 12px rgba(0,0,0,.04); --shadow-lg:0 12px 40px rgba(0,0,0,.08);
+  --r:12px; --font:'Inter',-apple-system,system-ui,sans-serif; --display:'Space Grotesk','Inter',sans-serif;
+}
+:root[data-theme="dark"]{
+  --bg:#0a0a0a; --bg-2:#141414; --card:#1a1a1a; --line:#2a2a2a;
+  --text:#f0f0f0; --muted:#a0a0a0; --accent:#f0f0f0; --accent-soft:#222222;
+  --shadow:0 2px 12px rgba(0,0,0,.3); --shadow-lg:0 12px 40px rgba(0,0,0,.5);
+}
+html{scroll-behavior:smooth;scroll-padding-top:80px}
+body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.7;font-size:16px;padding-top:64px;transition:background .3s,color .3s}
+a{color:inherit;text-decoration:none}
+img{display:block;max-width:100%}
+button{font-family:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--text);outline-offset:2px}
+.wrap{max-width:820px;margin:0 auto;padding:0 24px}
+h1,h2,h3{font-family:var(--display);letter-spacing:-.02em;line-height:1.2}
+
+/* NAV */
+.nav{position:fixed;top:0;left:0;right:0;height:64px;z-index:100;background:var(--bg);border-bottom:1px solid var(--line);transition:background .3s,border-color .3s}
+.nav .wrap{max-width:1120px;height:100%;display:flex;align-items:center;gap:20px}
+.logo{font-family:var(--display);font-weight:700;font-size:20px;letter-spacing:.02em;color:var(--text)}
+.logo b{font-weight:400;color:var(--muted)}
+.nav-actions{display:flex;align-items:center;gap:8px;margin-left:auto}
+.icon-btn{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--text);font-size:14px;transition:.2s;display:flex;align-items:center;justify-content:center}
+.icon-btn:hover{background:var(--accent-soft);border-color:var(--muted)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 22px;border-radius:28px;font-weight:600;font-size:13px;border:1px solid transparent;transition:all .2s ease;letter-spacing:.01em}
+.btn-primary{background:var(--text);color:var(--bg);border-color:var(--text)}
+.btn-primary:hover{opacity:.85;transform:translateY(-1px)}
+.btn-ghost{background:transparent;border-color:var(--line);color:var(--text)}
+.btn-ghost:hover{border-color:var(--text);transform:translateY(-1px)}
+
+/* CONTINGUT */
+main{padding:60px 0 80px}
+.legal-head{margin-bottom:40px;padding-bottom:28px;border-bottom:1px solid var(--line)}
+.legal-head .eyebrow{display:inline-flex;align-items:center;gap:10px;color:var(--muted);font-size:11px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;margin-bottom:16px}
+.legal-head .eyebrow::before{content:"";width:24px;height:1px;background:var(--muted)}
+.legal-head h1{font-size:clamp(30px,4.5vw,44px);font-weight:700;color:var(--text)}
+.legal-head p.updated{margin-top:14px;color:var(--muted);font-size:14px}
+.legal-head p.updated i{margin-right:6px}
+
+.legal-body h2{font-size:22px;font-weight:700;margin:38px 0 12px;color:var(--text);display:flex;align-items:center;gap:10px}
+.legal-body h2 .num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:var(--accent-soft);color:var(--text);font-size:13px;font-family:var(--font);font-weight:700;flex-shrink:0}
+.legal-body h3{font-size:17px;font-weight:700;margin:24px 0 8px;color:var(--text)}
+.legal-body p{color:var(--muted);font-size:15px;margin-bottom:14px}
+.legal-body ul{list-style:none;margin:8px 0 16px;padding-left:0;display:flex;flex-direction:column;gap:8px}
+.legal-body ul li{position:relative;padding-left:22px;color:var(--muted);font-size:15px}
+.legal-body ul li::before{content:"";position:absolute;left:0;top:11px;width:8px;height:8px;border-radius:50%;background:var(--text);opacity:.5}
+.legal-body a{color:var(--text);text-decoration:underline;text-underline-offset:2px}
+.legal-body strong{color:var(--text);font-weight:600}
+
+.callout{background:var(--bg-2);border:1px solid var(--line);border-left:3px solid var(--text);border-radius:10px;padding:16px 20px;margin:18px 0;font-size:14.5px;color:var(--muted)}
+.callout i{color:var(--text);margin-right:8px}
+.callout strong{color:var(--text)}
+
+/* EFICIÈNCIA PLANS */
+.plans-eff{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin:20px 0 10px}
+.eff-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:20px;box-shadow:var(--shadow);transition:transform .25s,box-shadow .25s,border-color .25s}
+.eff-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);border-color:var(--muted)}
+.eff-card.highlight{border:2px solid var(--text)}
+.eff-card .eff-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.eff-card h3{font-size:17px;font-family:var(--display);font-weight:700}
+.eff-card .badge{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:3px 10px;border-radius:20px;background:var(--accent-soft);color:var(--text);border:1px solid var(--line)}
+.eff-card .badge.best{background:var(--text);color:var(--bg);border-color:var(--text)}
+.eff-card .price{font-family:var(--display);font-size:20px;font-weight:700;color:var(--text);margin:2px 0 10px}
+.eff-card .price small{font-family:var(--font);font-size:12px;color:var(--muted);font-weight:400}
+.eff-bar{margin:10px 0 4px}
+.eff-bar .row{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:4px}
+.eff-bar .row b{color:var(--text);font-weight:600}
+.eff-track{height:6px;border-radius:6px;background:var(--accent-soft);overflow:hidden;margin-bottom:10px}
+.eff-track span{display:block;height:100%;background:var(--text);border-radius:6px}
+.eff-card p.note{color:var(--muted);font-size:13px;margin-top:8px}
+
+.table-wrap{overflow-x:auto;margin:16px 0 20px;border:1px solid var(--line);border-radius:10px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+table th,table td{padding:12px 16px;text-align:left;border-bottom:1px solid var(--line);color:var(--muted);vertical-align:top}
+table th{background:var(--bg-2);color:var(--text);font-weight:600;font-size:13px}
+table td strong{color:var(--text)}
+table tr:last-child td{border-bottom:0}
+
+.biz-box{background:var(--bg-2);border:1px solid var(--line);border-radius:var(--r);padding:24px;margin:20px 0}
+.biz-box h3{margin-top:0;display:flex;align-items:center;gap:10px}
+.biz-box h3 i{color:var(--muted)}
+.biz-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:14px}
+.biz-item{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.biz-item b{display:block;color:var(--text);font-size:14px;margin-bottom:4px}
+.biz-item span{color:var(--muted);font-size:13px}
+
+.legal-foot{margin-top:50px;padding-top:24px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:14px;justify-content:space-between;align-items:center;font-size:13.5px;color:var(--muted)}
+.legal-foot a{color:var(--muted);transition:.2s}
+.legal-foot a:hover{color:var(--text)}
+.legal-foot .links{display:flex;gap:18px;flex-wrap:wrap}
+
+@media(max-width:600px){
+  main{padding:40px 0 60px}
+  .legal-body h2{font-size:19px}
+  .plans-eff{grid-template-columns:1fr}
+  .biz-grid{grid-template-columns:1fr}
+  table th,table td{padding:10px 12px;font-size:13px}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap">
+    <a href="../index.html" class="logo">TEMPESTES<b>.CAT</b></a>
+    <div class="nav-actions">
+      <button class="icon-btn" id="themeBtn" aria-label="Canviar tema"><i class="fa-solid fa-sun"></i></button>
+      <a href="../index.html" class="btn btn-ghost"><i class="fa-solid fa-arrow-left"></i> Tornar</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <div class="legal-head">
+      <span class="eyebrow">Legal · Transparència</span>
+      <h1>Avís de negoci</h1>
+      <p class="updated"><i class="fa-regular fa-calendar"></i>Darrera actualització: <span id="updateDate"></span></p>
+    </div>
+
+    <div class="legal-body">
+      <p>A TEMPESTES.CAT creiem que la transparència és part del servei. En aquesta pàgina t'expliquem <strong>qui hi ha darrere del projecte</strong>, <strong>com es finança</strong> i <strong>quin valor real rep l'usuari</strong> en cada pla, perquè puguis decidir amb criteri.</p>
+
+      <div class="callout">
+        <i class="fa-solid fa-lightbulb"></i>
+        <strong>Idea clau:</strong> no cobrem per fer més gran la web, cobrem per <strong>mantenir dades, servidors i hores de desenvolupament</strong> i per oferir eines útils a meteoròlegs, caçadors i empreses.
+      </div>
+
+      <h2><span class="num">1</span>Qui som i què oferim</h2>
+      <p>TEMPESTES.CAT és un projecte independent de visualització meteorològica creat per apassionats de la meteorologia. Oferim:</p>
+      <ul>
+        <li>Visor AROME d'alta resolució (1,3 km) per a Catalunya.</li>
+        <li>Radar en viu i radar simulat.</li>
+        <li>Sondejos Skew-T i paràmetres de convecció (CAPE, CIN, shear, SRH...).</li>
+        <li>Fòrum d'episodis i contingut divulgatiu.</li>
+      </ul>
+
+      <h2><span class="num">2</span>Com es finança el projecte</h2>
+      <p>El manteniment de TEMPESTES.CAT té costos reals: servidors, emmagatzematge de dades, APIs, dominis, desenvolupament i hores de manteniment. Per sostenir-ho, combinem:</p>
+      <ul>
+        <li><strong>Publicitat no intrusiva</strong> (Google AdSense) per als usuaris del pla gratuït.</li>
+        <li><strong>Subscripcions</strong> dels plans Entusiasta i Professional.</li>
+        <li><strong>Plans per a equips i empreses</strong> amb necessitats específiques.</li>
+        <li><strong>Col·laboracions</strong> puntuals amb projectes afins.</li>
+      </ul>
+      <p>No venem dades personals ni les cedim a tercers amb finalitats comercials.</p>
+
+      <h2><span class="num">3</span>Eficiència dels plans: qualitat/preu i servei/preu</h2>
+      <p>Cada pla està pensat per a un perfil diferent. A sota tens una valoració de l'<strong>eficiència</strong> de cada pla, entesa com la relació entre el que reps (qualitat de les eines, hores de dades, suport) i el que pagues. Els percentatges són una estimació interna per ajudar-te a triar.</p>
+
+      <div class="plans-eff">
+        <div class="eff-card">
+          <div class="eff-top">
+            <h3>Gratuït</h3>
+            <span class="badge">Iniciació</span>
+          </div>
+          <div class="price">0 € <small>/ sempre</small></div>
+          <div class="eff-bar">
+            <div class="row"><span>Qualitat / preu</span><b>85%</b></div>
+            <div class="eff-track"><span style="width:85%"></span></div>
+            <div class="row"><span>Servei / preu</span><b>90%</b></div>
+            <div class="eff-track"><span style="width:90%"></span></div>
+          </div>
+          <p class="note">Ideal per descobrir el visor i seguir episodis puntuals.</p>
+        </div>
+
+        <div class="eff-card">
+          <div class="eff-top">
+            <h3>Entusiasta</h3>
+            <span class="badge">Aficionat</span>
+          </div>
+          <div class="price">3,99 € <small>/ mes · 39,99 € / any</small></div>
+          <div class="eff-bar">
+            <div class="row"><span>Qualitat / preu</span><b>95%</b></div>
+            <div class="eff-track"><span style="width:95%"></span></div>
+            <div class="row"><span>Servei / preu</span><b>92%</b></div>
+            <div class="eff-track"><span style="width:92%"></span></div>
+          </div>
+          <p class="note">El millor equilibri per a qui consulta el model sovint.</p>
+        </div>
+
+        <div class="eff-card highlight">
+          <div class="eff-top">
+            <h3>Professional</h3>
+            <span class="badge best">El més eficient</span>
+          </div>
+          <div class="price">7,99 € <small>/ mes · 79,99 € / any</small></div>
+          <div class="eff-bar">
+            <div class="row"><span>Qualitat / preu</span><b>98%</b></div>
+            <div class="eff-track"><span style="width:98%"></span></div>
+            <div class="row"><span>Servei / preu</span><b>96%</b></div>
+            <div class="eff-track"><span style="width:96%"></span></div>
+          </div>
+          <p class="note">Màxim rendiment per a caçadors, meteoròlegs i usuaris intensius.</p>
+        </div>
+
+        <div class="eff-card">
+          <div class="eff-top">
+            <h3>Equips</h3>
+            <span class="badge">Empreses</span>
+          </div>
+          <div class="price">Personalitzat <small>/ a mida</small></div>
+          <div class="eff-bar">
+            <div class="row"><span>Qualitat / preu</span><b>A mida</b></div>
+            <div class="eff-track"><span style="width:100%"></span></div>
+            <div class="row"><span>Servei / preu</span><b>A mida</b></div>
+            <div class="eff-track"><span style="width:100%"></span></div>
+          </div>
+          <p class="note">Pensat per a mitjans, asseguradores, ajuntaments o equipaments esportius.</p>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Pla</th>
+              <th>Preu (any)</th>
+              <th>Qualitat / preu</th>
+              <th>Servei / preu</th>
+              <th>Per a qui</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Gratuït</strong></td>
+              <td>0 €</td>
+              <td>85%</td>
+              <td>90%</td>
+              <td>Curiosos i ús ocasional</td>
+            </tr>
+            <tr>
+              <td><strong>Entusiasta</strong></td>
+              <td>39,99 €</td>
+              <td>95%</td>
+              <td>92%</td>
+              <td>Aficionats constants</td>
+            </tr>
+            <tr>
+              <td><strong>Professional</strong></td>
+              <td>79,99 €</td>
+              <td>98%</td>
+              <td>96%</td>
+              <td>Caçadors i meteoròlegs</td>
+            </tr>
+            <tr>
+              <td><strong>Equips</strong></td>
+              <td>Personalitzat</td>
+              <td>A mida</td>
+              <td>A mida</td>
+              <td>Empreses i organitzacions</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>Els percentatges són una guia orientativa basada en el volum de dades, la freqüència de consulta i el suport inclòs. No són una mesura científica ni una promesa contractual.</p>
+
+      <h2><span class="num">4</span>Per a empreses i organitzacions</h2>
+      <p>Si representes una empresa, mitjà de comunicació, asseguradora, ajuntament, club esportiu o qualsevol organització que necessiti dades meteorològiques fiables, el pla <strong>Equips</strong> està pensat per a tu.</p>
+
+      <div class="biz-box">
+        <h3><i class="fa-solid fa-briefcase"></i> Què inclou el pla Equips</h3>
+        <div class="biz-grid">
+          <div class="biz-item">
+            <b>Seients per a tot l'equip</b>
+            <span>Accés compartit per a diverses persones amb una sola factura.</span>
+          </div>
+          <div class="biz-item">
+            <b>Dades i capes pròpies</b>
+            <span>Adaptem capes, variables i visualitzacions a la teva activitat.</span>
+          </div>
+          <div class="biz-item">
+            <b>Radar amb dades pròpies</b>
+            <span>Integració de dades internes o de tercers al visor.</span>
+          </div>
+          <div class="biz-item">
+            <b>Suport prioritari</b>
+            <span>Atenció preferent per correu i suport tècnic dedicat.</span>
+          </div>
+        </div>
+      </div>
+
+      <p>Per a aquest perfil, l'eficiència no es mesura tant en percentatge com en <strong>retorn operatiu</strong>: menys temps perdut prenent decisions, millor planificació i accés a dades que altres eines no ofereixen.</p>
+
+      <h2><span class="num">5</span>Compromisos de qualitat</h2>
+      <ul>
+        <li><strong>Dades actualitzades</strong> segons la disponibilitat dels models (AROME, ECMWF, NOAA).</li>
+        <li><strong>Transparència</strong> sobre l'origen de les dades i les limitacions del model.</li>
+        <li><strong>Millora contínua</strong>: escoltem els usuaris i prioritzem funcions útils.</li>
+        <li><strong>Sense males pràctiques</strong>: no fem publicitat enganyosa ni venem dades personals.</li>
+      </ul>
+
+      <h2><span class="num">6</span>Relació amb els usuaris</h2>
+      <p>Aquest avís de negoci és informatiu i no substitueix els <a href="termes.html">termes i condicions</a> ni la <a href="privacitat.html">política de privacitat</a>. Els preus i el contingut dels plans poden variar; els imports vàlids són els que apareguin en el moment de la contractació.</p>
+
+      <h2><span class="num">7</span>Contacte comercial</h2>
+      <p>Per a consultes sobre el pla Equips, col·laboracions o facturació, escriu-nos a <a href="mailto:tempestescat@gmail.com">tempestescat@gmail.com</a>.</p>
+
+      <div class="legal-foot">
+        <span>© <span id="yr"></span> TEMPESTES.CAT</span>
+        <div class="links">
+          <a href="privacitat.html">Privacitat</a>
+          <a href="termes.html">Termes</a>
+          <a href="negoci.html">Avís de negoci</a>
+          <a href="preus.html">Preus</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+/* Tema fosc per defecte */
+(function(){
+  const root = document.documentElement, btn = document.getElementById('themeBtn');
+  const apply = t => {
+    root.dataset.theme = t;
+    btn.innerHTML = t === 'dark' ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+  };
+  apply('dark');
+  btn.onclick = () => apply(root.dataset.theme === 'dark' ? 'light' : 'dark');
+})();
+document.getElementById('yr').textContent = new Date().getFullYear();
+document.getElementById('updateDate').textContent = new Date().toLocaleDateString('ca-ES', { year:'numeric', month:'long', day:'numeric' });
+</script>
+
+</body>
+</html>
