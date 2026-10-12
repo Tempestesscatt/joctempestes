@@ -1,40 +1,24 @@
+# Dependències
+node_modules/
+
+# Cloudflare
 .wrangler/
-.wrangler/
-.wrangler/
-.wrangler/
-.wrangler/
-.wrangler/
-.wrangler/
-.wrangler/
-.wrangler/
-.wrangler/
-.wrangler/
-.wrangler/
-.wrangler/
-.wrangler/
-.wrangler/
-.wrangler/
-.wrangler/
-.wrangler/
-.wrangler/
-.wrangler/
-.wrangler/
-.wrangler/
-.wrangler/
-.wrangler/
-.wrangler/
-.wrangler/
-.wrangler/
-.wrangler/
-.wrangler/
-.wrangler/
-.wrangler/
-.wrangler/
-.wrangler/
-.wrangler/
-.wrangler/
-.wrangler/
-.wrangler/
-.wrangler/
-.wrangler/
-.wrangler/
+
+# Secrets i claus privades
+serviceAccountKey.json
+.env
+.env.local
+*.pem
+*.key
+
+# Logs
+logs/
+*.log
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# Builds
+dist/
+build/
