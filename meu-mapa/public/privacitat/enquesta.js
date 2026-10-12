@@ -7,15 +7,21 @@
    · Si NO estàs loguejat, mostra un botó per fer-ho
    · Desa a Firebase RTDB: /enquesta/respostes/{uid}
    · Només una resposta per usuari
-   · Panell d'admin (si /admin/{email} === true)
+   · Salt intel·ligent segons el pla/cicle clicat a preus.html
+   · Preguntes extra per al pla Equips (necessitats + motiu)
+   · Panell d'admin: NOMÉS visible per a tempestescat@gmail.com
    · Exportació CSV
    · Icones SVG pròpies (hereten el color del tema)
-   · Salt intel·ligent segons el pla/cicle clicat a preus.html
    ===================================================================== */
 
 const DB_URL = 'https://tempestescat-default-rtdb.europe-west1.firebasedatabase.app';
 const RUTA_RESPOSTES = DB_URL + '/enquesta/respostes';
 const RUTA_ADMIN = DB_URL + '/admin';
+
+/* 👇 NOMÉS aquest correu veu el panell d'administrador.
+   Els altres admins (a /admin) segueixen tenint pla premium,
+   però NO veuen les respostes de l'enquesta. */
+const ADMIN_PANELL = 'tempestescat@gmail.com';
 
 /* ───────────────────────────────────────────────────────────────────
    ICONES SVG
@@ -48,9 +54,7 @@ const ICONES = {
   campanaOff: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M13.73 21a2 2 0 0 1-3.46 0M18.63 13A17.89 17.89 0 0 1 18 8M6.26 6.26A5.86 5.86 0 0 0 6 8c0 7-3 9-3 9h14M18 8a6 6 0 0 0-9.33-5M2 2l20 20"/></svg>`,
   descarregar: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>`,
   refrescar: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>`,
-  tauler: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>`,
-  eina: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>`,
-  objectiu: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>`
+  tauler: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>`
 };
 
 /* ───────────────────────────────────────────────────────────────────
@@ -62,7 +66,6 @@ const PREGUNTES = [
     tipus: 'single',
     titol: 'Quin pla t\'interessaria més?',
     hint: 'Tria el que més s\'acosti al que necessites.',
-    // Només es mostra si no s'ha preseleccionat cap pla des del botó
     condicio: () => !ESTAT.preseleccionat,
     opcions: [
       { valor: 'entusiasta',   ico: 'nuvol',    text: 'Entusiasta',  sub: '4,99 €/mes' },
@@ -97,7 +100,6 @@ const PREGUNTES = [
     ]
   },
   {
-    // 🔥 Pregunta EXTRA que només surt si el pla és "equips"
     id: 'equips_necessitats',
     tipus: 'text',
     titol: 'Què necessitaries exactament?',
@@ -164,11 +166,12 @@ const ESTAT = {
   respostes: {},
   animant: false,
   jaRespost: false,
-  preseleccionat: false // si ve d'un botó "Subscriure'm" concret
+  preseleccionat: false
 };
 
 let respostesAdmin = [];
-let esAdmin = false;
+let esAdmin = false;        // admin general (a /admin de Firebase) → pla Professional
+let esAdminPanell = false;  // NOMÉS pot veure el panell → ADMIN_PANELL
 
 const $ = (s, ctx = document) => ctx.querySelector(s);
 const $$ = (s, ctx = document) => Array.from(ctx.querySelectorAll(s));
@@ -178,7 +181,6 @@ const esc = s => String(s == null ? '' : s)
 const cont = () => document.getElementById('enq');
 const contAdmin = () => document.getElementById('enqAdmin');
 
-/* Retorna les preguntes visibles segons les respostes actuals */
 function preguntesVisibles() {
   return PREGUNTES.filter(p => !p.condicio || p.condicio());
 }
@@ -199,6 +201,7 @@ async function api(metode, url, cos) {
   return fetch(url + sep + 'auth=' + token, opts);
 }
 
+/* Comprova si l'usuari és admin a /admin de Firebase (permís general) */
 async function comprovarAdmin() {
   const user = window._fbUser;
   if (!user || !user.email) return false;
@@ -209,6 +212,13 @@ async function comprovarAdmin() {
     const clau = user.email.toLowerCase().replace(/\./g, ',');
     return admins[clau] === true;
   } catch (e) { return false; }
+}
+
+/* Comprova si l'usuari pot VEURE EL PANELL (només ADMIN_PANELL) */
+function potVeurePanell() {
+  const user = window._fbUser;
+  if (!user || !user.email) return false;
+  return user.email.toLowerCase() === ADMIN_PANELL.toLowerCase();
 }
 
 /* ───────────────────────────────────────────────────────────────────
@@ -334,7 +344,6 @@ function renderPregunta(index) {
     </div>
   `;
 
-  // Barra i comptador (sobre el total de visibles)
   const totalVisibles = visibles.length;
   const pct = (index / totalVisibles) * 100;
   $('#enqBar').style.width = pct + '%';
@@ -372,7 +381,6 @@ function renderPregunta(index) {
           if (!ESTAT.animant) seguent();
         }
       });
-      // Focus automàtic als textarea
       setTimeout(() => ta.focus(), 100);
     }
   }
@@ -395,7 +403,6 @@ function actualitzarBotoSeguent() {
   if (p.tipus === 'single') ok = !!val;
   else if (p.tipus === 'multi') ok = Array.isArray(val) && val.length > 0;
   else if (p.tipus === 'text') {
-    // Text opcional excepte per a les preguntes d'equips, que són obligatòries
     if (p.id.startsWith('equips_')) ok = typeof val === 'string' && val.trim().length >= 3;
     else ok = true;
   }
@@ -487,7 +494,7 @@ async function enviarEnquesta() {
       window.mostrarToast && window.mostrarToast('Gràcies per respondre!', 'ok');
       ESTAT.jaRespost = true;
       mostrarPantalla('fet');
-      if (esAdmin) carregarAdmin();
+      if (esAdminPanell) carregarAdmin();
     } else if (resp.status === 401 || resp.status === 403) {
       window.mostrarToast && window.mostrarToast('Firebase ha denegat el desat. Revisa les regles.', 'error');
       if (btn) { btn.disabled = false; actualitzarBotoSeguent(); }
@@ -508,7 +515,6 @@ async function obrirEnquesta(opcions) {
   const el = cont();
   if (!el) return;
 
-  // opcions pot ser un string (només pla) o un objecte { pla, cicle }
   let pla = null, cicle = null;
   if (typeof opcions === 'string') {
     pla = opcions;
@@ -517,7 +523,6 @@ async function obrirEnquesta(opcions) {
     cicle = opcions.cicle;
   }
 
-  // Preselecció del pla
   if (pla && ['entusiasta','professional','equips'].includes(pla)) {
     ESTAT.respostes.pla = pla;
     ESTAT.preseleccionat = true;
@@ -525,7 +530,6 @@ async function obrirEnquesta(opcions) {
     ESTAT.preseleccionat = false;
   }
 
-  // Preselecció del cicle (mensual/anual)
   if (cicle && ['mensual','anual'].includes(cicle)) {
     ESTAT.respostes.cicle = cicle;
   }
@@ -543,7 +547,6 @@ async function obrirEnquesta(opcions) {
   if (ESTAT.jaRespost) {
     mostrarPantalla('fet');
   } else {
-    // Sempre comença per la primera pregunta visible
     ESTAT.preguntaActual = 0;
     renderPregunta(0);
     mostrarPantalla('pregunta');
@@ -567,10 +570,10 @@ async function comprovarJaRespost(user) {
 }
 
 /* ───────────────────────────────────────────────────────────────────
-   PANELL ADMIN
+   PANELL ADMIN · visual
    ─────────────────────────────────────────────────────────────────── */
 async function carregarAdmin() {
-  if (!esAdmin) return;
+  if (!esAdminPanell) return;
   const user = window._fbUser;
   if (!user) return;
   try {
@@ -583,6 +586,7 @@ async function carregarAdmin() {
   } catch (e) {}
 }
 
+/* Compta quantes vegades surt cada valor d'un camp */
 function comptar(camp, multi) {
   const c = {};
   respostesAdmin.forEach(r => {
@@ -592,61 +596,236 @@ function comptar(camp, multi) {
   return c;
 }
 
-function blocStats(titol, comptes, etiquetes) {
+/* Ordena un objecte de comptes de més a menys */
+function ordenarDesc(obj) {
+  return Object.entries(obj).sort((a, b) => b[1] - a[1]);
+}
+
+/* ─── Targeta KPI ─── */
+function kpiCard(ico, valor, etiqueta, accent) {
+  return `
+    <div class="adm-kpi ${accent ? 'accent-' + accent : ''}">
+      <div class="adm-kpi-ico">${ico}</div>
+      <div class="adm-kpi-val">${valor}</div>
+      <div class="adm-kpi-lbl">${esc(etiqueta)}</div>
+    </div>`;
+}
+
+/* ─── Donut chart SVG ─── */
+function donutChart(comptes, etiquetes) {
+  const total = Object.values(comptes).reduce((s, n) => s + n, 0) || 1;
+  const paleta = ['#58a6ff', '#3fb950', '#d29922', '#f85149', '#a371f7', '#ff7b72', '#79c0ff', '#56d364'];
+  const claus = Object.keys(etiquetes).filter(k => comptes[k] > 0);
+  if (!claus.length) return '<p class="adm-empty">Encara no hi ha dades.</p>';
+
+  const r = 60, c = 2 * Math.PI * r;
+  let offset = 0;
+  let paths = '';
+  claus.forEach((k, i) => {
+    const n = comptes[k] || 0;
+    const pct = n / total;
+    const dash = pct * c;
+    const color = paleta[i % paleta.length];
+    paths += `<circle cx="80" cy="80" r="${r}"
+      fill="none" stroke="${color}" stroke-width="22"
+      stroke-dasharray="${dash} ${c - dash}"
+      stroke-dashoffset="${-offset}"
+      transform="rotate(-90 80 80)"
+      style="transition:stroke-dasharray .6s ease" />`;
+    offset += dash;
+  });
+
+  const llegenda = claus.map((k, i) => {
+    const n = comptes[k] || 0;
+    const pct = Math.round((n / total) * 100);
+    const color = paleta[i % paleta.length];
+    return `
+      <div class="adm-lg-item">
+        <span class="adm-lg-dot" style="background:${color}"></span>
+        <span class="adm-lg-lbl">${esc(etiquetes[k])}</span>
+        <span class="adm-lg-num">${n}</span>
+        <span class="adm-lg-pct">${pct}%</span>
+      </div>`;
+  }).join('');
+
+  return `
+    <div class="adm-donut-wrap">
+      <svg viewBox="0 0 160 160" class="adm-donut">
+        <circle cx="80" cy="80" r="${r}" fill="none" stroke="var(--bg-2)" stroke-width="22"/>
+        ${paths}
+        <text x="80" y="76" text-anchor="middle" font-size="22" font-weight="700" fill="var(--text)" font-family="Space Grotesk, Inter">${total}</text>
+        <text x="80" y="94" text-anchor="middle" font-size="10" fill="var(--muted)" font-family="Inter" letter-spacing="1">TOTAL</text>
+      </svg>
+      <div class="adm-lg">${llegenda}</div>
+    </div>`;
+}
+
+/* ─── Barres horitzontals ─── */
+function barresH(comptes, etiquetes) {
   const total = respostesAdmin.length || 1;
-  return `<div class="stat-bloc"><h4>${esc(titol)}</h4>${
-    Object.keys(etiquetes).map(k => {
+  const claus = Object.keys(etiquetes);
+  if (!Object.values(comptes).some(n => n > 0)) return '<p class="adm-empty">Encara no hi ha dades.</p>';
+
+  return `<div class="adm-bars">${
+    claus.map(k => {
       const n = comptes[k] || 0;
       const pct = Math.round((n / total) * 100);
-      return `<div class="stat-fila"><span>${esc(etiquetes[k])}</span><div class="stat-barra"><span style="width:${pct}%"></span></div><span class="stat-n">${n}</span></div>`;
+      return `
+        <div class="adm-bar">
+          <div class="adm-bar-top">
+            <span class="adm-bar-lbl">${esc(etiquetes[k])}</span>
+            <span class="adm-bar-num">${n} <small>(${pct}%)</small></span>
+          </div>
+          <div class="adm-bar-track">
+            <div class="adm-bar-fill" style="width:${pct}%"></div>
+          </div>
+        </div>`;
     }).join('')
   }</div>`;
 }
 
+/* ─── Chips (per a funcions multi) ─── */
+function chips(comptes, etiquetes) {
+  const total = respostesAdmin.length || 1;
+  const files = ordenarDesc(comptes);
+  if (!files.length) return '<p class="adm-empty">Encara no hi ha dades.</p>';
+
+  return `<div class="adm-chips">${
+    files.map(([k, n]) => {
+      const pct = Math.round((n / total) * 100);
+      const nom = etiquetes[k] || k;
+      return `
+        <div class="adm-chip">
+          <span class="adm-chip-lbl">${esc(nom)}</span>
+          <span class="adm-chip-num">${n}</span>
+          <span class="adm-chip-pct">${pct}%</span>
+        </div>`;
+    }).join('')
+  }</div>`;
+}
+
+/* ─── Bloc sencer ─── */
+function bloc(titol, subtitol, contingut) {
+  return `
+    <div class="adm-bloc">
+      <div class="adm-bloc-head">
+        <h4>${esc(titol)}</h4>
+        ${subtitol ? `<span class="adm-bloc-sub">${esc(subtitol)}</span>` : ''}
+      </div>
+      ${contingut}
+    </div>`;
+}
+
+/* ─── Targeta d'una resposta ─── */
+function respostaCard(r) {
+  const data = r.data ? new Date(r.data).toLocaleString('ca-ES', {
+    day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
+  }) : '';
+  const nom = r.nom || 'Sense nom';
+  const inicial = nom[0].toUpperCase();
+  const avatar = r.email
+    ? `<span class="adm-resp-av">${esc(inicial)}</span>`
+    : `<span class="adm-resp-av">?</span>`;
+
+  const plaBadge = r.pla
+    ? `<span class="adm-resp-pla pla-${esc(r.pla)}">${esc(ETIQ.pla[r.pla] || r.pla)}</span>`
+    : '';
+
+  const funcs = (r.funcions || []).map(f => ETIQ.funcions[f] || f);
+  const funcsChips = funcs.length
+    ? `<div class="adm-resp-funcs">${funcs.map(f => `<span class="adm-resp-func">${esc(f)}</span>`).join('')}</div>`
+    : '';
+
+  const meta = [
+    ETIQ.preu[r.preu] && `<span> ${esc(ETIQ.preu[r.preu])}</span>`,
+    ETIQ.cicle[r.cicle] && `<span> ${esc(ETIQ.cicle[r.cicle])}</span>`,
+    r.avisar && `<span class="adm-resp-avis"> Vol avís</span>`
+  ].filter(Boolean).join(' · ');
+
+  const extraEquips = (r.pla === 'equips' && (r.equips_necessitats || r.equips_motiu))
+    ? `<div class="adm-resp-equips">
+        ${r.equips_necessitats ? `<div><b>Necessitats:</b> ${esc(r.equips_necessitats)}</div>` : ''}
+        ${r.equips_motiu ? `<div><b>Motiu:</b> ${esc(r.equips_motiu)}</div>` : ''}
+       </div>`
+    : '';
+
+  return `
+    <article class="adm-resp">
+      <header class="adm-resp-head">
+        ${avatar}
+        <div class="adm-resp-info">
+          <div class="adm-resp-nom">${esc(nom)}</div>
+          <div class="adm-resp-email">${esc(r.email || '')}</div>
+        </div>
+        ${plaBadge}
+      </header>
+      <div class="adm-resp-meta">
+        <span class="adm-resp-data">${esc(data)}</span>
+        ${meta ? '· ' + meta : ''}
+      </div>
+      ${funcsChips}
+      ${extraEquips}
+      ${r.comentari ? `<div class="adm-resp-com">"${esc(r.comentari)}"</div>` : ''}
+    </article>`;
+}
+
+/* ─── PINTAR EL PANELL ─── */
 function pintarAdmin() {
   const wrap = contAdmin();
   if (!wrap) return;
   wrap.dataset.obert = '1';
+
+  const total = respostesAdmin.length;
   const avisar = respostesAdmin.filter(r => r.avisar).length;
   const ambEquips = respostesAdmin.filter(r => r.pla === 'equips').length;
+  const ambProfessional = respostesAdmin.filter(r => r.pla === 'professional').length;
 
   wrap.innerHTML = `
-    <div class="admin-inner">
-      <h3>${ICONES.tauler} Panell d'administrador</h3>
-      <p class="enq-nota">${respostesAdmin.length} respostes · ${avisar} volen avís per correu · ${ambEquips} interessats en Equips</p>
-      <div id="enqStats">
-        ${blocStats('Pla preferit', comptar('pla'), ETIQ.pla)}
-        ${blocStats('Opinió dels preus', comptar('preu'), ETIQ.preu)}
-        ${blocStats('Cicle de pagament', comptar('cicle'), ETIQ.cicle)}
-        ${blocStats('Funcions més demanades', comptar('funcions', true), ETIQ.funcions)}
-      </div>
-      <div class="stat-bloc">
-        <h4>Respostes</h4>
-        <div class="resp-llista">
-          ${respostesAdmin.length ? respostesAdmin.map(r => {
-            const data = r.data ? new Date(r.data).toLocaleString('ca-ES') : '';
-            const funcs = (r.funcions || []).map(f => ETIQ.funcions[f] || f).join(', ') || '—';
-            const extraEquips = (r.pla === 'equips' && (r.equips_necessitats || r.equips_motiu))
-              ? `<div class="com"><b>Necessitats:</b> ${esc(r.equips_necessitats || '—')}\n<b>Motiu:</b> ${esc(r.equips_motiu || '—')}</div>`
-              : '';
-            return `<div class="resp-item">
-              <div class="qui">${esc(r.nom || 'Sense nom')} · ${esc(r.email || '')}</div>
-              <div class="meta">${esc(data)}${r.avisar ? ' · vol avís' : ''}</div>
-              <div>Pla: <b>${esc(ETIQ.pla[r.pla] || r.pla)}</b> · Preus: ${esc(ETIQ.preu[r.preu] || r.preu)} · Pagament: ${esc(ETIQ.cicle[r.cicle] || r.cicle)}</div>
-              <div>Funcions: ${esc(funcs)}</div>
-              ${extraEquips}
-              ${r.comentari ? `<div class="com">${esc(r.comentari)}</div>` : ''}
-            </div>`;
-          }).join('') : '<div class="resp-item">Encara no hi ha respostes.</div>'}
+    <div class="adm-inner">
+      <header class="adm-header">
+        <div>
+          <h3>${ICONES.tauler} Panell d'administrador</h3>
+          <p class="adm-sub">Respostes rebudes de l'enquesta de plans · TEMPESTES.CAT</p>
         </div>
+        <button type="button" class="adm-close" id="enqBtnTancaAdmin" aria-label="Tanca">
+          ${ICONES.tanca}
+        </button>
+      </header>
+
+      <section class="adm-kpis">
+        ${kpiCard('', total, 'Respostes totals', 'blue')}
+        ${kpiCard('', avisar, 'Volen avís per correu', 'gold')}
+        ${kpiCard('', ambEquips, 'Interessats en Equips', 'purple')}
+        ${kpiCard('', ambProfessional, 'Interessats en Professional', 'green')}
+      </section>
+
+      <div class="adm-grid">
+        ${bloc('Pla preferit', 'Distribució de respostes', donutChart(comptar('pla'), ETIQ.pla))}
+        ${bloc('Què et semblen els preus?', 'Opinió general', barresH(comptar('preu'), ETIQ.preu))}
       </div>
-      <div class="enq-admin-accions">
+
+      <div class="adm-grid">
+        ${bloc('Cicle de pagament', 'Mensual vs Anual', donutChart(comptar('cicle'), ETIQ.cicle))}
+        ${bloc('Funcions més demanades', 'Poden triar-ne diverses', chips(comptar('funcions', true), ETIQ.funcions))}
+      </div>
+
+      <section class="adm-respostes">
+        <div class="adm-bloc-head">
+          <h4>Totes les respostes</h4>
+          <span class="adm-bloc-sub">${total} ${total === 1 ? 'resposta' : 'respostes'}</span>
+        </div>
+        <div class="adm-resp-llista">
+          ${total ? respostesAdmin.map(respostaCard).join('') : '<p class="adm-empty">Encara no hi ha respostes.</p>'}
+        </div>
+      </section>
+
+      <footer class="adm-foot">
         <button type="button" class="enq-btn-pill" id="enqBtnCsv">${ICONES.descarregar} Descarrega CSV</button>
         <button type="button" class="enq-btn-pill" id="enqBtnRefresca">${ICONES.refrescar} Actualitza</button>
-        <button type="button" class="enq-btn-pill" id="enqBtnTancaAdmin">${ICONES.tanca} Tanca</button>
-      </div>
+      </footer>
     </div>
   `;
+
   $('#enqBtnCsv')?.addEventListener('click', descarregarCsv);
   $('#enqBtnRefresca')?.addEventListener('click', carregarAdmin);
   $('#enqBtnTancaAdmin')?.addEventListener('click', () => { wrap.dataset.obert = '0'; });
@@ -669,6 +848,26 @@ function descarregarCsv() {
   a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
   a.download = 'enquesta-plans.csv';
   document.body.appendChild(a); a.click(); a.remove();
+}
+
+/* ───────────────────────────────────────────────────────────────────
+   BOTÓ FLOTANT ADMIN (només ADMIN_PANELL)
+   ─────────────────────────────────────────────────────────────────── */
+function mostrarBotoAdmin(mostrar) {
+  let btn = document.getElementById('enqAdminToggle');
+  if (!mostrar) {
+    if (btn) btn.remove();
+    return;
+  }
+  if (btn) return;
+
+  btn = document.createElement('button');
+  btn.id = 'enqAdminToggle';
+  btn.className = 'enq-admin-toggle';
+  btn.type = 'button';
+  btn.innerHTML = '📊 Panell admin';
+  btn.addEventListener('click', () => carregarAdmin());
+  document.body.appendChild(btn);
 }
 
 /* ───────────────────────────────────────────────────────────────────
@@ -701,19 +900,34 @@ function inicialitzarListeners() {
     if (e.key === 'Escape' && el && el.classList.contains('modal')) tancarEnquesta();
   });
 
-  // Canvi d'usuari
+  /* Canvi d'usuari (login/logout) */
   window.addEventListener('preus:user', async e => {
     const user = e.detail;
     pintarUsuariCapcalera();
+
     if (!user) {
       ESTAT.jaRespost = false;
       esAdmin = false;
+      esAdminPanell = false;
+      mostrarBotoAdmin(false);
+      const wrapAdmin = contAdmin();
+      if (wrapAdmin) wrapAdmin.dataset.obert = '0';
       const el = cont();
       if (el && el.classList.contains('modal')) mostrarPantalla('login');
       return;
     }
+
     esAdmin = await comprovarAdmin();
-    if (esAdmin) carregarAdmin();
+    esAdminPanell = potVeurePanell();
+
+    if (esAdminPanell) {
+      carregarAdmin();
+      mostrarBotoAdmin(true);
+    } else {
+      mostrarBotoAdmin(false);
+      const wrapAdmin = contAdmin();
+      if (wrapAdmin) wrapAdmin.dataset.obert = '0';
+    }
 
     const el = cont();
     if (el && el.classList.contains('modal')) {
@@ -738,6 +952,16 @@ function init() {
   window.obrirEnquesta = obrirEnquesta;
   window.tancarEnquesta = tancarEnquesta;
   pintarUsuariCapcalera();
+
+  // Si ja hi havia usuari carregat abans de l'init (per exemple, ja loguejat)
+  if (window._fbUser) {
+    esAdminPanell = potVeurePanell();
+    if (esAdminPanell) {
+      comprovarAdmin().then(a => { esAdmin = a; });
+      carregarAdmin();
+      mostrarBotoAdmin(true);
+    }
+  }
 }
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
