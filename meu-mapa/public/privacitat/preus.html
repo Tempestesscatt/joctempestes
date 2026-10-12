@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0d1117">
+<title>Plans i preus · Tempestes.cat</title>
+
+<link rel="icon" type="image/png" href="../img/favicon.png">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+:root {
+    --bg: #0d1117;
+    --panel-2: #161b22;
+    --panel-hover: #1c2128;
+    --line: rgba(240, 246, 252, 0.07);
+    --line-strong: rgba(240, 246, 252, 0.15);
+    --accent: #58a6ff;
+    --accent-soft: rgba(88, 166, 255, 0.12);
+    --gold: #ffd700;
+    --gold-soft: rgba(255, 215, 0, 0.10);
+    --gold-line: rgba(255, 215, 0, 0.35);
+    --ok: #3fb950;
+    --danger: #f85149;
+    --text: #f0f6fc;
+    --text-2: #c9d1d9;
+    --muted: #8b949e;
+    --muted-2: #6e7681;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+    margin: 0; padding: 0;
+    background: var(--bg); color: var(--text);
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 14px; line-height: 1.5;
+    -webkit-text-size-adjust: 100%;
+    overscroll-behavior-y: none;
+}
+
+body {
+    padding: calc(32px + var(--safe-top)) 16px calc(32px + var(--safe-bottom));
+    min-height: 100vh;
+}
+
+.capcalera {
+    max-width: 1080px;
+    margin: 0 auto 40px;
+    text-align: center;
+}
+.capcalera h1 {
+    font-size: clamp(22px, 4vw, 30px);
+    font-weight: 800;
+    margin: 0 0 10px;
+    letter-spacing: -0.4px;
+}
+.capcalera p {
+    color: var(--muted);
+    margin: 0 auto;
+    font-size: 14px;
+    max-width: 560px;
+    line-height: 1.6;
+}
+
+.cicle {
+    display: inline-flex;
+    margin: 28px auto 0;
+    padding: 4px;
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    position: relative;
+}
+.cicle button {
+    position: relative;
+    z-index: 2;
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 18px;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: color 0.15s ease;
+}
+.cicle button.actiu { color: var(--text); }
+.cicle .indicador {
+    position: absolute;
+    top: 4px;
+    bottom: 4px;
+    left: 4px;
+    width: calc(50% - 4px);
+    background: var(--panel-hover);
+    border: 1px solid var(--line-strong);
+    border-radius: 7px;
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1;
+}
+.cicle.anual .indicador { transform: translateX(100%); }
+
+.cicle .estalvi {
+    margin-left: 8px;
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--gold);
+    background: var(--gold-soft);
+    border: 1px solid var(--gold-line);
+    padding: 2px 8px;
+    border-radius: 999px;
+    letter-spacing: 0.3px;
+    vertical-align: middle;
+}
+
+.estat-usuari {
+    max-width: 1080px;
+    margin: 0 auto 28px;
+    padding: 12px 16px;
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+    color: var(--text-2);
+}
+.estat-usuari .punt {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--muted-2);
+    flex-shrink: 0;
+}
+.estat-usuari.ok .punt { background: var(--ok); box-shadow: 0 0 8px var(--ok); }
+.estat-usuari .nom { font-weight: 600; color: var(--text); }
+.estat-usuari .pla {
+    margin-left: auto;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--muted);
+    padding: 3px 10px;
+    background: var(--bg);
+    border-radius: 999px;
+    border: 1px solid var(--line);
+}
+.estat-usuari.ok .pla {
+    color: var(--accent);
+    border-color: rgba(88, 166, 255, 0.3);
+    background: var(--accent-soft);
+}
+
+.plans-grid {
+    max-width: 1080px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 14px;
+}
+
+.pla-card {
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 24px 22px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    transition: border-color 0.2s ease, transform 0.2s ease;
+}
+.pla-card:hover {
+    border-color: var(--line-strong);
+    transform: translateY(-2px);
+}
+.pla-card.destacat { border-color: var(--gold-line); }
+.pla-card.actiu { border-color: var(--accent); }
+
+.pla-capcalera {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    min-height: 24px;
+}
+.pla-nom {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0;
+    letter-spacing: -0.2px;
+}
+.pla-tag {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 999px;
+}
+.pla-tag.recomanat {
+    color: var(--gold);
+    background: var(--gold-soft);
+    border: 1px solid var(--gold-line);
+}
+.pla-tag.actual {
+    color: var(--accent);
+    background: var(--accent-soft);
+    border: 1px solid rgba(88, 166, 255, 0.3);
+}
+
+.pla-desc {
+    font-size: 13px;
+    color: var(--muted);
+    margin: 0 0 20px;
+    line-height: 1.5;
+    min-height: 38px;
+}
+
+.pla-preu {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    margin-bottom: 4px;
+    min-height: 48px;
+}
+.pla-preu .xifra {
+    font-size: 34px;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -1px;
+    line-height: 1;
+}
+.pla-preu .unitat {
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 500;
+}
+.pla-preu .anual-info {
+    display: block;
+    font-size: 11.5px;
+    color: var(--muted-2);
+    margin-top: 2px;
+    min-height: 16px;
+}
+
+.pla-features {
+    list-style: none;
+    padding: 0;
+    margin: 16px 0 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+}
+.pla-features li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-2);
+    line-height: 1.4;
+}
+.pla-features li::before {
+    content: "·";
+    color: var(--accent);
+    font-weight: 900;
+    font-size: 18px;
+    line-height: 1;
+    margin-top: -2px;
+    flex-shrink: 0;
+    width: 10px;
+    text-align: center;
+}
+.pla-features li.no { color: var(--muted-2); }
+.pla-features li.no::before { color: var(--muted-2); content: "·"; }
+
+.pla-btn {
+    width: 100%;
+    padding: 12px 18px;
+    border-radius: 8px;
+    border: 1px solid var(--line-strong);
+    background: var(--panel-hover);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+.pla-btn:hover:not(:disabled) {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    color: var(--accent);
+}
+.pla-btn.primary {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: #1b1030;
+}
+.pla-btn.primary:hover:not(:disabled) {
+    background: #ffdf33;
+    border-color: #ffdf33;
+    color: #1b1030;
+}
+.pla-btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+.pla-btn.carregant {
+    opacity: 0.7;
+    pointer-events: none;
+}
+.pla-btn .spinner {
+    width: 13px; height: 13px;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: gira 0.7s linear infinite;
+}
+@keyframes gira { to { transform: rotate(360deg); } }
+
+.faq {
+    max-width: 720px;
+    margin: 64px auto 0;
+}
+.faq h2 {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0 0 18px;
+    letter-spacing: -0.2px;
+    text-align: center;
+    color: var(--text);
+}
+.faq-item {
+    border-bottom: 1px solid var(--line);
+}
+.faq-item summary {
+    padding: 16px 0;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-item summary::after {
+    content: "+";
+    color: var(--muted);
+    font-size: 18px;
+    font-weight: 400;
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+}
+.faq-item[open] summary::after {
+    transform: rotate(45deg);
+    color: var(--accent);
+}
+.faq-item .resposta {
+    padding: 0 0 18px;
+    color: var(--text-2);
+    font-size: 13.5px;
+    line-height: 1.6;
+}
+.faq-item .resposta a { color: var(--accent); text-decoration: none; }
+.faq-item .resposta a:hover { text-decoration: underline; }
+
+.peu {
+    max-width: 1080px;
+    margin: 64px auto 0;
+    padding-top: 22px;
+    border-top: 1px solid var(--line);
+    text-align: center;
+    color: var(--muted);
+    font-size: 12.5px;
+}
+.peu a {
+    color: var(--muted);
+    text-decoration: none;
+    margin: 0 10px;
+}
+.peu a:hover { color: var(--accent); }
+
+.toast {
+    position: fixed;
+    bottom: calc(24px + var(--safe-bottom));
+    left: 50%;
+    transform: translate(-50%, 20px);
+    padding: 11px 20px;
+    background: rgba(13, 17, 23, 0.96);
+    border: 1px solid var(--line-strong);
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    box-shadow: 0 10px 32px rgba(0, 0, 0, 0.6);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    z-index: 100;
+    max-width: calc(100vw - 32px);
+    text-align: center;
+}
+.toast.visible { opacity: 1; transform: translate(-50%, 0); }
+.toast.error { border-color: rgba(248, 81, 73, 0.5); color: #ff7b72; }
+.toast.ok { border-color: rgba(63, 185, 80, 0.5); color: #7ee787; }
+
+@media (max-width: 640px) {
+    body { padding: calc(20px + var(--safe-top)) 12px calc(20px + var(--safe-bottom)); }
+    .plans-grid { grid-template-columns: 1fr; gap: 10px; }
+    .pla-card { padding: 20px 18px; }
+    .pla-preu .xifra { font-size: 30px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+</style>
+</head>
+<body>
+
+<header class="capcalera">
+    <h1>Plans i preus</h1>
+    <p>Desbloqueja totes les eines del visor AROME. Cancel·la quan vulguis.</p>
+
+    <div class="cicle" id="cicle">
+        <span class="indicador"></span>
+        <button type="button" data-cicle="mensual" class="actiu">Mensual</button>
+        <button type="button" data-cicle="anual">Anual<span class="estalvi">Estalvia fins al 17%</span></button>
+    </div>
+</header>
+
+<div class="estat-usuari" id="estatUsuari">
+    <span class="punt"></span>
+    <span id="estatText">Comprovant sessió…</span>
+    <span class="pla" id="estatPla">—</span>
+</div>
+
+<main class="plans-grid">
+
+    <div class="pla-card" data-pla="gratuït">
+        <div class="pla-capcalera">
+            <h2 class="pla-nom">Gratuït</h2>
+        </div>
+        <p class="pla-desc">Per començar a explorar el visor amb les eines essencials.</p>
+        <div class="pla-preu">
+            <span class="xifra">0 €</span>
+        </div>
+        <span class="anual-info">&nbsp;</span>
+        <ul class="pla-features">
+            <li>Totes les hores del model</li>
+            <li>Variables de superfície</li>
+            <li>CAPE, CIN i isoterma 0 °C</li>
+            <li>Animació temporal</li>
+            <li>Isolínies i vent</li>
+            <li>Radar bàsic</li>
+            <li class="no">Skew-T i variables avançades</li>
+            <li class="no">Nivells de pressió</li>
+        </ul>
+        <button class="pla-btn" disabled>Pla actual per defecte</button>
+    </div>
+
+    <div class="pla-card destacat" data-pla="entusiasta">
+        <div class="pla-capcalera">
+            <h2 class="pla-nom">Entusiasta</h2>
+            <span class="pla-tag recomanat">Recomanat</span>
+        </div>
+        <p class="pla-desc">Per a aficionats que volen anar un pas més enllà.</p>
+        <div class="pla-preu" data-preu-pla="entusiasta">
+            <span class="xifra">4,99 €</span>
+            <span class="unitat">/ mes</span>
+        </div>
+        <span class="anual-info" data-anual-pla="entusiasta">&nbsp;</span>
+        <ul class="pla-features">
+            <li>Tot el del pla Gratuït</li>
+            <li>Skew-T complet</li>
+            <li>Variables avançades de convecció</li>
+            <li>Barbes de vent</li>
+            <li>Radar ampliat (3 h)</li>
+            <li>Animació sense límits</li>
+        </ul>
+        <button class="pla-btn primary" data-comprar="entusiasta">Subscriure'm</button>
+    </div>
+
+    <div class="pla-card" data-pla="professional">
+        <div class="pla-capcalera">
+            <h2 class="pla-nom">Professional</h2>
+        </div>
+        <p class="pla-desc">Per a meteoròlegs, storm chasers i professionals del sector.</p>
+        <div class="pla-preu" data-preu-pla="professional">
+            <span class="xifra">9,99 €</span>
+            <span class="unitat">/ mes</span>
+        </div>
+        <span class="anual-info" data-anual-pla="professional">&nbsp;</span>
+        <ul class="pla-features">
+            <li>Tot el del pla Entusiasta</li>
+            <li>Nivells de pressió (1000–200 hPa)</li>
+            <li>Shear, SRH, DCAPE, LCL, LFC, LI</li>
+            <li>Índexs compostos: EHI, SCP, STP</li>
+            <li>Storm motion</li>
+            <li>Radar 24 h complet</li>
+        </ul>
+        <button class="pla-btn primary" data-comprar="professional">Subscriure'm</button>
+    </div>
+
+    <div class="pla-card" data-pla="equips">
+        <div class="pla-capcalera">
+            <h2 class="pla-nom">Equips</h2>
+        </div>
+        <p class="pla-desc">Per a mitjans, agències, universitats i grups de recerca.</p>
+        <div class="pla-preu" data-preu-pla="equips">
+            <span class="xifra">Personalitzat</span>
+        </div>
+        <span class="anual-info">&nbsp;</span>
+        <ul class="pla-features">
+            <li>Tot el del pla Professional</li>
+            <li>Fins a 10 comptes d'usuari</li>
+            <li>Accés a l'API de dades</li>
+            <li>Suport prioritari</li>
+            <li>Personalització de capes</li>
+            <li>Facturació a nom d'empresa</li>
+        </ul>
+        <button class="pla-btn" data-comprar="equips">Contactar</button>
+    </div>
+
+</main>
+
+<section class="faq">
+    <h2>Preguntes freqüents</h2>
+
+    <details class="faq-item">
+        <summary>Puc cancel·lar quan vulgui?</summary>
+        <div class="resposta">Sí. Pots cancel·lar la subscripció en qualsevol moment des del teu perfil o des del portal de Stripe. Mantindràs l'accés fins al final del període ja pagat.</div>
+    </details>
+
+    <details class="faq-item">
+        <summary>Com funciona la facturació anual?</summary>
+        <div class="resposta">Es cobra un sol pagament per tot l'any amb un descompte respecte al pla mensual. Si cancel·les, no es renova en acabar el període.</div>
+    </details>
+
+    <details class="faq-item">
+        <summary>Quins mètodes de pagament accepteu?</summary>
+        <div class="resposta">Targeta de crèdit o dèbit (Visa, Mastercard, Amex) i Apple Pay o Google Pay. Els pagaments es processen de manera segura a través de Stripe; nosaltres no veiem mai les teves dades bancàries.</div>
+    </details>
+
+    <details class="faq-item">
+        <summary>Puc canviar de pla més endavant?</summary>
+        <div class="resposta">Sí. Pots pujar o baixar de pla en qualsevol moment. Stripe ajusta automàticament el càrrec proporcional al temps restant.</div>
+    </details>
+
+    <details class="faq-item">
+        <summary>Necessito compte per subscriure'm?</summary>
+        <div class="resposta">Sí. Cal iniciar sessió amb Google al visor abans de subscriure't, perquè el pla quedi associat al teu compte i es desbloquegi automàticament.</div>
+    </details>
+
+    <details class="faq-item">
+        <summary>Feu factures?</summary>
+        <div class="resposta">Sí. Stripe genera automàticament les factures. Per al pla Equips podem emetre factura a nom d'empresa amb CIF. Contacta'ns si ho necessites.</div>
+    </details>
+</section>
+
+<footer class="peu">
+    <a href="termes.html">Termes</a>
+    <a href="privacitat.html">Privacitat</a>
+    <a href="contacte.html">Contacte</a>
+    <span style="display:block;margin-top:12px;color:var(--muted-2);">© Tempestes.cat</span>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+    window.BACKEND_URL = 'https://tempestes.cat/api';
+    window.RETORN_URL = 'https://tempestes.cat/?success=1';
+</script>
+
+<script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+    import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+
+    const fc = {
+        apiKey: "AIzaSyBGcGUk2gsoDaHkg9Yv-nqMJ5_x-QPTMS8",
+        authDomain: "tempestescat.firebaseapp.com",
+        projectId: "tempestescat",
+        storageBucket: "tempestescat.firebasestorage.app",
+        messagingSenderId: "683240351775",
+        appId: "1:683240351775:web:bc65d73249537b9cc28d2a"
+    };
+
+    const app = initializeApp(fc);
+    const auth = getAuth(app);
+
+    onAuthStateChanged(auth, user => {
+        window._firebaseUser = user;
+        window.dispatchEvent(new CustomEvent('preus:user', { detail: user }));
+    });
+</script>
+
+<script>
+(function () {
+    'use strict';
+
+    const DB_URL = 'https://tempestescat-default-rtdb.firebaseio.com';
+    let cicleActual = 'mensual';
+
+    function $(s) { return document.querySelector(s); }
+    function $$(s) { return document.querySelectorAll(s); }
+
+    /* Preus en cèntims. Coincideixen exactament amb els preus de Stripe. */
+    const PREUS = {
+        entusiasta:   { mensual: 499,  anual: 4990 },
+        professional: { mensual: 999,  anual: 9999 }
+    };
+
+    function formatPreu(cents) {
+        return (cents / 100).toFixed(2).replace('.', ',') + ' €';
+    }
+
+    function preuActual(pla) {
+        return PREUS[pla] ? PREUS[pla][cicleActual] : null;
+    }
+
+    function actualitzarPreus() {
+        $$('.pla-preu[data-preu-pla]').forEach(box => {
+            const pla = box.dataset.preuPla;
+            if (!PREUS[pla]) return;
+            const cents = preuActual(pla);
+            const unitat = cicleActual === 'anual' ? '/ any' : '/ mes';
+            box.innerHTML = `
+                <span class="xifra">${formatPreu(cents)}</span>
+                <span class="unitat">${unitat}</span>
+            `;
+        });
+
+        $$('.anual-info[data-anual-pla]').forEach(el => {
+            const pla = el.dataset.anualPla;
+            if (!PREUS[pla]) return;
+            if (cicleActual === 'anual') {
+                const mensualEquivalent = PREUS[pla].anual / 12;
+                el.textContent = 'Equivalent a ' + formatPreu(mensualEquivalent) + ' / mes';
+            } else {
+                el.textContent = 'Anual: ' + formatPreu(PREUS[pla].anual);
+            }
+        });
+    }
+
+    function inicialitzarCicle() {
+        const cicle = $('#cicle');
+        if (!cicle) return;
+        cicle.addEventListener('click', (e) => {
+            const b = e.target.closest('button[data-cicle]');
+            if (!b) return;
+            const nou = b.dataset.cicle;
+            if (nou === cicleActual) return;
+            cicleActual = nou;
+            cicle.classList.toggle('anual', nou === 'anual');
+            $$('#cicle button').forEach(x => x.classList.toggle('actiu', x.dataset.cicle === nou));
+            actualitzarPreus();
+        });
+    }
+
+    let toastTimer = null;
+    function mostrarToast(msg, tipus) {
+        const t = $('#toast');
+        if (!t) return;
+        t.textContent = msg;
+        t.className = 'toast visible' + (tipus ? ' ' + tipus : '');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => t.classList.remove('visible'), 3500);
+    }
+    window.mostrarToast = mostrarToast;
+
+    async function carregarPlaUsuari(user) {
+        if (!user) return 'gratuït';
+        try {
+            const token = await user.getIdToken();
+            const r = await fetch(
+                `${DB_URL}/users/${encodeURIComponent(user.uid)}/pla.json?auth=${token}`,
+                { cache: 'no-store' }
+            );
+            if (!r.ok) return 'gratuït';
+            const v = await r.json();
+            const k = String(v || '').trim().toLowerCase().replace('gratuit', 'gratuït');
+            return ['gratuït', 'entusiasta', 'professional', 'equips'].includes(k) ? k : 'gratuït';
+        } catch (e) {
+            return 'gratuït';
+        }
+    }
+
+    function nomPla(pla) {
+        return ({ gratuït: 'Gratuït', entusiasta: 'Entusiasta', professional: 'Professional', equips: 'Equips' })[pla] || 'Gratuït';
+    }
+
+    function escapar(s) {
+        return String(s == null ? '' : s)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    async function pintarEstatUsuari(user) {
+        const box = $('#estatUsuari');
+        const text = $('#estatText');
+        const plaEl = $('#estatPla');
+        if (!box || !text || !plaEl) return;
+
+        if (!user) {
+            box.classList.remove('ok');
+            text.innerHTML = 'No has iniciat sessió. Inicia sessió al visor per subscriure\'t.';
+            plaEl.textContent = 'Anònim';
+            marcarPlaActiu('gratuït');
+            return;
+        }
+
+        const nom = user.displayName || (user.email ? user.email.split('@')[0] : 'Usuari');
+        const pla = await carregarPlaUsuari(user);
+
+        box.classList.add('ok');
+        text.innerHTML = `Connectat com a <span class="nom">${escapar(nom)}</span>`;
+        plaEl.textContent = nomPla(pla);
+        marcarPlaActiu(pla);
+    }
+
+    function marcarPlaActiu(pla) {
+        $$('.pla-card').forEach(card => {
+            card.classList.toggle('actiu', card.dataset.pla === pla);
+        });
+
+        $$('.pla-btn[data-comprar]').forEach(btn => {
+            const target = btn.dataset.comprar;
+            const card = btn.closest('.pla-card');
+            const esActual = card && card.dataset.pla === pla;
+
+            if (esActual) {
+                btn.disabled = true;
+                btn.textContent = 'El teu pla actual';
+                btn.classList.remove('primary');
+                return;
+            }
+
+            btn.disabled = false;
+
+            if (target === 'equips') {
+                btn.textContent = 'Contactar';
+                btn.classList.remove('primary');
+            } else if (pla === 'gratuït') {
+                btn.textContent = 'Subscriure\'m';
+                btn.classList.add('primary');
+            } else {
+                btn.textContent = 'Canviar-hi';
+                btn.classList.remove('primary');
+            }
+        });
+
+        $$('.pla-card').forEach(card => {
+            const tag = card.querySelector('.pla-tag.actual');
+            const esActiu = card.dataset.pla === pla;
+            if (esActiu && pla !== 'gratuït' && !tag) {
+                const nouTag = document.createElement('span');
+                nouTag.className = 'pla-tag actual';
+                nouTag.textContent = 'El teu pla';
+                const cap = card.querySelector('.pla-capcalera');
+                if (cap) cap.appendChild(nouTag);
+            } else if ((!esActiu || pla === 'gratuït') && tag) {
+                tag.remove();
+            }
+        });
+    }
+
+    function demanarUsuariAlVisor() {
+        if (window.parent && window.parent !== window) {
+            try { window.parent.postMessage({ tipus: 'preus:demanaUsuari' }, '*'); } catch (e) {}
+        }
+        if (window.opener && !window.opener.closed) {
+            try { window.opener.postMessage({ tipus: 'preus:demanaUsuari' }, '*'); } catch (e) {}
+        }
+    }
+
+    window.addEventListener('message', (e) => {
+        const d = e.data;
+        if (!d || typeof d !== 'object') return;
+        if (d.tipus === 'visor:usuari' && d.user) {
+            window._firebaseUser = d.user;
+            pintarEstatUsuari(d.user);
+        }
+    });
+
+    async function iniciarCompra(plaTriat, boto) {
+        const user = window._firebaseUser;
+        if (!user) {
+            mostrarToast('Inicia sessió al visor per subscriure\'t', 'error');
+            if (window.parent && window.parent !== window) {
+                try { window.parent.postMessage({ tipus: 'preus:obreLogin' }, '*'); } catch (e) {}
+            }
+            if (window.opener && !window.opener.closed) {
+                try { window.opener.postMessage({ tipus: 'preus:obreLogin' }, '*'); } catch (e) {}
+            }
+            return;
+        }
+
+        const original = boto.textContent;
+        boto.classList.add('carregant');
+        boto.innerHTML = '<span class="spinner"></span> Redirigint…';
+
+        try {
+            const r = await fetch(window.BACKEND_URL + '/create-checkout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    uid: user.uid,
+                    email: user.email,
+                    pla: plaTriat,
+                    cicle: cicleActual,
+                    returnUrl: window.RETORN_URL
+                })
+            });
+
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            const d = await r.json();
+            if (!d || !d.url) throw new Error('Resposta sense URL');
+
+            window.location.href = d.url;
+        } catch (e) {
+            console.error('[Compra]', e);
+            mostrarToast('No s\'ha pogut iniciar el pagament. Torna-ho a provar.', 'error');
+            boto.classList.remove('carregant');
+            boto.textContent = original;
+        }
+    }
+
+    document.addEventListener('click', (e) => {
+        const boto = e.target.closest('.pla-btn[data-comprar]');
+        if (!boto || boto.disabled) return;
+        e.preventDefault();
+        const pla = boto.dataset.comprar;
+
+        if (pla === 'equips') {
+            const user = window._firebaseUser;
+            if (!user) {
+                mostrarToast('Inicia sessió per contactar', 'error');
+                return;
+            }
+            const assumpte = encodeURIComponent('Pla Equips · Tempestes.cat');
+            const cos = encodeURIComponent(`Hola,\n\nSoc ${user.email} i estic interessat/da en el pla Equips.\n\nGràcies!`);
+            window.location.href = `mailto:hola@tempestes.cat?subject=${assumpte}&body=${cos}`;
+            return;
+        }
+
+        iniciarCompra(pla, boto);
+    });
+
+    window.addEventListener('preus:user', (e) => pintarEstatUsuari(e.detail));
+
+    function iniciar() {
+        inicialitzarCicle();
+        actualitzarPreus();
+        demanarUsuariAlVisor();
+
+        setTimeout(() => {
+            const plaEl = $('#estatPla');
+            if (plaEl && plaEl.textContent === '—') {
+                pintarEstatUsuari(window._firebaseUser || null);
+            }
+        }, 1500);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', iniciar);
+    } else {
+        iniciar();
+    }
+})();
+</script>
+
+</body>
+</html>
