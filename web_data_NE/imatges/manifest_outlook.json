@@ -1,0 +1,2540 @@
+{
+ "generat": "2026-10-17T20:46:33",
+ "total_hores": 74,
+ "outlooks": [
+  {
+   "clau": "outlook_pluja6h",
+   "nom": "Outlook pluja 6h",
+   "unitat": "mm/6h",
+   "vmin": 10,
+   "vmax": 150,
+   "llegenda": [
+    {
+     "color": "#8fd98f",
+     "valor": "≥10 mm"
+    },
+    {
+     "color": "#2e7d32",
+     "valor": "≥20 mm"
+    },
+    {
+     "color": "#f0c32e",
+     "valor": "≥40 mm"
+    },
+    {
+     "color": "#ff8a2a",
+     "valor": "≥60 mm"
+    },
+    {
+     "color": "#d93a30",
+     "valor": "≥100 mm"
+    },
+    {
+     "color": "#d94bd9",
+     "valor": "≥150 mm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_neu6h",
+   "nom": "Outlook neu 6h",
+   "unitat": "cm",
+   "vmin": 2,
+   "vmax": 40,
+   "llegenda": [
+    {
+     "color": "#cce5ff",
+     "valor": "≥2 cm"
+    },
+    {
+     "color": "#99ccff",
+     "valor": "≥5 cm"
+    },
+    {
+     "color": "#66b3ff",
+     "valor": "≥10 cm"
+    },
+    {
+     "color": "#3388ff",
+     "valor": "≥20 cm"
+    },
+    {
+     "color": "#0066cc",
+     "valor": "≥40 cm"
+    }
+   ]
+  }
+ ],
+ "hores": [
+  {
+   "clau": "outlook_pluja6h",
+   "hora": 21,
+   "dia": "avui",
+   "nom": "Outlook pluja 6h",
+   "unitat": "mm/6h",
+   "vmin": 10,
+   "vmax": 150,
+   "llegenda": [
+    {
+     "color": "#8fd98f",
+     "valor": "≥10 mm"
+    },
+    {
+     "color": "#2e7d32",
+     "valor": "≥20 mm"
+    },
+    {
+     "color": "#f0c32e",
+     "valor": "≥40 mm"
+    },
+    {
+     "color": "#ff8a2a",
+     "valor": "≥60 mm"
+    },
+    {
+     "color": "#d93a30",
+     "valor": "≥100 mm"
+    },
+    {
+     "color": "#d94bd9",
+     "valor": "≥150 mm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_pluja6h",
+   "hora": 22,
+   "dia": "avui",
+   "nom": "Outlook pluja 6h",
+   "unitat": "mm/6h",
+   "vmin": 10,
+   "vmax": 150,
+   "llegenda": [
+    {
+     "color": "#8fd98f",
+     "valor": "≥10 mm"
+    },
+    {
+     "color": "#2e7d32",
+     "valor": "≥20 mm"
+    },
+    {
+     "color": "#f0c32e",
+     "valor": "≥40 mm"
+    },
+    {
+     "color": "#ff8a2a",
+     "valor": "≥60 mm"
+    },
+    {
+     "color": "#d93a30",
+     "valor": "≥100 mm"
+    },
+    {
+     "color": "#d94bd9",
+     "valor": "≥150 mm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_pluja6h",
+   "hora": 23,
+   "dia": "avui",
+   "nom": "Outlook pluja 6h",
+   "unitat": "mm/6h",
+   "vmin": 10,
+   "vmax": 150,
+   "llegenda": [
+    {
+     "color": "#8fd98f",
+     "valor": "≥10 mm"
+    },
+    {
+     "color": "#2e7d32",
+     "valor": "≥20 mm"
+    },
+    {
+     "color": "#f0c32e",
+     "valor": "≥40 mm"
+    },
+    {
+     "color": "#ff8a2a",
+     "valor": "≥60 mm"
+    },
+    {
+     "color": "#d93a30",
+     "valor": "≥100 mm"
+    },
+    {
+     "color": "#d94bd9",
+     "valor": "≥150 mm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_pluja6h",
+   "hora": 0,
+   "dia": "dema",
+   "nom": "Outlook pluja 6h",
+   "unitat": "mm/6h",
+   "vmin": 10,
+   "vmax": 150,
+   "llegenda": [
+    {
+     "color": "#8fd98f",
+     "valor": "≥10 mm"
+    },
+    {
+     "color": "#2e7d32",
+     "valor": "≥20 mm"
+    },
+    {
+     "color": "#f0c32e",
+     "valor": "≥40 mm"
+    },
+    {
+     "color": "#ff8a2a",
+     "valor": "≥60 mm"
+    },
+    {
+     "color": "#d93a30",
+     "valor": "≥100 mm"
+    },
+    {
+     "color": "#d94bd9",
+     "valor": "≥150 mm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_pluja6h",
+   "hora": 1,
+   "dia": "dema",
+   "nom": "Outlook pluja 6h",
+   "unitat": "mm/6h",
+   "vmin": 10,
+   "vmax": 150,
+   "llegenda": [
+    {
+     "color": "#8fd98f",
+     "valor": "≥10 mm"
+    },
+    {
+     "color": "#2e7d32",
+     "valor": "≥20 mm"
+    },
+    {
+     "color": "#f0c32e",
+     "valor": "≥40 mm"
+    },
+    {
+     "color": "#ff8a2a",
+     "valor": "≥60 mm"
+    },
+    {
+     "color": "#d93a30",
+     "valor": "≥100 mm"
+    },
+    {
+     "color": "#d94bd9",
+     "valor": "≥150 mm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_pluja6h",
+   "hora": 2,
+   "dia": "dema",
+   "nom": "Outlook pluja 6h",
+   "unitat": "mm/6h",
+   "vmin": 10,
+   "vmax": 150,
+   "llegenda": [
+    {
+     "color": "#8fd98f",
+     "valor": "≥10 mm"
+    },
+    {
+     "color": "#2e7d32",
+     "valor": "≥20 mm"
+    },
+    {
+     "color": "#f0c32e",
+     "valor": "≥40 mm"
+    },
+    {
+     "color": "#ff8a2a",
+     "valor": "≥60 mm"
+    },
+    {
+     "color": "#d93a30",
+     "valor": "≥100 mm"
+    },
+    {
+     "color": "#d94bd9",
+     "valor": "≥150 mm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_pluja6h",
+   "hora": 3,
+   "dia": "dema",
+   "nom": "Outlook pluja 6h",
+   "unitat": "mm/6h",
+   "vmin": 10,
+   "vmax": 150,
+   "llegenda": [
+    {
+     "color": "#8fd98f",
+     "valor": "≥10 mm"
+    },
+    {
+     "color": "#2e7d32",
+     "valor": "≥20 mm"
+    },
+    {
+     "color": "#f0c32e",
+     "valor": "≥40 mm"
+    },
+    {
+     "color": "#ff8a2a",
+     "valor": "≥60 mm"
+    },
+    {
+     "color": "#d93a30",
+     "valor": "≥100 mm"
+    },
+    {
+     "color": "#d94bd9",
+     "valor": "≥150 mm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_pluja6h",
+   "hora": 4,
+   "dia": "dema",
+   "nom": "Outlook pluja 6h",
+   "unitat": "mm/6h",
+   "vmin": 10,
+   "vmax": 150,
+   "llegenda": [
+    {
+     "color": "#8fd98f",
+     "valor": "≥10 mm"
+    },
+    {
+     "color": "#2e7d32",
+     "valor": "≥20 mm"
+    },
+    {
+     "color": "#f0c32e",
+     "valor": "≥40 mm"
+    },
+    {
+     "color": "#ff8a2a",
+     "valor": "≥60 mm"
+    },
+    {
+     "color": "#d93a30",
+     "valor": "≥100 mm"
+    },
+    {
+     "color": "#d94bd9",
+     "valor": "≥150 mm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_pluja6h",
+   "hora": 5,
+   "dia": "dema",
+   "nom": "Outlook pluja 6h",
+   "unitat": "mm/6h",
+   "vmin": 10,
+   "vmax": 150,
+   "llegenda": [
+    {
+     "color": "#8fd98f",
+     "valor": "≥10 mm"
+    },
+    {
+     "color": "#2e7d32",
+     "valor": "≥20 mm"
+    },
+    {
+     "color": "#f0c32e",
+     "valor": "≥40 mm"
+    },
+    {
+     "color": "#ff8a2a",
+     "valor": "≥60 mm"
+    },
+    {
+     "color": "#d93a30",
+     "valor": "≥100 mm"
+    },
+    {
+     "color": "#d94bd9",
+     "valor": "≥150 mm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_pluja6h",
+   "hora": 6,
+   "dia": "dema",
+   "nom": "Outlook pluja 6h",
+   "unitat": "mm/6h",
+   "vmin": 10,
+   "vmax": 150,
+   "llegenda": [
+    {
+     "color": "#8fd98f",
+     "valor": "≥10 mm"
+    },
+    {
+     "color": "#2e7d32",
+     "valor": "≥20 mm"
+    },
+    {
+     "color": "#f0c32e",
+     "valor": "≥40 mm"
+    },
+    {
+     "color": "#ff8a2a",
+     "valor": "≥60 mm"
+    },
+    {
+     "color": "#d93a30",
+     "valor": "≥100 mm"
+    },
+    {
+     "color": "#d94bd9",
+     "valor": "≥150 mm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_pluja6h",
+   "hora": 7,
+   "dia": "dema",
+   "nom": "Outlook pluja 6h",
+   "unitat": "mm/6h",
+   "vmin": 10,
+   "vmax": 150,
+   "llegenda": [
+    {
+     "color": "#8fd98f",
+     "valor": "≥10 mm"
+    },
+    {
+     "color": "#2e7d32",
+     "valor": "≥20 mm"
+    },
+    {
+     "color": "#f0c32e",
+     "valor": "≥40 mm"
+    },
+    {
+     "color": "#ff8a2a",
+     "valor": "≥60 mm"
+    },
+    {
+     "color": "#d93a30",
+     "valor": "≥100 mm"
+    },
+    {
+     "color": "#d94bd9",
+     "valor": "≥150 mm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_pluja6h",
+   "hora": 8,
+   "dia": "dema",
+   "nom": "Outlook pluja 6h",
+   "unitat": "mm/6h",
+   "vmin": 10,
+   "vmax": 150,
+   "llegenda": [
+    {
+     "color": "#8fd98f",
+     "valor": "≥10 mm"
+    },
+    {
+     "color": "#2e7d32",
+     "valor": "≥20 mm"
+    },
+    {
+     "color": "#f0c32e",
+     "valor": "≥40 mm"
+    },
+    {
+     "color": "#ff8a2a",
+     "valor": "≥60 mm"
+    },
+    {
+     "color": "#d93a30",
+     "valor": "≥100 mm"
+    },
+    {
+     "color": "#d94bd9",
+     "valor": "≥150 mm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_pluja6h",
+   "hora": 9,
+   "dia": "dema",
+   "nom": "Outlook pluja 6h",
+   "unitat": "mm/6h",
+   "vmin": 10,
+   "vmax": 150,
+   "llegenda": [
+    {
+     "color": "#8fd98f",
+     "valor": "≥10 mm"
+    },
+    {
+     "color": "#2e7d32",
+     "valor": "≥20 mm"
+    },
+    {
+     "color": "#f0c32e",
+     "valor": "≥40 mm"
+    },
+    {
+     "color": "#ff8a2a",
+     "valor": "≥60 mm"
+    },
+    {
+     "color": "#d93a30",
+     "valor": "≥100 mm"
+    },
+    {
+     "color": "#d94bd9",
+     "valor": "≥150 mm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_pluja6h",
+   "hora": 10,
+   "dia": "dema",
+   "nom": "Outlook pluja 6h",
+   "unitat": "mm/6h",
+   "vmin": 10,
+   "vmax": 150,
+   "llegenda": [
+    {
+     "color": "#8fd98f",
+     "valor": "≥10 mm"
+    },
+    {
+     "color": "#2e7d32",
+     "valor": "≥20 mm"
+    },
+    {
+     "color": "#f0c32e",
+     "valor": "≥40 mm"
+    },
+    {
+     "color": "#ff8a2a",
+     "valor": "≥60 mm"
+    },
+    {
+     "color": "#d93a30",
+     "valor": "≥100 mm"
+    },
+    {
+     "color": "#d94bd9",
+     "valor": "≥150 mm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_pluja6h",
+   "hora": 11,
+   "dia": "dema",
+   "nom": "Outlook pluja 6h",
+   "unitat": "mm/6h",
+   "vmin": 10,
+   "vmax": 150,
+   "llegenda": [
+    {
+     "color": "#8fd98f",
+     "valor": "≥10 mm"
+    },
+    {
+     "color": "#2e7d32",
+     "valor": "≥20 mm"
+    },
+    {
+     "color": "#f0c32e",
+     "valor": "≥40 mm"
+    },
+    {
+     "color": "#ff8a2a",
+     "valor": "≥60 mm"
+    },
+    {
+     "color": "#d93a30",
+     "valor": "≥100 mm"
+    },
+    {
+     "color": "#d94bd9",
+     "valor": "≥150 mm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_pluja6h",
+   "hora": 12,
+   "dia": "dema",
+   "nom": "Outlook pluja 6h",
+   "unitat": "mm/6h",
+   "vmin": 10,
+   "vmax": 150,
+   "llegenda": [
+    {
+     "color": "#8fd98f",
+     "valor": "≥10 mm"
+    },
+    {
+     "color": "#2e7d32",
+     "valor": "≥20 mm"
+    },
+    {
+     "color": "#f0c32e",
+     "valor": "≥40 mm"
+    },
+    {
+     "color": "#ff8a2a",
+     "valor": "≥60 mm"
+    },
+    {
+     "color": "#d93a30",
+     "valor": "≥100 mm"
+    },
+    {
+     "color": "#d94bd9",
+     "valor": "≥150 mm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_pluja6h",
+   "hora": 13,
+   "dia": "dema",
+   "nom": "Outlook pluja 6h",
+   "unitat": "mm/6h",
+   "vmin": 10,
+   "vmax": 150,
+   "llegenda": [
+    {
+     "color": "#8fd98f",
+     "valor": "≥10 mm"
+    },
+    {
+     "color": "#2e7d32",
+     "valor": "≥20 mm"
+    },
+    {
+     "color": "#f0c32e",
+     "valor": "≥40 mm"
+    },
+    {
+     "color": "#ff8a2a",
+     "valor": "≥60 mm"
+    },
+    {
+     "color": "#d93a30",
+     "valor": "≥100 mm"
+    },
+    {
+     "color": "#d94bd9",
+     "valor": "≥150 mm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_pluja6h",
+   "hora": 14,
+   "dia": "dema",
+   "nom": "Outlook pluja 6h",
+   "unitat": "mm/6h",
+   "vmin": 10,
+   "vmax": 150,
+   "llegenda": [
+    {
+     "color": "#8fd98f",
+     "valor": "≥10 mm"
+    },
+    {
+     "color": "#2e7d32",
+     "valor": "≥20 mm"
+    },
+    {
+     "color": "#f0c32e",
+     "valor": "≥40 mm"
+    },
+    {
+     "color": "#ff8a2a",
+     "valor": "≥60 mm"
+    },
+    {
+     "color": "#d93a30",
+     "valor": "≥100 mm"
+    },
+    {
+     "color": "#d94bd9",
+     "valor": "≥150 mm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_pluja6h",
+   "hora": 15,
+   "dia": "dema",
+   "nom": "Outlook pluja 6h",
+   "unitat": "mm/6h",
+   "vmin": 10,
+   "vmax": 150,
+   "llegenda": [
+    {
+     "color": "#8fd98f",
+     "valor": "≥10 mm"
+    },
+    {
+     "color": "#2e7d32",
+     "valor": "≥20 mm"
+    },
+    {
+     "color": "#f0c32e",
+     "valor": "≥40 mm"
+    },
+    {
+     "color": "#ff8a2a",
+     "valor": "≥60 mm"
+    },
+    {
+     "color": "#d93a30",
+     "valor": "≥100 mm"
+    },
+    {
+     "color": "#d94bd9",
+     "valor": "≥150 mm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_pluja6h",
+   "hora": 16,
+   "dia": "dema",
+   "nom": "Outlook pluja 6h",
+   "unitat": "mm/6h",
+   "vmin": 10,
+   "vmax": 150,
+   "llegenda": [
+    {
+     "color": "#8fd98f",
+     "valor": "≥10 mm"
+    },
+    {
+     "color": "#2e7d32",
+     "valor": "≥20 mm"
+    },
+    {
+     "color": "#f0c32e",
+     "valor": "≥40 mm"
+    },
+    {
+     "color": "#ff8a2a",
+     "valor": "≥60 mm"
+    },
+    {
+     "color": "#d93a30",
+     "valor": "≥100 mm"
+    },
+    {
+     "color": "#d94bd9",
+     "valor": "≥150 mm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_pluja6h",
+   "hora": 17,
+   "dia": "dema",
+   "nom": "Outlook pluja 6h",
+   "unitat": "mm/6h",
+   "vmin": 10,
+   "vmax": 150,
+   "llegenda": [
+    {
+     "color": "#8fd98f",
+     "valor": "≥10 mm"
+    },
+    {
+     "color": "#2e7d32",
+     "valor": "≥20 mm"
+    },
+    {
+     "color": "#f0c32e",
+     "valor": "≥40 mm"
+    },
+    {
+     "color": "#ff8a2a",
+     "valor": "≥60 mm"
+    },
+    {
+     "color": "#d93a30",
+     "valor": "≥100 mm"
+    },
+    {
+     "color": "#d94bd9",
+     "valor": "≥150 mm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_pluja6h",
+   "hora": 18,
+   "dia": "dema",
+   "nom": "Outlook pluja 6h",
+   "unitat": "mm/6h",
+   "vmin": 10,
+   "vmax": 150,
+   "llegenda": [
+    {
+     "color": "#8fd98f",
+     "valor": "≥10 mm"
+    },
+    {
+     "color": "#2e7d32",
+     "valor": "≥20 mm"
+    },
+    {
+     "color": "#f0c32e",
+     "valor": "≥40 mm"
+    },
+    {
+     "color": "#ff8a2a",
+     "valor": "≥60 mm"
+    },
+    {
+     "color": "#d93a30",
+     "valor": "≥100 mm"
+    },
+    {
+     "color": "#d94bd9",
+     "valor": "≥150 mm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_pluja6h",
+   "hora": 19,
+   "dia": "dema",
+   "nom": "Outlook pluja 6h",
+   "unitat": "mm/6h",
+   "vmin": 10,
+   "vmax": 150,
+   "llegenda": [
+    {
+     "color": "#8fd98f",
+     "valor": "≥10 mm"
+    },
+    {
+     "color": "#2e7d32",
+     "valor": "≥20 mm"
+    },
+    {
+     "color": "#f0c32e",
+     "valor": "≥40 mm"
+    },
+    {
+     "color": "#ff8a2a",
+     "valor": "≥60 mm"
+    },
+    {
+     "color": "#d93a30",
+     "valor": "≥100 mm"
+    },
+    {
+     "color": "#d94bd9",
+     "valor": "≥150 mm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_pluja6h",
+   "hora": 20,
+   "dia": "dema",
+   "nom": "Outlook pluja 6h",
+   "unitat": "mm/6h",
+   "vmin": 10,
+   "vmax": 150,
+   "llegenda": [
+    {
+     "color": "#8fd98f",
+     "valor": "≥10 mm"
+    },
+    {
+     "color": "#2e7d32",
+     "valor": "≥20 mm"
+    },
+    {
+     "color": "#f0c32e",
+     "valor": "≥40 mm"
+    },
+    {
+     "color": "#ff8a2a",
+     "valor": "≥60 mm"
+    },
+    {
+     "color": "#d93a30",
+     "valor": "≥100 mm"
+    },
+    {
+     "color": "#d94bd9",
+     "valor": "≥150 mm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_pluja6h",
+   "hora": 21,
+   "dia": "dema",
+   "nom": "Outlook pluja 6h",
+   "unitat": "mm/6h",
+   "vmin": 10,
+   "vmax": 150,
+   "llegenda": [
+    {
+     "color": "#8fd98f",
+     "valor": "≥10 mm"
+    },
+    {
+     "color": "#2e7d32",
+     "valor": "≥20 mm"
+    },
+    {
+     "color": "#f0c32e",
+     "valor": "≥40 mm"
+    },
+    {
+     "color": "#ff8a2a",
+     "valor": "≥60 mm"
+    },
+    {
+     "color": "#d93a30",
+     "valor": "≥100 mm"
+    },
+    {
+     "color": "#d94bd9",
+     "valor": "≥150 mm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_pluja6h",
+   "hora": 22,
+   "dia": "dema",
+   "nom": "Outlook pluja 6h",
+   "unitat": "mm/6h",
+   "vmin": 10,
+   "vmax": 150,
+   "llegenda": [
+    {
+     "color": "#8fd98f",
+     "valor": "≥10 mm"
+    },
+    {
+     "color": "#2e7d32",
+     "valor": "≥20 mm"
+    },
+    {
+     "color": "#f0c32e",
+     "valor": "≥40 mm"
+    },
+    {
+     "color": "#ff8a2a",
+     "valor": "≥60 mm"
+    },
+    {
+     "color": "#d93a30",
+     "valor": "≥100 mm"
+    },
+    {
+     "color": "#d94bd9",
+     "valor": "≥150 mm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_pluja6h",
+   "hora": 23,
+   "dia": "dema",
+   "nom": "Outlook pluja 6h",
+   "unitat": "mm/6h",
+   "vmin": 10,
+   "vmax": 150,
+   "llegenda": [
+    {
+     "color": "#8fd98f",
+     "valor": "≥10 mm"
+    },
+    {
+     "color": "#2e7d32",
+     "valor": "≥20 mm"
+    },
+    {
+     "color": "#f0c32e",
+     "valor": "≥40 mm"
+    },
+    {
+     "color": "#ff8a2a",
+     "valor": "≥60 mm"
+    },
+    {
+     "color": "#d93a30",
+     "valor": "≥100 mm"
+    },
+    {
+     "color": "#d94bd9",
+     "valor": "≥150 mm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_pluja6h",
+   "hora": 0,
+   "dia": "dema_passat",
+   "nom": "Outlook pluja 6h",
+   "unitat": "mm/6h",
+   "vmin": 10,
+   "vmax": 150,
+   "llegenda": [
+    {
+     "color": "#8fd98f",
+     "valor": "≥10 mm"
+    },
+    {
+     "color": "#2e7d32",
+     "valor": "≥20 mm"
+    },
+    {
+     "color": "#f0c32e",
+     "valor": "≥40 mm"
+    },
+    {
+     "color": "#ff8a2a",
+     "valor": "≥60 mm"
+    },
+    {
+     "color": "#d93a30",
+     "valor": "≥100 mm"
+    },
+    {
+     "color": "#d94bd9",
+     "valor": "≥150 mm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_pluja6h",
+   "hora": 1,
+   "dia": "dema_passat",
+   "nom": "Outlook pluja 6h",
+   "unitat": "mm/6h",
+   "vmin": 10,
+   "vmax": 150,
+   "llegenda": [
+    {
+     "color": "#8fd98f",
+     "valor": "≥10 mm"
+    },
+    {
+     "color": "#2e7d32",
+     "valor": "≥20 mm"
+    },
+    {
+     "color": "#f0c32e",
+     "valor": "≥40 mm"
+    },
+    {
+     "color": "#ff8a2a",
+     "valor": "≥60 mm"
+    },
+    {
+     "color": "#d93a30",
+     "valor": "≥100 mm"
+    },
+    {
+     "color": "#d94bd9",
+     "valor": "≥150 mm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_pluja6h",
+   "hora": 2,
+   "dia": "dema_passat",
+   "nom": "Outlook pluja 6h",
+   "unitat": "mm/6h",
+   "vmin": 10,
+   "vmax": 150,
+   "llegenda": [
+    {
+     "color": "#8fd98f",
+     "valor": "≥10 mm"
+    },
+    {
+     "color": "#2e7d32",
+     "valor": "≥20 mm"
+    },
+    {
+     "color": "#f0c32e",
+     "valor": "≥40 mm"
+    },
+    {
+     "color": "#ff8a2a",
+     "valor": "≥60 mm"
+    },
+    {
+     "color": "#d93a30",
+     "valor": "≥100 mm"
+    },
+    {
+     "color": "#d94bd9",
+     "valor": "≥150 mm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_pluja6h",
+   "hora": 3,
+   "dia": "dema_passat",
+   "nom": "Outlook pluja 6h",
+   "unitat": "mm/6h",
+   "vmin": 10,
+   "vmax": 150,
+   "llegenda": [
+    {
+     "color": "#8fd98f",
+     "valor": "≥10 mm"
+    },
+    {
+     "color": "#2e7d32",
+     "valor": "≥20 mm"
+    },
+    {
+     "color": "#f0c32e",
+     "valor": "≥40 mm"
+    },
+    {
+     "color": "#ff8a2a",
+     "valor": "≥60 mm"
+    },
+    {
+     "color": "#d93a30",
+     "valor": "≥100 mm"
+    },
+    {
+     "color": "#d94bd9",
+     "valor": "≥150 mm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_pluja6h",
+   "hora": 4,
+   "dia": "dema_passat",
+   "nom": "Outlook pluja 6h",
+   "unitat": "mm/6h",
+   "vmin": 10,
+   "vmax": 150,
+   "llegenda": [
+    {
+     "color": "#8fd98f",
+     "valor": "≥10 mm"
+    },
+    {
+     "color": "#2e7d32",
+     "valor": "≥20 mm"
+    },
+    {
+     "color": "#f0c32e",
+     "valor": "≥40 mm"
+    },
+    {
+     "color": "#ff8a2a",
+     "valor": "≥60 mm"
+    },
+    {
+     "color": "#d93a30",
+     "valor": "≥100 mm"
+    },
+    {
+     "color": "#d94bd9",
+     "valor": "≥150 mm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_pluja6h",
+   "hora": 5,
+   "dia": "dema_passat",
+   "nom": "Outlook pluja 6h",
+   "unitat": "mm/6h",
+   "vmin": 10,
+   "vmax": 150,
+   "llegenda": [
+    {
+     "color": "#8fd98f",
+     "valor": "≥10 mm"
+    },
+    {
+     "color": "#2e7d32",
+     "valor": "≥20 mm"
+    },
+    {
+     "color": "#f0c32e",
+     "valor": "≥40 mm"
+    },
+    {
+     "color": "#ff8a2a",
+     "valor": "≥60 mm"
+    },
+    {
+     "color": "#d93a30",
+     "valor": "≥100 mm"
+    },
+    {
+     "color": "#d94bd9",
+     "valor": "≥150 mm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_pluja6h",
+   "hora": 6,
+   "dia": "dema_passat",
+   "nom": "Outlook pluja 6h",
+   "unitat": "mm/6h",
+   "vmin": 10,
+   "vmax": 150,
+   "llegenda": [
+    {
+     "color": "#8fd98f",
+     "valor": "≥10 mm"
+    },
+    {
+     "color": "#2e7d32",
+     "valor": "≥20 mm"
+    },
+    {
+     "color": "#f0c32e",
+     "valor": "≥40 mm"
+    },
+    {
+     "color": "#ff8a2a",
+     "valor": "≥60 mm"
+    },
+    {
+     "color": "#d93a30",
+     "valor": "≥100 mm"
+    },
+    {
+     "color": "#d94bd9",
+     "valor": "≥150 mm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_pluja6h",
+   "hora": 7,
+   "dia": "dema_passat",
+   "nom": "Outlook pluja 6h",
+   "unitat": "mm/6h",
+   "vmin": 10,
+   "vmax": 150,
+   "llegenda": [
+    {
+     "color": "#8fd98f",
+     "valor": "≥10 mm"
+    },
+    {
+     "color": "#2e7d32",
+     "valor": "≥20 mm"
+    },
+    {
+     "color": "#f0c32e",
+     "valor": "≥40 mm"
+    },
+    {
+     "color": "#ff8a2a",
+     "valor": "≥60 mm"
+    },
+    {
+     "color": "#d93a30",
+     "valor": "≥100 mm"
+    },
+    {
+     "color": "#d94bd9",
+     "valor": "≥150 mm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_pluja6h",
+   "hora": 8,
+   "dia": "dema_passat",
+   "nom": "Outlook pluja 6h",
+   "unitat": "mm/6h",
+   "vmin": 10,
+   "vmax": 150,
+   "llegenda": [
+    {
+     "color": "#8fd98f",
+     "valor": "≥10 mm"
+    },
+    {
+     "color": "#2e7d32",
+     "valor": "≥20 mm"
+    },
+    {
+     "color": "#f0c32e",
+     "valor": "≥40 mm"
+    },
+    {
+     "color": "#ff8a2a",
+     "valor": "≥60 mm"
+    },
+    {
+     "color": "#d93a30",
+     "valor": "≥100 mm"
+    },
+    {
+     "color": "#d94bd9",
+     "valor": "≥150 mm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_pluja6h",
+   "hora": 9,
+   "dia": "dema_passat",
+   "nom": "Outlook pluja 6h",
+   "unitat": "mm/6h",
+   "vmin": 10,
+   "vmax": 150,
+   "llegenda": [
+    {
+     "color": "#8fd98f",
+     "valor": "≥10 mm"
+    },
+    {
+     "color": "#2e7d32",
+     "valor": "≥20 mm"
+    },
+    {
+     "color": "#f0c32e",
+     "valor": "≥40 mm"
+    },
+    {
+     "color": "#ff8a2a",
+     "valor": "≥60 mm"
+    },
+    {
+     "color": "#d93a30",
+     "valor": "≥100 mm"
+    },
+    {
+     "color": "#d94bd9",
+     "valor": "≥150 mm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_pluja6h",
+   "hora": 10,
+   "dia": "dema_passat",
+   "nom": "Outlook pluja 6h",
+   "unitat": "mm/6h",
+   "vmin": 10,
+   "vmax": 150,
+   "llegenda": [
+    {
+     "color": "#8fd98f",
+     "valor": "≥10 mm"
+    },
+    {
+     "color": "#2e7d32",
+     "valor": "≥20 mm"
+    },
+    {
+     "color": "#f0c32e",
+     "valor": "≥40 mm"
+    },
+    {
+     "color": "#ff8a2a",
+     "valor": "≥60 mm"
+    },
+    {
+     "color": "#d93a30",
+     "valor": "≥100 mm"
+    },
+    {
+     "color": "#d94bd9",
+     "valor": "≥150 mm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_pluja6h",
+   "hora": 11,
+   "dia": "dema_passat",
+   "nom": "Outlook pluja 6h",
+   "unitat": "mm/6h",
+   "vmin": 10,
+   "vmax": 150,
+   "llegenda": [
+    {
+     "color": "#8fd98f",
+     "valor": "≥10 mm"
+    },
+    {
+     "color": "#2e7d32",
+     "valor": "≥20 mm"
+    },
+    {
+     "color": "#f0c32e",
+     "valor": "≥40 mm"
+    },
+    {
+     "color": "#ff8a2a",
+     "valor": "≥60 mm"
+    },
+    {
+     "color": "#d93a30",
+     "valor": "≥100 mm"
+    },
+    {
+     "color": "#d94bd9",
+     "valor": "≥150 mm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_pluja6h",
+   "hora": 12,
+   "dia": "dema_passat",
+   "nom": "Outlook pluja 6h",
+   "unitat": "mm/6h",
+   "vmin": 10,
+   "vmax": 150,
+   "llegenda": [
+    {
+     "color": "#8fd98f",
+     "valor": "≥10 mm"
+    },
+    {
+     "color": "#2e7d32",
+     "valor": "≥20 mm"
+    },
+    {
+     "color": "#f0c32e",
+     "valor": "≥40 mm"
+    },
+    {
+     "color": "#ff8a2a",
+     "valor": "≥60 mm"
+    },
+    {
+     "color": "#d93a30",
+     "valor": "≥100 mm"
+    },
+    {
+     "color": "#d94bd9",
+     "valor": "≥150 mm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_pluja6h",
+   "hora": 13,
+   "dia": "dema_passat",
+   "nom": "Outlook pluja 6h",
+   "unitat": "mm/6h",
+   "vmin": 10,
+   "vmax": 150,
+   "llegenda": [
+    {
+     "color": "#8fd98f",
+     "valor": "≥10 mm"
+    },
+    {
+     "color": "#2e7d32",
+     "valor": "≥20 mm"
+    },
+    {
+     "color": "#f0c32e",
+     "valor": "≥40 mm"
+    },
+    {
+     "color": "#ff8a2a",
+     "valor": "≥60 mm"
+    },
+    {
+     "color": "#d93a30",
+     "valor": "≥100 mm"
+    },
+    {
+     "color": "#d94bd9",
+     "valor": "≥150 mm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_pluja6h",
+   "hora": 14,
+   "dia": "dema_passat",
+   "nom": "Outlook pluja 6h",
+   "unitat": "mm/6h",
+   "vmin": 10,
+   "vmax": 150,
+   "llegenda": [
+    {
+     "color": "#8fd98f",
+     "valor": "≥10 mm"
+    },
+    {
+     "color": "#2e7d32",
+     "valor": "≥20 mm"
+    },
+    {
+     "color": "#f0c32e",
+     "valor": "≥40 mm"
+    },
+    {
+     "color": "#ff8a2a",
+     "valor": "≥60 mm"
+    },
+    {
+     "color": "#d93a30",
+     "valor": "≥100 mm"
+    },
+    {
+     "color": "#d94bd9",
+     "valor": "≥150 mm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_pluja6h",
+   "hora": 15,
+   "dia": "dema_passat",
+   "nom": "Outlook pluja 6h",
+   "unitat": "mm/6h",
+   "vmin": 10,
+   "vmax": 150,
+   "llegenda": [
+    {
+     "color": "#8fd98f",
+     "valor": "≥10 mm"
+    },
+    {
+     "color": "#2e7d32",
+     "valor": "≥20 mm"
+    },
+    {
+     "color": "#f0c32e",
+     "valor": "≥40 mm"
+    },
+    {
+     "color": "#ff8a2a",
+     "valor": "≥60 mm"
+    },
+    {
+     "color": "#d93a30",
+     "valor": "≥100 mm"
+    },
+    {
+     "color": "#d94bd9",
+     "valor": "≥150 mm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_pluja6h",
+   "hora": 16,
+   "dia": "dema_passat",
+   "nom": "Outlook pluja 6h",
+   "unitat": "mm/6h",
+   "vmin": 10,
+   "vmax": 150,
+   "llegenda": [
+    {
+     "color": "#8fd98f",
+     "valor": "≥10 mm"
+    },
+    {
+     "color": "#2e7d32",
+     "valor": "≥20 mm"
+    },
+    {
+     "color": "#f0c32e",
+     "valor": "≥40 mm"
+    },
+    {
+     "color": "#ff8a2a",
+     "valor": "≥60 mm"
+    },
+    {
+     "color": "#d93a30",
+     "valor": "≥100 mm"
+    },
+    {
+     "color": "#d94bd9",
+     "valor": "≥150 mm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_neu6h",
+   "hora": 0,
+   "dia": "dema",
+   "nom": "Outlook neu 6h",
+   "unitat": "cm",
+   "vmin": 2,
+   "vmax": 40,
+   "llegenda": [
+    {
+     "color": "#cce5ff",
+     "valor": "≥2 cm"
+    },
+    {
+     "color": "#99ccff",
+     "valor": "≥5 cm"
+    },
+    {
+     "color": "#66b3ff",
+     "valor": "≥10 cm"
+    },
+    {
+     "color": "#3388ff",
+     "valor": "≥20 cm"
+    },
+    {
+     "color": "#0066cc",
+     "valor": "≥40 cm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_neu6h",
+   "hora": 1,
+   "dia": "dema",
+   "nom": "Outlook neu 6h",
+   "unitat": "cm",
+   "vmin": 2,
+   "vmax": 40,
+   "llegenda": [
+    {
+     "color": "#cce5ff",
+     "valor": "≥2 cm"
+    },
+    {
+     "color": "#99ccff",
+     "valor": "≥5 cm"
+    },
+    {
+     "color": "#66b3ff",
+     "valor": "≥10 cm"
+    },
+    {
+     "color": "#3388ff",
+     "valor": "≥20 cm"
+    },
+    {
+     "color": "#0066cc",
+     "valor": "≥40 cm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_neu6h",
+   "hora": 2,
+   "dia": "dema",
+   "nom": "Outlook neu 6h",
+   "unitat": "cm",
+   "vmin": 2,
+   "vmax": 40,
+   "llegenda": [
+    {
+     "color": "#cce5ff",
+     "valor": "≥2 cm"
+    },
+    {
+     "color": "#99ccff",
+     "valor": "≥5 cm"
+    },
+    {
+     "color": "#66b3ff",
+     "valor": "≥10 cm"
+    },
+    {
+     "color": "#3388ff",
+     "valor": "≥20 cm"
+    },
+    {
+     "color": "#0066cc",
+     "valor": "≥40 cm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_neu6h",
+   "hora": 3,
+   "dia": "dema",
+   "nom": "Outlook neu 6h",
+   "unitat": "cm",
+   "vmin": 2,
+   "vmax": 40,
+   "llegenda": [
+    {
+     "color": "#cce5ff",
+     "valor": "≥2 cm"
+    },
+    {
+     "color": "#99ccff",
+     "valor": "≥5 cm"
+    },
+    {
+     "color": "#66b3ff",
+     "valor": "≥10 cm"
+    },
+    {
+     "color": "#3388ff",
+     "valor": "≥20 cm"
+    },
+    {
+     "color": "#0066cc",
+     "valor": "≥40 cm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_neu6h",
+   "hora": 4,
+   "dia": "dema",
+   "nom": "Outlook neu 6h",
+   "unitat": "cm",
+   "vmin": 2,
+   "vmax": 40,
+   "llegenda": [
+    {
+     "color": "#cce5ff",
+     "valor": "≥2 cm"
+    },
+    {
+     "color": "#99ccff",
+     "valor": "≥5 cm"
+    },
+    {
+     "color": "#66b3ff",
+     "valor": "≥10 cm"
+    },
+    {
+     "color": "#3388ff",
+     "valor": "≥20 cm"
+    },
+    {
+     "color": "#0066cc",
+     "valor": "≥40 cm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_neu6h",
+   "hora": 5,
+   "dia": "dema",
+   "nom": "Outlook neu 6h",
+   "unitat": "cm",
+   "vmin": 2,
+   "vmax": 40,
+   "llegenda": [
+    {
+     "color": "#cce5ff",
+     "valor": "≥2 cm"
+    },
+    {
+     "color": "#99ccff",
+     "valor": "≥5 cm"
+    },
+    {
+     "color": "#66b3ff",
+     "valor": "≥10 cm"
+    },
+    {
+     "color": "#3388ff",
+     "valor": "≥20 cm"
+    },
+    {
+     "color": "#0066cc",
+     "valor": "≥40 cm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_neu6h",
+   "hora": 9,
+   "dia": "dema",
+   "nom": "Outlook neu 6h",
+   "unitat": "cm",
+   "vmin": 2,
+   "vmax": 40,
+   "llegenda": [
+    {
+     "color": "#cce5ff",
+     "valor": "≥2 cm"
+    },
+    {
+     "color": "#99ccff",
+     "valor": "≥5 cm"
+    },
+    {
+     "color": "#66b3ff",
+     "valor": "≥10 cm"
+    },
+    {
+     "color": "#3388ff",
+     "valor": "≥20 cm"
+    },
+    {
+     "color": "#0066cc",
+     "valor": "≥40 cm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_neu6h",
+   "hora": 10,
+   "dia": "dema",
+   "nom": "Outlook neu 6h",
+   "unitat": "cm",
+   "vmin": 2,
+   "vmax": 40,
+   "llegenda": [
+    {
+     "color": "#cce5ff",
+     "valor": "≥2 cm"
+    },
+    {
+     "color": "#99ccff",
+     "valor": "≥5 cm"
+    },
+    {
+     "color": "#66b3ff",
+     "valor": "≥10 cm"
+    },
+    {
+     "color": "#3388ff",
+     "valor": "≥20 cm"
+    },
+    {
+     "color": "#0066cc",
+     "valor": "≥40 cm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_neu6h",
+   "hora": 11,
+   "dia": "dema",
+   "nom": "Outlook neu 6h",
+   "unitat": "cm",
+   "vmin": 2,
+   "vmax": 40,
+   "llegenda": [
+    {
+     "color": "#cce5ff",
+     "valor": "≥2 cm"
+    },
+    {
+     "color": "#99ccff",
+     "valor": "≥5 cm"
+    },
+    {
+     "color": "#66b3ff",
+     "valor": "≥10 cm"
+    },
+    {
+     "color": "#3388ff",
+     "valor": "≥20 cm"
+    },
+    {
+     "color": "#0066cc",
+     "valor": "≥40 cm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_neu6h",
+   "hora": 12,
+   "dia": "dema",
+   "nom": "Outlook neu 6h",
+   "unitat": "cm",
+   "vmin": 2,
+   "vmax": 40,
+   "llegenda": [
+    {
+     "color": "#cce5ff",
+     "valor": "≥2 cm"
+    },
+    {
+     "color": "#99ccff",
+     "valor": "≥5 cm"
+    },
+    {
+     "color": "#66b3ff",
+     "valor": "≥10 cm"
+    },
+    {
+     "color": "#3388ff",
+     "valor": "≥20 cm"
+    },
+    {
+     "color": "#0066cc",
+     "valor": "≥40 cm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_neu6h",
+   "hora": 13,
+   "dia": "dema",
+   "nom": "Outlook neu 6h",
+   "unitat": "cm",
+   "vmin": 2,
+   "vmax": 40,
+   "llegenda": [
+    {
+     "color": "#cce5ff",
+     "valor": "≥2 cm"
+    },
+    {
+     "color": "#99ccff",
+     "valor": "≥5 cm"
+    },
+    {
+     "color": "#66b3ff",
+     "valor": "≥10 cm"
+    },
+    {
+     "color": "#3388ff",
+     "valor": "≥20 cm"
+    },
+    {
+     "color": "#0066cc",
+     "valor": "≥40 cm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_neu6h",
+   "hora": 14,
+   "dia": "dema",
+   "nom": "Outlook neu 6h",
+   "unitat": "cm",
+   "vmin": 2,
+   "vmax": 40,
+   "llegenda": [
+    {
+     "color": "#cce5ff",
+     "valor": "≥2 cm"
+    },
+    {
+     "color": "#99ccff",
+     "valor": "≥5 cm"
+    },
+    {
+     "color": "#66b3ff",
+     "valor": "≥10 cm"
+    },
+    {
+     "color": "#3388ff",
+     "valor": "≥20 cm"
+    },
+    {
+     "color": "#0066cc",
+     "valor": "≥40 cm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_neu6h",
+   "hora": 15,
+   "dia": "dema",
+   "nom": "Outlook neu 6h",
+   "unitat": "cm",
+   "vmin": 2,
+   "vmax": 40,
+   "llegenda": [
+    {
+     "color": "#cce5ff",
+     "valor": "≥2 cm"
+    },
+    {
+     "color": "#99ccff",
+     "valor": "≥5 cm"
+    },
+    {
+     "color": "#66b3ff",
+     "valor": "≥10 cm"
+    },
+    {
+     "color": "#3388ff",
+     "valor": "≥20 cm"
+    },
+    {
+     "color": "#0066cc",
+     "valor": "≥40 cm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_neu6h",
+   "hora": 16,
+   "dia": "dema",
+   "nom": "Outlook neu 6h",
+   "unitat": "cm",
+   "vmin": 2,
+   "vmax": 40,
+   "llegenda": [
+    {
+     "color": "#cce5ff",
+     "valor": "≥2 cm"
+    },
+    {
+     "color": "#99ccff",
+     "valor": "≥5 cm"
+    },
+    {
+     "color": "#66b3ff",
+     "valor": "≥10 cm"
+    },
+    {
+     "color": "#3388ff",
+     "valor": "≥20 cm"
+    },
+    {
+     "color": "#0066cc",
+     "valor": "≥40 cm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_neu6h",
+   "hora": 17,
+   "dia": "dema",
+   "nom": "Outlook neu 6h",
+   "unitat": "cm",
+   "vmin": 2,
+   "vmax": 40,
+   "llegenda": [
+    {
+     "color": "#cce5ff",
+     "valor": "≥2 cm"
+    },
+    {
+     "color": "#99ccff",
+     "valor": "≥5 cm"
+    },
+    {
+     "color": "#66b3ff",
+     "valor": "≥10 cm"
+    },
+    {
+     "color": "#3388ff",
+     "valor": "≥20 cm"
+    },
+    {
+     "color": "#0066cc",
+     "valor": "≥40 cm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_neu6h",
+   "hora": 18,
+   "dia": "dema",
+   "nom": "Outlook neu 6h",
+   "unitat": "cm",
+   "vmin": 2,
+   "vmax": 40,
+   "llegenda": [
+    {
+     "color": "#cce5ff",
+     "valor": "≥2 cm"
+    },
+    {
+     "color": "#99ccff",
+     "valor": "≥5 cm"
+    },
+    {
+     "color": "#66b3ff",
+     "valor": "≥10 cm"
+    },
+    {
+     "color": "#3388ff",
+     "valor": "≥20 cm"
+    },
+    {
+     "color": "#0066cc",
+     "valor": "≥40 cm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_neu6h",
+   "hora": 19,
+   "dia": "dema",
+   "nom": "Outlook neu 6h",
+   "unitat": "cm",
+   "vmin": 2,
+   "vmax": 40,
+   "llegenda": [
+    {
+     "color": "#cce5ff",
+     "valor": "≥2 cm"
+    },
+    {
+     "color": "#99ccff",
+     "valor": "≥5 cm"
+    },
+    {
+     "color": "#66b3ff",
+     "valor": "≥10 cm"
+    },
+    {
+     "color": "#3388ff",
+     "valor": "≥20 cm"
+    },
+    {
+     "color": "#0066cc",
+     "valor": "≥40 cm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_neu6h",
+   "hora": 20,
+   "dia": "dema",
+   "nom": "Outlook neu 6h",
+   "unitat": "cm",
+   "vmin": 2,
+   "vmax": 40,
+   "llegenda": [
+    {
+     "color": "#cce5ff",
+     "valor": "≥2 cm"
+    },
+    {
+     "color": "#99ccff",
+     "valor": "≥5 cm"
+    },
+    {
+     "color": "#66b3ff",
+     "valor": "≥10 cm"
+    },
+    {
+     "color": "#3388ff",
+     "valor": "≥20 cm"
+    },
+    {
+     "color": "#0066cc",
+     "valor": "≥40 cm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_neu6h",
+   "hora": 5,
+   "dia": "dema_passat",
+   "nom": "Outlook neu 6h",
+   "unitat": "cm",
+   "vmin": 2,
+   "vmax": 40,
+   "llegenda": [
+    {
+     "color": "#cce5ff",
+     "valor": "≥2 cm"
+    },
+    {
+     "color": "#99ccff",
+     "valor": "≥5 cm"
+    },
+    {
+     "color": "#66b3ff",
+     "valor": "≥10 cm"
+    },
+    {
+     "color": "#3388ff",
+     "valor": "≥20 cm"
+    },
+    {
+     "color": "#0066cc",
+     "valor": "≥40 cm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_neu6h",
+   "hora": 6,
+   "dia": "dema_passat",
+   "nom": "Outlook neu 6h",
+   "unitat": "cm",
+   "vmin": 2,
+   "vmax": 40,
+   "llegenda": [
+    {
+     "color": "#cce5ff",
+     "valor": "≥2 cm"
+    },
+    {
+     "color": "#99ccff",
+     "valor": "≥5 cm"
+    },
+    {
+     "color": "#66b3ff",
+     "valor": "≥10 cm"
+    },
+    {
+     "color": "#3388ff",
+     "valor": "≥20 cm"
+    },
+    {
+     "color": "#0066cc",
+     "valor": "≥40 cm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_neu6h",
+   "hora": 7,
+   "dia": "dema_passat",
+   "nom": "Outlook neu 6h",
+   "unitat": "cm",
+   "vmin": 2,
+   "vmax": 40,
+   "llegenda": [
+    {
+     "color": "#cce5ff",
+     "valor": "≥2 cm"
+    },
+    {
+     "color": "#99ccff",
+     "valor": "≥5 cm"
+    },
+    {
+     "color": "#66b3ff",
+     "valor": "≥10 cm"
+    },
+    {
+     "color": "#3388ff",
+     "valor": "≥20 cm"
+    },
+    {
+     "color": "#0066cc",
+     "valor": "≥40 cm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_neu6h",
+   "hora": 8,
+   "dia": "dema_passat",
+   "nom": "Outlook neu 6h",
+   "unitat": "cm",
+   "vmin": 2,
+   "vmax": 40,
+   "llegenda": [
+    {
+     "color": "#cce5ff",
+     "valor": "≥2 cm"
+    },
+    {
+     "color": "#99ccff",
+     "valor": "≥5 cm"
+    },
+    {
+     "color": "#66b3ff",
+     "valor": "≥10 cm"
+    },
+    {
+     "color": "#3388ff",
+     "valor": "≥20 cm"
+    },
+    {
+     "color": "#0066cc",
+     "valor": "≥40 cm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_neu6h",
+   "hora": 9,
+   "dia": "dema_passat",
+   "nom": "Outlook neu 6h",
+   "unitat": "cm",
+   "vmin": 2,
+   "vmax": 40,
+   "llegenda": [
+    {
+     "color": "#cce5ff",
+     "valor": "≥2 cm"
+    },
+    {
+     "color": "#99ccff",
+     "valor": "≥5 cm"
+    },
+    {
+     "color": "#66b3ff",
+     "valor": "≥10 cm"
+    },
+    {
+     "color": "#3388ff",
+     "valor": "≥20 cm"
+    },
+    {
+     "color": "#0066cc",
+     "valor": "≥40 cm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_neu6h",
+   "hora": 10,
+   "dia": "dema_passat",
+   "nom": "Outlook neu 6h",
+   "unitat": "cm",
+   "vmin": 2,
+   "vmax": 40,
+   "llegenda": [
+    {
+     "color": "#cce5ff",
+     "valor": "≥2 cm"
+    },
+    {
+     "color": "#99ccff",
+     "valor": "≥5 cm"
+    },
+    {
+     "color": "#66b3ff",
+     "valor": "≥10 cm"
+    },
+    {
+     "color": "#3388ff",
+     "valor": "≥20 cm"
+    },
+    {
+     "color": "#0066cc",
+     "valor": "≥40 cm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_neu6h",
+   "hora": 11,
+   "dia": "dema_passat",
+   "nom": "Outlook neu 6h",
+   "unitat": "cm",
+   "vmin": 2,
+   "vmax": 40,
+   "llegenda": [
+    {
+     "color": "#cce5ff",
+     "valor": "≥2 cm"
+    },
+    {
+     "color": "#99ccff",
+     "valor": "≥5 cm"
+    },
+    {
+     "color": "#66b3ff",
+     "valor": "≥10 cm"
+    },
+    {
+     "color": "#3388ff",
+     "valor": "≥20 cm"
+    },
+    {
+     "color": "#0066cc",
+     "valor": "≥40 cm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_neu6h",
+   "hora": 12,
+   "dia": "dema_passat",
+   "nom": "Outlook neu 6h",
+   "unitat": "cm",
+   "vmin": 2,
+   "vmax": 40,
+   "llegenda": [
+    {
+     "color": "#cce5ff",
+     "valor": "≥2 cm"
+    },
+    {
+     "color": "#99ccff",
+     "valor": "≥5 cm"
+    },
+    {
+     "color": "#66b3ff",
+     "valor": "≥10 cm"
+    },
+    {
+     "color": "#3388ff",
+     "valor": "≥20 cm"
+    },
+    {
+     "color": "#0066cc",
+     "valor": "≥40 cm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_neu6h",
+   "hora": 13,
+   "dia": "dema_passat",
+   "nom": "Outlook neu 6h",
+   "unitat": "cm",
+   "vmin": 2,
+   "vmax": 40,
+   "llegenda": [
+    {
+     "color": "#cce5ff",
+     "valor": "≥2 cm"
+    },
+    {
+     "color": "#99ccff",
+     "valor": "≥5 cm"
+    },
+    {
+     "color": "#66b3ff",
+     "valor": "≥10 cm"
+    },
+    {
+     "color": "#3388ff",
+     "valor": "≥20 cm"
+    },
+    {
+     "color": "#0066cc",
+     "valor": "≥40 cm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_neu6h",
+   "hora": 14,
+   "dia": "dema_passat",
+   "nom": "Outlook neu 6h",
+   "unitat": "cm",
+   "vmin": 2,
+   "vmax": 40,
+   "llegenda": [
+    {
+     "color": "#cce5ff",
+     "valor": "≥2 cm"
+    },
+    {
+     "color": "#99ccff",
+     "valor": "≥5 cm"
+    },
+    {
+     "color": "#66b3ff",
+     "valor": "≥10 cm"
+    },
+    {
+     "color": "#3388ff",
+     "valor": "≥20 cm"
+    },
+    {
+     "color": "#0066cc",
+     "valor": "≥40 cm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_neu6h",
+   "hora": 15,
+   "dia": "dema_passat",
+   "nom": "Outlook neu 6h",
+   "unitat": "cm",
+   "vmin": 2,
+   "vmax": 40,
+   "llegenda": [
+    {
+     "color": "#cce5ff",
+     "valor": "≥2 cm"
+    },
+    {
+     "color": "#99ccff",
+     "valor": "≥5 cm"
+    },
+    {
+     "color": "#66b3ff",
+     "valor": "≥10 cm"
+    },
+    {
+     "color": "#3388ff",
+     "valor": "≥20 cm"
+    },
+    {
+     "color": "#0066cc",
+     "valor": "≥40 cm"
+    }
+   ]
+  },
+  {
+   "clau": "outlook_neu6h",
+   "hora": 16,
+   "dia": "dema_passat",
+   "nom": "Outlook neu 6h",
+   "unitat": "cm",
+   "vmin": 2,
+   "vmax": 40,
+   "llegenda": [
+    {
+     "color": "#cce5ff",
+     "valor": "≥2 cm"
+    },
+    {
+     "color": "#99ccff",
+     "valor": "≥5 cm"
+    },
+    {
+     "color": "#66b3ff",
+     "valor": "≥10 cm"
+    },
+    {
+     "color": "#3388ff",
+     "valor": "≥20 cm"
+    },
+    {
+     "color": "#0066cc",
+     "valor": "≥40 cm"
+    }
+   ]
+  }
+ ]
+}
