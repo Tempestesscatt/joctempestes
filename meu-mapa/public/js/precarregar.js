@@ -1,17 +1,15 @@
 // precarregar.js
-// Sistema de precàrrega massiva per a dades 3D de Tempestes.cat
+// Sistema de precàrrega massiva total (PNGs, JS de dades, sondejos, etc.)
 
 (function() {
     if (typeof window.totesLesHores === 'undefined') return;
 
     let _precarregant = false;
 
-    // Icones SVG per evitar problemes amb els emojis
     const icoDescarrega = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>';
     const icoCarregant = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="animation: gira 1s linear infinite;"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>';
     const icoOk = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#4ade80" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
 
-    // 1. Estils per al botó flotant
     const estil = document.createElement('style');
     estil.textContent = `
         #prec-flotant {
@@ -36,55 +34,35 @@
             transition: all 0.2s ease;
             text-transform: uppercase;
         }
-        #prec-flotant:hover {
-            background: var(--panel-hover);
-            border-color: var(--accent);
-            color: var(--accent);
-        }
-        #prec-flotant.carregant {
-            border-color: var(--accent);
-            color: var(--accent);
-            cursor: wait;
-        }
-        #prec-flotant.completat {
-            border-color: #4ade80;
-            color: #4ade80;
-        }
+        #prec-flotant:hover { background: var(--panel-hover); border-color: var(--accent); color: var(--accent); }
+        #prec-flotant.carregant { border-color: var(--accent); color: var(--accent); cursor: wait; }
+        #prec-flotant.completat { border-color: #4ade80; color: #4ade80; }
         
-        /* Barra de progrés interna */
         .prec-barra-bg {
-            width: 40px;
-            height: 4px;
+            width: 40px; height: 4px;
             background: rgba(255,255,255,0.1);
-            border-radius: 2px;
-            overflow: hidden;
-            display: none;
-            margin: 0 4px;
+            border-radius: 2px; overflow: hidden;
+            display: none; margin: 0 4px;
         }
         #prec-flotant.carregant .prec-barra-bg { display: block; }
         .prec-barra-fill {
-            height: 100%;
-            width: 0%;
+            height: 100%; width: 0%;
             background: var(--accent);
             transition: width 0.2s ease;
         }
         #prec-flotant.completat .prec-barra-fill { background: #4ade80; }
         
         .prec-pct { 
-            font-size: 9.5px; 
-            font-family: 'SF Mono', ui-monospace, monospace; 
-            font-weight: 700;
-            min-width: 38px;
-            text-align: right;
+            font-size: 9.5px; font-family: 'SF Mono', ui-monospace, monospace; 
+            font-weight: 700; min-width: 38px; text-align: right;
         }
         @keyframes gira { 100% { transform: rotate(360deg); } }
     `;
     document.head.appendChild(estil);
 
-    // 2. Creem el botó i l'afegim al body directament
     const btn = document.createElement('button');
     btn.id = 'prec-flotant';
-    btn.title = "Descarregar totes les dades per navegar sense internet";
+    btn.title = "Descarregar absolutament totes les dades per navegar sense internet";
     btn.innerHTML = `
         <span id="prec-ico" style="display:flex;">${icoDescarrega}</span>
         <span id="prec-txt">Precarregar</span>
@@ -93,7 +71,6 @@
     `;
     document.body.appendChild(btn);
 
-    // Movem el botó perquè quedi al costat del run si aquest existeix, o a la dreta per defecte
     function ajustarPosicio() {
         const infoRun = document.getElementById('info_run');
         if (infoRun && infoRun.classList.contains('visible')) {
@@ -103,7 +80,6 @@
         }
     }
 
-    // 3. Lògica de precàrrega
     btn.addEventListener('click', async () => {
         if (_precarregant) return;
         if (!window.totesLesHores || !window.totesLesHores.length) {
@@ -111,12 +87,12 @@
             return;
         }
 
-        const total = window.totesLesHores.length;
-        const confirmar = confirm(`Vols descarregar les dades 3D de les ${total} hores per poder navegar sense internet? (Pot trigar una estona i ocupar espai)`);
+        const totalHores = window.totesLesHores.length;
+        // Calculem aproximadament el pes (posem uns 5MB per hora per tenir una idea)
+        const confirmar = confirm(`Vols descarregar TOTES les dades del visor (${totalHores} hores)? Això inclou mapes, vent, isolínies i sondejos. Pot ocupar molt d'espai i trigar uns minuts.`);
         if (!confirmar) return;
 
         _precarregant = true;
-        
         const txt = document.getElementById('prec-txt');
         const ico = document.getElementById('prec-ico');
         const pctEl = document.getElementById('prec-pct');
@@ -127,40 +103,111 @@
         ico.innerHTML = icoCarregant;
         txt.style.display = 'none';
         pctEl.style.display = 'inline';
-        pctEl.textContent = `0/${total}`;
+        pctEl.textContent = `0%`;
 
         let baseRuta = './web_data_NE/imatges/';
         if (window.PNG_BASE) baseRuta = window.PNG_BASE;
 
+        // 1. Construïm la llista de TOTES les URLs a descarregar
+        const urls = new Set();
+
+        // Fitxers bàsics del mapa
+        urls.add(baseRuta + 'fons.png');
+        urls.add(baseRuta + 'vores.png');
+        urls.add(baseRuta + 'manifest.json');
+        urls.add(baseRuta + 'info_run.json');
+        urls.add(baseRuta + 'noms.js');
+        urls.add(baseRuta + 'lineas.js');
+        urls.add(baseRuta + 'comarques.js');
+
+        // Variables que tenen llegenda
+        const llegendes = ['cape', 'lifted_index', 'dcape', 'shear_01', 'shear_03', 'shear_06', 'srh_01', 'srh_03'];
+        llegendes.forEach(v => urls.add(baseRuta + 'legend_' + v + '.png'));
+
+        // Recorrem totes les hores
+        window.totesLesHores.forEach(info => {
+            const hora = String(info.hora).padStart(2, '0');
+            const clauHora = `${hora}_${info.dia}`;
+
+            // 1. Sondeig 3D (pesa molt i és el que permet dibuixar el vent i fer Skew-T)
+            urls.add(baseRuta + 'sondeig_' + clauHora + '.msgpack.gz');
+            
+            // 2. Storm motion (barbes de tempesta)
+            urls.add(baseRuta + 'stormmotion_' + clauHora + '.js');
+
+            // 3. Dades de vent de superfície
+            urls.add(baseRuta + 'vent_' + clauHora + '.js');
+
+            // 4. Per a cada variable que hi ha en aquesta hora, descarreguem el PNG, les isolínies i la llegenda
+            if (info.variables && Array.isArray(info.variables)) {
+                info.variables.forEach(varNom => {
+                    // Saltem les que sabem que no tenen dades o que no es fan servir
+                    if (varNom === 'su' || varNom === 'sv') return;
+
+                    // Imatge de dades
+                    urls.add(baseRuta + 'sfc_' + clauHora + '_' + varNom + '.png');
+                    // Llegenda
+                    urls.add(baseRuta + 'legend_' + varNom + '.png');
+                    // Isolínies (el servidor pot no tenir-les per a totes, però ho intentem)
+                    urls.add(baseRuta + 'isolines_' + clauHora + '_' + varNom + '.js');
+                });
+            }
+        });
+
+        // 5. Nivells 3D (Nivells de pressió: 1000, 925, 850, 700, 500, 300, 200)
+        const nivells3D = [1000, 925, 850, 700, 500, 300, 200];
+        const vars3D = ['t', 'dpt', 'r', 'wind_speed', 'w'];
+        const vars3DCol = ['shear_01', 'shear_03', 'shear_06', 'srh_01', 'srh_03', 'dcape', 'lifted_index', 'lcl_m', 'lfc_m', 'storm_speed'];
+
+        window.totesLesHores.forEach(info => {
+            const hora = String(info.hora).padStart(2, '0');
+            const clauHora = `${hora}_${info.dia}`;
+
+            // Imatges de nivells de pressió
+            nivells3D.forEach(nivell => {
+                vars3D.forEach(v => {
+                    urls.add(baseRuta + '3d_' + clauHora + '_' + v + '_' + nivell + '.png');
+                    urls.add(baseRuta + 'isolines_3d_' + clauHora + '_' + v + '_' + nivell + '.js');
+                });
+            });
+
+            // Imatges de paràmetres de columna (tempestes severes)
+            vars3DCol.forEach(v => {
+                urls.add(baseRuta + '3d_' + clauHora + '_' + v + '_col.png');
+                urls.add(baseRuta + 'isolines_3d_' + clauHora + '_' + v + '_col.js');
+            });
+        });
+
+        // Convertim el Set a un Array per poder-lo recórrer
+        const llistaUrls = Array.from(urls);
+        const totalFitxers = llistaUrls.length;
+        
         let completats = 0;
         let errors = 0;
 
-        async function baixarHora(info) {
-            const clau = `${String(info.hora).padStart(2, '0')}_${info.dia}`;
-            const urlSondeig = `${baseRuta}sondeig_${clau}.msgpack.gz`;
-
+        async function descarregarUrl(url) {
             try {
-                const res = await fetch(urlSondeig, { cache: 'force-cache' });
-                if (!res.ok) throw new Error('HTTP ' + res.status);
-                await res.arrayBuffer(); 
+                // Utilitzem fetch amb force-cache perquè es guardi a la memòria cau del navegador
+                const res = await fetch(url, { cache: 'force-cache' });
+                // Si la resposta no és OK (ex: 404 perquè no existeix aquesta imatge en aquesta hora), no passa res, l'ignorem.
             } catch (e) {
-                console.warn(`[Precarrega] Error a ${clau}:`, e);
                 errors++;
             } finally {
                 completats++;
-                const pct = Math.round((completats / total) * 100);
+                const pct = Math.round((completats / totalFitxers) * 100);
                 barraFill.style.width = pct + '%';
-                pctEl.textContent = `${completats}/${total}`;
+                pctEl.textContent = pct + '%';
             }
         }
 
+        // Baixem de 6 en 6 perquè sigui ràpid però no bloquegi el navegador
         let index = 0;
-        const limitConcurrent = 3;
+        const limitConcurrent = 6;
 
         async function treballador() {
-            while (index < total) {
+            while (index < totalFitxers) {
                 const i = index++;
-                await baixarHora(window.totesLesHores[i]);
+                await descarregarUrl(llistaUrls[i]);
             }
         }
 
@@ -171,10 +218,10 @@
         btn.classList.remove('carregant');
         btn.classList.add('completat');
         ico.innerHTML = icoOk;
-        pctEl.textContent = 'Fet';
+        pctEl.textContent = 'Fet!';
         
         if(typeof window.mostrarToast === 'function') {
-            window.mostrarToast(`Precàrrega completada! (${errors} errors)`, 'ok');
+            window.mostrarToast(`Precàrrega total completada! (${totalFitxers} arxius)`, 'ok');
         }
 
         setTimeout(() => {
@@ -185,7 +232,7 @@
             barraFill.style.width = '0%';
             _precarregant = false;
             ajustarPosicio();
-        }, 3500);
+        }, 4000);
     });
 
     const observer = new MutationObserver(ajustarPosicio);
