@@ -2,7 +2,7 @@
 <html lang="ca">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0d1117">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1553,48 +1553,24 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
 (function () {
     'use strict';
 
-    const DB_URL = 'https://tempestescat-default-rtdb.europe-west1.firebasedatabase.app';
     let esAdmin = false;
-    let _adminsCache = null;
 
-    /* Carrega tota la branca /admin/ un sol cop i la guarda a memòria */
-    async function carregarAdmins() {
-        if (_adminsCache !== null) return _adminsCache;
+    /* Admin = custom claim `admin: true` al token de Firebase (s'assigna amb set-admin.js).
+       Només afecta la UI: la validació real ha de fer-se al servidor. */
+    async function comprovarAdmin(user) {
         try {
-            const r = await fetch(`${DB_URL}/admin.json`, { cache: 'no-store' });
-            if (!r.ok) { _adminsCache = {}; return {}; }
-            const d = await r.json();
-            _adminsCache = d || {};
-            return _adminsCache;
-        } catch (e) {
-            _adminsCache = {};
-            return {};
-        }
-    }
-
-    /* Comprova si l'email és admin */
-    async function comprovarAdmin(email) {
-        if (!email) return false;
-        const admins = await carregarAdmins();
-        // Firebase guarda els punts com a comes a les claus
-        const clauFirebase = email.toLowerCase().replace(/\./g, ',');
-        return admins[clauFirebase] === true;
+            const tk = await user.getIdTokenResult();
+            return tk && tk.claims && tk.claims.admin === true;
+        } catch (e) { return false; }
     }
 
     window.addEventListener('tc:login', function (e) {
         const user = e.detail || window._firebaseUser;
-        if (!user || !user.email) return;
-        comprovarAdmin(user.email).then(function (admin) {
+        if (!user) return;
+        comprovarAdmin(user).then(function (admin) {
             esAdmin = admin;
             window._esAdmin = admin;
-            if (admin) {
-                console.log('[Admin] Usuari admin detectat:', user.email, '→ pla Professional');
-                if (typeof window.actualitzarUIPla === 'function') {
-                    window.actualitzarUIPla();
-                }
-            } else {
-                console.log('[Admin] Usuari NO admin:', user.email);
-            }
+            if (admin && typeof window.actualitzarUIPla === 'function') window.actualitzarUIPla();
         });
     }, true);
 
@@ -1809,7 +1785,7 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
         if (!b) return;
         const cfg = getConfigPla();
         let nom = '', pla = '';
-        if (b.id === 'btnBarbes' && !cfg.barbes && !b.disabled) { nom = 'Barbes (storm motion)'; pla = 'Professional'; }
+        if (b.id === 'btnBarbes' && !cfg.barbes && !b.disabled) { nom = 'Barbes (storm motion)'; pla = 'Entusiasta'; }
         else if (b.classList.contains('menu-ctx-boto') && /skew/.test(normalitza(b.textContent)) && !cfg.skewT) {
             nom = 'Skew-T'; pla = 'Entusiasta';
             const m = b.closest('.menu-ctx'); if (m) m.remove();
@@ -1831,10 +1807,6 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
         document.querySelectorAll('.param-row, .param-altura-grup').forEach(row => {
             const { varId, label } = infoFila(row);
             row.classList.toggle('premium-bloquejat', variableBloquejada(varId, label));
-        });
-
-        document.querySelectorAll('.fh-item').forEach(item => {
-            item.classList.remove('locked');
         });
 
         [['btnPlay', cfg.animacio], ['btnIsolines', cfg.isolinies], ['btnBarbes', cfg.barbes]].forEach(([id, ok]) => {
@@ -1901,7 +1873,6 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
 <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
     import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-    import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
     const fc = {
         apiKey: "AIzaSyBGcGUk2gsoDaHkg9Yv-nqMJ5_x-QPTMS8",
@@ -1914,9 +1885,7 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
 
     const app = initializeApp(fc);
     const auth = getAuth(app);
-    const db = getFirestore(app);
 
-    window._db = db;
     window._auth = auth;
     window._firebaseUser = null;
 
@@ -2083,12 +2052,18 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
 
     const DB_URL = 'https://tempestescat-default-rtdb.europe-west1.firebasedatabase.app';
 
+    async function tokenQ(user) {
+        try { return '?auth=' + encodeURIComponent(await user.getIdToken()); } catch (e) { return ''; }
+    }
+
     async function obtenirNomUsuari(user) {
         if (!user) return null;
         try {
-            const r = await fetch(`${DB_URL}/users/${encodeURIComponent(user.uid)}.json`);
-            const d = await r.json();
-            if (d && d.nomPersonalitzat) return d.nomPersonalitzat;
+            const r = await fetch(`${DB_URL}/users/${encodeURIComponent(user.uid)}.json${await tokenQ(user)}`);
+            if (r.ok) {
+                const d = await r.json();
+                if (d && d.nomPersonalitzat) return d.nomPersonalitzat;
+            }
         } catch (e) {}
         try {
             const local = localStorage.getItem(`nom_usuari_${user.uid}`);
@@ -2100,9 +2075,11 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
     async function haCanviatNom(user) {
         if (!user) return false;
         try {
-            const r = await fetch(`${DB_URL}/users/${encodeURIComponent(user.uid)}.json`);
-            const d = await r.json();
-            if (d && d.nomCanviat === true) return true;
+            const r = await fetch(`${DB_URL}/users/${encodeURIComponent(user.uid)}.json${await tokenQ(user)}`);
+            if (r.ok) {
+                const d = await r.json();
+                if (d && d.nomCanviat === true) return true;
+            }
         } catch (e) {}
         try {
             const local = localStorage.getItem(`nom_info_${user.uid}`);
@@ -2350,12 +2327,14 @@ window.openProfile = async function () {
         const user = window._firebaseUser;
         if (!user) { tancarModal('modalXat'); obrirModal('modalLogin'); return; }
         const nick = await obtenirNomUsuari(user);
+        let idToken = '';
+        try { idToken = await user.getIdToken(); } catch (e) {}
         const btn = document.getElementById('xatSendBtn');
         if (btn) { btn.disabled = true; btn.textContent = '...'; }
         try {
             const r = await fetch(API_CHAT + '/send-message', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + idToken },
                 body: JSON.stringify({
                     nick, photo: user.photoURL || '',
                     uid: user.uid, text,

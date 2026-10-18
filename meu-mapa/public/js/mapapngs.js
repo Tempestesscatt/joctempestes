@@ -1,25 +1,21 @@
 // ═══════════════════════════════════════════════════════════════════════
-//  mapapngs.js — Visor AROME (lògica essencial + accés restringit)
+//  mapapngs.js — Visor AROME (versió optimitzada i corregida)
 //  Capes: fons.png < dades PNG < vores (vectorials) < isolínies < vent/barbes < ciutats
-//  La UI i el disseny viuen a l'HTML (style + estructura semàntica)
 //
-//  NOVETATS:
-//   - Llista 3D curada (CATALEG_3D_*): sense duplicats, sense u/v ni camps tècnics.
-//   - Variables per nivell: una sola fila + "chips" de nivell (1000…200 hPa).
-//   - Variables de columna (fitxer ..._col.png): Shear, SRH, DCAPE, LI, LCL, storm motion.
-//   - Storm motion: PNG de velocitat + barbes vectorials (stormmotion_HH_dia.js).
-//   - Accés restringit: variables bàsiques lliures; resta requereix login.
-//   - Optimitzacions mòbil: cache limitat, debounce, pointer capture correcte.
-//   - Pinch-zoom robust (no es queda enganxat amb dos dits).
-//   - Botó "Sistema" al menú per comprovar i forçar actualitzacions netes.
-//   - CACHE-BUSTING: TOTES les peticions dinàmiques porten ?_cb=timestamp.
-//   - FILTRE DUR de variables: només surten les que tenen nom català al diccionari.
-//     Les claus residuals en anglès (Passat xxx, tsnowp, etc.) s'amaguen.
-//   - STREAMLINES CONDICIONALS: només es dibuixen per variables de vent.
-//     Precipitació, neu, núvols, temperatura, pressió → mai streamlines.
-//   - ISOLÍNIES CONDICIONALS: variables com satèl·lit/radar/reflectivitat no en tenen.
-//     El panell desactiva el botó d'isolínies per a aquestes variables.
-//   - BARBES DE STORM MOTION: funcionen per shear_01/03/06 i storm_speed.
+//  CANVIS RESPECTE A LA VERSIÓ ANTERIOR
+//   - negreABlanc: cache reduïda (6) i canvas alliberat; es processa en idle durant la precàrrega.
+//   - Animació: espera que la imatge estigui carregada abans de passar a la següent hora.
+//   - Precàrrega: la imatge precarregada es reutilitza (no es descarrega dues vegades).
+//   - Redibuix per capes: canviar d'hora només repinta isolínies/vent (vores i ciutats no).
+//   - Ciutats: detecció de solapament amb graella espacial (abans O(n²)).
+//   - window.VENT / ISOLINIES / STORMMOTION s'esborren un cop llegits (abans fugien memòria).
+//   - Errors transitoris ja no es cachegen com a null per sempre: reintent als 20 s.
+//   - Peticions duplicades en vol es comparteixen.
+//   - carregarNoms s'atura a la primera font vàlida.
+//   - Skew-T per pulsació llarga en tàctil (abans s'obria a cada toc).
+//   - Fronteres visibles per defecte (MOSTRAR_FRONTERES mai s'inicialitzava).
+//   - Variables 3D: es comprova el pla (parametres3D) a mostrarCapa3D.
+//   - ES_MOBIL detecta iPadOS; missatges d'error sense innerHTML.
 // ═══════════════════════════════════════════════════════════════════════
 
 const FIT = 'contain';
@@ -49,6 +45,9 @@ function potVeureVariable(clau) {
     if (esParametreLliure(clau)) return true;
     return usuariLoguejat();
 }
+function _escH(s) {
+    return (typeof window.escHtml === 'function') ? window.escHtml(s) : String(s == null ? '' : s);
+}
 
 // ─── Configuració persistent ───────────────────────────────────────
 const CLAU_CFG = 'tempestescat_visor_v2';
@@ -71,13 +70,15 @@ const NEGRE_A_BLANC = true;
 const LLINDAR_NEGRE = 50;
 
 // ─── Límits de memòria dels caches ─────────────────────────────────
-const MAX_CACHE_BLANQUES = 30;
+const MAX_CACHE_BLANQUES = 6;     // data-URLs grans: cache petita
 const MAX_CACHE_ISOLINES = 20;
 const MAX_CACHE_VENT = 20;
 const MAX_CACHE_SONDEIGS = 8;
+const TTL_FALLADA_MS = 20000;     // temps abans de reintentar una càrrega fallida
 
 // ─── Detecció de dispositiu ────────────────────────────────────────
-const ES_MOBIL = /Android|iPhone|iPad|iPad|iPod|Mobile/i.test(navigator.userAgent);
+const ES_MOBIL = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)
+    || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
 // ─── Rutes ─────────────────────────────────────────────────────────
 const _pathActual = window.location.pathname;
@@ -116,14 +117,34 @@ function fetchFresc(url, opts) {
     return fetch(ambCb(url), Object.assign(fresc ? { cache: 'no-store' } : {}, opts || {}));
 }
 
+// ─── Control de fallades i peticions en vol ────────────────────────
+const _fallades = new Map();
+const _enVol = new Map();
+function _haFallatFa(clau) {
+    const t = _fallades.get(clau);
+    if (!t) return false;
+    if (t > Date.now()) return true;
+    _fallades.delete(clau);
+    return false;
+}
+function _marcarFallada(clau) { _fallades.set(clau, Date.now() + TTL_FALLADA_MS); }
+function unic(clau, fn) {
+    if (_enVol.has(clau)) return _enVol.get(clau);
+    const p = fn().finally(() => _enVol.delete(clau));
+    _enVol.set(clau, p);
+    return p;
+}
+
 // ─── Capes visibles (estat) ────────────────────────────────────────
 window.MOSTRAR_VENT = true;
 window.MOSTRAR_BARBES = true;
 window.MOSTRAR_ISOLINIES = false;
 window.MOSTRAR_CIUTATS = true;
 window.MOSTRAR_COMARQUES = false;
-window.MOSTRAR_PROVINCIES = true;  
-const PROPS_CAPES = ['MOSTRAR_VENT', 'MOSTRAR_BARBES', 'MOSTRAR_ISOLINIES', 'MOSTRAR_FRONTERES', 'MOSTRAR_PROVINCIES', 'MOSTRAR_COMARQUES'];
+window.MOSTRAR_PROVINCIES = true;
+window.MOSTRAR_FRONTERES = true;
+// FRONTERES no té interruptor a la UI: no es persisteix (evita quedar amagades per un valor antic)
+const PROPS_CAPES = ['MOSTRAR_VENT', 'MOSTRAR_BARBES', 'MOSTRAR_ISOLINIES', 'MOSTRAR_PROVINCIES', 'MOSTRAR_COMARQUES'];
 
 const COMARQUES_CFG = {
     color: 'rgba(40,45,75,0.70)',
@@ -145,7 +166,7 @@ async function carregarComarques() {
             }
         } catch (e) {}
     }
-    programarRedibuix();
+    programarRedibuix(['vores']);
     return _comarques;
 }
 
@@ -288,17 +309,13 @@ let _vistaPermesGuardar = false;
 let _tmrVista = null;
 let _capa3DActiva = null;
 let _origDades = null;
+let _pincaActiva = false;
 window.getDadesOriginals = () => _origDades;
 
 const ultimNivell3D = {};
 
 window._extentManifest = null;
 const vista = { k: 1, x: 0, y: 0 };
-
-// ─── Redraw amb debounce ───────────────────────────────────────────
-let _rafPendent = null;
-let _darrerRedibuix = 0;
-const INTERVAL_MIN_REDRAW = 33;
 
 function _llevarCache(map, max) {
     if (map.size <= max) return;
@@ -310,22 +327,17 @@ function _llevarCache(map, max) {
     }
 }
 
-function programarRedibuix() {
+// ─── Redibuix per capes (només es repinta el que ha canviat) ───────
+let _rafPendent = null;
+let _brutes = new Set();     // 'tot' | 'vores' | 'iso' | 'vent' | 'noms'
+
+function programarRedibuix(capes) {
     guardarVistaDiferit();
+    if (!capes) _brutes.add('tot');
+    else (Array.isArray(capes) ? capes : [capes]).forEach(c => _brutes.add(c));
     if (_rafPendent) return;
-    const ara = performance.now();
-    const delta = ara - _darrerRedibuix;
-    if (delta < INTERVAL_MIN_REDRAW) {
-        _rafPendent = requestAnimationFrame(() => {
-            _rafPendent = null;
-            _darrerRedibuix = performance.now();
-            redibuixarTot();
-        });
-        return;
-    }
     _rafPendent = requestAnimationFrame(() => {
         _rafPendent = null;
-        _darrerRedibuix = performance.now();
         redibuixarTot();
     });
 }
@@ -354,11 +366,15 @@ function gestRedibuix() {
 }
 
 function redibuixarTot() {
+    // Si hi ha un gest en curs, tots els canvas tenen transform: cal repintar-los tots
+    const tot = _brutes.has('tot') || !!_baseVista;
+    const b = _brutes;
+    _brutes = new Set();
     _resetGest();
-    dibuixarVores();
-    dibuixarIsolines();
-    dibuixarVent();
-    dibuixarCiutats();
+    if (tot || b.has('vores')) dibuixarVores();
+    if (tot || b.has('iso')) dibuixarIsolines();
+    if (tot || b.has('vent')) dibuixarVent();
+    if (tot || b.has('noms')) dibuixarCiutats();
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -416,8 +432,6 @@ const NOMS_VARIABLES_3D = {
 // ─── Catàleg 3D CURAT ──────────────────────────────────────────────
 const NIVELL_COLUMNA = 'col';
 const NIVELLS_3D = [1000, 925, 850, 700, 500, 300, 200];
-// LFC és una variable de columna: no porta nivell de pressió.
-// El fitxer esperat és ..._lfc_m_col.png i la llegenda ...legend_3d_lfc_m.png.
 
 const CATALEG_3D_NIVELL = [
     { var: 't',          nom: 'Temperatura',         unitat: '°C' },
@@ -484,19 +498,15 @@ function variableActivaTeStreamlines() {
 
 // ─── ISOLÍNIES: variables que NO en tenen ──────────────────────────
 const VARS_SENSE_ISOLINIES = new Set([
-    // Satèl·lit
     'bt_channels_108',
     'bt_channels_62',
-    // Radar simulat
     'reflectivity_max_dbz_ground_or_water_surface',
-    // Núvols
     'total_cloud_cover_ground_or_water_surface',
     'low_cloud_cover',
     'medium_cloud_cover',
     'high_cloud_cover',
     'base_nuage_ground',
     'plafond_ground',
-    // Altres sense sentit
     'precip_ground',
     'rr_sol_gele_ground',
 ]);
@@ -504,14 +514,13 @@ const VARS_SENSE_ISOLINIES = new Set([
 const REGEX_SENSE_ISOLINIES = /^bt_|reflectivity|cloud|nuage|plafond|precip_ground|rr_sol_gele|base_nuage/i;
 
 function variableActivaTeIsolines() {
-    if (_capa3DActiva) return true; // les 3D sempre en tenen (si estan generades)
+    if (_capa3DActiva) return true;
     const k = normClau(variableActiva);
     if (VARS_SENSE_ISOLINIES.has(k)) return false;
     if (REGEX_SENSE_ISOLINIES.test(k)) return false;
     return true;
 }
 
-// Exportem perquè el dock pugui consultar-ho
 window.variableActivaTeIsolines = variableActivaTeIsolines;
 window.variableActivaTeStreamlines = variableActivaTeStreamlines;
 
@@ -924,14 +933,17 @@ function activarInteraccio() {
         gestRedibuix();
     }, { passive: false });
 
-    let arrossegant = false, ox = 0, oy = 0, mogut = false;
+    let arrossegant = false, ox = 0, oy = 0, sx = 0, sy = 0, mogut = false;
     let pointerActiu = null;
+    let tmrLlarg = null;
     const puntersActius = new Set();
+    const cancelaLlarg = () => { if (tmrLlarg) { clearTimeout(tmrLlarg); tmrLlarg = null; } };
 
     viewport.addEventListener('pointerdown', e => {
         puntersActius.add(e.pointerId);
         if (puntersActius.size >= 2) {
             arrossegant = false;
+            cancelaLlarg();
             if (pointerActiu !== null) {
                 try { viewport.releasePointerCapture(pointerActiu); } catch {}
                 pointerActiu = null;
@@ -941,16 +953,29 @@ function activarInteraccio() {
         if (pointerActiu !== null && pointerActiu !== e.pointerId) return;
         pointerActiu = e.pointerId;
         _animVista = null;
-        arrossegant = true; ox = e.clientX; oy = e.clientY; mogut = false;
+        arrossegant = true; ox = sx = e.clientX; oy = sy = e.clientY; mogut = false;
         try { viewport.setPointerCapture(e.pointerId); } catch {}
         viewport.style.cursor = 'grabbing';
+
+        // Tàctil: el menú Skew-T s'obre amb pulsació llarga (no a cada toc)
+        cancelaLlarg();
+        if (e.pointerType === 'touch') {
+            const cx = e.clientX, cy = e.clientY;
+            tmrLlarg = setTimeout(() => {
+                tmrLlarg = null;
+                if (!arrossegant || mogut || _pincaActiva || puntersActius.size !== 1) return;
+                arrossegant = false;
+                const r = viewport.getBoundingClientRect();
+                obrirMenuContextual(cx - r.left, cy - r.top, cx, cy);
+            }, 550);
+        }
     });
 
     viewport.addEventListener('pointermove', e => {
         if (puntersActius.size >= 2) return;
         if (!arrossegant || e.pointerId !== pointerActiu) return;
+        if (!mogut && Math.hypot(e.clientX - sx, e.clientY - sy) > 8) { mogut = true; cancelaLlarg(); }
         const dx = e.clientX - ox, dy = e.clientY - oy;
-        if (Math.abs(dx) + Math.abs(dy) > 3) mogut = true;
         vista.x += dx; vista.y += dy;
         ox = e.clientX; oy = e.clientY;
         aplicarTransform();
@@ -960,9 +985,10 @@ function activarInteraccio() {
     const fi = (e) => {
         puntersActius.delete(e.pointerId);
         if (e.pointerId !== pointerActiu) return;
-        const esClicDret = e.button === 2;
-        const esTactil = e.pointerType === 'touch' && e.button === 0;
-        if (arrossegant && !mogut && puntersActius.size === 0 && (esClicDret || esTactil)) {
+        cancelaLlarg();
+        // Ratolí: clic dret (sense arrossegar) obre el menú
+        const esClicDret = e.pointerType !== 'touch' && e.button === 2;
+        if (arrossegant && !mogut && puntersActius.size === 0 && esClicDret) {
             const r = viewport.getBoundingClientRect();
             const px = e.clientX - r.left, py = e.clientY - r.top;
             obrirMenuContextual(px, py, e.clientX, e.clientY);
@@ -976,6 +1002,7 @@ function activarInteraccio() {
     viewport.addEventListener('pointercancel', e => {
         puntersActius.delete(e.pointerId);
         if (e.pointerId !== pointerActiu) return;
+        cancelaLlarg();
         arrossegant = false;
         pointerActiu = null;
         try { viewport.releasePointerCapture(e.pointerId); } catch {}
@@ -1008,6 +1035,7 @@ function activarInteraccioPinca() {
         punts.set(e.pointerId, { x: e.clientX, y: e.clientY });
         if (punts.size === 2) {
             actiu = true;
+            _pincaActiva = true;
             e.stopImmediatePropagation();
             e.preventDefault();
             const g = calcular();
@@ -1049,6 +1077,7 @@ function activarInteraccioPinca() {
         punts.delete(e.pointerId);
         if (punts.size < 2) {
             actiu = false;
+            _pincaActiva = false;
             dPrev = 0;
             cPrev = { x: 0, y: 0 };
         }
@@ -1122,18 +1151,16 @@ function obrirMenuContextual(px, py, clientX, clientY) {
     document.body.appendChild(menu);
     _menuCtx = menu;
 
-    // Posicionar el menú a prop del clic (sense sortir de la pantalla)
     const r = menu.getBoundingClientRect();
     let mx = clientX + 8;
     let my = clientY + 8;
     if (mx + r.width > window.innerWidth - 8) mx = clientX - r.width - 8;
     if (my + r.height > window.innerHeight - 8) my = clientY - r.height - 8;
-    menu.style.left = mx + 'px';
-    menu.style.top = my + 'px';
+    menu.style.left = Math.max(8, mx) + 'px';
+    menu.style.top = Math.max(8, my) + 'px';
 
     const boto = menu.querySelector('#menuCtxSkewt');
     boto.addEventListener('click', () => {
-        // Guardem la posició del clic per obrir el Skew-T a prop
         const posClic = { x: clientX, y: clientY };
         tancarMenuContextual();
         obrirSkewTFlotant(lat, lon, posClic);
@@ -1149,8 +1176,15 @@ function obrirMenuContextual(px, py, clientX, clientY) {
 // ═══════════════════════════════════════════════════════════════════
 let _skewtFlotant = null;
 
+function _htmlErrorSkewt(cos, text) {
+    cos.innerHTML = '';
+    const d = document.createElement('div');
+    d.className = 'skewt-flotant-error';
+    d.textContent = text;
+    cos.appendChild(d);
+}
+
 async function obrirSkewTFlotant(lat, lon, posClic) {
-    // Si ja hi ha un skew-t obert, el tanquem
     tancarSkewTFlotant();
 
     const el = document.createElement('div');
@@ -1176,43 +1210,34 @@ async function obrirSkewTFlotant(lat, lon, posClic) {
     document.body.appendChild(el);
     _skewtFlotant = el;
 
-    // ─── Posicionar a prop del clic ─────────────────────────────
     posicionarSkewTFlotant(el, posClic);
-
-    // ─── Botó de tancar ─────────────────────────────────────────
     el.querySelector('#skewtFlotantTanca').addEventListener('click', tancarSkewTFlotant);
-
-    // ─── Arrossegar pel títol (només escriptori) ────────────────
     ferArrossegable(el, el.querySelector('#skewtFlotantCap'));
 
-    // ─── Carregar el sondeig ────────────────────────────────────
     const cos = el.querySelector('#skewtFlotantCos');
     try {
         const perfil = await construirPerfilPerSkewT(lat, lon);
+        if (_skewtFlotant !== el) return;   // tancat mentre carregava
         if (!perfil) {
-            cos.innerHTML = '<div class="skewt-flotant-error">No s\'ha pogut carregar el sondeig.<br>Prova-ho d\'aquí uns segons.</div>';
+            _htmlErrorSkewt(cos, 'No s\'ha pogut carregar el sondeig. Prova-ho d\'aquí uns segons.');
             return;
         }
 
-        // Guardem per si el motor extern el vol usar
         window._skewtPerfilPrecarregat = perfil;
         window._skewtPuntPrecarregat = { lat, lon, hourIdx: curIdx };
 
-        // Si existeix un motor de dibuix (skewt.js), l'usem
         if (typeof window.dibuixarSkewT === 'function') {
             cos.innerHTML = '';
             window.dibuixarSkewT(cos, perfil);
         } else if (typeof window.openSkewtModal === 'function') {
-            // Si hi ha un motor extern que pinta en un modal, el tanquem
-            // i deixem que ell faci la feina, però en el nostre contenidor
             tancarSkewTFlotant();
             window.openSkewtModal();
         } else {
-            cos.innerHTML = '<div class="skewt-flotant-error">El mòdul Skew-T no està disponible.</div>';
+            _htmlErrorSkewt(cos, 'El mòdul Skew-T no està disponible.');
         }
     } catch (e) {
         console.error('[skewt]', e);
-        cos.innerHTML = `<div class="skewt-flotant-error">Error carregant el sondeig:<br>${e.message}</div>`;
+        if (_skewtFlotant === el) _htmlErrorSkewt(cos, 'Error carregant el sondeig: ' + e.message);
     }
 }
 
@@ -1224,37 +1249,24 @@ function tancarSkewTFlotant() {
 }
 
 function posicionarSkewTFlotant(el, posClic) {
-    // Mida objectiu
     const ample = Math.min(480, window.innerWidth - 24);
     const alt = Math.min(620, window.innerHeight - 24);
     el.style.width = ample + 'px';
     el.style.height = alt + 'px';
 
-    // Si estem a mòbil, el CSS ja el posiciona a pantalla completa
     if (window.innerWidth <= 860) return;
 
-    // Calcular posició òptima (a prop del clic, sense sortir de la pantalla)
     let x = posClic.x + 12;
     let y = posClic.y - 40;
-
-    // Si no cap a la dreta, posar-lo a l'esquerra del clic
-    if (x + ample > window.innerWidth - 12) {
-        x = posClic.x - ample - 12;
-    }
-    // Si no cap avall, apujar-lo
-    if (y + alt > window.innerHeight - 12) {
-        y = window.innerHeight - alt - 12;
-    }
-    // Si no cap a dalt, baixar-lo
+    if (x + ample > window.innerWidth - 12) x = posClic.x - ample - 12;
+    if (y + alt > window.innerHeight - 12) y = window.innerHeight - alt - 12;
     if (y < 12) y = 12;
-    // Si no cap a l'esquerra, enganxar-lo a l'esquerra
     if (x < 12) x = 12;
 
     el.style.left = x + 'px';
     el.style.top = y + 'px';
 }
 
-// ─── Arrossegar el panell agafant el títol ─────────────────────
 function ferArrossegable(el, cap) {
     if (!cap) return;
     let arrossegant = false;
@@ -1262,9 +1274,8 @@ function ferArrossegable(el, cap) {
     let x0 = 0, y0 = 0;
 
     cap.addEventListener('pointerdown', e => {
-        // Si el clic és al botó de tancar, no arrosseguem
         if (e.target.closest && e.target.closest('button')) return;
-        if (window.innerWidth <= 860) return; // a mòbil no arrosseguem
+        if (window.innerWidth <= 860) return;
         arrossegant = true;
         ox = e.clientX;
         oy = e.clientY;
@@ -1277,11 +1288,8 @@ function ferArrossegable(el, cap) {
 
     cap.addEventListener('pointermove', e => {
         if (!arrossegant) return;
-        const dx = e.clientX - ox;
-        const dy = e.clientY - oy;
-        let nx = x0 + dx;
-        let ny = y0 + dy;
-        // Mantenir dins de la pantalla
+        let nx = x0 + (e.clientX - ox);
+        let ny = y0 + (e.clientY - oy);
         const r = el.getBoundingClientRect();
         if (nx < 0) nx = 0;
         if (ny < 0) ny = 0;
@@ -1300,9 +1308,7 @@ function ferArrossegable(el, cap) {
     cap.addEventListener('pointercancel', fi);
 }
 
-// Exposem per si es vol tancar des de fora
 window.tancarSkewTFlotant = tancarSkewTFlotant;
-
 
 function _tancaMenuFora(e) {
     if (_menuCtx && !_menuCtx.contains(e.target)) tancarMenuContextual();
@@ -1315,6 +1321,7 @@ function tancarMenuContextual() {
     }
 }
 
+// (Compatibilitat: altres scripts poden cridar aquestes funcions)
 function confirmarSkewT(lat, lon) {
     const dlg = document.createElement('div');
     dlg.id = 'skewtConfirmaDlg';
@@ -1379,10 +1386,12 @@ function mostrarErrorSkewt(msg) {
     ov.innerHTML = `
         <div class="skewt-error-cos">
             <div class="skewt-error-ico">⚠️</div>
-            <div class="skewt-error-text">${msg}</div>
-            <button class="skewt-error-btn" onclick="this.parentElement.parentElement.remove()">Tanca</button>
+            <div class="skewt-error-text"></div>
+            <button class="skewt-error-btn">Tanca</button>
         </div>
     `;
+    ov.querySelector('.skewt-error-text').textContent = msg;
+    ov.querySelector('.skewt-error-btn').addEventListener('click', () => ov.remove());
     document.body.appendChild(ov);
 }
 async function construirPerfilPerSkewT(lat, lon, idxHora) {
@@ -1403,7 +1412,6 @@ async function construirPerfilPerSkewT(lat, lon, idxHora) {
     }
     const zDe = p => 44330 * (1 - Math.pow(p / 1013.25, 0.1903));
 
-    // Nivells amb totes les dades vàlides, de baix a dalt
     const niv = [];
     for (let i = 0; i < pressions.length; i++) {
         if ([t[i], dpt[i], u[i], v[i]].every(x => x != null && isFinite(x))) {
@@ -1412,20 +1420,18 @@ async function construirPerfilPerSkewT(lat, lon, idxHora) {
     }
     niv.sort((a, b) => b.p - a.p);
 
-    let sobre = pSfc != null ? niv.filter(n => n.p < pSfc) : niv;   // sobre terra
-    const sota = pSfc != null ? niv.filter(n => n.p >= pSfc) : [];  // sota terra
+    let sobre = pSfc != null ? niv.filter(n => n.p < pSfc) : niv;
+    const sota = pSfc != null ? niv.filter(n => n.p >= pSfc) : [];
 
-    // Punt exacte a la pressió del terreny
     if (pSfc != null && sobre.length >= 2 && sobre[0].p < pSfc - 1) {
         const a = sobre[0];
         let punt;
-        const c = sota.length ? sota[sota.length - 1] : null; // nivell vàlid més proper sota terra
+        const c = sota.length ? sota[sota.length - 1] : null;
         if (c) {
             const f = (c.p - pSfc) / ((c.p - a.p) || 1);
             punt = { p: pSfc, t: c.t + f * (a.t - c.t), td: c.td + f * (a.td - c.td),
                      u: c.u + f * (a.u - c.u), v: c.v + f * (a.v - c.v) };
         } else {
-            // El model no té dades sota terra: extrapolem amb els 2 nivells més baixos (lineal en ln p)
             const b = sobre[1];
             const f = Math.log(pSfc / a.p) / Math.log(b.p / a.p);
             const tS = a.t + f * (b.t - a.t);
@@ -1443,6 +1449,7 @@ async function construirPerfilPerSkewT(lat, lon, idxHora) {
     };
 }
 window.construirPerfilPerSkewT = construirPerfilPerSkewT;
+
 // ═══════════════════════════════════════════════════════════════════
 //  3D + SONDEJOS
 // ═══════════════════════════════════════════════════════════════════
@@ -1512,20 +1519,22 @@ async function carregarSondeig(hora, dia) {
     const clau = `${String(hora).padStart(2, '0')}_${dia}`;
     if (_cacheSondeigs.has(clau)) return _cacheSondeigs.get(clau);
     const url = `${BASE_3D}sondeig_${clau}.msgpack.gz`;
-    try {
-        const r = await fetchFresc(url);
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        const buf = await r.arrayBuffer();
-        const u8 = await descomprimirGzip(buf);
-        const dades = await decodificarMsgpack(u8);
-        _cacheSondeigs.set(clau, dades);
-        _llevarCache(_cacheSondeigs, MAX_CACHE_SONDEIGS);
-        return dades;
-    } catch (e) {
-        _cacheSondeigs.set(clau, null);
-        _llevarCache(_cacheSondeigs, MAX_CACHE_SONDEIGS);
-        return null;
-    }
+    if (_haFallatFa(url)) return null;
+    return unic(url, async () => {
+        try {
+            const r = await fetchFresc(url);
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            const buf = await r.arrayBuffer();
+            const u8 = await descomprimirGzip(buf);
+            const dades = await decodificarMsgpack(u8);
+            _cacheSondeigs.set(clau, dades);
+            _llevarCache(_cacheSondeigs, MAX_CACHE_SONDEIGS);
+            return dades;
+        } catch (e) {
+            _marcarFallada(url);
+            return null;
+        }
+    });
 }
 
 function obtenirPerfilSondeig(sondeig, lat, lon) {
@@ -1563,26 +1572,17 @@ async function carregarVent3D(hora, dia, nivell) {
     const clau = `${String(hora).padStart(2, '0')}_${dia}_${nivell}`;
     if (_cacheVent3D.has(clau)) return _cacheVent3D.get(clau);
     const sondeig = await carregarSondeig(hora, dia);
-    if (!sondeig || !sondeig.pressions) {
-        _cacheVent3D.set(clau, null);
-        return null;
-    }
+    if (!sondeig || !sondeig.pressions) return null;
     const idxNivell = sondeig.pressions.indexOf(nivell);
-    if (idxNivell < 0) {
-        _cacheVent3D.set(clau, null);
-        return null;
-    }
+    if (idxNivell < 0) return null;
     const u_flat = sondeig.u[idxNivell] || [];
     const v_flat = sondeig.v[idxNivell] || [];
-    if (!u_flat.length || u_flat.length !== v_flat.length) {
-        _cacheVent3D.set(clau, null);
-        return null;
-    }
+    if (!u_flat.length || u_flat.length !== v_flat.length) return null;
     let lats = sondeig.lats;
     let lons = sondeig.lons;
     if (!lats || !lons) {
         const ext = window._extentManifest;
-        if (!ext) { _cacheVent3D.set(clau, null); return null; }
+        if (!ext) return null;
         const nPunts = u_flat.length;
         let nLon = 130, nLat = 120;
         const candidats = [[130, 120], [128, 122], [120, 130], [156, 100], [156, 120]];
@@ -1615,20 +1615,38 @@ async function carregarVent3D(hora, dia, nivell) {
     return camp;
 }
 
-async function carregarStorm(hora, dia) {
+// Llegeix i ELIMINA l'entrada global creada per un fitxer .js de dades (evita fuites de memòria)
+function agafarGlobal(nomGlobal, clau) {
+    const g = window[nomGlobal];
+    if (!g) return null;
+    const d = g[clau] || null;
+    delete g[clau];
+    return d;
+}
+
+// Carrega un fitxer .js de dades amb cache, dedupe i control de fallades
+function carregarDadaScript(cache, max, clauCache, url, nomGlobal, clauGlobal) {
+    if (cache.has(clauCache)) return Promise.resolve(cache.get(clauCache));
+    if (_haFallatFa(url)) return Promise.resolve(null);
+    return unic(url, async () => {
+        try {
+            await carregarScript(url);
+            const dades = agafarGlobal(nomGlobal, clauGlobal);
+            if (!dades) throw new Error('dades buides');
+            cache.set(clauCache, dades);
+            _llevarCache(cache, max);
+            return dades;
+        } catch (e) {
+            _marcarFallada(url);
+            return null;
+        }
+    });
+}
+
+function carregarStorm(hora, dia) {
     const clau = `${String(hora).padStart(2, '0')}_${dia}`;
-    if (_cacheStorm.has(clau)) return _cacheStorm.get(clau);
-    try {
-        await carregarScript(`${BASE_3D}stormmotion_${clau}.js`);
-        const dades = (window.STORMMOTION && window.STORMMOTION[clau]) || null;
-        _cacheStorm.set(clau, dades);
-        _llevarCache(_cacheStorm, MAX_CACHE_VENT);
-        return dades;
-    } catch (e) {
-        _cacheStorm.set(clau, null);
-        _llevarCache(_cacheStorm, MAX_CACHE_VENT);
-        return null;
-    }
+    return carregarDadaScript(_cacheStorm, MAX_CACHE_VENT, clau,
+        `${BASE_3D}stormmotion_${clau}.js`, 'STORMMOTION', clau);
 }
 
 async function mostrarCapa3D(var3d, nivell) {
@@ -1638,6 +1656,11 @@ async function mostrarCapa3D(var3d, nivell) {
         else if (typeof window.obrirModal === 'function') window.obrirModal('modalLogin');
         return false;
     }
+    // Les variables 3D / nivells de pressió depenen del pla (parametres3D)
+    if (typeof window.getConfigPla === 'function' && !window.getConfigPla().parametres3D) {
+        if (typeof window.mostrarUpgrade === 'function') window.mostrarUpgrade('Variables 3D', 'Professional');
+        return false;
+    }
     const hora = totesLesHores[curIdx] ? totesLesHores[curIdx].hora : null;
     const dia = totesLesHores[curIdx] ? totesLesHores[curIdx].dia : null;
     if (hora == null || !dia) return false;
@@ -1645,20 +1668,21 @@ async function mostrarCapa3D(var3d, nivell) {
     const urlPng = `${BASE_3D}3d_${clau}.png`;
     _capa3DActiva = { var: var3d, nivell, hora, dia, urlPng };
     const token = ++_tokenDades;
-    const pre = new Image();
-    pre.decoding = 'async';
-    pre.onload = () => {
+    _dadesLlestes = false;
+    const pre = obtenirImatge(urlPng);
+    quanCarregada(pre, () => {
         if (token !== _tokenDades) return;
-        imgDades.src = NEGRE_A_BLANC ? negreABlanc(pre, urlPng) : urlPng;
+        imgDades.src = NEGRE_A_BLANC ? negreABlanc(pre, urlPng) : pre.src;
         imgDades.style.visibility = 'visible';
         _urlDades = urlPng;
-    };
-    pre.onerror = () => {
+        _dadesOk();
+    }, () => {
+        _preImgs.delete(urlPng);
         if (token !== _tokenDades) return;
         imgDades.style.visibility = 'hidden';
         _urlDades = null;
-    };
-    pre.src = ambCb(urlPng);
+        _dadesOk();
+    });
     const esVent = nivell !== NIVELL_COLUMNA && ['wind_speed', 'wind_dir', 'u', 'v'].includes(var3d);
     if (esVent) {
         if (window.MOSTRAR_VENT) {
@@ -1686,7 +1710,7 @@ async function mostrarCapa3D(var3d, nivell) {
         _isolinesActuals = null;
     }
     actualitzarLlegenda();
-    programarRedibuix();
+    programarRedibuix(['iso', 'vent']);
     return true;
 }
 
@@ -1699,19 +1723,9 @@ function tornarAModeSFC() {
     actualitzarCapcaleraVariable();
 }
 
-async function carregarIsolines3D(clau) {
-    if (_cacheCapes3D.has('iso_' + clau)) return _cacheCapes3D.get('iso_' + clau);
-    try {
-        await carregarScript(`${BASE_3D}isolines_3d_${clau}.js`);
-        const dades = (window.ISOLINIES && window.ISOLINIES['3d_' + clau]) || null;
-        _cacheCapes3D.set('iso_' + clau, dades);
-        _llevarCache(_cacheCapes3D, MAX_CACHE_ISOLINES);
-        return dades;
-    } catch (e) {
-        _cacheCapes3D.set('iso_' + clau, null);
-        _llevarCache(_cacheCapes3D, MAX_CACHE_ISOLINES);
-        return null;
-    }
+function carregarIsolines3D(clau) {
+    return carregarDadaScript(_cacheCapes3D, MAX_CACHE_ISOLINES, 'iso_' + clau,
+        `${BASE_3D}isolines_3d_${clau}.js`, 'ISOLINIES', '3d_' + clau);
 }
 
 window.carregarSondeig = carregarSondeig;
@@ -1738,26 +1752,6 @@ function injectarEstils3D() {
             border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:#c9d4e6;cursor:pointer}
         .pp3d-chip:hover{background:rgba(255,255,255,.15)}
         .pp3d-chip.actiu{background:#ff7ad9;border-color:#ff7ad9;color:#1b1030}
-
-        .sistema-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;
-            padding:10px 12px;margin-top:4px;border-radius:8px;border:1px solid var(--line-strong);
-            background:var(--panel-2);color:var(--text);font-family:inherit;font-size:12px;font-weight:600;
-            cursor:pointer;transition:all .15s ease}
-        .sistema-btn:hover{background:var(--panel-hover);border-color:var(--accent);color:var(--accent)}
-        .sistema-btn:disabled{opacity:.55;cursor:wait}
-        .sistema-btn.carregant .ico{display:inline-block;animation:gira 1s linear infinite}
-        .sistema-btn.nova{background:rgba(255,215,0,.12);border-color:rgba(255,215,0,.5);color:var(--gold);
-            animation:polsSistema 1.6s ease-in-out infinite}
-        @keyframes polsSistema{0%,100%{box-shadow:0 0 0 0 rgba(255,215,0,.4)}50%{box-shadow:0 0 0 6px rgba(255,215,0,0)}}
-        .sistema-btn .ico{display:inline-block}
-        .sistema-estat{margin-top:8px;padding:6px 10px;border-radius:6px;font-size:10.5px;font-weight:500;
-            text-align:center;color:var(--muted);background:rgba(255,255,255,.03);border:1px solid var(--line);
-            min-height:24px;display:flex;align-items:center;justify-content:center}
-        .sistema-estat:empty{display:none}
-        .sistema-estat.ok{color:var(--ok);border-color:rgba(63,185,80,.3);background:rgba(63,185,80,.08)}
-        .sistema-estat.nova{color:var(--gold);border-color:rgba(255,215,0,.4);background:rgba(255,215,0,.10)}
-        .sistema-estat.error{color:var(--danger);border-color:rgba(248,81,73,.3);background:rgba(248,81,73,.08)}
-        .sistema-estat.comprovant{color:var(--accent);border-color:rgba(88,166,255,.3);background:rgba(88,166,255,.08)}
     `;
     document.head.appendChild(st);
 }
@@ -1930,7 +1924,7 @@ function crearPanell() {
         _ciutatSel = null;
         cfgGuardar({ ciutat: null });
         renderCiutats();
-        programarRedibuix();
+        programarRedibuix(['noms']);
     });
 
     p.querySelectorAll('.cap-fila').forEach(f => {
@@ -1944,26 +1938,26 @@ function crearPanell() {
             else if (prop === 'MOSTRAR_VENT') {
                 if (!window[prop]) {
                     _ventActual = null;
-                    programarRedibuix();
+                    programarRedibuix(['vent']);
                 } else {
                     if (variableActivaTeStreamlines()) {
                         if (_capa3DActiva && _capa3DActiva.nivell !== NIVELL_COLUMNA &&
                             ['wind_speed','wind_dir','u','v'].includes(_capa3DActiva.var)) {
                             carregarVent3D(_capa3DActiva.hora, _capa3DActiva.dia, _capa3DActiva.nivell)
-                                .then(c => { _ventActual = c; programarRedibuix(); });
+                                .then(c => { _ventActual = c; programarRedibuix(['vent']); });
                         } else if (!_capa3DActiva) {
-                            carregarVent(curIdx).then(v => { _ventActual = v; programarRedibuix(); });
+                            carregarVent(curIdx).then(v => { _ventActual = v; programarRedibuix(['vent']); });
                         }
                     }
                 }
             } else if (prop === 'MOSTRAR_BARBES') {
                 if (window[prop] && _capa3DActiva && VARS_AMB_BARBES.has(_capa3DActiva.var)) {
                     carregarStorm(_capa3DActiva.hora, _capa3DActiva.dia)
-                        .then(s => { _stormActual = s; programarRedibuix(); });
+                        .then(s => { _stormActual = s; programarRedibuix(['vent']); });
                 } else if (!window[prop]) {
                     _stormActual = null;
-                    programarRedibuix();
-                } else programarRedibuix();
+                    programarRedibuix(['vent']);
+                } else programarRedibuix(['vent']);
             } else programarRedibuix();
         });
     });
@@ -1976,7 +1970,7 @@ function crearPanell() {
         window.DENSITAT_CIUTATS_ACTIVA = v;
         window.MOSTRAR_CIUTATS = v !== 'cap';
         cfgGuardar({ densitat: v });
-        programarRedibuix();
+        programarRedibuix(['noms']);
     });
 
     const rng = p.querySelector('#rngOpacitat');
@@ -2012,7 +2006,7 @@ function crearSeccioPanell(id, nom, color, n) {
     sec.innerHTML = `
         <button class="sec-cap">
             <span class="sec-punt" style="background:${color}"></span>
-            <span class="sec-nom">${nom}</span>
+            <span class="sec-nom">${_escH(nom)}</span>
             <span class="sec-n">${n}</span>
             <span class="sec-fletxa">${ICO.fletxa}</span>
         </button>
@@ -2041,7 +2035,7 @@ function construirSeccions3D(cont) {
         row.dataset.clau = '3d_' + c.var;
         row.dataset.v3d = c.var;
         row.title = `${c.nom} (${c.unitat}) — tria el nivell`;
-        row.innerHTML = `<span>${c.nom}</span><span class="unitat">${c.unitat}</span>`;
+        row.innerHTML = `<span>${_escH(c.nom)}</span><span class="unitat">${_escH(c.unitat)}</span>`;
         row.addEventListener('click', () => {
             const n = ultimNivell3D[c.var] || 850;
             ultimNivell3D[c.var] = n;
@@ -2081,7 +2075,7 @@ function construirSeccions3D(cont) {
         row.dataset.clau = '3d_' + c.var + '_' + NIVELL_COLUMNA;
         row.dataset.v3d = c.var;
         row.title = `${c.nom} (${c.unitat})`;
-        row.innerHTML = `<span>${c.nom}</span><span class="unitat">${c.unitat}</span>`;
+        row.innerHTML = `<span>${_escH(c.nom)}</span><span class="unitat">${_escH(c.unitat)}</span>`;
         row.addEventListener('click', () => seleccionar3D(c.var, NIVELL_COLUMNA));
         col.cos.appendChild(row);
         _filesVariables.push({
@@ -2150,7 +2144,7 @@ function construirPanellParametres() {
                     ? 'Inicia sessió per veure aquesta variable'
                     : (unitat ? `${nom} (${unitat})` : nom);
                 const cadenat = bloquejat ? ' <span style="opacity:0.7;">🔒</span>' : '';
-                row.innerHTML = `<span>${nom}${cadenat}</span>${unitat ? `<span class="unitat">${unitat}</span>` : ''}`;
+                row.innerHTML = `<span>${_escH(nom)}${cadenat}</span>${unitat ? `<span class="unitat">${_escH(unitat)}</span>` : ''}`;
                 row.addEventListener('click', () => {
                     if (bloquejat) {
                         if (typeof window.mostrarAvisLogin === 'function') window.mostrarAvisLogin(clau);
@@ -2307,14 +2301,14 @@ function renderCiutats() {
         const sel = _ciutatSel && _ciutatSel === c;
         f.className = 'ciu-fila' + (sel ? ' sel' : '');
         f.innerHTML = `<span class="ciu-pin${c.capital ? ' cap' : ''}"></span>
-            <span class="ciu-nom">${c.nom}</span>
+            <span class="ciu-nom">${_escH(c.nom)}</span>
             <span class="ciu-pob">${formatarPoblacio(c.poblacio)}</span>`;
         f.addEventListener('click', () => {
             _ciutatSel = c;
             cfgGuardar({ ciutat: c.nom });
             volarA(c.lon, c.lat, Math.max(vista.k, 5));
             renderCiutats();
-            programarRedibuix();
+            programarRedibuix(['noms']);
         });
         llista.appendChild(f);
     });
@@ -2360,8 +2354,8 @@ async function carregarManifest() {
             totesLesHores = manifest.hores.map((h, i) => ({
                 step: i, hora: h.hora, dia: h.dia, variables: h.variables || []
             }));
-window.totesLesHores = totesLesHores;
-return totesLesHores;
+            window.totesLesHores = totesLesHores;
+            return totesLesHores;
         } catch (e) {
             errors.push(e.message);
         }
@@ -2373,7 +2367,7 @@ return totesLesHores;
 }
 
 // ═══════════════════════════════════════════════════════════════════
-//  DADES
+//  DADES (PNG)
 // ═══════════════════════════════════════════════════════════════════
 function construirUrlPng(idx, clau) {
     if (idx < 0 || idx >= totesLesHores.length) return null;
@@ -2383,7 +2377,7 @@ function construirUrlPng(idx, clau) {
 
 function negreABlanc(img, url) {
     if (_cacheDadesBlanques.has(url)) return _cacheDadesBlanques.get(url);
-    let resultat = url;
+    let resultat = img.src || url;
     try {
         const w = img.naturalWidth, h = img.naturalHeight;
         if (w && h) {
@@ -2401,11 +2395,45 @@ function negreABlanc(img, url) {
             }
             cx.putImageData(id, 0, 0);
             resultat = c.toDataURL('image/png');
+            c.width = c.height = 0;   // allibera el búfer del canvas
         }
-    } catch (e) { resultat = url; }
+    } catch (e) { resultat = img.src || url; }
     _cacheDadesBlanques.set(url, resultat);
     _llevarCache(_cacheDadesBlanques, MAX_CACHE_BLANQUES);
     return resultat;
+}
+
+// Imatges (una sola descàrrega per URL: la precàrrega i la visualització comparteixen l'objecte)
+const _preImgs = new Map();
+function obtenirImatge(url) {
+    let im = _preImgs.get(url);
+    if (im && im.complete && !im.naturalWidth) { _preImgs.delete(url); im = null; }  // intent anterior fallit
+    if (!im) {
+        im = new Image();
+        im.decoding = 'async';
+        im.src = ambCb(url);
+        _preImgs.set(url, im);
+    }
+    return im;
+}
+function quanCarregada(im, ok, err) {
+    if (im.complete) { (im.naturalWidth ? ok : err)(); return; }
+    im.addEventListener('load', ok, { once: true });
+    im.addEventListener('error', err, { once: true });
+}
+
+// Sincronització amb l'animació: sap quan la imatge actual ja és pintada
+let _dadesLlestes = true, _resolDades = null;
+function _dadesOk() {
+    _dadesLlestes = true;
+    if (_resolDades) { const r = _resolDades; _resolDades = null; r(); }
+}
+function esperarDades(ms) {
+    return new Promise(res => {
+        if (_dadesLlestes) return res();
+        const t = setTimeout(() => { _resolDades = null; res(); }, ms);
+        _resolDades = () => { clearTimeout(t); res(); };
+    });
 }
 
 function actualitzarDades() {
@@ -2413,39 +2441,51 @@ function actualitzarDades() {
     const url = construirUrlPng(curIdx, variableActiva);
     const token = ++_tokenDades;
     const clauSnap = variableActiva;
-    if (!url) { imgDades.style.visibility = 'hidden'; _urlDades = null; _origDades = null; return; }
-    if (url === _urlDades) return;
-    const pre = new Image();
-    pre.decoding = 'async';
-    pre.onload = () => {
+    if (!url) {
+        imgDades.style.visibility = 'hidden'; _urlDades = null; _origDades = null;
+        _dadesOk();
+        return;
+    }
+    if (url === _urlDades) { _dadesOk(); return; }
+    _dadesLlestes = false;
+    const pre = obtenirImatge(url);
+    quanCarregada(pre, () => {
         if (token !== _tokenDades) return;
         _origDades = { img: pre, clau: clauSnap, capa3D: null, url };
-        imgDades.src = NEGRE_A_BLANC ? negreABlanc(pre, url) : url;
+        imgDades.src = NEGRE_A_BLANC ? negreABlanc(pre, url) : pre.src;
         imgDades.style.visibility = 'visible';
         _urlDades = url;
-    };
-    pre.onerror = () => {
+        _dadesOk();
+    }, () => {
+        _preImgs.delete(url);
         if (token !== _tokenDades) return;
         _origDades = null;
         imgDades.style.visibility = 'hidden';
         _urlDades = null;
-    };
-    pre.src = ambCb(url);
+        _dadesOk();
+    });
 }
 
-const _preImgs = new Map();
 function precarregarSeguent() {
     if (!totesLesHores.length || _capa3DActiva) return;
     const vius = new Set();
+    const actual = construirUrlPng(curIdx, variableActiva);
+    if (actual) vius.add(actual);
     for (let d = 1; d <= 3; d++) {
         const u = construirUrlPng((curIdx + d) % totesLesHores.length, variableActiva);
         if (!u) continue;
         vius.add(u);
-        if (_preImgs.has(u)) continue;
-        const im = new Image();
-        im.decoding = 'async';
-        im.src = ambCb(u);
-        _preImgs.set(u, im);
+        const im = obtenirImatge(u);
+        // Processa negre→blanc en temps mort, perquè el canvi d'hora sigui immediat
+        if (NEGRE_A_BLANC && !_cacheDadesBlanques.has(u) && !im.__preparat) {
+            im.__preparat = true;
+            quanCarregada(im, () => {
+                const idle = window.requestIdleCallback || (f => setTimeout(f, 50));
+                idle(() => {
+                    if (_preImgs.get(u) === im && !_cacheDadesBlanques.has(u)) negreABlanc(im, u);
+                });
+            }, () => {});
+        }
     }
     if (_preImgs.size > 8) {
         for (const k of [..._preImgs.keys()]) {
@@ -2486,43 +2526,23 @@ function carregarScript(url, opcional) {
     });
 }
 
-async function carregarIsolines(idx, clau) {
-    if (idx < 0 || idx >= totesLesHores.length) return null;
-    if (_capa3DActiva) return null;
+function carregarIsolines(idx, clau) {
+    if (idx < 0 || idx >= totesLesHores.length) return Promise.resolve(null);
+    if (_capa3DActiva) return Promise.resolve(null);
     const info = totesLesHores[idx];
     const hora = String(info.hora).padStart(2, '0');
     const clauFitxer = `${hora}_${info.dia}_${clau}`;
-    if (_cacheIsolines.has(clauFitxer)) return _cacheIsolines.get(clauFitxer);
-    try {
-        await carregarScript(`${PNG_BASE}isolines_${clauFitxer}.js`);
-        const dades = (window.ISOLINIES && window.ISOLINIES[clauFitxer]) || null;
-        _cacheIsolines.set(clauFitxer, dades);
-        _llevarCache(_cacheIsolines, MAX_CACHE_ISOLINES);
-        return dades;
-    } catch (e) {
-        _cacheIsolines.set(clauFitxer, null);
-        _llevarCache(_cacheIsolines, MAX_CACHE_ISOLINES);
-        return null;
-    }
+    return carregarDadaScript(_cacheIsolines, MAX_CACHE_ISOLINES, clauFitxer,
+        `${PNG_BASE}isolines_${clauFitxer}.js`, 'ISOLINIES', clauFitxer);
 }
 
-async function carregarVent(idx) {
-    if (idx < 0 || idx >= totesLesHores.length) return null;
+function carregarVent(idx) {
+    if (idx < 0 || idx >= totesLesHores.length) return Promise.resolve(null);
     const info = totesLesHores[idx];
     const hora = String(info.hora).padStart(2, '0');
     const clauFitxer = `${hora}_${info.dia}`;
-    if (_cacheVent.has(clauFitxer)) return _cacheVent.get(clauFitxer);
-    try {
-        await carregarScript(`${PNG_BASE}vent_${clauFitxer}.js`);
-        const dades = (window.VENT && window.VENT[clauFitxer]) || null;
-        _cacheVent.set(clauFitxer, dades);
-        _llevarCache(_cacheVent, MAX_CACHE_VENT);
-        return dades;
-    } catch (e) {
-        _cacheVent.set(clauFitxer, null);
-        _llevarCache(_cacheVent, MAX_CACHE_VENT);
-        return null;
-    }
+    return carregarDadaScript(_cacheVent, MAX_CACHE_VENT, clauFitxer,
+        `${PNG_BASE}vent_${clauFitxer}.js`, 'VENT', clauFitxer);
 }
 
 async function carregarNoms() {
@@ -2544,6 +2564,7 @@ async function carregarNoms() {
                     ex.capital = ex.capital || !!c.capital;
                 }
             }
+            if (mapa.size) break;   // primera font vàlida: no cal seguir (abans feia fins a 5 peticions)
         } catch (e) {}
     }
     _ciutats = [...mapa.values()];
@@ -2599,31 +2620,30 @@ function pintarTraç(ctx, polilinies, W, H, color, amplada, colorHalo, ampladaHa
     ctx.strokeStyle = color; ctx.lineWidth = amplada; ctx.stroke();
 }
 
-
 function dibuixarVores() {
     if (!canvasVores) return;
     const { ctx, W, H } = prepararCtx(canvasVores);
     if (!window._extentManifest) return;
-    const esc = Math.min(1.8, Math.max(0.8, Math.sqrt(vista.k)));
+    const esc_ = Math.min(1.8, Math.max(0.8, Math.sqrt(vista.k)));
     ctx.save();
     retallarAImatge(ctx);
 
     if (window.MOSTRAR_COMARQUES && _comarques.length) {
-        const a = COMARQUES_CFG.amplada * esc;
+        const a = COMARQUES_CFG.amplada * esc_;
         pintarTraç(ctx, _comarques, W, H, COMARQUES_CFG.color, a,
-            COMARQUES_CFG.halo, a + COMARQUES_CFG.haloExtra * esc);
+            COMARQUES_CFG.halo, a + COMARQUES_CFG.haloExtra * esc_);
     }
     if (_linies) {
         if (window.MOSTRAR_PROVINCIES && _linies.provincies.length) {
             const tot = _linies._totProv || (_linies._totProv = _linies.provincies.flatMap(p => p.linies || []));
-            const a = VORES_CFG.provinciaAmplada * esc;
+            const a = VORES_CFG.provinciaAmplada * esc_;
             pintarTraç(ctx, tot, W, H, VORES_CFG.provinciaColor, a,
-                VORES_CFG.provinciaHalo, a + VORES_CFG.provinciaHaloExtra * esc);
+                VORES_CFG.provinciaHalo, a + VORES_CFG.provinciaHaloExtra * esc_);
         }
         if (window.MOSTRAR_FRONTERES && _linies.fronteres.length) {
-            const a = VORES_CFG.fronteraAmplada * esc;
+            const a = VORES_CFG.fronteraAmplada * esc_;
             pintarTraç(ctx, _linies.fronteres, W, H, VORES_CFG.fronteraColor, a,
-                VORES_CFG.fronteraHalo, a + VORES_CFG.fronteraHaloExtra * esc);
+                VORES_CFG.fronteraHalo, a + VORES_CFG.fronteraHaloExtra * esc_);
         }
     }
     ctx.restore();
@@ -3048,18 +3068,40 @@ function dibuixarCiutats() {
     const midaPunt = CIUTATS_CFG.midaPuntBase * Math.min(1.4, Math.max(0.9, sq));
     ctx.font = `600 ${midaFont}px 'Inter', system-ui, sans-serif`;
     ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round';
-    const ocupats = [];
+
+    // Graella espacial per detectar solapaments (abans: bucle O(n²))
+    const CEL = 96;
+    const graella = new Map();
+    const claus = r => {
+        const out = [];
+        const x0 = Math.floor(r[0] / CEL), x1 = Math.floor(r[2] / CEL);
+        const y0 = Math.floor(r[1] / CEL), y1 = Math.floor(r[3] / CEL);
+        for (let x = x0; x <= x1; x++) for (let y = y0; y <= y1; y++) out.push((x + 64) * 4096 + (y + 64));
+        return out;
+    };
     const xoca = r => {
-        for (const o of ocupats) {
-            if (r[0] < o[2] && r[2] > o[0] && r[1] < o[3] && r[3] > o[1]) return true;
+        for (const k of claus(r)) {
+            const l = graella.get(k);
+            if (!l) continue;
+            for (const o of l) {
+                if (r[0] < o[2] && r[2] > o[0] && r[1] < o[3] && r[3] > o[1]) return true;
+            }
         }
         return false;
     };
+    const ocupa = r => {
+        for (const k of claus(r)) {
+            let l = graella.get(k);
+            if (!l) graella.set(k, l = []);
+            l.push(r);
+        }
+    };
+
     if (_ciutatSel) {
         const p = lonLatAPantalla(_ciutatSel.lon, _ciutatSel.lat);
         if (p && p[0] > -80 && p[0] < W + 80 && p[1] > -80 && p[1] < H + 80) {
             const tw = ctx.measureText(_ciutatSel.nom).width * 1.25;
-            ocupats.push([p[0] - 16, p[1] - midaFont, p[0] + 24 + tw, p[1] + midaFont]);
+            ocupa([p[0] - 16, p[1] - midaFont, p[0] + 24 + tw, p[1] + midaFont]);
             pintarCiutat(ctx, p, _ciutatSel, midaPunt, midaFont, true);
         }
     }
@@ -3084,7 +3126,7 @@ function dibuixarCiutats() {
         const rect = [p[0] - midaPunt - 1, p[1] - midaFont / 2 - 1,
                       p[0] + midaPunt + 4 + tw, p[1] + midaFont / 2 + 1];
         if (xoca(rect)) continue;
-        ocupats.push(rect);
+        ocupa(rect);
         pintarCiutat(ctx, p, c, midaPunt, midaFont, false);
         n++;
     }
@@ -3093,12 +3135,13 @@ function dibuixarCiutats() {
 // ═══════════════════════════════════════════════════════════════════
 //  HORES
 // ═══════════════════════════════════════════════════════════════════
+// Retorna true si l'hora s'ha aplicat (false si està bloquejada o no existeix)
 function mostrarHora(idx) {
-    if (idx < 0 || idx >= totesLesHores.length) return;
+    if (idx < 0 || idx >= totesLesHores.length) return false;
     if (!usuariLoguejat() && idx % 3 !== 0) {
         if (typeof window.mostrarAvisLogin === 'function') window.mostrarAvisLogin('aquesta hora');
         else if (typeof window.obrirModal === 'function') window.obrirModal('modalLogin');
-        return;
+        return false;
     }
     curIdx = idx;
     if (!_animacioActiva) {
@@ -3114,6 +3157,7 @@ function mostrarHora(idx) {
     actualitzarEtiquetaHora();
     precarregarSeguent();
     refrescarVentIsolines();
+    return true;
 }
 
 async function refrescarVentIsolines() {
@@ -3124,14 +3168,14 @@ async function refrescarVentIsolines() {
     if (!volVent) _ventActual = null;
     const volIso = variableActivaTeIsolines();
     if (!volIso) _isolinesActuals = null;
-    programarRedibuix();
+    programarRedibuix(['iso', 'vent']);
     if (_capa3DActiva) {
         const iso = (window.MOSTRAR_ISOLINIES && volIso)
             ? await carregarIsolines3D(`${String(_capa3DActiva.hora).padStart(2, '0')}_${_capa3DActiva.dia}_${_capa3DActiva.var}_${_capa3DActiva.nivell}`)
             : null;
         if (token !== _tokenVI) return;
         _isolinesActuals = iso;
-        programarRedibuix();
+        programarRedibuix(['iso']);
         return;
     }
     const [vent, iso] = await Promise.all([
@@ -3141,13 +3185,12 @@ async function refrescarVentIsolines() {
     if (token !== _tokenVI) return;
     _ventActual = vent;
     _isolinesActuals = iso;
-    programarRedibuix();
+    programarRedibuix(['iso', 'vent']);
 }
 
 function resaltarHoraEnGrid(idx) {
     document.querySelectorAll('.fh-item').forEach((el, i) => {
-        const actiu = i === idx;
-        el.classList.toggle('active', actiu);
+        el.classList.toggle('active', i === idx);
     });
     const act = document.querySelector('.fh-item.active');
     if (act) act.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
@@ -3185,7 +3228,7 @@ function construirGraellaHores() {
         cell.title = bloquejada ? 'Inicia sessió per veure aquesta hora' : '';
         cell.innerHTML = `
             <div class="fh-hora ${classeDia}">${hora}h</div>
-            <div class="fh-dia ${classeDia}">${textDia}</div>
+            <div class="fh-dia ${classeDia}">${_escH(textDia)}</div>
         `;
         cell.addEventListener('click', () => {
             if (bloquejada) {
@@ -3201,13 +3244,12 @@ function construirGraellaHores() {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-//  ANIMACIÓ
+//  ANIMACIÓ (espera que cada frame estigui carregat abans de passar al següent)
 // ═══════════════════════════════════════════════════════════════════
 let _animacioActiva = false;
-let _intervalAnimacio = null;
-let VELOCITAT_ANIMACIO = 1200;   // ms entre frames (configurable)
+let _animTimer = null;
+let VELOCITAT_ANIMACIO = 1200;   // ms mínims entre frames
 
-// Velocitats disponibles (ms): més petit = més ràpid
 const VELOCITATS_ANIMACIO = [
     { valor: 200,  etiqueta: 'Molt ràpid' },
     { valor: 400,  etiqueta: 'Ràpid' },
@@ -3227,6 +3269,28 @@ function pintarBotoPlay() {
         btn.classList.remove('actiu');
     }
 }
+
+function aturarAnimacio() {
+    clearTimeout(_animTimer);
+    _animTimer = null;
+    if (!_animacioActiva) return;
+    _animacioActiva = false;
+    pintarBotoPlay();
+    const h = totesLesHores[curIdx];
+    if (h) cfgGuardar({ hora: { hora: h.hora, dia: h.dia } });
+}
+
+async function _cicleAnimacio() {
+    if (!_animacioActiva) return;
+    if (document.hidden) { _animTimer = setTimeout(_cicleAnimacio, 1000); return; }
+    const t0 = performance.now();
+    if (!mostrarHora((curIdx + 1) % totesLesHores.length)) { aturarAnimacio(); return; }
+    await esperarDades(5000);
+    if (!_animacioActiva) return;
+    const resta = Math.max(0, VELOCITAT_ANIMACIO - (performance.now() - t0));
+    _animTimer = setTimeout(_cicleAnimacio, resta);
+}
+
 function toggleAnimacio() {
     if (!totesLesHores.length) return;
     if (!usuariLoguejat()) {
@@ -3235,34 +3299,20 @@ function toggleAnimacio() {
         return;
     }
     if (_animacioActiva) {
-        clearInterval(_intervalAnimacio);
-        _animacioActiva = false;
-        pintarBotoPlay();
-        const h = totesLesHores[curIdx];
-        if (h) cfgGuardar({ hora: { hora: h.hora, dia: h.dia } });
+        aturarAnimacio();
     } else {
         _animacioActiva = true;
         pintarBotoPlay();
-        _intervalAnimacio = setInterval(() => {
-            mostrarHora((curIdx + 1) % totesLesHores.length);
-        }, VELOCITAT_ANIMACIO);
+        _cicleAnimacio();
     }
 }
 
-// Canvi de velocitat en calent
 function canviarVelocitatAnimacio(ms) {
-    VELOCITAT_ANIMACIO = ms;
-    if (_animacioActiva) {
-        clearInterval(_intervalAnimacio);
-        _intervalAnimacio = setInterval(() => {
-            mostrarHora((curIdx + 1) % totesLesHores.length);
-        }, VELOCITAT_ANIMACIO);
-    }
+    VELOCITAT_ANIMACIO = ms;   // s'aplica al següent frame
     cfgGuardar({ velocitatAnimacio: ms });
 }
 window.canviarVelocitatAnimacio = canviarVelocitatAnimacio;
 
-// Inicialitzar velocitat des de config
 (function () {
     if (typeof _cfg.velocitatAnimacio === 'number' &&
         VELOCITATS_ANIMACIO.some(v => v.valor === _cfg.velocitatAnimacio)) {
@@ -3284,8 +3334,11 @@ async function inicialitzar() {
     if (!hores.length) {
         const grid = document.getElementById('fh_grid');
         if (grid) {
-            grid.innerHTML = '<div style="color:#ff6b6b;padding:8px 12px;font-size:11px;">Sense dades: '
-                + (_errorManifest || 'manifest buit') + '</div>';
+            grid.innerHTML = '';
+            const d = document.createElement('div');
+            d.style.cssText = 'color:#ff6b6b;padding:8px 12px;font-size:11px;';
+            d.textContent = 'Sense dades: ' + (_errorManifest || 'manifest buit');
+            grid.appendChild(d);
         }
         return;
     }
@@ -3323,8 +3376,10 @@ window.addEventListener('tc:login', () => {
     if (typeof construirGraellaHores === 'function') construirGraellaHores();
 });
 window.addEventListener('tc:logout', () => {
+    aturarAnimacio();
     if (typeof construirPanellParametres === 'function') construirPanellParametres();
     if (typeof construirGraellaHores === 'function') construirGraellaHores();
+    if (_capa3DActiva) tornarAModeSFC();
     if (!esParametreLliure(variableActiva)) {
         variableActiva = 'st';
         actualitzarDades();
@@ -3343,7 +3398,6 @@ window.canviarHora = function (delta) {
     if (nou >= totesLesHores.length) nou = totesLesHores.length - 1;
     mostrarHora(nou);
 };
-
 
 window.mostrarHoraIdx = function (idx) {
     if (typeof mostrarHora === 'function') mostrarHora(idx);
@@ -3366,4 +3420,4 @@ if (document.readyState === 'loading') {
     inicialitzar();
 }
 
-console.log('✅ mapapngs.js carregat — barbes storm motion + isolínies condicionals + controls dock');
+console.log('✅ mapapngs.js carregat');
