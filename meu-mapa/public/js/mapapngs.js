@@ -102,14 +102,18 @@ const CARPETES_NOMS = [
 // ═══════════════════════════════════════════════════════════════════
 //  CACHE-BUSTING
 // ═══════════════════════════════════════════════════════════════════
+let VERSIO = '';
+const _RE_FRESC = /manifest\.json|info_run\.json/;
 function ambCb(url) {
     if (!url) return url;
-    if (url.includes('?_cb=') || url.includes('&_cb=')) return url;
+    if (/[?&](_cb|v)=/.test(url)) return url;
     const sep = url.includes('?') ? '&' : '?';
-    return url + sep + '_cb=' + Date.now();
+    if (!VERSIO || _RE_FRESC.test(url)) return url + sep + '_cb=' + Date.now();
+    return url + sep + 'v=' + encodeURIComponent(VERSIO);
 }
 function fetchFresc(url, opts) {
-    return fetch(ambCb(url), Object.assign({ cache: 'no-store' }, opts || {}));
+    const fresc = !VERSIO || _RE_FRESC.test(url);
+    return fetch(ambCb(url), Object.assign(fresc ? { cache: 'no-store' } : {}, opts || {}));
 }
 
 // ─── Capes visibles (estat) ────────────────────────────────────────
@@ -326,7 +330,31 @@ function programarRedibuix() {
     });
 }
 
+let _baseVista = null, _tmrGest = null;
+function _canvasos() { return [canvasVores, canvasIsolines, canvasVent, canvasNoms]; }
+function _resetGest() {
+    if (_tmrGest) { clearTimeout(_tmrGest); _tmrGest = null; }
+    if (_baseVista) {
+        _baseVista = null;
+        for (const c of _canvasos()) if (c) c.style.transform = '';
+    }
+}
+function gestRedibuix() {
+    guardarVistaDiferit();
+    if (!_baseVista) _baseVista = { k: vista.k, x: vista.x, y: vista.y };
+    const b = _baseVista, q = vista.k / b.k;
+    const tr = 'translate(' + (vista.x - b.x * q) + 'px,' + (vista.y - b.y * q) + 'px) scale(' + q + ')';
+    for (const c of _canvasos()) {
+        if (!c) continue;
+        c.style.transformOrigin = '0 0';
+        c.style.transform = tr;
+    }
+    if (_tmrGest) clearTimeout(_tmrGest);
+    _tmrGest = setTimeout(() => { _tmrGest = null; programarRedibuix(); }, 140);
+}
+
 function redibuixarTot() {
+    _resetGest();
     dibuixarVores();
     dibuixarIsolines();
     dibuixarVent();
@@ -704,8 +732,7 @@ function _sincronitzarLlegenda() {
 function _iniciarObservadorLlegenda() {
     if (!imgLlegenda) return;
     const obs = new MutationObserver(() => _sincronitzarLlegenda());
-    obs.observe(imgLlegenda, { attributes: true, attributeFilter: ['src', 'style'] });
-    setInterval(_sincronitzarLlegenda, 400);
+    obs.observe(imgLlegenda, { attributes: true, attributeFilter: ['src'] });
     _sincronitzarLlegenda();
 }
 
@@ -894,7 +921,7 @@ function activarInteraccio() {
         vista.y = my - (my - vista.y) * q;
         vista.k = nk;
         aplicarTransform();
-        programarRedibuix();
+        gestRedibuix();
     }, { passive: false });
 
     let arrossegant = false, ox = 0, oy = 0, mogut = false;
@@ -927,7 +954,7 @@ function activarInteraccio() {
         vista.x += dx; vista.y += dy;
         ox = e.clientX; oy = e.clientY;
         aplicarTransform();
-        programarRedibuix();
+        gestRedibuix();
     });
 
     const fi = (e) => {
@@ -1014,7 +1041,7 @@ function activarInteraccioPinca() {
         dPrev = g.d;
         cPrev = { x: g.cx, y: g.cy };
         aplicarTransform();
-        programarRedibuix();
+        gestRedibuix();
     }, { capture: true, passive: false });
 
     const deixa = e => {
@@ -1054,7 +1081,7 @@ function volarA(lon, lat, kFinal) {
         vista.x = x0 + (x1 - x0) * e;
         vista.y = y0 + (y1 - y0) * e;
         aplicarTransform();
-        programarRedibuix();
+        gestRedibuix();
         if (p < 1) requestAnimationFrame(pas); else _animVista = null;
     }
     requestAnimationFrame(pas);
@@ -2318,6 +2345,7 @@ async function carregarManifest() {
             const manifest = await provarManifest(base);
             PNG_BASE = base;
             BASE_3D = base;
+            VERSIO = manifest.versio ? String(manifest.versio) : '';
             if (manifest.aspect) { aspecte = manifest.aspect; aspecteDelManifest = true; }
             if (manifest.extent) window._extentManifest = manifest.extent;
             infoVariables = manifest.variables || {};
@@ -2405,19 +2433,33 @@ function actualitzarDades() {
     pre.src = ambCb(url);
 }
 
+const _preImgs = new Map();
 function precarregarSeguent() {
-    if (!totesLesHores.length) return;
-    if (_capa3DActiva) return;
-    const next = construirUrlPng((curIdx + 1) % totesLesHores.length, variableActiva);
-    if (next) {
+    if (!totesLesHores.length || _capa3DActiva) return;
+    const vius = new Set();
+    for (let d = 1; d <= 3; d++) {
+        const u = construirUrlPng((curIdx + d) % totesLesHores.length, variableActiva);
+        if (!u) continue;
+        vius.add(u);
+        if (_preImgs.has(u)) continue;
         const im = new Image();
         im.decoding = 'async';
-        im.src = ambCb(next);
+        im.src = ambCb(u);
+        _preImgs.set(u, im);
+    }
+    if (_preImgs.size > 8) {
+        for (const k of [..._preImgs.keys()]) {
+            if (_preImgs.size <= 8) break;
+            if (!vius.has(k)) _preImgs.delete(k);
+        }
     }
 }
 
 function actualitzarLlegenda() {
-    imgLlegenda.onload = () => { imgLlegenda.style.display = 'block'; };
+    const clau = _capa3DActiva ? _capa3DActiva.var : variableActiva;
+    _sincronitzarLlegenda();
+    if (LLEGENDES_CSS[clau]) return;
+    imgLlegenda.onload = () => { imgLlegenda.style.display = _llegendaCssEl ? 'none' : 'block'; };
     imgLlegenda.onerror = () => { imgLlegenda.style.display = 'none'; };
     if (_capa3DActiva) {
         imgLlegenda.src = ambCb(`${BASE_3D}legend_3d_${_capa3DActiva.var}.png`);
@@ -2573,8 +2615,7 @@ function dibuixarVores() {
     }
     if (_linies) {
         if (window.MOSTRAR_PROVINCIES && _linies.provincies.length) {
-            const tot = [];
-            for (const p of _linies.provincies) for (const l of (p.linies || [])) tot.push(l);
+            const tot = _linies._totProv || (_linies._totProv = _linies.provincies.flatMap(p => p.linies || []));
             const a = VORES_CFG.provinciaAmplada * esc;
             pintarTraç(ctx, tot, W, H, VORES_CFG.provinciaColor, a,
                 VORES_CFG.provinciaHalo, a + VORES_CFG.provinciaHaloExtra * esc);
@@ -2969,6 +3010,7 @@ function llindarPoblacio() {
     else llindarZoom = 0;
     return Math.max(dens.minPoblacio, llindarZoom);
 }
+const _mtCache = new Map();
 function pintarCiutat(ctx, p, c, midaPunt, midaFont, destacada) {
     const capital = !!c.capital;
     const rP = destacada ? midaPunt + 2 : midaPunt;
@@ -3032,7 +3074,13 @@ function dibuixarCiutats() {
         const p = lonLatAPantalla(c.lon, c.lat);
         if (!p) continue;
         if (p[0] < -80 || p[0] > W + 80 || p[1] < -80 || p[1] > H + 80) continue;
-        const tw = ctx.measureText(c.nom).width;
+        const kw = c.nom + '|' + midaFont;
+        let tw = _mtCache.get(kw);
+        if (tw === undefined) {
+            if (_mtCache.size > 6000) _mtCache.clear();
+            tw = ctx.measureText(c.nom).width;
+            _mtCache.set(kw, tw);
+        }
         const rect = [p[0] - midaPunt - 1, p[1] - midaFont / 2 - 1,
                       p[0] + midaPunt + 4 + tw, p[1] + midaFont / 2 + 1];
         if (xoca(rect)) continue;
@@ -3256,8 +3304,8 @@ async function inicialitzar() {
     construirGraellaHores();
     mostrarHora(idx0);
     actualitzarLlegenda();
-    await Promise.all([carregarNoms(), carregarLinies(), carregarComarques()]);
     await Promise.all([carregarNoms(), carregarLinies()]);
+    if (window.MOSTRAR_COMARQUES) carregarComarques();
     if (_cfg.ciutat) {
         const q = nrm(_cfg.ciutat);
         _ciutatSel = _ciutats.find(c => c._n === q) || null;
@@ -3306,6 +3354,7 @@ window.getHoraInfo = function (idx) {
     return { hora: h.hora, dia: h.dia, variables: h.variables };
 };
 window.getCurIdx = function () { return curIdx; };
+window.getCapa3DActiva = function () { return _capa3DActiva; };
 window.getTotalHores = function () { return totesLesHores.length; };
 window.esAnimacioActiva = function () { return _animacioActiva; };
 window.getVelocitatAnimacio = function () { return VELOCITAT_ANIMACIO; };

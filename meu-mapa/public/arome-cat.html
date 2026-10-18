@@ -12,25 +12,35 @@
 
 <link rel="icon" type="image/png" href="img/favicon.png">
 <link rel="icon" href="/favicon.ico" sizes="any">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" media="print" onload="this.media='all'">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.0.4/pako.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/msgpack-lite@0.1.26/dist/msgpack.min.js"></script>
-<script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.0.4/pako.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/msgpack-lite@0.1.26/dist/msgpack.min.js"></script>
 
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-QDWCZ0Z9XF"></script>
 <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){ dataLayer.push(arguments); }
-    gtag('js', new Date());
-    gtag('config', 'G-QDWCZ0Z9XF');
+window.dataLayer = window.dataLayer || [];
+function gtag(){ dataLayer.push(arguments); }
+window.addEventListener('load', function () {
+    var go = function () {
+        var g = document.createElement('script');
+        g.async = true;
+        g.src = 'https://www.googletagmanager.com/gtag/js?id=G-QDWCZ0Z9XF';
+        document.head.appendChild(g);
+        gtag('js', new Date());
+        gtag('config', 'G-QDWCZ0Z9XF');
+        var a = document.createElement('script');
+        a.async = true;
+        a.crossOrigin = 'anonymous';
+        a.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1675456750465139';
+        document.head.appendChild(a);
+    };
+    if ('requestIdleCallback' in window) requestIdleCallback(go, { timeout: 4000 });
+    else setTimeout(go, 2500);
+});
 </script>
-
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1675456750465139" crossorigin="anonymous"></script>
-
 <style>
 /* ═══════════════════════════════════════════════════════════════════
    VARIABLES GLOBALS
@@ -79,12 +89,7 @@ html, body {
     touch-action: none;
 }
 
-body::before {
-    content: ""; position: fixed; inset: 0; z-index: 400; pointer-events: none;
-    background:
-        linear-gradient(180deg, rgba(13, 17, 23, 0.35), transparent 10%),
-        linear-gradient(0deg, rgba(13, 17, 23, 0.35), transparent 12%);
-}
+
 
 /* ═══════════════════════════════════════════════════════════════════
    BÀNER ADMIN
@@ -109,8 +114,6 @@ body::before {
     text-transform: uppercase;
     pointer-events: none;
     box-shadow: 0 4px 16px rgba(255, 215, 0, 0.15);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
     animation: adminBadgeIn 0.3s ease-out;
 }
 .admin-badge.visible { display: inline-flex; }
@@ -233,11 +236,9 @@ body::before {
     padding: 7px 16px;
     border: 1px solid var(--line-strong);
     border-radius: 999px;
-    background: rgba(13, 17, 23, 0.88);
+    background: rgba(13, 17, 23, 0.95);
     color: var(--text);
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(20px) saturate(150%);
-    -webkit-backdrop-filter: blur(20px) saturate(150%);
     font-size: 12.5px; font-weight: 600; letter-spacing: 0.2px;
     pointer-events: none; white-space: nowrap;
     transition: left 0.25s cubic-bezier(0.4, 0, 0.2, 1);
@@ -254,10 +255,9 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
     padding: 7px 14px;
     border: 1px solid var(--line-strong);
     border-radius: 999px;
-    background: rgba(13, 17, 23, 0.88);
+    background: rgba(13, 17, 23, 0.95);
     color: var(--text-2);
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(20px) saturate(150%);
     font-size: 11.5px; font-weight: 500;
     pointer-events: none; white-space: nowrap;
 }
@@ -291,14 +291,13 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
     top: calc(14px + var(--safe-top));
     left: calc(14px + var(--safe-left));
     z-index: 800;
-    background: rgba(13, 17, 23, 0.9);
+    background: rgba(13, 17, 23, 0.96);
     color: var(--text);
     border: 1px solid var(--line-strong);
     border-radius: 8px;
     padding: 8px 12px;
     font-size: 12px; font-weight: 600;
     cursor: pointer;
-    backdrop-filter: blur(12px);
     display: none; align-items: center; gap: 8px;
     font-family: inherit;
     transition: all 0.15s ease;
@@ -767,8 +766,6 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
     border: 1px solid rgba(255, 215, 0, 0.5);
     border-radius: 10px;
     box-shadow: 0 8px 28px rgba(0, 0, 0, 0.55);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
     font-family: 'Inter', system-ui, sans-serif;
     color: var(--text);
     max-width: calc(100vw - 24px);
@@ -821,15 +818,13 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
     right: calc(16px + var(--safe-right));
     bottom: calc(80px + var(--safe-bottom));
     width: 170px;
-    background: rgba(15, 20, 32, 0.88);
+    background: rgba(15, 20, 32, 0.95);
     border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 8px;
     padding: 8px 10px;
     font: 600 11px 'Inter', system-ui, sans-serif;
     color: #e8eef8;
     z-index: 510;
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
     pointer-events: none;
 }
@@ -853,10 +848,8 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
     z-index: 900;
     height: 48px; display: flex; align-items: center; gap: 6px;
     padding: 4px; border: 1px solid var(--line); border-radius: 10px;
-    background: rgba(13, 17, 23, 0.88);
+    background: rgba(13, 17, 23, 0.95);
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(20px) saturate(150%);
-    -webkit-backdrop-filter: blur(20px) saturate(150%);
     transition: left 0.25s cubic-bezier(0.4, 0, 0.2, 1),
                 transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
                 opacity 0.25s ease;
@@ -960,11 +953,9 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
     max-width: 220px; max-height: 45vh;
     z-index: 500; border-radius: 6px; display: none;
     pointer-events: none;
-    background: rgba(13, 17, 23, 0.85);
+    background: rgba(13, 17, 23, 0.94);
     padding: 6px; border: 1px solid var(--line);
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
 }
 
 #loading_overlay {
@@ -993,8 +984,6 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
     font-family: 'Inter', system-ui, sans-serif;
     font-size: 12px; color: var(--text-2);
     min-width: 200px;
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
 }
 .menu-ctx-cap {
     padding: 8px 12px; font-size: 10px; color: var(--muted);
@@ -1056,7 +1045,6 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
     position: fixed; inset: 0; z-index: 10000;
     display: none; align-items: center; justify-content: center;
     background: rgba(0, 0, 0, 0.75);
-    backdrop-filter: blur(4px);
     padding: 16px;
 }
 .modal-overlay.active { display: flex; }
@@ -1347,6 +1335,7 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
+#dock, #panell-pro, .llegenda-mapa, .llegenda-css { contain: layout paint; }
 </style>
 </head>
 <body>
@@ -1860,8 +1849,6 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
     window.addEventListener('tc:login', async (e) => {
         await carregarPlaServidor(e.detail || window._firebaseUser);
         actualitzarUIPla();
-        setTimeout(actualitzarUIPla, 600);
-        setTimeout(actualitzarUIPla, 1500);
     });
     window.addEventListener('tc:logout', () => {
         plaActual = 'gratuït';
@@ -1887,7 +1874,20 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
     });
 
     function iniciar() {
-        obs.observe(document.body, { childList: true, subtree: true });
+        var g = document.getElementById('fh_grid');
+        if (g) obs.observe(g, { childList: true });
+        var pp0 = document.getElementById('panell-pro');
+        if (pp0) obs.observe(pp0, { childList: true, subtree: true });
+        else {
+            new MutationObserver(function (m, o) {
+                var pp = document.getElementById('panell-pro');
+                if (!pp) return;
+                obs.observe(pp, { childList: true, subtree: true });
+                o.disconnect();
+                clearTimeout(tObs);
+                tObs = setTimeout(actualitzarUIPla, 120);
+            }).observe(document.body, { childList: true });
+        }
         setTimeout(actualitzarUIPla, 500);
     }
     if (document.readyState === 'loading') {
@@ -1945,18 +1945,18 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
     });
 </script>
 
-<script src="js/mapapngs.js"></script>
-<script src="js/gfspngs.js"></script>
-<script src="js/models.js"></script>
-<script src="dades/altitude.js"></script>
-<script src="dades/paletes.js"></script>
-<script src="js/skew-t-engine.js"></script>
-<script src="js/skewt.js"></script>
-<script src="js/valor.js"></script>
-<script src="js/outlook.js"></script>
-<script src="dades/sars-panell.js"></script>
-<script src="js/novetats.js"></script>
-<script src="js/actualitzacio.js"></script>
+<script defer src="js/mapapngs.js"></script>
+<script defer src="js/gfspngs.js"></script>
+<script defer src="js/models.js"></script>
+<script defer src="dades/altitude.js"></script>
+<script defer src="dades/paletes.js"></script>
+<script defer src="js/skew-t-engine.js"></script>
+<script defer src="js/skewt.js"></script>
+<script defer src="js/valor.js"></script>
+<script defer src="js/outlook.js"></script>
+<script defer src="dades/sars-panell.js"></script>
+<script defer src="js/novetats.js"></script>
+<script defer src="js/actualitzacio.js"></script>
 
 <script>
 (function () {
@@ -1991,8 +1991,8 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
         }
 
         let teBarb = false;
-        if (typeof VARS_AMB_BARBES !== 'undefined' && window._capa3DActiva) {
-            teBarb = VARS_AMB_BARBES.has(window._capa3DActiva.var);
+        if (typeof VARS_AMB_BARBES !== 'undefined' && (window.getCapa3DActiva && window.getCapa3DActiva())) {
+            teBarb = VARS_AMB_BARBES.has((window.getCapa3DActiva && window.getCapa3DActiva()).var);
         }
         if (teBarb) {
             btnBarb.disabled = false;
@@ -2035,6 +2035,11 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
         if (btnVent) btnVent.addEventListener('click', () => {
             if (btnVent.disabled) return;
             window.MOSTRAR_VENT = !window.MOSTRAR_VENT;
+            if (window.MOSTRAR_VENT) {
+                var a3v = window.getCapa3DActiva && window.getCapa3DActiva();
+                if (a3v && typeof window.mostrarCapa3D === 'function') window.mostrarCapa3D(a3v.var, a3v.nivell);
+                else if (typeof refrescarVentIsolines === 'function') refrescarVentIsolines();
+            }
             if (typeof guardarCapes === 'function') guardarCapes();
             if (typeof programarRedibuix === 'function') programarRedibuix();
             window.actualitzarControlsDock();
@@ -2043,6 +2048,10 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
         if (btnBarb) btnBarb.addEventListener('click', () => {
             if (btnBarb.disabled) return;
             window.MOSTRAR_BARBES = !window.MOSTRAR_BARBES;
+            if (window.MOSTRAR_BARBES && window.getCapa3DActiva && window.getCapa3DActiva()) {
+                var a3 = window.getCapa3DActiva();
+                if (typeof window.mostrarCapa3D === 'function') window.mostrarCapa3D(a3.var, a3.nivell);
+            }
             if (typeof guardarCapes === 'function') guardarCapes();
             if (typeof programarRedibuix === 'function') programarRedibuix();
             window.actualitzarControlsDock();
@@ -2247,6 +2256,7 @@ window.openProfile = async function () {
         const info = await carregarInfoRun();
         if (info) pintarInfoRun(info);
         setInterval(async () => {
+            if (document.hidden) return;
             const nou = await carregarInfoRun();
             if (nou) pintarInfoRun(nou);
         }, 15 * 60 * 1000);
@@ -2411,7 +2421,13 @@ window.openProfile = async function () {
     async function inicialitzar() {
         if (window._firebaseUser) actualitzarUIUsuari(window._firebaseUser);
         inicialitzarInfoRun();
-        setTimeout(inicialitzarPusher, 1500);
+        setTimeout(function () {
+            if (typeof Pusher !== 'undefined') return inicialitzarPusher();
+            var s = document.createElement('script');
+            s.src = 'https://js.pusher.com/8.2.0/pusher.min.js';
+            s.onload = inicialitzarPusher;
+            document.head.appendChild(s);
+        }, 4000);
     }
 
     if (document.readyState === 'loading') {
