@@ -1571,48 +1571,40 @@ async function obtenirSondeigPunt(hora, dia, lat, lon) {
 async function carregarVent3D(hora, dia, nivell) {
     const clau = `${String(hora).padStart(2, '0')}_${dia}_${nivell}`;
     if (_cacheVent3D.has(clau)) return _cacheVent3D.get(clau);
-    const sondeig = await carregarSondeig(hora, dia);
-    if (!sondeig || !sondeig.pressions) return null;
-    const idxNivell = sondeig.pressions.indexOf(nivell);
-    if (idxNivell < 0) return null;
-    const u_flat = sondeig.u[idxNivell] || [];
-    const v_flat = sondeig.v[idxNivell] || [];
-    if (!u_flat.length || u_flat.length !== v_flat.length) return null;
-    let lats = sondeig.lats;
-    let lons = sondeig.lons;
-    if (!lats || !lons) {
-        const ext = window._extentManifest;
-        if (!ext) return null;
-        const nPunts = u_flat.length;
-        let nLon = 130, nLat = 120;
-        const candidats = [[130, 120], [128, 122], [120, 130], [156, 100], [156, 120]];
-        for (const [nL, nT] of candidats) {
-            if (nL * nT === nPunts) { nLon = nL; nLat = nT; break; }
-        }
-        if (nLon * nLat !== nPunts) {
-            for (let nL = 100; nL <= 200; nL++) {
-                if (nPunts % nL === 0) {
-                    const nT = nPunts / nL;
-                    if (nT > 50 && nT < 250) { nLon = nL; nLat = nT; break; }
+    const url = `${BASE_3D}vent3d_${clau}.bin`;
+    if (_haFallatFa(url)) return null;
+    return unic(url, async () => {
+        try {
+            const ext = window._extentManifest;
+            if (!ext) return null;
+            const r = await fetchFresc(url);
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            const a = new Int16Array(await r.arrayBuffer());
+            const nLat = a[0], nLon = a[1], n = nLat * nLon;
+            const dx = (ext.lon_e - ext.lon_w) / nLon;
+            const dy = (ext.lat_n - ext.lat_s) / nLat;
+            const lons = Array.from({ length: nLon }, (_, i) => ext.lon_w + dx * (i + 0.5));
+            const lats = Array.from({ length: nLat }, (_, i) => ext.lat_s + dy * (i + 0.5));
+            const u = [], v = [];
+            for (let i = 0; i < nLat; i++) {
+                const ru = new Array(nLon), rv = new Array(nLon);
+                for (let j = 0; j < nLon; j++) {
+                    const x = a[2 + i * nLon + j];
+                    const y = a[2 + n + i * nLon + j];
+                    ru[j] = x === -32768 ? null : x / 10;
+                    rv[j] = y === -32768 ? null : y / 10;
                 }
+                u.push(ru); v.push(rv);
             }
+            const camp = { lats, lons, u, v, _nivell: nivell };
+            _cacheVent3D.set(clau, camp);
+            _llevarCache(_cacheVent3D, MAX_CACHE_VENT);
+            return camp;
+        } catch (e) {
+            _marcarFallada(url);
+            return null;
         }
-        lons = Array.from({length: nLon}, (_, i) =>
-            ext.lon_w + (i / (nLon - 1)) * (ext.lon_e - ext.lon_w));
-        lats = Array.from({length: nLat}, (_, i) =>
-            ext.lat_n - (i / (nLat - 1)) * (ext.lat_n - ext.lat_s));
-    }
-    const nLon = lons.length;
-    const nLat = lats.length;
-    const u = [], v = [];
-    for (let i = 0; i < nLat; i++) {
-        u.push(u_flat.slice(i * nLon, (i + 1) * nLon));
-        v.push(v_flat.slice(i * nLon, (i + 1) * nLon));
-    }
-    const camp = { lats, lons, u, v, _nivell: nivell };
-    _cacheVent3D.set(clau, camp);
-    _llevarCache(_cacheVent3D, MAX_CACHE_VENT);
-    return camp;
+    });
 }
 
 // Llegeix i ELIMINA l'entrada global creada per un fitxer .js de dades (evita fuites de memòria)
@@ -2466,17 +2458,27 @@ function actualitzarDades() {
     });
 }
 
+
+
+function urlHora(idx) {
+    const h = totesLesHores[idx];
+    if (!h) return null;
+    if (_capa3DActiva) {
+        return `${BASE_3D}3d_${String(h.hora).padStart(2,'0')}_${h.dia}_${_capa3DActiva.var}_${_capa3DActiva.nivell}.png`;
+    }
+    return construirUrlPng(idx, variableActiva);
+}
+
 function precarregarSeguent() {
-    if (!totesLesHores.length || _capa3DActiva) return;
+    if (!totesLesHores.length) return;
     const vius = new Set();
-    const actual = construirUrlPng(curIdx, variableActiva);
+    const actual = urlHora(curIdx);
     if (actual) vius.add(actual);
     for (let d = 1; d <= 3; d++) {
-        const u = construirUrlPng((curIdx + d) % totesLesHores.length, variableActiva);
+        const u = urlHora((curIdx + d) % totesLesHores.length);
         if (!u) continue;
         vius.add(u);
         const im = obtenirImatge(u);
-        // Processa negre→blanc en temps mort, perquè el canvi d'hora sigui immediat
         if (NEGRE_A_BLANC && !_cacheDadesBlanques.has(u) && !im.__preparat) {
             im.__preparat = true;
             quanCarregada(im, () => {
@@ -3156,7 +3158,7 @@ function mostrarHora(idx) {
     resaltarHoraEnGrid(idx);
     actualitzarEtiquetaHora();
     precarregarSeguent();
-    refrescarVentIsolines();
+    if (!_capa3DActiva) refrescarVentIsolines();
     return true;
 }
 
