@@ -2902,6 +2902,11 @@ function dibuixarFletxa(ctx, x, y, ang, mida) {
 }
 function dibuixarVent() {
     if (!canvasVent) return;
+
+    // Si estamos en modo animado, no dibujamos las líneas estáticas
+    if (window.VENT_ANIMAT) {
+        return; 
+    }
     const { ctx, W, H } = prepararCtx(canvasVent);
 
     // 1) Barbes de storm motion → prioritat absoluta
@@ -3449,5 +3454,270 @@ if (document.readyState === 'loading') {
 } else {
     inicialitzar();
 }
+
+
+// ═══════════════════════════════════════════════════════════════════
+//  SISTEMA DE PARTÍCULAS DE VIENTO (estilo Windy, denso y sin lag)  — v2
+//
+//  Sustituye TODO el bloque de partículas del final de mapapngs.js
+//  (justo antes del console.log final).
+//
+//  Cambios respecto a la v1:
+//   - Renombrado VENT → PART_CFG (window.VENT lo usan los .js de datos).
+//   - Detecta cambio de datos por referencia (antes comparaba strings
+//     y nunca se enteraba de que _ventActual era otro objeto).
+//   - Lee W/H/dpr en cada frame (antes quedaban fijos al iniciar).
+//   - Durante un gesto (pan/zoom/volarA) se congela y NO reconstruye
+//     nada; reconstruye una sola vez al terminar.
+//   - Un cambio de hora solo rehace el campo; las partículas siguen.
+// ═══════════════════════════════════════════════════════════════════
+
+let _animVentRAF = null;
+let _vf = null;                  // campo de viento en pantalla
+let _vfRef = undefined;          // referencia de _ventActual con la que se construyó
+let _vfVx = NaN, _vfVy = NaN, _vfVk = NaN;
+
+const PART_CFG = {
+    MAX_PART: ES_MOBIL ? 8000 : 16000,
+    MIN_PART: ES_MOBIL ? 1500 : 3500,
+    DENSITAT: ES_MOBIL ? 1 / 170 : 1 / 100, // partículas por px² (sube = más denso)
+    CELL: ES_MOBIL ? 6 : 4,                 // px por celda del campo
+    FADE: 0.10,                             // 0.06 = estelas largas, 0.2 = cortas
+    VEL_MIN: 0.15,                          // px/frame con viento flojo
+    VEL_FACTOR: 1.4,                        // px/frame extra con viento fuerte
+    MAG_MAX: 30,
+    VIDA_MIN: 40,
+    VIDA_VAR: 70,
+    NB: 4,                                  // buckets de velocidad
+    ALFES: [0.28, 0.45, 0.65, 0.9],         // más rápido = más opaco
+    COLOR: '0, 0, 0',                       // rgb de las líneas
+    AMPLADA: 1.0,
+    TARGET_MS: 17                           // objetivo para calidad adaptativa
+};
+
+// ───────────────────────────────────────────────────────────────────
+//  Construye la rejilla de viento en coordenadas de pantalla
+// ───────────────────────────────────────────────────────────────────
+function construirCampVent(W, H) {
+    const vd = _ventActual;
+    const ext = window._extentManifest;
+    if (!vd || !vd.u || !vd.v || !ext) { _vf = null; return; }
+
+    const Nlat = vd.lats.length, Nlon = vd.lons.length;
+    if (Nlat < 2 || Nlon < 2) { _vf = null; return; }
+
+    const lat0 = vd.lats[0], lon0 = vd.lons[0];
+    const dLat = vd.lats[Nlat - 1] - lat0, dLon = vd.lons[Nlon - 1] - lon0;
+    if (!dLat || !dLon) { _vf = null; return; }
+
+    const { sw, sh } = dimensionsStage();
+    if (!sw || !sh) { _vf = null; return; }
+    const signeV = VENT_INVERTIR_V ? -1 : 1;
+
+    const cs = PART_CFG.CELL;
+    const nx = Math.ceil(W / cs), ny = Math.ceil(H / cs);
+    const n = nx * ny;
+
+    if (!_vf || _vf.n !== n || _vf.nx !== nx) {
+        _vf = { nx, ny, n, cs, u: new Float32Array(n), v: new Float32Array(n), b: new Int8Array(n) };
+    }
+    const fu = _vf.u, fv = _vf.v, fb = _vf.b;
+
+    const kLon = (ext.lon_e - ext.lon_w) / sw;
+    const kLat = (ext.lat_n - ext.lat_s) / sh;
+    const iLon = (Nlon - 1) / dLon, iLat = (Nlat - 1) / dLat;
+    const maxX = Nlon - 1, maxY = Nlat - 1;
+    const magMax = PART_CFG.MAG_MAX, nb = PART_CFG.NB;
+
+    for (let cy = 0; cy < ny; cy++) {
+        const py = (cy + 0.5) * cs;
+        const ys = (py - vista.y) / vista.k;
+        for (let cx = 0; cx < nx; cx++) {
+            const idx = cy * nx + cx;
+            const px = (cx + 0.5) * cs;
+            const xs = (px - vista.x) / vista.k;
+
+            fb[idx] = -1; fu[idx] = 0; fv[idx] = 0;
+            if (xs < 0 || xs > sw || ys < 0 || ys > sh) continue;
+
+            const lon = ext.lon_w + xs * kLon;
+            const lat = ext.lat_n - ys * kLat;
+            const fx = (lon - lon0) * iLon;
+            const fy = (lat - lat0) * iLat;
+            if (fx < 0 || fx > maxX || fy < 0 || fy > maxY) continue;
+
+            const x0 = Math.min(Nlon - 2, fx | 0), y0 = Math.min(Nlat - 2, fy | 0);
+            const tx = fx - x0, ty = fy - y0;
+            const rU0 = vd.u[y0], rU1 = vd.u[y0 + 1], rV0 = vd.v[y0], rV1 = vd.v[y0 + 1];
+            const u00 = rU0[x0], u10 = rU0[x0 + 1], u01 = rU1[x0], u11 = rU1[x0 + 1];
+            const v00 = rV0[x0], v10 = rV0[x0 + 1], v01 = rV1[x0], v11 = rV1[x0 + 1];
+            if (u00 == null || u10 == null || u01 == null || u11 == null ||
+                v00 == null || v10 == null || v01 == null || v11 == null) continue;
+
+            const u = (1 - ty) * ((1 - tx) * u00 + tx * u10) + ty * ((1 - tx) * u01 + tx * u11);
+            const v = signeV * ((1 - ty) * ((1 - tx) * v00 + tx * v10) + ty * ((1 - tx) * v01 + tx * v11));
+            const mag = Math.sqrt(u * u + v * v);
+
+            let bucket = ((mag / (magMax * 0.5)) * nb) | 0;
+            if (bucket > nb - 1) bucket = nb - 1;
+            fb[idx] = bucket;
+
+            if (mag < 0.01) continue; // calma: velocidad 0
+
+            let vel = PART_CFG.VEL_MIN + (Math.min(mag, magMax) / magMax) * PART_CFG.VEL_FACTOR;
+            if (mag < 0.3) vel *= mag / 0.3; // suaviza las calmas
+            fu[idx] = (u / mag) * vel;
+            fv[idx] = (-v / mag) * vel;      // eje Y de pantalla invertido
+        }
+    }
+}
+
+// ───────────────────────────────────────────────────────────────────
+//  Iniciar animación
+// ───────────────────────────────────────────────────────────────────
+window.iniciarAnimacioVent = function () {
+    if (_animVentRAF) return;
+
+    const canvas = canvasVent;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+
+    const MAXP = PART_CFG.MAX_PART, NB = PART_CFG.NB;
+    const px = new Float32Array(MAXP), py = new Float32Array(MAXP);
+    const ox = new Float32Array(MAXP), oy = new Float32Array(MAXP);
+    const age = new Uint16Array(MAXP), vida = new Uint16Array(MAXP);
+    const bk = new Uint8Array(MAXP); // bucket de dibujo (255 = no dibujar)
+
+    let W = 0, H = 0, dpr = 1;
+    let activas = PART_CFG.MIN_PART;
+
+    function reaparecer(i, escalonar) {
+        let x = 0, y = 0;
+        for (let t = 0; t < 4; t++) {           // intenta caer en una celda válida
+            x = Math.random() * W; y = Math.random() * H;
+            if (!_vf) break;
+            const c = ((y / _vf.cs) | 0) * _vf.nx + ((x / _vf.cs) | 0);
+            if (_vf.b[c] >= 0) break;
+        }
+        px[i] = ox[i] = x; py[i] = oy[i] = y;
+        vida[i] = PART_CFG.VIDA_MIN + Math.random() * PART_CFG.VIDA_VAR;
+        age[i] = escalonar ? Math.random() * vida[i] : 0;
+        bk[i] = 255;
+    }
+
+    function reiniciarTodo() {
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (let i = 0; i < MAXP; i++) reaparecer(i, true);
+    }
+
+    // Fuerza reconstrucción en el primer frame
+    _vfRef = undefined; _vfVx = _vfVy = _vfVk = NaN; _vf = null;
+
+    let tPrev = performance.now();
+    let emaMs = 16, frames = 0;
+
+    function loop(t) {
+        if (!window.VENT_ANIMAT) { _animVentRAF = null; return; }
+
+        const dtReal = Math.min(t - tPrev, 50); // evita saltos al volver a la pestaña
+        tPrev = t;
+
+        // Durante un gesto el canvas lleva transform CSS: congelado, sin reconstruir
+        if (_baseVista) { _animVentRAF = requestAnimationFrame(loop); return; }
+
+        const nW = parseFloat(canvas.style.width) || 0;
+        const nH = parseFloat(canvas.style.height) || 0;
+        if (!nW || !nH) { _animVentRAF = requestAnimationFrame(loop); return; }
+        const nDpr = Math.min(window.devicePixelRatio || 1, 2);
+
+        const midaCanvi = nW !== W || nH !== H || nDpr !== dpr;
+        const vistaCanvi = midaCanvi || vista.x !== _vfVx || vista.y !== _vfVy || vista.k !== _vfVk;
+        const dadesCanvi = _ventActual !== _vfRef;
+
+        if (vistaCanvi || dadesCanvi) {
+            W = nW; H = nH; dpr = nDpr;
+            _vfVx = vista.x; _vfVy = vista.y; _vfVk = vista.k;
+            _vfRef = _ventActual;
+            construirCampVent(W, H);
+            if (midaCanvi) {
+                activas = Math.max(PART_CFG.MIN_PART, Math.min(MAXP, (W * H * PART_CFG.DENSITAT) | 0));
+            }
+            // Solo se reinicia el canvas si cambió la vista; un cambio de hora
+            // mantiene las partículas y simplemente cambian de campo.
+            if (vistaCanvi) reiniciarTodo();
+        }
+        if (!_vf) { _animVentRAF = requestAnimationFrame(loop); return; }
+
+        const k = dtReal / 16.7;                // movimiento independiente de los FPS
+        emaMs = emaMs * 0.9 + dtReal * 0.1;
+
+        // Calidad adaptativa cada 30 frames
+        if (++frames % 30 === 0) {
+            if (emaMs > PART_CFG.TARGET_MS * 1.3) activas = Math.max(PART_CFG.MIN_PART, (activas * 0.88) | 0);
+            else if (emaMs < PART_CFG.TARGET_MS * 1.05) activas = Math.min(MAXP, Math.ceil(activas * 1.05));
+        }
+
+        // Desvanecer lo anterior (genera las estelas)
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.fillStyle = 'rgba(0,0,0,' + PART_CFG.FADE + ')';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        // ── Actualizar partículas ──
+        const fu = _vf.u, fv = _vf.v, fb = _vf.b, nx = _vf.nx, inv = 1 / _vf.cs;
+        for (let i = 0; i < activas; i++) {
+            const x = px[i], y = py[i];
+            const c = ((y * inv) | 0) * nx + ((x * inv) | 0);
+
+            if (!(fb[c] >= 0) || ++age[i] > vida[i]) { reaparecer(i, false); continue; }
+
+            const nxp = x + fu[c] * k, nyp = y + fv[c] * k;
+            if (!(nxp >= 0 && nxp < W && nyp >= 0 && nyp < H)) { reaparecer(i, false); continue; }
+
+            ox[i] = x; oy[i] = y;
+            px[i] = nxp; py[i] = nyp;
+            bk[i] = fb[c];
+        }
+
+        // ── Dibujar por buckets (4 stroke() en total) ──
+        ctx.lineWidth = PART_CFG.AMPLADA;
+        for (let b = 0; b < NB; b++) {
+            ctx.beginPath();
+            for (let i = 0; i < activas; i++) {
+                if (bk[i] !== b) continue;
+                ctx.moveTo(ox[i], oy[i]);
+                ctx.lineTo(px[i], py[i]);
+            }
+            ctx.strokeStyle = 'rgba(' + PART_CFG.COLOR + ',' + PART_CFG.ALFES[b] + ')';
+            ctx.stroke();
+        }
+
+        _animVentRAF = requestAnimationFrame(loop);
+    }
+
+    tPrev = performance.now();
+    _animVentRAF = requestAnimationFrame(loop);
+};
+
+// ───────────────────────────────────────────────────────────────────
+//  Detener animación
+// ───────────────────────────────────────────────────────────────────
+window.aturarAnimacioVent = function () {
+    if (_animVentRAF) {
+        cancelAnimationFrame(_animVentRAF);
+        _animVentRAF = null;
+    }
+    if (canvasVent) {
+        const ctx = canvasVent.getContext('2d');
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.clearRect(0, 0, canvasVent.width, canvasVent.height);
+    }
+};
+
+// Llámala si cambias los datos de _ventActual "in place" (misma referencia)
+window.invalidarCampVent = function () { _vfRef = {}; };
 
 console.log('✅ mapapngs.js carregat');
