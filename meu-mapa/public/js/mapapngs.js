@@ -200,16 +200,15 @@ window.DENSITAT_CIUTATS_ACTIVA = 'dens';
     }
 })();
 
-// ─── Paràmetres visuals ────────────────────────────────────────────
 const VENT_CFG = {
-    color: 'rgba(0,0,0,0.72)',
-    amplada: 0.7,
-    separacio: ES_MOBIL ? 45 : 34,
-    longitudPas: 3.0,
-    maxPassos: ES_MOBIL ? 28 : 40,
-    gridVisitat: 10,
-    midaFletxa: 5.0,
-    angleFletxa: 0.45,
+    color: 'rgba(0,0,0,0.6)',       // Un poco más transparente (se integra mejor)
+    amplada: 0.7,                   // Líneas finas y elegantes
+    separacio: ES_MOBIL ? 18 : 14,  // Densidad de líneas
+    longitudPas: 2.5,
+    maxPassos: ES_MOBIL ? 45 : 80,
+    gridVisitat: 6,
+    midaFletxa: 5.5,                // Un poco más largas...
+    angleFletxa: 0.35,              // ...pero con un ángulo más cerrado (más estilizadas)
 };
 
 // Barbes de storm motion (nusos)
@@ -3000,18 +2999,47 @@ function dibuixarVent() {
                 const gx = Math.floor(linia[i][0] / GRID), gy = Math.floor(linia[i][1] / GRID);
                 if (gy >= 0 && gy < gh && gx >= 0 && gx < gw) visitat[gy * gw + gx] = 1;
             }
+            // 1. Dibujamos la línea de flujo continua
             ctx.beginPath();
             ctx.moveTo(linia[0][0], linia[0][1]);
-            for (let i = 1; i < linia.length; i++) ctx.lineTo(linia[i][0], linia[i][1]);
+            for (let i = 1; i < linia.length; i++) {
+                ctx.lineTo(linia[i][0], linia[i][1]);
+            }
             ctx.stroke();
-            if (linia.length > 12) {
-                [0.4, 0.75].forEach(f => {
-                    const idx = Math.floor(linia.length * f);
-                    if (idx < 1 || idx >= linia.length) return;
-                    const p0 = linia[idx - 1], p1 = linia[idx];
-                    dibuixarFletxa(ctx, p1[0], p1[1],
-                        Math.atan2(p1[1] - p0[1], p1[0] - p0[0]), VENT_CFG.midaFletxa);
-                });
+
+            // 2. Añadimos las puntas de flecha de forma elegante
+            if (linia.length > 8) {
+                // Calculamos cuántas flechas poner según la longitud de la línea
+                // (una flecha cada ~40 píxeles de longitud, mínimo 1, máximo 4)
+                const numFletxes = Math.min(4, Math.max(1, Math.floor(linia.length / 15)));
+                
+                for (let f = 1; f <= numFletxes; f++) {
+                    // Distribuimos las flechas uniformemente a lo largo de la línea
+                    const idx = Math.floor((f / (numFletxes + 1)) * linia.length);
+                    
+                    // Aseguramos que el índice esté dentro de los límites
+                    if (idx < 2 || idx >= linia.length - 2) continue;
+                    
+                    const p0 = linia[idx - 1];
+                    const p1 = linia[idx];
+                    const p2 = linia[idx + 1];
+                    
+                    // Calculamos el ángulo usando el punto anterior y el siguiente para suavizar
+                    const ang = Math.atan2(p2[1] - p0[1], p2[0] - p0[0]);
+                    
+                    // Tamaño de la flecha (fijo y pequeño para que no destaque)
+                    const mida = 4.5; 
+                    const angleObertura = 0.45; // Ángulo de la V (más cerrado = más elegante)
+                    
+                    // Dibujamos la flecha
+                    ctx.beginPath();
+                    ctx.moveTo(p1[0] - mida * Math.cos(ang - angleObertura), 
+                               p1[1] - mida * Math.sin(ang - angleObertura));
+                    ctx.lineTo(p1[0], p1[1]);
+                    ctx.lineTo(p1[0] - mida * Math.cos(ang + angleObertura), 
+                               p1[1] - mida * Math.sin(ang + angleObertura));
+                    ctx.stroke();
+                }
             }
         }
     }
@@ -3344,7 +3372,7 @@ async function inicialitzar() {
         }
         return;
     }
-    imgFons.src = ambCb(PNG_BASE + 'fons.png');
+    imgFons.src = ambCb(_basePath + 'dades/relleu.png');
     imgVores.src = ambCb(PNG_BASE + 'vores.png');
     ajustarVista(false);
     restaurarVista();
