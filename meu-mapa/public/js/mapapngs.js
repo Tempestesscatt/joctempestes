@@ -3247,6 +3247,9 @@ function construirGraellaHores() {
     const container = document.createElement('div');
     container.className = 'fh-scroll';
     totesLesHores.forEach((item, i) => {
+        // AÑADE ESTA LÍNEA PARA SALTARTE LAS VACÍAS:
+        if (!item.variables || item.variables.length === 0) return; 
+
         const hora = String(item.hora).padStart(2, '0');
         const dia = item.dia;
         let classeDia = '';

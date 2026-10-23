@@ -90,16 +90,16 @@ function fetchFresc(url, opts) {
 window.MOSTRAR_VENT = true;
 window.MOSTRAR_ISOLINIES = false;
 window.MOSTRAR_CIUTATS = true;
-const PROPS_CAPES = ['MOSTRAR_VENT', 'MOSTRAR_ISOLINIES', 'MOSTRAR_CIUTATS'];
+const PROPS_CAPES_GFS = ['MOSTRAR_VENT', 'MOSTRAR_ISOLINIES', 'MOSTRAR_CIUTATS'];
 
 if (_cfg.capes) {
-    for (const p of PROPS_CAPES) {
-        if (typeof _cfg.capes[p] === 'boolean') window[p] = _cfg.capes[p];
-    }
+for (const p of PROPS_CAPES_GFS) {
+    if (typeof _cfg.capes[p] === 'boolean') window[p] = _cfg.capes[p];
+}
 }
 function guardarCapes() {
     const o = {};
-    for (const p of PROPS_CAPES) o[p] = !!window[p];
+    for (const p of PROPS_CAPES_GFS) o[p] = !!window[p];
     cfgGuardar({ capes: o });
 }
 
