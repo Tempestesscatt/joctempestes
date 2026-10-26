@@ -1,0 +1,5913 @@
+{
+  "generat": "2026-10-26T14:03:48+01:00",
+  "idioma": "ca",
+  "font_dades": "AROME (alta resolució) + GFS (Open-Meteo)",
+  "model_ia": "gemini-3.1-flash-lite",
+  "periode": {
+    "inici": "2026-10-26",
+    "fi": "2026-11-10"
+  },
+  "resum": {
+    "titol": "Estabilitat inicial seguida d'un refredament a mitjan novembre",
+    "resum_general": "Els propers dies estaran marcats per una notable estabilitat atmosfèrica, amb temperatures suaus per l'època. Cal tenir en compte que les previsions a curt termini es basen en el model AROME, que ofereix una alta fiabilitat per a les primeres 48 hores.",
+    "setmana_1": {
+      "resum": "La setmana començarà amb temps assolellat i temperatures agradables a tot el territori. No s'esperen precipitacions significatives fins al final del període, quan el model GFS apunta a un canvi de tendència.",
+      "temperatures": "Valors suaus, amb màximes que superaran els 20 °C en molts punts del litoral i interior durant els primers dies.",
+      "precipitacio": "Absència de pluja destacable fins al 7 de novembre.",
+      "vent": "Vent fluix en general, amb ratxes puntualment més fortes a zones elevades o l'Empordà."
+    },
+    "setmana_2": {
+      "resum": "A partir del 7 de novembre, s'espera una baixada de les temperatures i l'arribada de precipitacions més generalitzades, especialment al litoral i Pirineu.",
+      "incertesa": "La fiabilitat disminueix notablement a partir del dia 8 de novembre, ja que les dades depenen exclusivament del model GFS."
+    },
+    "zones": [
+      {
+        "zona": "Litoral i prelitoral",
+        "resum": "Temps estable i assolellat durant la primera setmana. A partir del 7 de novembre, s'espera un descens tèrmic i l'arribada de pluges febles.",
+        "destacats": [
+          {
+            "comarca": "Alt Empordà",
+            "municipi": "Figueres",
+            "motiu": "Ratxes de vent destacades el 27 i 28 d'octubre."
+          }
+        ]
+      },
+      {
+        "zona": "Interior",
+        "resum": "Inici de setmana suau i sec. El canvi de temps del 7 i 8 de novembre portarà un ambient més fred i algunes precipitacions disperses.",
+        "destacats": [
+          {
+            "comarca": "Osona",
+            "municipi": "Vic",
+            "motiu": "Baixada notable de temperatures mínimes el 8 de novembre."
+          }
+        ]
+      },
+      {
+        "zona": "Pirineu i Prepirineu",
+        "resum": "Predomini del sol els primers dies. El 8 de novembre es preveu un episodi de precipitacions que podrien ser més abundants a la Garrotxa.",
+        "destacats": [
+          {
+            "comarca": "Garrotxa",
+            "municipi": "Olot",
+            "motiu": "Acumulació de precipitació rellevant el 8 de novembre."
+          }
+        ]
+      },
+      {
+        "zona": "Camp de Tarragona i Terres de l'Ebre",
+        "resum": "Temps estable amb ratxes de vent puntuals. A partir del 7 de novembre, s'espera un augment de la nuvolositat i precipitacions, especialment al Montsià.",
+        "destacats": [
+          {
+            "comarca": "Terra Alta",
+            "municipi": "Gandesa",
+            "motiu": "Ratxes de vent molt fortes el 26 d'octubre."
+          }
+        ]
+      }
+    ],
+    "episodis": [
+      {
+        "model": "AROME",
+        "tipus": "vent",
+        "data_inici": "2026-10-26",
+        "data_fi": "2026-10-26",
+        "comarca": "Terra Alta",
+        "municipi": "Gandesa",
+        "valor": "56 km/h",
+        "descripcio": "Ratxes de vent intenses durant la jornada del 26 d'octubre.",
+        "gravetat": "mitjana"
+      },
+      {
+        "model": "GFS",
+        "tipus": "pluja",
+        "data_inici": "2026-11-07",
+        "data_fi": "2026-11-08",
+        "comarca": "Garrotxa",
+        "municipi": "Olot",
+        "valor": "22 mm",
+        "descripcio": "Episodi de precipitacions acumulades entre el 7 i 8 de novembre.",
+        "gravetat": "mitjana"
+      },
+      {
+        "model": "GFS",
+        "tipus": "pluja",
+        "data_inici": "2026-11-08",
+        "data_fi": "2026-11-08",
+        "comarca": "Montsià",
+        "municipi": "Amposta",
+        "valor": "10.5 mm",
+        "descripcio": "Precipitació destacada el dia 8 de novembre.",
+        "gravetat": "mitjana"
+      }
+    ],
+    "avis_incertesa": "La fiabilitat de les previsions disminueix significativament a partir del dia 8-10 de novembre, ja que es basen exclusivament en el model GFS."
+  },
+  "punts": [
+    {
+      "comarca": "Barcelonès",
+      "municipi": "Barcelona",
+      "zona": "Litoral i prelitoral",
+      "dies": [
+        {
+          "data": "2026-10-26",
+          "tmax": 20.5,
+          "tmin": 17.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0
+        },
+        {
+          "data": "2026-10-27",
+          "tmax": 22.0,
+          "tmin": 18.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.1
+        },
+        {
+          "data": "2026-10-28",
+          "tmax": 20.5,
+          "tmin": 18.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.0
+        },
+        {
+          "data": "2026-10-29",
+          "tmax": 19.0,
+          "tmin": 17.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.3
+        },
+        {
+          "data": "2026-10-30",
+          "tmax": 19.0,
+          "tmin": 16.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.9
+        },
+        {
+          "data": "2026-10-31",
+          "tmax": 18.4,
+          "tmin": 16.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.4
+        },
+        {
+          "data": "2026-11-01",
+          "tmax": 18.4,
+          "tmin": 15.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.8
+        },
+        {
+          "data": "2026-11-02",
+          "tmax": 18.7,
+          "tmin": 15.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.1
+        },
+        {
+          "data": "2026-11-03",
+          "tmax": 20.0,
+          "tmin": 16.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.5
+        },
+        {
+          "data": "2026-11-04",
+          "tmax": 20.6,
+          "tmin": 15.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 22.7
+        },
+        {
+          "data": "2026-11-05",
+          "tmax": 19.0,
+          "tmin": 15.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.6
+        },
+        {
+          "data": "2026-11-06",
+          "tmax": 18.6,
+          "tmin": 15.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 15.1
+        },
+        {
+          "data": "2026-11-07",
+          "tmax": 17.0,
+          "tmin": 15.4,
+          "pluja_mm": 1.4,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 20.5
+        },
+        {
+          "data": "2026-11-08",
+          "tmax": 15.5,
+          "tmin": 12.9,
+          "pluja_mm": 2.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 19.4
+        },
+        {
+          "data": "2026-11-09",
+          "tmax": 14.9,
+          "tmin": 12.0,
+          "pluja_mm": 0.2,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.3
+        },
+        {
+          "data": "2026-11-10",
+          "tmax": 15.2,
+          "tmin": 11.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 17.3
+        }
+      ]
+    },
+    {
+      "comarca": "Baix Llobregat",
+      "municipi": "Sant Feliu de Llobregat",
+      "zona": "Litoral i prelitoral",
+      "dies": [
+        {
+          "data": "2026-10-26",
+          "tmax": 22.6,
+          "tmin": 16.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.2
+        },
+        {
+          "data": "2026-10-27",
+          "tmax": 24.7,
+          "tmin": 17.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.4
+        },
+        {
+          "data": "2026-10-28",
+          "tmax": 24.0,
+          "tmin": 18.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.5
+        },
+        {
+          "data": "2026-10-29",
+          "tmax": 20.9,
+          "tmin": 17.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.6
+        },
+        {
+          "data": "2026-10-30",
+          "tmax": 20.9,
+          "tmin": 16.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.5
+        },
+        {
+          "data": "2026-10-31",
+          "tmax": 20.2,
+          "tmin": 15.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.6
+        },
+        {
+          "data": "2026-11-01",
+          "tmax": 20.9,
+          "tmin": 15.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.6
+        },
+        {
+          "data": "2026-11-02",
+          "tmax": 21.2,
+          "tmin": 15.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.7
+        },
+        {
+          "data": "2026-11-03",
+          "tmax": 21.3,
+          "tmin": 15.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0
+        },
+        {
+          "data": "2026-11-04",
+          "tmax": 21.3,
+          "tmin": 14.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 14.8
+        },
+        {
+          "data": "2026-11-05",
+          "tmax": 20.0,
+          "tmin": 15.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0
+        },
+        {
+          "data": "2026-11-06",
+          "tmax": 20.7,
+          "tmin": 15.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.3
+        },
+        {
+          "data": "2026-11-07",
+          "tmax": 16.4,
+          "tmin": 14.8,
+          "pluja_mm": 1.4,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 19.4
+        },
+        {
+          "data": "2026-11-08",
+          "tmax": 14.8,
+          "tmin": 12.0,
+          "pluja_mm": 1.4,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 15.8
+        },
+        {
+          "data": "2026-11-09",
+          "tmax": 15.2,
+          "tmin": 11.0,
+          "pluja_mm": 0.2,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.2
+        },
+        {
+          "data": "2026-11-10",
+          "tmax": 15.8,
+          "tmin": 9.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 15.1
+        }
+      ]
+    },
+    {
+      "comarca": "Vallès Occidental",
+      "municipi": "Sabadell",
+      "zona": "Litoral i prelitoral",
+      "dies": [
+        {
+          "data": "2026-10-26",
+          "tmax": 22.3,
+          "tmin": 15.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.2
+        },
+        {
+          "data": "2026-10-27",
+          "tmax": 23.9,
+          "tmin": 16.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.4
+        },
+        {
+          "data": "2026-10-28",
+          "tmax": 23.0,
+          "tmin": 16.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.5
+        },
+        {
+          "data": "2026-10-29",
+          "tmax": 20.0,
+          "tmin": 15.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.6
+        },
+        {
+          "data": "2026-10-30",
+          "tmax": 20.6,
+          "tmin": 14.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.5
+        },
+        {
+          "data": "2026-10-31",
+          "tmax": 19.5,
+          "tmin": 14.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.6
+        },
+        {
+          "data": "2026-11-01",
+          "tmax": 20.1,
+          "tmin": 13.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.6
+        },
+        {
+          "data": "2026-11-02",
+          "tmax": 20.7,
+          "tmin": 13.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.7
+        },
+        {
+          "data": "2026-11-03",
+          "tmax": 20.7,
+          "tmin": 14.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0
+        },
+        {
+          "data": "2026-11-04",
+          "tmax": 21.0,
+          "tmin": 13.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 14.8
+        },
+        {
+          "data": "2026-11-05",
+          "tmax": 19.2,
+          "tmin": 13.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0
+        },
+        {
+          "data": "2026-11-06",
+          "tmax": 20.1,
+          "tmin": 13.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.3
+        },
+        {
+          "data": "2026-11-07",
+          "tmax": 15.3,
+          "tmin": 13.4,
+          "pluja_mm": 1.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 19.4
+        },
+        {
+          "data": "2026-11-08",
+          "tmax": 13.4,
+          "tmin": 10.5,
+          "pluja_mm": 0.5,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 15.8
+        },
+        {
+          "data": "2026-11-09",
+          "tmax": 14.4,
+          "tmin": 9.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.2
+        },
+        {
+          "data": "2026-11-10",
+          "tmax": 14.8,
+          "tmin": 8.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 15.1
+        }
+      ]
+    },
+    {
+      "comarca": "Vallès Oriental",
+      "municipi": "Granollers",
+      "zona": "Litoral i prelitoral",
+      "dies": [
+        {
+          "data": "2026-10-26",
+          "tmax": 21.9,
+          "tmin": 14.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0
+        },
+        {
+          "data": "2026-10-27",
+          "tmax": 23.1,
+          "tmin": 15.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.1
+        },
+        {
+          "data": "2026-10-28",
+          "tmax": 22.0,
+          "tmin": 15.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.0
+        },
+        {
+          "data": "2026-10-29",
+          "tmax": 18.7,
+          "tmin": 14.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.3
+        },
+        {
+          "data": "2026-10-30",
+          "tmax": 20.9,
+          "tmin": 13.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.9
+        },
+        {
+          "data": "2026-10-31",
+          "tmax": 19.7,
+          "tmin": 12.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.4
+        },
+        {
+          "data": "2026-11-01",
+          "tmax": 19.8,
+          "tmin": 12.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.8
+        },
+        {
+          "data": "2026-11-02",
+          "tmax": 20.2,
+          "tmin": 12.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.1
+        },
+        {
+          "data": "2026-11-03",
+          "tmax": 20.4,
+          "tmin": 11.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.5
+        },
+        {
+          "data": "2026-11-04",
+          "tmax": 21.0,
+          "tmin": 11.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 22.7
+        },
+        {
+          "data": "2026-11-05",
+          "tmax": 18.6,
+          "tmin": 12.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.6
+        },
+        {
+          "data": "2026-11-06",
+          "tmax": 19.5,
+          "tmin": 12.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 15.1
+        },
+        {
+          "data": "2026-11-07",
+          "tmax": 17.0,
+          "tmin": 12.4,
+          "pluja_mm": 1.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 20.5
+        },
+        {
+          "data": "2026-11-08",
+          "tmax": 12.4,
+          "tmin": 8.2,
+          "pluja_mm": 3.5,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 19.4
+        },
+        {
+          "data": "2026-11-09",
+          "tmax": 14.2,
+          "tmin": 7.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.3
+        },
+        {
+          "data": "2026-11-10",
+          "tmax": 14.8,
+          "tmin": 6.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 17.3
+        }
+      ]
+    },
+    {
+      "comarca": "Maresme",
+      "municipi": "Mataró",
+      "zona": "Litoral i prelitoral",
+      "dies": [
+        {
+          "data": "2026-10-26",
+          "tmax": 21.1,
+          "tmin": 15.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0
+        },
+        {
+          "data": "2026-10-27",
+          "tmax": 21.6,
+          "tmin": 16.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.1
+        },
+        {
+          "data": "2026-10-28",
+          "tmax": 20.6,
+          "tmin": 17.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.0
+        },
+        {
+          "data": "2026-10-29",
+          "tmax": 18.5,
+          "tmin": 16.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.3
+        },
+        {
+          "data": "2026-10-30",
+          "tmax": 20.2,
+          "tmin": 15.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.9
+        },
+        {
+          "data": "2026-10-31",
+          "tmax": 18.9,
+          "tmin": 14.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.4
+        },
+        {
+          "data": "2026-11-01",
+          "tmax": 18.9,
+          "tmin": 14.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.8
+        },
+        {
+          "data": "2026-11-02",
+          "tmax": 19.2,
+          "tmin": 14.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.1
+        },
+        {
+          "data": "2026-11-03",
+          "tmax": 20.9,
+          "tmin": 14.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.5
+        },
+        {
+          "data": "2026-11-04",
+          "tmax": 21.0,
+          "tmin": 14.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 22.7
+        },
+        {
+          "data": "2026-11-05",
+          "tmax": 19.0,
+          "tmin": 14.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.6
+        },
+        {
+          "data": "2026-11-06",
+          "tmax": 18.9,
+          "tmin": 14.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 15.1
+        },
+        {
+          "data": "2026-11-07",
+          "tmax": 17.1,
+          "tmin": 14.4,
+          "pluja_mm": 1.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 20.5
+        },
+        {
+          "data": "2026-11-08",
+          "tmax": 14.4,
+          "tmin": 11.1,
+          "pluja_mm": 1.8,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 19.4
+        },
+        {
+          "data": "2026-11-09",
+          "tmax": 14.9,
+          "tmin": 10.1,
+          "pluja_mm": 0.2,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.3
+        },
+        {
+          "data": "2026-11-10",
+          "tmax": 15.0,
+          "tmin": 9.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 17.3
+        }
+      ]
+    },
+    {
+      "comarca": "Garraf",
+      "municipi": "Vilanova i la Geltrú",
+      "zona": "Litoral i prelitoral",
+      "dies": [
+        {
+          "data": "2026-10-26",
+          "tmax": 21.9,
+          "tmin": 15.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.6
+        },
+        {
+          "data": "2026-10-27",
+          "tmax": 23.8,
+          "tmin": 16.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 16.6
+        },
+        {
+          "data": "2026-10-28",
+          "tmax": 23.5,
+          "tmin": 17.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.3
+        },
+        {
+          "data": "2026-10-29",
+          "tmax": 20.2,
+          "tmin": 16.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.9
+        },
+        {
+          "data": "2026-10-30",
+          "tmax": 20.5,
+          "tmin": 15.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.6
+        },
+        {
+          "data": "2026-10-31",
+          "tmax": 20.1,
+          "tmin": 14.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.2
+        },
+        {
+          "data": "2026-11-01",
+          "tmax": 20.1,
+          "tmin": 14.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0
+        },
+        {
+          "data": "2026-11-02",
+          "tmax": 20.3,
+          "tmin": 14.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.6
+        },
+        {
+          "data": "2026-11-03",
+          "tmax": 20.5,
+          "tmin": 14.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 22.0
+        },
+        {
+          "data": "2026-11-04",
+          "tmax": 20.6,
+          "tmin": 13.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 22.7
+        },
+        {
+          "data": "2026-11-05",
+          "tmax": 19.7,
+          "tmin": 14.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 14.8
+        },
+        {
+          "data": "2026-11-06",
+          "tmax": 20.0,
+          "tmin": 13.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 18.4
+        },
+        {
+          "data": "2026-11-07",
+          "tmax": 15.7,
+          "tmin": 14.0,
+          "pluja_mm": 1.8,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 24.5
+        },
+        {
+          "data": "2026-11-08",
+          "tmax": 15.1,
+          "tmin": 11.9,
+          "pluja_mm": 1.6,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 20.2
+        },
+        {
+          "data": "2026-11-09",
+          "tmax": 15.4,
+          "tmin": 11.1,
+          "pluja_mm": 0.2,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.7
+        },
+        {
+          "data": "2026-11-10",
+          "tmax": 15.9,
+          "tmin": 8.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 16.9
+        }
+      ]
+    },
+    {
+      "comarca": "Alt Penedès",
+      "municipi": "Vilafranca del Penedès",
+      "zona": "Litoral i prelitoral",
+      "dies": [
+        {
+          "data": "2026-10-26",
+          "tmax": 20.5,
+          "tmin": 14.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.6
+        },
+        {
+          "data": "2026-10-27",
+          "tmax": 22.4,
+          "tmin": 14.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 16.6
+        },
+        {
+          "data": "2026-10-28",
+          "tmax": 22.1,
+          "tmin": 16.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.3
+        },
+        {
+          "data": "2026-10-29",
+          "tmax": 18.8,
+          "tmin": 15.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.9
+        },
+        {
+          "data": "2026-10-30",
+          "tmax": 19.1,
+          "tmin": 13.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.6
+        },
+        {
+          "data": "2026-10-31",
+          "tmax": 18.7,
+          "tmin": 13.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.2
+        },
+        {
+          "data": "2026-11-01",
+          "tmax": 18.7,
+          "tmin": 12.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0
+        },
+        {
+          "data": "2026-11-02",
+          "tmax": 18.9,
+          "tmin": 12.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.6
+        },
+        {
+          "data": "2026-11-03",
+          "tmax": 19.1,
+          "tmin": 13.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 22.0
+        },
+        {
+          "data": "2026-11-04",
+          "tmax": 19.2,
+          "tmin": 12.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 22.7
+        },
+        {
+          "data": "2026-11-05",
+          "tmax": 18.3,
+          "tmin": 12.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 14.8
+        },
+        {
+          "data": "2026-11-06",
+          "tmax": 18.6,
+          "tmin": 12.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 18.4
+        },
+        {
+          "data": "2026-11-07",
+          "tmax": 14.3,
+          "tmin": 12.6,
+          "pluja_mm": 1.8,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 24.5
+        },
+        {
+          "data": "2026-11-08",
+          "tmax": 13.7,
+          "tmin": 10.5,
+          "pluja_mm": 1.6,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 20.2
+        },
+        {
+          "data": "2026-11-09",
+          "tmax": 14.0,
+          "tmin": 9.7,
+          "pluja_mm": 0.2,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.7
+        },
+        {
+          "data": "2026-11-10",
+          "tmax": 14.5,
+          "tmin": 7.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 16.9
+        }
+      ]
+    },
+    {
+      "comarca": "Baix Penedès",
+      "municipi": "El Vendrell",
+      "zona": "Litoral i prelitoral",
+      "dies": [
+        {
+          "data": "2026-10-26",
+          "tmax": 21.6,
+          "tmin": 17.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.7
+        },
+        {
+          "data": "2026-10-27",
+          "tmax": 22.8,
+          "tmin": 17.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.6
+        },
+        {
+          "data": "2026-10-28",
+          "tmax": 23.9,
+          "tmin": 18.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.8
+        },
+        {
+          "data": "2026-10-29",
+          "tmax": 20.3,
+          "tmin": 17.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0
+        },
+        {
+          "data": "2026-10-30",
+          "tmax": 19.8,
+          "tmin": 16.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.6
+        },
+        {
+          "data": "2026-10-31",
+          "tmax": 19.4,
+          "tmin": 15.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0
+        },
+        {
+          "data": "2026-11-01",
+          "tmax": 19.4,
+          "tmin": 15.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.2
+        },
+        {
+          "data": "2026-11-02",
+          "tmax": 19.5,
+          "tmin": 15.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.9
+        },
+        {
+          "data": "2026-11-03",
+          "tmax": 19.9,
+          "tmin": 16.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 16.6
+        },
+        {
+          "data": "2026-11-04",
+          "tmax": 19.7,
+          "tmin": 15.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 16.9
+        },
+        {
+          "data": "2026-11-05",
+          "tmax": 19.4,
+          "tmin": 16.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 14.0
+        },
+        {
+          "data": "2026-11-06",
+          "tmax": 19.3,
+          "tmin": 15.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.5
+        },
+        {
+          "data": "2026-11-07",
+          "tmax": 16.6,
+          "tmin": 15.4,
+          "pluja_mm": 2.8,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 17.6
+        },
+        {
+          "data": "2026-11-08",
+          "tmax": 15.7,
+          "tmin": 12.7,
+          "pluja_mm": 1.6,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.3
+        },
+        {
+          "data": "2026-11-09",
+          "tmax": 15.4,
+          "tmin": 12.4,
+          "pluja_mm": 0.7,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.7
+        },
+        {
+          "data": "2026-11-10",
+          "tmax": 15.9,
+          "tmin": 10.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.0
+        }
+      ]
+    },
+    {
+      "comarca": "Selva",
+      "municipi": "Lloret de Mar",
+      "zona": "Litoral i prelitoral",
+      "dies": [
+        {
+          "data": "2026-10-26",
+          "tmax": 21.3,
+          "tmin": 12.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 14.0
+        },
+        {
+          "data": "2026-10-27",
+          "tmax": 24.1,
+          "tmin": 13.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.1
+        },
+        {
+          "data": "2026-10-28",
+          "tmax": 22.4,
+          "tmin": 14.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.5
+        },
+        {
+          "data": "2026-10-29",
+          "tmax": 18.6,
+          "tmin": 13.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.6
+        },
+        {
+          "data": "2026-10-30",
+          "tmax": 21.2,
+          "tmin": 11.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 14.8
+        },
+        {
+          "data": "2026-10-31",
+          "tmax": 20.6,
+          "tmin": 11.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.4
+        },
+        {
+          "data": "2026-11-01",
+          "tmax": 21.1,
+          "tmin": 11.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.8
+        },
+        {
+          "data": "2026-11-02",
+          "tmax": 19.6,
+          "tmin": 11.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.9
+        },
+        {
+          "data": "2026-11-03",
+          "tmax": 20.1,
+          "tmin": 10.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 29.9
+        },
+        {
+          "data": "2026-11-04",
+          "tmax": 19.6,
+          "tmin": 9.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 18.7
+        },
+        {
+          "data": "2026-11-05",
+          "tmax": 18.9,
+          "tmin": 10.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.6
+        },
+        {
+          "data": "2026-11-06",
+          "tmax": 19.8,
+          "tmin": 11.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.7
+        },
+        {
+          "data": "2026-11-07",
+          "tmax": 18.7,
+          "tmin": 9.6,
+          "pluja_mm": 0.3,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.2
+        },
+        {
+          "data": "2026-11-08",
+          "tmax": 13.6,
+          "tmin": 9.7,
+          "pluja_mm": 0.6,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 27.7
+        },
+        {
+          "data": "2026-11-09",
+          "tmax": 15.4,
+          "tmin": 6.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.6
+        },
+        {
+          "data": "2026-11-10",
+          "tmax": 15.7,
+          "tmin": 5.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 27.0
+        }
+      ]
+    },
+    {
+      "comarca": "Gironès",
+      "municipi": "Girona",
+      "zona": "Litoral i prelitoral",
+      "dies": [
+        {
+          "data": "2026-10-26",
+          "tmax": 22.8,
+          "tmin": 13.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.8
+        },
+        {
+          "data": "2026-10-27",
+          "tmax": 23.0,
+          "tmin": 13.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 15.1
+        },
+        {
+          "data": "2026-10-28",
+          "tmax": 22.9,
+          "tmin": 14.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.7
+        },
+        {
+          "data": "2026-10-29",
+          "tmax": 19.9,
+          "tmin": 13.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.8
+        },
+        {
+          "data": "2026-10-30",
+          "tmax": 20.3,
+          "tmin": 12.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.1
+        },
+        {
+          "data": "2026-10-31",
+          "tmax": 20.7,
+          "tmin": 11.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.2
+        },
+        {
+          "data": "2026-11-01",
+          "tmax": 20.6,
+          "tmin": 11.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.4
+        },
+        {
+          "data": "2026-11-02",
+          "tmax": 20.9,
+          "tmin": 11.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.2
+        },
+        {
+          "data": "2026-11-03",
+          "tmax": 19.4,
+          "tmin": 10.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.7
+        },
+        {
+          "data": "2026-11-04",
+          "tmax": 20.0,
+          "tmin": 9.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.2
+        },
+        {
+          "data": "2026-11-05",
+          "tmax": 18.1,
+          "tmin": 10.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.4
+        },
+        {
+          "data": "2026-11-06",
+          "tmax": 19.9,
+          "tmin": 11.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.2
+        },
+        {
+          "data": "2026-11-07",
+          "tmax": 17.8,
+          "tmin": 10.0,
+          "pluja_mm": 2.6,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.8
+        },
+        {
+          "data": "2026-11-08",
+          "tmax": 12.3,
+          "tmin": 9.5,
+          "pluja_mm": 1.9,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 23.0
+        },
+        {
+          "data": "2026-11-09",
+          "tmax": 15.1,
+          "tmin": 7.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.4
+        },
+        {
+          "data": "2026-11-10",
+          "tmax": 15.8,
+          "tmin": 6.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 16.9
+        }
+      ]
+    },
+    {
+      "comarca": "Baix Empordà",
+      "municipi": "La Bisbal d'Empordà",
+      "zona": "Litoral i prelitoral",
+      "dies": [
+        {
+          "data": "2026-10-26",
+          "tmax": 22.7,
+          "tmin": 12.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.5
+        },
+        {
+          "data": "2026-10-27",
+          "tmax": 21.2,
+          "tmin": 12.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 15.1
+        },
+        {
+          "data": "2026-10-28",
+          "tmax": 22.1,
+          "tmin": 13.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 21.6
+        },
+        {
+          "data": "2026-10-29",
+          "tmax": 18.8,
+          "tmin": 11.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0
+        },
+        {
+          "data": "2026-10-30",
+          "tmax": 18.8,
+          "tmin": 10.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 15.5
+        },
+        {
+          "data": "2026-10-31",
+          "tmax": 19.6,
+          "tmin": 10.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.8
+        },
+        {
+          "data": "2026-11-01",
+          "tmax": 19.5,
+          "tmin": 10.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 4.3
+        },
+        {
+          "data": "2026-11-02",
+          "tmax": 20.3,
+          "tmin": 10.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.5
+        },
+        {
+          "data": "2026-11-03",
+          "tmax": 17.4,
+          "tmin": 8.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 28.1
+        },
+        {
+          "data": "2026-11-04",
+          "tmax": 19.7,
+          "tmin": 8.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.7
+        },
+        {
+          "data": "2026-11-05",
+          "tmax": 17.3,
+          "tmin": 9.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.5
+        },
+        {
+          "data": "2026-11-06",
+          "tmax": 18.4,
+          "tmin": 10.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 16.2
+        },
+        {
+          "data": "2026-11-07",
+          "tmax": 17.1,
+          "tmin": 9.1,
+          "pluja_mm": 1.5,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.4
+        },
+        {
+          "data": "2026-11-08",
+          "tmax": 12.8,
+          "tmin": 10.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 34.6
+        },
+        {
+          "data": "2026-11-09",
+          "tmax": 14.5,
+          "tmin": 6.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 4.3
+        },
+        {
+          "data": "2026-11-10",
+          "tmax": 15.3,
+          "tmin": 5.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 35.3
+        }
+      ]
+    },
+    {
+      "comarca": "Alt Empordà",
+      "municipi": "Figueres",
+      "zona": "Litoral i prelitoral",
+      "dies": [
+        {
+          "data": "2026-10-26",
+          "tmax": 23.4,
+          "tmin": 13.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.4
+        },
+        {
+          "data": "2026-10-27",
+          "tmax": 23.3,
+          "tmin": 13.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 39.2
+        },
+        {
+          "data": "2026-10-28",
+          "tmax": 22.4,
+          "tmin": 13.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 46.8
+        },
+        {
+          "data": "2026-10-29",
+          "tmax": 18.6,
+          "tmin": 11.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.5
+        },
+        {
+          "data": "2026-10-30",
+          "tmax": 20.4,
+          "tmin": 11.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.6
+        },
+        {
+          "data": "2026-10-31",
+          "tmax": 19.5,
+          "tmin": 10.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.3
+        },
+        {
+          "data": "2026-11-01",
+          "tmax": 19.5,
+          "tmin": 10.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.6
+        },
+        {
+          "data": "2026-11-02",
+          "tmax": 19.8,
+          "tmin": 10.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.1
+        },
+        {
+          "data": "2026-11-03",
+          "tmax": 19.5,
+          "tmin": 9.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 18.4
+        },
+        {
+          "data": "2026-11-04",
+          "tmax": 18.5,
+          "tmin": 8.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 14.0
+        },
+        {
+          "data": "2026-11-05",
+          "tmax": 16.9,
+          "tmin": 10.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.6
+        },
+        {
+          "data": "2026-11-06",
+          "tmax": 18.8,
+          "tmin": 10.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.6
+        },
+        {
+          "data": "2026-11-07",
+          "tmax": 17.0,
+          "tmin": 9.4,
+          "pluja_mm": 3.5,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.7
+        },
+        {
+          "data": "2026-11-08",
+          "tmax": 12.4,
+          "tmin": 10.3,
+          "pluja_mm": 2.2,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 24.1
+        },
+        {
+          "data": "2026-11-09",
+          "tmax": 14.5,
+          "tmin": 6.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.6
+        },
+        {
+          "data": "2026-11-10",
+          "tmax": 15.8,
+          "tmin": 4.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 16.9
+        }
+      ]
+    },
+    {
+      "comarca": "Pla de l'Estany",
+      "municipi": "Banyoles",
+      "zona": "Litoral i prelitoral",
+      "dies": [
+        {
+          "data": "2026-10-26",
+          "tmax": 22.9,
+          "tmin": 11.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.8
+        },
+        {
+          "data": "2026-10-27",
+          "tmax": 22.4,
+          "tmin": 12.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 15.1
+        },
+        {
+          "data": "2026-10-28",
+          "tmax": 22.4,
+          "tmin": 12.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.7
+        },
+        {
+          "data": "2026-10-29",
+          "tmax": 19.0,
+          "tmin": 11.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.8
+        },
+        {
+          "data": "2026-10-30",
+          "tmax": 19.9,
+          "tmin": 10.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.1
+        },
+        {
+          "data": "2026-10-31",
+          "tmax": 20.1,
+          "tmin": 9.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.2
+        },
+        {
+          "data": "2026-11-01",
+          "tmax": 20.2,
+          "tmin": 9.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.4
+        },
+        {
+          "data": "2026-11-02",
+          "tmax": 20.7,
+          "tmin": 9.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.2
+        },
+        {
+          "data": "2026-11-03",
+          "tmax": 19.2,
+          "tmin": 8.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.7
+        },
+        {
+          "data": "2026-11-04",
+          "tmax": 19.8,
+          "tmin": 7.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.2
+        },
+        {
+          "data": "2026-11-05",
+          "tmax": 17.6,
+          "tmin": 8.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.4
+        },
+        {
+          "data": "2026-11-06",
+          "tmax": 19.4,
+          "tmin": 9.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.2
+        },
+        {
+          "data": "2026-11-07",
+          "tmax": 17.3,
+          "tmin": 8.0,
+          "pluja_mm": 4.5,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.8
+        },
+        {
+          "data": "2026-11-08",
+          "tmax": 11.2,
+          "tmin": 8.3,
+          "pluja_mm": 4.8,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 23.0
+        },
+        {
+          "data": "2026-11-09",
+          "tmax": 14.5,
+          "tmin": 5.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.4
+        },
+        {
+          "data": "2026-11-10",
+          "tmax": 15.5,
+          "tmin": 3.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 16.9
+        }
+      ]
+    },
+    {
+      "comarca": "Bages",
+      "municipi": "Manresa",
+      "zona": "Interior",
+      "dies": [
+        {
+          "data": "2026-10-26",
+          "tmax": 22.2,
+          "tmin": 13.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.6
+        },
+        {
+          "data": "2026-10-27",
+          "tmax": 24.8,
+          "tmin": 13.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.4
+        },
+        {
+          "data": "2026-10-28",
+          "tmax": 22.0,
+          "tmin": 14.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 14.0
+        },
+        {
+          "data": "2026-10-29",
+          "tmax": 20.6,
+          "tmin": 13.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0
+        },
+        {
+          "data": "2026-10-30",
+          "tmax": 20.6,
+          "tmin": 12.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.6
+        },
+        {
+          "data": "2026-10-31",
+          "tmax": 20.0,
+          "tmin": 12.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.3
+        },
+        {
+          "data": "2026-11-01",
+          "tmax": 20.0,
+          "tmin": 11.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 4.7
+        },
+        {
+          "data": "2026-11-02",
+          "tmax": 20.3,
+          "tmin": 11.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.9
+        },
+        {
+          "data": "2026-11-03",
+          "tmax": 20.9,
+          "tmin": 11.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.9
+        },
+        {
+          "data": "2026-11-04",
+          "tmax": 20.7,
+          "tmin": 10.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 16.9
+        },
+        {
+          "data": "2026-11-05",
+          "tmax": 18.1,
+          "tmin": 11.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.4
+        },
+        {
+          "data": "2026-11-06",
+          "tmax": 19.4,
+          "tmin": 11.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.4
+        },
+        {
+          "data": "2026-11-07",
+          "tmax": 16.4,
+          "tmin": 10.8,
+          "pluja_mm": 1.1,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.9
+        },
+        {
+          "data": "2026-11-08",
+          "tmax": 12.9,
+          "tmin": 8.0,
+          "pluja_mm": 2.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 16.6
+        },
+        {
+          "data": "2026-11-09",
+          "tmax": 14.4,
+          "tmin": 7.9,
+          "pluja_mm": 0.2,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.2
+        },
+        {
+          "data": "2026-11-10",
+          "tmax": 14.9,
+          "tmin": 5.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.2
+        }
+      ]
+    },
+    {
+      "comarca": "Osona",
+      "municipi": "Vic",
+      "zona": "Interior",
+      "dies": [
+        {
+          "data": "2026-10-26",
+          "tmax": 20.0,
+          "tmin": 11.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0
+        },
+        {
+          "data": "2026-10-27",
+          "tmax": 21.8,
+          "tmin": 12.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.8
+        },
+        {
+          "data": "2026-10-28",
+          "tmax": 20.2,
+          "tmin": 12.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.5
+        },
+        {
+          "data": "2026-10-29",
+          "tmax": 17.8,
+          "tmin": 11.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.6
+        },
+        {
+          "data": "2026-10-30",
+          "tmax": 19.2,
+          "tmin": 10.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.5
+        },
+        {
+          "data": "2026-10-31",
+          "tmax": 18.1,
+          "tmin": 9.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 4.7
+        },
+        {
+          "data": "2026-11-01",
+          "tmax": 18.6,
+          "tmin": 8.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 3.2
+        },
+        {
+          "data": "2026-11-02",
+          "tmax": 18.0,
+          "tmin": 9.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.6
+        },
+        {
+          "data": "2026-11-03",
+          "tmax": 17.9,
+          "tmin": 8.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.6
+        },
+        {
+          "data": "2026-11-04",
+          "tmax": 17.9,
+          "tmin": 7.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 16.6
+        },
+        {
+          "data": "2026-11-05",
+          "tmax": 16.2,
+          "tmin": 8.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.6
+        },
+        {
+          "data": "2026-11-06",
+          "tmax": 17.1,
+          "tmin": 8.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0
+        },
+        {
+          "data": "2026-11-07",
+          "tmax": 14.5,
+          "tmin": 7.4,
+          "pluja_mm": 2.4,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.1
+        },
+        {
+          "data": "2026-11-08",
+          "tmax": 10.0,
+          "tmin": 4.0,
+          "pluja_mm": 4.9,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 26.6
+        },
+        {
+          "data": "2026-11-09",
+          "tmax": 11.4,
+          "tmin": 3.6,
+          "pluja_mm": 0.2,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 3.6
+        },
+        {
+          "data": "2026-11-10",
+          "tmax": 13.1,
+          "tmin": 2.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 16.9
+        }
+      ]
+    },
+    {
+      "comarca": "Moianès",
+      "municipi": "Moià",
+      "zona": "Interior",
+      "dies": [
+        {
+          "data": "2026-10-26",
+          "tmax": 18.6,
+          "tmin": 9.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.6
+        },
+        {
+          "data": "2026-10-27",
+          "tmax": 20.8,
+          "tmin": 11.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.2
+        },
+        {
+          "data": "2026-10-28",
+          "tmax": 19.0,
+          "tmin": 11.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.4
+        },
+        {
+          "data": "2026-10-29",
+          "tmax": 16.8,
+          "tmin": 10.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0
+        },
+        {
+          "data": "2026-10-30",
+          "tmax": 17.4,
+          "tmin": 9.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.2
+        },
+        {
+          "data": "2026-10-31",
+          "tmax": 16.8,
+          "tmin": 7.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.8
+        },
+        {
+          "data": "2026-11-01",
+          "tmax": 17.1,
+          "tmin": 7.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.5
+        },
+        {
+          "data": "2026-11-02",
+          "tmax": 17.1,
+          "tmin": 7.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.4
+        },
+        {
+          "data": "2026-11-03",
+          "tmax": 17.6,
+          "tmin": 8.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.4
+        },
+        {
+          "data": "2026-11-04",
+          "tmax": 17.2,
+          "tmin": 6.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 14.8
+        },
+        {
+          "data": "2026-11-05",
+          "tmax": 15.3,
+          "tmin": 7.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.0
+        },
+        {
+          "data": "2026-11-06",
+          "tmax": 16.2,
+          "tmin": 7.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.7
+        },
+        {
+          "data": "2026-11-07",
+          "tmax": 13.2,
+          "tmin": 7.4,
+          "pluja_mm": 1.3,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.2
+        },
+        {
+          "data": "2026-11-08",
+          "tmax": 9.2,
+          "tmin": 2.9,
+          "pluja_mm": 2.7,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 15.5
+        },
+        {
+          "data": "2026-11-09",
+          "tmax": 11.1,
+          "tmin": 2.7,
+          "pluja_mm": 0.2,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.9
+        },
+        {
+          "data": "2026-11-10",
+          "tmax": 11.6,
+          "tmin": 1.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.4
+        }
+      ]
+    },
+    {
+      "comarca": "Lluçanès",
+      "municipi": "Prats de Lluçanès",
+      "zona": "Interior",
+      "dies": [
+        {
+          "data": "2026-10-26",
+          "tmax": 18.7,
+          "tmin": 9.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.6
+        },
+        {
+          "data": "2026-10-27",
+          "tmax": 20.1,
+          "tmin": 9.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.4
+        },
+        {
+          "data": "2026-10-28",
+          "tmax": 18.8,
+          "tmin": 9.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.2
+        },
+        {
+          "data": "2026-10-29",
+          "tmax": 16.4,
+          "tmin": 8.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.3
+        },
+        {
+          "data": "2026-10-30",
+          "tmax": 17.3,
+          "tmin": 7.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.6
+        },
+        {
+          "data": "2026-10-31",
+          "tmax": 16.6,
+          "tmin": 7.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.8
+        },
+        {
+          "data": "2026-11-01",
+          "tmax": 16.8,
+          "tmin": 6.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.8
+        },
+        {
+          "data": "2026-11-02",
+          "tmax": 16.7,
+          "tmin": 6.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.9
+        },
+        {
+          "data": "2026-11-03",
+          "tmax": 17.2,
+          "tmin": 5.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.6
+        },
+        {
+          "data": "2026-11-04",
+          "tmax": 16.3,
+          "tmin": 5.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.7
+        },
+        {
+          "data": "2026-11-05",
+          "tmax": 14.4,
+          "tmin": 5.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.1
+        },
+        {
+          "data": "2026-11-06",
+          "tmax": 15.9,
+          "tmin": 6.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.8
+        },
+        {
+          "data": "2026-11-07",
+          "tmax": 13.5,
+          "tmin": 4.7,
+          "pluja_mm": 0.6,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.5
+        },
+        {
+          "data": "2026-11-08",
+          "tmax": 8.7,
+          "tmin": 2.6,
+          "pluja_mm": 0.6,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 23.0
+        },
+        {
+          "data": "2026-11-09",
+          "tmax": 10.8,
+          "tmin": 1.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.5
+        },
+        {
+          "data": "2026-11-10",
+          "tmax": 11.6,
+          "tmin": 0.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 14.4
+        }
+      ]
+    },
+    {
+      "comarca": "Anoia",
+      "municipi": "Igualada",
+      "zona": "Interior",
+      "dies": [
+        {
+          "data": "2026-10-26",
+          "tmax": 21.4,
+          "tmin": 12.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.6
+        },
+        {
+          "data": "2026-10-27",
+          "tmax": 24.3,
+          "tmin": 13.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 14.4
+        },
+        {
+          "data": "2026-10-28",
+          "tmax": 20.9,
+          "tmin": 14.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 20.2
+        },
+        {
+          "data": "2026-10-29",
+          "tmax": 20.2,
+          "tmin": 12.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.8
+        },
+        {
+          "data": "2026-10-30",
+          "tmax": 19.5,
+          "tmin": 11.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.1
+        },
+        {
+          "data": "2026-10-31",
+          "tmax": 18.8,
+          "tmin": 11.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.5
+        },
+        {
+          "data": "2026-11-01",
+          "tmax": 19.4,
+          "tmin": 10.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 4.0
+        },
+        {
+          "data": "2026-11-02",
+          "tmax": 19.7,
+          "tmin": 10.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.5
+        },
+        {
+          "data": "2026-11-03",
+          "tmax": 19.0,
+          "tmin": 10.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.1
+        },
+        {
+          "data": "2026-11-04",
+          "tmax": 20.3,
+          "tmin": 9.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.0
+        },
+        {
+          "data": "2026-11-05",
+          "tmax": 17.9,
+          "tmin": 10.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.1
+        },
+        {
+          "data": "2026-11-06",
+          "tmax": 18.9,
+          "tmin": 10.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.4
+        },
+        {
+          "data": "2026-11-07",
+          "tmax": 13.9,
+          "tmin": 9.5,
+          "pluja_mm": 0.5,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 16.6
+        },
+        {
+          "data": "2026-11-08",
+          "tmax": 12.0,
+          "tmin": 6.8,
+          "pluja_mm": 0.7,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.4
+        },
+        {
+          "data": "2026-11-09",
+          "tmax": 13.1,
+          "tmin": 6.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.0
+        },
+        {
+          "data": "2026-11-10",
+          "tmax": 13.5,
+          "tmin": 4.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.5
+        }
+      ]
+    },
+    {
+      "comarca": "Solsonès",
+      "municipi": "Solsona",
+      "zona": "Interior",
+      "dies": [
+        {
+          "data": "2026-10-26",
+          "tmax": 20.0,
+          "tmin": 10.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.2
+        },
+        {
+          "data": "2026-10-27",
+          "tmax": 21.3,
+          "tmin": 11.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.9
+        },
+        {
+          "data": "2026-10-28",
+          "tmax": 18.4,
+          "tmin": 11.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.2
+        },
+        {
+          "data": "2026-10-29",
+          "tmax": 17.3,
+          "tmin": 9.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.1
+        },
+        {
+          "data": "2026-10-30",
+          "tmax": 18.0,
+          "tmin": 9.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.1
+        },
+        {
+          "data": "2026-10-31",
+          "tmax": 16.9,
+          "tmin": 8.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.2
+        },
+        {
+          "data": "2026-11-01",
+          "tmax": 17.6,
+          "tmin": 8.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.5
+        },
+        {
+          "data": "2026-11-02",
+          "tmax": 17.2,
+          "tmin": 8.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0
+        },
+        {
+          "data": "2026-11-03",
+          "tmax": 17.7,
+          "tmin": 7.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.5
+        },
+        {
+          "data": "2026-11-04",
+          "tmax": 16.8,
+          "tmin": 7.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.8
+        },
+        {
+          "data": "2026-11-05",
+          "tmax": 15.8,
+          "tmin": 8.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.4
+        },
+        {
+          "data": "2026-11-06",
+          "tmax": 16.2,
+          "tmin": 7.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.8
+        },
+        {
+          "data": "2026-11-07",
+          "tmax": 14.4,
+          "tmin": 5.9,
+          "pluja_mm": 0.1,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.0
+        },
+        {
+          "data": "2026-11-08",
+          "tmax": 9.7,
+          "tmin": 4.1,
+          "pluja_mm": 0.5,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 15.1
+        },
+        {
+          "data": "2026-11-09",
+          "tmax": 11.0,
+          "tmin": 3.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.1
+        },
+        {
+          "data": "2026-11-10",
+          "tmax": 12.0,
+          "tmin": 1.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.3
+        }
+      ]
+    },
+    {
+      "comarca": "Segarra",
+      "municipi": "Cervera",
+      "zona": "Interior",
+      "dies": [
+        {
+          "data": "2026-10-26",
+          "tmax": 20.2,
+          "tmin": 11.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.5
+        },
+        {
+          "data": "2026-10-27",
+          "tmax": 21.1,
+          "tmin": 12.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.7
+        },
+        {
+          "data": "2026-10-28",
+          "tmax": 18.2,
+          "tmin": 10.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 18.0
+        },
+        {
+          "data": "2026-10-29",
+          "tmax": 17.8,
+          "tmin": 10.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.7
+        },
+        {
+          "data": "2026-10-30",
+          "tmax": 18.6,
+          "tmin": 10.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.9
+        },
+        {
+          "data": "2026-10-31",
+          "tmax": 17.7,
+          "tmin": 10.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.2
+        },
+        {
+          "data": "2026-11-01",
+          "tmax": 17.3,
+          "tmin": 9.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.1
+        },
+        {
+          "data": "2026-11-02",
+          "tmax": 16.8,
+          "tmin": 9.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.0
+        },
+        {
+          "data": "2026-11-03",
+          "tmax": 17.9,
+          "tmin": 9.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.8
+        },
+        {
+          "data": "2026-11-04",
+          "tmax": 17.3,
+          "tmin": 8.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 14.8
+        },
+        {
+          "data": "2026-11-05",
+          "tmax": 16.7,
+          "tmin": 9.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.4
+        },
+        {
+          "data": "2026-11-06",
+          "tmax": 15.9,
+          "tmin": 8.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.8
+        },
+        {
+          "data": "2026-11-07",
+          "tmax": 15.7,
+          "tmin": 7.9,
+          "pluja_mm": 0.3,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.2
+        },
+        {
+          "data": "2026-11-08",
+          "tmax": 10.9,
+          "tmin": 5.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.2
+        },
+        {
+          "data": "2026-11-09",
+          "tmax": 11.7,
+          "tmin": 4.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.4
+        },
+        {
+          "data": "2026-11-10",
+          "tmax": 12.5,
+          "tmin": 3.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0
+        }
+      ]
+    },
+    {
+      "comarca": "Urgell",
+      "municipi": "Tàrrega",
+      "zona": "Interior",
+      "dies": [
+        {
+          "data": "2026-10-26",
+          "tmax": 21.2,
+          "tmin": 11.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.5
+        },
+        {
+          "data": "2026-10-27",
+          "tmax": 21.8,
+          "tmin": 12.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.7
+        },
+        {
+          "data": "2026-10-28",
+          "tmax": 19.4,
+          "tmin": 11.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 18.0
+        },
+        {
+          "data": "2026-10-29",
+          "tmax": 18.8,
+          "tmin": 11.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.7
+        },
+        {
+          "data": "2026-10-30",
+          "tmax": 19.6,
+          "tmin": 11.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.9
+        },
+        {
+          "data": "2026-10-31",
+          "tmax": 19.1,
+          "tmin": 11.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.2
+        },
+        {
+          "data": "2026-11-01",
+          "tmax": 18.4,
+          "tmin": 10.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.1
+        },
+        {
+          "data": "2026-11-02",
+          "tmax": 18.0,
+          "tmin": 9.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.0
+        },
+        {
+          "data": "2026-11-03",
+          "tmax": 18.6,
+          "tmin": 10.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.8
+        },
+        {
+          "data": "2026-11-04",
+          "tmax": 18.2,
+          "tmin": 9.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 14.8
+        },
+        {
+          "data": "2026-11-05",
+          "tmax": 18.0,
+          "tmin": 10.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.4
+        },
+        {
+          "data": "2026-11-06",
+          "tmax": 17.0,
+          "tmin": 9.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.8
+        },
+        {
+          "data": "2026-11-07",
+          "tmax": 17.1,
+          "tmin": 9.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.2
+        },
+        {
+          "data": "2026-11-08",
+          "tmax": 12.5,
+          "tmin": 6.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.2
+        },
+        {
+          "data": "2026-11-09",
+          "tmax": 13.3,
+          "tmin": 6.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.4
+        },
+        {
+          "data": "2026-11-10",
+          "tmax": 14.1,
+          "tmin": 4.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0
+        }
+      ]
+    },
+    {
+      "comarca": "Segrià",
+      "municipi": "Lleida",
+      "zona": "Interior",
+      "dies": [
+        {
+          "data": "2026-10-26",
+          "tmax": 21.9,
+          "tmin": 12.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.4
+        },
+        {
+          "data": "2026-10-27",
+          "tmax": 23.1,
+          "tmin": 13.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.6
+        },
+        {
+          "data": "2026-10-28",
+          "tmax": 21.9,
+          "tmin": 12.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 20.2
+        },
+        {
+          "data": "2026-10-29",
+          "tmax": 19.9,
+          "tmin": 11.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.4
+        },
+        {
+          "data": "2026-10-30",
+          "tmax": 20.6,
+          "tmin": 11.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.4
+        },
+        {
+          "data": "2026-10-31",
+          "tmax": 20.4,
+          "tmin": 11.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 17.3
+        },
+        {
+          "data": "2026-11-01",
+          "tmax": 19.9,
+          "tmin": 11.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.8
+        },
+        {
+          "data": "2026-11-02",
+          "tmax": 20.2,
+          "tmin": 10.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.6
+        },
+        {
+          "data": "2026-11-03",
+          "tmax": 19.7,
+          "tmin": 10.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.8
+        },
+        {
+          "data": "2026-11-04",
+          "tmax": 19.8,
+          "tmin": 9.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.1
+        },
+        {
+          "data": "2026-11-05",
+          "tmax": 18.2,
+          "tmin": 10.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.8
+        },
+        {
+          "data": "2026-11-06",
+          "tmax": 18.8,
+          "tmin": 9.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.4
+        },
+        {
+          "data": "2026-11-07",
+          "tmax": 19.2,
+          "tmin": 8.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.1
+        },
+        {
+          "data": "2026-11-08",
+          "tmax": 13.7,
+          "tmin": 8.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.3
+        },
+        {
+          "data": "2026-11-09",
+          "tmax": 15.7,
+          "tmin": 7.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.8
+        },
+        {
+          "data": "2026-11-10",
+          "tmax": 16.3,
+          "tmin": 4.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 17.6
+        }
+      ]
+    },
+    {
+      "comarca": "Noguera",
+      "municipi": "Balaguer",
+      "zona": "Interior",
+      "dies": [
+        {
+          "data": "2026-10-26",
+          "tmax": 21.5,
+          "tmin": 12.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.8
+        },
+        {
+          "data": "2026-10-27",
+          "tmax": 22.6,
+          "tmin": 12.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.2
+        },
+        {
+          "data": "2026-10-28",
+          "tmax": 21.1,
+          "tmin": 12.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.6
+        },
+        {
+          "data": "2026-10-29",
+          "tmax": 19.4,
+          "tmin": 12.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.5
+        },
+        {
+          "data": "2026-10-30",
+          "tmax": 20.2,
+          "tmin": 11.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.8
+        },
+        {
+          "data": "2026-10-31",
+          "tmax": 19.8,
+          "tmin": 11.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.6
+        },
+        {
+          "data": "2026-11-01",
+          "tmax": 19.4,
+          "tmin": 11.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.2
+        },
+        {
+          "data": "2026-11-02",
+          "tmax": 19.7,
+          "tmin": 10.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.3
+        },
+        {
+          "data": "2026-11-03",
+          "tmax": 19.3,
+          "tmin": 10.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.3
+        },
+        {
+          "data": "2026-11-04",
+          "tmax": 19.2,
+          "tmin": 9.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.4
+        },
+        {
+          "data": "2026-11-05",
+          "tmax": 17.8,
+          "tmin": 10.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.5
+        },
+        {
+          "data": "2026-11-06",
+          "tmax": 18.2,
+          "tmin": 9.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.3
+        },
+        {
+          "data": "2026-11-07",
+          "tmax": 18.4,
+          "tmin": 8.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 14.0
+        },
+        {
+          "data": "2026-11-08",
+          "tmax": 13.9,
+          "tmin": 8.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.3
+        },
+        {
+          "data": "2026-11-09",
+          "tmax": 15.0,
+          "tmin": 7.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.4
+        },
+        {
+          "data": "2026-11-10",
+          "tmax": 15.7,
+          "tmin": 4.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.4
+        }
+      ]
+    },
+    {
+      "comarca": "Garrigues",
+      "municipi": "Les Borges Blanques",
+      "zona": "Interior",
+      "dies": [
+        {
+          "data": "2026-10-26",
+          "tmax": 21.6,
+          "tmin": 12.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.4
+        },
+        {
+          "data": "2026-10-27",
+          "tmax": 22.5,
+          "tmin": 12.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.3
+        },
+        {
+          "data": "2026-10-28",
+          "tmax": 20.6,
+          "tmin": 12.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 24.1
+        },
+        {
+          "data": "2026-10-29",
+          "tmax": 19.4,
+          "tmin": 11.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.2
+        },
+        {
+          "data": "2026-10-30",
+          "tmax": 20.1,
+          "tmin": 11.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.2
+        },
+        {
+          "data": "2026-10-31",
+          "tmax": 19.4,
+          "tmin": 11.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.8
+        },
+        {
+          "data": "2026-11-01",
+          "tmax": 19.0,
+          "tmin": 10.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.1
+        },
+        {
+          "data": "2026-11-02",
+          "tmax": 18.9,
+          "tmin": 10.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.4
+        },
+        {
+          "data": "2026-11-03",
+          "tmax": 18.8,
+          "tmin": 10.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.8
+        },
+        {
+          "data": "2026-11-04",
+          "tmax": 19.5,
+          "tmin": 9.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.4
+        },
+        {
+          "data": "2026-11-05",
+          "tmax": 17.7,
+          "tmin": 10.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.8
+        },
+        {
+          "data": "2026-11-06",
+          "tmax": 17.7,
+          "tmin": 9.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.6
+        },
+        {
+          "data": "2026-11-07",
+          "tmax": 18.4,
+          "tmin": 9.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.6
+        },
+        {
+          "data": "2026-11-08",
+          "tmax": 12.0,
+          "tmin": 7.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0
+        },
+        {
+          "data": "2026-11-09",
+          "tmax": 14.6,
+          "tmin": 6.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.6
+        },
+        {
+          "data": "2026-11-10",
+          "tmax": 15.2,
+          "tmin": 4.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.9
+        }
+      ]
+    },
+    {
+      "comarca": "Pla d'Urgell",
+      "municipi": "Mollerussa",
+      "zona": "Interior",
+      "dies": [
+        {
+          "data": "2026-10-26",
+          "tmax": 21.7,
+          "tmin": 12.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.5
+        },
+        {
+          "data": "2026-10-27",
+          "tmax": 22.8,
+          "tmin": 13.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.2
+        },
+        {
+          "data": "2026-10-28",
+          "tmax": 20.9,
+          "tmin": 12.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 15.5
+        },
+        {
+          "data": "2026-10-29",
+          "tmax": 19.6,
+          "tmin": 11.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.6
+        },
+        {
+          "data": "2026-10-30",
+          "tmax": 20.3,
+          "tmin": 11.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.6
+        },
+        {
+          "data": "2026-10-31",
+          "tmax": 19.9,
+          "tmin": 11.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.6
+        },
+        {
+          "data": "2026-11-01",
+          "tmax": 19.4,
+          "tmin": 10.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.5
+        },
+        {
+          "data": "2026-11-02",
+          "tmax": 19.3,
+          "tmin": 10.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.7
+        },
+        {
+          "data": "2026-11-03",
+          "tmax": 19.3,
+          "tmin": 10.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.8
+        },
+        {
+          "data": "2026-11-04",
+          "tmax": 19.4,
+          "tmin": 9.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.9
+        },
+        {
+          "data": "2026-11-05",
+          "tmax": 18.0,
+          "tmin": 10.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.8
+        },
+        {
+          "data": "2026-11-06",
+          "tmax": 18.2,
+          "tmin": 9.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0
+        },
+        {
+          "data": "2026-11-07",
+          "tmax": 18.8,
+          "tmin": 8.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.6
+        },
+        {
+          "data": "2026-11-08",
+          "tmax": 13.6,
+          "tmin": 7.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.1
+        },
+        {
+          "data": "2026-11-09",
+          "tmax": 14.9,
+          "tmin": 6.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.4
+        },
+        {
+          "data": "2026-11-10",
+          "tmax": 15.7,
+          "tmin": 4.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0
+        }
+      ]
+    },
+    {
+      "comarca": "Garrotxa",
+      "municipi": "Olot",
+      "zona": "Pirineu i Prepirineu",
+      "dies": [
+        {
+          "data": "2026-10-26",
+          "tmax": 22.3,
+          "tmin": 11.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.6
+        },
+        {
+          "data": "2026-10-27",
+          "tmax": 22.0,
+          "tmin": 13.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.9
+        },
+        {
+          "data": "2026-10-28",
+          "tmax": 21.5,
+          "tmin": 12.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.6
+        },
+        {
+          "data": "2026-10-29",
+          "tmax": 19.2,
+          "tmin": 11.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.2
+        },
+        {
+          "data": "2026-10-30",
+          "tmax": 18.9,
+          "tmin": 10.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.8
+        },
+        {
+          "data": "2026-10-31",
+          "tmax": 18.8,
+          "tmin": 9.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.6
+        },
+        {
+          "data": "2026-11-01",
+          "tmax": 19.0,
+          "tmin": 9.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.8
+        },
+        {
+          "data": "2026-11-02",
+          "tmax": 19.8,
+          "tmin": 9.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.8
+        },
+        {
+          "data": "2026-11-03",
+          "tmax": 18.1,
+          "tmin": 7.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.2
+        },
+        {
+          "data": "2026-11-04",
+          "tmax": 19.5,
+          "tmin": 9.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0
+        },
+        {
+          "data": "2026-11-05",
+          "tmax": 17.4,
+          "tmin": 9.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.8
+        },
+        {
+          "data": "2026-11-06",
+          "tmax": 18.8,
+          "tmin": 9.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.9
+        },
+        {
+          "data": "2026-11-07",
+          "tmax": 14.7,
+          "tmin": 7.5,
+          "pluja_mm": 5.6,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.2
+        },
+        {
+          "data": "2026-11-08",
+          "tmax": 9.6,
+          "tmin": 4.7,
+          "pluja_mm": 17.2,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.7
+        },
+        {
+          "data": "2026-11-09",
+          "tmax": 11.6,
+          "tmin": 4.4,
+          "pluja_mm": 0.3,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.5
+        },
+        {
+          "data": "2026-11-10",
+          "tmax": 13.6,
+          "tmin": 3.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.9
+        }
+      ]
+    },
+    {
+      "comarca": "Ripollès",
+      "municipi": "Ripoll",
+      "zona": "Pirineu i Prepirineu",
+      "dies": [
+        {
+          "data": "2026-10-26",
+          "tmax": 20.2,
+          "tmin": 11.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.8
+        },
+        {
+          "data": "2026-10-27",
+          "tmax": 20.8,
+          "tmin": 12.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.6
+        },
+        {
+          "data": "2026-10-28",
+          "tmax": 19.9,
+          "tmin": 11.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.9
+        },
+        {
+          "data": "2026-10-29",
+          "tmax": 17.7,
+          "tmin": 9.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.4
+        },
+        {
+          "data": "2026-10-30",
+          "tmax": 17.9,
+          "tmin": 9.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.8
+        },
+        {
+          "data": "2026-10-31",
+          "tmax": 17.1,
+          "tmin": 8.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.5
+        },
+        {
+          "data": "2026-11-01",
+          "tmax": 17.4,
+          "tmin": 8.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.8
+        },
+        {
+          "data": "2026-11-02",
+          "tmax": 17.6,
+          "tmin": 8.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.6
+        },
+        {
+          "data": "2026-11-03",
+          "tmax": 17.1,
+          "tmin": 6.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.8
+        },
+        {
+          "data": "2026-11-04",
+          "tmax": 17.2,
+          "tmin": 8.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.6
+        },
+        {
+          "data": "2026-11-05",
+          "tmax": 15.4,
+          "tmin": 8.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.5
+        },
+        {
+          "data": "2026-11-06",
+          "tmax": 16.6,
+          "tmin": 8.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.1
+        },
+        {
+          "data": "2026-11-07",
+          "tmax": 12.2,
+          "tmin": 6.3,
+          "pluja_mm": 1.2,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.6
+        },
+        {
+          "data": "2026-11-08",
+          "tmax": 8.4,
+          "tmin": 4.7,
+          "pluja_mm": 6.6,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.0
+        },
+        {
+          "data": "2026-11-09",
+          "tmax": 10.5,
+          "tmin": 3.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.5
+        },
+        {
+          "data": "2026-11-10",
+          "tmax": 12.7,
+          "tmin": 2.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.4
+        }
+      ]
+    },
+    {
+      "comarca": "Berguedà",
+      "municipi": "Berga",
+      "zona": "Pirineu i Prepirineu",
+      "dies": [
+        {
+          "data": "2026-10-26",
+          "tmax": 19.6,
+          "tmin": 11.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.5
+        },
+        {
+          "data": "2026-10-27",
+          "tmax": 21.2,
+          "tmin": 11.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.2
+        },
+        {
+          "data": "2026-10-28",
+          "tmax": 19.5,
+          "tmin": 11.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.2
+        },
+        {
+          "data": "2026-10-29",
+          "tmax": 17.4,
+          "tmin": 9.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.3
+        },
+        {
+          "data": "2026-10-30",
+          "tmax": 17.9,
+          "tmin": 9.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.4
+        },
+        {
+          "data": "2026-10-31",
+          "tmax": 16.7,
+          "tmin": 8.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.8
+        },
+        {
+          "data": "2026-11-01",
+          "tmax": 17.1,
+          "tmin": 8.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 4.7
+        },
+        {
+          "data": "2026-11-02",
+          "tmax": 17.2,
+          "tmin": 8.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.3
+        },
+        {
+          "data": "2026-11-03",
+          "tmax": 17.6,
+          "tmin": 7.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.6
+        },
+        {
+          "data": "2026-11-04",
+          "tmax": 16.9,
+          "tmin": 7.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.2
+        },
+        {
+          "data": "2026-11-05",
+          "tmax": 15.4,
+          "tmin": 8.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.8
+        },
+        {
+          "data": "2026-11-06",
+          "tmax": 16.3,
+          "tmin": 7.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.8
+        },
+        {
+          "data": "2026-11-07",
+          "tmax": 13.5,
+          "tmin": 6.2,
+          "pluja_mm": 0.1,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.5
+        },
+        {
+          "data": "2026-11-08",
+          "tmax": 9.4,
+          "tmin": 3.2,
+          "pluja_mm": 0.8,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 19.8
+        },
+        {
+          "data": "2026-11-09",
+          "tmax": 10.9,
+          "tmin": 2.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.1
+        },
+        {
+          "data": "2026-11-10",
+          "tmax": 11.9,
+          "tmin": 2.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.2
+        }
+      ]
+    },
+    {
+      "comarca": "Cerdanya",
+      "municipi": "Puigcerdà",
+      "zona": "Pirineu i Prepirineu",
+      "dies": [
+        {
+          "data": "2026-10-26",
+          "tmax": 20.0,
+          "tmin": 8.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.4
+        },
+        {
+          "data": "2026-10-27",
+          "tmax": 20.9,
+          "tmin": 10.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 14.8
+        },
+        {
+          "data": "2026-10-28",
+          "tmax": 18.4,
+          "tmin": 9.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.7
+        },
+        {
+          "data": "2026-10-29",
+          "tmax": 17.3,
+          "tmin": 8.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.1
+        },
+        {
+          "data": "2026-10-30",
+          "tmax": 18.1,
+          "tmin": 7.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.2
+        },
+        {
+          "data": "2026-10-31",
+          "tmax": 16.4,
+          "tmin": 6.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.6
+        },
+        {
+          "data": "2026-11-01",
+          "tmax": 16.7,
+          "tmin": 5.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.5
+        },
+        {
+          "data": "2026-11-02",
+          "tmax": 17.0,
+          "tmin": 5.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.6
+        },
+        {
+          "data": "2026-11-03",
+          "tmax": 15.8,
+          "tmin": 5.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.9
+        },
+        {
+          "data": "2026-11-04",
+          "tmax": 16.6,
+          "tmin": 6.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.4
+        },
+        {
+          "data": "2026-11-05",
+          "tmax": 15.6,
+          "tmin": 6.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.4
+        },
+        {
+          "data": "2026-11-06",
+          "tmax": 16.0,
+          "tmin": 5.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.2
+        },
+        {
+          "data": "2026-11-07",
+          "tmax": 12.2,
+          "tmin": 3.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.4
+        },
+        {
+          "data": "2026-11-08",
+          "tmax": 6.3,
+          "tmin": 1.6,
+          "pluja_mm": 1.5,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.6
+        },
+        {
+          "data": "2026-11-09",
+          "tmax": 8.7,
+          "tmin": 0.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.0
+        },
+        {
+          "data": "2026-11-10",
+          "tmax": 11.1,
+          "tmin": 0.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.6
+        }
+      ]
+    },
+    {
+      "comarca": "Alt Urgell",
+      "municipi": "La Seu d'Urgell",
+      "zona": "Pirineu i Prepirineu",
+      "dies": [
+        {
+          "data": "2026-10-26",
+          "tmax": 22.1,
+          "tmin": 11.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.8
+        },
+        {
+          "data": "2026-10-27",
+          "tmax": 24.0,
+          "tmin": 11.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.7
+        },
+        {
+          "data": "2026-10-28",
+          "tmax": 21.5,
+          "tmin": 10.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.7
+        },
+        {
+          "data": "2026-10-29",
+          "tmax": 19.3,
+          "tmin": 9.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.8
+        },
+        {
+          "data": "2026-10-30",
+          "tmax": 19.6,
+          "tmin": 8.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.4
+        },
+        {
+          "data": "2026-10-31",
+          "tmax": 18.5,
+          "tmin": 7.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.5
+        },
+        {
+          "data": "2026-11-01",
+          "tmax": 18.9,
+          "tmin": 6.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.2
+        },
+        {
+          "data": "2026-11-02",
+          "tmax": 19.3,
+          "tmin": 7.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.6
+        },
+        {
+          "data": "2026-11-03",
+          "tmax": 18.5,
+          "tmin": 6.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.8
+        },
+        {
+          "data": "2026-11-04",
+          "tmax": 19.4,
+          "tmin": 6.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.6
+        },
+        {
+          "data": "2026-11-05",
+          "tmax": 18.0,
+          "tmin": 8.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.1
+        },
+        {
+          "data": "2026-11-06",
+          "tmax": 18.2,
+          "tmin": 7.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.5
+        },
+        {
+          "data": "2026-11-07",
+          "tmax": 15.8,
+          "tmin": 5.6,
+          "pluja_mm": 0.1,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.4
+        },
+        {
+          "data": "2026-11-08",
+          "tmax": 9.6,
+          "tmin": 4.8,
+          "pluja_mm": 1.4,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.7
+        },
+        {
+          "data": "2026-11-09",
+          "tmax": 12.1,
+          "tmin": 2.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.2
+        },
+        {
+          "data": "2026-11-10",
+          "tmax": 13.7,
+          "tmin": 1.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.5
+        }
+      ]
+    },
+    {
+      "comarca": "Pallars Jussà",
+      "municipi": "Tremp",
+      "zona": "Pirineu i Prepirineu",
+      "dies": [
+        {
+          "data": "2026-10-26",
+          "tmax": 22.0,
+          "tmin": 12.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.4
+        },
+        {
+          "data": "2026-10-27",
+          "tmax": 23.5,
+          "tmin": 12.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.0
+        },
+        {
+          "data": "2026-10-28",
+          "tmax": 21.5,
+          "tmin": 12.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.9
+        },
+        {
+          "data": "2026-10-29",
+          "tmax": 19.2,
+          "tmin": 10.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.8
+        },
+        {
+          "data": "2026-10-30",
+          "tmax": 19.8,
+          "tmin": 9.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.6
+        },
+        {
+          "data": "2026-10-31",
+          "tmax": 18.9,
+          "tmin": 9.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.5
+        },
+        {
+          "data": "2026-11-01",
+          "tmax": 19.3,
+          "tmin": 9.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.8
+        },
+        {
+          "data": "2026-11-02",
+          "tmax": 19.3,
+          "tmin": 9.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.6
+        },
+        {
+          "data": "2026-11-03",
+          "tmax": 18.9,
+          "tmin": 8.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.6
+        },
+        {
+          "data": "2026-11-04",
+          "tmax": 19.5,
+          "tmin": 7.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.8
+        },
+        {
+          "data": "2026-11-05",
+          "tmax": 17.7,
+          "tmin": 10.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.1
+        },
+        {
+          "data": "2026-11-06",
+          "tmax": 18.5,
+          "tmin": 7.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.5
+        },
+        {
+          "data": "2026-11-07",
+          "tmax": 16.7,
+          "tmin": 7.0,
+          "pluja_mm": 0.4,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.5
+        },
+        {
+          "data": "2026-11-08",
+          "tmax": 11.6,
+          "tmin": 5.7,
+          "pluja_mm": 0.5,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.6
+        },
+        {
+          "data": "2026-11-09",
+          "tmax": 12.7,
+          "tmin": 4.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.8
+        },
+        {
+          "data": "2026-11-10",
+          "tmax": 13.8,
+          "tmin": 2.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.2
+        }
+      ]
+    },
+    {
+      "comarca": "Pallars Sobirà",
+      "municipi": "Sort",
+      "zona": "Pirineu i Prepirineu",
+      "dies": [
+        {
+          "data": "2026-10-26",
+          "tmax": 24.0,
+          "tmin": 11.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 18.0
+        },
+        {
+          "data": "2026-10-27",
+          "tmax": 25.8,
+          "tmin": 11.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 19.8
+        },
+        {
+          "data": "2026-10-28",
+          "tmax": 22.5,
+          "tmin": 11.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 16.9
+        },
+        {
+          "data": "2026-10-29",
+          "tmax": 20.5,
+          "tmin": 10.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.4
+        },
+        {
+          "data": "2026-10-30",
+          "tmax": 22.1,
+          "tmin": 9.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.1
+        },
+        {
+          "data": "2026-10-31",
+          "tmax": 19.5,
+          "tmin": 8.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.6
+        },
+        {
+          "data": "2026-11-01",
+          "tmax": 20.6,
+          "tmin": 7.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.1
+        },
+        {
+          "data": "2026-11-02",
+          "tmax": 20.9,
+          "tmin": 8.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 14.8
+        },
+        {
+          "data": "2026-11-03",
+          "tmax": 19.3,
+          "tmin": 7.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 15.5
+        },
+        {
+          "data": "2026-11-04",
+          "tmax": 20.5,
+          "tmin": 8.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.8
+        },
+        {
+          "data": "2026-11-05",
+          "tmax": 19.5,
+          "tmin": 9.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.6
+        },
+        {
+          "data": "2026-11-06",
+          "tmax": 19.8,
+          "tmin": 7.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.1
+        },
+        {
+          "data": "2026-11-07",
+          "tmax": 16.4,
+          "tmin": 6.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.5
+        },
+        {
+          "data": "2026-11-08",
+          "tmax": 10.2,
+          "tmin": 6.5,
+          "pluja_mm": 1.2,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.6
+        },
+        {
+          "data": "2026-11-09",
+          "tmax": 12.2,
+          "tmin": 3.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.4
+        },
+        {
+          "data": "2026-11-10",
+          "tmax": 14.5,
+          "tmin": 2.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.8
+        }
+      ]
+    },
+    {
+      "comarca": "Alta Ribagorça",
+      "municipi": "El Pont de Suert",
+      "zona": "Pirineu i Prepirineu",
+      "dies": [
+        {
+          "data": "2026-10-26",
+          "tmax": 20.5,
+          "tmin": 11.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0
+        },
+        {
+          "data": "2026-10-27",
+          "tmax": 22.1,
+          "tmin": 11.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.9
+        },
+        {
+          "data": "2026-10-28",
+          "tmax": 19.9,
+          "tmin": 10.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.8
+        },
+        {
+          "data": "2026-10-29",
+          "tmax": 17.7,
+          "tmin": 9.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.4
+        },
+        {
+          "data": "2026-10-30",
+          "tmax": 17.9,
+          "tmin": 8.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.6
+        },
+        {
+          "data": "2026-10-31",
+          "tmax": 17.3,
+          "tmin": 8.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.8
+        },
+        {
+          "data": "2026-11-01",
+          "tmax": 17.4,
+          "tmin": 7.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.1
+        },
+        {
+          "data": "2026-11-02",
+          "tmax": 17.3,
+          "tmin": 7.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.1
+        },
+        {
+          "data": "2026-11-03",
+          "tmax": 17.0,
+          "tmin": 7.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.1
+        },
+        {
+          "data": "2026-11-04",
+          "tmax": 17.9,
+          "tmin": 7.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.5
+        },
+        {
+          "data": "2026-11-05",
+          "tmax": 15.9,
+          "tmin": 8.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.0
+        },
+        {
+          "data": "2026-11-06",
+          "tmax": 16.6,
+          "tmin": 7.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.1
+        },
+        {
+          "data": "2026-11-07",
+          "tmax": 14.7,
+          "tmin": 6.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.1
+        },
+        {
+          "data": "2026-11-08",
+          "tmax": 10.4,
+          "tmin": 4.6,
+          "pluja_mm": 0.3,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.2
+        },
+        {
+          "data": "2026-11-09",
+          "tmax": 10.9,
+          "tmin": 2.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.1
+        },
+        {
+          "data": "2026-11-10",
+          "tmax": 12.2,
+          "tmin": 1.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.8
+        }
+      ]
+    },
+    {
+      "comarca": "Val d'Aran",
+      "municipi": "Vielha",
+      "zona": "Pirineu i Prepirineu",
+      "dies": [
+        {
+          "data": "2026-10-26",
+          "tmax": 21.8,
+          "tmin": 10.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 16.6
+        },
+        {
+          "data": "2026-10-27",
+          "tmax": 21.4,
+          "tmin": 11.6,
+          "pluja_mm": 0.3,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 16.6
+        },
+        {
+          "data": "2026-10-28",
+          "tmax": 18.4,
+          "tmin": 10.5,
+          "pluja_mm": 0.4,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.8
+        },
+        {
+          "data": "2026-10-29",
+          "tmax": 19.5,
+          "tmin": 9.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.3
+        },
+        {
+          "data": "2026-10-30",
+          "tmax": 18.8,
+          "tmin": 8.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.6
+        },
+        {
+          "data": "2026-10-31",
+          "tmax": 18.9,
+          "tmin": 8.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.8
+        },
+        {
+          "data": "2026-11-01",
+          "tmax": 17.6,
+          "tmin": 6.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.1
+        },
+        {
+          "data": "2026-11-02",
+          "tmax": 17.0,
+          "tmin": 6.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.2
+        },
+        {
+          "data": "2026-11-03",
+          "tmax": 19.0,
+          "tmin": 6.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.2
+        },
+        {
+          "data": "2026-11-04",
+          "tmax": 20.4,
+          "tmin": 8.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.9
+        },
+        {
+          "data": "2026-11-05",
+          "tmax": 16.9,
+          "tmin": 7.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.8
+        },
+        {
+          "data": "2026-11-06",
+          "tmax": 16.3,
+          "tmin": 6.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.1
+        },
+        {
+          "data": "2026-11-07",
+          "tmax": 16.1,
+          "tmin": 6.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 16.6
+        },
+        {
+          "data": "2026-11-08",
+          "tmax": 11.2,
+          "tmin": 5.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 16.2
+        },
+        {
+          "data": "2026-11-09",
+          "tmax": 12.9,
+          "tmin": 2.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0
+        },
+        {
+          "data": "2026-11-10",
+          "tmax": 13.4,
+          "tmin": 3.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 14.0
+        }
+      ]
+    },
+    {
+      "comarca": "Tarragonès",
+      "municipi": "Tarragona",
+      "zona": "Camp de Tarragona i Terres de l'Ebre",
+      "dies": [
+        {
+          "data": "2026-10-26",
+          "tmax": 21.4,
+          "tmin": 18.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.7
+        },
+        {
+          "data": "2026-10-27",
+          "tmax": 21.9,
+          "tmin": 18.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.3
+        },
+        {
+          "data": "2026-10-28",
+          "tmax": 23.3,
+          "tmin": 17.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 16.6
+        },
+        {
+          "data": "2026-10-29",
+          "tmax": 20.6,
+          "tmin": 17.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.3
+        },
+        {
+          "data": "2026-10-30",
+          "tmax": 19.5,
+          "tmin": 16.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.4
+        },
+        {
+          "data": "2026-10-31",
+          "tmax": 19.1,
+          "tmin": 16.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.6
+        },
+        {
+          "data": "2026-11-01",
+          "tmax": 18.6,
+          "tmin": 15.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.5
+        },
+        {
+          "data": "2026-11-02",
+          "tmax": 19.1,
+          "tmin": 15.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.6
+        },
+        {
+          "data": "2026-11-03",
+          "tmax": 19.0,
+          "tmin": 15.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.2
+        },
+        {
+          "data": "2026-11-04",
+          "tmax": 19.6,
+          "tmin": 15.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.3
+        },
+        {
+          "data": "2026-11-05",
+          "tmax": 18.8,
+          "tmin": 16.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.5
+        },
+        {
+          "data": "2026-11-06",
+          "tmax": 18.9,
+          "tmin": 15.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.3
+        },
+        {
+          "data": "2026-11-07",
+          "tmax": 17.1,
+          "tmin": 15.4,
+          "pluja_mm": 2.2,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 15.5
+        },
+        {
+          "data": "2026-11-08",
+          "tmax": 15.4,
+          "tmin": 12.4,
+          "pluja_mm": 0.8,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.2
+        },
+        {
+          "data": "2026-11-09",
+          "tmax": 15.5,
+          "tmin": 12.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.3
+        },
+        {
+          "data": "2026-11-10",
+          "tmax": 15.9,
+          "tmin": 10.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.2
+        }
+      ]
+    },
+    {
+      "comarca": "Baix Camp",
+      "municipi": "Reus",
+      "zona": "Camp de Tarragona i Terres de l'Ebre",
+      "dies": [
+        {
+          "data": "2026-10-26",
+          "tmax": 22.7,
+          "tmin": 16.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.8
+        },
+        {
+          "data": "2026-10-27",
+          "tmax": 24.8,
+          "tmin": 16.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.2
+        },
+        {
+          "data": "2026-10-28",
+          "tmax": 22.5,
+          "tmin": 14.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 23.4
+        },
+        {
+          "data": "2026-10-29",
+          "tmax": 21.5,
+          "tmin": 15.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.9
+        },
+        {
+          "data": "2026-10-30",
+          "tmax": 20.2,
+          "tmin": 15.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.5
+        },
+        {
+          "data": "2026-10-31",
+          "tmax": 19.5,
+          "tmin": 14.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.8
+        },
+        {
+          "data": "2026-11-01",
+          "tmax": 19.9,
+          "tmin": 13.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.4
+        },
+        {
+          "data": "2026-11-02",
+          "tmax": 20.6,
+          "tmin": 14.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.1
+        },
+        {
+          "data": "2026-11-03",
+          "tmax": 19.9,
+          "tmin": 14.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.8
+        },
+        {
+          "data": "2026-11-04",
+          "tmax": 20.5,
+          "tmin": 13.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.6
+        },
+        {
+          "data": "2026-11-05",
+          "tmax": 18.8,
+          "tmin": 14.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.6
+        },
+        {
+          "data": "2026-11-06",
+          "tmax": 20.0,
+          "tmin": 13.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.2
+        },
+        {
+          "data": "2026-11-07",
+          "tmax": 16.3,
+          "tmin": 13.6,
+          "pluja_mm": 2.2,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.2
+        },
+        {
+          "data": "2026-11-08",
+          "tmax": 14.3,
+          "tmin": 11.1,
+          "pluja_mm": 0.2,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.5
+        },
+        {
+          "data": "2026-11-09",
+          "tmax": 14.9,
+          "tmin": 10.2,
+          "pluja_mm": 0.3,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.9
+        },
+        {
+          "data": "2026-11-10",
+          "tmax": 15.4,
+          "tmin": 9.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0
+        }
+      ]
+    },
+    {
+      "comarca": "Alt Camp",
+      "municipi": "Valls",
+      "zona": "Camp de Tarragona i Terres de l'Ebre",
+      "dies": [
+        {
+          "data": "2026-10-26",
+          "tmax": 21.5,
+          "tmin": 14.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.7
+        },
+        {
+          "data": "2026-10-27",
+          "tmax": 24.1,
+          "tmin": 14.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.3
+        },
+        {
+          "data": "2026-10-28",
+          "tmax": 22.9,
+          "tmin": 14.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 16.6
+        },
+        {
+          "data": "2026-10-29",
+          "tmax": 20.2,
+          "tmin": 13.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.3
+        },
+        {
+          "data": "2026-10-30",
+          "tmax": 19.8,
+          "tmin": 13.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.4
+        },
+        {
+          "data": "2026-10-31",
+          "tmax": 19.2,
+          "tmin": 12.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.6
+        },
+        {
+          "data": "2026-11-01",
+          "tmax": 19.3,
+          "tmin": 11.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.5
+        },
+        {
+          "data": "2026-11-02",
+          "tmax": 19.9,
+          "tmin": 12.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.6
+        },
+        {
+          "data": "2026-11-03",
+          "tmax": 19.8,
+          "tmin": 11.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.2
+        },
+        {
+          "data": "2026-11-04",
+          "tmax": 19.5,
+          "tmin": 11.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.3
+        },
+        {
+          "data": "2026-11-05",
+          "tmax": 18.2,
+          "tmin": 12.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.5
+        },
+        {
+          "data": "2026-11-06",
+          "tmax": 19.2,
+          "tmin": 11.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.3
+        },
+        {
+          "data": "2026-11-07",
+          "tmax": 15.0,
+          "tmin": 12.0,
+          "pluja_mm": 1.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 15.5
+        },
+        {
+          "data": "2026-11-08",
+          "tmax": 12.7,
+          "tmin": 9.3,
+          "pluja_mm": 0.2,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.2
+        },
+        {
+          "data": "2026-11-09",
+          "tmax": 14.3,
+          "tmin": 7.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.3
+        },
+        {
+          "data": "2026-11-10",
+          "tmax": 14.8,
+          "tmin": 6.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.2
+        }
+      ]
+    },
+    {
+      "comarca": "Conca de Barberà",
+      "municipi": "Montblanc",
+      "zona": "Camp de Tarragona i Terres de l'Ebre",
+      "dies": [
+        {
+          "data": "2026-10-26",
+          "tmax": 22.6,
+          "tmin": 13.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.8
+        },
+        {
+          "data": "2026-10-27",
+          "tmax": 24.2,
+          "tmin": 13.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 15.5
+        },
+        {
+          "data": "2026-10-28",
+          "tmax": 20.5,
+          "tmin": 12.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 19.1
+        },
+        {
+          "data": "2026-10-29",
+          "tmax": 20.6,
+          "tmin": 12.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.2
+        },
+        {
+          "data": "2026-10-30",
+          "tmax": 19.9,
+          "tmin": 11.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.3
+        },
+        {
+          "data": "2026-10-31",
+          "tmax": 18.7,
+          "tmin": 11.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.6
+        },
+        {
+          "data": "2026-11-01",
+          "tmax": 19.4,
+          "tmin": 10.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.4
+        },
+        {
+          "data": "2026-11-02",
+          "tmax": 19.2,
+          "tmin": 10.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.9
+        },
+        {
+          "data": "2026-11-03",
+          "tmax": 19.3,
+          "tmin": 10.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.9
+        },
+        {
+          "data": "2026-11-04",
+          "tmax": 20.7,
+          "tmin": 10.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.6
+        },
+        {
+          "data": "2026-11-05",
+          "tmax": 18.0,
+          "tmin": 10.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.3
+        },
+        {
+          "data": "2026-11-06",
+          "tmax": 18.2,
+          "tmin": 10.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.2
+        },
+        {
+          "data": "2026-11-07",
+          "tmax": 14.7,
+          "tmin": 10.3,
+          "pluja_mm": 0.3,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 19.8
+        },
+        {
+          "data": "2026-11-08",
+          "tmax": 11.6,
+          "tmin": 8.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.2
+        },
+        {
+          "data": "2026-11-09",
+          "tmax": 13.3,
+          "tmin": 6.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.0
+        },
+        {
+          "data": "2026-11-10",
+          "tmax": 13.8,
+          "tmin": 4.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.3
+        }
+      ]
+    },
+    {
+      "comarca": "Priorat",
+      "municipi": "Falset",
+      "zona": "Camp de Tarragona i Terres de l'Ebre",
+      "dies": [
+        {
+          "data": "2026-10-26",
+          "tmax": 22.6,
+          "tmin": 12.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.9
+        },
+        {
+          "data": "2026-10-27",
+          "tmax": 23.8,
+          "tmin": 13.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 14.8
+        },
+        {
+          "data": "2026-10-28",
+          "tmax": 20.1,
+          "tmin": 12.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 21.6
+        },
+        {
+          "data": "2026-10-29",
+          "tmax": 20.4,
+          "tmin": 12.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.8
+        },
+        {
+          "data": "2026-10-30",
+          "tmax": 20.2,
+          "tmin": 12.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.3
+        },
+        {
+          "data": "2026-10-31",
+          "tmax": 18.9,
+          "tmin": 11.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.7
+        },
+        {
+          "data": "2026-11-01",
+          "tmax": 19.6,
+          "tmin": 10.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.5
+        },
+        {
+          "data": "2026-11-02",
+          "tmax": 19.6,
+          "tmin": 10.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.6
+        },
+        {
+          "data": "2026-11-03",
+          "tmax": 19.5,
+          "tmin": 11.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.9
+        },
+        {
+          "data": "2026-11-04",
+          "tmax": 19.9,
+          "tmin": 10.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.3
+        },
+        {
+          "data": "2026-11-05",
+          "tmax": 18.1,
+          "tmin": 11.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.9
+        },
+        {
+          "data": "2026-11-06",
+          "tmax": 18.6,
+          "tmin": 9.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0
+        },
+        {
+          "data": "2026-11-07",
+          "tmax": 15.9,
+          "tmin": 10.3,
+          "pluja_mm": 0.9,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.5
+        },
+        {
+          "data": "2026-11-08",
+          "tmax": 13.2,
+          "tmin": 8.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.8
+        },
+        {
+          "data": "2026-11-09",
+          "tmax": 13.5,
+          "tmin": 7.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.6
+        },
+        {
+          "data": "2026-11-10",
+          "tmax": 14.2,
+          "tmin": 6.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.7
+        }
+      ]
+    },
+    {
+      "comarca": "Ribera d'Ebre",
+      "municipi": "Móra d'Ebre",
+      "zona": "Camp de Tarragona i Terres de l'Ebre",
+      "dies": [
+        {
+          "data": "2026-10-26",
+          "tmax": 25.2,
+          "tmin": 15.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 40.7
+        },
+        {
+          "data": "2026-10-27",
+          "tmax": 26.0,
+          "tmin": 14.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.3
+        },
+        {
+          "data": "2026-10-28",
+          "tmax": 22.7,
+          "tmin": 15.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 35.3
+        },
+        {
+          "data": "2026-10-29",
+          "tmax": 22.6,
+          "tmin": 14.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.2
+        },
+        {
+          "data": "2026-10-30",
+          "tmax": 22.0,
+          "tmin": 14.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.7
+        },
+        {
+          "data": "2026-10-31",
+          "tmax": 20.7,
+          "tmin": 13.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.5
+        },
+        {
+          "data": "2026-11-01",
+          "tmax": 22.0,
+          "tmin": 12.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.5
+        },
+        {
+          "data": "2026-11-02",
+          "tmax": 21.7,
+          "tmin": 12.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.3
+        },
+        {
+          "data": "2026-11-03",
+          "tmax": 20.7,
+          "tmin": 12.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.7
+        },
+        {
+          "data": "2026-11-04",
+          "tmax": 21.6,
+          "tmin": 11.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.2
+        },
+        {
+          "data": "2026-11-05",
+          "tmax": 19.8,
+          "tmin": 12.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.4
+        },
+        {
+          "data": "2026-11-06",
+          "tmax": 20.4,
+          "tmin": 12.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.4
+        },
+        {
+          "data": "2026-11-07",
+          "tmax": 18.5,
+          "tmin": 11.3,
+          "pluja_mm": 0.3,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 18.4
+        },
+        {
+          "data": "2026-11-08",
+          "tmax": 15.4,
+          "tmin": 11.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.1
+        },
+        {
+          "data": "2026-11-09",
+          "tmax": 15.9,
+          "tmin": 9.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.1
+        },
+        {
+          "data": "2026-11-10",
+          "tmax": 15.8,
+          "tmin": 8.4,
+          "pluja_mm": 0.4,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 14.0
+        }
+      ]
+    },
+    {
+      "comarca": "Terra Alta",
+      "municipi": "Gandesa",
+      "zona": "Camp de Tarragona i Terres de l'Ebre",
+      "dies": [
+        {
+          "data": "2026-10-26",
+          "tmax": 22.8,
+          "tmin": 13.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 56.2
+        },
+        {
+          "data": "2026-10-27",
+          "tmax": 23.6,
+          "tmin": 11.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 16.6
+        },
+        {
+          "data": "2026-10-28",
+          "tmax": 20.3,
+          "tmin": 13.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 32.8
+        },
+        {
+          "data": "2026-10-29",
+          "tmax": 20.1,
+          "tmin": 11.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.0
+        },
+        {
+          "data": "2026-10-30",
+          "tmax": 20.1,
+          "tmin": 11.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.8
+        },
+        {
+          "data": "2026-10-31",
+          "tmax": 18.6,
+          "tmin": 10.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 15.8
+        },
+        {
+          "data": "2026-11-01",
+          "tmax": 19.2,
+          "tmin": 9.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.8
+        },
+        {
+          "data": "2026-11-02",
+          "tmax": 19.2,
+          "tmin": 9.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.5
+        },
+        {
+          "data": "2026-11-03",
+          "tmax": 18.2,
+          "tmin": 10.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.1
+        },
+        {
+          "data": "2026-11-04",
+          "tmax": 19.6,
+          "tmin": 8.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.8
+        },
+        {
+          "data": "2026-11-05",
+          "tmax": 17.6,
+          "tmin": 9.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.6
+        },
+        {
+          "data": "2026-11-06",
+          "tmax": 17.9,
+          "tmin": 9.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.8
+        },
+        {
+          "data": "2026-11-07",
+          "tmax": 17.2,
+          "tmin": 8.4,
+          "pluja_mm": 0.1,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 18.0
+        },
+        {
+          "data": "2026-11-08",
+          "tmax": 12.4,
+          "tmin": 9.3,
+          "pluja_mm": 0.8,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.1
+        },
+        {
+          "data": "2026-11-09",
+          "tmax": 13.7,
+          "tmin": 7.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.2
+        },
+        {
+          "data": "2026-11-10",
+          "tmax": 13.7,
+          "tmin": 7.0,
+          "pluja_mm": 0.4,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 18.0
+        }
+      ]
+    },
+    {
+      "comarca": "Baix Ebre",
+      "municipi": "Tortosa",
+      "zona": "Camp de Tarragona i Terres de l'Ebre",
+      "dies": [
+        {
+          "data": "2026-10-26",
+          "tmax": 24.8,
+          "tmin": 16.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 16.2
+        },
+        {
+          "data": "2026-10-27",
+          "tmax": 26.7,
+          "tmin": 14.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.5
+        },
+        {
+          "data": "2026-10-28",
+          "tmax": 24.0,
+          "tmin": 15.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 15.1
+        },
+        {
+          "data": "2026-10-29",
+          "tmax": 22.1,
+          "tmin": 14.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.2
+        },
+        {
+          "data": "2026-10-30",
+          "tmax": 21.7,
+          "tmin": 14.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.7
+        },
+        {
+          "data": "2026-10-31",
+          "tmax": 20.5,
+          "tmin": 13.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.1
+        },
+        {
+          "data": "2026-11-01",
+          "tmax": 21.2,
+          "tmin": 13.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.1
+        },
+        {
+          "data": "2026-11-02",
+          "tmax": 22.3,
+          "tmin": 12.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.2
+        },
+        {
+          "data": "2026-11-03",
+          "tmax": 19.3,
+          "tmin": 12.9,
+          "pluja_mm": 0.3,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 16.9
+        },
+        {
+          "data": "2026-11-04",
+          "tmax": 21.8,
+          "tmin": 11.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 14.8
+        },
+        {
+          "data": "2026-11-05",
+          "tmax": 19.9,
+          "tmin": 11.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.1
+        },
+        {
+          "data": "2026-11-06",
+          "tmax": 21.2,
+          "tmin": 11.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.7
+        },
+        {
+          "data": "2026-11-07",
+          "tmax": 19.4,
+          "tmin": 11.0,
+          "pluja_mm": 1.3,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 16.2
+        },
+        {
+          "data": "2026-11-08",
+          "tmax": 15.3,
+          "tmin": 12.9,
+          "pluja_mm": 8.9,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.3
+        },
+        {
+          "data": "2026-11-09",
+          "tmax": 15.4,
+          "tmin": 12.7,
+          "pluja_mm": 2.1,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.6
+        },
+        {
+          "data": "2026-11-10",
+          "tmax": 14.9,
+          "tmin": 11.1,
+          "pluja_mm": 0.6,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 14.8
+        }
+      ]
+    },
+    {
+      "comarca": "Montsià",
+      "municipi": "Amposta",
+      "zona": "Camp de Tarragona i Terres de l'Ebre",
+      "dies": [
+        {
+          "data": "2026-10-26",
+          "tmax": 23.8,
+          "tmin": 16.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 16.2
+        },
+        {
+          "data": "2026-10-27",
+          "tmax": 24.5,
+          "tmin": 14.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.5
+        },
+        {
+          "data": "2026-10-28",
+          "tmax": 23.7,
+          "tmin": 15.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 15.1
+        },
+        {
+          "data": "2026-10-29",
+          "tmax": 21.6,
+          "tmin": 14.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.2
+        },
+        {
+          "data": "2026-10-30",
+          "tmax": 21.2,
+          "tmin": 14.6,
+          "pluja_mm": 0.1,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.7
+        },
+        {
+          "data": "2026-10-31",
+          "tmax": 20.4,
+          "tmin": 13.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.1
+        },
+        {
+          "data": "2026-11-01",
+          "tmax": 20.7,
+          "tmin": 13.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.1
+        },
+        {
+          "data": "2026-11-02",
+          "tmax": 21.2,
+          "tmin": 12.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.2
+        },
+        {
+          "data": "2026-11-03",
+          "tmax": 19.4,
+          "tmin": 12.6,
+          "pluja_mm": 0.3,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 16.9
+        },
+        {
+          "data": "2026-11-04",
+          "tmax": 20.7,
+          "tmin": 10.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 14.8
+        },
+        {
+          "data": "2026-11-05",
+          "tmax": 19.6,
+          "tmin": 11.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.1
+        },
+        {
+          "data": "2026-11-06",
+          "tmax": 20.6,
+          "tmin": 11.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.7
+        },
+        {
+          "data": "2026-11-07",
+          "tmax": 18.7,
+          "tmin": 10.7,
+          "pluja_mm": 2.5,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 16.2
+        },
+        {
+          "data": "2026-11-08",
+          "tmax": 15.7,
+          "tmin": 13.7,
+          "pluja_mm": 10.5,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.3
+        },
+        {
+          "data": "2026-11-09",
+          "tmax": 14.8,
+          "tmin": 12.5,
+          "pluja_mm": 2.9,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.6
+        },
+        {
+          "data": "2026-11-10",
+          "tmax": 15.6,
+          "tmin": 12.8,
+          "pluja_mm": 0.5,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 14.8
+        }
+      ]
+    }
+  ]
+}

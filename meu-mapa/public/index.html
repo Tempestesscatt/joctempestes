@@ -34,7 +34,7 @@
   --shadow:0 2px 12px rgba(0,0,0,.3); --shadow-lg:0 12px 40px rgba(0,0,0,.5);
 }
 html{scroll-behavior:smooth;scroll-padding-top:80px}
-body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.6;font-size:16px;padding-top:64px;transition:background .3s,color .3s}
+body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.6;font-size:16px;padding-top:64px;transition:background .3s,color .3s;overflow-x:hidden}
 a{color:inherit;text-decoration:none}
 img{display:block;max-width:100%}
 button{font-family:inherit;cursor:pointer}
@@ -45,15 +45,15 @@ h1,h2,h3{font-family:var(--display);letter-spacing:-.02em;line-height:1.2}
 /* ===== NAV ===== */
 .nav{position:fixed;top:0;left:0;right:0;height:64px;z-index:100;background:var(--bg);border-bottom:1px solid var(--line);transition:background .3s,border-color .3s}
 .nav .wrap{height:100%;display:flex;align-items:center;gap:20px}
-.logo{font-family:var(--display);font-weight:700;font-size:20px;letter-spacing:.02em;color:var(--text)}
+.logo{font-family:var(--display);font-weight:700;font-size:20px;letter-spacing:.02em;color:var(--text);flex-shrink:0}
 .logo b{font-weight:400;color:var(--muted)}
 .nav-links{display:flex;gap:2px;margin-left:auto}
-.nav-links a{font-size:13px;font-weight:500;color:var(--muted);padding:6px 14px;border-radius:20px;transition:.2s}
+.nav-links a{font-size:13px;font-weight:500;color:var(--muted);padding:6px 14px;border-radius:20px;transition:.2s;white-space:nowrap}
 .nav-links a:hover{color:var(--text);background:var(--accent-soft)}
-.nav-actions{display:flex;align-items:center;gap:8px}
+.nav-actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
 .icon-btn{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--text);font-size:14px;transition:.2s;display:flex;align-items:center;justify-content:center}
 .icon-btn:hover{background:var(--accent-soft);border-color:var(--muted)}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 22px;border-radius:28px;font-weight:600;font-size:13px;border:1px solid transparent;transition:all .2s ease;letter-spacing:.01em}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 22px;border-radius:28px;font-weight:600;font-size:13px;border:1px solid transparent;transition:all .2s ease;letter-spacing:.01em;cursor:pointer}
 .btn-primary{background:var(--text);color:var(--bg);border-color:var(--text)}
 .btn-primary:hover{opacity:.85;transform:translateY(-1px)}
 .btn-ghost{background:transparent;border-color:var(--line);color:var(--text)}
@@ -79,7 +79,6 @@ h1,h2,h3{font-family:var(--display);letter-spacing:-.02em;line-height:1.2}
 .hero-links a{transition:.2s}
 .hero-links a:hover{color:var(--text)}
 
-/* Botó Radar amb PNG propi */
 .btn-radar{padding:8px 24px 8px 12px}
 .btn-radar .radar-png{width:36px;height:36px;object-fit:contain;flex-shrink:0;display:block}
 .btn-radar .radar-txt{display:flex;flex-direction:column;line-height:1.1;text-align:left}
@@ -133,7 +132,7 @@ section{padding:80px 0}
 .person .links a{width:34px;height:34px;border:1px solid var(--line);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--muted);transition:.2s;font-size:13px}
 .person .links a:hover{color:var(--bg);background:var(--text);border-color:var(--text)}
 
-/* ===== VÍDEO "QUI SOM" ===== */
+/* ===== VÍDEO ===== */
 .video-block{margin-top:24px;position:relative;border-radius:var(--r);overflow:hidden;background:#000;box-shadow:var(--shadow-lg);aspect-ratio:16/9;border:1px solid var(--line);cursor:pointer}
 .video-block video{width:100%;height:100%;display:block;object-fit:cover}
 .video-overlay{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(180deg, rgba(0,0,0,.15) 0%, rgba(0,0,0,.55) 100%);opacity:1;transition:opacity .3s ease}
@@ -157,7 +156,6 @@ section{padding:80px 0}
 .video-time{color:#fff;font-size:12px;font-variant-numeric:tabular-nums;font-weight:500}
 
 /* ===== PLANS ===== */
-.dev-banner{display:inline-flex;align-items:center;gap:8px;margin-bottom:24px;padding:6px 16px;border-radius:20px;background:var(--accent-soft);border:1px solid var(--line);font-weight:500;font-size:13px;color:var(--muted)}
 .toggle{display:flex;width:fit-content;margin-bottom:32px;padding:4px;border:1px solid var(--line);border-radius:30px;background:var(--card)}
 .toggle button{padding:8px 22px;border:0;border-radius:30px;background:transparent;color:var(--muted);font-weight:600;font-size:13px;transition:.2s}
 .toggle button.on{background:var(--text);color:var(--bg)}
@@ -201,9 +199,9 @@ a.contact-item:hover{border-color:var(--text);transform:translateX(2px)}
 .contact-item span{font-size:12px;color:var(--muted)}
 .previsualitzacio{background:var(--bg-2);border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin-top:14px;font-size:12px;color:var(--muted);line-height:1.5}
 .previsualitzacio .titol{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text);margin-bottom:6px;display:flex;align-items:center;gap:6px;opacity:.7}
-.previsualitzacio .linia{display:flex;gap:8px;margin-bottom:3px}
+.previsualitzacio .linia{display:flex;gap:8px;margin-bottom:3px;flex-wrap:wrap}
 .previsualitzacio .linia .etiqueta{color:var(--muted);min-width:60px;flex-shrink:0}
-.previsualitzacio .linia strong{color:var(--text);font-weight:600}
+.previsualitzacio .linia strong{color:var(--text);font-weight:600;word-break:break-word}
 
 /* ===== FOOTER ===== */
 footer{padding:48px 0 28px;border-top:1px solid var(--line);background:var(--bg)}
@@ -218,7 +216,7 @@ footer{padding:48px 0 28px;border-top:1px solid var(--line);background:var(--bg)
 #cookieBanner.on{display:flex}
 #cookieBanner span{flex:1;min-width:200px;color:var(--muted)}
 
-/* ===== NOTIFICACIÓ DE COMPRA ===== */
+/* ===== PURCHASE TOAST ===== */
 .purchase-toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.9);z-index:99999;background:var(--card);border:2px solid var(--text);border-radius:18px;padding:36px 44px;box-shadow:0 24px 80px rgba(0,0,0,.5);text-align:center;opacity:0;pointer-events:none;transition:opacity .3s ease,transform .35s cubic-bezier(.4,0,.2,1);max-width:400px;width:calc(100vw - 32px)}
 .purchase-toast.visible{opacity:1;transform:translate(-50%,-50%) scale(1);pointer-events:auto}
 .purchase-toast .pt-icon{width:72px;height:72px;border-radius:50%;background:#22c55e;color:#fff;display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 18px;animation:pt-pop .5s cubic-bezier(.4,0,.2,1)}
@@ -229,13 +227,169 @@ footer{padding:48px 0 28px;border-top:1px solid var(--line);background:var(--bg)
 .purchase-toast .pt-close{margin-top:22px;padding:12px 32px;background:var(--text);color:var(--bg);border:none;border-radius:26px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;transition:opacity .2s;letter-spacing:.3px}
 .purchase-toast .pt-close:hover{opacity:.85}
 
-/* ===== RESPONSIVE ===== */
+/* ============================================================
+   NOTÍCIES METEOROLÒGIQUES (grid 3 columnes fixes, sense forats)
+   ============================================================ */
+#noticies {
+  padding: 90px 0 60px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+  position: relative;
+}
+#noticies .noticies-head { max-width: 720px; margin-bottom: 36px; }
+#noticies .noticies-badge {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-size: 11px; font-weight: 700; letter-spacing: 2.5px;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 16px;
+}
+#noticies .noticies-badge::before { content: ""; width: 24px; height: 1px; background: var(--muted); }
+#noticies h2 { font-family: var(--display); font-size: clamp(26px, 3.5vw, 40px); font-weight: 700; color: var(--text); }
+#noticies .noticies-sub { margin-top: 14px; color: var(--muted); font-size: 16px; line-height: 1.7; }
+
+#noticies .noti-hero {
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--r);
+  padding: 28px 28px 24px; margin-bottom: 24px;
+  box-shadow: var(--shadow); position: relative; overflow: hidden;
+}
+#noticies .noti-hero::before {
+  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--accent), transparent);
+}
+#noticies .noti-hero-titol {
+  font-family: var(--display); font-size: clamp(22px, 2.8vw, 30px);
+  font-weight: 700; color: var(--text); line-height: 1.25; margin-bottom: 12px;
+}
+#noticies .noti-hero-resum { font-size: 15.5px; line-height: 1.7; color: var(--text); opacity: .9; margin-bottom: 12px; }
+#noticies .noti-hero-periode { font-size: 12.5px; color: var(--muted); }
+#noticies .noti-hero-periode strong { color: var(--text); }
+
+.noti-sec-titol {
+  font-family: var(--display); font-size: 13px; font-weight: 700;
+  color: var(--text); text-transform: uppercase; letter-spacing: 1.4px;
+  margin: 32px 0 16px; display: flex; align-items: center; gap: 10px;
+}
+.noti-sec-titol::before {
+  content: ""; width: 3px; height: 16px; background: var(--accent);
+  border-radius: 2px; opacity: .6;
+}
+
+/* ==== GRID 3 COLUMNES FIXES ==== */
+.noti-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+@media (max-width: 900px) { .noti-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 600px) { .noti-grid { grid-template-columns: 1fr; } }
+
+.noti-card {
+  display: flex; flex-direction: column;
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--r);
+  overflow: hidden; box-shadow: var(--shadow);
+  transition: transform .25s, box-shadow .25s, border-color .25s;
+  min-width: 0;
+}
+.noti-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); border-color: var(--muted); }
+
+.noti-card-img {
+  position: relative; aspect-ratio: 16 / 9; background: var(--accent-soft);
+  overflow: hidden; display: flex; align-items: center; justify-content: center;
+}
+.noti-card-img img {
+  width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .5s;
+}
+.noti-card:hover .noti-card-img img { transform: scale(1.04); }
+.noti-card-img .emoji-fallback {
+  font-size: 64px; line-height: 1; opacity: .55; user-select: none;
+}
+.noti-card-tipus {
+  position: absolute; top: 12px; left: 12px;
+  background: rgba(0,0,0,.7); color: #fff; font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .6px; padding: 4px 12px;
+  border-radius: 20px; backdrop-filter: blur(6px);
+}
+.noti-card-gravetat {
+  position: absolute; top: 12px; right: 12px; font-size: 9.5px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: .6px; padding: 4px 10px;
+  border-radius: 20px; border: 1px solid; backdrop-filter: blur(6px);
+  background: rgba(0,0,0,.5);
+}
+.noti-card-cos { padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 8px; flex: 1 1 auto; }
+.noti-card-data { font-size: 11.5px; color: var(--muted); font-weight: 500; letter-spacing: .2px; }
+.noti-card-lloc { font-size: 12.5px; color: var(--text); font-weight: 700; text-transform: uppercase; letter-spacing: .3px; }
+.noti-card-valor {
+  display: inline-block; align-self: flex-start; font-size: 12px; font-weight: 700;
+  color: var(--text); background: var(--accent-soft); border: 1px solid var(--line);
+  padding: 3px 10px; border-radius: 6px;
+}
+.noti-card-desc { font-size: 13.5px; line-height: 1.6; color: var(--muted); }
+
+.noti-card-zona {
+  display: flex; flex-direction: column;
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--r);
+  overflow: hidden; box-shadow: var(--shadow);
+  transition: transform .25s, box-shadow .25s, border-color .25s;
+  min-width: 0;
+}
+.noti-card-zona:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); border-color: var(--muted); }
+.noti-card-zona .noti-card-img { aspect-ratio: 16 / 7; }
+.noti-card-zona .noti-card-cos { padding: 18px 20px 20px; gap: 10px; }
+.noti-card-zona .noti-zona-nom { font-family: var(--display); font-size: 17px; font-weight: 700; color: var(--text); }
+.noti-destacats { list-style: none; margin: 4px 0 0; padding: 12px 0 0; border-top: 1px dashed var(--line); }
+.noti-destacats li { font-size: 12.5px; line-height: 1.55; color: var(--muted); padding: 3px 0; }
+.noti-destacats li strong { color: var(--text); font-weight: 600; }
+
+.noti-setmana { background: var(--card); border: 1px solid var(--line); border-radius: var(--r); padding: 20px 22px; box-shadow: var(--shadow); }
+.noti-setmana.incert { background: linear-gradient(180deg, var(--accent-soft), var(--card)); border-color: var(--muted); }
+.noti-setmana-cap {
+  font-family: var(--display); font-size: 13px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1px; color: var(--text);
+  margin-bottom: 12px; display: flex; align-items: center; gap: 10px;
+}
+.noti-setmana-cap .tag {
+  font-size: 9px; text-transform: uppercase; letter-spacing: .6px;
+  background: var(--accent-soft); color: var(--muted); padding: 2px 8px;
+  border-radius: 20px; border: 1px solid var(--line); margin-left: auto; font-weight: 700;
+}
+.noti-setmana p { font-size: 13.5px; line-height: 1.65; color: var(--muted); margin: 4px 0; }
+.noti-setmana p strong { color: var(--text); font-weight: 600; }
+
+/* Targeta fantasma per omplir l'última fila (invisible però ocupa lloc) */
+.noti-card-fantasma { visibility: hidden; pointer-events: none; min-height: 260px; }
+
+.noti-avis {
+  background: var(--accent-soft); border: 1px solid var(--line);
+  border-left: 3px solid var(--muted); border-radius: 10px;
+  padding: 16px 20px; font-size: 13px; line-height: 1.65;
+  color: var(--muted); margin-top: 28px;
+}
+.noti-avis strong { color: var(--text); font-weight: 700; }
+
+.noti-loading { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 60px 20px; color: var(--muted); font-size: 14px; }
+.noti-spinner { width: 32px; height: 32px; border: 2px solid var(--line); border-top-color: var(--text); border-radius: 50%; animation: notiGira .9s linear infinite; }
+@keyframes notiGira { to { transform: rotate(360deg); } }
+
+.noti-error {
+  background: var(--card); border: 1px solid var(--line);
+  border-left: 3px solid #ef4444; border-radius: 10px;
+  padding: 18px 22px; font-size: 13.5px; line-height: 1.6; color: var(--muted);
+}
+.noti-error strong { color: var(--text); }
+
+@media (max-width: 1000px) { #noticies { padding: 70px 0 40px; } }
+@media (max-width: 700px) {
+  #noticies { padding: 56px 0 30px; }
+  #noticies .noti-hero { padding: 20px 20px 18px; }
+}
+
+/* ===== RESPONSIVE GENERAL ===== */
 @media(max-width:1000px){
   .hero .wrap{grid-template-columns:1fr;gap:40px}
   .teams{grid-template-columns:1fr}
   .plans{grid-template-columns:1fr 1fr}
   .contact-grid{grid-template-columns:1fr}
-  .nav-links{display:none}.nav-actions{margin-left:auto}
+  .nav-links{display:none}
+  .nav-actions{margin-left:auto}
   .hero{padding:80px 0 120px}
 }
 @media(max-width:700px){
@@ -254,6 +408,7 @@ footer{padding:48px 0 28px;border-top:1px solid var(--line);background:var(--bg)
   .video-title h3{font-size:17px}
   .video-title p{font-size:12px}
   .video-badge{top:14px;left:14px;font-size:10px;padding:5px 10px}
+  .wrap{padding:0 16px}
 }
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}html{scroll-behavior:auto}}
 </style>
@@ -264,6 +419,7 @@ footer{padding:48px 0 28px;border-top:1px solid var(--line);background:var(--bg)
   <div class="wrap">
     <a href="#" class="logo">TEMPESTES<b>.CAT</b></a>
     <nav class="nav-links">
+      <a href="#noticies">Notícies</a>
       <a href="#workspace">Funcions/models</a>
       <a href="#equip">Equip/Qui som?</a>
       <a href="#plans">Plans</a>
@@ -279,6 +435,21 @@ footer{padding:48px 0 28px;border-top:1px solid var(--line);background:var(--bg)
 </header>
 
 <main>
+
+<!-- ═══════════════ NOTÍCIES ═══════════════ -->
+<section id="noticies">
+  <div class="wrap">
+    <div class="noticies-head">
+      <span class="noticies-badge">Resum meteorològic · Catalunya · 16 dies</span>
+      <h2>Notícies del temps</h2>
+      <p class="noticies-sub">El resum de l'evolució prevista pels propers dies, amb els episodis més destacats comarca a comarca.</p>
+    </div>
+    <div id="noticiesContingut">
+      <div class="noti-loading"><div class="noti-spinner"></div><div>Carregant resum meteorològic…</div></div>
+    </div>
+  </div>
+</section>
+
 <!-- ═══════════════ HERO 1 · VISOR AROME ═══════════════ -->
 <div class="hero">
   <div class="wrap">
@@ -288,16 +459,15 @@ footer{padding:48px 0 28px;border-top:1px solid var(--line);background:var(--bg)
       <p class="lead">Model AROME a 1,3 km, radar en viu, Skew-T i paràmetres de tempestes severes. Fet per a qui necessita precisió.</p>
       <div class="hero-actions">
         <a href="arome-cat.html" class="btn btn-primary btn-lg">Obrir el visor AROME <i class="fa-solid fa-arrow-right"></i></a>
-        <a href="arome-cat.html" class="btn btn-ghost btn-lg btn-radar">
-         
+        <a href="https://radar.tempestes.cat/radar" class="btn btn-ghost btn-lg btn-radar">
           <span class="radar-txt">
-            <b>Obrir</b>
-            <span></span>
+            <b>Radar en viu</b>
+            <span>Obrir</span>
           </span>
         </a>
       </div>
       <div class="hero-links">
-        <a href="episodis_catalunya.html"><i class=""></i> Fòrum d'episodis</a>
+        <a href="episodis_catalunya.html"><i class="fa-solid fa-comments"></i> Fòrum d'episodis</a>
         <a href="privacitat/preus.html"><i class="fa-solid fa-tags"></i> Plans</a>
       </div>
     </div>
@@ -317,13 +487,6 @@ footer{padding:48px 0 28px;border-top:1px solid var(--line);background:var(--bg)
       <p class="lead">Connecta't amb el radar en viu de TEMPESTES.CAT, fet per a qui necessita precisió.</p>
       <div class="hero-actions">
         <a href="https://radar.tempestes.cat/radar" class="btn btn-primary btn-lg">Obrir radar <i class="fa-solid fa-arrow-right"></i></a>
-       
-          
-          <span class="radar-txt">
-            <b></b>
-            <span></span>
-          </span>
-        </a>
       </div>
     </div>
     <div class="frame">
@@ -381,14 +544,11 @@ footer{padding:48px 0 28px;border-top:1px solid var(--line);background:var(--bg)
       </div>
     </div>
 
-    <!-- ═══════════ VÍDEO QUI SOM ═══════════ -->
     <div class="video-block" id="videoBlock">
       <video id="videoQuiSom" preload="metadata" playsinline poster="img/quisom-poster.jpg">
         <source src="articles/quisom.mp4" type="video/mp4">
       </video>
-
       <div class="video-badge">Els millors moments</div>
-
       <div class="video-overlay" id="videoOverlay">
         <button type="button" class="video-play" id="videoPlayBtn" aria-label="Reproduir vídeo">
           <i class="fa-solid fa-play"></i>
@@ -398,7 +558,6 @@ footer{padding:48px 0 28px;border-top:1px solid var(--line);background:var(--bg)
           <p>Els millors moments dels nostres seguiments: tempestes severes, calamarsa, llamps i estructures espectaculars.</p>
         </div>
       </div>
-
       <div class="video-controls" id="videoControls">
         <button type="button" id="vPlay" aria-label="Play/Pausa"><i class="fa-solid fa-play"></i></button>
         <button type="button" id="vMute" aria-label="So"><i class="fa-solid fa-volume-high"></i></button>
@@ -493,7 +652,7 @@ footer{padding:48px 0 28px;border-top:1px solid var(--line);background:var(--bg)
 <footer>
   <div class="wrap">
     <div class="foot-grid">
-      <div><h4>TEMPESTES.CAT</h4><a href="#workspace">Funcions</a><a href="#plans">Plans</a><a href="#equip">Equip</a><a href="#contacte">Contacte</a></div>
+      <div><h4>TEMPESTES.CAT</h4><a href="#noticies">Notícies</a><a href="#workspace">Funcions</a><a href="#plans">Plans</a><a href="#equip">Equip</a><a href="#contacte">Contacte</a></div>
       <div><h4>Eines</h4><a href="arome-cat.html">Visor AROME</a><a href="https://radar.tempestes.cat/radar">Radar en viu</a><a href="episodis_catalunya.html">Fòrum d'episodis</a></div>
       <div><h4>Segueix-nos</h4><a href="https://x.com/tempestes_cat" target="_blank" rel="noopener">X</a><a href="https://www.instagram.com/tempestes.cat/" target="_blank" rel="noopener">Instagram</a><a href="mailto:tempestescat@gmail.com">Gmail</a></div>
       <div>
@@ -517,18 +676,13 @@ footer{padding:48px 0 28px;border-top:1px solid var(--line);background:var(--bg)
   <button class="btn btn-primary" onclick="setCookies('accepted')">Acceptar</button>
 </div>
 
-<!-- NOTIFICACIÓ DE COMPRA EXITOSA -->
 <div id="purchaseToast" class="purchase-toast" role="alert">
-  <div class="pt-icon">
-    <i class="fa-solid fa-check"></i>
-  </div>
+  <div class="pt-icon"><i class="fa-solid fa-check"></i></div>
   <h3>Pla activat!</h3>
   <p>La teva subscripció s'ha activat correctament.</p>
   <p>Ara ja tens accés a totes les funcions del teu pla.</p>
   <span class="pt-plan" id="purchaseToastPlan">Entusiasta</span>
-  <button class="pt-close" onclick="document.getElementById('purchaseToast').classList.remove('visible')">
-    Continuar
-  </button>
+  <button class="pt-close" onclick="document.getElementById('purchaseToast').classList.remove('visible')">Continuar</button>
 </div>
 
 <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
@@ -565,11 +719,9 @@ onAuthStateChanged(auth, u => {
   pill.style.display = 'flex';
   btn.style.display = 'none';
 
-  // Nom: prioritzem displayName, si no, la part del correu abans de @
   const nom = (u.displayName || '').trim() || (u.email ? u.email.split('@')[0] : 'Usuari');
   nm.textContent = nom;
 
-  // Avatar: intentem carregar la foto, si falla mostrem la inicial
   const inicial = nom[0].toUpperCase();
   if (u.photoURL) {
     av.innerHTML = '';
@@ -579,7 +731,7 @@ onAuthStateChanged(auth, u => {
     img.referrerPolicy = 'no-referrer';
     img.onerror = () => { av.innerHTML = ''; av.textContent = inicial; };
     img.onload = () => { av.innerHTML = ''; av.appendChild(img); };
-    av.textContent = inicial; // fallback inicial mentre carrega
+    av.textContent = inicial;
   } else {
     av.textContent = inicial;
   }
@@ -589,7 +741,7 @@ onAuthStateChanged(auth, u => {
 </script>
 
 <script>
-/* ===== TEMA (fosc per defecte) ===== */
+/* ===== TEMA ===== */
 (function(){
   const root = document.documentElement, btn = document.getElementById('themeBtn');
   const apply = t => {
@@ -697,13 +849,11 @@ document.getElementById('yr').textContent = new Date().getFullYear();
     const el = $('#contactPrevAssumpte');
     if (el) el.textContent = '[' + tema + '] Nou missatge de contacte';
   }
-  ['#contactTema'].forEach(sel => {
-    const el = $(sel);
-    if (el) {
-      el.addEventListener('input', actualitzarPrev);
-      el.addEventListener('change', actualitzarPrev);
-    }
-  });
+  const selTema = $('#contactTema');
+  if (selTema) {
+    selTema.addEventListener('input', actualitzarPrev);
+    selTema.addEventListener('change', actualitzarPrev);
+  }
   window.obrirCorreuContacte = function (e) {
     e.preventDefault();
     const tema = $('#contactTema').value || 'Consulta general';
@@ -743,7 +893,7 @@ document.getElementById('yr').textContent = new Date().getFullYear();
   actualitzarPrev();
 })();
 
-/* ===== VÍDEO QUI SOM ===== */
+/* ===== VÍDEO ===== */
 (function(){
   const block = document.getElementById('videoBlock');
   const video = document.getElementById('videoQuiSom');
@@ -836,7 +986,7 @@ document.getElementById('yr').textContent = new Date().getFullYear();
 })();
 </script>
 
-<!-- ═══════════ COMUNICACIÓ AMB preus.html (postMessage) ═══════════ -->
+<!-- ═══════════ COMUNICACIÓ AMB preus.html ═══════════ -->
 <script>
 (function () {
     'use strict';
@@ -903,7 +1053,7 @@ document.getElementById('yr').textContent = new Date().getFullYear();
 })();
 </script>
 
-<!-- ═══════════ REFRESC AUTOMÀTIC EN TORNAR DE STRIPE ═══════════ -->
+<!-- ═══════════ REFRESC EN TORNAR DE STRIPE ═══════════ -->
 <script>
 (function () {
     'use strict';
@@ -937,6 +1087,362 @@ document.getElementById('yr').textContent = new Date().getFullYear();
         setTimeout(() => { if (toast) toast.classList.remove('visible'); }, 8000);
     }, 500);
     setTimeout(() => clearInterval(esperar), 20000);
+})();
+</script>
+<!-- ═══════════ NOTÍCIES: CARREGAR I RENDERITZAR ═══════════ -->
+<script>
+(function () {
+  'use strict';
+
+  const RUTA_JSON = 'noticies/resum_cataluna.json';
+  const CONTENIDOR = document.getElementById('noticiesContingut');
+  if (!CONTENIDOR) return;
+
+  // ---- CSS extra per a les imatges de tendència i etiquetes ----
+  (function injectarCSS() {
+    if (document.getElementById('css-noticies-extra')) return;
+    const style = document.createElement('style');
+    style.id = 'css-noticies-extra';
+    style.textContent = `
+      .noti-card-model {
+        position: absolute; bottom: 12px; left: 12px;
+        font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: .8px;
+        padding: 3px 8px; border-radius: 6px; backdrop-filter: blur(6px);
+        z-index: 2; box-shadow: 0 2px 8px rgba(0,0,0,.3);
+      }
+      .noti-card-model.arome { background: rgba(88, 166, 255, 0.85); color: #fff; border: 1px solid #58a6ff; }
+      .noti-card-model.gfs { background: rgba(0, 0, 0, 0.6); color: #c9d1d9; border: 1px solid rgba(255, 255, 255, 0.2); }
+
+      /* Fem que la targeta de la setmana sigui flex per poder estirar la imatge */
+      .noti-setmana {
+        display: flex;
+        flex-direction: column;
+      }
+      
+      /* Contenidor de la imatge de tendència */
+      .noti-setmana-img {
+        margin-top: 16px;
+        width: 100%;
+        flex: 1 1 auto; /* S'estira per omplir l'espai buit */
+        min-height: 120px; /* Alçada mínima perquè no quedi massa prima */
+        max-height: 250px; /* Alçada màxima perquè no quedi excessivament gegant */
+        border-radius: 8px;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--accent-soft);
+        border: 1px solid var(--line);
+        position: relative;
+      }
+      
+      .noti-setmana-img img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover; /* La imatge s'adapta i omple tot el requadre sense deformar-se */
+        opacity: 0.9;
+      }
+    `;
+    document.head.appendChild(style);
+  })();
+
+  const IMATGES_EPISODI = {
+    'pluja': 'img/pluja.png', 'pluja_intensa': 'img/pluja_intensa.png', 'tempesta': 'img/tempesta.png', 'temporal': 'img/temporal.png', 'pluges_febles': 'img/pluges_febles.png',
+    'vent': 'img/vent.png', 'vent_fort': 'img/vent_fort.png', 'ratxes': 'img/ratxes.png', 'tramuntana': 'img/tramuntana.png', 'garbi': 'img/garbi.png',
+    'neu': 'img/neu.png', 'neu_abundant': 'img/neu_abundant.png', 'nevada': 'img/nevada.png', 'fred': 'img/fred.png', 'fred_intens': 'img/fred_intens.png', 'gelada': 'img/fred.png', 'onada_de_fred': 'img/onada_de_fred.png',
+    'calor': 'img/calor.png', 'onada_de_calor': 'img/onada_de_calor.png', 'calitja': 'img/calitja.png',
+    'canvi_termic': 'img/canvi_termic.png', 'boira': 'img/boira.png', 'pols': 'img/pols.png', 'calamarsa': 'img/calamarsa.png', 'tornado': 'img/tornado.png', 'altre': 'img/altres.png'
+  };
+  const IMATGES_ZONA = {
+    'Litoral i prelitoral': 'img/zona_litoral.png', 'Interior': 'img/zona_interior.png',
+    'Pirineu i Prepirineu': 'img/zona_pirineu.png', "Camp de Tarragona i Terres de l'Ebre": 'img/zona_tarragona.png',
+  };
+  const EMOJI_EPISODI = {
+    pluja: '🌧️', pluja_intensa: '⛈️', tempesta: '🌩️', temporal: '🌊', pluges_febles: '🌦️',
+    vent: '💨', vent_fort: '🌪️', ratxes: '🌬️', tramuntana: '💨', garbi: '💨',
+    neu: '❄️', neu_abundant: '🌨️', nevada: '🌨️', fred: '🥶', fred_intens: '🧊', gelada: '🧊', onada_de_fred: '❄️',
+    calor: '🔥', onada_de_calor: '🥵', calitja: '😷',
+    canvi_termic: '🌡️', boira: '🌫️', pols: '🌪️', calamarsa: '🧊', tornado: '🌪️', altre: '⚠️'
+  };
+  const EMOJI_ZONA = {
+    'Litoral i prelitoral': '🌊', 'Interior': '🌾', 'Pirineu i Prepirineu': '🏔️', "Camp de Tarragona i Terres de l'Ebre": '🌿',
+  };
+  const COLORS_GRAVETAT = { baixa: '#22c55e', mitjana: '#f59e0b', alta: '#ef4444' };
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+  function formatData(iso) {
+    if (!iso) return '';
+    const d = new Date(iso + 'T12:00:00');
+    return isNaN(d) ? iso : d.toLocaleDateString('ca-ES', { day: 'numeric', month: 'long' });
+  }
+  function formatDataHora(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    return isNaN(d) ? iso : d.toLocaleString('ca-ES', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  }
+
+  function crearImatge(llistaSrs, emoji, alt) {
+    const wrap = document.createElement('div');
+    wrap.className = 'noti-card-img';
+    const em = document.createElement('span');
+    em.className = 'emoji-fallback';
+    em.textContent = emoji || '📰';
+    wrap.appendChild(em);
+
+    const img = document.createElement('img');
+    img.alt = alt || '';
+    img.loading = 'lazy';
+    let index = 0;
+    const srs = Array.isArray(llistaSrs) ? llistaSrs : [llistaSrs];
+
+    img.onerror = () => {
+      index++;
+      if (index < srs.length && srs[index]) { img.src = srs[index]; } else { img.remove(); }
+    };
+    img.onload = () => { em.remove(); };
+    img.src = srs[0];
+    wrap.appendChild(img);
+    return wrap;
+  }
+
+  function ajustarGrid(grid) {
+    Array.from(grid.children).forEach(el => el.style.gridColumn = '');
+    const columnes = window.matchMedia('(max-width: 600px)').matches ? 1 :
+                     window.matchMedia('(max-width: 900px)').matches ? 2 : 3;
+    const fills = grid.children.length;
+    if (fills === 0) return;
+    const resta = fills % columnes;
+    if (resta !== 0) {
+      const falten = columnes - resta;
+      grid.lastElementChild.style.gridColumn = `span ${falten + 1}`;
+    }
+  }
+
+  // ---- Detecta quina imatge de tendència posar ----
+  function obtenirImatgeTendencia(text) {
+    const t = text.toLowerCase();
+    const puja = /pujar|pugen|augment|calor|càlid|màximes altes|ascens/.test(t);
+    const baixa = /baixar|baixen|descens|fred|refredament|mínimes baixes/.test(t);
+    
+    if (puja && !baixa) return 'img/tendencia_puja.png';
+    if (baixa && !puja) return 'img/tendencia_baixa.png';
+    if (puja && baixa) return 'img/tendencia_variable.png';
+    return 'img/tendencia_estable.png';
+  }
+
+  function render(dades) {
+    const r = dades.resum || {};
+    const peri = dades.periode || {};
+    CONTENIDOR.innerHTML = '';
+
+    // HERO
+    const hero = document.createElement('div');
+    hero.className = 'noti-hero';
+    hero.innerHTML = `
+      <h3 class="noti-hero-titol">${esc(r.titol || 'Resum meteorològic de Catalunya')}</h3>
+      <p class="noti-hero-resum">${esc(r.resum_general || '')}</p>
+      <p class="noti-hero-periode">
+        ${peri.inici ? `Del <strong>${formatData(peri.inici)}</strong> al <strong>${formatData(peri.fi)}</strong>` : ''}
+        · Font: <strong>${esc(dades.font_dades || 'AROME + GFS')}</strong>
+        · Generat el <strong>${formatDataHora(dades.generat)}</strong>
+      </p>
+    `;
+    CONTENIDOR.appendChild(hero);
+
+    // SETMANES
+    if (r.setmana_1 || r.setmana_2) {
+      const titol = document.createElement('h3');
+      titol.className = 'noti-sec-titol';
+      titol.textContent = 'Evolució per setmanes';
+      CONTENIDOR.appendChild(titol);
+
+      const grid = document.createElement('div');
+      grid.className = 'noti-grid';
+
+      if (r.setmana_1) {
+        const s = r.setmana_1;
+        const card = document.createElement('article');
+        card.className = 'noti-setmana';
+        const imgTend = obtenirImatgeTendencia(s.temperatures || s.resum || '');
+        card.innerHTML = `
+          <div class="noti-setmana-cap">Setmana 1</div>
+          <p>${esc(s.resum || '')}</p>
+          ${s.temperatures ? `<p><strong>Temperatures:</strong> ${esc(s.temperatures)}</p>` : ''}
+          ${s.precipitacio ? `<p><strong>Precipitació:</strong> ${esc(s.precipitacio)}</p>` : ''}
+          ${s.vent ? `<p><strong>Vent:</strong> ${esc(s.vent)}</p>` : ''}
+          <div class="noti-setmana-img">
+            <img src="${imgTend}" alt="Tendència tèrmica" onerror="this.src='img/tendencia_estable.png'">
+          </div>
+        `;
+        grid.appendChild(card);
+      }
+      if (r.setmana_2) {
+        const s = r.setmana_2;
+        const card = document.createElement('article');
+        card.className = 'noti-setmana incert';
+        const imgTend = obtenirImatgeTendencia(s.resum || '');
+        card.innerHTML = `
+          <div class="noti-setmana-cap">Setmana 2 <span class="tag">incertesa</span></div>
+          <p>${esc(s.resum || '')}</p>
+          ${s.incertesa ? `<p><strong>Incertesa:</strong> ${esc(s.incertesa)}</p>` : ''}
+          <div class="noti-setmana-img">
+            <img src="${imgTend}" alt="Tendència tèrmica" onerror="this.src='img/tendencia_estable.png'">
+          </div>
+        `;
+        grid.appendChild(card);
+      }
+      ajustarGrid(grid);
+      CONTENIDOR.appendChild(grid);
+    }
+
+    // ZONES
+    if (Array.isArray(r.zones) && r.zones.length) {
+      const titol = document.createElement('h3');
+      titol.className = 'noti-sec-titol';
+      titol.textContent = 'Per zones';
+      CONTENIDOR.appendChild(titol);
+
+      const grid = document.createElement('div');
+      grid.className = 'noti-grid';
+
+      for (const z of r.zones) {
+        const src = IMATGES_ZONA[z.zona] || 'img/zona_altres.png';
+        const emoji = EMOJI_ZONA[z.zona] || '📍';
+        const card = document.createElement('article');
+        card.className = 'noti-card-zona';
+        card.appendChild(crearImatge(src, emoji, z.zona));
+
+        const cos = document.createElement('div');
+        cos.className = 'noti-card-cos';
+        let html = `
+          <div class="noti-zona-nom">${esc(z.zona)}</div>
+          <p class="noti-card-desc">${esc(z.resum || '')}</p>
+        `;
+        if (Array.isArray(z.destacats) && z.destacats.length) {
+          html += '<ul class="noti-destacats">';
+          for (const d of z.destacats) {
+            html += `<li><strong>${esc(d.comarca)}</strong> · ${esc(d.municipi)}${d.motiu ? ' — ' + esc(d.motiu) : ''}</li>`;
+          }
+          html += '</ul>';
+        }
+        cos.innerHTML = html;
+        card.appendChild(cos);
+        grid.appendChild(card);
+      }
+      ajustarGrid(grid);
+      CONTENIDOR.appendChild(grid);
+    }
+
+    // EPISODIS
+    if (Array.isArray(r.episodis) && r.episodis.length) {
+      const titol = document.createElement('h3');
+      titol.className = 'noti-sec-titol';
+      titol.textContent = 'Episodis destacats';
+      CONTENIDOR.appendChild(titol);
+
+      const grid = document.createElement('div');
+      grid.className = 'noti-grid';
+
+      for (const e of r.episodis) {
+        const tipusRaw = (e.tipus || 'altre').toLowerCase().trim();
+        const tipusKey = tipusRaw.replace(/\s+/g, '_');
+        let imatges = [];
+        if (IMATGES_EPISODI[tipusKey]) {
+            imatges.push(IMATGES_EPISODI[tipusKey]);
+        } else {
+            const base = tipusKey.split('_')[0]; 
+            if (IMATGES_EPISODI[base]) imatges.push(IMATGES_EPISODI[base]);
+        }
+        imatges.push('img/altres.png');
+
+        const emoji = EMOJI_EPISODI[tipusKey] || EMOJI_EPISODI[tipusKey.split('_')[0]] || '⚠️';
+        const colorGrav = COLORS_GRAVETAT[e.gravetat] || '#6b6b6b';
+
+        const card = document.createElement('article');
+        card.className = 'noti-card';
+        const imgWrap = crearImatge(imatges, emoji, tipusRaw);
+
+        const tag = document.createElement('span');
+        tag.className = 'noti-card-tipus';
+        tag.textContent = tipusRaw.replace(/_/g, ' ');
+        imgWrap.appendChild(tag);
+
+        const grav = document.createElement('span');
+        grav.className = 'noti-card-gravetat';
+        grav.textContent = e.gravetat || 'baixa';
+        grav.style.color = colorGrav;
+        grav.style.borderColor = colorGrav;
+        imgWrap.appendChild(grav);
+
+        if (e.model) {
+          const modelTag = document.createElement('span');
+          modelTag.className = 'noti-card-model ' + (e.model.toUpperCase() === 'AROME' ? 'arome' : 'gfs');
+          modelTag.textContent = e.model.toUpperCase();
+          imgWrap.appendChild(modelTag);
+        }
+
+        card.appendChild(imgWrap);
+
+        const dates = e.data_inici && e.data_fi ? (e.data_inici === e.data_fi ? formatData(e.data_inici) : `${formatData(e.data_inici)} → ${formatData(e.data_fi)}`) : '';
+        const lloc = [e.comarca, e.municipi].filter(Boolean).join(' · ');
+
+        const cos = document.createElement('div');
+        cos.className = 'noti-card-cos';
+        cos.innerHTML = `
+          ${dates ? `<div class="noti-card-data">${esc(dates)}</div>` : ''}
+          ${lloc ? `<div class="noti-card-lloc">${esc(lloc)}</div>` : ''}
+          ${e.valor ? `<div class="noti-card-valor">${esc(e.valor)}</div>` : ''}
+          <p class="noti-card-desc">${esc(e.descripcio || '')}</p>
+        `;
+        card.appendChild(cos);
+        grid.appendChild(card);
+      }
+      ajustarGrid(grid);
+      CONTENIDOR.appendChild(grid);
+    }
+
+    if (r.avis_incertesa) {
+      const avis = document.createElement('div');
+      avis.className = 'noti-avis';
+      avis.innerHTML = `⚠️ <strong>Nota:</strong> ${esc(r.avis_incertesa)}`;
+      CONTENIDOR.appendChild(avis);
+    }
+  }
+
+  async function iniciar() {
+    try {
+      const resp = await fetch(RUTA_JSON + '?_cb=' + Date.now(), { cache: 'no-store' });
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      const dades = await resp.json();
+      render(dades);
+    } catch (err) {
+      console.error('[notícies]', err);
+      CONTENIDOR.innerHTML = `
+        <div class="noti-error">
+          <strong>No s'ha pogut carregar el resum meteorològic.</strong><br>
+          ${esc(err.message || String(err))}<br><br>
+          Comprova que el fitxer <code>noticies/resum_cataluna.json</code> existeixi al servidor.
+        </div>`;
+    }
+  }
+
+  let tm;
+  window.addEventListener('resize', () => {
+    clearTimeout(tm);
+    tm = setTimeout(() => {
+      document.querySelectorAll('.noti-grid').forEach(ajustarGrid);
+    }, 200);
+  });
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', iniciar);
+  } else {
+    iniciar();
+  }
 })();
 </script>
 
