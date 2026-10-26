@@ -114,7 +114,8 @@ async function dadesVersionades(e, req, v) {
             try { r = await processarNegre(r); }
             catch { r = original; guardar = false; }      // si falla: es serveix l'original i no es guarda
         }
-        if (guardar && CACHE_PASSIU && r.status === 200) {
+        // Si la petició ve del botó de descàrrega, ja la guarda la pàgina: no escrivim dues vegades
+        if (guardar && CACHE_PASSIU && r.status === 200 && !req.headers.has('X-TC-Descarrega')) {
             const copia = r.clone();
             e.waitUntil(caches.open(DATA_PREFIX + v).then(cache => cache.put(req, copia)));
         }

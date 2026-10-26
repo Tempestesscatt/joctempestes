@@ -5,6 +5,8 @@
 //   - Comparar la "signatura" (run + nombre d'hores + data fitxer)
 //   - Mostrar un botó al menú "Sistema" per comprovar-ho manualment
 //   - Forçar recàrrega neta (sense caché) quan l'usuari ho demana
+//   - Quan tot és al dia: salutació segons l'hora local (2 s)
+//  Icones: SVG pròpies (estil Meteocons) — cap emoji del sistema
 // ═══════════════════════════════════════════════════════════════════
 
 (function () {
@@ -12,6 +14,12 @@
 
     const CLAU_VERSIO = 'tempestescat_versio_manifest';
     const CLAU_ULTIMA_COMPROVACIO = 'tempestescat_ultima_comprovacio';
+
+    // Durada del missatge "al dia" (ms)
+    const DURADA_SALUTACIO = 2000;
+    // true: també es mostra un cop en carregar la pàgina (primera comprovació automàtica)
+    // false: només quan l'usuari prem "Comprovar actualitzacions"
+    const SALUDAR_AL_CARREGAR = true;
 
     const CARPETES_MANIFEST = [
         (window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1)) + 'web_data_NE/imatges/manifest.json',
@@ -21,13 +29,168 @@
     ];
 
     let _estat = 'inicial'; // inicial | comprovant | ok | nova | error
+    let _jaSalutat = false; // la salutació automàtica només surt un cop per càrrega
+
+    // ═══════════════════════════════════════════════════════════════
+    //  ICONES SVG PRÒPIES (estil Meteocons simplificat)
+    //  Cada funció retorna un <svg> inline amb mida 1em (hereta el color)
+    // ═══════════════════════════════════════════════════════════════
+    const ICONES = {
+        // Sol (bon dia)
+        sol: (mida = 16) => `
+            <svg class="ico-meteo ico-sol" width="${mida}" height="${mida}" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="4.2" fill="currentColor" stroke="none"/>
+                <line x1="12" y1="2"  x2="12" y2="4.5"/>
+                <line x1="12" y1="19.5" x2="12" y2="22"/>
+                <line x1="2"  y1="12" x2="4.5" y2="12"/>
+                <line x1="19.5" y1="12" x2="22" y2="12"/>
+                <line x1="4.9" y1="4.9" x2="6.7" y2="6.7"/>
+                <line x1="17.3" y1="17.3" x2="19.1" y2="19.1"/>
+                <line x1="4.9" y1="19.1" x2="6.7" y2="17.3"/>
+                <line x1="17.3" y1="6.7" x2="19.1" y2="4.9"/>
+            </svg>`,
+
+        // Sol amb núvol (bona tarda)
+        solNuv: (mida = 16) => `
+            <svg class="ico-meteo ico-sol-nuv" width="${mida}" height="${mida}" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="8.5" cy="8.5" r="2.8" fill="currentColor" stroke="none"/>
+                <line x1="8.5" y1="1.8" x2="8.5" y2="3.4"/>
+                <line x1="1.8" y1="8.5" x2="3.4" y2="8.5"/>
+                <line x1="3.8" y1="3.8" x2="4.9" y2="4.9"/>
+                <line x1="12.1" y1="4.9" x2="13.2" y2="3.8"/>
+                <path d="M9.5 17.5h7.2a2.8 2.8 0 0 0 0-5.6 3.8 3.8 0 0 0-7.3-1.1 3 3 0 0 0 .1 6.7z"
+                      fill="currentColor" fill-opacity="0.18"/>
+            </svg>`,
+
+        // Lluna amb estrelles (bona nit / matinada)
+        lluna: (mida = 16) => `
+            <svg class="ico-meteo ico-lluna" width="${mida}" height="${mida}" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4 8.5 8.5 0 1 0 20 14.5z"
+                      fill="currentColor" fill-opacity="0.22"/>
+                <circle cx="17.5" cy="6" r="1" fill="currentColor" stroke="none"/>
+                <circle cx="20.5" cy="9" r="0.8" fill="currentColor" stroke="none"/>
+            </svg>`,
+
+        // Núvol (estat neutre)
+        nuvol: (mida = 16) => `
+            <svg class="ico-meteo ico-nuvol" width="${mida}" height="${mida}" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M7 18h10a3.5 3.5 0 0 0 0-7 4.5 4.5 0 0 0-8.6-1.4A3.6 3.6 0 0 0 7 18z"
+                      fill="currentColor" fill-opacity="0.18"/>
+            </svg>`,
+
+        // Pluja (bona nit / recàrrega)
+        pluja: (mida = 16) => `
+            <svg class="ico-meteo ico-pluja" width="${mida}" height="${mida}" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M7 15h10a3.5 3.5 0 0 0 0-7 4.5 4.5 0 0 0-8.6-1.4A3.6 3.6 0 0 0 7 15z"
+                      fill="currentColor" fill-opacity="0.18"/>
+                <line x1="8"  y1="18" x2="7"  y2="21"/>
+                <line x1="12" y1="18" x2="11" y2="21"/>
+                <line x1="16" y1="18" x2="15" y2="21"/>
+            </svg>`,
+
+        // Tempesta (error)
+        tempesta: (mida = 16) => `
+            <svg class="ico-meteo ico-tempesta" width="${mida}" height="${mida}" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M7 14h10a3.5 3.5 0 0 0 0-7 4.5 4.5 0 0 0-8.6-1.4A3.6 3.6 0 0 0 7 14z"
+                      fill="currentColor" fill-opacity="0.18"/>
+                <polyline points="13,14 10.5,18 13.5,18 11,22" fill="currentColor" stroke="none"/>
+            </svg>`,
+
+        // Vent / remolí (error de servidor)
+        vent: (mida = 16) => `
+            <svg class="ico-meteo ico-vent" width="${mida}" height="${mida}" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M3 8h11a3 3 0 1 0-3-3"/>
+                <path d="M3 12h15a3 3 0 1 1-3 3"/>
+                <path d="M3 16h7"/>
+            </svg>`,
+
+        // Arc de Sant Martí (tot al dia)
+        arc: (mida = 16) => `
+            <svg class="ico-meteo ico-arc" width="${mida}" height="${mida}" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M3 19a9 9 0 0 1 18 0"/>
+                <path d="M6 19a6 6 0 0 1 12 0"/>
+                <path d="M9 19a3 3 0 0 1 6 0"/>
+            </svg>`,
+
+        // Check (confirmació)
+        check: (mida = 16) => `
+            <svg class="ico-meteo ico-check" width="${mida}" height="${mida}" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2.4"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="4.5,12.5 9.5,17.5 19.5,6.5"/>
+            </svg>`,
+
+        // Recàrrega (fletxa circular)
+        recarrega: (mida = 16) => `
+            <svg class="ico-meteo ico-recarga" width="${mida}" height="${mida}" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M20 11a8 8 0 1 0-2.3 5.7"/>
+                <polyline points="20,4 20,11 13,11"/>
+            </svg>`,
+
+        // Globo / servidor (consultant)
+        globus: (mida = 16) => `
+            <svg class="ico-meteo ico-globus" width="${mida}" height="${mida}" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="9"/>
+                <ellipse cx="12" cy="12" rx="4" ry="9"/>
+                <line x1="3" y1="12" x2="21" y2="12"/>
+            </svg>`,
+
+        // Campana (nova versió)
+        campana: (mida = 16) => `
+            <svg class="ico-meteo ico-campana" width="${mida}" height="${mida}" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M18 9a6 6 0 1 0-12 0c0 5-2 6-2 6h16s-2-1-2-6z"
+                      fill="currentColor" fill-opacity="0.18"/>
+                <path d="M10.5 20a1.7 1.7 0 0 0 3 0"/>
+            </svg>`,
+    };
+
+    // Helper: retorna la icona amb mida en "em" per integrar-se al text
+    function _ico(nom, midaPx) {
+        return ICONES[nom] ? ICONES[nom](midaPx || 16) : '';
+    }
 
     // ─── Utilitats ──────────────────────────────────────────────────
-    function _dataActual() {
-        return new Date().toLocaleString('ca-ES', {
-            day: '2-digit', month: '2-digit', year: 'numeric',
-            hour: '2-digit', minute: '2-digit'
-        });
+    // Salutació segons l'hora local del dispositiu
+    function _salutacio() {
+        const h = new Date().getHours();
+        if (h < 6)  return { text: 'Bona matinada',  ico: 'lluna'  };
+        if (h < 14) return { text: 'Bon dia',         ico: 'sol'    };
+        if (h < 21) return { text: 'Bona tarda',      ico: 'solNuv' };
+        return       { text: 'Bona nit',             ico: 'pluja'  };
+    }
+
+    function _missatgeAlDia() {
+        const s = _salutacio();
+        return `${_ico(s.ico, 18)} ${s.text}! Les dades s'han actualitzat perfectament! Estàs al dia ${_ico('arc', 18)}`;
+    }
+
+    function _saludar(silencios) {
+        // Manual: sempre. Automàtic: només el primer cop (i si està activat)
+        if (silencios && (!SALUDAR_AL_CARREGAR || _jaSalutat)) return;
+        _jaSalutat = true;
+        _mostrarToast(_missatgeAlDia(), 'ok', DURADA_SALUTACIO);
     }
 
     // Signatura: nombre d'hores + hores_3d + runs detectats al manifest
@@ -69,7 +232,7 @@
             if (!manifest) {
                 _estat = 'error';
                 _pintarBoto('No s\'ha pogut consultar el servidor');
-                if (!silencios) _mostrarToast('⚠️ No s\'ha pogut consultar el servidor', 'error');
+                if (!silencios) _mostrarToast(`${_ico('vent', 18)} No s'ha pogut consultar el servidor`, 'error');
                 return;
             }
 
@@ -82,12 +245,12 @@
                 localStorage.setItem(CLAU_ULTIMA_COMPROVACIO, Date.now().toString());
                 _estat = 'ok';
                 _pintarBoto();
-                if (!silencios) _mostrarToast('✅ Visor actualitzat', 'ok');
+                _saludar(silencios);
                 return;
             }
 
             if (signaturaNova !== signaturaAntiga) {
-                // 🔔 HI HA NOVA VERSIÓ
+                // Nova versió
                 _estat = 'nova';
                 _pintarBoto();
                 _mostrarBannerNovaVersio();
@@ -96,18 +259,18 @@
                 _estat = 'ok';
                 localStorage.setItem(CLAU_ULTIMA_COMPROVACIO, Date.now().toString());
                 _pintarBoto();
-                if (!silencios) _mostrarToast('✅ Ja tens la darrera versió', 'ok');
+                _saludar(silencios);
             }
         } catch (e) {
             _estat = 'error';
             _pintarBoto('Error consultant');
-            if (!silencios) _mostrarToast('❌ Error consultant el servidor', 'error');
+            if (!silencios) _mostrarToast(`${_ico('tempesta', 18)} Error consultant el servidor`, 'error');
         }
     }
 
     // ─── Recàrrega neta (buidant caché del navegador) ───────────────
     async function recarregarNet() {
-        _mostrarToast('🔄 Recarregant dades...', 'ok');
+        _mostrarToast(`${_ico('recarrega', 18)} Recarregant dades... ${_ico('nuvol', 18)}`, 'ok');
 
         // 1. Buidar Cache API del navegador (si existeix)
         if ('caches' in window) {
@@ -142,21 +305,22 @@
                 boto.disabled = false;
                 boto.classList.remove('carregant');
                 boto.querySelector('.txt').textContent = 'Comprovar actualitzacions';
-                estatEl.textContent = '';
+                estatEl.innerHTML = '';
                 estatEl.className = 'sistema-estat';
                 break;
             case 'comprovant':
                 boto.disabled = true;
                 boto.classList.add('carregant');
                 boto.querySelector('.txt').textContent = 'Comprovant...';
-                estatEl.textContent = 'Consultant el servidor...';
+                estatEl.innerHTML = `${_ico('globus', 16)} Consultant el servidor...`;
                 estatEl.className = 'sistema-estat comprovant';
                 break;
             case 'ok':
                 boto.disabled = false;
                 boto.classList.remove('carregant');
                 boto.querySelector('.txt').textContent = 'Comprovar actualitzacions';
-                estatEl.textContent = missatgeCustom || `Darrera comprovació: ${ara}`;
+                estatEl.innerHTML = missatgeCustom
+                    || `${_ico('check', 16)} Darrera comprovació: ${ara}`;
                 estatEl.className = 'sistema-estat ok';
                 break;
             case 'nova':
@@ -164,14 +328,15 @@
                 boto.classList.remove('carregant');
                 boto.querySelector('.txt').textContent = 'Actualitzar ara';
                 boto.classList.add('nova');
-                estatEl.textContent = '🔔 Noves dades disponibles!';
+                estatEl.innerHTML = `${_ico('solNuv', 16)} Noves dades disponibles!`;
                 estatEl.className = 'sistema-estat nova';
                 break;
             case 'error':
                 boto.disabled = false;
                 boto.classList.remove('carregant');
                 boto.querySelector('.txt').textContent = 'Tornar a provar';
-                estatEl.textContent = missatgeCustom || 'Error consultant';
+                estatEl.innerHTML = missatgeCustom
+                    || `${_ico('tempesta', 16)} Error consultant`;
                 estatEl.className = 'sistema-estat error';
                 break;
         }
@@ -185,10 +350,10 @@
         b.id = 'bannerNovaVersio';
         b.className = 'banner-nova-versio';
         b.innerHTML = `
-            <div class="bnv-ico">🔔</div>
+            <div class="bnv-ico">${_ico('campana', 22)}</div>
             <div class="bnv-text">
                 <strong>Noves dades disponibles!</strong>
-                <span>Hi ha dades noves al visor</span>
+                <span>Hi ha dades noves al visor ${_ico('solNuv', 14)}</span>
             </div>
             <button class="bnv-btn" id="bnvRecarregar">Actualitzar ara</button>
             <button class="bnv-tanca" id="bnvTanca" title="Més tard">✕</button>
@@ -207,17 +372,27 @@
         });
     }
 
-    // ─── Toast simple ───────────────────────────────────────────────
-    function _mostrarToast(text, tipus) {
+    // ─── Toast simple (durada en ms, per defecte 3200) ──────────────
+    function _mostrarToast(html, tipus, durada) {
         const t = document.createElement('div');
         t.className = 'toast-sistema ' + (tipus || '');
-        t.textContent = text;
+        t.innerHTML = html;
+        // Perquè els missatges llargs no es surtin de pantalla (sobretot al mòbil)
+        t.style.whiteSpace = 'normal';
+        t.style.textAlign = 'center';
+        t.style.maxWidth = 'min(420px, calc(100vw - 32px))';
+        // Alineació vertical de les icones SVG amb el text
+        t.style.display = 'inline-flex';
+        t.style.alignItems = 'center';
+        t.style.justifyContent = 'center';
+        t.style.gap = '0.4em';
+        t.style.flexWrap = 'wrap';
         document.body.appendChild(t);
         requestAnimationFrame(() => t.classList.add('visible'));
         setTimeout(() => {
             t.classList.remove('visible');
             setTimeout(() => t.remove(), 250);
-        }, 3200);
+        }, durada || 3200);
     }
 
     // ─── API pública ────────────────────────────────────────────────
@@ -226,6 +401,7 @@
         comprovarSilencios: () => comprovarActualitzacio(true),
         recarregar: recarregarNet,
         estat: () => _estat,
+        icones: ICONES, // per si vols reutilitzar-les en altres llocs
     };
 
     // ─── Auto-comprovació silenciosa ────────────────────────────────
@@ -245,5 +421,5 @@
         }
     });
 
-    console.log('✅ actualitzacio.js carregat');
+    console.log('actualitzacio.js carregat');
 })();

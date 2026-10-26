@@ -7,7 +7,7 @@
     'use strict';
 
     const PREFIX = 'tc-data-';
-    const PARAL = 6;                       // descàrregues en paral·lel
+    const PARAL = 16;                      // descàrregues en paral·lel (HTTP/2 ho aguanta bé)
     let enCurs = false, cancel = false;
 
     // ─── Registre del Service Worker ───────────────────────────────
@@ -85,23 +85,36 @@
     // ─── Descàrrega ────────────────────────────────────────────────
     async function descarrega(urls, onProg) {
         const cache = await caches.open(nomCache());
-        let fets = 0, errors = 0, i = 0;
+        // Una sola consulta (en comptes d'una per fitxer): salta el que ja tenim
+        const tinc = new Set((await cache.keys()).map(k => k.url));
+        const abs = r => new URL(r, location.href).href;
+        const llista = urls.map(u => ambCb(typeof urlNB === 'function' ? urlNB(u) : u));  // MATEIXA URL que demana el visor
+        const pendents = llista.filter(r => !tinc.has(abs(r)));
+
+        const total = llista.length;
+        let fets = total - pendents.length, errors = 0, i = 0, tUlt = 0;
+        const avisa = (final) => {
+            const t = performance.now();
+            if (final || t - tUlt > 150) { tUlt = t; onProg(fets, total, errors); }
+        };
+        avisa(true);
+
         async function worker() {
             while (!cancel) {
-                const u = urls[i++];
-                if (!u) return;
-                const req = ambCb(typeof urlNB === 'function' ? urlNB(u) : u);      // MATEIXA URL (amb ?v=) que després demana el visor
+                const req = pendents[i++];
+                if (!req) return;
                 try {
-                    if (!(await cache.match(req, { ignoreVary: true }))) {
-                        const r = await fetch(req);
-                        if (r.ok) await cache.put(req, r);
-                        else if (r.status !== 404) errors++;   // 404 = no existeix per a aquesta variable/hora
-                    }
+                    // La capçalera indica al SW que no guardi: ho fem nosaltres (evita escriure dues vegades)
+                    const r = await fetch(req, { headers: { 'X-TC-Descarrega': '1' } });
+                    if (r.ok) await cache.put(req, r);
+                    else if (r.status !== 404) errors++;   // 404 = no existeix per a aquesta variable/hora
                 } catch { errors++; }
-                onProg(++fets, urls.length, errors);
+                fets++;
+                avisa(false);
             }
         }
         await Promise.all(Array.from({ length: PARAL }, worker));
+        avisa(true);
     }
 
     async function netejaVelles() {
@@ -111,14 +124,6 @@
             if (k.startsWith(PREFIX) && k !== nomCache()) { await caches.delete(k); hiHavia = true; }
         }
         return hiHavia;
-    }
-
-    async function espaiTxt() {
-        try {
-            const e = await navigator.storage.estimate();
-            const mb = x => (x / 1048576).toFixed(0);
-            return `${mb(e.usage)} MB usats de ${mb(e.quota)} MB`;
-        } catch { return ''; }
     }
 
     async function nFitxersGuardats() {
@@ -139,7 +144,7 @@
 
     async function refrescarEstatInicial() {
         const n = await nFitxersGuardats();
-        estat(n ? `${n} fitxers guardats · ${await espaiTxt()}` : 'Cap dada descarregada', n ? 'ok' : '');
+        estat(n ? 'Dades descarregades ✓' : 'Cap dada descarregada', n ? 'ok' : '');
     }
 
     async function iniciar() {
@@ -147,7 +152,7 @@
         if (!versio()) { estat('El manifest no té "versio": no es pot descarregar.', 'error'); return; }
         const urls = llistaFitxers();
         if (!urls.length) { estat('No hi ha res per descarregar.', 'error'); return; }
-        if (!confirm(`Es descarregaran fins a ${urls.length} fitxers. Pot ser molt de dades: millor amb Wi-Fi. Continuar?`)) return;
+        if (!confirm('Es descarregaran les dades del teu pla per a ús sense connexió. Millor amb Wi-Fi. Continuar?')) return;
 
         try { if (navigator.storage && navigator.storage.persist) await navigator.storage.persist(); } catch {}
         await netejaVelles();
@@ -159,17 +164,17 @@
         try {
             await descarrega(urls, (f, t, err) => {
                 barra(f / t);
-                estat(`Descarregant ${f} / ${t}` + (err ? ` · ${err} errors` : ''), 'comprovant');
+                estat(`Descarregant… ${Math.floor(f / t * 100)}%`, 'comprovant');
             });
             if (cancel) estat('Descàrrega cancel·lada (el que ja s\'ha baixat es manté).', '');
-            else estat(`Llest · ${await espaiTxt()}`, 'ok');
+            else estat('Llest · 100% ✓', 'ok');
         } catch (e) {
             estat('Error: ' + e.message, 'error');
         } finally {
             enCurs = false; cancel = false;
             btn.querySelector('.txt').textContent = 'Descarregar tot (segons el teu pla)';
             btn.classList.remove('carregant');
-            setTimeout(() => barra(0), 1500);
+            if (cancel) barra(0);
         }
     }
 
