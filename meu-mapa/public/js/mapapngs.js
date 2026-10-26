@@ -60,16 +60,25 @@ function cfgGuardar(obj) {
     try { localStorage.setItem(CLAU_CFG, JSON.stringify(_cfg)); } catch {}
 }
 
-// ─── Opacitat ──────────────────────────────────────────────────────
 let OPACITAT_DADES = (typeof _cfg.opacitat === 'number' && _cfg.opacitat >= 0.2 && _cfg.opacitat <= 1)
     ? _cfg.opacitat : 0.85;
 
-// ─── Constants de tractament d'imatge ──────────────────────────────
 const VENT_INVERTIR_V = false;
-const NEGRE_A_BLANC = true;
+let NEGRE_A_BLANC = true;
+let NB_SW = false;
+// Pregunta al Service Worker si ja fa ell el negre→blanc
+const _sondaSW = fetch('sw-ping', { cache: 'no-store' })
+    .then(r => r.ok ? r.json() : null)
+    .then(j => { if (j && j.nb) { NB_SW = true; NEGRE_A_BLANC = false; } })
+    .catch(() => {});
+
+// Les capes de dades es demanen amb ?nb=1 perquè el SW les processi
+function urlNB(url) {
+    return (NB_SW && /\/(sfc|3d)_[^/?]*\.png$/.test(url))
+        ? url + (url.includes('?') ? '&' : '?') + 'nb=1' : url;
+}
 const LLINDAR_NEGRE = 50;
 
-// ─── Límits de memòria dels caches ─────────────────────────────────
 const MAX_CACHE_BLANQUES = 6;     // data-URLs grans: cache petita
 const MAX_CACHE_ISOLINES = 20;
 const MAX_CACHE_VENT = 20;
@@ -2402,7 +2411,7 @@ function obtenirImatge(url) {
     if (!im) {
         im = new Image();
         im.decoding = 'async';
-        im.src = ambCb(url);
+        im.src = ambCb(urlNB(url));
         _preImgs.set(url, im);
     }
     return im;
@@ -3367,6 +3376,7 @@ async function inicialitzar() {
     pintarBotoPlay();
     crearEscena();
     const hores = await carregarManifest();
+    await _sondaSW;
     const overlay = document.getElementById('loading_overlay');
     if (overlay) overlay.classList.add('hidden');
     if (!hores.length) {

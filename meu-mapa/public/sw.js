@@ -1,70 +1,179 @@
-// sw.js - Service Worker per guardar dades del mapa (versió 2)
+// ═══════════════════════════════════════════════════════════════════
+//  sw.js (v3) — Service Worker del visor: guardat passiu + mode offline
+//  Ubicació: a la MATEIXA carpeta que el HTML del visor.
 //
-// Canvis respecte a la versió anterior:
-//  1) manifest.json i info_run.json NO es guarden: porten ?_cb=<hora> i cada
-//     petició tenia una URL nova, així que s'acumulaven sense servir mai.
-//  2) Quan arriba una versió nova (?v=...), s'esborren els fitxers de versions
-//     antigues. Abans la memòria cau només creixia.
-//  3) Només es guarden respostes 200 correctes (abans també errors 404/500).
-//  4) Es canvia CACHE_NAME: en activar-se, s'esborra la memòria cau antiga (v1).
+//  Memòries cau:
+//   · tc-shell-v1     → HTML, JS, CSS propis, manifest i llibreries CDN
+//   · tc-data-<versio>→ dades del mapa (PNG, isolínies, vent, 3D...).
+//                       Hi escriu tant aquest SW (el que mires) com offline.js
+//                       (botó "Descarregar"). Quan surt una versió nova al
+//                       manifest, les versions antigues s'esborren soles.
+// ═══════════════════════════════════════════════════════════════════
+'use strict';
 
-const CACHE_NAME = 'tempestes-v2';
+const SHELL = 'tc-shell-v1';
+const DATA_PREFIX = 'tc-data-';
+const CACHE_PASSIU = true;   // true: guarda automàticament el que es veu. false: només el que es descarrega amb el botó
 
-// Sempre directes a la xarxa: han de ser frescos i no tenen sentit a la memòria cau
-const SEMPRE_XARXA = /\/(manifest|info_run)\.json$/;
+// Ajusta-ho als fitxers reals (rutes relatives a sw.js). Si algun falla, s'ignora.
+const PRECACHE = [
+    './',
+    'js/mapapngs.js', 'js/hores.js', 'js/gfspngs.js', 'js/models.js',
+    'dades/altitude.js', 'dades/paletes.js',
+    'js/skew-t-engine.js', 'js/skewt.js', 'js/valor.js', 'js/outlook.js',
+    'js/novetats.js', 'js/actualitzacio.js', 'js/vent.js', 'js/offline.js',
+    'img/favicon.png',
+    'https://cdnjs.cloudflare.com/ajax/libs/pako/2.0.4/pako.min.js',
+    'https://cdn.jsdelivr.net/npm/msgpack-lite@0.1.26/dist/msgpack.min.js',
+    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css',
+    'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js',
+    'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js',
+];
 
-let ultimaVersio = null;
+const CDN = ['cdnjs.cloudflare.com', 'cdn.jsdelivr.net', 'fonts.googleapis.com',
+             'fonts.gstatic.com', 'www.gstatic.com'];
+const FRESC = /\/(manifest|info_run)\.json$/;
+const DADES = /\/(web_data_NE\/imatges|dades)\//;
 
-self.addEventListener('install', () => {
-    self.skipWaiting();
-});
+// ─── Negre → blanc fet AQUÍ (fil del SW, una sola vegada, i es guarda processat) ───
+const LLINDAR_NEGRE = 50;                                   // el mateix que mapapngs.js
+const PNG_NB = /\/(sfc|3d)_[^/]*\.png$/;                    // només les capes de dades (no llegendes ni vores)
+const SUPORT_NB = typeof OffscreenCanvas !== 'undefined' && typeof createImageBitmap === 'function';
 
-self.addEventListener('activate', (event) => {
-    event.waitUntil(
-        caches.keys()
-            .then((noms) => Promise.all(
-                noms.filter((n) => n !== CACHE_NAME).map((n) => caches.delete(n))
-            ))
-            .then(() => self.clients.claim())
-    );
-});
-
-// Esborra de la memòria cau els fitxers amb una versió (?v=) diferent de l'actual
-async function netejarVersionsAntigues(cache, versio) {
-    if (!versio || versio === ultimaVersio) return;
-    ultimaVersio = versio;
-    const claus = await cache.keys();
-    await Promise.all(
-        claus
-            .filter((k) => {
-                const v = new URL(k.url).searchParams.get('v');
-                return v && v !== versio;
-            })
-            .map((k) => cache.delete(k))
-    );
+async function processarNegre(resp) {
+    const bmp = await createImageBitmap(await resp.blob());
+    const c = new OffscreenCanvas(bmp.width, bmp.height);
+    const cx = c.getContext('2d', { willReadFrequently: true });
+    cx.drawImage(bmp, 0, 0);
+    bmp.close();
+    const id = cx.getImageData(0, 0, c.width, c.height);
+    const d = id.data;
+    for (let i = 0; i < d.length; i += 4) {
+        if (d[i + 3] === 0) continue;
+        if (Math.max(d[i], d[i + 1], d[i + 2]) <= LLINDAR_NEGRE) { d[i] = 255; d[i + 1] = 255; d[i + 2] = 255; }
+    }
+    cx.putImageData(id, 0, 0);
+    const out = await c.convertToBlob({ type: 'image/png' });
+    return new Response(out, { status: 200, headers: { 'Content-Type': 'image/png' } });
 }
 
-self.addEventListener('fetch', (event) => {
-    const req = event.request;
-    if (req.method !== 'GET') return;
+const clauNeta = url => { const u = new URL(url); return u.origin + u.pathname; };
 
-    const url = new URL(req.url);
-    if (!url.pathname.includes('web_data_NE')) return;
-    if (SEMPRE_XARXA.test(url.pathname)) return;   // el navegador ho demana directament
-
-    event.respondWith((async () => {
-        const cache = await caches.open(CACHE_NAME);
-        const guardada = await cache.match(req);
-        if (guardada) return guardada;
-
-        const xarxa = await fetch(req);
-        if (xarxa.status === 200) {
-            const copia = xarxa.clone();
-            event.waitUntil((async () => {
-                await netejarVersionsAntigues(cache, url.searchParams.get('v'));
-                await cache.put(req, copia);
-            })());
-        }
-        return xarxa;
+self.addEventListener('install', e => {
+    e.waitUntil((async () => {
+        const c = await caches.open(SHELL);
+        await Promise.allSettled(PRECACHE.map(u => c.add(new Request(u, { cache: 'reload' }))));
+        self.skipWaiting();
     })());
 });
+
+self.addEventListener('activate', e => {
+    e.waitUntil((async () => {
+        // Esborra versions antigues del SW (inclosa 'tempestes-v2'), però respecta tc-data-*
+        for (const k of await caches.keys()) {
+            if (k !== SHELL && !k.startsWith(DATA_PREFIX)) await caches.delete(k);
+        }
+        await self.clients.claim();
+    })());
+});
+
+self.addEventListener('fetch', e => {
+    const req = e.request;
+    if (req.method !== 'GET' || req.headers.has('range')) return;
+    const url = new URL(req.url);
+    const propi = url.origin === self.location.origin;
+
+    if (!propi) {
+        if (CDN.includes(url.hostname)) e.respondWith(cacheFirst(req));
+        return;
+    }
+    if (url.pathname.startsWith('/api/')) return;
+    if (url.pathname.endsWith('/sw-ping')) {
+        e.respondWith(new Response(JSON.stringify({ nb: SUPORT_NB }),
+            { headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' } }));
+        return;
+    }
+
+    const fresc = FRESC.test(url.pathname);
+    const v = url.searchParams.get('v');
+    if (!fresc && v && DADES.test(url.pathname)) { e.respondWith(dadesVersionades(e, req, v)); return; }
+    if (!fresc && DADES.test(url.pathname)) { e.respondWith(dadesSenseVersio(req)); return; }
+    e.respondWith(xarxaPrimer(e, req, 4000));
+});
+
+// Dades amb ?v=VERSIO: si ja són guardades (passiu o descàrrega), es serveixen a l'instant.
+async function dadesVersionades(e, req, v) {
+    const c = await caches.match(req, { ignoreVary: true });
+    if (c) return c;
+    try {
+        let r = await fetch(req);
+        let guardar = true;
+        const u = new URL(req.url);
+        if (r.status === 200 && SUPORT_NB && u.searchParams.get('nb') === '1' && PNG_NB.test(u.pathname)) {
+            const original = r.clone();
+            try { r = await processarNegre(r); }
+            catch { r = original; guardar = false; }      // si falla: es serveix l'original i no es guarda
+        }
+        if (guardar && CACHE_PASSIU && r.status === 200) {
+            const copia = r.clone();
+            e.waitUntil(caches.open(DATA_PREFIX + v).then(cache => cache.put(req, copia)));
+        }
+        return r;
+    } catch (err) {
+        const vella = await caches.match(req, { ignoreSearch: true, ignoreVary: true });
+        if (vella) return vella;
+        throw err;
+    }
+}
+
+async function dadesSenseVersio(req) {
+    try { return await fetch(req); }
+    catch (err) {
+        const c = await caches.match(req, { ignoreSearch: true, ignoreVary: true });
+        if (c) return c;
+        throw err;
+    }
+}
+
+// Quan arriba el manifest de xarxa, la seva "versio" mana: s'esborren les dades d'altres versions
+async function netejarVelles(resp) {
+    try {
+        const m = await resp.json();
+        if (!m || !m.versio) return;
+        const actual = DATA_PREFIX + m.versio;
+        for (const k of await caches.keys()) {
+            if (k.startsWith(DATA_PREFIX) && k !== actual) await caches.delete(k);
+        }
+    } catch {}
+}
+
+// Xarxa primer, amb límit de temps si ja hi ha còpia (mala connexió).
+// La clau no porta ?_cb= → una sola còpia del manifest, mai s'acumulen.
+async function xarxaPrimer(e, req, ms) {
+    const cache = await caches.open(SHELL);
+    const clau = clauNeta(req.url);
+    const guardada = await cache.match(clau);
+    const xarxa = fetch(req).then(r => {
+        if (r.status === 200) {
+            cache.put(clau, r.clone());
+            if (/\/manifest\.json$/.test(clau)) e.waitUntil(netejarVelles(r.clone()));
+        }
+        return r;
+    });
+    if (!guardada) return xarxa;
+    xarxa.catch(() => {});
+    try {
+        return await Promise.race([xarxa, new Promise((_, rej) => setTimeout(rej, ms))]);
+    } catch {
+        return guardada;
+    }
+}
+
+async function cacheFirst(req) {
+    const cache = await caches.open(SHELL);
+    const c = await cache.match(req);
+    if (c) return c;
+    const r = await fetch(req);
+    if (r.status === 200 || r.type === 'opaque') cache.put(req, r.clone());
+    return r;
+}
