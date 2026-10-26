@@ -6,19 +6,23 @@ on:
     - cron: '0 0,10,20 * * *'
   workflow_dispatch: # Permet executar-ho a mà des de GitHub
 
+permissions:
+  contents: write
+
 jobs:
   update-news:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    permissions:
-      contents: write
 
     steps:
-    - name: Checkout del codi
-      uses: actions/checkout@v4
-      with:
-        token: ${{ secrets.PRIVATE_REPO_TOKEN }}
-        fetch-depth: 1
+    - name: Clonar private-scripts
+      run: |
+        for i in 1 2 3 4; do
+          rm -rf private-scripts-new
+          if git clone --depth 1 "https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/Tempestesscatt/Scripts.git" private-scripts-new; then break; fi
+          [ "$i" = 4 ] && { echo "No s'ha pogut clonar private-scripts"; exit 1; }
+          sleep 15
+        done
 
     - name: Configurar Python
       uses: actions/setup-python@v5
@@ -33,19 +37,21 @@ jobs:
     - name: Executar l'script de notícies
       env:
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-      run: python noticias.py
+      run: |
+        cd private-scripts-new
+        python noticias.py
 
     - name: Guardar el JSON a la branca 'data'
       timeout-minutes: 10
       run: |
         set -uo pipefail
-        P="$GITHUB_WORKSPACE/public/noticies/resum_cataluna.json"
+        # Com que l'script s'ha executat dins de private-scripts-new, busquem el JSON allà
+        P="$GITHUB_WORKSPACE/private-scripts-new/public/noticies/resum_cataluna.json"
         REMOTE_URL="https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/Tempestesscatt/joctempestes.git"
         MSG="noticies $(date -u +'%Y-%m-%d %H:%M UTC')"
 
-        # Comprovem que el fitxer s'hagi creat correctament abans de fer res
         if [ ! -f "$P" ]; then
-          echo "ERROR: L'script de Python no ha generat el fitxer JSON."
+          echo "ERROR: L'script de Python no ha generat el fitxer JSON a $P."
           exit 1
         fi
 
@@ -53,7 +59,6 @@ jobs:
           echo "=== Guardar notícies a data (intent $INTENT/6) ==="
           rm -rf /tmp/dpub
           
-          # Baixem l'estat més recent de la branca 'data'
           if ! git clone -q --depth 1 --branch data "$REMOTE_URL" /tmp/dpub; then
             sleep 15; continue
           fi
@@ -66,16 +71,11 @@ jobs:
           git config core.compression 1
           git config gc.auto 0
 
-          # Creem la carpeta on anirà el JSON si no existeix
           mkdir -p public/noticies
-          
-          # Copiem el nou fitxer generat
           cp "$P" public/noticies/resum_cataluna.json
           
-          # Marquem el canvi
           git add public/noticies/resum_cataluna.json
           
-          # Si el fitxer és exactament igual que l'anterior, sortim sense fer push
           if git diff --cached --quiet; then 
             echo "Sense canvis respecte a l'anterior. Sortint..."
             exit 0
@@ -83,13 +83,12 @@ jobs:
           
           git commit -q -m "$MSG"
 
-          # Intentem pujar a la branca 'data'
           if timeout 300 git push origin HEAD:refs/heads/data; then
             echo "Notícies publicades a la branca 'data' correctament!"
             exit 0
           fi
           
-          echo "Push fallit (potser la branca 'data' ha canviat just en aquell moment); reintento..."
+          echo "Push fallit; reintento..."
           cd /; sleep $((RANDOM % 10 + 10))
         done
         
