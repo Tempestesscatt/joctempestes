@@ -4,37 +4,94 @@ on:
   schedule:
     # S'executa cada 10 hores (a les 00:00, 10:00 i 20:00 UTC)
     - cron: '0 0,10,20 * * *'
-  workflow_dispatch: # Et permet executar-ho manualment des de la pestanya "Actions" de GitHub
+  workflow_dispatch: # Permet executar-ho a mà des de GitHub
 
 jobs:
   update-news:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     permissions:
-      contents: write # Necessari per fer "push" del nou fitxer JSON al repositori
+      contents: write
 
     steps:
-      - name: Checkout del codi
-        uses: actions/checkout@v4
+    - name: Checkout del codi
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.PRIVATE_REPO_TOKEN }}
+        fetch-depth: 1
 
-      - name: Configurar Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
+    - name: Configurar Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
 
-      - name: Instal·lar dependències
-        run: |
-          python -m pip install --upgrade pip
-          pip install requests pytz
+    - name: Instal·lar dependències
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests pytz
 
-      - name: Executar l'script de notícies
-        env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: python noticias.py
+    - name: Executar l'script de notícies
+      env:
+        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      run: python noticias.py
 
-      - name: Guardar i pujar el JSON actualitzat
-        run: |
-          git config --global user.name "GitHub Action Bot"
-          git config --global user.email "actions@github.com"
+    - name: Guardar el JSON a la branca 'data'
+      timeout-minutes: 10
+      run: |
+        set -uo pipefail
+        P="$GITHUB_WORKSPACE/public/noticies/resum_cataluna.json"
+        REMOTE_URL="https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/Tempestesscatt/joctempestes.git"
+        MSG="noticies $(date -u +'%Y-%m-%d %H:%M UTC')"
+
+        # Comprovem que el fitxer s'hagi creat correctament abans de fer res
+        if [ ! -f "$P" ]; then
+          echo "ERROR: L'script de Python no ha generat el fitxer JSON."
+          exit 1
+        fi
+
+        for INTENT in 1 2 3 4 5 6; do
+          echo "=== Guardar notícies a data (intent $INTENT/6) ==="
+          rm -rf /tmp/dpub
+          
+          # Baixem l'estat més recent de la branca 'data'
+          if ! git clone -q --depth 1 --branch data "$REMOTE_URL" /tmp/dpub; then
+            sleep 15; continue
+          fi
+          
+          cd /tmp/dpub
+          git config user.name "bot-dades"
+          git config user.email "bot@tempestes-cat"
+          git config http.version HTTP/1.1
+          git config http.postBuffer 1048576000
+          git config core.compression 1
+          git config gc.auto 0
+
+          # Creem la carpeta on anirà el JSON si no existeix
+          mkdir -p public/noticies
+          
+          # Copiem el nou fitxer generat
+          cp "$P" public/noticies/resum_cataluna.json
+          
+          # Marquem el canvi
           git add public/noticies/resum_cataluna.json
-          # Si hi ha canvis, fa el commit i el push
-          git diff --quiet && git diff --staged --quiet || (git commit -m "🤖 Notícies actualitzades automàticament [skip ci]" && git push)
+          
+          # Si el fitxer és exactament igual que l'anterior, sortim sense fer push
+          if git diff --cached --quiet; then 
+            echo "Sense canvis respecte a l'anterior. Sortint..."
+            exit 0
+          fi
+          
+          git commit -q -m "$MSG"
+
+          # Intentem pujar a la branca 'data'
+          if timeout 300 git push origin HEAD:refs/heads/data; then
+            echo "Notícies publicades a la branca 'data' correctament!"
+            exit 0
+          fi
+          
+          echo "Push fallit (potser la branca 'data' ha canviat just en aquell moment); reintento..."
+          cd /; sleep $((RANDOM % 10 + 10))
+        done
+        
+        echo "No s'ha pogut guardar a la branca 'data' després de 6 intents."
+        exit 1
