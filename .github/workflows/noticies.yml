@@ -12,7 +12,7 @@ permissions:
 jobs:
   update-news:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
 
     steps:
     - name: Clonar private-scripts
@@ -45,7 +45,6 @@ jobs:
       timeout-minutes: 10
       run: |
         set -uo pipefail
-        # Com que l'script s'ha executat dins de private-scripts-new, busquem el JSON allà
         P="$GITHUB_WORKSPACE/private-scripts-new/public/noticies/resum_cataluna.json"
         REMOTE_URL="https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/Tempestesscatt/joctempestes.git"
         MSG="noticies $(date -u +'%Y-%m-%d %H:%M UTC')"
@@ -71,10 +70,11 @@ jobs:
           git config core.compression 1
           git config gc.auto 0
 
-          mkdir -p public/noticies
-          cp "$P" public/noticies/resum_cataluna.json
+          # Guardem a la ruta exacta on el desplegament l'espera
+          mkdir -p meu-mapa/public/noticies
+          cp "$P" meu-mapa/public/noticies/resum_cataluna.json
           
-          git add public/noticies/resum_cataluna.json
+          git add meu-mapa/public/noticies/resum_cataluna.json
           
           if git diff --cached --quiet; then 
             echo "Sense canvis respecte a l'anterior. Sortint..."
@@ -94,3 +94,32 @@ jobs:
         
         echo "No s'ha pogut guardar a la branca 'data' després de 6 intents."
         exit 1
+
+    - name: Descarregar el codi de la branca main (per al desplegament)
+      uses: actions/checkout@v4
+      with:
+        ref: main
+        path: repo-principal
+
+    - name: Barrejar el JSON nou a la carpeta del desplegament
+      run: |
+        # Copiem el JSON generat a la carpeta correcta del repo principal
+        cp private-scripts-new/public/noticies/resum_cataluna.json repo-principal/meu-mapa/public/noticies/resum_cataluna.json
+
+    - name: Deploy a Cloudflare
+      timeout-minutes: 10
+      env:
+        CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        WRANGLER_SEND_METRICS: "false"
+      run: |
+        cd repo-principal/meu-mapa
+        for i in 1 2 3; do npm install -g wrangler && break; sleep 10; done
+        for i in 1 2 3; do
+          echo "--- deploy intent $i/3 ---"
+          if timeout 15m wrangler pages deploy public --project-name=tempestes-cat --branch=main --commit-dirty=true; then
+            echo "Deploy OK"; exit 0
+          fi
+          sleep 20
+        done
+        echo "El deploy ha fallat 3 vegades"; exit 1
