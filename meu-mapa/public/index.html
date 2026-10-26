@@ -228,159 +228,74 @@ footer{padding:48px 0 28px;border-top:1px solid var(--line);background:var(--bg)
 .purchase-toast .pt-close:hover{opacity:.85}
 
 /* ============================================================
-   NOTÍCIES METEOROLÒGIQUES (grid 3 columnes fixes, sense forats)
+   NOTÍCIES METEOROLÒGIQUES
    ============================================================ */
-#noticies {
-  padding: 90px 0 60px;
-  background: var(--bg);
-  border-bottom: 1px solid var(--line);
-  position: relative;
-}
+#noticies { padding: 90px 0 60px; background: var(--bg); border-bottom: 1px solid var(--line); position: relative; }
 #noticies .noticies-head { max-width: 720px; margin-bottom: 36px; }
-#noticies .noticies-badge {
-  display: inline-flex; align-items: center; gap: 10px;
-  font-size: 11px; font-weight: 700; letter-spacing: 2.5px;
-  text-transform: uppercase; color: var(--muted); margin-bottom: 16px;
-}
+#noticies .noticies-badge { display: inline-flex; align-items: center; gap: 10px; font-size: 11px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; }
 #noticies .noticies-badge::before { content: ""; width: 24px; height: 1px; background: var(--muted); }
 #noticies h2 { font-family: var(--display); font-size: clamp(26px, 3.5vw, 40px); font-weight: 700; color: var(--text); }
 #noticies .noticies-sub { margin-top: 14px; color: var(--muted); font-size: 16px; line-height: 1.7; }
 
-#noticies .noti-hero {
-  background: var(--card); border: 1px solid var(--line); border-radius: var(--r);
-  padding: 28px 28px 24px; margin-bottom: 24px;
-  box-shadow: var(--shadow); position: relative; overflow: hidden;
-}
-#noticies .noti-hero::before {
-  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-  background: linear-gradient(90deg, var(--accent), transparent);
-}
-#noticies .noti-hero-titol {
-  font-family: var(--display); font-size: clamp(22px, 2.8vw, 30px);
-  font-weight: 700; color: var(--text); line-height: 1.25; margin-bottom: 12px;
-}
+#noticies .noti-hero { background: var(--card); border: 1px solid var(--line); border-radius: var(--r); padding: 28px 28px 24px; margin-bottom: 24px; box-shadow: var(--shadow); position: relative; overflow: hidden; }
+#noticies .noti-hero::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--accent), transparent); }
+#noticies .noti-hero-titol { font-family: var(--display); font-size: clamp(22px, 2.8vw, 30px); font-weight: 700; color: var(--text); line-height: 1.25; margin-bottom: 12px; }
 #noticies .noti-hero-resum { font-size: 15.5px; line-height: 1.7; color: var(--text); opacity: .9; margin-bottom: 12px; }
 #noticies .noti-hero-periode { font-size: 12.5px; color: var(--muted); }
 #noticies .noti-hero-periode strong { color: var(--text); }
 
-.noti-sec-titol {
-  font-family: var(--display); font-size: 13px; font-weight: 700;
-  color: var(--text); text-transform: uppercase; letter-spacing: 1.4px;
-  margin: 32px 0 16px; display: flex; align-items: center; gap: 10px;
-}
-.noti-sec-titol::before {
-  content: ""; width: 3px; height: 16px; background: var(--accent);
-  border-radius: 2px; opacity: .6;
-}
+.noti-sec-titol { font-family: var(--display); font-size: 13px; font-weight: 700; color: var(--text); text-transform: uppercase; letter-spacing: 1.4px; margin: 32px 0 16px; display: flex; align-items: center; gap: 10px; }
+.noti-sec-titol::before { content: ""; width: 3px; height: 16px; background: var(--accent); border-radius: 2px; opacity: .6; }
 
-/* ==== GRID 3 COLUMNES FIXES ==== */
-.noti-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 18px;
-}
+.noti-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
 @media (max-width: 900px) { .noti-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 600px) { .noti-grid { grid-template-columns: 1fr; } }
 
-.noti-card {
-  display: flex; flex-direction: column;
-  background: var(--card); border: 1px solid var(--line); border-radius: var(--r);
-  overflow: hidden; box-shadow: var(--shadow);
-  transition: transform .25s, box-shadow .25s, border-color .25s;
-  min-width: 0;
-}
-.noti-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); border-color: var(--muted); }
+.noti-card, .noti-card-zona { display: flex; flex-direction: column; background: var(--card); border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; box-shadow: var(--shadow); transition: transform .25s, box-shadow .25s, border-color .25s; min-width: 0; }
+.noti-card:hover, .noti-card-zona:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); border-color: var(--muted); }
 
-.noti-card-img {
-  position: relative; aspect-ratio: 16 / 9; background: var(--accent-soft);
-  overflow: hidden; display: flex; align-items: center; justify-content: center;
-}
-.noti-card-img img {
-  width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .5s;
-}
+.noti-card-img { position: relative; aspect-ratio: 16 / 9; background: var(--accent-soft); overflow: hidden; display: flex; align-items: center; justify-content: center; }
+.noti-card-zona .noti-card-img { aspect-ratio: 16 / 7; }
+.noti-card-img img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .5s; }
 .noti-card:hover .noti-card-img img { transform: scale(1.04); }
-.noti-card-img .emoji-fallback {
-  font-size: 64px; line-height: 1; opacity: .55; user-select: none;
-}
-.noti-card-tipus {
-  position: absolute; top: 12px; left: 12px;
-  background: rgba(0,0,0,.7); color: #fff; font-size: 10px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: .6px; padding: 4px 12px;
-  border-radius: 20px; backdrop-filter: blur(6px);
-}
-.noti-card-gravetat {
-  position: absolute; top: 12px; right: 12px; font-size: 9.5px; font-weight: 800;
-  text-transform: uppercase; letter-spacing: .6px; padding: 4px 10px;
-  border-radius: 20px; border: 1px solid; backdrop-filter: blur(6px);
-  background: rgba(0,0,0,.5);
-}
+.noti-card-img .emoji-fallback { font-size: 64px; line-height: 1; opacity: .55; user-select: none; }
+
+.noti-card-tipus { position: absolute; top: 12px; left: 12px; background: rgba(0,0,0,.7); color: #fff; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; padding: 4px 12px; border-radius: 20px; backdrop-filter: blur(6px); }
+.noti-card-gravetat { position: absolute; top: 12px; right: 12px; font-size: 9.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .6px; padding: 4px 10px; border-radius: 20px; border: 1px solid; backdrop-filter: blur(6px); background: rgba(0,0,0,.5); }
+.noti-card-model { position: absolute; bottom: 12px; left: 12px; font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: .8px; padding: 3px 8px; border-radius: 6px; backdrop-filter: blur(6px); z-index: 2; box-shadow: 0 2px 8px rgba(0,0,0,.3); }
+.noti-card-model.arome { background: rgba(88, 166, 255, 0.85); color: #fff; border: 1px solid #58a6ff; }
+.noti-card-model.gfs { background: rgba(0, 0, 0, 0.6); color: #c9d1d9; border: 1px solid rgba(255, 255, 255, 0.2); }
+
 .noti-card-cos { padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 8px; flex: 1 1 auto; }
 .noti-card-data { font-size: 11.5px; color: var(--muted); font-weight: 500; letter-spacing: .2px; }
 .noti-card-lloc { font-size: 12.5px; color: var(--text); font-weight: 700; text-transform: uppercase; letter-spacing: .3px; }
-.noti-card-valor {
-  display: inline-block; align-self: flex-start; font-size: 12px; font-weight: 700;
-  color: var(--text); background: var(--accent-soft); border: 1px solid var(--line);
-  padding: 3px 10px; border-radius: 6px;
-}
+.noti-card-valor { display: inline-block; align-self: flex-start; font-size: 12px; font-weight: 700; color: var(--text); background: var(--accent-soft); border: 1px solid var(--line); padding: 3px 10px; border-radius: 6px; }
 .noti-card-desc { font-size: 13.5px; line-height: 1.6; color: var(--muted); }
 
-.noti-card-zona {
-  display: flex; flex-direction: column;
-  background: var(--card); border: 1px solid var(--line); border-radius: var(--r);
-  overflow: hidden; box-shadow: var(--shadow);
-  transition: transform .25s, box-shadow .25s, border-color .25s;
-  min-width: 0;
-}
-.noti-card-zona:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); border-color: var(--muted); }
-.noti-card-zona .noti-card-img { aspect-ratio: 16 / 7; }
 .noti-card-zona .noti-card-cos { padding: 18px 20px 20px; gap: 10px; }
 .noti-card-zona .noti-zona-nom { font-family: var(--display); font-size: 17px; font-weight: 700; color: var(--text); }
 .noti-destacats { list-style: none; margin: 4px 0 0; padding: 12px 0 0; border-top: 1px dashed var(--line); }
 .noti-destacats li { font-size: 12.5px; line-height: 1.55; color: var(--muted); padding: 3px 0; }
 .noti-destacats li strong { color: var(--text); font-weight: 600; }
 
-.noti-setmana { background: var(--card); border: 1px solid var(--line); border-radius: var(--r); padding: 20px 22px; box-shadow: var(--shadow); }
+.noti-setmana { background: var(--card); border: 1px solid var(--line); border-radius: var(--r); padding: 20px 22px; box-shadow: var(--shadow); display: flex; flex-direction: column; }
 .noti-setmana.incert { background: linear-gradient(180deg, var(--accent-soft), var(--card)); border-color: var(--muted); }
-.noti-setmana-cap {
-  font-family: var(--display); font-size: 13px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 1px; color: var(--text);
-  margin-bottom: 12px; display: flex; align-items: center; gap: 10px;
-}
-.noti-setmana-cap .tag {
-  font-size: 9px; text-transform: uppercase; letter-spacing: .6px;
-  background: var(--accent-soft); color: var(--muted); padding: 2px 8px;
-  border-radius: 20px; border: 1px solid var(--line); margin-left: auto; font-weight: 700;
-}
+.noti-setmana-cap { font-family: var(--display); font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text); margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+.noti-setmana-cap .tag { font-size: 9px; text-transform: uppercase; letter-spacing: .6px; background: var(--accent-soft); color: var(--muted); padding: 2px 8px; border-radius: 20px; border: 1px solid var(--line); margin-left: auto; font-weight: 700; }
 .noti-setmana p { font-size: 13.5px; line-height: 1.65; color: var(--muted); margin: 4px 0; }
 .noti-setmana p strong { color: var(--text); font-weight: 600; }
+.noti-setmana-img { margin-top: 16px; width: 100%; flex: 1 1 auto; min-height: 120px; max-height: 250px; border-radius: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center; background: var(--accent-soft); border: 1px solid var(--line); position: relative; }
+.noti-setmana-img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.9; }
 
-/* Targeta fantasma per omplir l'última fila (invisible però ocupa lloc) */
-.noti-card-fantasma { visibility: hidden; pointer-events: none; min-height: 260px; }
-
-.noti-avis {
-  background: var(--accent-soft); border: 1px solid var(--line);
-  border-left: 3px solid var(--muted); border-radius: 10px;
-  padding: 16px 20px; font-size: 13px; line-height: 1.65;
-  color: var(--muted); margin-top: 28px;
-}
+.noti-avis { background: var(--accent-soft); border: 1px solid var(--line); border-left: 3px solid var(--muted); border-radius: 10px; padding: 16px 20px; font-size: 13px; line-height: 1.65; color: var(--muted); margin-top: 28px; }
 .noti-avis strong { color: var(--text); font-weight: 700; }
 
 .noti-loading { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 60px 20px; color: var(--muted); font-size: 14px; }
 .noti-spinner { width: 32px; height: 32px; border: 2px solid var(--line); border-top-color: var(--text); border-radius: 50%; animation: notiGira .9s linear infinite; }
 @keyframes notiGira { to { transform: rotate(360deg); } }
 
-.noti-error {
-  background: var(--card); border: 1px solid var(--line);
-  border-left: 3px solid #ef4444; border-radius: 10px;
-  padding: 18px 22px; font-size: 13.5px; line-height: 1.6; color: var(--muted);
-}
-.noti-error strong { color: var(--text); }
-
 @media (max-width: 1000px) { #noticies { padding: 70px 0 40px; } }
-@media (max-width: 700px) {
-  #noticies { padding: 56px 0 30px; }
-  #noticies .noti-hero { padding: 20px 20px 18px; }
-}
+@media (max-width: 700px) { #noticies { padding: 56px 0 30px; } #noticies .noti-hero { padding: 20px 20px 18px; } }
 
 /* ===== RESPONSIVE GENERAL ===== */
 @media(max-width:1000px){
@@ -435,8 +350,7 @@ footer{padding:48px 0 28px;border-top:1px solid var(--line);background:var(--bg)
 </header>
 
 <main>
-
-<!-- ═══════════════ NOTÍCIES ═══════════════ -->
+<!-- ═══════════ NOTÍCIES ═══════════ -->
 <section id="noticies">
   <div class="wrap">
     <div class="noticies-head">
@@ -445,8 +359,113 @@ footer{padding:48px 0 28px;border-top:1px solid var(--line);background:var(--bg)
       <p class="noticies-sub">El resum de l'evolució prevista pels propers dies, amb els episodis més destacats comarca a comarca.</p>
     </div>
     <div id="noticiesContingut">
-      <div class="noti-loading"><div class="noti-spinner"></div><div>Carregant resum meteorològic…</div></div>
+
+    <div class="noti-hero">
+      <h3 class="noti-hero-titol">Estabilitat inicial seguida d'un canvi de temps a la baixa</h3>
+      <p class="noti-hero-resum">Els propers dies es presenten estables i suaus, amb una fiabilitat molt alta gràcies al model AROME per a les primeres 48 hores. A partir de la segona setmana, s'espera una entrada d'aire més fred i inestable segons les dades del model GFS.</p>
+      <p class="noti-hero-periode">
+        Del <strong>2026-10-26</strong> al <strong>2026-11-10</strong>
+        · Font: <strong>AROME + GFS</strong>
+        · Generat el <strong>2026-10-26</strong>
+      </p>
     </div>
+    <h3 class="noti-sec-titol">Evolució per setmanes</h3><div class="noti-grid"><article class="noti-setmana"><div class="noti-setmana-cap">Setmana 1</div>
+            <p>La setmana començarà amb un ambient molt suau i absència de precipitacions, mantenint el cel majoritàriament clar.</p>
+            <p><strong>Temperatures:</strong> Valors màxims que oscil·laran entre els 18 °C i els 24 °C, amb nits suaus.</p>
+            <p><strong>Precipitació:</strong> Pràcticament nul·la durant tota la setmana.</p>
+            <p><strong>Vent:</strong> Fluix en general, amb alguna ratxa moderada puntualment al litoral.</p>
+            <div class="noti-setmana-img"><img src="img/tendencia_estable.png" alt="Tendència" onerror="this.style.display='none'"></div>
+            </article><article class="noti-setmana incert"><div class="noti-setmana-cap">Setmana 2 <span class="tag">incertesa</span></div>
+            <p>S'observa un canvi de tendència cap al 7 i 8 de novembre, amb una baixada notable de les temperatures i l'arribada de precipitacions més generalitzades.</p>
+            <p><strong>Incertesa:</strong> La fiabilitat disminueix a mesura que ens acostem al final del període, amb una major dispersió en els models a llarg termini.</p>
+            <div class="noti-setmana-img"><img src="img/tendencia_estable.png" alt="Tendència" onerror="this.style.display='none'"></div>
+            </article></div><h3 class="noti-sec-titol">Per zones</h3><div class="noti-grid"><article class="noti-card-zona">
+                <div class="noti-card-img">
+                    <img src="img/zona_litoral.png" alt="Litoral i prelitoral" onerror="this.style.display='none'">
+                </div>
+                <div class="noti-card-cos"><div class="noti-zona-nom">Litoral i prelitoral</div>
+                <p class="noti-card-desc">Inici de setmana tranquil i càlid. Cap al 7 i 8 de novembre, el model GFS preveu un descens tèrmic marcat i l'arribada de precipitacions febles a moderades.</p><ul class="noti-destacats"><li><strong>Garraf</strong> · Vilanova i la Geltrú — Ratxes de vent fortes el 8 de novembre</li></ul></div></article><article class="noti-card-zona">
+                <div class="noti-card-img">
+                    <img src="img/zona_interior.png" alt="Interior" onerror="this.style.display='none'">
+                </div>
+                <div class="noti-card-cos"><div class="noti-zona-nom">Interior</div>
+                <p class="noti-card-desc">Ambient suau i estable fins a mitjans de la segona setmana. El 8 de novembre es preveu una davallada tèrmica significativa amb valors mínims que podrien baixar dels 5 °C en molts punts.</p><ul class="noti-destacats"><li><strong>Anoia</strong> · Igualada — Ratxes de vent destacades el 8 de novembre</li></ul></div></article><article class="noti-card-zona">
+                <div class="noti-card-img">
+                    <img src="img/zona_pirineu.png" alt="Pirineu i Prepirineu" onerror="this.style.display='none'">
+                </div>
+                <div class="noti-card-cos"><div class="noti-zona-nom">Pirineu i Prepirineu</div>
+                <p class="noti-card-desc">Setmana marcada per l'estabilitat inicial. El 8 de novembre destaca per un episodi de precipitacions més rellevant, especialment a la Garrotxa.</p><ul class="noti-destacats"><li><strong>Garrotxa</strong> · Olot — Acumulació de precipitació rellevant el 8 de novembre</li></ul></div></article><article class="noti-card-zona">
+                <div class="noti-card-img">
+                    <img src="img/zona_tarragona.png" alt="Camp de Tarragona i Terres de l'Ebre" onerror="this.style.display='none'">
+                </div>
+                <div class="noti-card-cos"><div class="noti-zona-nom">Camp de Tarragona i Terres de l'Ebre</div>
+                <p class="noti-card-desc">Inici suau amb vent puntualment fort a la Terra Alta. El 8 de novembre s'espera un canvi amb precipitacions més abundants a les zones del Baix Ebre i Montsià.</p><ul class="noti-destacats"><li><strong>Montsià</strong> · Amposta — Precipitació acumulada significativa el 8 de novembre</li></ul></div></article></div><h3 class="noti-sec-titol">Episodis destacats</h3><div class="noti-grid"><article class="noti-card">
+                <div class="noti-card-img">
+                    <img src="img/calor.png" alt="calor" onerror="this.style.display='none'">
+                    <span class="noti-card-tipus">calor</span>
+                    <span class="noti-card-gravetat" style="color:#22c55e;border-color:#22c55e">baixa</span>
+                    <span class="noti-card-model arome">AROME</span>
+                </div>
+                <div class="noti-card-cos">
+                    <div class="noti-card-data">2026-10-26 → 2026-10-27</div>
+                    <div class="noti-card-lloc">Baix Llobregat · Sant Feliu de Llobregat</div>
+                    <div class="noti-card-valor">24.7 °C</div>
+                    <p class="noti-card-desc">Valors de temperatura màxima inusualment alts per a l'època.</p>
+                </div>
+            </article><article class="noti-card">
+                <div class="noti-card-img">
+                    <img src="img/canvi_termic.png" alt="canvi_termic" onerror="this.style.display='none'">
+                    <span class="noti-card-tipus">canvi_termic</span>
+                    <span class="noti-card-gravetat" style="color:#f59e0b;border-color:#f59e0b">mitjana</span>
+                    <span class="noti-card-model gfs">GFS</span>
+                </div>
+                <div class="noti-card-cos">
+                    <div class="noti-card-data">2026-11-07 → 2026-11-08</div>
+                    <div class="noti-card-lloc">Vallès Oriental · Granollers</div>
+                    <div class="noti-card-valor">8.2 °C</div>
+                    <p class="noti-card-desc">Baixada brusca de les temperatures mínimes en 24 hores.</p>
+                </div>
+            </article><article class="noti-card">
+                <div class="noti-card-img">
+                    <img src="img/pluja.png" alt="pluja" onerror="this.style.display='none'">
+                    <span class="noti-card-tipus">pluja</span>
+                    <span class="noti-card-gravetat" style="color:#f59e0b;border-color:#f59e0b">mitjana</span>
+                    <span class="noti-card-model gfs">GFS</span>
+                </div>
+                <div class="noti-card-cos">
+                    <div class="noti-card-data">2026-11-08</div>
+                    <div class="noti-card-lloc">Garrotxa · Olot</div>
+                    <div class="noti-card-valor">17.2 mm</div>
+                    <p class="noti-card-desc">Episodi de precipitació moderada al Pirineu.</p>
+                </div>
+            </article><article class="noti-card">
+                <div class="noti-card-img">
+                    <img src="img/vent.png" alt="vent" onerror="this.style.display='none'">
+                    <span class="noti-card-tipus">vent</span>
+                    <span class="noti-card-gravetat" style="color:#f59e0b;border-color:#f59e0b">mitjana</span>
+                    <span class="noti-card-model gfs">GFS</span>
+                </div>
+                <div class="noti-card-cos">
+                    <div class="noti-card-data">2026-11-08</div>
+                    <div class="noti-card-lloc">Conca de Barberà · Montblanc</div>
+                    <div class="noti-card-valor">50 km/h</div>
+                    <p class="noti-card-desc">Ratxes de vent fortes associades al canvi de temps.</p>
+                </div>
+            </article><article class="noti-card">
+                <div class="noti-card-img">
+                    <img src="img/pluja.png" alt="pluja" onerror="this.style.display='none'">
+                    <span class="noti-card-tipus">pluja</span>
+                    <span class="noti-card-gravetat" style="color:#f59e0b;border-color:#f59e0b">mitjana</span>
+                    <span class="noti-card-model gfs">GFS</span>
+                </div>
+                <div class="noti-card-cos">
+                    <div class="noti-card-data">2026-11-08</div>
+                    <div class="noti-card-lloc">Montsià · Amposta</div>
+                    <div class="noti-card-valor">10.5 mm</div>
+                    <p class="noti-card-desc">Precipitació destacada a les Terres de l'Ebre.</p>
+                </div>
+            </article></div><div class="noti-avis">⚠️ <strong>Nota:</strong> La fiabilitat dels models meteorològics disminueix significativament a partir del dia 8-10, per la qual cosa les previsions més enllà d'aquest termini s'han de prendre amb cautela.</div>
+</div>
   </div>
 </section>
 
@@ -1087,362 +1106,6 @@ document.getElementById('yr').textContent = new Date().getFullYear();
         setTimeout(() => { if (toast) toast.classList.remove('visible'); }, 8000);
     }, 500);
     setTimeout(() => clearInterval(esperar), 20000);
-})();
-</script>
-<!-- ═══════════ NOTÍCIES: CARREGAR I RENDERITZAR ═══════════ -->
-<script>
-(function () {
-  'use strict';
-
-  const RUTA_JSON = 'noticies/resum_cataluna.json';
-  const CONTENIDOR = document.getElementById('noticiesContingut');
-  if (!CONTENIDOR) return;
-
-  // ---- CSS extra per a les imatges de tendència i etiquetes ----
-  (function injectarCSS() {
-    if (document.getElementById('css-noticies-extra')) return;
-    const style = document.createElement('style');
-    style.id = 'css-noticies-extra';
-    style.textContent = `
-      .noti-card-model {
-        position: absolute; bottom: 12px; left: 12px;
-        font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: .8px;
-        padding: 3px 8px; border-radius: 6px; backdrop-filter: blur(6px);
-        z-index: 2; box-shadow: 0 2px 8px rgba(0,0,0,.3);
-      }
-      .noti-card-model.arome { background: rgba(88, 166, 255, 0.85); color: #fff; border: 1px solid #58a6ff; }
-      .noti-card-model.gfs { background: rgba(0, 0, 0, 0.6); color: #c9d1d9; border: 1px solid rgba(255, 255, 255, 0.2); }
-
-      /* Fem que la targeta de la setmana sigui flex per poder estirar la imatge */
-      .noti-setmana {
-        display: flex;
-        flex-direction: column;
-      }
-      
-      /* Contenidor de la imatge de tendència */
-      .noti-setmana-img {
-        margin-top: 16px;
-        width: 100%;
-        flex: 1 1 auto; /* S'estira per omplir l'espai buit */
-        min-height: 120px; /* Alçada mínima perquè no quedi massa prima */
-        max-height: 250px; /* Alçada màxima perquè no quedi excessivament gegant */
-        border-radius: 8px;
-        overflow: hidden;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: var(--accent-soft);
-        border: 1px solid var(--line);
-        position: relative;
-      }
-      
-      .noti-setmana-img img {
-        position: absolute;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        object-fit: cover; /* La imatge s'adapta i omple tot el requadre sense deformar-se */
-        opacity: 0.9;
-      }
-    `;
-    document.head.appendChild(style);
-  })();
-
-  const IMATGES_EPISODI = {
-    'pluja': 'img/pluja.png', 'pluja_intensa': 'img/pluja_intensa.png', 'tempesta': 'img/tempesta.png', 'temporal': 'img/temporal.png', 'pluges_febles': 'img/pluges_febles.png',
-    'vent': 'img/vent.png', 'vent_fort': 'img/vent_fort.png', 'ratxes': 'img/ratxes.png', 'tramuntana': 'img/tramuntana.png', 'garbi': 'img/garbi.png',
-    'neu': 'img/neu.png', 'neu_abundant': 'img/neu_abundant.png', 'nevada': 'img/nevada.png', 'fred': 'img/fred.png', 'fred_intens': 'img/fred_intens.png', 'gelada': 'img/fred.png', 'onada_de_fred': 'img/onada_de_fred.png',
-    'calor': 'img/calor.png', 'onada_de_calor': 'img/onada_de_calor.png', 'calitja': 'img/calitja.png',
-    'canvi_termic': 'img/canvi_termic.png', 'boira': 'img/boira.png', 'pols': 'img/pols.png', 'calamarsa': 'img/calamarsa.png', 'tornado': 'img/tornado.png', 'altre': 'img/altres.png'
-  };
-  const IMATGES_ZONA = {
-    'Litoral i prelitoral': 'img/zona_litoral.png', 'Interior': 'img/zona_interior.png',
-    'Pirineu i Prepirineu': 'img/zona_pirineu.png', "Camp de Tarragona i Terres de l'Ebre": 'img/zona_tarragona.png',
-  };
-  const EMOJI_EPISODI = {
-    pluja: '🌧️', pluja_intensa: '⛈️', tempesta: '🌩️', temporal: '🌊', pluges_febles: '🌦️',
-    vent: '💨', vent_fort: '🌪️', ratxes: '🌬️', tramuntana: '💨', garbi: '💨',
-    neu: '❄️', neu_abundant: '🌨️', nevada: '🌨️', fred: '🥶', fred_intens: '🧊', gelada: '🧊', onada_de_fred: '❄️',
-    calor: '🔥', onada_de_calor: '🥵', calitja: '😷',
-    canvi_termic: '🌡️', boira: '🌫️', pols: '🌪️', calamarsa: '🧊', tornado: '🌪️', altre: '⚠️'
-  };
-  const EMOJI_ZONA = {
-    'Litoral i prelitoral': '🌊', 'Interior': '🌾', 'Pirineu i Prepirineu': '🏔️', "Camp de Tarragona i Terres de l'Ebre": '🌿',
-  };
-  const COLORS_GRAVETAT = { baixa: '#22c55e', mitjana: '#f59e0b', alta: '#ef4444' };
-
-  function esc(s) {
-    return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-  }
-  function formatData(iso) {
-    if (!iso) return '';
-    const d = new Date(iso + 'T12:00:00');
-    return isNaN(d) ? iso : d.toLocaleDateString('ca-ES', { day: 'numeric', month: 'long' });
-  }
-  function formatDataHora(iso) {
-    if (!iso) return '';
-    const d = new Date(iso);
-    return isNaN(d) ? iso : d.toLocaleString('ca-ES', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-  }
-
-  function crearImatge(llistaSrs, emoji, alt) {
-    const wrap = document.createElement('div');
-    wrap.className = 'noti-card-img';
-    const em = document.createElement('span');
-    em.className = 'emoji-fallback';
-    em.textContent = emoji || '📰';
-    wrap.appendChild(em);
-
-    const img = document.createElement('img');
-    img.alt = alt || '';
-    img.loading = 'lazy';
-    let index = 0;
-    const srs = Array.isArray(llistaSrs) ? llistaSrs : [llistaSrs];
-
-    img.onerror = () => {
-      index++;
-      if (index < srs.length && srs[index]) { img.src = srs[index]; } else { img.remove(); }
-    };
-    img.onload = () => { em.remove(); };
-    img.src = srs[0];
-    wrap.appendChild(img);
-    return wrap;
-  }
-
-  function ajustarGrid(grid) {
-    Array.from(grid.children).forEach(el => el.style.gridColumn = '');
-    const columnes = window.matchMedia('(max-width: 600px)').matches ? 1 :
-                     window.matchMedia('(max-width: 900px)').matches ? 2 : 3;
-    const fills = grid.children.length;
-    if (fills === 0) return;
-    const resta = fills % columnes;
-    if (resta !== 0) {
-      const falten = columnes - resta;
-      grid.lastElementChild.style.gridColumn = `span ${falten + 1}`;
-    }
-  }
-
-  // ---- Detecta quina imatge de tendència posar ----
-  function obtenirImatgeTendencia(text) {
-    const t = text.toLowerCase();
-    const puja = /pujar|pugen|augment|calor|càlid|màximes altes|ascens/.test(t);
-    const baixa = /baixar|baixen|descens|fred|refredament|mínimes baixes/.test(t);
-    
-    if (puja && !baixa) return 'img/tendencia_puja.png';
-    if (baixa && !puja) return 'img/tendencia_baixa.png';
-    if (puja && baixa) return 'img/tendencia_variable.png';
-    return 'img/tendencia_estable.png';
-  }
-
-  function render(dades) {
-    const r = dades.resum || {};
-    const peri = dades.periode || {};
-    CONTENIDOR.innerHTML = '';
-
-    // HERO
-    const hero = document.createElement('div');
-    hero.className = 'noti-hero';
-    hero.innerHTML = `
-      <h3 class="noti-hero-titol">${esc(r.titol || 'Resum meteorològic de Catalunya')}</h3>
-      <p class="noti-hero-resum">${esc(r.resum_general || '')}</p>
-      <p class="noti-hero-periode">
-        ${peri.inici ? `Del <strong>${formatData(peri.inici)}</strong> al <strong>${formatData(peri.fi)}</strong>` : ''}
-        · Font: <strong>${esc(dades.font_dades || 'AROME + GFS')}</strong>
-        · Generat el <strong>${formatDataHora(dades.generat)}</strong>
-      </p>
-    `;
-    CONTENIDOR.appendChild(hero);
-
-    // SETMANES
-    if (r.setmana_1 || r.setmana_2) {
-      const titol = document.createElement('h3');
-      titol.className = 'noti-sec-titol';
-      titol.textContent = 'Evolució per setmanes';
-      CONTENIDOR.appendChild(titol);
-
-      const grid = document.createElement('div');
-      grid.className = 'noti-grid';
-
-      if (r.setmana_1) {
-        const s = r.setmana_1;
-        const card = document.createElement('article');
-        card.className = 'noti-setmana';
-        const imgTend = obtenirImatgeTendencia(s.temperatures || s.resum || '');
-        card.innerHTML = `
-          <div class="noti-setmana-cap">Setmana 1</div>
-          <p>${esc(s.resum || '')}</p>
-          ${s.temperatures ? `<p><strong>Temperatures:</strong> ${esc(s.temperatures)}</p>` : ''}
-          ${s.precipitacio ? `<p><strong>Precipitació:</strong> ${esc(s.precipitacio)}</p>` : ''}
-          ${s.vent ? `<p><strong>Vent:</strong> ${esc(s.vent)}</p>` : ''}
-          <div class="noti-setmana-img">
-            <img src="${imgTend}" alt="Tendència tèrmica" onerror="this.src='img/tendencia_estable.png'">
-          </div>
-        `;
-        grid.appendChild(card);
-      }
-      if (r.setmana_2) {
-        const s = r.setmana_2;
-        const card = document.createElement('article');
-        card.className = 'noti-setmana incert';
-        const imgTend = obtenirImatgeTendencia(s.resum || '');
-        card.innerHTML = `
-          <div class="noti-setmana-cap">Setmana 2 <span class="tag">incertesa</span></div>
-          <p>${esc(s.resum || '')}</p>
-          ${s.incertesa ? `<p><strong>Incertesa:</strong> ${esc(s.incertesa)}</p>` : ''}
-          <div class="noti-setmana-img">
-            <img src="${imgTend}" alt="Tendència tèrmica" onerror="this.src='img/tendencia_estable.png'">
-          </div>
-        `;
-        grid.appendChild(card);
-      }
-      ajustarGrid(grid);
-      CONTENIDOR.appendChild(grid);
-    }
-
-    // ZONES
-    if (Array.isArray(r.zones) && r.zones.length) {
-      const titol = document.createElement('h3');
-      titol.className = 'noti-sec-titol';
-      titol.textContent = 'Per zones';
-      CONTENIDOR.appendChild(titol);
-
-      const grid = document.createElement('div');
-      grid.className = 'noti-grid';
-
-      for (const z of r.zones) {
-        const src = IMATGES_ZONA[z.zona] || 'img/zona_altres.png';
-        const emoji = EMOJI_ZONA[z.zona] || '📍';
-        const card = document.createElement('article');
-        card.className = 'noti-card-zona';
-        card.appendChild(crearImatge(src, emoji, z.zona));
-
-        const cos = document.createElement('div');
-        cos.className = 'noti-card-cos';
-        let html = `
-          <div class="noti-zona-nom">${esc(z.zona)}</div>
-          <p class="noti-card-desc">${esc(z.resum || '')}</p>
-        `;
-        if (Array.isArray(z.destacats) && z.destacats.length) {
-          html += '<ul class="noti-destacats">';
-          for (const d of z.destacats) {
-            html += `<li><strong>${esc(d.comarca)}</strong> · ${esc(d.municipi)}${d.motiu ? ' — ' + esc(d.motiu) : ''}</li>`;
-          }
-          html += '</ul>';
-        }
-        cos.innerHTML = html;
-        card.appendChild(cos);
-        grid.appendChild(card);
-      }
-      ajustarGrid(grid);
-      CONTENIDOR.appendChild(grid);
-    }
-
-    // EPISODIS
-    if (Array.isArray(r.episodis) && r.episodis.length) {
-      const titol = document.createElement('h3');
-      titol.className = 'noti-sec-titol';
-      titol.textContent = 'Episodis destacats';
-      CONTENIDOR.appendChild(titol);
-
-      const grid = document.createElement('div');
-      grid.className = 'noti-grid';
-
-      for (const e of r.episodis) {
-        const tipusRaw = (e.tipus || 'altre').toLowerCase().trim();
-        const tipusKey = tipusRaw.replace(/\s+/g, '_');
-        let imatges = [];
-        if (IMATGES_EPISODI[tipusKey]) {
-            imatges.push(IMATGES_EPISODI[tipusKey]);
-        } else {
-            const base = tipusKey.split('_')[0]; 
-            if (IMATGES_EPISODI[base]) imatges.push(IMATGES_EPISODI[base]);
-        }
-        imatges.push('img/altres.png');
-
-        const emoji = EMOJI_EPISODI[tipusKey] || EMOJI_EPISODI[tipusKey.split('_')[0]] || '⚠️';
-        const colorGrav = COLORS_GRAVETAT[e.gravetat] || '#6b6b6b';
-
-        const card = document.createElement('article');
-        card.className = 'noti-card';
-        const imgWrap = crearImatge(imatges, emoji, tipusRaw);
-
-        const tag = document.createElement('span');
-        tag.className = 'noti-card-tipus';
-        tag.textContent = tipusRaw.replace(/_/g, ' ');
-        imgWrap.appendChild(tag);
-
-        const grav = document.createElement('span');
-        grav.className = 'noti-card-gravetat';
-        grav.textContent = e.gravetat || 'baixa';
-        grav.style.color = colorGrav;
-        grav.style.borderColor = colorGrav;
-        imgWrap.appendChild(grav);
-
-        if (e.model) {
-          const modelTag = document.createElement('span');
-          modelTag.className = 'noti-card-model ' + (e.model.toUpperCase() === 'AROME' ? 'arome' : 'gfs');
-          modelTag.textContent = e.model.toUpperCase();
-          imgWrap.appendChild(modelTag);
-        }
-
-        card.appendChild(imgWrap);
-
-        const dates = e.data_inici && e.data_fi ? (e.data_inici === e.data_fi ? formatData(e.data_inici) : `${formatData(e.data_inici)} → ${formatData(e.data_fi)}`) : '';
-        const lloc = [e.comarca, e.municipi].filter(Boolean).join(' · ');
-
-        const cos = document.createElement('div');
-        cos.className = 'noti-card-cos';
-        cos.innerHTML = `
-          ${dates ? `<div class="noti-card-data">${esc(dates)}</div>` : ''}
-          ${lloc ? `<div class="noti-card-lloc">${esc(lloc)}</div>` : ''}
-          ${e.valor ? `<div class="noti-card-valor">${esc(e.valor)}</div>` : ''}
-          <p class="noti-card-desc">${esc(e.descripcio || '')}</p>
-        `;
-        card.appendChild(cos);
-        grid.appendChild(card);
-      }
-      ajustarGrid(grid);
-      CONTENIDOR.appendChild(grid);
-    }
-
-    if (r.avis_incertesa) {
-      const avis = document.createElement('div');
-      avis.className = 'noti-avis';
-      avis.innerHTML = `⚠️ <strong>Nota:</strong> ${esc(r.avis_incertesa)}`;
-      CONTENIDOR.appendChild(avis);
-    }
-  }
-
-  async function iniciar() {
-    try {
-      const resp = await fetch(RUTA_JSON + '?_cb=' + Date.now(), { cache: 'no-store' });
-      if (!resp.ok) throw new Error('HTTP ' + resp.status);
-      const dades = await resp.json();
-      render(dades);
-    } catch (err) {
-      console.error('[notícies]', err);
-      CONTENIDOR.innerHTML = `
-        <div class="noti-error">
-          <strong>No s'ha pogut carregar el resum meteorològic.</strong><br>
-          ${esc(err.message || String(err))}<br><br>
-          
-        </div>`;
-    }
-  }
-
-  let tm;
-  window.addEventListener('resize', () => {
-    clearTimeout(tm);
-    tm = setTimeout(() => {
-      document.querySelectorAll('.noti-grid').forEach(ajustarGrid);
-    }, 200);
-  });
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', iniciar);
-  } else {
-    iniciar();
-  }
 })();
 </script>
 

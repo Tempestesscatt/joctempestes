@@ -15,12 +15,20 @@ jobs:
     timeout-minutes: 20
 
     steps:
+    # 1. Descarregar el codi de la web de la branca main
+    - name: Descarregar codi de main
+      uses: actions/checkout@v4
+      with:
+        ref: main
+        path: repo-principal
+
+    # 2. Descarregar els scripts de Python (on viu el noticias.py)
     - name: Clonar private-scripts
       run: |
         for i in 1 2 3 4; do
           rm -rf private-scripts-new
           if git clone --depth 1 "https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/Tempestesscatt/Scripts.git" private-scripts-new; then break; fi
-          [ "$i" = 4 ] && { echo "No s'ha pogut clonar private-scripts"; exit 1; }
+          [ "$i" = 4 ] && { echo "Error clonant"; exit 1; }
           sleep 15
         done
 
@@ -34,92 +42,34 @@ jobs:
         python -m pip install --upgrade pip
         pip install requests pytz
 
-    - name: Executar l'script de notícies
+    # 3. Copiem la plantilla de l'index.html a la carpeta de treball del Python
+    # perquè el Python pugui llegir-lo i modificar-lo
+    - name: Preparar entorn
+      run: |
+        cp repo-principal/meu-mapa/public/index.html private-scripts-new/index_plantilla.html
+        cd private-scripts-new
+        mkdir -p public/noticies
+
+    # 4. Executem el Python injectant la clau de Gemini
+    - name: Executar Python
       env:
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       run: |
         cd private-scripts-new
         python noticias.py
 
-    - name: Guardar el JSON a la branca 'data'
-      timeout-minutes: 10
+    # 5. Sobreescrivim l'index.html de la web amb el que ha generat el Python (ja amb les notícies a dins)
+    - name: Actualitzar index.html
       run: |
-        set -uo pipefail
-        P="$GITHUB_WORKSPACE/private-scripts-new/public/noticies/resum_cataluna.json"
-        REMOTE_URL="https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/Tempestesscatt/joctempestes.git"
-        MSG="noticies $(date -u +'%Y-%m-%d %H:%M UTC')"
+        cp private-scripts-new/public/index.html repo-principal/meu-mapa/public/index.html
 
-        if [ ! -f "$P" ]; then
-          echo "ERROR: L'script de Python no ha generat el fitxer JSON a $P."
-          exit 1
-        fi
-
-        for INTENT in 1 2 3 4 5 6; do
-          echo "=== Guardar notícies a data (intent $INTENT/6) ==="
-          rm -rf /tmp/dpub
-          
-          if ! git clone -q --depth 1 --branch data "$REMOTE_URL" /tmp/dpub; then
-            sleep 15; continue
-          fi
-          
-          cd /tmp/dpub
-          git config user.name "bot-dades"
-          git config user.email "bot@tempestes-cat"
-          git config http.version HTTP/1.1
-          git config http.postBuffer 1048576000
-          git config core.compression 1
-          git config gc.auto 0
-
-          # Guardem a la ruta exacta on el desplegament l'espera
-          mkdir -p meu-mapa/public/noticies
-          cp "$P" meu-mapa/public/noticies/resum_cataluna.json
-          
-          git add meu-mapa/public/noticies/resum_cataluna.json
-          
-          if git diff --cached --quiet; then 
-            echo "Sense canvis respecte a l'anterior. Sortint..."
-            exit 0
-          fi
-          
-          git commit -q -m "$MSG"
-
-          if timeout 300 git push origin HEAD:refs/heads/data; then
-            echo "Notícies publicades a la branca 'data' correctament!"
-            exit 0
-          fi
-          
-          echo "Push fallit; reintento..."
-          cd /; sleep $((RANDOM % 10 + 10))
-        done
-        
-        echo "No s'ha pogut guardar a la branca 'data' després de 6 intents."
-        exit 1
-
-    - name: Descarregar el codi de la branca main (per al desplegament)
-      uses: actions/checkout@v4
-      with:
-        ref: main
-        path: repo-principal
-
-    - name: Barrejar el JSON nou a la carpeta del desplegament
-      run: |
-        # Copiem el JSON generat a la carpeta correcta del repo principal
-        cp private-scripts-new/public/noticies/resum_cataluna.json repo-principal/meu-mapa/public/noticies/resum_cataluna.json
-
+    # 6. Pugem els canvis a Cloudflare
     - name: Deploy a Cloudflare
       timeout-minutes: 10
       env:
         CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        WRANGLER_SEND_METRICS: "false"
       run: |
         cd repo-principal/meu-mapa
-        for i in 1 2 3; do npm install -g wrangler && break; sleep 10; done
-        for i in 1 2 3; do
-          echo "--- deploy intent $i/3 ---"
-          if timeout 15m wrangler pages deploy public --project-name=tempestes-cat --branch=main --commit-dirty=true; then
-            echo "Deploy OK"; exit 0
-          fi
-          sleep 20
-        done
-        echo "El deploy ha fallat 3 vegades"; exit 1
+        npm install -g wrangler
+        wrangler pages deploy public --project-name=tempestes-cat --branch=main
