@@ -19,6 +19,7 @@ env:
   PIP_DISABLE_PIP_VERSION_CHECK: "1"
   # Carpetes dinàmiques de la web (gestionades per diferents workflows).
   # AROME només substitueix web_data_NE; la resta es conserven tal com són a 'data'.
+  # (La carpeta 'news' de data -notícies- es conserva a part, vegeu els passos d'assemblatge i de guardat.)
   CARPETES: "web_data_NE webdata_waves avis gfsmaps gfsESPmaps previsions_catalunya web_data_GFS"
   # "1" = esborra les isolínies 3D abans de publicar (≈2.900 fitxers menys => deploy més ràpid).
   # Al visor les isolínies vénen desactivades per defecte.
@@ -534,9 +535,10 @@ jobs:
   # ════════════════════════════════════════════════════════════════
   #  JOB 4: DEPLOY
   #   1) assembla la web (branca data + nou)
-  #   2) comprova límits de Cloudflare Pages
-  #   3) DEPLOY A CLOUDFLARE  <- primer: la web s'actualitza ja
-  #   4) guarda a la branca 'data' (amb timeouts i reintents)
+  #   2) injecta les últimes notícies (guardades a data/news)
+  #   3) comprova límits de Cloudflare Pages
+  #   4) DEPLOY A CLOUDFLARE  <- primer: la web s'actualitza ja
+  #   5) guarda a la branca 'data' (amb timeouts i reintents), CONSERVANT 'news'
   # ════════════════════════════════════════════════════════════════
   deploy:
     needs: [png_sfc, png_3d, manifest]
@@ -621,6 +623,11 @@ jobs:
         for c in $CARPETES; do mkdir -p "$P/$c"; done
         cp -r /tmp/estatic-base/. "$P/"
 
+        # Notícies: es guarden aquí per (1) injectar-les a l'index.html i
+        # (2) tornar-les a publicar a 'data' (si no, el push de dalt les esborraria)
+        rm -rf /tmp/news-keep /tmp/news-data
+        mkdir -p /tmp/news-keep
+
         if [ "$DATA_SHA" != "none" ]; then
           OK=0
           for i in 1 2 3 4 5; do
@@ -636,6 +643,15 @@ jobs:
             cp -r /tmp/data-branch/$c/. "$P/$c/" 2>/dev/null || echo "  $c no trobat a data"
           done
           cp /tmp/data-branch/js/status.js "$P/js/status.js" 2>/dev/null || true
+
+          # Guardem les notícies abans de treure el worktree
+          if [ -d /tmp/data-branch/news ]; then
+            cp -r /tmp/data-branch/news /tmp/news-keep/news
+          fi
+          if [ -d /tmp/news-keep/news/noticies ]; then
+            cp -r /tmp/news-keep/news/noticies /tmp/news-data
+          fi
+
           git worktree remove /tmp/data-branch --force
         else
           echo "La branca 'data' encara no existeix, es crearà"
@@ -674,6 +690,41 @@ jobs:
         for pat in 'sfc_*.png' '*outlook*.png' 'manifest_outlook.json' 'isolines_[0-2][0-9]_*.js' 'vent_*.js' '3d_*.png' 'isolines_3d_*.js' 'sondeig_*' 'vent3d_*' 'stormmotion_*'; do
           find "$IM" -maxdepth 1 -name "$pat" -printf '%s\n' | awk -v p="$pat" '{s+=$1} END {printf "  %-26s %6d fitxers %8.1f MB\n", p, NR, s/1048576}'
         done
+
+    # Reinjectem les últimes notícies (generades pel workflow de notícies i
+    # guardades a data/news/noticies) dins l'index.html ACTUAL de main.
+    - name: Injectar notícies
+      run: |
+        set -euo pipefail
+        P="$GITHUB_WORKSPACE/meu-mapa/public"
+
+        if [ ! -f /tmp/news-data/noticies.html ]; then
+          echo "⚠️  No hi ha notícies a data/news/noticies: es desplega sense notícies."
+          echo "    Executa un cop el workflow 'Actualitzar Notícies Meteorològiques'."
+          exit 0
+        fi
+
+        rm -rf "$P/noticies"; mkdir -p "$P/noticies"
+        cp -r /tmp/news-data/. "$P/noticies/"
+
+        P="$P" python3 - <<'PYEOF'
+        import os, re
+        p = os.environ["P"]
+        frag = open("/tmp/news-data/noticies.html", encoding="utf-8").read()
+        idx_path = os.path.join(p, "index.html")
+        idx = open(idx_path, encoding="utf-8").read()
+        patro = r'<div id="noticiesContingut">.*?</div>\s*</div>\s*</section>'
+        nou, n = re.subn(
+            patro,
+            lambda m: '<div id="noticiesContingut">\n' + frag + '\n</div>\n  </div>\n</section>',
+            idx, count=1, flags=re.DOTALL,
+        )
+        if n:
+            open(idx_path, "w", encoding="utf-8").write(nou)
+            print("✅ Notícies injectades a index.html")
+        else:
+            print("⚠️  Patró '<div id=noticiesContingut>' no trobat a index.html: es desplega sense notícies")
+        PYEOF
 
     - name: Comprovar límits de Cloudflare Pages
       run: |
@@ -719,6 +770,8 @@ jobs:
     # en paquets petits a una branca temporal (data-staging) i només al final
     # es promou a 'data' (aquest últim push no envia dades: ja hi són).
     # El token va en una capçalera (config del repo temporal), no a la URL.
+    # IMPORTANT: aquest pas REESCRIU 'data' sencera, així que ha d'incloure també
+    # la carpeta 'news' (notícies); si no, quedarien esborrades.
     - name: Guardar a la branca 'data' (per paquets)
       if: always() && steps.assemble.outcome == 'success'
       timeout-minutes: 60
@@ -745,6 +798,8 @@ jobs:
           if [ -d "$P/$c" ]; then cp -r "$P/$c" /tmp/publish/; fi
         done
         if [ -f "$P/js/status.js" ]; then cp "$P/js/status.js" /tmp/publish/js/status.js; fi
+        # Notícies (data/news) tal com eren a 'data' quan hem assemblat
+        if [ -d /tmp/news-keep/news ]; then cp -r /tmp/news-keep/news /tmp/publish/; fi
         du -sh /tmp/publish
         tick "còpia"
 
@@ -765,7 +820,7 @@ jobs:
         git config http.https://github.com/.extraheader "AUTHORIZATION: basic $AUTH"
         git remote add origin "$REMOTE_URL"
 
-        find $CARPETES js -type f 2>/dev/null | sort > /tmp/llista.txt
+        find $CARPETES js news -type f 2>/dev/null | sort > /tmp/llista.txt
         TOTAL=$(wc -l < /tmp/llista.txt)
         if [ "$TOTAL" -eq 0 ]; then echo "Res a publicar"; exit 0; fi
         rm -rf /tmp/chunks
@@ -813,7 +868,7 @@ jobs:
 
           NOU=$(git ls-remote origin refs/heads/data | cut -f1)
           if [ -n "$NOU" ] && [ "$NOU" != "$EXPECT" ]; then
-            echo "'data' ha canviat ($EXPECT -> $NOU): refresco les carpetes d'altres workflows"
+            echo "'data' ha canviat ($EXPECT -> $NOU): refresco les carpetes d'altres workflows (i les notícies)"
             if ( cd "$GITHUB_WORKSPACE" \
                  && git fetch --depth=1 origin data \
                  && rm -rf /tmp/data-branch2 \
@@ -824,6 +879,9 @@ jobs:
                 rm -rf "/tmp/publish/$c"
                 cp -r "/tmp/data-branch2/$c" /tmp/publish/ 2>/dev/null || true
               done
+              # Notícies: agafem les més noves (potser el workflow de notícies ha pujat unes de noves)
+              rm -rf /tmp/publish/news
+              cp -r /tmp/data-branch2/news /tmp/publish/ 2>/dev/null || true
               mkdir -p /tmp/publish/js
               cp /tmp/data-branch2/js/status.js /tmp/publish/js/status.js 2>/dev/null || true
               ( cd "$GITHUB_WORKSPACE" && git worktree remove /tmp/data-branch2 --force )

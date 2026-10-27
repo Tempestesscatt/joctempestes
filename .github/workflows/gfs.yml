@@ -18,6 +18,7 @@ env:
   PYTHONUNBUFFERED: "1"
   PIP_DISABLE_PIP_VERSION_CHECK: "1"
   # Mateixa llista que l'AROME. GFS només substitueix web_data_GFS.
+  # (La carpeta 'news' de data -notícies- no s'hi toca: el push final només afegeix web_data_GFS.)
   CARPETES: "web_data_NE webdata_waves avis gfsmaps gfsESPmaps previsions_catalunya web_data_GFS"
 
 jobs:
@@ -136,6 +137,7 @@ jobs:
         done
         [ "$OK" = 1 ] || { echo "No puc baixar la branca data"; exit 1; }
         git worktree prune
+        rm -rf /tmp/data-branch
         git worktree add -f /tmp/data-branch FETCH_HEAD
 
         # 2) Posar a la web l'estat actual de TOTES les carpetes dinàmiques
@@ -148,6 +150,13 @@ jobs:
           fi
         done
         cp /tmp/data-branch/js/status.js "$P/js/status.js" 2>/dev/null || true
+
+        # Notícies guardades pel workflow de notícies (data/news/noticies)
+        rm -rf /tmp/news-data
+        if [ -d /tmp/data-branch/news/noticies ]; then
+          cp -r /tmp/data-branch/news/noticies /tmp/news-data
+        fi
+
         git worktree remove /tmp/data-branch --force
 
         # 3) Substituir NOMÉS web_data_GFS pel nou
@@ -158,6 +167,40 @@ jobs:
         echo "--- Resum ---"
         for c in $CARPETES; do echo "$c: $(find "$P/$c" -type f 2>/dev/null | wc -l) fitxers"; done
         echo "TOTAL: $(find "$P" -type f | wc -l)"
+
+    # Reinjectem les últimes notícies dins l'index.html ACTUAL de main.
+    - name: Injectar notícies
+      run: |
+        set -euo pipefail
+        P="$GITHUB_WORKSPACE/meu-mapa/public"
+
+        if [ ! -f /tmp/news-data/noticies.html ]; then
+          echo "⚠️  No hi ha notícies a data/news/noticies: es desplega sense notícies."
+          echo "    Executa un cop el workflow 'Actualitzar Notícies Meteorològiques'."
+          exit 0
+        fi
+
+        rm -rf "$P/noticies"; mkdir -p "$P/noticies"
+        cp -r /tmp/news-data/. "$P/noticies/"
+
+        P="$P" python3 - <<'PYEOF'
+        import os, re
+        p = os.environ["P"]
+        frag = open("/tmp/news-data/noticies.html", encoding="utf-8").read()
+        idx_path = os.path.join(p, "index.html")
+        idx = open(idx_path, encoding="utf-8").read()
+        patro = r'<div id="noticiesContingut">.*?</div>\s*</div>\s*</section>'
+        nou, n = re.subn(
+            patro,
+            lambda m: '<div id="noticiesContingut">\n' + frag + '\n</div>\n  </div>\n</section>',
+            idx, count=1, flags=re.DOTALL,
+        )
+        if n:
+            open(idx_path, "w", encoding="utf-8").write(nou)
+            print("✅ Notícies injectades a index.html")
+        else:
+            print("⚠️  Patró '<div id=noticiesContingut>' no trobat a index.html: es desplega sense notícies")
+        PYEOF
 
     - name: Comprovar límits de Cloudflare Pages
       run: |
@@ -192,7 +235,8 @@ jobs:
 
     # Guarda a 'data' NOMÉS web_data_GFS, a sobre de l'últim estat de 'data'.
     # Push normal (sense --force): si algú altre ha pujat mentrestant, es rebutja
-    # i es repeteix partint de la 'data' nova. Mai trepitja les altres carpetes.
+    # i es repeteix partint de la 'data' nova. Mai trepitja les altres carpetes
+    # (ni 'news').
     - name: Guardar web_data_GFS a la branca 'data'
       if: always() && steps.assemble.outcome == 'success'
       timeout-minutes: 60
