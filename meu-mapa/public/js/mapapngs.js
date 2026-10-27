@@ -67,10 +67,12 @@ const VENT_INVERTIR_V = false;
 let NEGRE_A_BLANC = true;
 let NB_SW = false;
 // Pregunta al Service Worker si ja fa ell el negre→blanc
-const _sondaSW = fetch('sw-ping', { cache: 'no-store' })
-    .then(r => r.ok ? r.json() : null)
-    .then(j => { if (j && j.nb) { NB_SW = true; NEGRE_A_BLANC = false; } })
-    .catch(() => {});
+const _sondaSW = Promise.race([
+    fetch('sw-ping', { cache: 'no-store' })
+        .then(r => r.ok ? r.json() : null)
+        .then(j => { if (j && j.nb) { NB_SW = true; NEGRE_A_BLANC = false; } }),
+    new Promise(r => setTimeout(r, 1500))
+]).catch(() => {});
 
 // Les capes de dades es demanen amb ?nb=1 perquè el SW les processi
 function urlNB(url) {
@@ -88,6 +90,7 @@ const TTL_FALLADA_MS = 20000;     // temps abans de reintentar una càrrega fall
 // ─── Detecció de dispositiu ────────────────────────────────────────
 const ES_MOBIL = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)
     || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const DPR_MAX = ES_MOBIL ? 1.5 : 2;
 
 // ─── Rutes ─────────────────────────────────────────────────────────
 const _pathActual = window.location.pathname;
@@ -766,7 +769,7 @@ function crearImatge(z, extra) {
 }
 function crearCanvas(z) {
     const c = document.createElement('canvas');
-    c.style.cssText = 'position:absolute;left:0;top:0;pointer-events:none;z-index:' + z + ';will-change:contents;';
+    c.style.cssText = 'position:absolute;left:0;top:0;pointer-events:none;z-index:' + z + ';';
     viewport.appendChild(c);
     return c;
 }
@@ -780,7 +783,7 @@ function crearEscena() {
     });
     stage = document.createElement('div');
     stage.style.cssText = 'position:absolute;left:0;top:0;transform-origin:0 0;'
-        + 'will-change:transform;backface-visibility:hidden;';
+        + 'will-change:transform;';
     imgFons = crearImatge(1);
     imgDades = crearImatge(2, `opacity:${OPACITAT_DADES};visibility:hidden;image-rendering:auto;`);
     imgVores = crearImatge(3);
@@ -877,7 +880,7 @@ function restaurarVista() {
 }
 function redimensionarCanvas() {
     const W = viewport.clientWidth, H = viewport.clientHeight;
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const dpr = Math.min(window.devicePixelRatio || 1, DPR_MAX);
     [canvasVores, canvasIsolines, canvasVent, canvasNoms].forEach(c => {
         const nw = Math.max(1, Math.round(W * dpr));
         const nh = Math.max(1, Math.round(H * dpr));
@@ -889,8 +892,8 @@ function redimensionarCanvas() {
 function prepararCtx(canvas) {
     const W = parseFloat(canvas.style.width) || 0;
     const H = parseFloat(canvas.style.height) || 0;
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const ctx = canvas.getContext('2d', { alpha: true, desynchronized: true });
+    const dpr = Math.min(window.devicePixelRatio || 1, DPR_MAX);
+    const ctx = canvas.getContext('2d', { alpha: true });
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -3642,7 +3645,7 @@ window.iniciarAnimacioVent = function () {
         const nW = parseFloat(canvas.style.width) || 0;
         const nH = parseFloat(canvas.style.height) || 0;
         if (!nW || !nH) { _animVentRAF = requestAnimationFrame(loop); return; }
-        const nDpr = Math.min(window.devicePixelRatio || 1, 2);
+        const nDpr = Math.min(window.devicePixelRatio || 1, DPR_MAX);
 
         const midaCanvi = nW !== W || nH !== H || nDpr !== dpr;
         const vistaCanvi = midaCanvi || vista.x !== _vfVx || vista.y !== _vfVy || vista.k !== _vfVk;
