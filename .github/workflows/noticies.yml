@@ -9,10 +9,12 @@ on:
 permissions:
   contents: write
 
-# Mateix grup que els altres workflows de deploy (aromeNE, enssables, manifest...):
-# s'encuen i no es trepitgen entre ells.
+# Grup ÚNIC per a aquest workflow: no espera els deploys d'aromeNE/enssables/manifest.
+# Així s'executa en paral·lel amb ells sense posar-se a la cua.
+# Si es dispara dues vegades seguides, no cancel·la l'anterior (cancel-in-progress: false)
+# perquè Cloudflare Pages no accepta bé deploys tallats a mitges.
 concurrency:
-  group: deploy-data
+  group: deploy-news-${{ github.ref }}
   cancel-in-progress: false
 
 env:
