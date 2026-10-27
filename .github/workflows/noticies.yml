@@ -2,30 +2,29 @@ name: Actualitzar Notícies Meteorològiques
 
 on:
   schedule:
-    # S'executa cada 10 hores (a les 00:00, 10:00 i 20:00 UTC)
+    # S'executa a les 00:00, 10:00 i 20:00 UTC
     - cron: '0 0,10,20 * * *'
   workflow_dispatch: # Permet executar-ho a mà des de GitHub
 
 permissions:
   contents: write
 
-# Grup ÚNIC per a aquest workflow: no espera els deploys d'aromeNE/enssables/manifest.
-# Així s'executa en paral·lel amb ells sense posar-se a la cua.
-# Si es dispara dues vegades seguides, no cancel·la l'anterior (cancel-in-progress: false)
-# perquè Cloudflare Pages no accepta bé deploys tallats a mitges.
+# Grup COMPARTIT amb "Deploy Manual": els dos s'executen un després de l'altre,
+# així mai es trepitgen (ni al push a 'data' ni al deploy a Cloudflare).
+# No espera els deploys d'aromeNE/enssables/manifest.
+# cancel-in-progress: false perquè Cloudflare Pages no accepta bé deploys tallats a mitges.
 concurrency:
   group: deploy-news-${{ github.ref }}
   cancel-in-progress: false
 
 env:
   # Carpetes dinàmiques de la web (viuen a la branca 'data').
-  # Han de ser les mateixes que a deploy-onnly.yml i aromeNE.yml.
+  # Han de ser les mateixes que a deploy-onnly.yml, aromeNE.yml i deploy-manual.yml.
   CARPETES: "web_data_NE webdata_waves avis gfsmaps gfsESPmaps previsions_catalunya web_data_GFS"
 
 jobs:
   update-news:
     runs-on: ubuntu-latest
-    # El deploy inclou ara totes les dades del visor, així que necessita més temps que abans (20 min)
     timeout-minutes: 90
 
     steps:
@@ -56,8 +55,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install requests pytz
 
-    # 3. Copiem la plantilla de l'index.html a la carpeta de treball del Python
-    # perquè el Python pugui llegir-lo i modificar-lo
+    # 3. Copiem la plantilla de l'index.html (de main) a la carpeta de treball del Python
     - name: Preparar entorn
       run: |
         cp repo-principal/meu-mapa/public/index.html private-scripts-new/index_plantilla.html
@@ -72,15 +70,58 @@ jobs:
         cd private-scripts-new
         python noticias.py
 
-    # 5. Sobreescrivim l'index.html de la web amb el que ha generat el Python (ja amb les notícies a dins)
-    - name: Actualitzar index.html
+    # 5. Sobreescrivim l'index.html de la web amb el que ha generat el Python
+    #    i copiem també la carpeta noticies (noticies.html + resum_cataluna.json)
+    - name: Actualitzar index.html i noticies
       run: |
-        cp private-scripts-new/public/index.html repo-principal/meu-mapa/public/index.html
+        set -euo pipefail
+        P="$GITHUB_WORKSPACE/repo-principal/meu-mapa/public"
+        cp private-scripts-new/public/index.html "$P/index.html"
+        rm -rf "$P/noticies"; mkdir -p "$P/noticies"
+        cp -r private-scripts-new/public/noticies/. "$P/noticies/"
 
-    # 6. IMPORTANT: Cloudflare Pages substitueix TOT el desplegament anterior.
-    # Les dades del visor (web_data_NE, gfsmaps...) NO són a 'main' (.gitignore),
-    # viuen a la branca 'data'. Sense aquest pas, desplegar només 'public' les esborra
-    # i el visor es queda sense dades.
+    # 6. Guardem el RESULTAT de les notícies a la branca 'data' (data/news/noticies/).
+    #    Així Deploy Manual i la resta de workflows poden reinjectar-les i no les esborren.
+    #    Si falla, el deploy d'aquest run continua (només es perdrien per als altres deploys).
+    - name: Guardar notícies a la branca data
+      continue-on-error: true
+      run: |
+        set -euo pipefail
+        NEWS_SRC="$GITHUB_WORKSPACE/private-scripts-new/public/noticies"
+        [ -f "$NEWS_SRC/noticies.html" ] || { echo "⚠️  noticies.html no existeix, no es guarda res"; exit 1; }
+
+        cd "$GITHUB_WORKSPACE/repo-principal"
+        git config user.name "github-actions"
+        git config user.email "actions@github.com"
+
+        for i in 1 2 3 4 5; do
+          cd "$GITHUB_WORKSPACE/repo-principal"
+          rm -rf /tmp/data-push
+          git worktree prune
+          git fetch --depth=1 origin data
+          git worktree add -f /tmp/data-push FETCH_HEAD
+
+          cd /tmp/data-push
+          rm -rf news/noticies
+          mkdir -p news/noticies
+          cp -r "$NEWS_SRC/." news/noticies/
+          git add -A news
+
+          if git diff --cached --quiet; then
+            echo "Sense canvis a les notícies"; exit 0
+          fi
+          git commit -m "Notícies actualitzades"
+
+          if git push origin HEAD:data; then
+            echo "✅ Notícies guardades a data/news/noticies"; exit 0
+          fi
+          echo "Push rebutjat (algú ha tocat 'data'), reintent $i/5..."
+          sleep $((i * 5))
+        done
+        echo "❌ No s'ha pogut guardar a data"; exit 1
+
+    # 7. IMPORTANT: Cloudflare Pages substitueix TOT el desplegament anterior.
+    #    Les dades del visor (web_data_NE, gfsmaps...) viuen a la branca 'data'.
     - name: Afegir dades de la branca 'data'
       run: |
         set -euo pipefail
@@ -135,7 +176,7 @@ jobs:
         fi
         [ "$N" -le 19900 ] || { echo "❌ Encara massa fitxers per a Cloudflare Pages"; exit 1; }
 
-    # 7. Pugem els canvis a Cloudflare
+    # 8. Pugem els canvis a Cloudflare
     - name: Deploy a Cloudflare
       timeout-minutes: 70
       env:

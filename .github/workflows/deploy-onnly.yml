@@ -6,7 +6,11 @@ on:
 permissions:
   contents: write
 
-
+# Mateix grup que "Actualitzar Notícies Meteorològiques": no s'executen alhora,
+# així el deploy manual mai pot trepitjar un deploy de notícies (ni al revés).
+concurrency:
+  group: deploy-news-${{ github.ref }}
+  cancel-in-progress: false
 
 env:
   CARPETES: "web_data_NE webdata_waves avis gfsmaps gfsESPmaps previsions_catalunya web_data_GFS"
@@ -50,8 +54,55 @@ jobs:
         done
         cp /tmp/data-branch/js/status.js "$P/js/status.js" 2>/dev/null || echo "⚠️  status.js no trobat a data"
 
+        # Guardem una còpia de les notícies abans d'eliminar el worktree
+        rm -rf /tmp/news-data
+        if [ -d /tmp/data-branch/news/noticies ]; then
+          cp -r /tmp/data-branch/news/noticies /tmp/news-data
+        fi
+
         git worktree remove /tmp/data-branch --force
+
+        # Seguretat: sense dades del visor NO es desplega mai
+        if [ -z "$(ls -A "$P/web_data_NE/imatges" 2>/dev/null)" ]; then
+          echo "❌ web_data_NE/imatges és buit: no desplego per no deixar el visor sense dades"
+          exit 1
+        fi
         echo "✅ Dades de 'data' afegides (només filesystem, no es commiteja res)"
+
+    # Reinjectem les últimes notícies (generades pel workflow de notícies)
+    # dins l'index.html ACTUAL de main, sense trepitjar-ne el disseny ni el JS.
+    - name: 📰 Injectar notícies
+      run: |
+        set -euo pipefail
+        P="$GITHUB_WORKSPACE/meu-mapa/public"
+
+        if [ ! -f /tmp/news-data/noticies.html ]; then
+          echo "⚠️  No hi ha notícies a data/news/noticies: es desplega sense notícies."
+          echo "    Executa un cop el workflow 'Actualitzar Notícies Meteorològiques'."
+          exit 0
+        fi
+
+        rm -rf "$P/noticies"; mkdir -p "$P/noticies"
+        cp -r /tmp/news-data/. "$P/noticies/"
+
+        P="$P" python3 - <<'PYEOF'
+        import os, re
+        p = os.environ["P"]
+        frag = open("/tmp/news-data/noticies.html", encoding="utf-8").read()
+        idx_path = os.path.join(p, "index.html")
+        idx = open(idx_path, encoding="utf-8").read()
+        patro = r'<div id="noticiesContingut">.*?</div>\s*</div>\s*</section>'
+        nou, n = re.subn(
+            patro,
+            lambda m: '<div id="noticiesContingut">\n' + frag + '\n</div>\n  </div>\n</section>',
+            idx, count=1, flags=re.DOTALL,
+        )
+        if n:
+            open(idx_path, "w", encoding="utf-8").write(nou)
+            print("✅ Notícies injectades a index.html")
+        else:
+            print("⚠️  Patró '<div id=noticiesContingut>' no trobat a index.html: es desplega sense notícies")
+        PYEOF
 
     - name: 📊 Resum abans del deploy
       run: |
@@ -59,8 +110,9 @@ jobs:
         echo "--- Arrel de public/ ---"
         find "$P" -maxdepth 1 -type f
         [ -f "$P/selector.html" ] && echo "✅ selector.html present" || echo "❌ selector.html NO present"
+        grep -q 'id="noticiesContingut"' "$P/index.html" && echo "✅ index.html té el bloc de notícies" || echo "⚠️ index.html sense bloc de notícies"
         echo "--- Carpetes dinàmiques ---"
-        for c in $CARPETES; do
+        for c in $CARPETES noticies; do
           echo "  $c: $(find "$P/$c" -type f 2>/dev/null | wc -l) fitxers"
         done
         echo "TOTAL: $(find "$P" -type f | wc -l) fitxers"
