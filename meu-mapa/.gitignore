@@ -1,4 +1,4 @@
-# Dependències
+# Dependï¿½ncies
 node_modules/
 
 # Cloudflare
@@ -22,3 +22,11 @@ Thumbs.db
 # Builds
 dist/
 build/
+
+# Build / minificaciÃ³
+maps/
+public/js/*.min.js.map
+
+# Codi font (NO es publica mai a GitHub)
+src/
+
