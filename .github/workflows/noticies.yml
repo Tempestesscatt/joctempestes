@@ -2,8 +2,9 @@ name: Actualitzar Notícies Meteorològiques
 
 on:
   schedule:
-    # S'executa a les 00:00, 10:00 i 20:00 UTC
-    - cron: '0 0,10,20 * * *'
+    # S'executa cada 5 hores (UTC): 00:00, 05:00, 10:00, 15:00 i 20:00
+    # (cron no pot fer "cada 5 h" exactes: entre les 20:00 i les 00:00 hi ha 4 h)
+    - cron: '0 */5 * * *'
   workflow_dispatch: # Permet executar-ho a mà des de GitHub
 
 permissions:
@@ -50,10 +51,17 @@ jobs:
       with:
         python-version: '3.11'
 
+    # Llibreria binària d'ecCodes (per llegir els GRIB2 de GFS)
+    - name: Instal·lar llibreria ecCodes
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libeccodes-dev
+
     - name: Instal·lar dependències
       run: |
         python -m pip install --upgrade pip
-        pip install requests pytz
+        pip install requests pytz numpy eccodes
+        python -c "import numpy, eccodes, pytz, requests; print('✅ Dependències OK, eccodes', eccodes.__version__)"
 
     # 3. Copiem la plantilla de l'index.html (de main) a la carpeta de treball del Python
     - name: Preparar entorn
@@ -68,7 +76,7 @@ jobs:
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       run: |
         cd private-scripts-new
-        python noticias.py
+        python -u noticias.py
 
     # 5. Sobreescrivim l'index.html de la web amb el que ha generat el Python
     #    i copiem també la carpeta noticies (noticies.html + resum_cataluna.json)
