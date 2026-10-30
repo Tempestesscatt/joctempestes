@@ -68,8 +68,8 @@ const PREGUNTES = [
     hint: 'Tria el que més s\'acosti al que necessites.',
     condicio: () => !ESTAT.preseleccionat,
     opcions: [
-      { valor: 'entusiasta',   ico: 'nuvol',    text: 'Entusiasta',  sub: '4,99 €/mes' },
-      { valor: 'professional', ico: 'llamp',    text: 'Professional', sub: '9,99 €/mes' },
+      { valor: 'entusiasta',   ico: 'nuvol',    text: 'Entusiasta',  sub: '3,99 €/mes' },
+      { valor: 'professional', ico: 'llamp',    text: 'Professional', sub: '8,99 €/mes' },
       { valor: 'equips',       ico: 'edifici',  text: 'Equips', sub: 'per a mitjans, agències, universitats…' },
       { valor: 'cap',          ico: 'gratis',   text: 'De moment cap', sub: 'em quedo amb el Gratuït' }
     ]

@@ -784,7 +784,7 @@ h1,h2,h3{font-family:var(--display);letter-spacing:-.02em;line-height:1.2}
     </div>
     <p class="pla-desc">Per a aficionats que volen anar un pas més enllà.</p>
     <div class="pla-preu" data-preu-pla="entusiasta">
-      <span class="xifra">4,99 €</span><span class="unitat">/ mes</span>
+      <span class="xifra">3,99 €</span><span class="unitat">/ mes</span>
     </div>
     <span class="anual-info" data-anual-pla="entusiasta">&nbsp;</span>
     <ul class="pla-features">
@@ -806,7 +806,7 @@ h1,h2,h3{font-family:var(--display);letter-spacing:-.02em;line-height:1.2}
     </div>
     <p class="pla-desc">Per a meteoròlegs, storm chasers i professionals del sector.</p>
     <div class="pla-preu" data-preu-pla="professional">
-      <span class="xifra">9,99 €</span><span class="unitat">/ mes</span>
+      <span class="xifra">8,99 €</span><span class="unitat">/ mes</span>
     </div>
     <span class="anual-info" data-anual-pla="professional">&nbsp;</span>
     <ul class="pla-features">
@@ -972,8 +972,8 @@ onAuthStateChanged(auth, u => {
   const $$ = s => document.querySelectorAll(s);
 
   const PREUS = {
-    entusiasta:   { mensual: 499,  anual: 4990 },
-    professional: { mensual: 999,  anual: 9999 }
+    entusiasta:   { mensual: 399,  anual: 3990 },
+    professional: { mensual: 899,  anual: 8999 }
   };
 
   const formatPreu = cents => (cents / 100).toFixed(2).replace('.', ',') + ' €';

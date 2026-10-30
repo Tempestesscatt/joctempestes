@@ -312,8 +312,8 @@ footer{padding:48px 0 28px;border-top:1px solid var(--line);background:var(--bg)
   .hero{padding:60px 0 100px}section{padding:56px 0}
   .btn-launch{display:none}
   .hero h1{font-size:clamp(28px,7vw,40px)}
-  .hero-actions{flex-direction:column}
-  .hero-actions .btn{width:100%;justify-content:center}
+  .hero-actions{display:grid;grid-template-columns:1fr;gap:10px}
+  .hero-actions .btn{width:100%;min-width:0;justify-content:center}
   .btn-radar{justify-content:center}
   .purchase-toast{padding:28px 24px}
   .purchase-toast h3{font-size:20px}
@@ -906,17 +906,17 @@ const PLANS = [
   { n:'Gratuït', m:0, y:0, s:'Per començar', pop:false, cta:'Pla actual',
     url:null,
     f:[['Totes les hores del model',1],['Variables de superfície',1],['CAPE, CIN i isoterma 0 °C',1],['Animació temporal',1],['Isolínies i vent',1],['Radar bàsic',1],['Skew-T i variables avançades',0],['Nivells de pressió',0]] },
-  { n:'Entusiasta', m:4.99, y:49.90, s:'Per a aficionats', pop:false, cta:'Subscriure\'m',
+  { n:'Entusiasta', m:3.99, y:39.90, s:'Per a aficionats', pop:false, cta:'Subscriure\'m',
     url:'privacitat/preus.html',
     f:[['Tot el del pla Gratuït',1],['Skew-T complet',1],['Variables avançades de convecció',1],['Barbes de vent',1],['Radar ampliat (3 h)',1],['Animació sense límits',1]] },
-  { n:'Professional', m:9.99, y:99.99, s:'Per a meteoròlegs i caçadors', pop:true, cta:'Subscriure\'m',
+  { n:'Professional', m:8.99, y:89.99, s:'Per a meteoròlegs i caçadors', pop:true, cta:'Subscriure\'m',
     url:'privacitat/preus.html',
     f:[['Tot el del pla Entusiasta',1],['Nivells de pressió (1000–200 hPa)',1],['Shear, SRH, DCAPE, LCL, LFC, LI',1],['Índexs compostos: EHI, SCP, STP',1],['Storm motion',1],['Radar 24 h complet',1]] },
   { n:'Equips', m:null, y:null, s:'Per a organitzacions', pop:false, cta:'Contactar',
     url:'privacitat/preus.html',
     f:[['Tot el del pla Professional',1],['Fins a 10 comptes d\'usuari',1],['Accés a l\'API de dades',1],['Suport prioritari',1],['Personalització de capes',1],['Facturació a nom d\'empresa',1]] },
 ];
-let billing = 'm';
+let billing = 'y'; // Coherent amb el botó Anual seleccionat inicialment.
 
 function renderPlans(){
   document.getElementById('plansGrid').innerHTML = PLANS.map(p => {
@@ -942,6 +942,9 @@ function setBilling(b){
   document.getElementById('bYear').classList.toggle('on', b === 'y');
   renderPlans();
 }
+// Estat inicial coherent: facturació anual seleccionada i preus anuals visibles.
+document.getElementById('bMonth').classList.toggle('on', billing === 'm');
+document.getElementById('bYear').classList.toggle('on', billing === 'y');
 renderPlans();
 
 /* ===== COOKIES ===== */
@@ -1070,17 +1073,27 @@ document.getElementById('yr').textContent = new Date().getFullYear();
   vFullscreen.addEventListener('click', e => {
     e.stopPropagation();
     if (!document.fullscreenElement) {
-      (block.requestFullscreen || block.webkitRequestFullscreen || block.msRequestFullscreen).call(block);
+      const request = block.requestFullscreen || block.webkitRequestFullscreen || block.msRequestFullscreen;
+      if (request) request.call(block);
     } else {
-      document.exitFullscreen();
+      const exit = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
+      if (exit) exit.call(document);
     }
   });
   vProgress.addEventListener('click', e => {
     e.stopPropagation();
     const rect = vProgress.getBoundingClientRect();
-    const pct = (e.clientX - rect.left) / rect.width;
-    if (video.duration) video.currentTime = pct * video.duration;
+    const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / Math.max(1, rect.width)));
+    if (video.duration && Number.isFinite(video.duration)) video.currentTime = pct * video.duration;
   });
+  vProgress.addEventListener('touchstart', e => {
+    e.stopPropagation();
+    const touch = e.touches[0];
+    if (!touch || !video.duration) return;
+    const rect = vProgress.getBoundingClientRect();
+    const pct = Math.max(0, Math.min(1, (touch.clientX - rect.left) / Math.max(1, rect.width)));
+    video.currentTime = pct * video.duration;
+  }, { passive: true });
 
   video.addEventListener('timeupdate', actualitzarTemps);
   video.addEventListener('loadedmetadata', actualitzarTemps);
