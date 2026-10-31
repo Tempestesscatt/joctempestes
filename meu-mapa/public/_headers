@@ -1,8 +1,8 @@
 ﻿# ═══════════════════════════════════════════════════════════════
 #  _headers — Cloudflare Pages
 #  Evita que el navegador (o cualquier CDN intermedio) guarde en
-#  cache los datos meteorológicos, para que SIEMPRE se pida la
-#  última versión al servidor.
+#  cache los datos meteorológicos y el código, para que SIEMPRE se
+#  pida la última versión al servidor.
 # ═══════════════════════════════════════════════════════════════
 
 # Datos meteorológicos SFC + 3D (lo más importante)
@@ -37,17 +37,16 @@
   Content-Type: application/octet-stream
   Content-Encoding: identity
 
-# Estado del sistema (status.js)
-/js/status.js
+# Service worker: si se cachea, los usuarios nunca reciben versiones nuevas
+/sw.js
   Cache-Control: no-cache, no-store, must-revalidate
   Pragma: no-cache
   Expires: 0
 
-# El propio mapa.js — por si cambias lógica y quieres que se recargue rápido
-/js/mapa.js
-  Cache-Control: no-cache, no-store, must-revalidate
-  Pragma: no-cache
-  Expires: 0
+# Todo el JS propio (mapapngs.min.js, status.js, mapa.js, ...):
+# se revalida siempre con el servidor (304 si no ha cambiado)
+/js/*
+  Cache-Control: no-cache
 
 # El HTML principal - nunca debe cachearse agresivamente
 /

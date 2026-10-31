@@ -1,24 +1,32 @@
 // ═══════════════════════════════════════════════════════════════════
-//  sw.js (v3) — Service Worker del visor: guardat passiu + mode offline
+//  sw.js (v4) — Service Worker del visor: guardat passiu + mode offline
 //  Ubicació: a la MATEIXA carpeta que el HTML del visor.
 //
 //  Memòries cau:
-//   · tc-shell-v1     → HTML, JS, CSS propis, manifest i llibreries CDN
-//   · tc-data-<versio>→ dades del mapa (PNG, isolínies, vent, 3D...).
-//                       Hi escriu tant aquest SW (el que mires) com offline.js
-//                       (botó "Descarregar"). Quan surt una versió nova al
-//                       manifest, les versions antigues s'esborren soles.
+//   · tc-shell-v2         → HTML, JS, CSS propis, manifest i llibreries CDN
+//   · tc-data-<versio>    → dades AROME (web_data_NE) i /dades/
+//   · tc-data-der-<versio>→ dades dels derivats (web_data_derivats)
+//
+//  CANVIS v4 (per evitar que es vegi la versió antiga):
+//   · HTML i JS propis: xarxa primer amb cache:'no-cache' → mai surt de la
+//     caché HTTP del navegador ni de Cloudflare sense revalidar.
+//   · Precàrrega corregida: js/mapapngs.min.js (abans només mapapngs.js).
+//   · web_data_derivats ara compta com a dades: es versiona, es processa el
+//     negre→blanc (?nb=1) i no s'acumula a la caché del shell.
+//   · Neteja per separat: el manifest d'AROME i el dels derivats ja no
+//     s'esborren les caches l'un a l'altre.
 // ═══════════════════════════════════════════════════════════════════
 'use strict';
 
-const SHELL = 'tc-shell-v1';
+const SHELL = 'tc-shell-v2';
 const DATA_PREFIX = 'tc-data-';
+const DER_PREFIX = DATA_PREFIX + 'der-';
 const CACHE_PASSIU = true;   // true: guarda automàticament el que es veu. false: només el que es descarrega amb el botó
 
-// Ajusta-ho als fitxers reals (rutes relatives a sw.js). Si algun falla, s'ignora.
+// Rutes relatives a sw.js. Si algun fitxer falla, s'ignora.
 const PRECACHE = [
     './',
-    'js/mapapngs.js', 'js/hores.js', 'js/gfspngs.js', 'js/models.js',
+    'js/mapapngs.min.js', 'js/hores.js', 'js/gfspngs.js', 'js/models.js',
     'dades/altitude.js', 'dades/paletes.js',
     'js/skew-t-engine.js', 'js/skewt.js', 'js/valor.js', 'js/outlook.js',
     'js/novetats.js', 'js/actualitzacio.js', 'js/vent.js', 'js/offline.js',
@@ -33,7 +41,8 @@ const PRECACHE = [
 const CDN = ['cdnjs.cloudflare.com', 'cdn.jsdelivr.net', 'fonts.googleapis.com',
              'fonts.gstatic.com', 'www.gstatic.com'];
 const FRESC = /\/(manifest|info_run)\.json$/;
-const DADES = /\/(web_data_NE\/imatges|dades)\//;
+const DADES = /\/(web_data_NE\/imatges|web_data_derivats\/imatges|dades)\//;
+const ES_DERIVATS = /\/web_data_derivats\//;
 
 // ─── Negre → blanc fet AQUÍ (fil del SW, una sola vegada, i es guarda processat) ───
 const LLINDAR_NEGRE = 50;                                   // el mateix que mapapngs.js
@@ -69,7 +78,7 @@ self.addEventListener('install', e => {
 
 self.addEventListener('activate', e => {
     e.waitUntil((async () => {
-        // Esborra versions antigues del SW (inclosa 'tempestes-v2'), però respecta tc-data-*
+        // Esborra versions antigues del shell (tc-shell-v1, tempestes-v2...), però respecta tc-data-*
         for (const k of await caches.keys()) {
             if (k !== SHELL && !k.startsWith(DATA_PREFIX)) await caches.delete(k);
         }
@@ -117,7 +126,8 @@ async function dadesVersionades(e, req, v) {
         // Si la petició ve del botó de descàrrega, ja la guarda la pàgina: no escrivim dues vegades
         if (guardar && CACHE_PASSIU && r.status === 200 && !req.headers.has('X-TC-Descarrega')) {
             const copia = r.clone();
-            e.waitUntil(caches.open(DATA_PREFIX + v).then(cache => cache.put(req, copia)));
+            const nomCache = (ES_DERIVATS.test(u.pathname) ? DER_PREFIX : DATA_PREFIX) + v;
+            e.waitUntil(caches.open(nomCache).then(cache => cache.put(req, copia)));
         }
         return r;
     } catch (err) {
@@ -136,33 +146,42 @@ async function dadesSenseVersio(req) {
     }
 }
 
-// Quan arriba el manifest de xarxa, la seva "versio" mana: s'esborren les dades d'altres versions
-async function netejarVelles(resp) {
+// Quan arriba un manifest de xarxa, la seva "versio" mana: s'esborren les dades d'altres versions
+// DEL MATEIX GRUP (AROME o derivats). Cada grup té el seu prefix i no toca l'altre.
+async function netejarVelles(resp, esDer) {
     try {
         const m = await resp.json();
         if (!m || !m.versio) return;
-        const actual = DATA_PREFIX + m.versio;
+        const actual = (esDer ? DER_PREFIX : DATA_PREFIX) + m.versio;
         for (const k of await caches.keys()) {
-            if (k.startsWith(DATA_PREFIX) && k !== actual) await caches.delete(k);
+            if (k === actual) continue;
+            if (esDer) {
+                if (k.startsWith(DER_PREFIX)) await caches.delete(k);
+            } else if (k.startsWith(DATA_PREFIX) && !k.startsWith(DER_PREFIX)) {
+                await caches.delete(k);
+            }
         }
     } catch {}
 }
 
-// Xarxa primer, amb límit de temps si ja hi ha còpia (mala connexió).
-// La clau no porta ?_cb= → una sola còpia del manifest, mai s'acumulen.
+// Xarxa primer (HTML, JS, manifest...), SEMPRE revalidant amb el servidor (cache:'no-cache'),
+// amb límit de temps si ja hi ha còpia (mala connexió).
+// La clau no porta ?_cb= → una sola còpia de cada fitxer, mai s'acumulen.
 async function xarxaPrimer(e, req, ms) {
     const cache = await caches.open(SHELL);
     const clau = clauNeta(req.url);
     const guardada = await cache.match(clau);
-    const xarxa = fetch(req).then(r => {
+    const xarxa = fetch(new Request(req, { cache: 'no-cache' })).then(r => {
         if (r.status === 200) {
             cache.put(clau, r.clone());
-            if (/\/manifest\.json$/.test(clau)) e.waitUntil(netejarVelles(r.clone()));
+            if (/\/manifest\.json$/.test(clau)) e.waitUntil(netejarVelles(r.clone(), ES_DERIVATS.test(clau)));
+        } else if (r.status >= 500 && guardada) {
+            return guardada;     // servidor caigut: millor la còpia guardada que un error
         }
         return r;
     });
     if (!guardada) return xarxa;
-    xarxa.catch(() => {});
+    e.waitUntil(xarxa.catch(() => {}));   // si triga massa, la còpia nova es guarda igualment en segon pla
     try {
         return await Promise.race([xarxa, new Promise((_, rej) => setTimeout(rej, ms))]);
     } catch {
