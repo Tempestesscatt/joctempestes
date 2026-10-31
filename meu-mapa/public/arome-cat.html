@@ -1018,6 +1018,15 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
         window.mostrarUpgrade(nom, pla);
     }, true);
 
+    function filaBloquejada(row) {
+    const clau = row.dataset.clau || '';
+    if (row.dataset.v3d) {
+        const niv = clau.endsWith('_col') ? 'col' : 850;
+        return typeof window.potVeure3D === 'function' ? !window.potVeure3D(row.dataset.v3d, niv) : true;
+    }
+    return typeof window.potVeureVariable === 'function' ? !window.potVeureVariable(clau) : true;
+}
+
     function actualitzarUIPla() {
         const pla = getPlaUsuari();
         const cfg = PLANS[pla];
@@ -1025,10 +1034,9 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
         const box = document.getElementById('ppPlaBox');
         if (el) el.textContent = cfg.nom;
         if (box) box.classList.toggle('premium', pla !== 'gratuït');
-        const r = rang(pla);
         document.querySelectorAll('#panell-pro .param-row').forEach(row => {
-            row.classList.toggle('premium-bloquejat', r < nivellFila(row));
-        });
+    row.classList.toggle('premium-bloquejat', filaBloquejada(row));
+});
         [['btnPlay', cfg.animacio], ['btnIsolines', cfg.isolinies], ['btnBarbes', cfg.barbes]].forEach(([id, ok]) => {
             const b = document.getElementById(id);
             if (b) b.classList.toggle('bloquejat', !ok);
