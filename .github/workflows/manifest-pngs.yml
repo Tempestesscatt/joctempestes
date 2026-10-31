@@ -3,6 +3,7 @@ name: Manifest + Deploy (sense regenerar PNG)
 # Només regenera manifest.json a partir del que ja hi ha a la branca 'data'
 # i fa el deploy a Cloudflare. NO executa cap script de PNG.
 # Es llança a mà ("Run workflow") o des d'on vulguis.
+# (Els derivats tenen manifest propi dins web_data_derivats: aquí no es toquen.)
 on:
   workflow_dispatch:
 
@@ -17,7 +18,7 @@ concurrency:
 
 env:
   PYTHONUNBUFFERED: "1"
-  CARPETES: "web_data_NE webdata_waves avis gfsmaps gfsESPmaps previsions_catalunya web_data_GFS"
+  CARPETES: "web_data_NE webdata_waves avis gfsmaps gfsESPmaps previsions_catalunya web_data_GFS web_data_derivats"
 
 jobs:
   manifest_deploy:
@@ -178,6 +179,12 @@ jobs:
           cp -r /tmp/data-branch/$c/. "$P/$c/" 2>/dev/null || echo "  $c no trobat a data"
         done
         cp /tmp/data-branch/js/status.js "$P/js/status.js" 2>/dev/null || true
+
+        # Guardem les notícies abans de treure el worktree (per injectar-les després)
+        rm -rf /tmp/news-data
+        if [ -d /tmp/data-branch/news/noticies ]; then
+          cp -r /tmp/data-branch/news/noticies /tmp/news-data
+        fi
         git worktree remove /tmp/data-branch --force
 
         IM="$P/web_data_NE/imatges"
@@ -186,6 +193,40 @@ jobs:
         for c in $CARPETES; do echo "$c: $(find "$P/$c" -type f | wc -l) fitxers"; done
         echo "imatges sfc: $(find "$IM" -name 'sfc_*.png' | wc -l) PNG"
         echo "imatges 3d:  $(find "$IM" -name '3d_*.png' | wc -l) PNG"
+        echo "derivats:    $(find "$P/web_data_derivats" -name '3d_*.png' | wc -l) PNG"
+
+    # Sense aquest pas el deploy deixaria la web sense notícies
+    - name: Injectar notícies
+      run: |
+        set -euo pipefail
+        P="$GITHUB_WORKSPACE/meu-mapa/public"
+
+        if [ ! -f /tmp/news-data/noticies.html ]; then
+          echo "⚠️  No hi ha notícies a data/news/noticies: es desplega sense notícies."
+          exit 0
+        fi
+
+        rm -rf "$P/noticies"; mkdir -p "$P/noticies"
+        cp -r /tmp/news-data/. "$P/noticies/"
+
+        P="$P" python3 - <<'PYEOF'
+        import os, re
+        p = os.environ["P"]
+        frag = open("/tmp/news-data/noticies.html", encoding="utf-8").read()
+        idx_path = os.path.join(p, "index.html")
+        idx = open(idx_path, encoding="utf-8").read()
+        patro = r'<div id="noticiesContingut">.*?</div>\s*</div>\s*</section>'
+        nou, n = re.subn(
+            patro,
+            lambda m: '<div id="noticiesContingut">\n' + frag + '\n</div>\n  </div>\n</section>',
+            idx, count=1, flags=re.DOTALL,
+        )
+        if n:
+            open(idx_path, "w", encoding="utf-8").write(nou)
+            print("✅ Notícies injectades a index.html")
+        else:
+            print("⚠️  Patró '<div id=noticiesContingut>' no trobat a index.html: es desplega sense notícies")
+        PYEOF
 
     # ── 2) Regenerar només el manifest sobre els fitxers que ja hi ha ──
     - name: Regenerar manifest.json
@@ -221,7 +262,13 @@ jobs:
         N=$(find "$P" -type f | wc -l)
         echo "Total fitxers: $N (límit Pages: 20000)"
         if [ "$N" -gt 19000 ]; then
-          echo "Massa fitxers: elimino les isolínies 3D (opcionals)"
+          echo "Massa fitxers: elimino les isolínies dels derivats (opcionals)"
+          find "$P/web_data_derivats/imatges" -maxdepth 1 -name 'isolines_3d_*' -delete 2>/dev/null || true
+          N=$(find "$P" -type f | wc -l)
+          echo "Total fitxers ara: $N"
+        fi
+        if [ "$N" -gt 19000 ]; then
+          echo "Encara massa fitxers: elimino les isolínies 3D (opcionals)"
           find "$P/web_data_NE/imatges" -maxdepth 1 -name 'isolines_3d_*' -delete || true
           N=$(find "$P" -type f | wc -l)
           echo "Total fitxers ara: $N"
@@ -254,7 +301,7 @@ jobs:
         exit 1
 
     # ── 4) Guardar a 'data' NOMÉS el manifest.json (un sol fitxer, un commit petit) ──
-    # No es toca res més de la branca: ni PNG, ni les carpetes d'altres workflows.
+    # No es toca res més de la branca: ni PNG, ni derivats, ni les carpetes d'altres workflows.
     - name: Guardar manifest a la branca 'data'
       if: always() && steps.manifest.outcome == 'success'
       timeout-minutes: 15

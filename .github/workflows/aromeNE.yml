@@ -1,4 +1,4 @@
-name: AROME PNG (SFC + 3D)
+name: AROME PNG (SFC + 3D + DERIVATS)
 
 # Només s'executa quan el dispara el worker de Cloudflare (o a mà amb "Run workflow").
 # Sense cron intern, així no es pot executar dues vegades alhora.
@@ -18,12 +18,13 @@ env:
   PYTHONUNBUFFERED: "1"
   PIP_DISABLE_PIP_VERSION_CHECK: "1"
   # Carpetes dinàmiques de la web (gestionades per diferents workflows).
-  # AROME només substitueix web_data_NE; la resta es conserven tal com són a 'data'.
+  # AROME substitueix web_data_NE i web_data_derivats; la resta es conserven tal com són a 'data'.
   # (La carpeta 'news' de data -notícies- es conserva a part, vegeu els passos d'assemblatge i de guardat.)
-  CARPETES: "web_data_NE webdata_waves avis gfsmaps gfsESPmaps previsions_catalunya web_data_GFS"
+  CARPETES: "web_data_NE webdata_waves avis gfsmaps gfsESPmaps previsions_catalunya web_data_GFS web_data_derivats"
   # "1" = esborra les isolínies 3D abans de publicar (≈2.900 fitxers menys => deploy més ràpid).
-  # Al visor les isolínies vénen desactivades per defecte.
   ELIMINAR_ISOLINIES_3D: "0"
+  # Isolínies dels derivats: none | suau | totes
+  ISOLINIES_DERIVATS: "suau"
 
 jobs:
   # ════════════════════════════════════════════════════════════════
@@ -35,7 +36,6 @@ jobs:
     env:
       IMATGES_DIR: ${{ github.workspace }}/out-sfc/imatges
     steps:
-    # Clonat amb token en CAPÇALERA (no a la URL) + diagnòstic detallat si falla
     - name: Clonar private-scripts (amb diagnòstic)
       env:
         TOKEN: ${{ secrets.PRIVATE_REPO_TOKEN }}
@@ -379,7 +379,183 @@ jobs:
         if-no-files-found: error
 
   # ════════════════════════════════════════════════════════════════
-  #  JOB 3: MANIFEST + INFO_RUN
+  #  JOB 2b (paral·lel): DERIVATS (convecció, pluja, dinàmica, hivern, foc) -> PNG
+  #  Carpeta pròpia (web_data_derivats): no comparteix res amb SFC/3D.
+  #  És secundari: si falla NO tomba el deploy (es conserva el que hi ha a 'data').
+  # ════════════════════════════════════════════════════════════════
+  png_derivats:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    continue-on-error: true
+    env:
+      # El path conté "derivats" (l'script ho comprova abans de netejar obsolets)
+      IMATGES_DIR: ${{ github.workspace }}/out-derivats/imatges
+    steps:
+    - name: Clonar private-scripts (amb diagnòstic)
+      env:
+        TOKEN: ${{ secrets.PRIVATE_REPO_TOKEN }}
+        GIT_TERMINAL_PROMPT: "0"
+      run: |
+        set +e
+        diag() {
+          echo "┌────────────── DIAGNÒSTIC (intent $1) ──────────────"
+          echo "│ Hora UTC: $(date -u +%H:%M:%S)"
+          if [ -z "$TOKEN" ]; then
+            echo "│ ❌ El secret PRIVATE_REPO_TOKEN està BUIT en aquest job"
+          else
+            case "$TOKEN" in
+              github_pat_*) TIPUS="fine-grained (github_pat_)";;
+              ghp_*)        TIPUS="classic (ghp_)";;
+              ghs_*)        TIPUS="token d'app (ghs_)";;
+              *)            TIPUS="format desconegut";;
+            esac
+            echo "│ Secret: ${#TOKEN} caràcters | tipus: $TIPUS"
+          fi
+          echo "│ ── API: GET /repos/Tempestesscatt/Scripts"
+          curl -sS -m 20 -D /tmp/h_repo.txt -o /tmp/b_repo.json \
+            -H "Authorization: Bearer $TOKEN" -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/Tempestesscatt/Scripts
+          echo "│ curl exit: $?"
+          grep -iE '^(HTTP|x-ratelimit-(limit|remaining|reset|resource)|retry-after|x-github-request-id|github-authentication-token-expiration)' /tmp/h_repo.txt | sed 's/^/│   /'
+          echo "│   missatge: $(jq -r '.message // ("OK, private=" + (.private|tostring))' /tmp/b_repo.json 2>/dev/null)"
+          echo "│   (200=OK | 401=token rebutjat/caducat | 403=rate limit o sense permís | 404=sense accés al repo | 5xx=GitHub)"
+          echo "│ ── API: /rate_limit"
+          curl -sS -m 20 -H "Authorization: Bearer $TOKEN" https://api.github.com/rate_limit \
+            | jq -r '.resources | to_entries[] | select(.key=="core" or .key=="git" or .key=="search") | "│   \(.key): \(.value.remaining)/\(.value.limit) restants, reinici (epoch UTC) \(.value.reset)"' 2>&1
+          echo "│ ── githubstatus.com"
+          curl -sS -m 15 https://www.githubstatus.com/api/v2/status.json | jq -r '"│   " + .status.indicator + " - " + .status.description' 2>&1
+          curl -sS -m 15 https://www.githubstatus.com/api/v2/incidents/unresolved.json | jq -r '.incidents[] | "│   INCIDENT: " + .name + " (" + .status + ")"' 2>&1
+          echo "│ ── Últimes línies del trace de git"
+          tail -n 40 /tmp/clone_$1.log | sed 's/^/│   /'
+          echo "└────────────────────────────────────────────────────"
+        }
+
+        AUTH=$(printf 'x-access-token:%s' "$TOKEN" | base64 -w0)
+        echo "::add-mask::$AUTH"
+
+        OK=0
+        for i in 1 2 3 4 5 6; do
+          echo "--- clonant private-scripts: intent $i/6 ($(date -u +%H:%M:%S) UTC) ---"
+          rm -rf private-scripts-new
+          GIT_TRACE=1 GIT_CURL_VERBOSE=1 git -c http.version=HTTP/1.1 \
+            -c "http.extraheader=AUTHORIZATION: basic $AUTH" \
+            clone --depth 1 https://github.com/Tempestesscatt/Scripts.git private-scripts-new \
+            > /tmp/clone_$i.log 2>&1
+          RC=$?
+          if [ $RC -eq 0 ] && [ -d private-scripts-new/.git ]; then
+            echo "✅ Clonat a l'intent $i"
+            OK=1
+            break
+          fi
+          echo "❌ git clone ha fallat (codi $RC)"
+          grep -E '^(fatal|error|warning)' /tmp/clone_$i.log | sed 's/^/   /'
+          diag "$i"
+          [ "$i" = 6 ] && break
+          sleep $((i * 20))
+        done
+        if [ "$OK" != 1 ]; then
+          echo "::error title=No s'ha pogut clonar private-scripts::Mira el bloc DIAGNÒSTIC de l'últim intent (HTTP 401/403/404/5xx, rate limit i estat de GitHub)."
+          exit 1
+        fi
+
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Instal·lar dependencies
+      run: |
+        for i in 1 2 3; do
+          sudo apt-get update -qq && sudo apt-get install -y -qq libgeos-dev libproj-dev proj-data proj-bin && break
+          sleep 15
+        done
+        python3 -m pip install --retries 5 --upgrade pip
+        python3 -m pip install --retries 5 numpy requests scipy xarray cfgrib eccodes meteofetch matplotlib pillow
+
+    # arome_derivats_png.py llegeix IMATGES_DIR de l'entorn nativament (sense sed)
+    - name: Preparar la clau
+      run: |
+        mkdir -p "$IMATGES_DIR"
+        cd private-scripts-new
+        ls arome_derivats_png.py || { echo "Falta arome_derivats_png.py al repo Scripts"; exit 1; }
+        python3 -c 'import json; cfg = json.load(open("configNE.json", "r", encoding="utf-8-sig")); cfg["api_key"] = "${{ secrets.AROME_API_KEY }}"; json.dump(cfg, open("configNE.json", "w", encoding="utf-8"), indent=2)'
+
+    - name: Executar arome_derivats_png.py (3 intents)
+      timeout-minutes: 345
+      run: |
+        set +e
+        cd private-scripts-new
+        OK=0
+        INICI=$(date +%s)
+        PRESSUPOST=$(( 330 * 60 ))
+        TOPALL=$(( 150 * 60 ))
+        for i in 1 2 3; do
+          RESTA=$(( PRESSUPOST - ($(date +%s) - INICI) ))
+          [ "$RESTA" -lt 600 ] && { echo "Sense temps per a més intents"; break; }
+          LIMIT=$(( RESTA < TOPALL ? RESTA : TOPALL ))
+          echo "--- arome_derivats_png.py: intent $i/3 (límit $(( LIMIT / 60 )) min, $(date -u +%H:%M:%S) UTC) ---"
+          rm -rf "$IMATGES_DIR"; mkdir -p "$IMATGES_DIR"
+          export MARCA_FINAL="$GITHUB_WORKSPACE/derivats_done.marker"
+          rm -f "$MARCA_FINAL"
+          timeout "${LIMIT}s" python3 arome_derivats_png.py --isolinies "${ISOLINIES_DERIVATS:-suau}"
+          CODI=$?
+          N=$(find "$IMATGES_DIR" -name "3d_*.png" -type f | wc -l)
+          # Èxit = codi 0, o marca de final / manifest escrit (l'script surt amb os._exit)
+          if [ $CODI -eq 0 ] || { [ -f "$MARCA_FINAL" ] && [ "$N" -ge 5 ]; } \
+             || { [ -f "$IMATGES_DIR/manifest.json" ] && [ "$N" -ge 5 ]; }; then
+            echo "OK a l'intent $i (codi $CODI, $N PNG)"
+            OK=1
+            break
+          fi
+          echo "ERROR (codi $CODI) a l'intent $i/3"
+          sleep 30
+        done
+        [ "$OK" = 1 ] || { echo "ERROR: els 3 intents han fallat."; exit 1; }
+
+    - name: Verificar fitxers generats
+      run: |
+        N=$(find "$IMATGES_DIR" -maxdepth 1 -name "3d_*.png" -type f | wc -l)
+        L=$(find "$IMATGES_DIR" -maxdepth 1 -name "legend_3d_*.png" -type f | wc -l)
+        I=$(find "$IMATGES_DIR" -maxdepth 1 -name "isolines_3d_*.js" -type f | wc -l)
+        B=$(find "$IMATGES_DIR/barbes_vent" -name "*.json" -type f 2>/dev/null | wc -l)
+        echo "PNG: $N | llegendes: $L | isolínies: $I | barbes_vent: $B"
+        [ "$N" -lt 5 ] && { echo "Massa pocs PNG"; exit 1; }
+        [ -f "$IMATGES_DIR/manifest.json" ] || { echo "Falta manifest.json"; exit 1; }
+        python3 - <<'PY'
+        import json, os
+        m = json.load(open(os.path.join(os.environ["IMATGES_DIR"], "manifest.json"), encoding="utf-8"))
+        print("Derivats: run", m.get("run"), "|", len(m.get("hores", [])), "hores |",
+              len(m.get("variables_3d", {})), "variables")
+        if not m.get("hores") or not m.get("extent"):
+            raise SystemExit("Manifest de derivats incomplet: no es publicarà")
+        PY
+        du -sh "$IMATGES_DIR"
+
+    - name: Empaquetar derivats
+      run: |
+        tar -cf "$GITHUB_WORKSPACE/derivats.tar" -C "$IMATGES_DIR" .
+        ls -lh "$GITHUB_WORKSPACE/derivats.tar"
+        # El catàleg per enganxar al visor es queda al costat de l'script
+        cp private-scripts-new/derivats_cataleg.txt "$GITHUB_WORKSPACE/derivats_cataleg.txt" 2>/dev/null || true
+
+    - name: Pujar derivats com a artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: png-derivats
+        path: derivats.tar
+        compression-level: 0
+        retention-days: 2
+        if-no-files-found: error
+
+    - name: Pujar catàleg del visor (opcional)
+      uses: actions/upload-artifact@v4
+      with:
+        name: derivats-cataleg
+        path: derivats_cataleg.txt
+        retention-days: 7
+        if-no-files-found: warn
+
+  # ════════════════════════════════════════════════════════════════
+  #  JOB 3: MANIFEST + INFO_RUN  (NE: SFC + 3D; els derivats tenen manifest propi)
   # ════════════════════════════════════════════════════════════════
   manifest:
     runs-on: ubuntu-latest
@@ -539,9 +715,13 @@ jobs:
   #   3) comprova límits de Cloudflare Pages
   #   4) DEPLOY A CLOUDFLARE  <- primer: la web s'actualitza ja
   #   5) guarda a la branca 'data' (amb timeouts i reintents), CONSERVANT 'news'
+  #
+  #  Espera SFC + 3D + manifest (obligatoris) i DERIVATS (opcional: si ha fallat,
+  #  es conserva la versió que ja hi ha a 'data').
   # ════════════════════════════════════════════════════════════════
   deploy:
-    needs: [png_sfc, png_3d, manifest]
+    needs: [png_sfc, png_3d, png_derivats, manifest]
+    if: ${{ !cancelled() && needs.png_sfc.result == 'success' && needs.png_3d.result == 'success' && needs.manifest.result == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
@@ -575,9 +755,16 @@ jobs:
         path: /tmp/art-info
       continue-on-error: true
 
+    - name: Descarregar artifact - DERIVATS
+      uses: actions/download-artifact@v4
+      with:
+        name: png-derivats
+        path: /tmp/art-derivats
+      continue-on-error: true
+
     # git ls-remote / fetch usen el remot 'origin' del checkout, que ja porta
     # el token en una capçalera (sense token a la URL).
-    - name: Assemblar web (branca data + SFC/3D nous)
+    - name: Assemblar web (branca data + SFC/3D/derivats nous)
       id: assemble
       timeout-minutes: 20
       env:
@@ -589,13 +776,29 @@ jobs:
         # Fitxers del 3D (la resta de web_data_NE/imatges és SFC, outlooks inclosos)
         PAT3D=( -name '3d_*' -o -name 'isolines_3d_*' -o -name 'legend_3d_*' -o -name 'sondeig_*' -o -name 'vent3d_*' -o -name 'stormmotion_*' )
 
-        rm -rf /tmp/nou-sfc /tmp/nou-3d
-        mkdir -p /tmp/nou-sfc /tmp/nou-3d
+        rm -rf /tmp/nou-sfc /tmp/nou-3d /tmp/nou-der
+        mkdir -p /tmp/nou-sfc /tmp/nou-3d /tmp/nou-der
         tar -xf /tmp/art-sfc/sfc.tar -C /tmp/nou-sfc
         tar -xf /tmp/art-3d/3d.tar -C /tmp/nou-3d
         [ -n "$(ls -A /tmp/nou-sfc)" ] || { echo "Falta SFC"; exit 1; }
         [ -n "$(ls -A /tmp/nou-3d)" ] || { echo "Falta 3D"; exit 1; }
         [ -f /tmp/art-manifest/manifest.json ] || { echo "Falta manifest"; exit 1; }
+
+        # Derivats (opcional): només es consideren nous si l'artifact existeix i és vàlid
+        DER_NOU=0
+        if [ -f /tmp/art-derivats/derivats.tar ]; then
+          if tar -xf /tmp/art-derivats/derivats.tar -C /tmp/nou-der \
+             && [ -f /tmp/nou-der/manifest.json ] \
+             && [ "$(find /tmp/nou-der -maxdepth 1 -name '3d_*.png' | wc -l)" -ge 5 ]; then
+            DER_NOU=1
+            echo "Derivats nous: OK"
+          else
+            echo "⚠️  L'artifact de derivats no és vàlid: es conserva el de 'data'"
+          fi
+        else
+          echo "⚠️  Sense artifact de derivats (ha fallat el job?): es conserva el de 'data'"
+        fi
+        echo "$DER_NOU" > "$RUNNER_TEMP/derivats_nou"
 
         # Estat actual de 'data'. Si GitHub no respon ABORTEM: continuar sense
         # 'data' esborraria del web les carpetes dels altres workflows.
@@ -680,12 +883,23 @@ jobs:
           echo "  imatges: isolínies 3D eliminades (ELIMINAR_ISOLINIES_3D=1)"
         fi
 
+        # Substituir web_data_derivats (carpeta pròpia, completa) NOMÉS si els nous són vàlids
+        if [ "$DER_NOU" = 1 ]; then
+          rm -rf "$P/web_data_derivats"
+          mkdir -p "$P/web_data_derivats/imatges"
+          cp -r /tmp/nou-der/. "$P/web_data_derivats/imatges/"
+          echo "  derivats: web_data_derivats/imatges substituït"
+        else
+          echo "  derivats: es conserva el de 'data'"
+        fi
+
         echo "--- Resum ---"
         for c in $CARPETES; do echo "$c: $(find "$P/$c" -type f | wc -l) fitxers"; done
         echo "imatges sfc:      $(find "$IM" -name 'sfc_*.png' | wc -l) PNG"
         echo "imatges outlook:  $(find "$IM" -maxdepth 1 -name '*outlook*.png' | wc -l) PNG"
         echo "imatges 3d:       $(find "$IM" -name '3d_*.png' | wc -l) PNG"
-        du -sh "$P/web_data_NE" || true
+        echo "derivats:         $(find "$P/web_data_derivats" -name '3d_*.png' | wc -l) PNG"
+        du -sh "$P/web_data_NE" "$P/web_data_derivats" || true
         echo "--- Mida per tipus (a web_data_NE/imatges) ---"
         for pat in 'sfc_*.png' '*outlook*.png' 'manifest_outlook.json' 'isolines_[0-2][0-9]_*.js' 'vent_*.js' '3d_*.png' 'isolines_3d_*.js' 'sondeig_*' 'vent3d_*' 'stormmotion_*'; do
           find "$IM" -maxdepth 1 -name "$pat" -printf '%s\n' | awk -v p="$pat" '{s+=$1} END {printf "  %-26s %6d fitxers %8.1f MB\n", p, NR, s/1048576}'
@@ -734,7 +948,13 @@ jobs:
         N=$(find "$P" -type f | wc -l)
         echo "Total fitxers: $N (límit Pages: 20000)"
         if [ "$N" -gt 19000 ]; then
-          echo "Massa fitxers: elimino les isolínies 3D (opcionals)"
+          echo "Massa fitxers: elimino les isolínies dels derivats (opcionals)"
+          find "$P/web_data_derivats/imatges" -maxdepth 1 -name 'isolines_3d_*' -delete 2>/dev/null || true
+          N=$(find "$P" -type f | wc -l)
+          echo "Total fitxers ara: $N"
+        fi
+        if [ "$N" -gt 19000 ]; then
+          echo "Encara massa fitxers: elimino les isolínies 3D (opcionals)"
           find "$P/web_data_NE/imatges" -maxdepth 1 -name 'isolines_3d_*' -delete || true
           N=$(find "$P" -type f | wc -l)
           echo "Total fitxers ara: $N"
@@ -786,6 +1006,7 @@ jobs:
         AUTH=$(printf 'x-access-token:%s' "$TOKEN" | base64 -w0)
         echo "::add-mask::$AUTH"
         EXPECT=$(cat "$RUNNER_TEMP/data_sha")
+        DER_NOU=$(cat "$RUNNER_TEMP/derivats_nou" 2>/dev/null || echo 0)
         MSG="arome png $(date -u +'%Y-%m-%d %H:%M UTC')"
         CHUNK=800          # fitxers per paquet (≈ 40-80 MB)
         T0=$(date +%s)
@@ -875,7 +1096,9 @@ jobs:
                  && git worktree prune \
                  && git worktree add -f /tmp/data-branch2 FETCH_HEAD ); then
               for c in $CARPETES; do
+                # Les nostres: web_data_NE sempre; web_data_derivats només si n'hem generat de nous
                 [ "$c" = "web_data_NE" ] && continue
+                if [ "$c" = "web_data_derivats" ] && [ "$DER_NOU" = "1" ]; then continue; fi
                 rm -rf "/tmp/publish/$c"
                 cp -r "/tmp/data-branch2/$c" /tmp/publish/ 2>/dev/null || true
               done
@@ -914,5 +1137,6 @@ jobs:
         echo "## Resultat per pas (deploy)" >> "$GITHUB_STEP_SUMMARY"
         echo "- Assemblar web: \`${{ steps.assemble.outcome }}\`" >> "$GITHUB_STEP_SUMMARY"
         echo "- Deploy Cloudflare: \`${{ steps.deploy.outcome }}\`" >> "$GITHUB_STEP_SUMMARY"
+        echo "- Job derivats: \`${{ needs.png_derivats.result }}\`" >> "$GITHUB_STEP_SUMMARY"
         echo "" >> "$GITHUB_STEP_SUMMARY"
         echo "Si un clonat de private-scripts ha fallat, busca el bloc DIAGNÒSTIC al pas 'Clonar private-scripts (amb diagnòstic)' del job corresponent." >> "$GITHUB_STEP_SUMMARY"

@@ -13,7 +13,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  CARPETES: "web_data_NE webdata_waves avis gfsmaps gfsESPmaps previsions_catalunya web_data_GFS"
+  CARPETES: "web_data_NE webdata_waves avis gfsmaps gfsESPmaps previsions_catalunya web_data_GFS web_data_derivats"
 
 jobs:
   deploy:
@@ -125,7 +125,8 @@ jobs:
         N=$(find "$P" -type f | wc -l)
         echo "Total fitxers: $N (límit Pages: 20000)"
         if [ "$N" -gt 19000 ]; then
-          echo "Massa fitxers: elimino isolínies opcionals (3D i GFS)"
+          echo "Massa fitxers: elimino isolínies opcionals (derivats, 3D i GFS)"
+          find "$P/web_data_derivats/imatges" -maxdepth 1 -name 'isolines_3d_*' -delete 2>/dev/null || true
           find "$P/web_data_NE/imatges" -maxdepth 1 -name 'isolines_3d_*' -delete 2>/dev/null || true
           find "$P/web_data_GFS/imatges" -maxdepth 1 -name 'isolines_*' -delete 2>/dev/null || true
           N=$(find "$P" -type f | wc -l)

@@ -19,7 +19,7 @@ env:
   PIP_DISABLE_PIP_VERSION_CHECK: "1"
   # Mateixa llista que l'AROME. GFS només substitueix web_data_GFS.
   # (La carpeta 'news' de data -notícies- no s'hi toca: el push final només afegeix web_data_GFS.)
-  CARPETES: "web_data_NE webdata_waves avis gfsmaps gfsESPmaps previsions_catalunya web_data_GFS"
+  CARPETES: "web_data_NE webdata_waves avis gfsmaps gfsESPmaps previsions_catalunya web_data_GFS web_data_derivats"
 
 jobs:
   # ════════════ JOB 1: GFS -> PNG ════════════
@@ -209,7 +209,8 @@ jobs:
         N=$(find "$P" -type f | wc -l)
         echo "Total fitxers: $N (límit 20000)"
         if [ "$N" -gt 19000 ]; then
-          echo "Massa fitxers: elimino isolínies GFS (opcionals)"
+          echo "Massa fitxers: elimino isolínies opcionals (derivats i GFS)"
+          find "$P/web_data_derivats/imatges" -maxdepth 1 -name 'isolines_3d_*' -delete 2>/dev/null || true
           find "$P/web_data_GFS/imatges" -maxdepth 1 -name 'isolines_*' -delete || true
           N=$(find "$P" -type f | wc -l); echo "Ara: $N"
         fi
@@ -236,7 +237,7 @@ jobs:
     # Guarda a 'data' NOMÉS web_data_GFS, a sobre de l'últim estat de 'data'.
     # Push normal (sense --force): si algú altre ha pujat mentrestant, es rebutja
     # i es repeteix partint de la 'data' nova. Mai trepitja les altres carpetes
-    # (ni 'news').
+    # (ni 'news', ni 'web_data_derivats').
     - name: Guardar web_data_GFS a la branca 'data'
       if: always() && steps.assemble.outcome == 'success'
       timeout-minutes: 60
