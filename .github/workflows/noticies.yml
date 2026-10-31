@@ -10,18 +10,17 @@ on:
 permissions:
   contents: write
 
-# Grup COMPARTIT amb "Deploy Manual": els dos s'executen un després de l'altre,
-# així mai es trepitgen (ni al push a 'data' ni al deploy a Cloudflare).
-# No espera els deploys d'aromeNE/enssables/manifest.
+# Mateix grup que aromeNE.yml: els deploys s'encuen i no es trepitgen
+# (ni al push a 'data' ni al deploy a Cloudflare).
 # cancel-in-progress: false perquè Cloudflare Pages no accepta bé deploys tallats a mitges.
 concurrency:
-  group: deploy-news-${{ github.ref }}
+  group: deploy-data
   cancel-in-progress: false
 
 env:
   # Carpetes dinàmiques de la web (viuen a la branca 'data').
-  # Han de ser les mateixes que a deploy-onnly.yml, aromeNE.yml i deploy-manual.yml.
-  CARPETES: "web_data_NE webdata_waves avis gfsmaps gfsESPmaps previsions_catalunya web_data_GFS"
+  # Han de ser les mateixes que a aromeNE.yml, deploy-onnly.yml, gfs.yml i manifest-pngs.yml.
+  CARPETES: "web_data_NE webdata_waves avis gfsmaps gfsESPmaps previsions_catalunya web_data_GFS web_data_derivats"
 
 jobs:
   update-news:
@@ -129,7 +128,7 @@ jobs:
         echo "❌ No s'ha pogut guardar a data"; exit 1
 
     # 7. IMPORTANT: Cloudflare Pages substitueix TOT el desplegament anterior.
-    #    Les dades del visor (web_data_NE, gfsmaps...) viuen a la branca 'data'.
+    #    Les dades del visor (web_data_NE, web_data_derivats, gfsmaps...) viuen a la branca 'data'.
     - name: Afegir dades de la branca 'data'
       run: |
         set -euo pipefail
@@ -167,6 +166,11 @@ jobs:
           exit 1
         fi
         echo "✅ Dades afegides: web_data_NE té $(find "$P/web_data_NE" -type f | wc -l) fitxers"
+        if [ -d "$P/web_data_derivats/imatges" ]; then
+          echo "✅ web_data_derivats té $(find "$P/web_data_derivats" -type f | wc -l) fitxers"
+        else
+          echo "⚠️  web_data_derivats no existeix a data: el visor no tindrà mapes derivats fins al proper AROME"
+        fi
 
     - name: Comprovar límits de Cloudflare Pages
       run: |
@@ -176,7 +180,8 @@ jobs:
         N=$(find "$P" -type f | wc -l)
         echo "Total fitxers: $N (límit Pages: 20000)"
         if [ "$N" -gt 19000 ]; then
-          echo "Massa fitxers: elimino isolínies opcionals (3D i GFS)"
+          echo "Massa fitxers: elimino isolínies opcionals (derivats, 3D i GFS)"
+          find "$P/web_data_derivats/imatges" -maxdepth 1 -name 'isolines_3d_*' -delete 2>/dev/null || true
           find "$P/web_data_NE/imatges" -maxdepth 1 -name 'isolines_3d_*' -delete 2>/dev/null || true
           find "$P/web_data_GFS/imatges" -maxdepth 1 -name 'isolines_*' -delete 2>/dev/null || true
           N=$(find "$P" -type f | wc -l)
