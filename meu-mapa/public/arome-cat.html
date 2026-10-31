@@ -915,7 +915,6 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
     window.esAdminActual = function () { return esAdmin; };
 })();
 </script>
-
 <script>
 (function(){
     'use strict';
@@ -927,35 +926,25 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
         equips: { nom: 'Equips', variablesBasiques: true, variablesAvançades: true, totesLesHores: true, skewT: true, nivellsPressio: true, parametres3D: true, radar3h: true, radar24h: true, animacio: true, isolinies: true, barbes: true, vent: true, }
     };
     const NOMS_NIVELL = ['Gratuït', 'Entusiasta', 'Professional'];
-    const RE_PRO = /shear|cisallament|srh|helicitat|dcape|\blcl\b|\blfc\b|lifted|\bli\b|\behi\b|\bscp\b|\bstp\b|storm|moviment de tempest|nivells?[ _]?(de[ _])?pressio|\b(1000|925|850|700|600|500|400|300|250|200) ?hpa/;
-    const RE_BASIC = /temperatura|\btemp\b|\bt2m\b|\bvent\b|\bwind\b|ratxa|\bgust|humitat|\bhumidity\b|\brh\b|pressio|\bpressure\b|\bmslp\b|precipit|\brain\b|neu|\bsnow\b|núvol|\bnuvol|\bcloud\b|visibilitat|\bvisibility\b|\bcape\b|\bcin\b|\bmucape\b|\bmlcape\b|\bsbcape\b|isoterma|isoterm|zero|\b0 ?°?c\b|\b0 ?graus\b/;
+
     function normalitza(s) { return String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
-    function nivellNecessari(varId, label) {
-        const t = normalitza(varId + ' ' + label);
-        if (/skew/.test(t)) return 1;
-        if (RE_PRO.test(t)) return 2;
-        if (RE_BASIC.test(t)) return 0;
-        return 1;
-    }
     function rang(pla) { return pla === 'equips' ? 2 : ['gratuït', 'entusiasta', 'professional'].indexOf(pla); }
-    function infoFila(row) {
-        const varId = row.dataset.var || row.dataset.varId || row.dataset.id || '';
-        const nomEl = row.querySelector('.nom');
-        let label;
-        if (nomEl) label = nomEl.textContent;
-        else {
-            const c = row.cloneNode(true);
-            c.querySelectorAll('.unitat, .param-altura-opcions').forEach(x => x.remove());
-            label = c.textContent;
+
+    // Nivel mínimo de cada fila: MISMA lógica que mapapngs.js (única fuente de verdad)
+    function nivellFila(row) {
+        const clau = row.dataset.clau || '';
+        if (row.dataset.v3d) {
+            const nivell = clau.endsWith('_col') ? 'col' : 850;
+            return typeof window.plaMinim3D === 'function' ? window.plaMinim3D(row.dataset.v3d, nivell) : 2;
         }
-        return { varId, label: (label || '').trim().replace(/\s+/g, ' ') };
+        return typeof window.plaMinimVariable === 'function' ? window.plaMinimVariable(clau) : 2;
     }
-    function esNivellPressio(opcio) {
-        const h = opcio && opcio.querySelector('.hpa');
-        if (!h) return false;
-        const n = parseInt(h.textContent, 10);
-        return !isNaN(n) && n >= 200 && n <= 1000;
+    function nomFila(row) {
+        const c = row.cloneNode(true);
+        c.querySelectorAll('.unitat, .param-info-btn').forEach(x => x.remove());
+        return c.textContent.trim().replace(/\s+/g, ' ').replace('🔒', '').trim();
     }
+
     let plaActual = 'gratuït';
     function normalitzarPla(v) { const k = String(v || '').trim().toLowerCase().replace('gratuit', 'gratuït'); return PLANS[k] ? k : 'gratuït'; }
     async function carregarPlaServidor(user) {
@@ -975,7 +964,7 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
         return plaActual;
     }
     function getConfigPla() { return PLANS[getPlaUsuari()] || PLANS['gratuït']; }
-    function variableBloquejada(varId, label) { return rang(getPlaUsuari()) < nivellNecessari(varId, label); }
+
     window.mostrarUpgrade = function(varNom, plaRecomanat) {
         const user = window._firebaseUser;
         const cfg = getConfigPla();
@@ -988,29 +977,32 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
         if (plaNom) plaNom.textContent = plaRecomanat || 'Professional';
         if (user) {
             const correu = user.email || 'aquest compte';
-            if (desc) desc.textContent = esHora ? `Aquesta hora no està disponible al pla ${cfg.nom}.` : `«${varNom}» no està disponible al pla ${cfg.nom}.`;
+            if (desc) desc.textContent = esHora ? `Aquesta hora no està disponible al pla ${cfg.nom}.` : `Aquesta variable no està disponible al pla ${cfg.nom}.`;
             if (avis) { avis.innerHTML = `Aquest correu no té accés a aquesta funció.<small>${escHtml(correu)} · Pla ${escHtml(cfg.nom)}</small>`; avis.classList.add('visible'); }
             if (btnLogin) btnLogin.style.display = 'none';
             if (btnTanca) btnTanca.style.display = 'flex';
         } else {
-            if (desc) desc.textContent = esHora ? 'Aquesta hora requereix iniciar sessió i tenir un pla de pagament.' : `«${varNom}» no està disponible al pla Gratuït.`;
+            if (desc) desc.textContent = esHora ? 'Aquesta hora requereix iniciar sessió i tenir un pla de pagament.' : `Aquesta variable no està disponible al pla Gratuït.`;
             if (avis) { avis.textContent = ''; avis.classList.remove('visible'); }
             if (btnLogin) btnLogin.style.display = 'flex';
             if (btnTanca) btnTanca.style.display = 'none';
         }
         obrirModal('modalUpgrade');
     };
+
+    // Clic en filas del panel (captura): el botón "i" de ayuda siempre funciona
     document.addEventListener('click', function(e) {
-        const row = e.target.closest('.param-row, .param-altura-grup');
+        if (e.target.closest('.param-info-btn')) return;
+        const row = e.target.closest('#panell-pro .param-row');
         if (!row) return;
-        const { varId, label } = infoFila(row);
-        let nivell = nivellNecessari(varId, label);
-        if (esNivellPressio(e.target.closest('.param-altura-opcio'))) nivell = 2;
+        const nivell = nivellFila(row);
         if (rang(getPlaUsuari()) < nivell) {
             e.preventDefault(); e.stopPropagation();
-            window.mostrarUpgrade(label || 'Aquesta variable', NOMS_NIVELL[nivell]);
+            window.mostrarUpgrade(nomFila(row) || 'Aquesta variable', NOMS_NIVELL[nivell]);
         }
     }, true);
+
+    // Botones del dock y menú Skew-T
     document.addEventListener('click', function(e) {
         const b = e.target.closest('#btnPlay, #btnIsolines, #btnBarbes, .menu-ctx-boto');
         if (!b) return;
@@ -1025,6 +1017,7 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
         e.preventDefault(); e.stopPropagation();
         window.mostrarUpgrade(nom, pla);
     }, true);
+
     function actualitzarUIPla() {
         const pla = getPlaUsuari();
         const cfg = PLANS[pla];
@@ -1032,9 +1025,9 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
         const box = document.getElementById('ppPlaBox');
         if (el) el.textContent = cfg.nom;
         if (box) box.classList.toggle('premium', pla !== 'gratuït');
-        document.querySelectorAll('.param-row, .param-altura-grup').forEach(row => {
-            const { varId, label } = infoFila(row);
-            row.classList.toggle('premium-bloquejat', variableBloquejada(varId, label));
+        const r = rang(pla);
+        document.querySelectorAll('#panell-pro .param-row').forEach(row => {
+            row.classList.toggle('premium-bloquejat', r < nivellFila(row));
         });
         [['btnPlay', cfg.animacio], ['btnIsolines', cfg.isolinies], ['btnBarbes', cfg.barbes]].forEach(([id, ok]) => {
             const b = document.getElementById(id);
@@ -1043,12 +1036,16 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
         const inpPla = document.getElementById('perfilPla');
         if (inpPla) inpPla.value = cfg.nom;
     }
+
     window.addEventListener('tc:login', async (e) => { await carregarPlaServidor(e.detail || window._firebaseUser); actualitzarUIPla(); });
     window.addEventListener('tc:logout', () => { plaActual = 'gratuït'; window._esAdmin = false; actualitzarUIPla(); setTimeout(actualitzarUIPla, 600); });
     window.getPlaUsuari = getPlaUsuari;
     window.getConfigPla = getConfigPla;
-    window.variableBloquejada = variableBloquejada;
+    window.variableBloquejada = function (clau) {
+        return typeof window.plaMinimVariable === 'function' ? rang(getPlaUsuari()) < window.plaMinimVariable(clau) : true;
+    };
     window.actualitzarUIPla = actualitzarUIPla;
+
     let tObs = null;
     const obs = new MutationObserver(muts => {
         const rellevant = muts.some(m =>
@@ -1079,7 +1076,6 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
     if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', iniciar); } else { iniciar(); }
 })();
 </script>
-
 <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
     import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
