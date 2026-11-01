@@ -42,38 +42,65 @@ jobs:
         GIT_TERMINAL_PROMPT: "0"
       run: |
         set +e
+        set -uo pipefail
+        umask 077
+
         diag() {
-          echo "┌────────────── DIAGNÒSTIC (intent $1) ──────────────"
+          intento="$1"
+          echo "┌────────────── DIAGNÒSTIC (intent $intento) ──────────────"
           echo "│ Hora UTC: $(date -u +%H:%M:%S)"
-          if [ -z "$TOKEN" ]; then
-            echo "│ ❌ El secret PRIVATE_REPO_TOKEN està BUIT en aquest job"
+          if [ -z "${TOKEN:-}" ]; then
+            echo "│ ❌ El secret PRIVATE_REPO_TOKEN està buit en aquest job"
           else
             case "$TOKEN" in
-              github_pat_*) TIPUS="fine-grained (github_pat_)";;
-              ghp_*)        TIPUS="classic (ghp_)";;
-              ghs_*)        TIPUS="token d'app (ghs_)";;
-              *)            TIPUS="format desconegut";;
+              github_pat_*) tipus="fine-grained";;
+              ghp_*)        tipus="classic";;
+              ghs_*)        tipus="token d'app";;
+              *)            tipus="format desconegut";;
             esac
-            echo "│ Secret: ${#TOKEN} caràcters | tipus: $TIPUS"
+            echo "│ Secret present: ${#TOKEN} caràcters | tipus: $tipus"
           fi
+
           echo "│ ── API: GET /repos/Tempestesscatt/Scripts"
-          curl -sS -m 20 -D /tmp/h_repo.txt -o /tmp/b_repo.json \
-            -H "Authorization: Bearer $TOKEN" -H "Accept: application/vnd.github+json" \
-            https://api.github.com/repos/Tempestesscatt/Scripts
-          echo "│ curl exit: $?"
-          grep -iE '^(HTTP|x-ratelimit-(limit|remaining|reset|resource)|retry-after|x-github-request-id|github-authentication-token-expiration)' /tmp/h_repo.txt | sed 's/^/│   /'
-          echo "│   missatge: $(jq -r '.message // ("OK, private=" + (.private|tostring))' /tmp/b_repo.json 2>/dev/null)"
-          echo "│   (200=OK | 401=token rebutjat/caducat | 403=rate limit o sense permís | 404=sense accés al repo | 5xx=GitHub)"
-          echo "│ ── API: /rate_limit"
-          curl -sS -m 20 -H "Authorization: Bearer $TOKEN" https://api.github.com/rate_limit \
-            | jq -r '.resources | to_entries[] | select(.key=="core" or .key=="git" or .key=="search") | "│   \(.key): \(.value.remaining)/\(.value.limit) restants, reinici (epoch UTC) \(.value.reset)"' 2>&1
+          if [ -n "${TOKEN:-}" ]; then
+            http=$(curl -sS -m 20 -D /tmp/h_repo.txt -o /tmp/b_repo.json \
+              -w '%{http_code}' \
+              -H "Authorization: Bearer $TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              https://api.github.com/repos/Tempestesscatt/Scripts 2>/tmp/curl_repo.err)
+            curl_rc=$?
+            echo "│   HTTP: $http | curl exit: $curl_rc"
+            grep -iE '^(HTTP|x-ratelimit-(limit|remaining|reset|resource)|retry-after|x-github-request-id|github-authentication-token-expiration)' \
+              /tmp/h_repo.txt 2>/dev/null | sed 's/^/│   /'
+            if [ -s /tmp/b_repo.json ]; then
+              jq -r '.message // ("OK, private=" + (.private|tostring))' /tmp/b_repo.json 2>/dev/null | sed 's/^/│   missatge: /'
+            fi
+            [ -s /tmp/curl_repo.err ] && sed 's/^/│   curl: /' /tmp/curl_repo.err
+            echo "│   (200=OK | 401=token rebutjat/caducat | 403=rate limit o permisos | 404=sense accés al repo)"
+            echo "│ ── API: /rate_limit"
+            curl -sS -m 20 -H "Authorization: Bearer $TOKEN" \
+              https://api.github.com/rate_limit 2>&1 |
+              jq -r '.resources | to_entries[] | select(.key=="core" or .key=="git" or .key=="search") |
+                "│   \(.key): \(.value.remaining)/\(.value.limit) restants; reset epoch UTC \(.value.reset)"' 2>&1
+          else
+            echo "│   Ometo la prova API perquè el secret és buit"
+          fi
+
           echo "│ ── githubstatus.com"
-          curl -sS -m 15 https://www.githubstatus.com/api/v2/status.json | jq -r '"│   " + .status.indicator + " - " + .status.description' 2>&1
-          curl -sS -m 15 https://www.githubstatus.com/api/v2/incidents/unresolved.json | jq -r '.incidents[] | "│   INCIDENT: " + .name + " (" + .status + ")"' 2>&1
+          curl -sS -m 15 https://www.githubstatus.com/api/v2/status.json 2>&1 |
+            jq -r '"│   " + .status.indicator + " - " + .status.description' 2>&1
+          curl -sS -m 15 https://www.githubstatus.com/api/v2/incidents/unresolved.json 2>&1 |
+            jq -r '.incidents[]? | "│   INCIDENT: " + .name + " (" + .status + ")"' 2>&1
+
           echo "│ ── Últimes línies del trace de git"
-          tail -n 40 /tmp/clone_$1.log | sed 's/^/│   /'
+          tail -n 40 "/tmp/clone_${intento}.log" 2>/dev/null | sed 's/^/│   /'
           echo "└────────────────────────────────────────────────────"
         }
+
+        if [ -z "${TOKEN:-}" ]; then
+          echo "::error title=Secret buit::PRIVATE_REPO_TOKEN no està definit per a aquest repositori/entorn."
+          exit 1
+        fi
 
         AUTH=$(printf 'x-access-token:%s' "$TOKEN" | base64 -w0)
         echo "::add-mask::$AUTH"
@@ -82,24 +109,27 @@ jobs:
         for i in 1 2 3 4 5 6; do
           echo "--- clonant private-scripts: intent $i/6 ($(date -u +%H:%M:%S) UTC) ---"
           rm -rf private-scripts-new
-          GIT_TRACE=1 GIT_CURL_VERBOSE=1 git -c http.version=HTTP/1.1 \
+          git -c http.version=HTTP/1.1 \
             -c "http.extraheader=AUTHORIZATION: basic $AUTH" \
             clone --depth 1 https://github.com/Tempestesscatt/Scripts.git private-scripts-new \
-            > /tmp/clone_$i.log 2>&1
+            >"/tmp/clone_$i.log" 2>&1
           RC=$?
-          if [ $RC -eq 0 ] && [ -d private-scripts-new/.git ]; then
-            echo "✅ Clonat a l'intent $i"
+
+          if [ "$RC" -eq 0 ] && [ -d private-scripts-new/.git ]; then
+            echo "✅ Clonat correctament a l'intent $i"
             OK=1
             break
           fi
+
           echo "❌ git clone ha fallat (codi $RC)"
-          grep -E '^(fatal|error|warning)' /tmp/clone_$i.log | sed 's/^/   /'
+          grep -E '^(fatal|error|warning)' "/tmp/clone_$i.log" | sed 's/^/   /'
           diag "$i"
-          [ "$i" = 6 ] && break
+          [ "$i" -eq 6 ] && break
           sleep $((i * 20))
         done
+
         if [ "$OK" != 1 ]; then
-          echo "::error title=No s'ha pogut clonar private-scripts::Mira el bloc DIAGNÒSTIC de l'últim intent (HTTP 401/403/404/5xx, rate limit i estat de GitHub)."
+          echo "::error title=No s'ha pogut clonar private-scripts::Consulta el bloc DIAGNÒSTIC: permisos del token, accés al repositori, rate limit o incidència de GitHub."
           exit 1
         fi
 
@@ -241,38 +271,65 @@ jobs:
         GIT_TERMINAL_PROMPT: "0"
       run: |
         set +e
+        set -uo pipefail
+        umask 077
+
         diag() {
-          echo "┌────────────── DIAGNÒSTIC (intent $1) ──────────────"
+          intento="$1"
+          echo "┌────────────── DIAGNÒSTIC (intent $intento) ──────────────"
           echo "│ Hora UTC: $(date -u +%H:%M:%S)"
-          if [ -z "$TOKEN" ]; then
-            echo "│ ❌ El secret PRIVATE_REPO_TOKEN està BUIT en aquest job"
+          if [ -z "${TOKEN:-}" ]; then
+            echo "│ ❌ El secret PRIVATE_REPO_TOKEN està buit en aquest job"
           else
             case "$TOKEN" in
-              github_pat_*) TIPUS="fine-grained (github_pat_)";;
-              ghp_*)        TIPUS="classic (ghp_)";;
-              ghs_*)        TIPUS="token d'app (ghs_)";;
-              *)            TIPUS="format desconegut";;
+              github_pat_*) tipus="fine-grained";;
+              ghp_*)        tipus="classic";;
+              ghs_*)        tipus="token d'app";;
+              *)            tipus="format desconegut";;
             esac
-            echo "│ Secret: ${#TOKEN} caràcters | tipus: $TIPUS"
+            echo "│ Secret present: ${#TOKEN} caràcters | tipus: $tipus"
           fi
+
           echo "│ ── API: GET /repos/Tempestesscatt/Scripts"
-          curl -sS -m 20 -D /tmp/h_repo.txt -o /tmp/b_repo.json \
-            -H "Authorization: Bearer $TOKEN" -H "Accept: application/vnd.github+json" \
-            https://api.github.com/repos/Tempestesscatt/Scripts
-          echo "│ curl exit: $?"
-          grep -iE '^(HTTP|x-ratelimit-(limit|remaining|reset|resource)|retry-after|x-github-request-id|github-authentication-token-expiration)' /tmp/h_repo.txt | sed 's/^/│   /'
-          echo "│   missatge: $(jq -r '.message // ("OK, private=" + (.private|tostring))' /tmp/b_repo.json 2>/dev/null)"
-          echo "│   (200=OK | 401=token rebutjat/caducat | 403=rate limit o sense permís | 404=sense accés al repo | 5xx=GitHub)"
-          echo "│ ── API: /rate_limit"
-          curl -sS -m 20 -H "Authorization: Bearer $TOKEN" https://api.github.com/rate_limit \
-            | jq -r '.resources | to_entries[] | select(.key=="core" or .key=="git" or .key=="search") | "│   \(.key): \(.value.remaining)/\(.value.limit) restants, reinici (epoch UTC) \(.value.reset)"' 2>&1
+          if [ -n "${TOKEN:-}" ]; then
+            http=$(curl -sS -m 20 -D /tmp/h_repo.txt -o /tmp/b_repo.json \
+              -w '%{http_code}' \
+              -H "Authorization: Bearer $TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              https://api.github.com/repos/Tempestesscatt/Scripts 2>/tmp/curl_repo.err)
+            curl_rc=$?
+            echo "│   HTTP: $http | curl exit: $curl_rc"
+            grep -iE '^(HTTP|x-ratelimit-(limit|remaining|reset|resource)|retry-after|x-github-request-id|github-authentication-token-expiration)' \
+              /tmp/h_repo.txt 2>/dev/null | sed 's/^/│   /'
+            if [ -s /tmp/b_repo.json ]; then
+              jq -r '.message // ("OK, private=" + (.private|tostring))' /tmp/b_repo.json 2>/dev/null | sed 's/^/│   missatge: /'
+            fi
+            [ -s /tmp/curl_repo.err ] && sed 's/^/│   curl: /' /tmp/curl_repo.err
+            echo "│   (200=OK | 401=token rebutjat/caducat | 403=rate limit o permisos | 404=sense accés al repo)"
+            echo "│ ── API: /rate_limit"
+            curl -sS -m 20 -H "Authorization: Bearer $TOKEN" \
+              https://api.github.com/rate_limit 2>&1 |
+              jq -r '.resources | to_entries[] | select(.key=="core" or .key=="git" or .key=="search") |
+                "│   \(.key): \(.value.remaining)/\(.value.limit) restants; reset epoch UTC \(.value.reset)"' 2>&1
+          else
+            echo "│   Ometo la prova API perquè el secret és buit"
+          fi
+
           echo "│ ── githubstatus.com"
-          curl -sS -m 15 https://www.githubstatus.com/api/v2/status.json | jq -r '"│   " + .status.indicator + " - " + .status.description' 2>&1
-          curl -sS -m 15 https://www.githubstatus.com/api/v2/incidents/unresolved.json | jq -r '.incidents[] | "│   INCIDENT: " + .name + " (" + .status + ")"' 2>&1
+          curl -sS -m 15 https://www.githubstatus.com/api/v2/status.json 2>&1 |
+            jq -r '"│   " + .status.indicator + " - " + .status.description' 2>&1
+          curl -sS -m 15 https://www.githubstatus.com/api/v2/incidents/unresolved.json 2>&1 |
+            jq -r '.incidents[]? | "│   INCIDENT: " + .name + " (" + .status + ")"' 2>&1
+
           echo "│ ── Últimes línies del trace de git"
-          tail -n 40 /tmp/clone_$1.log | sed 's/^/│   /'
+          tail -n 40 "/tmp/clone_${intento}.log" 2>/dev/null | sed 's/^/│   /'
           echo "└────────────────────────────────────────────────────"
         }
+
+        if [ -z "${TOKEN:-}" ]; then
+          echo "::error title=Secret buit::PRIVATE_REPO_TOKEN no està definit per a aquest repositori/entorn."
+          exit 1
+        fi
 
         AUTH=$(printf 'x-access-token:%s' "$TOKEN" | base64 -w0)
         echo "::add-mask::$AUTH"
@@ -281,24 +338,27 @@ jobs:
         for i in 1 2 3 4 5 6; do
           echo "--- clonant private-scripts: intent $i/6 ($(date -u +%H:%M:%S) UTC) ---"
           rm -rf private-scripts-new
-          GIT_TRACE=1 GIT_CURL_VERBOSE=1 git -c http.version=HTTP/1.1 \
+          git -c http.version=HTTP/1.1 \
             -c "http.extraheader=AUTHORIZATION: basic $AUTH" \
             clone --depth 1 https://github.com/Tempestesscatt/Scripts.git private-scripts-new \
-            > /tmp/clone_$i.log 2>&1
+            >"/tmp/clone_$i.log" 2>&1
           RC=$?
-          if [ $RC -eq 0 ] && [ -d private-scripts-new/.git ]; then
-            echo "✅ Clonat a l'intent $i"
+
+          if [ "$RC" -eq 0 ] && [ -d private-scripts-new/.git ]; then
+            echo "✅ Clonat correctament a l'intent $i"
             OK=1
             break
           fi
+
           echo "❌ git clone ha fallat (codi $RC)"
-          grep -E '^(fatal|error|warning)' /tmp/clone_$i.log | sed 's/^/   /'
+          grep -E '^(fatal|error|warning)' "/tmp/clone_$i.log" | sed 's/^/   /'
           diag "$i"
-          [ "$i" = 6 ] && break
+          [ "$i" -eq 6 ] && break
           sleep $((i * 20))
         done
+
         if [ "$OK" != 1 ]; then
-          echo "::error title=No s'ha pogut clonar private-scripts::Mira el bloc DIAGNÒSTIC de l'últim intent (HTTP 401/403/404/5xx, rate limit i estat de GitHub)."
+          echo "::error title=No s'ha pogut clonar private-scripts::Consulta el bloc DIAGNÒSTIC: permisos del token, accés al repositori, rate limit o incidència de GitHub."
           exit 1
         fi
 
@@ -397,38 +457,65 @@ jobs:
         GIT_TERMINAL_PROMPT: "0"
       run: |
         set +e
+        set -uo pipefail
+        umask 077
+
         diag() {
-          echo "┌────────────── DIAGNÒSTIC (intent $1) ──────────────"
+          intento="$1"
+          echo "┌────────────── DIAGNÒSTIC (intent $intento) ──────────────"
           echo "│ Hora UTC: $(date -u +%H:%M:%S)"
-          if [ -z "$TOKEN" ]; then
-            echo "│ ❌ El secret PRIVATE_REPO_TOKEN està BUIT en aquest job"
+          if [ -z "${TOKEN:-}" ]; then
+            echo "│ ❌ El secret PRIVATE_REPO_TOKEN està buit en aquest job"
           else
             case "$TOKEN" in
-              github_pat_*) TIPUS="fine-grained (github_pat_)";;
-              ghp_*)        TIPUS="classic (ghp_)";;
-              ghs_*)        TIPUS="token d'app (ghs_)";;
-              *)            TIPUS="format desconegut";;
+              github_pat_*) tipus="fine-grained";;
+              ghp_*)        tipus="classic";;
+              ghs_*)        tipus="token d'app";;
+              *)            tipus="format desconegut";;
             esac
-            echo "│ Secret: ${#TOKEN} caràcters | tipus: $TIPUS"
+            echo "│ Secret present: ${#TOKEN} caràcters | tipus: $tipus"
           fi
+
           echo "│ ── API: GET /repos/Tempestesscatt/Scripts"
-          curl -sS -m 20 -D /tmp/h_repo.txt -o /tmp/b_repo.json \
-            -H "Authorization: Bearer $TOKEN" -H "Accept: application/vnd.github+json" \
-            https://api.github.com/repos/Tempestesscatt/Scripts
-          echo "│ curl exit: $?"
-          grep -iE '^(HTTP|x-ratelimit-(limit|remaining|reset|resource)|retry-after|x-github-request-id|github-authentication-token-expiration)' /tmp/h_repo.txt | sed 's/^/│   /'
-          echo "│   missatge: $(jq -r '.message // ("OK, private=" + (.private|tostring))' /tmp/b_repo.json 2>/dev/null)"
-          echo "│   (200=OK | 401=token rebutjat/caducat | 403=rate limit o sense permís | 404=sense accés al repo | 5xx=GitHub)"
-          echo "│ ── API: /rate_limit"
-          curl -sS -m 20 -H "Authorization: Bearer $TOKEN" https://api.github.com/rate_limit \
-            | jq -r '.resources | to_entries[] | select(.key=="core" or .key=="git" or .key=="search") | "│   \(.key): \(.value.remaining)/\(.value.limit) restants, reinici (epoch UTC) \(.value.reset)"' 2>&1
+          if [ -n "${TOKEN:-}" ]; then
+            http=$(curl -sS -m 20 -D /tmp/h_repo.txt -o /tmp/b_repo.json \
+              -w '%{http_code}' \
+              -H "Authorization: Bearer $TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              https://api.github.com/repos/Tempestesscatt/Scripts 2>/tmp/curl_repo.err)
+            curl_rc=$?
+            echo "│   HTTP: $http | curl exit: $curl_rc"
+            grep -iE '^(HTTP|x-ratelimit-(limit|remaining|reset|resource)|retry-after|x-github-request-id|github-authentication-token-expiration)' \
+              /tmp/h_repo.txt 2>/dev/null | sed 's/^/│   /'
+            if [ -s /tmp/b_repo.json ]; then
+              jq -r '.message // ("OK, private=" + (.private|tostring))' /tmp/b_repo.json 2>/dev/null | sed 's/^/│   missatge: /'
+            fi
+            [ -s /tmp/curl_repo.err ] && sed 's/^/│   curl: /' /tmp/curl_repo.err
+            echo "│   (200=OK | 401=token rebutjat/caducat | 403=rate limit o permisos | 404=sense accés al repo)"
+            echo "│ ── API: /rate_limit"
+            curl -sS -m 20 -H "Authorization: Bearer $TOKEN" \
+              https://api.github.com/rate_limit 2>&1 |
+              jq -r '.resources | to_entries[] | select(.key=="core" or .key=="git" or .key=="search") |
+                "│   \(.key): \(.value.remaining)/\(.value.limit) restants; reset epoch UTC \(.value.reset)"' 2>&1
+          else
+            echo "│   Ometo la prova API perquè el secret és buit"
+          fi
+
           echo "│ ── githubstatus.com"
-          curl -sS -m 15 https://www.githubstatus.com/api/v2/status.json | jq -r '"│   " + .status.indicator + " - " + .status.description' 2>&1
-          curl -sS -m 15 https://www.githubstatus.com/api/v2/incidents/unresolved.json | jq -r '.incidents[] | "│   INCIDENT: " + .name + " (" + .status + ")"' 2>&1
+          curl -sS -m 15 https://www.githubstatus.com/api/v2/status.json 2>&1 |
+            jq -r '"│   " + .status.indicator + " - " + .status.description' 2>&1
+          curl -sS -m 15 https://www.githubstatus.com/api/v2/incidents/unresolved.json 2>&1 |
+            jq -r '.incidents[]? | "│   INCIDENT: " + .name + " (" + .status + ")"' 2>&1
+
           echo "│ ── Últimes línies del trace de git"
-          tail -n 40 /tmp/clone_$1.log | sed 's/^/│   /'
+          tail -n 40 "/tmp/clone_${intento}.log" 2>/dev/null | sed 's/^/│   /'
           echo "└────────────────────────────────────────────────────"
         }
+
+        if [ -z "${TOKEN:-}" ]; then
+          echo "::error title=Secret buit::PRIVATE_REPO_TOKEN no està definit per a aquest repositori/entorn."
+          exit 1
+        fi
 
         AUTH=$(printf 'x-access-token:%s' "$TOKEN" | base64 -w0)
         echo "::add-mask::$AUTH"
@@ -437,24 +524,27 @@ jobs:
         for i in 1 2 3 4 5 6; do
           echo "--- clonant private-scripts: intent $i/6 ($(date -u +%H:%M:%S) UTC) ---"
           rm -rf private-scripts-new
-          GIT_TRACE=1 GIT_CURL_VERBOSE=1 git -c http.version=HTTP/1.1 \
+          git -c http.version=HTTP/1.1 \
             -c "http.extraheader=AUTHORIZATION: basic $AUTH" \
             clone --depth 1 https://github.com/Tempestesscatt/Scripts.git private-scripts-new \
-            > /tmp/clone_$i.log 2>&1
+            >"/tmp/clone_$i.log" 2>&1
           RC=$?
-          if [ $RC -eq 0 ] && [ -d private-scripts-new/.git ]; then
-            echo "✅ Clonat a l'intent $i"
+
+          if [ "$RC" -eq 0 ] && [ -d private-scripts-new/.git ]; then
+            echo "✅ Clonat correctament a l'intent $i"
             OK=1
             break
           fi
+
           echo "❌ git clone ha fallat (codi $RC)"
-          grep -E '^(fatal|error|warning)' /tmp/clone_$i.log | sed 's/^/   /'
+          grep -E '^(fatal|error|warning)' "/tmp/clone_$i.log" | sed 's/^/   /'
           diag "$i"
-          [ "$i" = 6 ] && break
+          [ "$i" -eq 6 ] && break
           sleep $((i * 20))
         done
+
         if [ "$OK" != 1 ]; then
-          echo "::error title=No s'ha pogut clonar private-scripts::Mira el bloc DIAGNÒSTIC de l'últim intent (HTTP 401/403/404/5xx, rate limit i estat de GitHub)."
+          echo "::error title=No s'ha pogut clonar private-scripts::Consulta el bloc DIAGNÒSTIC: permisos del token, accés al repositori, rate limit o incidència de GitHub."
           exit 1
         fi
 
@@ -570,38 +660,65 @@ jobs:
         GIT_TERMINAL_PROMPT: "0"
       run: |
         set +e
+        set -uo pipefail
+        umask 077
+
         diag() {
-          echo "┌────────────── DIAGNÒSTIC (intent $1) ──────────────"
+          intento="$1"
+          echo "┌────────────── DIAGNÒSTIC (intent $intento) ──────────────"
           echo "│ Hora UTC: $(date -u +%H:%M:%S)"
-          if [ -z "$TOKEN" ]; then
-            echo "│ ❌ El secret PRIVATE_REPO_TOKEN està BUIT en aquest job"
+          if [ -z "${TOKEN:-}" ]; then
+            echo "│ ❌ El secret PRIVATE_REPO_TOKEN està buit en aquest job"
           else
             case "$TOKEN" in
-              github_pat_*) TIPUS="fine-grained (github_pat_)";;
-              ghp_*)        TIPUS="classic (ghp_)";;
-              ghs_*)        TIPUS="token d'app (ghs_)";;
-              *)            TIPUS="format desconegut";;
+              github_pat_*) tipus="fine-grained";;
+              ghp_*)        tipus="classic";;
+              ghs_*)        tipus="token d'app";;
+              *)            tipus="format desconegut";;
             esac
-            echo "│ Secret: ${#TOKEN} caràcters | tipus: $TIPUS"
+            echo "│ Secret present: ${#TOKEN} caràcters | tipus: $tipus"
           fi
+
           echo "│ ── API: GET /repos/Tempestesscatt/Scripts"
-          curl -sS -m 20 -D /tmp/h_repo.txt -o /tmp/b_repo.json \
-            -H "Authorization: Bearer $TOKEN" -H "Accept: application/vnd.github+json" \
-            https://api.github.com/repos/Tempestesscatt/Scripts
-          echo "│ curl exit: $?"
-          grep -iE '^(HTTP|x-ratelimit-(limit|remaining|reset|resource)|retry-after|x-github-request-id|github-authentication-token-expiration)' /tmp/h_repo.txt | sed 's/^/│   /'
-          echo "│   missatge: $(jq -r '.message // ("OK, private=" + (.private|tostring))' /tmp/b_repo.json 2>/dev/null)"
-          echo "│   (200=OK | 401=token rebutjat/caducat | 403=rate limit o sense permís | 404=sense accés al repo | 5xx=GitHub)"
-          echo "│ ── API: /rate_limit"
-          curl -sS -m 20 -H "Authorization: Bearer $TOKEN" https://api.github.com/rate_limit \
-            | jq -r '.resources | to_entries[] | select(.key=="core" or .key=="git" or .key=="search") | "│   \(.key): \(.value.remaining)/\(.value.limit) restants, reinici (epoch UTC) \(.value.reset)"' 2>&1
+          if [ -n "${TOKEN:-}" ]; then
+            http=$(curl -sS -m 20 -D /tmp/h_repo.txt -o /tmp/b_repo.json \
+              -w '%{http_code}' \
+              -H "Authorization: Bearer $TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              https://api.github.com/repos/Tempestesscatt/Scripts 2>/tmp/curl_repo.err)
+            curl_rc=$?
+            echo "│   HTTP: $http | curl exit: $curl_rc"
+            grep -iE '^(HTTP|x-ratelimit-(limit|remaining|reset|resource)|retry-after|x-github-request-id|github-authentication-token-expiration)' \
+              /tmp/h_repo.txt 2>/dev/null | sed 's/^/│   /'
+            if [ -s /tmp/b_repo.json ]; then
+              jq -r '.message // ("OK, private=" + (.private|tostring))' /tmp/b_repo.json 2>/dev/null | sed 's/^/│   missatge: /'
+            fi
+            [ -s /tmp/curl_repo.err ] && sed 's/^/│   curl: /' /tmp/curl_repo.err
+            echo "│   (200=OK | 401=token rebutjat/caducat | 403=rate limit o permisos | 404=sense accés al repo)"
+            echo "│ ── API: /rate_limit"
+            curl -sS -m 20 -H "Authorization: Bearer $TOKEN" \
+              https://api.github.com/rate_limit 2>&1 |
+              jq -r '.resources | to_entries[] | select(.key=="core" or .key=="git" or .key=="search") |
+                "│   \(.key): \(.value.remaining)/\(.value.limit) restants; reset epoch UTC \(.value.reset)"' 2>&1
+          else
+            echo "│   Ometo la prova API perquè el secret és buit"
+          fi
+
           echo "│ ── githubstatus.com"
-          curl -sS -m 15 https://www.githubstatus.com/api/v2/status.json | jq -r '"│   " + .status.indicator + " - " + .status.description' 2>&1
-          curl -sS -m 15 https://www.githubstatus.com/api/v2/incidents/unresolved.json | jq -r '.incidents[] | "│   INCIDENT: " + .name + " (" + .status + ")"' 2>&1
+          curl -sS -m 15 https://www.githubstatus.com/api/v2/status.json 2>&1 |
+            jq -r '"│   " + .status.indicator + " - " + .status.description' 2>&1
+          curl -sS -m 15 https://www.githubstatus.com/api/v2/incidents/unresolved.json 2>&1 |
+            jq -r '.incidents[]? | "│   INCIDENT: " + .name + " (" + .status + ")"' 2>&1
+
           echo "│ ── Últimes línies del trace de git"
-          tail -n 40 /tmp/clone_$1.log | sed 's/^/│   /'
+          tail -n 40 "/tmp/clone_${intento}.log" 2>/dev/null | sed 's/^/│   /'
           echo "└────────────────────────────────────────────────────"
         }
+
+        if [ -z "${TOKEN:-}" ]; then
+          echo "::error title=Secret buit::PRIVATE_REPO_TOKEN no està definit per a aquest repositori/entorn."
+          exit 1
+        fi
 
         AUTH=$(printf 'x-access-token:%s' "$TOKEN" | base64 -w0)
         echo "::add-mask::$AUTH"
@@ -610,24 +727,27 @@ jobs:
         for i in 1 2 3 4 5 6; do
           echo "--- clonant private-scripts: intent $i/6 ($(date -u +%H:%M:%S) UTC) ---"
           rm -rf private-scripts-new
-          GIT_TRACE=1 GIT_CURL_VERBOSE=1 git -c http.version=HTTP/1.1 \
+          git -c http.version=HTTP/1.1 \
             -c "http.extraheader=AUTHORIZATION: basic $AUTH" \
             clone --depth 1 https://github.com/Tempestesscatt/Scripts.git private-scripts-new \
-            > /tmp/clone_$i.log 2>&1
+            >"/tmp/clone_$i.log" 2>&1
           RC=$?
-          if [ $RC -eq 0 ] && [ -d private-scripts-new/.git ]; then
-            echo "✅ Clonat a l'intent $i"
+
+          if [ "$RC" -eq 0 ] && [ -d private-scripts-new/.git ]; then
+            echo "✅ Clonat correctament a l'intent $i"
             OK=1
             break
           fi
+
           echo "❌ git clone ha fallat (codi $RC)"
-          grep -E '^(fatal|error|warning)' /tmp/clone_$i.log | sed 's/^/   /'
+          grep -E '^(fatal|error|warning)' "/tmp/clone_$i.log" | sed 's/^/   /'
           diag "$i"
-          [ "$i" = 6 ] && break
+          [ "$i" -eq 6 ] && break
           sleep $((i * 20))
         done
+
         if [ "$OK" != 1 ]; then
-          echo "::error title=No s'ha pogut clonar private-scripts::Mira el bloc DIAGNÒSTIC de l'últim intent (HTTP 401/403/404/5xx, rate limit i estat de GitHub)."
+          echo "::error title=No s'ha pogut clonar private-scripts::Consulta el bloc DIAGNÒSTIC: permisos del token, accés al repositori, rate limit o incidència de GitHub."
           exit 1
         fi
 
@@ -724,7 +844,7 @@ jobs:
     needs: [png_sfc, png_3d, png_derivats, manifest]
     if: ${{ !cancelled() && needs.png_sfc.result == 'success' && needs.png_3d.result == 'success' && needs.manifest.result == 'success' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 150
     steps:
     - uses: actions/checkout@v4
       with:
@@ -987,29 +1107,44 @@ jobs:
         exit 1
 
     # S'executa encara que el deploy hagi fallat: així les dades no es perden.
-    # El push gran d'un sol cop feia "HTTP 500 / remote end hung up". Ara es puja
-    # en paquets petits a una branca temporal (data-staging) i només al final
-    # es promou a 'data' (aquest últim push no envia dades: ja hi són).
-    # El token va en una capçalera (config del repo temporal), no a la URL.
-    # IMPORTANT: aquest pas REESCRIU 'data' sencera, així que ha d'incloure també
-    # la carpeta 'news' (notícies); si no, quedarien esborrades.
+    #
+    # Pujada en dues fases (el push gran d'un sol cop feia "HTTP 500 / hung up"):
+    #   1) paquets petits cap a la branca temporal 'data-staging'
+    #   2) promoció a 'data' amb un push que gairebé no envia dades
+    #
+    # ROBUSTESA CONTRA CURSES (el que va fallar amb "stale info"):
+    #   - Abans de CADA intent de promoció es llegeix l'estat ACTUAL de 'data' i es
+    #     refresquen les carpetes dels altres workflows + les notícies, de manera que
+    #     la finestra entre llegir i escriure és de segons, no de minuts.
+    #   - El push porta --force-with-lease amb l'SHA que acabem de llegir: si algú
+    #     escriu just en aquest instant, es detecta i es repeteix.
+    #   - Fins a 8 intents. TOTS els pushes són protegits amb --force-with-lease.
+    #     Si hi ha una cursa persistent, falla de manera segura: mai no trepitja
+    #     silenciosament un canvi aliè amb un --force incondicional.
+    #
+    # IMPORTANT: GitHub executa els "run" amb "bash -e". Amb "set +e" explícit els
+    # errors es gestionen a mà; sense ell el primer push fallit matava el pas i els
+    # reintents mai s'executaven.
+    # Aquest pas REESCRIU 'data' sencera, així que inclou també 'news' (notícies).
     - name: Guardar a la branca 'data' (per paquets)
+      id: guardar
       if: always() && steps.assemble.outcome == 'success'
-      timeout-minutes: 60
+      timeout-minutes: 75
       env:
         TOKEN: ${{ secrets.PRIVATE_REPO_TOKEN }}
         GIT_TERMINAL_PROMPT: "0"
       run: |
-        # Sense -e: gestionem els errors a mà (reintents)
+        set +e
         set -uo pipefail
         P="$GITHUB_WORKSPACE/meu-mapa/public"
         REMOTE_URL="https://github.com/Tempestesscatt/joctempestes.git"
         AUTH=$(printf 'x-access-token:%s' "$TOKEN" | base64 -w0)
         echo "::add-mask::$AUTH"
-        EXPECT=$(cat "$RUNNER_TEMP/data_sha")
+        SHA_INICIAL=$(cat "$RUNNER_TEMP/data_sha" 2>/dev/null || echo none)
         DER_NOU=$(cat "$RUNNER_TEMP/derivats_nou" 2>/dev/null || echo 0)
         MSG="arome png $(date -u +'%Y-%m-%d %H:%M UTC')"
         CHUNK=800          # fitxers per paquet (≈ 40-80 MB)
+        MAX_PROMO=8        # intents de promoció a 'data'
         T0=$(date +%s)
         tick() { echo "  ⏱  $1: $(( $(date +%s) - T0 ))s"; }
 
@@ -1052,12 +1187,71 @@ jobs:
         echo "$TOTAL fitxers en $NCH paquets"
 
         push_staging() {
-          for k in 1 2 3 4 5; do
+          for k in 1 2 3 4 5 6; do
             if timeout 900 git push --force origin HEAD:refs/heads/data-staging; then return 0; fi
-            echo "  push fallit (intent $k/5)"
+            echo "  push fallit (intent $k/6)"
             sleep $((k * 10))
           done
           return 1
+        }
+
+        # ── Llegeix l'SHA actual de 'data' (buit = no existeix; "ERR" = GitHub no respon)
+        llegir_data() {
+          local out k
+          for k in 1 2 3 4 5; do
+            if out=$(timeout 90 git ls-remote origin refs/heads/data 2>/dev/null); then
+              echo "$out" | cut -f1
+              return 0
+            fi
+            sleep $((k * 5))
+          done
+          echo "ERR"
+          return 1
+        }
+
+        # ── Baixa 'data' i copia a /tmp/publish el que NO és nostre (altres workflows + notícies).
+        #    Deixa a FRESC_SHA l'SHA exacte que s'ha baixat (és el que protegirà el push).
+        FRESC_SHA=""
+        refrescar() {
+          local k ok=0 c
+          FRESC_SHA=""
+          for k in 1 2 3; do
+            if ( cd "$GITHUB_WORKSPACE" && timeout 300 git fetch --depth=1 origin data ); then ok=1; break; fi
+            sleep $((k * 10))
+          done
+          [ "$ok" = 1 ] || return 1
+          FRESC_SHA=$( cd "$GITHUB_WORKSPACE" && git rev-parse FETCH_HEAD ) || return 1
+          [ -n "$FRESC_SHA" ] || return 1
+          rm -rf /tmp/data-fresc
+          ( cd "$GITHUB_WORKSPACE" && git worktree prune && git worktree add -f /tmp/data-fresc "$FRESC_SHA" ) || return 1
+
+          for c in $CARPETES; do
+            # Les nostres: web_data_NE sempre; web_data_derivats només si n'hem generat de nous
+            [ "$c" = "web_data_NE" ] && continue
+            if [ "$c" = "web_data_derivats" ] && [ "$DER_NOU" = "1" ]; then continue; fi
+            rm -rf "/tmp/publish/$c"
+            if [ -d "/tmp/data-fresc/$c" ]; then cp -r "/tmp/data-fresc/$c" /tmp/publish/; fi
+          done
+          # Notícies: les més noves (potser el workflow de notícies n'ha pujat de noves)
+          rm -rf /tmp/publish/news
+          if [ -d /tmp/data-fresc/news ]; then cp -r /tmp/data-fresc/news /tmp/publish/; fi
+          mkdir -p /tmp/publish/js
+          rm -f /tmp/publish/js/status.js
+          if [ -f /tmp/data-fresc/js/status.js ]; then cp /tmp/data-fresc/js/status.js /tmp/publish/js/status.js; fi
+
+          ( cd "$GITHUB_WORKSPACE" && git worktree remove /tmp/data-fresc --force )
+          return 0
+        }
+
+        # ── Commit només amb el que s'ha refrescat (no re-hasheja els 6 GB)
+        commit_refresc() {
+          local c
+          for c in $CARPETES news js; do
+            [ "$c" = "web_data_NE" ] && continue
+            GIT_LITERAL_PATHSPECS=1 git add -A -- "$c" 2>/dev/null
+          done
+          git commit -q -m "$MSG (refresc)" 2>/dev/null
+          return 0
         }
 
         # 1) Paquets petits cap a la branca temporal
@@ -1068,54 +1262,48 @@ jobs:
           git commit -q -m "$MSG ($I/$NCH)"
           echo "=== Paquet $I/$NCH ==="
           if ! push_staging; then
-            echo "No s'ha pogut pujar el paquet $I/$NCH (la web SÍ s'ha desplegat a Cloudflare)"
+            echo "::error::No s'ha pogut pujar el paquet $I/$NCH (la web SÍ s'ha desplegat a Cloudflare)"
             exit 1
           fi
           tick "paquet $I/$NCH"
         done
 
-        # 2) Promoure a 'data' (atòmic: tot o res; no envia dades noves)
+        # 2) Promoure a 'data'
         PUBLICAT=0
-        for INTENT in 1 2 3 4 5; do
-          echo "=== Promoure a 'data' (intent $INTENT/5) ==="
-          if [ "$EXPECT" = "none" ]; then
-            timeout 600 git push origin HEAD:refs/heads/data
-          else
-            # Només sobreescriu si 'data' és exactament el que vam llegir
-            timeout 600 git push --force-with-lease="data:$EXPECT" origin HEAD:refs/heads/data
-          fi
-          RC=$?
-          if [ $RC -eq 0 ]; then PUBLICAT=1; break; fi
-          echo "Promoció fallida (codi $RC)"
+        for INTENT in $(seq 1 "$MAX_PROMO"); do
+          echo "=== Promoure a 'data' (intent $INTENT/$MAX_PROMO) ==="
 
-          NOU=$(git ls-remote origin refs/heads/data | cut -f1)
-          if [ -n "$NOU" ] && [ "$NOU" != "$EXPECT" ]; then
-            echo "'data' ha canviat ($EXPECT -> $NOU): refresco les carpetes d'altres workflows (i les notícies)"
-            if ( cd "$GITHUB_WORKSPACE" \
-                 && git fetch --depth=1 origin data \
-                 && rm -rf /tmp/data-branch2 \
-                 && git worktree prune \
-                 && git worktree add -f /tmp/data-branch2 FETCH_HEAD ); then
-              for c in $CARPETES; do
-                # Les nostres: web_data_NE sempre; web_data_derivats només si n'hem generat de nous
-                [ "$c" = "web_data_NE" ] && continue
-                if [ "$c" = "web_data_derivats" ] && [ "$DER_NOU" = "1" ]; then continue; fi
-                rm -rf "/tmp/publish/$c"
-                cp -r "/tmp/data-branch2/$c" /tmp/publish/ 2>/dev/null || true
-              done
-              # Notícies: agafem les més noves (potser el workflow de notícies ha pujat unes de noves)
-              rm -rf /tmp/publish/news
-              cp -r /tmp/data-branch2/news /tmp/publish/ 2>/dev/null || true
-              mkdir -p /tmp/publish/js
-              cp /tmp/data-branch2/js/status.js /tmp/publish/js/status.js 2>/dev/null || true
-              ( cd "$GITHUB_WORKSPACE" && git worktree remove /tmp/data-branch2 --force )
-              git add -A
-              git commit -q -m "$MSG (refresc)" || true
-              push_staging || true
-              EXPECT="$NOU"
-            fi
+          ACTUAL=$(llegir_data)
+          if [ "$ACTUAL" = "ERR" ]; then
+            echo "  GitHub no respon (ls-remote); reintento"
+            sleep $((INTENT * 10))
+            continue
           fi
-          sleep $((RANDOM % 10 + 5))
+
+          if [ -z "$ACTUAL" ]; then
+            echo "  'data' no existeix: es crea"
+            timeout 600 git push origin HEAD:refs/heads/data
+            RC=$?
+          else
+            if ! refrescar; then
+              echo "  no s'ha pogut refrescar 'data'; reintento"
+              sleep $((INTENT * 10))
+              continue
+            fi
+            commit_refresc
+            echo "  Inicial: $SHA_INICIAL"
+            echo "  Ara 'data': $FRESC_SHA"
+            [ "$FRESC_SHA" = "$SHA_INICIAL" ] || echo "  (altres workflows han escrit a 'data' mentre treballàvem: ja està integrat)"
+
+            # També l'últim intent és protegit: no fem mai --force incondicional.
+            timeout 600 git push --force-with-lease="data:$FRESC_SHA" origin HEAD:refs/heads/data
+            RC=$?
+          fi
+
+          if [ "$RC" -eq 0 ]; then PUBLICAT=1; break; fi
+          echo "  Promoció fallida (codi $RC)"
+          echo "  Ara 'data' és: $(git ls-remote origin refs/heads/data 2>/dev/null | cut -f1)"
+          sleep $((RANDOM % 10 + 5 + INTENT * 3))
         done
         tick "promoció"
 
@@ -1123,10 +1311,10 @@ jobs:
         timeout 120 git push origin --delete data-staging || true
 
         if [ "$PUBLICAT" != "1" ]; then
-          echo "No s'ha pogut promoure a 'data' (la web SÍ s'ha desplegat a Cloudflare)"
+          echo "::error::No s'ha pogut promoure a 'data' després de $MAX_PROMO intents (la web SÍ s'ha desplegat a Cloudflare)"
           exit 1
         fi
-        echo "Publicat a 'data'"
+        echo "Publicat a 'data' ($(git rev-parse --short HEAD))"
 
     - name: Completat
       run: echo "Deploy completat $(date -u)"
@@ -1138,6 +1326,7 @@ jobs:
         echo "## Resultat per pas (deploy)" >> "$GITHUB_STEP_SUMMARY"
         echo "- Assemblar web: \`${{ steps.assemble.outcome }}\`" >> "$GITHUB_STEP_SUMMARY"
         echo "- Deploy Cloudflare: \`${{ steps.deploy.outcome }}\`" >> "$GITHUB_STEP_SUMMARY"
+        echo "- Guardar a 'data': \`${{ steps.guardar.outcome }}\`" >> "$GITHUB_STEP_SUMMARY"
         echo "- Job derivats: \`${{ needs.png_derivats.result }}\`" >> "$GITHUB_STEP_SUMMARY"
         echo "" >> "$GITHUB_STEP_SUMMARY"
         echo "Si un clonat de private-scripts ha fallat, busca el bloc DIAGNÒSTIC al pas 'Clonar private-scripts (amb diagnòstic)' del job corresponent." >> "$GITHUB_STEP_SUMMARY"

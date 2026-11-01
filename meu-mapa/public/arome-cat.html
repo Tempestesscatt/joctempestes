@@ -992,7 +992,7 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
 
     // Clic en filas del panel (captura): el botón "i" de ayuda siempre funciona
     document.addEventListener('click', function(e) {
-        if (e.target.closest('.param-info-btn')) return;
+        if (e.target.closest('.param-info-btn, .fav-star')) return;
         const row = e.target.closest('#panell-pro .param-row');
         if (!row) return;
         const nivell = nivellFila(row);
@@ -1108,7 +1108,8 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
 
 
 <script defer src="js/mapapngs.min.js"></script>
-   <script defer src="js/offline.js"></script>
+   <script defer src="js/preferits.js?v=2"></script>
+<script defer src="js/offline.js"></script>
 <script defer src="js/hores.js"></script>
 <script defer src="js/gfspngs.js"></script>
 <script defer src="js/models.js"></script>
