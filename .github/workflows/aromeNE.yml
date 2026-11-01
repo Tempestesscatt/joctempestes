@@ -670,6 +670,7 @@ jobs:
     # info.py llegeix IMATGES_DIR de l'entorn nativament (sense sed)
     - name: Executar info.py (info_run.json)
       timeout-minutes: 5
+      continue-on-error: true
       run: |
         cd private-scripts-new
         python3 info.py
