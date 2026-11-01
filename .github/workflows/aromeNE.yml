@@ -469,7 +469,7 @@ jobs:
           sleep 15
         done
         python3 -m pip install --retries 5 --upgrade pip
-        python3 -m pip install --retries 5 numpy requests scipy xarray cfgrib eccodes meteofetch matplotlib pillow
+        python3 -m pip install --retries 5 numpy requests scipy xarray cfgrib eccodes meteofetch matplotlib pillow tifffile
 
     # arome_derivats_png.py llegeix IMATGES_DIR de l'entorn nativament (sense sed)
     - name: Preparar la clau
