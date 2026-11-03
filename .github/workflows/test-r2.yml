@@ -1,0 +1,102 @@
+name: Test R2 (prova de pujada)
+
+# Prova aïllada: puja fitxers falsos a R2 per mesurar velocitat i validar credencials.
+# No toca la web, ni la branca 'data', ni cap altre workflow.
+on:
+  workflow_dispatch:
+    inputs:
+      fitxers:
+        description: "Nombre de fitxers falsos"
+        default: "300"
+      mida_kb:
+        description: "Mida de cada fitxer (KB)"
+        default: "700"
+      url_publica:
+        description: "URL pública base del bucket (opcional, p. ex. https://dades.tudomini.cat)"
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      RCLONE_CONFIG_R2_TYPE: s3
+      RCLONE_CONFIG_R2_PROVIDER: Cloudflare
+      RCLONE_CONFIG_R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      RCLONE_CONFIG_R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+      RCLONE_CONFIG_R2_ENDPOINT: https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com
+      # Imprescindible amb un token limitat a un bucket: sense això rclone intenta crear-lo i dóna 403
+      RCLONE_CONFIG_R2_NO_CHECK_BUCKET: "true"
+      BUCKET: ${{ secrets.R2_BUCKET }}
+      N_FITXERS: ${{ inputs.fitxers }}
+      MIDA_KB: ${{ inputs.mida_kb }}
+      URL_PUBLICA: ${{ inputs.url_publica }}
+    steps:
+    - name: Comprovar secrets
+      run: |
+        for v in RCLONE_CONFIG_R2_ACCESS_KEY_ID RCLONE_CONFIG_R2_SECRET_ACCESS_KEY BUCKET; do
+          [ -n "${!v}" ] || { echo "::error::Falta el secret associat a $v"; exit 1; }
+        done
+        case "$RCLONE_CONFIG_R2_ENDPOINT" in
+          https://.r2.*) echo "::error::Falta el secret CLOUDFLARE_ACCOUNT_ID"; exit 1;;
+        esac
+        echo "Secrets OK (bucket: $BUCKET)"
+
+    - name: Instal·lar rclone
+      run: |
+        for i in 1 2 3; do
+          curl -fsSL https://rclone.org/install.sh | sudo bash && break
+          sleep 10
+        done
+        rclone version | head -n 1
+
+    - name: Generar fitxers falsos
+      run: |
+        mkdir -p prova/imatges
+        for i in $(seq 1 "$N_FITXERS"); do
+          head -c $(( MIDA_KB * 1024 )) /dev/urandom > "prova/imatges/prova_$(printf '%04d' "$i").png"
+        done
+        echo "$(find prova -type f | wc -l) fitxers, $(du -sh prova | cut -f1)"
+
+    - name: Pujar a R2 (cronometrat)
+      run: |
+        INICI=$(date +%s.%N)
+        rclone copy prova "r2:$BUCKET/_test" \
+          --transfers 32 --checkers 16 \
+          --stats 10s --stats-one-line -v
+        FI=$(date +%s.%N)
+        BYTES=$(find prova -type f -printf '%s\n' | awk '{s+=$1} END {print s}')
+        python3 - <<PY
+        t = $FI - $INICI
+        mb = $BYTES / 1048576
+        print(f"⏱  Pujada: {t:.1f} s | {mb:.0f} MB | {mb/t:.1f} MB/s | {int($N_FITXERS)/t:.1f} fitxers/s")
+        print(f"   Extrapolació a 8.000 fitxers del mateix pes: ~{t*8000/int($N_FITXERS)/60:.1f} min")
+        PY
+
+    - name: Verificar (llistat i descàrrega amb checksum)
+      run: |
+        N=$(rclone lsf "r2:$BUCKET/_test/imatges" | wc -l)
+        echo "Objectes a R2: $N (esperats: $N_FITXERS)"
+        [ "$N" = "$N_FITXERS" ] || { echo "::error::El nombre d'objectes no coincideix"; exit 1; }
+        rclone copyto "r2:$BUCKET/_test/imatges/prova_0001.png" /tmp/baixat.png
+        A=$(sha256sum prova/imatges/prova_0001.png | cut -d' ' -f1)
+        B=$(sha256sum /tmp/baixat.png | cut -d' ' -f1)
+        [ "$A" = "$B" ] && echo "✅ Checksum idèntic" || { echo "::error::Checksum diferent"; exit 1; }
+
+    - name: Comprovar URL pública (opcional)
+      if: ${{ inputs.url_publica != '' }}
+      run: |
+        URL="${URL_PUBLICA%/}/_test/imatges/prova_0001.png"
+        echo "GET $URL"
+        curl -sS -D - -o /dev/null -H "Origin: https://tempestes-cat.pages.dev" "$URL" | head -n 20
+        CODI=$(curl -s -o /dev/null -w '%{http_code}' "$URL")
+        [ "$CODI" = "200" ] && echo "✅ URL pública OK (200)" || { echo "::error::URL pública respon $CODI"; exit 1; }
+
+    - name: Netejar fitxers de prova
+      if: always()
+      run: |
+        rclone purge "r2:$BUCKET/_test" || true
+        echo "Prova esborrada de R2"
