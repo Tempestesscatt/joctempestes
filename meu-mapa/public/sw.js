@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════════
-//  sw.js (v4) — Service Worker del visor: guardat passiu + mode offline
+//  sw.js (v5) — Service Worker del visor: guardat passiu + mode offline
 //  Ubicació: a la MATEIXA carpeta que el HTML del visor.
 //
 //  Memòries cau:
@@ -7,18 +7,13 @@
 //   · tc-data-<versio>    → dades AROME (web_data_NE) i /dades/
 //   · tc-data-der-<versio>→ dades dels derivats (web_data_derivats)
 //
-//  CANVIS v4 (per evitar que es vegi la versió antiga):
-//   · HTML i JS propis: xarxa primer amb cache:'no-cache' → mai surt de la
-//     caché HTTP del navegador ni de Cloudflare sense revalidar.
-//   · Precàrrega corregida: js/mapapngs.min.js (abans només mapapngs.js).
-//   · web_data_derivats ara compta com a dades: es versiona, es processa el
-//     negre→blanc (?nb=1) i no s'acumula a la caché del shell.
-//   · Neteja per separat: el manifest d'AROME i el dels derivats ja no
-//     s'esborren les caches l'un a l'altre.
+//  CANVIS v5:
+//   · Evita interceptar el document principal (/, .html). Així Cloudflare Pages 
+//     pot servir la web, i R2 només s'encarrega de les dades (.enc).
 // ═══════════════════════════════════════════════════════════════════
 'use strict';
 
-const SHELL = 'tc-shell-v2';
+const SHELL = 'tc-shell-v3'; // He pujat a v3 per forçar l'actualització de la caché
 const DATA_PREFIX = 'tc-data-';
 const DER_PREFIX = DATA_PREFIX + 'der-';
 const CACHE_PASSIU = true;   // true: guarda automàticament el que es veu. false: només el que es descarrega amb el botó
@@ -78,7 +73,7 @@ self.addEventListener('install', e => {
 
 self.addEventListener('activate', e => {
     e.waitUntil((async () => {
-        // Esborra versions antigues del shell (tc-shell-v1, tempestes-v2...), però respecta tc-data-*
+        // Esborra versions antigues del shell
         for (const k of await caches.keys()) {
             if (k !== SHELL && !k.startsWith(DATA_PREFIX)) await caches.delete(k);
         }
@@ -97,6 +92,15 @@ self.addEventListener('fetch', e => {
         return;
     }
     if (url.pathname.startsWith('/api/')) return;
+
+    // ═══════════════════════════════════════════════════════════════════
+    // CANVI CLAU: Si la petició és per la pàgina web (HTML), no la interceptem.
+    // Així el navegador la demana directament a Cloudflare Pages.
+    // ═══════════════════════════════════════════════════════════════════
+    if (url.pathname === '/' || url.pathname === '/index.html' || url.pathname.endsWith('.html')) {
+        return; 
+    }
+
     if (url.pathname.endsWith('/sw-ping')) {
         e.respondWith(new Response(JSON.stringify({ nb: SUPORT_NB }),
             { headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' } }));
@@ -107,6 +111,8 @@ self.addEventListener('fetch', e => {
     const v = url.searchParams.get('v');
     if (!fresc && v && DADES.test(url.pathname)) { e.respondWith(dadesVersionades(e, req, v)); return; }
     if (!fresc && DADES.test(url.pathname)) { e.respondWith(dadesSenseVersio(req)); return; }
+    
+    // Per la resta de fitxers estàtics (JS, CSS, imatges), sí que els gestionem
     e.respondWith(xarxaPrimer(e, req, 4000));
 });
 
@@ -123,7 +129,6 @@ async function dadesVersionades(e, req, v) {
             try { r = await processarNegre(r); }
             catch { r = original; guardar = false; }      // si falla: es serveix l'original i no es guarda
         }
-        // Si la petició ve del botó de descàrrega, ja la guarda la pàgina: no escrivim dues vegades
         if (guardar && CACHE_PASSIU && r.status === 200 && !req.headers.has('X-TC-Descarrega')) {
             const copia = r.clone();
             const nomCache = (ES_DERIVATS.test(u.pathname) ? DER_PREFIX : DATA_PREFIX) + v;
@@ -146,8 +151,6 @@ async function dadesSenseVersio(req) {
     }
 }
 
-// Quan arriba un manifest de xarxa, la seva "versio" mana: s'esborren les dades d'altres versions
-// DEL MATEIX GRUP (AROME o derivats). Cada grup té el seu prefix i no toca l'altre.
 async function netejarVelles(resp, esDer) {
     try {
         const m = await resp.json();
@@ -164,9 +167,6 @@ async function netejarVelles(resp, esDer) {
     } catch {}
 }
 
-// Xarxa primer (HTML, JS, manifest...), SEMPRE revalidant amb el servidor (cache:'no-cache'),
-// amb límit de temps si ja hi ha còpia (mala connexió).
-// La clau no porta ?_cb= → una sola còpia de cada fitxer, mai s'acumulen.
 async function xarxaPrimer(e, req, ms) {
     const cache = await caches.open(SHELL);
     const clau = clauNeta(req.url);

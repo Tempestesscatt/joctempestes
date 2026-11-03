@@ -104,6 +104,49 @@ jobs:
         path: 3d.tar
 
   # ════════════════════════════════════════════════════════════════
+  # JOB 2b: Generar PNGs DERIVATS
+  # ════════════════════════════════════════════════════════════════
+  png_derivats:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    continue-on-error: true
+    env:
+      IMATGES_DIR: ${{ github.workspace }}/out-derivats/imatges
+    steps:
+    - name: Clonar private-scripts
+      env:
+        TOKEN: ${{ secrets.PRIVATE_REPO_TOKEN }}
+      run: |
+        git clone --depth 1 https://x-access-token:${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/Tempestesscatt/Scripts.git private-scripts-new
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    - name: Instal·lar dependencies
+      run: |
+        sudo apt-get update -qq && sudo apt-get install -y -qq libgeos-dev libproj-dev proj-data proj-bin
+        python3 -m pip install --retries 5 numpy requests scipy xarray cfgrib eccodes meteofetch matplotlib pillow tifffile
+    - name: Preparar scripts
+      run: |
+        mkdir -p "$IMATGES_DIR"
+        cd private-scripts-new
+        ls arome_derivats_png.py || { echo "Falta arome_derivats_png.py"; exit 1; }
+        python3 -c 'import json; cfg = json.load(open("configNE.json", "r", encoding="utf-8-sig")); cfg["api_key"] = "${{ secrets.AROME_API_KEY }}"; json.dump(cfg, open("configNE.json", "w", encoding="utf-8"), indent=2)'
+    - name: Executar derivats
+      run: |
+        cd private-scripts-new
+        python3 arome_derivats_png.py --isolinies "${ISOLINIES_DERIVATS:-suau}"
+    - name: Verificar derivats
+      run: |
+        [ -f "$IMATGES_DIR/manifest.json" ] || { echo "Falta manifest.json dels derivats"; exit 1; }
+    - name: Empaquetar derivats
+      run: tar -cf derivats.tar -C "$IMATGES_DIR" .
+    - name: Pujar artifact derivats
+      uses: actions/upload-artifact@v4
+      with:
+        name: png-derivats
+        path: derivats.tar
+
+  # ════════════════════════════════════════════════════════════════
   # JOB 3: MANIFEST + INFO_RUN (SFC + 3D junts)
   # ════════════════════════════════════════════════════════════════
   manifest:
@@ -156,7 +199,6 @@ jobs:
         if [ -f "$IMATGES_DIR/info_run.json" ]; then
           tar -rf manifest.tar -C "$IMATGES_DIR" info_run.json
         fi
-        # També empaquetem el manifest_outlook.json si existeix per assegurar-nos que es puja
         if [ -f "$IMATGES_DIR/manifest_outlook.json" ]; then
           tar -rf manifest.tar -C "$IMATGES_DIR" manifest_outlook.json
         fi
@@ -167,12 +209,13 @@ jobs:
         path: manifest.tar
 
   # ════════════════════════════════════════════════════════════════
-  # JOB 4: Xifrar i Pujar a R2 (SFC + 3D + Manifest)
+  # JOB 4: Xifrar i Pujar a R2
   # ════════════════════════════════════════════════════════════════
   xifrar_i_pujar_r2:
     runs-on: ubuntu-latest
     timeout-minutes: 120
-    needs: [png_sfc, png_3d, manifest]
+    needs: [png_sfc, png_3d, png_derivats, manifest]
+    if: ${{ always() && needs.png_sfc.result == 'success' && needs.png_3d.result == 'success' }}
     steps:
     - name: Descarregar SFC
       uses: actions/download-artifact@v4
@@ -182,6 +225,10 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: png-3d
+    - name: Descarregar Derivats
+      uses: actions/download-artifact@v4
+      with:
+        name: png-derivats
     - name: Descarregar Manifest
       uses: actions/download-artifact@v4
       with:
@@ -194,17 +241,36 @@ jobs:
       env:
         KEY: ${{ secrets.ENCRYPT_KEY }}
       run: |
-        mkdir -p /tmp/publicar/imatges
-        tar -xf sfc.tar -C /tmp/publicar/imatges
-        tar -xf 3d.tar -C /tmp/publicar/imatges
-        tar -xf manifest.tar -C /tmp/publicar/imatges
+        mkdir -p /tmp/publicar/ne/imatges
+        mkdir -p /tmp/publicar/der/imatges
         
-        # Xifrem absolutament TOTS els fitxers (PNG, JSON, JS d'isolínies, etc.)
-        find /tmp/publicar/imatges -type f | while read -r f; do
+        tar -xf sfc.tar -C /tmp/publicar/ne/imatges
+        tar -xf 3d.tar -C /tmp/publicar/ne/imatges
+        tar -xf manifest.tar -C /tmp/publicar/ne/imatges
+        
+        if [ -f derivats.tar ]; then
+          tar -xf derivats.tar -C /tmp/publicar/der/imatges
+        fi
+        
+        # Guardem l'info_run.json en pla per pujar-lo sense xifrar
+        cp /tmp/publicar/ne/imatges/info_run.json /tmp/publicar/info_run.json 2>/dev/null || true
+        
+        # Xifrem absolutament TOTS els altres fitxers (NE)
+        find /tmp/publicar/ne/imatges -type f | while read -r f; do
           openssl enc -aes-256-cbc -salt -pass pass:"$KEY" -in "$f" -out "${f}.enc"
           rm "$f"
         done
-        echo "Fitxers a pujar (xifrats): $(find /tmp/publicar/imatges -type f | wc -l)"
+        
+        # Xifrem absolutament TOTS els altres fitxers (DERIVATS)
+        if [ -d /tmp/publicar/der/imatges ]; then
+          find /tmp/publicar/der/imatges -type f | while read -r f; do
+            openssl enc -aes-256-cbc -salt -pass pass:"$KEY" -in "$f" -out "${f}.enc"
+            rm "$f"
+          done
+        fi
+        
+        echo "Fitxers NE a pujar: $(find /tmp/publicar/ne/imatges -type f | wc -l)"
+        echo "Fitxers DER a pujar: $(find /tmp/publicar/der/imatges -type f | wc -l)"
     - name: Pujar a R2
       env:
         RCLONE_CONFIG_R2_TYPE: s3
@@ -215,4 +281,15 @@ jobs:
         RCLONE_CONFIG_R2_NO_CHECK_BUCKET: "true"
         BUCKET: ${{ secrets.R2_BUCKET }}
       run: |
-        rclone copy /tmp/publicar/imatges "r2:$BUCKET/web_data_NE/imatges" --transfers 32 --checkers 16 -v
+        # Pugem SFC + 3D + Manifest + Outlooks
+        rclone copy /tmp/publicar/ne/imatges "r2:$BUCKET/web_data_NE/imatges" --transfers 32 --checkers 16 -v
+        
+        # Pugem els derivats
+        if [ -d /tmp/publicar/der/imatges ]; then
+          rclone copy /tmp/publicar/der/imatges "r2:$BUCKET/web_data_derivats/imatges" --transfers 32 --checkers 16 -v
+        fi
+        
+        # Pugem l'info_run.json sense xifrar
+        if [ -f /tmp/publicar/info_run.json ]; then
+          rclone copy /tmp/publicar/info_run.json "r2:$BUCKET/web_data_NE/imatges" -v
+        fi

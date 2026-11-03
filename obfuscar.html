@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TEMPESTSTRIKE PRO - Blindatge de Codi</title>
+    <script src="https://cdn.jsdelivr.net/npm/javascript-obfuscator/dist/index.browser.js"></script>
+    <style>
+        :root { --red: #c0392b; --gold: #b8860b; --bg: #0b0e14; --box: #161b22; --text: #c9d1d9; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; display: flex; flex-direction: column; height: 100vh; box-sizing: border-box; }
+        h1 { color: var(--red); font-size: 22px; margin: 0 0 10px 0; letter-spacing: 1px; }
+        .container { display: flex; gap: 20px; flex: 1; min-height: 0; }
+        .panel { flex: 1; display: flex; flex-direction: column; }
+        label { font-size: 12px; text-transform: uppercase; margin-bottom: 5px; color: #8b949e; font-weight: bold; }
+        textarea { flex: 1; background: var(--box); color: #00ff41; border: 1px solid #30363d; border-radius: 6px; padding: 15px; font-family: 'Consolas', monospace; font-size: 13px; resize: none; outline: none; }
+        textarea:focus { border-color: var(--red); }
+        .toolbar { padding: 15px 0; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        button { padding: 12px 25px; background: var(--red); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        button:hover { background: #e74c3c; transform: translateY(-1px); }
+        button:disabled { background: #555; cursor: not-allowed; }
+        .status { font-size: 13px; color: #8b949e; }
+        #downloadBtn { background: #238636; display: none; }
+        #downloadBtn:hover { background: #2ea043; }
+
+        .profile-selector { display: flex; gap: 10px; align-items: center; padding-bottom: 12px; border-bottom: 1px solid #30363d; margin-bottom: 12px; }
+        .profile-selector span { font-size: 12px; color: #8b949e; text-transform: uppercase; font-weight: bold; }
+        .profile-btn { padding: 8px 18px; background: var(--box); color: var(--text); border: 1px solid #30363d; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; }
+        .profile-btn.active[data-profile="normal"] { background: var(--red); border-color: var(--red); color: white; }
+        .profile-btn.active[data-profile="oro"] { background: var(--gold); border-color: var(--gold); color: white; }
+        .profile-desc { font-size: 12px; color: #8b949e; margin-left: 8px; }
+        #runBtn.oro { background: var(--gold); }
+        #runBtn.oro:hover { background: #d4a017; }
+        .filename-row { display: flex; gap: 8px; align-items: center; }
+        .filename-row input { background: var(--box); color: var(--text); border: 1px solid #30363d; border-radius: 4px; padding: 8px 10px; font-family: 'Consolas', monospace; font-size: 12px; width: 200px; }
+    </style>
+</head>
+<body>
+
+    <h1>🛡️ TEMPESTSTRIKE PRO <span style="color:#555; font-size: 12px;">| OBFUSCATOR ENGINE v2.1 — 2 PERFILS</span></h1>
+
+    <div class="profile-selector">
+        <span>Perfil:</span>
+        <button class="profile-btn active" data-profile="normal" onclick="setProfile('normal')">🔴 NORMAL (ràpid)</button>
+        <button class="profile-btn" data-profile="oro" onclick="setProfile('oro')">🟡 ORO PURO (lògica crítica)</button>
+        <span class="profile-desc" id="profileDesc">Ús general: utilitats, helpers, scripts que no contenen lògica única.</span>
+    </div>
+
+    <div class="container">
+        <div class="panel">
+            <label>Codi Font (Original)</label>
+            <textarea id="inputCode" placeholder="Enganxa el teu codi net aquí..."></textarea>
+        </div>
+        <div class="panel">
+            <label>Codi Blindat (Resultat)</label>
+            <textarea id="outputCode" readonly placeholder="El codi protegit apareixerà aquí..."></textarea>
+        </div>
+    </div>
+
+    <div class="toolbar">
+        <button id="runBtn" onclick="protegirCodi()">GENERAR BLINDATGE</button>
+        <div class="filename-row">
+            <input type="text" id="filenameInput" value="script.min.js" placeholder="nom-fitxer.js">
+        </div>
+        <button id="downloadBtn" onclick="descarregar()">BAIXAR FITXER .JS</button>
+        <span id="status" class="status">Preparat per processar fitxers grans.</span>
+    </div>
+
+    <script>
+        let currentProfile = 'normal';
+
+        function setProfile(p) {
+            currentProfile = p;
+            document.querySelectorAll('.profile-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector(`[data-profile="${p}"]`).classList.add('active');
+
+            const runBtn = document.getElementById('runBtn');
+            const desc = document.getElementById('profileDesc');
+
+            if (p === 'oro') {
+                runBtn.classList.add('oro');
+                desc.textContent = '🟡 Lògica crítica: mapa.js, skewt-engine.js, sondeigs. Més lent, molt més blindat (control flow flattening + RC4 + anti-debug).';
+            } else {
+                runBtn.classList.remove('oro');
+                desc.textContent = 'Ús general: utilitats, helpers, scripts que no contenen lògica única.';
+            }
+        }
+
+        // ═══════════════════════════════════════════════════
+        // PERFIL NORMAL — ràpid, per a la majoria de scripts
+        // ═══════════════════════════════════════════════════
+        function getConfigNormal() {
+            return {
+                compact: true,
+                controlFlowFlattening: false,
+                deadCodeInjection: true,
+                deadCodeInjectionThreshold: 0.2,
+                stringArray: true,
+                rotateStringArray: true,
+                stringArrayThreshold: 0.75,
+                selfDefending: true,
+                shuffleStringArray: true,
+                splitStrings: true,
+                unicodeEscapeSequence: false,
+                reservedNames: RESERVED_NAMES
+            };
+        }
+
+        // ═══════════════════════════════════════════════════
+        // PERFIL ORO PUR — lent, per a mapa.js / skewt-engine.js
+        // ═══════════════════════════════════════════════════
+        function getConfigOro() {
+            return {
+                compact: true,
+                controlFlowFlattening: true,
+                controlFlowFlatteningThreshold: 0.75,
+                deadCodeInjection: true,
+                deadCodeInjectionThreshold: 0.4,
+                stringArray: true,
+                rotateStringArray: true,
+                shuffleStringArray: true,
+                stringArrayThreshold: 1,
+                stringArrayEncoding: ['rc4'],
+                stringArrayIndexShift: true,
+                splitStrings: true,
+                splitStringsChunkLength: 5,
+                selfDefending: true,
+                debugProtection: true,
+                debugProtectionInterval: 4000,
+                disableConsoleOutput: true,
+                identifierNamesGenerator: 'hexadecimal',
+                renameGlobals: false,
+                numbersToExpressions: true,
+                unicodeEscapeSequence: true,
+                reservedNames: RESERVED_NAMES
+            };
+        }
+
+        // Edita aquesta llista amb QUALSEVOL funció/variable que es
+        // cridi des de fora del fitxer (HTML onclick=, altres scripts, etc.)
+        const RESERVED_NAMES = [
+            'openSkewtModal',
+            'closeSkewtModal',
+            'skewtToggleMode',
+            'TOWNS_CAT',
+            'nearestTown'
+        ];
+
+        function protegirCodi() {
+            const input = document.getElementById('inputCode').value;
+            const runBtn = document.getElementById('runBtn');
+            const status = document.getElementById('status');
+
+            if (!input.trim()) return alert("Enganxa algun codi primer!");
+
+            runBtn.disabled = true;
+            const perfilLabel = currentProfile === 'oro' ? 'ORO PUR (pot trigar molt en fitxers grans)' : 'NORMAL';
+            status.textContent = `⚙️ Processant amb perfil ${perfilLabel}...`;
+
+            setTimeout(() => {
+                try {
+                    const config = currentProfile === 'oro' ? getConfigOro() : getConfigNormal();
+                    const result = JavaScriptObfuscator.obfuscate(input, config);
+
+                    document.getElementById('outputCode').value = result.getObfuscatedCode();
+                    document.getElementById('downloadBtn').style.display = 'block';
+                    status.textContent = `✅ Blindatge (${currentProfile === 'oro' ? 'ORO PUR' : 'normal'}) completat amb èxit.`;
+                } catch (e) {
+                    console.error(e);
+                    status.textContent = "❌ Error: El codi és massa complex o té errors sintàctics.";
+                }
+                runBtn.disabled = false;
+            }, 100);
+        }
+
+        function descarregar() {
+            const code = document.getElementById('outputCode').value;
+            const filename = document.getElementById('filenameInput').value.trim() || 'script.min.js';
+            const blob = new Blob([code], { type: 'text/javascript' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>

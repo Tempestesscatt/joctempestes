@@ -204,7 +204,7 @@ let _origDades = null;
 window.getDadesOriginals = () => _origDades;
 
 window._extentManifest = null;
-const vista = { k: 1, x: 0, y: 0 };
+const vistaGfs = { k: 1, x: 0, y: 0 };
 
 let _rafPendent = null;
 let _darrerRedibuix = 0;
