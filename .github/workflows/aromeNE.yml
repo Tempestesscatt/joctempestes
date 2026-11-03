@@ -7,11 +7,6 @@ permissions:
   contents: read
   deployments: write
 
-# Permetexecutar-se encara que n'hi hagi una altra en curs
-concurrency:
-  group: deploy-data
-  cancel-in-progress: false
-
 env:
   PYTHONUNBUFFERED: "1"
   PIP_DISABLE_PIP_VERSION_CHECK: "1"
@@ -53,15 +48,15 @@ jobs:
       run: |
         cd private-scripts-new
         python3 arome_sfc_png.py
-    - name: Executar Outlooks
+    - name: Executar Outlooks (opcional)
       continue-on-error: true
       run: |
         cd private-scripts-new
         python3 outbrakpngs.py
     - name: Verificar
       run: |
-        [ -f "$IMATGES_DIR/manifest.json" ] || exit 1
-    - name: Empaquetar SFC
+        [ -f "$IMATGES_DIR/manifest.json" ] || { echo "Falta manifest.json"; exit 1; }
+    - name: Empaquetar SFC i Outlooks
       run: tar -cf sfc.tar -C "$IMATGES_DIR" .
     - name: Pujar artifact SFC
       uses: actions/upload-artifact@v4
@@ -161,6 +156,10 @@ jobs:
         if [ -f "$IMATGES_DIR/info_run.json" ]; then
           tar -rf manifest.tar -C "$IMATGES_DIR" info_run.json
         fi
+        # També empaquetem el manifest_outlook.json si existeix per assegurar-nos que es puja
+        if [ -f "$IMATGES_DIR/manifest_outlook.json" ]; then
+          tar -rf manifest.tar -C "$IMATGES_DIR" manifest_outlook.json
+        fi
     - name: Pujar artifact manifest
       uses: actions/upload-artifact@v4
       with:
@@ -200,13 +199,12 @@ jobs:
         tar -xf 3d.tar -C /tmp/publicar/imatges
         tar -xf manifest.tar -C /tmp/publicar/imatges
         
-        # Xifrem tots els fitxers (els PNG, però també el manifest.json)
-        # Així el navegador no pot llegir ni el manifest sense la clau
-        find /tmp/publicar/imatges -type f \( -name '*.png' -o -name '*.json' \) | while read -r f; do
+        # Xifrem absolutament TOTS els fitxers (PNG, JSON, JS d'isolínies, etc.)
+        find /tmp/publicar/imatges -type f | while read -r f; do
           openssl enc -aes-256-cbc -salt -pass pass:"$KEY" -in "$f" -out "${f}.enc"
           rm "$f"
         done
-        echo "Fitxers a pujar: $(find /tmp/publicar/imatges -type f | wc -l)"
+        echo "Fitxers a pujar (xifrats): $(find /tmp/publicar/imatges -type f | wc -l)"
     - name: Pujar a R2
       env:
         RCLONE_CONFIG_R2_TYPE: s3
