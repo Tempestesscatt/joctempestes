@@ -25,6 +25,9 @@ env:
   ELIMINAR_ISOLINIES_3D: "0"
   # Isolínies dels derivats: none | suau | totes
   ISOLINIES_DERIVATS: "suau"
+  # "1" = quantitza els PNG amb pngquant abans d'empaquetar (menys MB => tot va més ràpid).
+  # Per defecte desactivat: revisa visualment alguns mapes abans d'activar-ho (banding).
+  OPTIMITZAR_PNG: "0"
 
 jobs:
   # ════════════════════════════════════════════════════════════════
@@ -241,6 +244,15 @@ jobs:
         fi
         echo "OK"
 
+    - name: Optimitzar PNG (opcional, OPTIMITZAR_PNG=1)
+      if: env.OPTIMITZAR_PNG == '1'
+      run: |
+        sudo apt-get update -qq && sudo apt-get install -y -qq pngquant
+        du -sh "$IMATGES_DIR"
+        find "$IMATGES_DIR" -name '*.png' -print0 | xargs -0 -P4 -n20 \
+          pngquant --force --skip-if-larger --quality=70-95 --ext .png || true
+        du -sh "$IMATGES_DIR"
+
     # Un sol fitxer .tar és MOLT més ràpid de pujar/baixar que milers de fitxers petits
     - name: Empaquetar SFC
       run: |
@@ -423,6 +435,15 @@ jobs:
         [ "$N" -lt 5 ] && { echo "Massa pocs PNG"; exit 1; }
         [ "$S" -lt 1 ] && { echo "Cap sondeig generat"; exit 1; }
         echo "OK"
+
+    - name: Optimitzar PNG (opcional, OPTIMITZAR_PNG=1)
+      if: env.OPTIMITZAR_PNG == '1'
+      run: |
+        sudo apt-get update -qq && sudo apt-get install -y -qq pngquant
+        du -sh "$IMATGES_DIR"
+        find "$IMATGES_DIR" -name '*.png' -print0 | xargs -0 -P4 -n20 \
+          pngquant --force --skip-if-larger --quality=70-95 --ext .png || true
+        du -sh "$IMATGES_DIR"
 
     - name: Empaquetar 3D
       run: |
@@ -618,6 +639,15 @@ jobs:
         if not m.get("hores") or not m.get("extent"):
             raise SystemExit("Manifest de derivats incomplet: no es publicarà")
         PY
+        du -sh "$IMATGES_DIR"
+
+    - name: Optimitzar PNG (opcional, OPTIMITZAR_PNG=1)
+      if: env.OPTIMITZAR_PNG == '1'
+      run: |
+        sudo apt-get update -qq && sudo apt-get install -y -qq pngquant
+        du -sh "$IMATGES_DIR"
+        find "$IMATGES_DIR" -name '*.png' -print0 | xargs -0 -P4 -n20 \
+          pngquant --force --skip-if-larger --quality=70-95 --ext .png || true
         du -sh "$IMATGES_DIR"
 
     - name: Empaquetar derivats
@@ -831,7 +861,7 @@ jobs:
 
   # ════════════════════════════════════════════════════════════════
   #  JOB 4: DEPLOY
-  #   1) assembla la web (branca data + nou)
+  #   1) assembla la web (branca data + nou)   <- ara amb checkout DISPERS (només el necessari)
   #   2) injecta les últimes notícies (guardades a data/news)
   #   3) comprova límits de Cloudflare Pages
   #   4) DEPLOY A CLOUDFLARE  <- primer: la web s'actualitza ja
@@ -839,12 +869,15 @@ jobs:
   #
   #  Espera SFC + 3D + manifest (obligatoris) i DERIVATS (opcional: si ha fallat,
   #  es conserva la versió que ja hi ha a 'data').
+  #
+  #  Pressupost de temps del job: assemblar 35 + deploy 80 + guardar 90 = 205 min
+  #  (+ descàrregues) => timeout del job a 240 min.
   # ════════════════════════════════════════════════════════════════
   deploy:
     needs: [png_sfc, png_3d, png_derivats, manifest]
     if: ${{ !cancelled() && needs.png_sfc.result == 'success' && needs.png_3d.result == 'success' && needs.manifest.result == 'success' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 150
+    timeout-minutes: 240
     steps:
     - uses: actions/checkout@v4
       with:
@@ -885,17 +918,41 @@ jobs:
 
     # git ls-remote / fetch usen el remot 'origin' del checkout, que ja porta
     # el token en una capçalera (sense token a la URL).
+    #
+    # CANVI CLAU: abans es baixava TOTA la branca 'data' (diversos GB, incloent
+    # web_data_NE i web_data_derivats que després substituïm igualment).
+    # Ara: fetch --filter=blob:none + sparse-checkout => només es baixen els blobs
+    # de les carpetes d'altres workflows, 'news' i 'js'.
     - name: Assemblar web (branca data + SFC/3D/derivats nous)
       id: assemble
-      timeout-minutes: 20
+      timeout-minutes: 35
       env:
         GIT_TERMINAL_PROMPT: "0"
       run: |
         set -euo pipefail
         P="$GITHUB_WORKSPACE/meu-mapa/public"
+        export P
 
         # Fitxers del 3D (la resta de web_data_NE/imatges és SFC, outlooks inclosos)
         PAT3D=( -name '3d_*' -o -name 'isolines_3d_*' -o -name 'legend_3d_*' -o -name 'sondeig_*' -o -name 'vent3d_*' -o -name 'stormmotion_*' )
+
+        # Checkout dispers d'un commit de 'data' en un worktree. Si falla, cau al checkout complet.
+        checkout_dispers() {
+          local dest="$1" sha="$2"
+          shift 2
+          rm -rf "$dest"
+          git -C "$GITHUB_WORKSPACE" worktree prune
+          if git -C "$GITHUB_WORKSPACE" worktree add -f --no-checkout "$dest" "$sha" \
+             && git -C "$dest" sparse-checkout set --cone "$@" \
+             && git -C "$dest" checkout -f HEAD; then
+            return 0
+          fi
+          echo "  ⚠️  checkout dispers fallit: provo el checkout complet (més lent)"
+          git -C "$GITHUB_WORKSPACE" worktree remove "$dest" --force 2>/dev/null || true
+          rm -rf "$dest"
+          git -C "$GITHUB_WORKSPACE" worktree prune
+          git -C "$GITHUB_WORKSPACE" worktree add -f "$dest" "$sha"
+        }
 
         rm -rf /tmp/nou-sfc /tmp/nou-3d /tmp/nou-der
         mkdir -p /tmp/nou-sfc /tmp/nou-3d /tmp/nou-der
@@ -955,15 +1012,26 @@ jobs:
         if [ "$DATA_SHA" != "none" ]; then
           OK=0
           for i in 1 2 3 4 5; do
-            if git fetch --depth=1 origin data; then OK=1; break; fi
+            if git fetch --depth=1 --filter=blob:none origin data; then OK=1; break; fi
             echo "  fetch ha fallat (intent $i/5), reintento..."
             sleep $((i * 10))
           done
           [ "$OK" = 1 ] || { echo "No puc baixar la branca data"; exit 1; }
           DATA_SHA=$(git rev-parse FETCH_HEAD)
-          git worktree prune
-          git worktree add -f /tmp/data-branch FETCH_HEAD
+          export DATA_SHA
+
+          # Carpetes d'altres workflows que hem de conservar de 'data':
+          # web_data_NE sempre es substitueix; web_data_derivats només si en tenim de nous.
+          AJENES=""
           for c in $CARPETES; do
+            [ "$c" = "web_data_NE" ] && continue
+            if [ "$c" = "web_data_derivats" ] && [ "$DER_NOU" = "1" ]; then continue; fi
+            AJENES="$AJENES $c"
+          done
+          echo "  Checkout dispers de 'data': $AJENES news js"
+          checkout_dispers /tmp/data-branch "$DATA_SHA" $AJENES news js
+
+          for c in $AJENES; do
             cp -r /tmp/data-branch/$c/. "$P/$c/" 2>/dev/null || echo "  $c no trobat a data"
           done
           cp /tmp/data-branch/js/status.js "$P/js/status.js" 2>/dev/null || true
@@ -977,6 +1045,18 @@ jobs:
           fi
 
           git worktree remove /tmp/data-branch --force
+
+          # Seguretat: si a web_data_NE hi ha fitxers FORA de l'arrel d'imatges/ (p. ex. un altre
+          # json o subcarpetes), abans es conservaven de 'data'. Com que ara no baixem web_data_NE,
+          # els recuperem un a un (normalment n'hi ha 0).
+          git ls-tree -r -z --name-only "$DATA_SHA" -- web_data_NE \
+            | tr '\0' '\n' | grep -v -E '^web_data_NE/imatges/[^/]+$' > /tmp/ne_extra.txt || true
+          NE_EXTRA=$(wc -l < /tmp/ne_extra.txt)
+          echo "  web_data_NE: $NE_EXTRA fitxers fora de l'arrel d'imatges/ (es conserven de 'data')"
+          if [ "$NE_EXTRA" -gt 0 ]; then
+            tr '\n' '\0' < /tmp/ne_extra.txt | xargs -0 -n 200 sh -c \
+              'git -C "$GITHUB_WORKSPACE" archive "$DATA_SHA" -- "$@" | tar -x -C "$P"' _
+          fi
         else
           echo "La branca 'data' encara no existeix, es crearà"
         fi
@@ -1025,6 +1105,9 @@ jobs:
         for pat in 'sfc_*.png' '*outlook*.png' 'manifest_outlook.json' 'isolines_[0-2][0-9]_*.js' 'vent_*.js' '3d_*.png' 'isolines_3d_*.js' 'sondeig_*' 'vent3d_*' 'stormmotion_*'; do
           find "$IM" -maxdepth 1 -name "$pat" -printf '%s\n' | awk -v p="$pat" '{s+=$1} END {printf "  %-26s %6d fitxers %8.1f MB\n", p, NR, s/1048576}'
         done
+
+        # Alliberem disc: ja no necessitem els artifacts ni les còpies temporals
+        rm -rf /tmp/nou-sfc /tmp/nou-3d /tmp/nou-der /tmp/art-sfc /tmp/art-3d /tmp/art-derivats
 
     # Reinjectem les últimes notícies (generades pel workflow de notícies i
     # guardades a data/news/noticies) dins l'index.html ACTUAL de main.
@@ -1122,6 +1205,11 @@ jobs:
     #     Si hi ha una cursa persistent, falla de manera segura: mai no trepitja
     #     silenciosament un canvi aliè amb un --force incondicional.
     #
+    # CANVIS (anti-timeouts):
+    #   - refrescar() també fa servir fetch --filter=blob:none + checkout dispers:
+    #     només baixa les carpetes dels altres workflows, 'news' i 'js'.
+    #   - Timeout del pas pujat a 90 min (dins del timeout del job, 240 min).
+    #
     # IMPORTANT: GitHub executa els "run" amb "bash -e". Amb "set +e" explícit els
     # errors es gestionen a mà; sense ell el primer push fallit matava el pas i els
     # reintents mai s'executaven.
@@ -1129,7 +1217,7 @@ jobs:
     - name: Guardar a la branca 'data' (per paquets)
       id: guardar
       if: always() && steps.assemble.outcome == 'success'
-      timeout-minutes: 75
+      timeout-minutes: 90
       env:
         TOKEN: ${{ secrets.PRIVATE_REPO_TOKEN }}
         GIT_TERMINAL_PROMPT: "0"
@@ -1209,24 +1297,51 @@ jobs:
           return 1
         }
 
+        # ── Checkout dispers d'un commit de 'data' en un worktree del repo del workspace.
+        #    Si falla, cau al checkout complet (més lent però correcte).
+        checkout_dispers() {
+          local dest="$1" sha="$2"
+          shift 2
+          rm -rf "$dest"
+          git -C "$GITHUB_WORKSPACE" worktree prune
+          if git -C "$GITHUB_WORKSPACE" worktree add -f --no-checkout "$dest" "$sha" \
+             && git -C "$dest" sparse-checkout set --cone "$@" \
+             && git -C "$dest" checkout -f HEAD; then
+            return 0
+          fi
+          echo "  ⚠️  checkout dispers fallit: provo el checkout complet (més lent)"
+          git -C "$GITHUB_WORKSPACE" worktree remove "$dest" --force 2>/dev/null
+          rm -rf "$dest"
+          git -C "$GITHUB_WORKSPACE" worktree prune
+          git -C "$GITHUB_WORKSPACE" worktree add -f "$dest" "$sha"
+        }
+
         # ── Baixa 'data' i copia a /tmp/publish el que NO és nostre (altres workflows + notícies).
         #    Deixa a FRESC_SHA l'SHA exacte que s'ha baixat (és el que protegirà el push).
         FRESC_SHA=""
         refrescar() {
-          local k ok=0 c
+          local k ok=0 c SP="news js"
           FRESC_SHA=""
+
+          # Només les carpetes que no són nostres (web_data_NE sempre és nostra;
+          # web_data_derivats només si n'hem generat de nous)
+          for c in $CARPETES; do
+            [ "$c" = "web_data_NE" ] && continue
+            if [ "$c" = "web_data_derivats" ] && [ "$DER_NOU" = "1" ]; then continue; fi
+            SP="$SP $c"
+          done
+
           for k in 1 2 3; do
-            if ( cd "$GITHUB_WORKSPACE" && timeout 300 git fetch --depth=1 origin data ); then ok=1; break; fi
+            if ( cd "$GITHUB_WORKSPACE" && timeout 300 git fetch --depth=1 --filter=blob:none origin data ); then ok=1; break; fi
             sleep $((k * 10))
           done
           [ "$ok" = 1 ] || return 1
           FRESC_SHA=$( cd "$GITHUB_WORKSPACE" && git rev-parse FETCH_HEAD ) || return 1
           [ -n "$FRESC_SHA" ] || return 1
-          rm -rf /tmp/data-fresc
-          ( cd "$GITHUB_WORKSPACE" && git worktree prune && git worktree add -f /tmp/data-fresc "$FRESC_SHA" ) || return 1
+
+          checkout_dispers /tmp/data-fresc "$FRESC_SHA" $SP || return 1
 
           for c in $CARPETES; do
-            # Les nostres: web_data_NE sempre; web_data_derivats només si n'hem generat de nous
             [ "$c" = "web_data_NE" ] && continue
             if [ "$c" = "web_data_derivats" ] && [ "$DER_NOU" = "1" ]; then continue; fi
             rm -rf "/tmp/publish/$c"
@@ -1239,7 +1354,7 @@ jobs:
           rm -f /tmp/publish/js/status.js
           if [ -f /tmp/data-fresc/js/status.js ]; then cp /tmp/data-fresc/js/status.js /tmp/publish/js/status.js; fi
 
-          ( cd "$GITHUB_WORKSPACE" && git worktree remove /tmp/data-fresc --force )
+          git -C "$GITHUB_WORKSPACE" worktree remove /tmp/data-fresc --force
           return 0
         }
 
