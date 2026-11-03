@@ -27,7 +27,7 @@ const CACHE_PASSIU = true;   // true: guarda automàticament el que es veu. fals
 const PRECACHE = [
     './',
     'js/mapapngs.min.js', 'js/hores.js', 'js/gfspngs.js', 'js/models.js',
-    'dades/altitude.js', 'dades/paletes.js',
+    'dades/altitude.js', 
     'js/skew-t-engine.js', 'js/skewt.js', 'js/valor.js', 'js/outlook.js',
     'js/novetats.js', 'js/actualitzacio.js', 'js/vent.js', 'js/offline.js',
     'img/favicon.png',

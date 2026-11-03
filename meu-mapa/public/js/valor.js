@@ -92,7 +92,7 @@
     // ─── QUINA PALETA I RANG ─────────────────────────────────────────
     function resoldre(orig) {
         const P = window.PALETES;
-        if (!P || !P.luts) return { error: 'Falta dades/paletes.js. Torna a executar exportar_paletes.py.' };
+        
         if (orig.capa3D) {
             const v = orig.capa3D.var;
             const e = P['3d'] && P['3d'][v];
@@ -160,12 +160,7 @@
         const px = llegirPixel(orig.img, fx, fy);
         if (!px) return;
 
-        if (px[3] === 0) {
-            mostrar(e.clientX, e.clientY, titol(cap.nom || 'Variable') +
-                '<div style="color:#ffd700;font-size:15px;">Sense dades</div>' +
-                petit('transparent: valor mínim o fora de cobertura'));
-            return;
-        }
+
 
         const res = resoldre(orig);
         if (res.error) {
