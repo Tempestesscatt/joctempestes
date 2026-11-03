@@ -6,10 +6,11 @@ on:
 permissions:
   contents: write
 
-# Mateix grup que "Actualitzar Notícies Meteorològiques": no s'executen alhora,
-# així el deploy manual mai pot trepitjar un deploy de notícies (ni al revés).
+# Mateix grup que AROME i Notícies: tots quatre comparteixen "deploy-data"
+# perquè mai no es trepitgin entre ells (el manual espera que AROME acabi
+# de guardar a 'data' abans de baixar-la).
 concurrency:
-  group: deploy-news-${{ github.ref }}
+  group: deploy-data
   cancel-in-progress: false
 
 env:
@@ -18,7 +19,7 @@ env:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 150
 
     steps:
     - uses: actions/checkout@v4
@@ -27,6 +28,7 @@ jobs:
         fetch-depth: 1
 
     - name: 📥 Afegir dades de la branca 'data'
+      timeout-minutes: 30
       run: |
         set -euo pipefail
         P="$GITHUB_WORKSPACE/meu-mapa/public"
@@ -67,6 +69,9 @@ jobs:
           echo "❌ web_data_NE/imatges és buit: no desplego per no deixar el visor sense dades"
           exit 1
         fi
+        # Comprovació extra: sense manifest, el visor no pot arrencar
+        [ -f "$P/web_data_NE/imatges/manifest.json" ] || { echo "❌ Falta web_data_NE/imatges/manifest.json: no desplego"; exit 1; }
+
         echo "✅ Dades de 'data' afegides (només filesystem, no es commiteja res)"
 
     # Reinjectem les últimes notícies (generades pel workflow de notícies)
@@ -135,7 +140,7 @@ jobs:
         [ "$N" -le 19900 ] || { echo "❌ Encara massa fitxers per a Cloudflare Pages"; exit 1; }
 
     - name: 🚀 DEPLOY a Cloudflare
-      timeout-minutes: 70
+      timeout-minutes: 80
       env:
         CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
