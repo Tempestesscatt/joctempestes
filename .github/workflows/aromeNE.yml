@@ -7,6 +7,7 @@ permissions:
   contents: read
   deployments: write
 
+# Permetexecutar-se encara que n'hi hagi una altra en curs
 concurrency:
   group: deploy-data
   cancel-in-progress: false
@@ -21,7 +22,7 @@ env:
 
 jobs:
   # ════════════════════════════════════════════════════════════════
-  # JOB 1: Generar PNGs (SFC + 3D + DERIVATS)
+  # JOB 1: Generar PNGs SFC + OUTLOOKS
   # ════════════════════════════════════════════════════════════════
   png_sfc:
     runs-on: ubuntu-latest
@@ -53,6 +54,7 @@ jobs:
         cd private-scripts-new
         python3 arome_sfc_png.py
     - name: Executar Outlooks
+      continue-on-error: true
       run: |
         cd private-scripts-new
         python3 outbrakpngs.py
@@ -67,6 +69,9 @@ jobs:
         name: png-sfc
         path: sfc.tar
 
+  # ════════════════════════════════════════════════════════════════
+  # JOB 2: Generar PNGs 3D
+  # ════════════════════════════════════════════════════════════════
   png_3d:
     runs-on: ubuntu-latest
     timeout-minutes: 350
@@ -104,12 +109,71 @@ jobs:
         path: 3d.tar
 
   # ════════════════════════════════════════════════════════════════
-  # JOB 2: Xifrar i Pujar a R2
+  # JOB 3: MANIFEST + INFO_RUN (SFC + 3D junts)
+  # ════════════════════════════════════════════════════════════════
+  manifest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    needs: [png_sfc, png_3d]
+    env:
+      IMATGES_DIR: ${{ github.workspace }}/merged/imatges
+    steps:
+    - name: Clonar private-scripts
+      env:
+        TOKEN: ${{ secrets.PRIVATE_REPO_TOKEN }}
+      run: |
+        git clone --depth 1 https://x-access-token:${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/Tempestesscatt/Scripts.git private-scripts-new
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    - name: Instal·lar dependències mínimes
+      run: |
+        python3 -m pip install --retries 5 --upgrade pip
+        python3 -m pip install --retries 5 requests
+    - name: Descarregar SFC
+      uses: actions/download-artifact@v4
+      with:
+        name: png-sfc
+        path: /tmp/art-sfc
+    - name: Descarregar 3D
+      uses: actions/download-artifact@v4
+      with:
+        name: png-3d
+        path: /tmp/art-3d
+    - name: Descomprimir SFC + 3D
+      run: |
+        mkdir -p "$IMATGES_DIR"
+        tar -xf /tmp/art-sfc/sfc.tar -C "$IMATGES_DIR"
+        tar -xf /tmp/art-3d/3d.tar -C "$IMATGES_DIR"
+    - name: Executar generar_manifestpngs.py
+      run: |
+        cd private-scripts-new
+        sed -i -E 's|^IMATGES_DIR = .*|IMATGES_DIR = Path(os.environ["IMATGES_DIR"])|' generar_manifestpngs.py
+        python3 generar_manifestpngs.py
+    - name: Executar info.py
+      continue-on-error: true
+      run: |
+        cd private-scripts-new
+        python3 info.py
+    - name: Empaquetar manifest
+      run: |
+        tar -cf manifest.tar -C "$IMATGES_DIR" manifest.json
+        if [ -f "$IMATGES_DIR/info_run.json" ]; then
+          tar -rf manifest.tar -C "$IMATGES_DIR" info_run.json
+        fi
+    - name: Pujar artifact manifest
+      uses: actions/upload-artifact@v4
+      with:
+        name: png-manifest
+        path: manifest.tar
+
+  # ════════════════════════════════════════════════════════════════
+  # JOB 4: Xifrar i Pujar a R2 (SFC + 3D + Manifest)
   # ════════════════════════════════════════════════════════════════
   xifrar_i_pujar_r2:
     runs-on: ubuntu-latest
     timeout-minutes: 120
-    needs: [png_sfc, png_3d]
+    needs: [png_sfc, png_3d, manifest]
     steps:
     - name: Descarregar SFC
       uses: actions/download-artifact@v4
@@ -119,6 +183,10 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: png-3d
+    - name: Descarregar Manifest
+      uses: actions/download-artifact@v4
+      with:
+        name: png-manifest
     - name: Instal·lar rclone i openssl
       run: |
         curl -fsSL https://rclone.org/install.sh | sudo bash
@@ -127,15 +195,18 @@ jobs:
       env:
         KEY: ${{ secrets.ENCRYPT_KEY }}
       run: |
-        mkdir -p /tmp/imatges
-        tar -xf sfc.tar -C /tmp/imatges
-        tar -xf 3d.tar -C /tmp/imatges
+        mkdir -p /tmp/publicar/imatges
+        tar -xf sfc.tar -C /tmp/publicar/imatges
+        tar -xf 3d.tar -C /tmp/publicar/imatges
+        tar -xf manifest.tar -C /tmp/publicar/imatges
         
-        # Xifrem tots els PNG
-        find /tmp/imatges -name '*.png' | while read -r f; do
+        # Xifrem tots els fitxers (els PNG, però també el manifest.json)
+        # Així el navegador no pot llegir ni el manifest sense la clau
+        find /tmp/publicar/imatges -type f \( -name '*.png' -o -name '*.json' \) | while read -r f; do
           openssl enc -aes-256-cbc -salt -pass pass:"$KEY" -in "$f" -out "${f}.enc"
-          rm "$f" # Esborrem l'original
+          rm "$f"
         done
+        echo "Fitxers a pujar: $(find /tmp/publicar/imatges -type f | wc -l)"
     - name: Pujar a R2
       env:
         RCLONE_CONFIG_R2_TYPE: s3
@@ -146,4 +217,4 @@ jobs:
         RCLONE_CONFIG_R2_NO_CHECK_BUCKET: "true"
         BUCKET: ${{ secrets.R2_BUCKET }}
       run: |
-        rclone copy /tmp/imatges "r2:$BUCKET/web_data_NE/imatges" --transfers 32 --checkers 16 -v
+        rclone copy /tmp/publicar/imatges "r2:$BUCKET/web_data_NE/imatges" --transfers 32 --checkers 16 -v
