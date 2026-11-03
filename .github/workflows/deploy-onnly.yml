@@ -6,11 +6,11 @@ on:
 permissions:
   contents: write
 
-# Mateix grup que AROME i Notícies: tots quatre comparteixen "deploy-data"
-# perquè mai no es trepitgin entre ells (el manual espera que AROME acabi
-# de guardar a 'data' abans de baixar-la).
+# Grup propi per al manual: només espera un altre MANUAL, mai AROME ni Notícies.
+# Així s'executa sempre que el llancis (tret que ja hi hagi un manual en curs),
+# sense esperar els altres workflows.
 concurrency:
-  group: deploy-data
+  group: deploy-manual-${{ github.ref }}
   cancel-in-progress: false
 
 env:
