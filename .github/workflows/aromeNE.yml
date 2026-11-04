@@ -192,6 +192,8 @@ jobs:
       continue-on-error: true
       run: |
         cd private-scripts-new
+        # ✅ Afegim el sed perquè info.py agafi la ruta de GitHub
+        sed -i -E 's|^IMATGES_DIR = .*|IMATGES_DIR = Path(os.environ["IMATGES_DIR"])|' info.py
         python3 info.py
     - name: Empaquetar manifest
       run: |
@@ -252,8 +254,13 @@ jobs:
           tar -xf derivats.tar -C /tmp/publicar/der/imatges
         fi
         
-        # Guardem l'info_run.json en pla per pujar-lo sense xifrar
-        cp /tmp/publicar/ne/imatges/info_run.json /tmp/publicar/info_run.json 2>/dev/null || true
+        # ✅ CORREGIT: Guardem l'info_run.json ABANS de xifrar
+        if [ -f /tmp/publicar/ne/imatges/info_run.json ]; then
+          cp /tmp/publicar/ne/imatges/info_run.json /tmp/publicar/info_run.json
+          echo "✅ info_run.json copiat correctament"
+        else
+          echo "⚠️ ATENCIÓ: info_run.json NO existeix"
+        fi
         
         # Xifrem absolutament TOTS els altres fitxers (NE)
         find /tmp/publicar/ne/imatges -type f | while read -r f; do
@@ -281,15 +288,17 @@ jobs:
         RCLONE_CONFIG_R2_NO_CHECK_BUCKET: "true"
         BUCKET: ${{ secrets.R2_BUCKET }}
       run: |
+        # ✅ CORREGIT: Afegim /arome/ a la ruta de destí de R2
+        
         # Pugem SFC + 3D + Manifest + Outlooks
-        rclone copy /tmp/publicar/ne/imatges "r2:$BUCKET/web_data_NE/imatges" --transfers 32 --checkers 16 -v
+        rclone copy /tmp/publicar/ne/imatges "r2:$BUCKET/arome/web_data_NE/imatges" --transfers 32 --checkers 16 -v
         
         # Pugem els derivats
         if [ -d /tmp/publicar/der/imatges ]; then
-          rclone copy /tmp/publicar/der/imatges "r2:$BUCKET/web_data_derivats/imatges" --transfers 32 --checkers 16 -v
+          rclone copy /tmp/publicar/der/imatges "r2:$BUCKET/arome/web_data_derivats/imatges" --transfers 32 --checkers 16 -v
         fi
         
         # Pugem l'info_run.json sense xifrar
         if [ -f /tmp/publicar/info_run.json ]; then
-          rclone copy /tmp/publicar/info_run.json "r2:$BUCKET/web_data_NE/imatges" -v
+          rclone copy /tmp/publicar/info_run.json "r2:$BUCKET/arome/web_data_NE/imatges" -v
         fi

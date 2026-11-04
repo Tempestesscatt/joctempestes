@@ -1455,5 +1455,241 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
 })();
 </script>
 
+<!-- ═══════════════════════════════════════════════════════════════
+     INFO RUN — versió autònoma (substitueix la del script gran)
+     ═══════════════════════════════════════════════════════════════ -->
+<script>
+(function () {
+    'use strict';
+
+    // ═══════════════════════════════════════════════════════════
+    //  CONFIGURACIÓ — canvia això si cal
+    // ═══════════════════════════════════════════════════════════
+    const DEBUG = true;  // posa false per silenciar logs
+
+    // URLs candidates (es proven en ordre)
+    function getUrlsCandidates() {
+        const base = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
+        return [
+            base + 'web_data_NE/imatges/info_run.json',
+            '/web_data_NE/imatges/info_run.json',
+            '/public/web_data_NE/imatges/info_run.json',
+            // Afegeix aquí la URL directa de R2 si la tens:
+            // 'https://EL_TEU_R2.r2.dev/web_data_NE/imatges/info_run.json',
+        ];
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    //  UTILITATS
+    // ═══════════════════════════════════════════════════════════
+    function log(...args) {
+        if (DEBUG) console.log('%c[info_run]', 'color:#58a6ff;font-weight:bold', ...args);
+    }
+    function warn(...args) {
+        console.warn('%c[info_run]', 'color:#d29922;font-weight:bold', ...args);
+    }
+    function err(...args) {
+        console.error('%c[info_run]', 'color:#f85149;font-weight:bold', ...args);
+    }
+
+    function escHtml(s) {
+        return String(s == null ? '' : s)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    function formatDataRun(info) {
+        if (!info) return 'avui';
+        let ms = NaN;
+        if (info.run_iso) ms = Date.parse(info.run_iso);
+        else if (info.run_ts && isFinite(info.run_ts)) {
+            ms = info.run_ts > 1e12 ? info.run_ts : info.run_ts * 1000;
+        }
+        if (!isFinite(ms)) return 'avui';
+        const d = new Date(ms);
+        const dia = String(d.getDate()).padStart(2, '0');
+        const mes = String(d.getMonth() + 1).padStart(2, '0');
+        const hora = String(d.getHours()).padStart(2, '0');
+        const min = String(d.getMinutes()).padStart(2, '0');
+        return `${dia}/${mes} · ${hora}:${min}`;
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    //  PINTAR
+    // ═══════════════════════════════════════════════════════════
+    function pintarInfoRun(info) {
+        const el = document.getElementById('info_run');
+        if (!el) {
+            err('#info_run NO existeix al DOM. No es pot pintar res.');
+            return;
+        }
+        if (!info) {
+            // Mostrar estat "buit" visible perquè l'usuari sàpiga que el JS s'ha executat
+            el.innerHTML = `
+                <span class="punt" style="background:#6e7681;box-shadow:none;animation:none;"></span>
+                <span class="fa" style="color:#f85149;">info_run no disponible</span>
+            `;
+            el.classList.add('visible');
+            warn('Pintat estat "no disponible" a #info_run');
+            return;
+        }
+
+        el.innerHTML = `
+            <span class="punt"></span>
+            <span class="run">${escHtml(info.run_z || '—')}</span>
+            <span class="sep">·</span>
+            <span class="fa">${escHtml(formatDataRun(info))}</span>
+        `;
+        el.classList.add('visible');
+        log('Pintat a #info_run:', info.run_z, formatDataRun(info));
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    //  CARREGAR
+    // ═══════════════════════════════════════════════════════════
+    async function carregarInfoRun() {
+        const urls = getUrlsCandidates();
+        log('Provant', urls.length, 'URLs...');
+
+        for (const url of urls) {
+            const urlFinal = url + (url.includes('?') ? '&' : '?') + '_cb=' + Date.now();
+            try {
+                const r = await fetch(urlFinal, {
+                    cache: 'no-store',
+                    mode: 'cors',
+                    credentials: 'omit'
+                });
+
+                const ct = r.headers.get('content-type') || '';
+                log(`GET ${url} → status=${r.status} ct="${ct}"`);
+
+                if (!r.ok) {
+                    warn(`  ✗ status ${r.status}`);
+                    continue;
+                }
+
+                if (ct.includes('text/html')) {
+                    warn(`  ✗ retorna HTML (SPA fallback o 404 custom)`);
+                    continue;
+                }
+
+                const text = await r.text();
+                let json;
+                try {
+                    json = JSON.parse(text);
+                } catch (e) {
+                    err(`  ✗ JSON invàlid:`, e.message);
+                    continue;
+                }
+
+                if (!json || typeof json !== 'object') {
+                    warn(`  ✗ JSON no és un objecte`);
+                    continue;
+                }
+
+                log('  ✅ TROBAT!', json);
+                return json;
+            } catch (e) {
+                err(`  ✗ ERROR fetch:`, e.message, url);
+            }
+        }
+
+        err('Cap URL ha funcionat. El fitxer no és accessible.');
+        return null;
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    //  INICIALITZAR
+    // ═══════════════════════════════════════════════════════════
+    let intervalId = null;
+
+    async function inicialitzar() {
+        log('Inicialitzant...');
+
+        // 1. Comprovar que el div existeix
+        let el = document.getElementById('info_run');
+        if (!el) {
+            // Si no existeix, el creem nosaltres
+            warn('#info_run no existeix. El creem nosaltres.');
+            el = document.createElement('div');
+            el.id = 'info_run';
+            el.style.cssText = `
+                position: fixed;
+                top: calc(14px + env(safe-area-inset-top, 0px));
+                right: calc(16px + env(safe-area-inset-right, 0px));
+                z-index: 950;
+                min-height: 34px;
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                padding: 7px 14px;
+                border: 1px solid rgba(240, 246, 252, 0.15);
+                border-radius: 999px;
+                background: rgba(13, 17, 23, 0.95);
+                color: #c9d1d9;
+                font-family: 'Inter', system-ui, sans-serif;
+                font-size: 11.5px;
+                font-weight: 500;
+                pointer-events: none;
+                white-space: nowrap;
+            `;
+            document.body.appendChild(el);
+        }
+
+        // 2. Carregar i pintar
+        const info = await carregarInfoRun();
+        pintarInfoRun(info);
+
+        // 3. Refrescar cada 15 min
+        if (intervalId) clearInterval(intervalId);
+        intervalId = setInterval(async () => {
+            if (document.hidden) return;
+            log('Refresc automàtic...');
+            const nou = await carregarInfoRun();
+            if (nou) pintarInfoRun(nou);
+        }, 15 * 60 * 1000);
+
+        // 4. Refrescar quan la pestanya torna a ser visible
+        document.addEventListener('visibilitychange', async () => {
+            if (!document.hidden) {
+                log('Pestanya visible, refrescant...');
+                const nou = await carregarInfoRun();
+                if (nou) pintarInfoRun(nou);
+            }
+        });
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    //  EXPOSAR PER A DEBUG
+    // ═══════════════════════════════════════════════════════════
+    window.__infoRun = {
+        carregar: carregarInfoRun,
+        pintar: pintarInfoRun,
+        inicialitzar: inicialitzar,
+        urls: getUrlsCandidates,
+        async test() {
+            console.log('%c═══ TEST MANUAL ═══', 'color:#ffd700;font-weight:bold');
+            const info = await carregarInfoRun();
+            console.log('Resultat:', info);
+            return info;
+        }
+    };
+
+    // ═══════════════════════════════════════════════════════════
+    //  ARRENCAR
+    // ═══════════════════════════════════════════════════════════
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', inicialitzar);
+    } else {
+        inicialitzar();
+    }
+
+    log('JS carregat. Prova __infoRun.test() a la consola.');
+})();
+</script>
+
 </body>
 </html>
