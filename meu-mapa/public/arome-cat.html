@@ -1468,16 +1468,16 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
     const DEBUG = true;  // posa false per silenciar logs
 
     // URLs candidates (es proven en ordre)
-    function getUrlsCandidates() {
-        const base = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
-        return [
-            base + 'web_data_NE/imatges/info_run.json',
-            '/web_data_NE/imatges/info_run.json',
-            '/public/web_data_NE/imatges/info_run.json',
-            // Afegeix aquí la URL directa de R2 si la tens:
-            // 'https://EL_TEU_R2.r2.dev/web_data_NE/imatges/info_run.json',
-        ];
-    }
+function getUrlsCandidates() {
+    const base = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
+    return [
+        // ✅ Ruta correcta a R2
+        'https://EL_TEU_DOMINI_R2/arome/web_data_NE/imatges/info_run.json', 
+        // Fallbacks
+        base + 'arome/web_data_NE/imatges/info_run.json',
+        '/arome/web_data_NE/imatges/info_run.json'
+    ];
+}
 
     // ═══════════════════════════════════════════════════════════
     //  UTILITATS
