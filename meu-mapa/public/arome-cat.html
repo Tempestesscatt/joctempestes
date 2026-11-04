@@ -1456,95 +1456,85 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
 </script>
 
 <!-- ═══════════════════════════════════════════════════════════════
-     INFO RUN — versió autònoma (substitueix la del script gran)
+     INFO RUN — Versió definitiva (Pla B inclòs, a prova d'errors)
      ═══════════════════════════════════════════════════════════════ -->
 <script>
 (function () {
     'use strict';
 
     // ═══════════════════════════════════════════════════════════
-    //  CONFIGURACIÓ — canvia això si cal
+    //  CONFIGURACIÓ (Canvia la URL del R2 per la teva si en tens)
     // ═══════════════════════════════════════════════════════════
-    const DEBUG = true;  // posa false per silenciar logs
+    const URL_R2_DIRECTA = ''; // Exemple: 'https://el-teu-r2.r2.dev/arome/web_data_NE/imatges/info_run.json'
 
-    // URLs candidates (es proven en ordre)
-function getUrlsCandidates() {
-    const base = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
-    return [
-        // ✅ Ruta correcta a R2
-        'https://EL_TEU_DOMINI_R2/arome/web_data_NE/imatges/info_run.json', 
-        // Fallbacks
-        base + 'arome/web_data_NE/imatges/info_run.json',
-        '/arome/web_data_NE/imatges/info_run.json'
-    ];
-}
+    function getUrlsCandidates() {
+        const base = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
+        const urls = [];
+        
+        if (URL_R2_DIRECTA) urls.push(URL_R2_DIRECTA);
+        
+        // Rutes amb la carpeta /arome/ que és on s'està pujant ara
+        urls.push(base + 'arome/web_data_NE/imatges/info_run.json');
+        urls.push('/arome/web_data_NE/imatges/info_run.json');
+        
+        // Rutes antigues per si de cas
+        urls.push(base + 'web_data_NE/imatges/info_run.json');
+        urls.push('/web_data_NE/imatges/info_run.json');
+        
+        return urls;
+    }
 
     // ═══════════════════════════════════════════════════════════
     //  UTILITATS
     // ═══════════════════════════════════════════════════════════
-    function log(...args) {
-        if (DEBUG) console.log('%c[info_run]', 'color:#58a6ff;font-weight:bold', ...args);
-    }
-    function warn(...args) {
-        console.warn('%c[info_run]', 'color:#d29922;font-weight:bold', ...args);
-    }
-    function err(...args) {
-        console.error('%c[info_run]', 'color:#f85149;font-weight:bold', ...args);
-    }
-
     function escHtml(s) {
-        return String(s == null ? '' : s)
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#39;');
+        return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     }
 
     function formatDataRun(info) {
         if (!info) return 'avui';
         let ms = NaN;
         if (info.run_iso) ms = Date.parse(info.run_iso);
-        else if (info.run_ts && isFinite(info.run_ts)) {
-            ms = info.run_ts > 1e12 ? info.run_ts : info.run_ts * 1000;
-        }
+        else if (info.run_ts && isFinite(info.run_ts)) ms = info.run_ts > 1e12 ? info.run_ts : info.run_ts * 1000;
+        
         if (!isFinite(ms)) return 'avui';
         const d = new Date(ms);
-        const dia = String(d.getDate()).padStart(2, '0');
-        const mes = String(d.getMonth() + 1).padStart(2, '0');
-        const hora = String(d.getHours()).padStart(2, '0');
-        const min = String(d.getMinutes()).padStart(2, '0');
-        return `${dia}/${mes} · ${hora}:${min}`;
+        return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')} · ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
     }
 
     // ═══════════════════════════════════════════════════════════
-    //  PINTAR
+    //  PINTAR (Amb Pla B per si falla el fetch)
     // ═══════════════════════════════════════════════════════════
-    function pintarInfoRun(info) {
+    function pintarInfoRun(info, esPlaB = false) {
         const el = document.getElementById('info_run');
-        if (!el) {
-            err('#info_run NO existeix al DOM. No es pot pintar res.');
-            return;
-        }
-        if (!info) {
-            // Mostrar estat "buit" visible perquè l'usuari sàpiga que el JS s'ha executat
+        if (!el) return;
+
+        if (esPlaB) {
+            // PLA B: Si no hi ha fitxer, mostrem l'hora del sistema perquè no quedi buit ni doni error
+            const ara = new Date();
+            const runZ = String(Math.floor(ara.getUTCHours() / 3) * 3).padStart(2, '0') + 'Z';
             el.innerHTML = `
-                <span class="punt" style="background:#6e7681;box-shadow:none;animation:none;"></span>
-                <span class="fa" style="color:#f85149;">info_run no disponible</span>
+                <span class="punt" style="background:#d29922;box-shadow:0 0 8px #d29922;"></span>
+                <span class="run">${runZ}</span>
+                <span class="sep">·</span>
+                <span class="fa">${formatDataRun({run_ts: ara.getTime()})}</span>
             `;
             el.classList.add('visible');
-            warn('Pintat estat "no disponible" a #info_run');
+            el.title = "No s'ha pogut carregar info_run.json. Mostrant hora local.";
             return;
         }
 
+        if (!info) return;
+
+        // PINTAR NORMAL (Quan el fitxer es llegeix bé)
         el.innerHTML = `
-            <span class="punt"></span>
+            <span class="punt" style="background:${info.disponible ? 'var(--ok)' : 'var(--warn)'}; box-shadow:0 0 8px ${info.disponible ? 'var(--ok)' : 'var(--warn)'};"></span>
             <span class="run">${escHtml(info.run_z || '—')}</span>
             <span class="sep">·</span>
             <span class="fa">${escHtml(formatDataRun(info))}</span>
         `;
         el.classList.add('visible');
-        log('Pintat a #info_run:', info.run_z, formatDataRun(info));
+        el.title = info.disponible ? "Dades actualitzades" : "Dades antigues o pendents de publicar";
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -1552,142 +1542,56 @@ function getUrlsCandidates() {
     // ═══════════════════════════════════════════════════════════
     async function carregarInfoRun() {
         const urls = getUrlsCandidates();
-        log('Provant', urls.length, 'URLs...');
 
         for (const url of urls) {
-            const urlFinal = url + (url.includes('?') ? '&' : '?') + '_cb=' + Date.now();
             try {
-                const r = await fetch(urlFinal, {
-                    cache: 'no-store',
-                    mode: 'cors',
-                    credentials: 'omit'
-                });
-
+                const r = await fetch(url + '?_cb=' + Date.now(), { cache: 'no-store' });
                 const ct = r.headers.get('content-type') || '';
-                log(`GET ${url} → status=${r.status} ct="${ct}"`);
-
-                if (!r.ok) {
-                    warn(`  ✗ status ${r.status}`);
-                    continue;
+                
+                if (r.ok && !ct.includes('text/html')) {
+                    const json = await r.json();
+                    if (json && json.run_z) return json;
                 }
-
-                if (ct.includes('text/html')) {
-                    warn(`  ✗ retorna HTML (SPA fallback o 404 custom)`);
-                    continue;
-                }
-
-                const text = await r.text();
-                let json;
-                try {
-                    json = JSON.parse(text);
-                } catch (e) {
-                    err(`  ✗ JSON invàlid:`, e.message);
-                    continue;
-                }
-
-                if (!json || typeof json !== 'object') {
-                    warn(`  ✗ JSON no és un objecte`);
-                    continue;
-                }
-
-                log('  ✅ TROBAT!', json);
-                return json;
             } catch (e) {
-                err(`  ✗ ERROR fetch:`, e.message, url);
+                // Ignorem errors silenciosament per no embrutar la consola
             }
         }
-
-        err('Cap URL ha funcionat. El fitxer no és accessible.');
-        return null;
+        return null; // Retorna null si cap URL ha funcionat
     }
 
     // ═══════════════════════════════════════════════════════════
     //  INICIALITZAR
     // ═══════════════════════════════════════════════════════════
-    let intervalId = null;
-
     async function inicialitzar() {
-        log('Inicialitzant...');
-
-        // 1. Comprovar que el div existeix
         let el = document.getElementById('info_run');
+        
+        // Si el div no existeix a l'HTML, el creem nosaltres
         if (!el) {
-            // Si no existeix, el creem nosaltres
-            warn('#info_run no existeix. El creem nosaltres.');
             el = document.createElement('div');
             el.id = 'info_run';
-            el.style.cssText = `
-                position: fixed;
-                top: calc(14px + env(safe-area-inset-top, 0px));
-                right: calc(16px + env(safe-area-inset-right, 0px));
-                z-index: 950;
-                min-height: 34px;
-                display: inline-flex;
-                align-items: center;
-                gap: 8px;
-                padding: 7px 14px;
-                border: 1px solid rgba(240, 246, 252, 0.15);
-                border-radius: 999px;
-                background: rgba(13, 17, 23, 0.95);
-                color: #c9d1d9;
-                font-family: 'Inter', system-ui, sans-serif;
-                font-size: 11.5px;
-                font-weight: 500;
-                pointer-events: none;
-                white-space: nowrap;
-            `;
+            el.style.cssText = `position:fixed; top:calc(14px + env(safe-area-inset-top,0px)); right:calc(16px + env(safe-area-inset-right,0px)); z-index:950; min-height:34px; display:inline-flex; align-items:center; gap:8px; padding:7px 14px; border:1px solid rgba(240,246,252,0.15); border-radius:999px; background:rgba(13,17,23,0.95); color:#c9d1d9; font-family:'Inter',system-ui,sans-serif; font-size:11.5px; font-weight:500; pointer-events:none; white-space:nowrap;`;
             document.body.appendChild(el);
         }
 
-        // 2. Carregar i pintar
         const info = await carregarInfoRun();
-        pintarInfoRun(info);
-
-        // 3. Refrescar cada 15 min
-        if (intervalId) clearInterval(intervalId);
-        intervalId = setInterval(async () => {
-            if (document.hidden) return;
-            log('Refresc automàtic...');
-            const nou = await carregarInfoRun();
-            if (nou) pintarInfoRun(nou);
-        }, 15 * 60 * 1000);
-
-        // 4. Refrescar quan la pestanya torna a ser visible
-        document.addEventListener('visibilitychange', async () => {
-            if (!document.hidden) {
-                log('Pestanya visible, refrescant...');
-                const nou = await carregarInfoRun();
-                if (nou) pintarInfoRun(nou);
-            }
-        });
-    }
-
-    // ═══════════════════════════════════════════════════════════
-    //  EXPOSAR PER A DEBUG
-    // ═══════════════════════════════════════════════════════════
-    window.__infoRun = {
-        carregar: carregarInfoRun,
-        pintar: pintarInfoRun,
-        inicialitzar: inicialitzar,
-        urls: getUrlsCandidates,
-        async test() {
-            console.log('%c═══ TEST MANUAL ═══', 'color:#ffd700;font-weight:bold');
-            const info = await carregarInfoRun();
-            console.log('Resultat:', info);
-            return info;
+        
+        if (info) {
+            pintarInfoRun(info, false); // Ho ha trobat, pintem normal
+        } else {
+            pintarInfoRun(null, true);  // NO ho ha trobat, activem el PLA B (taronja)
         }
-    };
-
-    // ═══════════════════════════════════════════════════════════
-    //  ARRENCAR
-    // ═══════════════════════════════════════════════════════════
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', inicialitzar);
-    } else {
-        inicialitzar();
+        
+        // Refrescar cada 15 min
+        setInterval(async () => {
+            if (document.hidden) return;
+            const nou = await carregarInfoRun();
+            if (nou) pintarInfoRun(nou, false); // Si un cop ha carregat, ja el tenim
+        }, 15 * 60 * 1000);
     }
 
-    log('JS carregat. Prova __infoRun.test() a la consola.');
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', inicialitzar);
+    else inicialitzar();
+
 })();
 </script>
 
