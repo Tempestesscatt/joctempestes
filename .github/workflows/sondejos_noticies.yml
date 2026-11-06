@@ -1,33 +1,30 @@
-name: Actualitzar Sondejos Reals
+name: Actualitzar Sondejos i Notícies
 
 on:
   schedule:
-    # Cada 5 h (UTC) amb 20 min de marge sobre el workflow de notícies perquè no coincideixin
-    - cron: '20 */5 * * *'
+    # Cada 5 h (UTC): 00:00, 05:00, 10:00, 15:00 i 20:00
+    - cron: '0 */5 * * *'
   workflow_dispatch:
 
 permissions:
   contents: write
 
-# Mateix grup que la resta: NOMÉS fa que els deploys s'encuïn (Cloudflare Pages no suporta
-# deploys en paral·lel). No comparteix cap fitxer ni cap branca amb els altres workflows.
+# Mateix grup que la resta de workflows: els deploys s'encuen i no es trepitgen.
+# cancel-in-progress: false perquè Cloudflare Pages no accepta bé deploys tallats a mitges.
 concurrency:
   group: deploy-data
   cancel-in-progress: false
 
 env:
-  # Branca PRÒPIA d'aquest workflow: només hi escriu ell.
   BRANCA_SONDEJOS: sondejos
-  # Dies de sondejos que es conserven (cada dia són ~10 fitxers petits)
   DIES_CONSERVAR: "7"
-  # Carpetes dinàmiques de la web (branca 'data'): NOMÉS es llegeixen, mai s'hi escriu.
   # Han de ser les mateixes que a la resta de yml.
   CARPETES: "web_data_NE webdata_waves avis gfsmaps gfsESPmaps previsions_catalunya web_data_GFS web_data_derivats"
 
 jobs:
-  update-sondejos:
+  update-all:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 130
 
     steps:
     - name: Descarregar codi de main
@@ -50,10 +47,19 @@ jobs:
       with:
         python-version: '3.11'
 
-    - name: Instal·lar dependències
-      run: pip install requests
+    # ecCodes: necessari per a noticias.py (GRIB2 de GFS)
+    - name: Instal·lar llibreria ecCodes
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libeccodes-dev
 
-    # Recuperem els sondejos acumulats de la branca pròpia (o la creem buida la primera vegada)
+    - name: Instal·lar dependències
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests pytz numpy eccodes
+        python -c "import numpy, eccodes, pytz, requests; print('✅ Dependències OK, eccodes', eccodes.__version__)"
+
+    # ───────────── SONDEJOS: preparar la branca pròpia ─────────────
     - name: Preparar branca de sondejos
       run: |
         set -euo pipefail
@@ -74,7 +80,6 @@ jobs:
         fi
         mkdir -p /tmp/sondejos-branch/sondejos_reals
 
-    # Esborra sondejos més vells de DIES_CONSERVAR dies (pel nom: AAAAMMDD_HHZ.json)
     - name: Podar sondejos antics
       run: |
         CUTOFF=$(date -u -d "-${DIES_CONSERVAR} days" +%Y%m%d)
@@ -85,7 +90,16 @@ jobs:
           if [ "${b:0:8}" -lt "$CUTOFF" ] 2>/dev/null; then echo "Esborro $f"; rm -f "$f"; fi
         done
 
+    - name: Preparar entorn de notícies
+      run: |
+        cp repo-principal/meu-mapa/public/index.html private-scripts-new/index_plantilla.html
+        cd private-scripts-new
+        mkdir -p public/noticies
+
+    # ───────────── GENERACIÓ (cap de les dues pot tombar l'altra) ─────────────
     - name: Descarregar sondejos (sondejos.py)
+      id: sondejos
+      continue-on-error: true
       env:
         SONDEJOS_DIR: /tmp/sondejos-branch/sondejos_reals
       run: |
@@ -93,6 +107,18 @@ jobs:
         python -u sondejos.py
         echo "Contingut:"; ls -R "$SONDEJOS_DIR" | head -60
 
+    - name: Generar notícies (noticias.py)
+      id: noticies
+      continue-on-error: true
+      env:
+        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      run: |
+        cd private-scripts-new
+        python -u noticias.py
+        [ -f public/noticies/noticies.html ] || { echo "❌ noticias.py no ha generat noticies.html"; exit 1; }
+        [ -f public/index.html ] || { echo "❌ noticias.py no ha generat index.html"; exit 1; }
+
+    # ───────────── GUARDAR RESULTATS ─────────────
     - name: Guardar sondejos a la branca pròpia
       continue-on-error: true
       run: |
@@ -107,13 +133,45 @@ jobs:
         done
         echo "❌ No s'ha pogut guardar a la branca"; exit 1
 
-    # Cloudflare Pages substitueix TOT el desplegament: cal reconstruir la web completa.
-    # De 'data' només es LLEGEIX.
+    # Només si les notícies s'han generat bé: així mai no es sobreescriu amb res trencat
+    - name: Guardar notícies a la branca data
+      if: steps.noticies.outcome == 'success'
+      continue-on-error: true
+      run: |
+        set -euo pipefail
+        NEWS_SRC="$GITHUB_WORKSPACE/private-scripts-new/public/noticies"
+        [ -f "$NEWS_SRC/noticies.html" ] || { echo "⚠️  noticies.html no existeix"; exit 1; }
+
+        cd "$GITHUB_WORKSPACE/repo-principal"
+        for i in 1 2 3 4 5; do
+          cd "$GITHUB_WORKSPACE/repo-principal"
+          rm -rf /tmp/data-push
+          git worktree prune
+          git fetch --depth=1 origin data
+          git worktree add -f /tmp/data-push FETCH_HEAD
+
+          cd /tmp/data-push
+          rm -rf news/noticies
+          mkdir -p news/noticies
+          cp -r "$NEWS_SRC/." news/noticies/
+          git add -A news
+
+          if git diff --cached --quiet; then echo "Sense canvis a les notícies"; exit 0; fi
+          git commit -m "Notícies actualitzades"
+
+          if git push origin HEAD:data; then echo "✅ Notícies guardades a data/news/noticies"; exit 0; fi
+          echo "Push rebutjat (algú ha tocat 'data'), reintent $i/5..."
+          sleep $((i * 5))
+        done
+        echo "❌ No s'ha pogut guardar a data"; exit 1
+
+    # ───────────── MUNTAR LA WEB COMPLETA (Cloudflare Pages substitueix tot) ─────────────
     - name: Muntar web (main + data + notícies + sondejos)
       run: |
         set -euo pipefail
         cd repo-principal
         P="$GITHUB_WORKSPACE/repo-principal/meu-mapa/public"
+        FRESC="$GITHUB_WORKSPACE/private-scripts-new/public"
         mkdir -p "$P/js"
 
         OK=0
@@ -123,6 +181,7 @@ jobs:
         done
         [ "$OK" = 1 ] || { echo "❌ No puc baixar la branca data"; exit 1; }
 
+        git worktree prune
         rm -rf /tmp/data-branch
         git worktree add -f /tmp/data-branch FETCH_HEAD
 
@@ -136,25 +195,35 @@ jobs:
         done
         cp /tmp/data-branch/js/status.js "$P/js/status.js" 2>/dev/null || echo "⚠️  status.js no trobat a data"
 
-        # Notícies ja generades pel workflow de notícies (es reutilitzen tal qual)
-        if [ -d /tmp/data-branch/news/noticies ]; then
+        # Notícies: les acabades de generar; si noticias.py ha fallat, les últimes bones de 'data'
+        if [ "${{ steps.noticies.outcome }}" = "success" ] && [ -f "$FRESC/noticies/noticies.html" ] && [ -f "$FRESC/index.html" ]; then
+          echo "✅ Notícies fresques"
+          cp "$FRESC/index.html" "$P/index.html"
+          rm -rf "$P/noticies"; mkdir -p "$P/noticies"
+          cp -r "$FRESC/noticies/." "$P/noticies/"
+        elif [ -d /tmp/data-branch/news/noticies ]; then
+          echo "⚠️  noticias.py ha fallat: reutilitzo les últimes notícies bones de data"
           rm -rf "$P/noticies"; mkdir -p "$P/noticies"
           cp -r /tmp/data-branch/news/noticies/. "$P/noticies/"
         else
-          echo "⚠️  news/noticies no trobat a data"
+          echo "⚠️  Sense notícies disponibles"
         fi
 
         git worktree remove /tmp/data-branch --force
 
-        # Sondejos reals (branca pròpia)
+        # Sondejos reals (branca pròpia + els acabats de baixar)
         rm -rf "$P/sondejos_reals"; mkdir -p "$P/sondejos_reals"
         cp -r /tmp/sondejos-branch/sondejos_reals/. "$P/sondejos_reals/"
 
+        # Seguretat: sense dades del visor NO es desplega mai
         if [ -z "$(ls -A "$P/web_data_NE/imatges" 2>/dev/null)" ]; then
           echo "❌ web_data_NE/imatges és buit: no desplego"
           exit 1
         fi
-        echo "✅ Web muntada. Sondejos: $(find "$P/sondejos_reals" -type f | wc -l) fitxers"
+        echo "✅ Web muntada. web_data_NE: $(find "$P/web_data_NE" -type f | wc -l) fitxers · sondejos: $(find "$P/sondejos_reals" -type f | wc -l) fitxers"
+        if [ ! -d "$P/web_data_derivats/imatges" ]; then
+          echo "⚠️  web_data_derivats no existeix a data: sense mapes derivats fins al proper AROME"
+        fi
 
     - name: Comprovar límits de Cloudflare Pages
       run: |
@@ -163,6 +232,7 @@ jobs:
         N=$(find "$P" -type f | wc -l)
         echo "Total fitxers: $N (límit Pages: 20000)"
         if [ "$N" -gt 19000 ]; then
+          echo "Massa fitxers: elimino isolínies opcionals"
           find "$P/web_data_derivats/imatges" -maxdepth 1 -name 'isolines_3d_*' -delete 2>/dev/null || true
           find "$P/web_data_NE/imatges" -maxdepth 1 -name 'isolines_3d_*' -delete 2>/dev/null || true
           find "$P/web_data_GFS/imatges" -maxdepth 1 -name 'isolines_*' -delete 2>/dev/null || true
@@ -188,3 +258,13 @@ jobs:
           sleep 20
         done
         echo "❌ El deploy ha fallat 3 vegades"; exit 1
+
+    # Resum visible a la pestanya de l'execució
+    - name: Resum
+      if: always()
+      run: |
+        {
+          echo "### Resultat"
+          echo "- Sondejos: \`${{ steps.sondejos.outcome }}\`"
+          echo "- Notícies: \`${{ steps.noticies.outcome }}\`"
+        } >> "$GITHUB_STEP_SUMMARY"
