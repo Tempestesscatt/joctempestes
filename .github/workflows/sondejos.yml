@@ -1,0 +1,190 @@
+name: Actualitzar Sondejos Reals
+
+on:
+  schedule:
+    # Cada 5 h (UTC) amb 20 min de marge sobre el workflow de notícies perquè no coincideixin
+    - cron: '20 */5 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# Mateix grup que la resta: NOMÉS fa que els deploys s'encuïn (Cloudflare Pages no suporta
+# deploys en paral·lel). No comparteix cap fitxer ni cap branca amb els altres workflows.
+concurrency:
+  group: deploy-data
+  cancel-in-progress: false
+
+env:
+  # Branca PRÒPIA d'aquest workflow: només hi escriu ell.
+  BRANCA_SONDEJOS: sondejos
+  # Dies de sondejos que es conserven (cada dia són ~10 fitxers petits)
+  DIES_CONSERVAR: "7"
+  # Carpetes dinàmiques de la web (branca 'data'): NOMÉS es llegeixen, mai s'hi escriu.
+  # Han de ser les mateixes que a la resta de yml.
+  CARPETES: "web_data_NE webdata_waves avis gfsmaps gfsESPmaps previsions_catalunya web_data_GFS web_data_derivats"
+
+jobs:
+  update-sondejos:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    steps:
+    - name: Descarregar codi de main
+      uses: actions/checkout@v4
+      with:
+        ref: main
+        path: repo-principal
+
+    - name: Clonar private-scripts
+      run: |
+        for i in 1 2 3 4; do
+          rm -rf private-scripts-new
+          if git clone --depth 1 "https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/Tempestesscatt/Scripts.git" private-scripts-new; then break; fi
+          [ "$i" = 4 ] && { echo "Error clonant"; exit 1; }
+          sleep 15
+        done
+
+    - name: Configurar Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Instal·lar dependències
+      run: pip install requests
+
+    # Recuperem els sondejos acumulats de la branca pròpia (o la creem buida la primera vegada)
+    - name: Preparar branca de sondejos
+      run: |
+        set -euo pipefail
+        cd repo-principal
+        git config user.name "github-actions"
+        git config user.email "actions@github.com"
+        git worktree prune
+        rm -rf /tmp/sondejos-branch
+        if git ls-remote --exit-code --heads origin "$BRANCA_SONDEJOS" >/dev/null 2>&1; then
+          git fetch --depth=1 origin "$BRANCA_SONDEJOS"
+          git worktree add -f --detach /tmp/sondejos-branch FETCH_HEAD
+        else
+          echo "Branca '$BRANCA_SONDEJOS' nova: es crea buida"
+          git worktree add -f --detach /tmp/sondejos-branch
+          cd /tmp/sondejos-branch
+          git checkout --orphan "$BRANCA_SONDEJOS"
+          git rm -rf --quiet . || true
+        fi
+        mkdir -p /tmp/sondejos-branch/sondejos_reals
+
+    # Esborra sondejos més vells de DIES_CONSERVAR dies (pel nom: AAAAMMDD_HHZ.json)
+    - name: Podar sondejos antics
+      run: |
+        CUTOFF=$(date -u -d "-${DIES_CONSERVAR} days" +%Y%m%d)
+        cd /tmp/sondejos-branch/sondejos_reals
+        for f in */*.json; do
+          [ -e "$f" ] || continue
+          b=$(basename "$f")
+          if [ "${b:0:8}" -lt "$CUTOFF" ] 2>/dev/null; then echo "Esborro $f"; rm -f "$f"; fi
+        done
+
+    - name: Descarregar sondejos (sondejos.py)
+      env:
+        SONDEJOS_DIR: /tmp/sondejos-branch/sondejos_reals
+      run: |
+        cd private-scripts-new
+        python -u sondejos.py
+        echo "Contingut:"; ls -R "$SONDEJOS_DIR" | head -60
+
+    - name: Guardar sondejos a la branca pròpia
+      continue-on-error: true
+      run: |
+        set -euo pipefail
+        cd /tmp/sondejos-branch
+        git add -A sondejos_reals
+        if git diff --cached --quiet; then echo "Sense sondejos nous"; exit 0; fi
+        git commit -m "Sondejos reals actualitzats"
+        for i in 1 2 3; do
+          if git push origin "HEAD:refs/heads/$BRANCA_SONDEJOS"; then echo "✅ Guardat a '$BRANCA_SONDEJOS'"; exit 0; fi
+          sleep $((i * 5))
+        done
+        echo "❌ No s'ha pogut guardar a la branca"; exit 1
+
+    # Cloudflare Pages substitueix TOT el desplegament: cal reconstruir la web completa.
+    # De 'data' només es LLEGEIX.
+    - name: Muntar web (main + data + notícies + sondejos)
+      run: |
+        set -euo pipefail
+        cd repo-principal
+        P="$GITHUB_WORKSPACE/repo-principal/meu-mapa/public"
+        mkdir -p "$P/js"
+
+        OK=0
+        for i in 1 2 3 4 5; do
+          if git fetch --depth=1 origin data; then OK=1; break; fi
+          sleep 10
+        done
+        [ "$OK" = 1 ] || { echo "❌ No puc baixar la branca data"; exit 1; }
+
+        rm -rf /tmp/data-branch
+        git worktree add -f /tmp/data-branch FETCH_HEAD
+
+        for c in $CARPETES; do
+          if [ -d "/tmp/data-branch/$c" ]; then
+            rm -rf "$P/$c"; mkdir -p "$P/$c"
+            cp -r "/tmp/data-branch/$c/." "$P/$c/"
+          else
+            echo "⚠️  $c no trobat a data (s'ignora)"
+          fi
+        done
+        cp /tmp/data-branch/js/status.js "$P/js/status.js" 2>/dev/null || echo "⚠️  status.js no trobat a data"
+
+        # Notícies ja generades pel workflow de notícies (es reutilitzen tal qual)
+        if [ -d /tmp/data-branch/news/noticies ]; then
+          rm -rf "$P/noticies"; mkdir -p "$P/noticies"
+          cp -r /tmp/data-branch/news/noticies/. "$P/noticies/"
+        else
+          echo "⚠️  news/noticies no trobat a data"
+        fi
+
+        git worktree remove /tmp/data-branch --force
+
+        # Sondejos reals (branca pròpia)
+        rm -rf "$P/sondejos_reals"; mkdir -p "$P/sondejos_reals"
+        cp -r /tmp/sondejos-branch/sondejos_reals/. "$P/sondejos_reals/"
+
+        if [ -z "$(ls -A "$P/web_data_NE/imatges" 2>/dev/null)" ]; then
+          echo "❌ web_data_NE/imatges és buit: no desplego"
+          exit 1
+        fi
+        echo "✅ Web muntada. Sondejos: $(find "$P/sondejos_reals" -type f | wc -l) fitxers"
+
+    - name: Comprovar límits de Cloudflare Pages
+      run: |
+        P="$GITHUB_WORKSPACE/repo-principal/meu-mapa/public"
+        find "$P" -type f -size +25M -print -delete || true
+        N=$(find "$P" -type f | wc -l)
+        echo "Total fitxers: $N (límit Pages: 20000)"
+        if [ "$N" -gt 19000 ]; then
+          find "$P/web_data_derivats/imatges" -maxdepth 1 -name 'isolines_3d_*' -delete 2>/dev/null || true
+          find "$P/web_data_NE/imatges" -maxdepth 1 -name 'isolines_3d_*' -delete 2>/dev/null || true
+          find "$P/web_data_GFS/imatges" -maxdepth 1 -name 'isolines_*' -delete 2>/dev/null || true
+          N=$(find "$P" -type f | wc -l)
+          echo "Total fitxers ara: $N"
+        fi
+        [ "$N" -le 19900 ] || { echo "❌ Encara massa fitxers per a Cloudflare Pages"; exit 1; }
+
+    - name: Deploy a Cloudflare
+      timeout-minutes: 70
+      env:
+        CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        WRANGLER_SEND_METRICS: "false"
+      run: |
+        cd repo-principal/meu-mapa
+        for i in 1 2 3; do npm install -g wrangler && break; sleep 10; done
+        for i in 1 2 3; do
+          echo "--- deploy intent $i/3 ($(date -u +%H:%M:%S) UTC) ---"
+          if timeout 25m wrangler pages deploy public --project-name=tempestes-cat --branch=main --commit-dirty=true; then
+            echo "✅ Deploy OK"; exit 0
+          fi
+          sleep 20
+        done
+        echo "❌ El deploy ha fallat 3 vegades"; exit 1
