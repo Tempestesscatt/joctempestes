@@ -444,10 +444,6 @@ body.panell-plegat #current_time_label { left: calc(50vw + var(--safe-left)); }
     box-shadow: inset 2px 0 0 var(--accent);
 }
 .param-row.premium-bloquejat { opacity: 0.45; filter: grayscale(0.6); cursor: pointer; position: relative; }
-.param-row.premium-bloquejat::after {
-    content: '\f023'; font-family: 'Font Awesome 6 Free'; font-weight: 900;
-    position: absolute; right: 32px; color: var(--gold); font-size: 10px;
-}
 .param-row.premium-bloquejat:hover { background: rgba(255, 215, 0, 0.08); opacity: 0.75; }
 .param-row .unitat { font-size: 9.5px; color: var(--muted-2); white-space: nowrap; text-transform: uppercase; letter-spacing: 0.4px; font-weight: 500; }
 .param-row.param-selected .unitat { color: var(--accent); opacity: 0.8; }
@@ -550,7 +546,8 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
 #btnPlay:hover { background: var(--panel-hover); color: var(--text); }
 #btnPlay.actiu { background: var(--accent-soft); color: var(--accent); border-color: rgba(88, 166, 255, 0.3); }
 
-#fh_grid { flex: 1 1 auto; min-width: 0; overflow: hidden; }
+#fh_grid { flex: 1 1 auto; min-width: 140px; overflow: hidden; }
+@media (max-width: 1180px) { #dock { height: auto; min-height: 48px; flex-wrap: wrap; } #fh_grid { order: 3; flex: 1 1 100%; } }
 #fh_grid .fh-scroll { display: flex; gap: 1px; padding: 2px; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; scroll-behavior: smooth; }
 #fh_grid .fh-scroll::-webkit-scrollbar { display: none; }
 
@@ -707,10 +704,6 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
 <body>
 
 <div id="map"></div>
-
-<button id="btn-obrir-panell" type="button">
-    <i class="fa-solid fa-bars"></i> Panell
-</button>
 
 <div id="dock">
     <button id="btnPlay" type="button">▶ Animació</button>
@@ -950,12 +943,11 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
     async function carregarPlaServidor(user) {
         if (!user) { plaActual = 'gratuït'; return; }
         if (window._esAdmin === true) { plaActual = 'professional'; return; }
-        try {
-            const token = await user.getIdToken();
-            const r = await fetch(`${DB_URL}/users/${encodeURIComponent(user.uid)}/pla.json?auth=${token}`, { cache: 'no-store' });
-            if (!r.ok) throw new Error('HTTP ' + r.status);
-            plaActual = normalitzarPla(await r.json());
-        } catch (e) { plaActual = 'gratuït'; }
+try {
+    const r = await user.getIdTokenResult(true);
+    const p = Number(r.claims.plan) || 0;
+    plaActual = ['gratuït', 'entusiasta', 'professional'][Math.min(2, Math.max(0, p))];
+} catch (e) { plaActual = 'gratuït'; }
         if (window._esAdmin === true) { plaActual = 'professional'; }
     }
     function getPlaUsuari() {
@@ -1117,6 +1109,7 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
 
 <script defer src="js/skew-t-engine.js"></script>
 <script defer src="js/skewt.js"></script>
+<script src="js/skewt_real.js"></script>
 <script defer src="js/valor.js"></script>
 <script defer src="js/outlook.js"></script>
 
@@ -1161,7 +1154,7 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
             if (btnIso.disabled) return;
             window.MOSTRAR_ISOLINIES = !window.MOSTRAR_ISOLINIES;
             if (typeof guardarCapes === 'function') guardarCapes();
-            if (typeof refrescarVentIsolines === 'function') refrescarVentIsolines();
+            if (typeof refrescarVentIsolines === 'function') refrescarVentIsolines(); else if (typeof refrescarCapes === 'function') refrescarCapes(false);
             window.actualitzarControlsDock();
         });
         if (btnBarb) btnBarb.addEventListener('click', () => {
@@ -1262,50 +1255,6 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
     window.obtenirNomUsuari = obtenirNomUsuari;
     window.haCanviatNom = haCanviatNom;
     window.actualitzarUIUsuari = actualitzarUIUsuari;
-    document.addEventListener('DOMContentLoaded', () => {
-        const btnLogin = document.getElementById('ppBtnLogin');
-        const btnPerfil = document.getElementById('ppBtnPerfil');
-        if (btnLogin) btnLogin.addEventListener('click', () => obrirModal('modalLogin'));
-        if (btnPerfil) btnPerfil.addEventListener('click', () => openProfile());
-    });
-    function rutaBase() { const p = window.location.pathname; return p.substring(0, p.lastIndexOf('/') + 1); }
-    async function carregarInfoRun() {
-        const base = rutaBase();
-        const urls = [ base + 'web_data_NE/imatges/info_run.json', '/web_data_NE/imatges/info_run.json', '/public/web_data_NE/imatges/info_run.json' ];
-        for (const url of urls) {
-            try {
-                const r = await fetch(url + '?_cb=' + Date.now(), { cache: 'no-store' });
-                if (!r.ok) continue;
-                const ct = r.headers.get('content-type') || '';
-                if (ct.includes('text/html')) continue;
-                return await r.json();
-            } catch (e) {}
-        }
-        return null;
-    }
-    function formatDataRun(info) {
-        let ms = NaN;
-        if (info.run_iso) ms = Date.parse(info.run_iso);
-        else if (info.run_ts && isFinite(info.run_ts)) ms = info.run_ts > 1e12 ? info.run_ts : info.run_ts * 1000;
-        if (!isFinite(ms)) return 'avui';
-        const d = new Date(ms);
-        const dia = String(d.getDate()).padStart(2, '0');
-        const mes = String(d.getMonth() + 1).padStart(2, '0');
-        const hora = String(d.getHours()).padStart(2, '0');
-        const min = String(d.getMinutes()).padStart(2, '0');
-        return `${dia}/${mes} · ${hora}:${min}`;
-    }
-    function pintarInfoRun(info) {
-        const el = document.getElementById('info_run');
-        if (!el || !info) return;
-        el.innerHTML = `<span class="punt"></span><span class="run">${escHtml(info.run_z || '—')}</span><span class="sep">·</span><span class="fa">${escHtml(formatDataRun(info))}</span>`;
-        el.classList.add('visible');
-    }
-    async function inicialitzarInfoRun() {
-        const info = await carregarInfoRun();
-        if (info) pintarInfoRun(info);
-        setInterval(async () => { if (document.hidden) return; const nou = await carregarInfoRun(); if (nou) pintarInfoRun(nou); }, 15 * 60 * 1000);
-    }
     const PUSHER_KEY = '54b645506c85aed5b62e';
     const PUSHER_CLUSTER = 'eu';
     const API_CHAT = 'https://tempestes-cat.pages.dev/api';
@@ -1411,7 +1360,6 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
     };
     async function inicialitzar() {
         if (window._firebaseUser) actualitzarUIUsuari(window._firebaseUser);
-        inicialitzarInfoRun();
         setTimeout(function () {
             if (typeof Pusher !== 'undefined') return inicialitzarPusher();
             var s = document.createElement('script');
@@ -1455,143 +1403,83 @@ body.panell-plegat #dock { left: calc(16px + var(--safe-left)); }
 })();
 </script>
 
-<!-- ═══════════════════════════════════════════════════════════════
-     INFO RUN — Versió definitiva (Pla B inclòs, a prova d'errors)
-     ═══════════════════════════════════════════════════════════════ -->
 <script>
 (function () {
     'use strict';
 
-    // ═══════════════════════════════════════════════════════════
-    //  CONFIGURACIÓ (Canvia la URL del R2 per la teva si en tens)
-    // ═══════════════════════════════════════════════════════════
-    const URL_R2_DIRECTA = ''; // Exemple: 'https://el-teu-r2.r2.dev/arome/web_data_NE/imatges/info_run.json'
+    const URL_R2_DIRECTA = 'https://visor.tempestes.cat/arome/web_data_NE/imatges/info_run.json';
 
     function getUrlsCandidates() {
-        const base = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
-        const urls = [];
-        
-        if (URL_R2_DIRECTA) urls.push(URL_R2_DIRECTA);
-        
-        // Rutes amb la carpeta /arome/ que és on s'està pujant ara
-        urls.push(base + 'arome/web_data_NE/imatges/info_run.json');
-        urls.push('/arome/web_data_NE/imatges/info_run.json');
-        
-        // Rutes antigues per si de cas
-        urls.push(base + 'web_data_NE/imatges/info_run.json');
-        urls.push('/web_data_NE/imatges/info_run.json');
-        
-        return urls;
+        const base = location.pathname.substring(0, location.pathname.lastIndexOf('/') + 1);
+        return [URL_R2_DIRECTA, base + 'arome/web_data_NE/imatges/info_run.json', '/arome/web_data_NE/imatges/info_run.json'];
     }
 
-    // ═══════════════════════════════════════════════════════════
-    //  UTILITATS
-    // ═══════════════════════════════════════════════════════════
-    function escHtml(s) {
-        return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-    }
+    const escHtml = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 
-    function formatDataRun(info) {
-        if (!info) return 'avui';
-        let ms = NaN;
-        if (info.run_iso) ms = Date.parse(info.run_iso);
-        else if (info.run_ts && isFinite(info.run_ts)) ms = info.run_ts > 1e12 ? info.run_ts : info.run_ts * 1000;
-        
-        if (!isFinite(ms)) return 'avui';
-        const d = new Date(ms);
-        return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')} · ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+    // Accepta número (s o ms) o text ISO. Si el text no porta zona horària, es considera UTC (com al log d'info.py).
+    function aMs(v) {
+        if (v == null || v === '') return NaN;
+        if (typeof v === 'number') return v > 1e12 ? v : v * 1000;
+        let s = String(v).trim().replace(' ', 'T');
+        if (!/(Z|[+-]\d\d:?\d\d)$/.test(s)) s += 'Z';
+        return Date.parse(s);
     }
+    const CAMPS_GENERAT = ['generat', 'generat_iso', 'generat_ts', 'actualitzat', 'actualitzat_iso', 'hora_utc', 'hora_actual', 'updated', 'timestamp', 'ts'];
+    function momentGeneracio(info) {
+        for (const c of CAMPS_GENERAT) { const ms = aMs(info[c]); if (isFinite(ms)) return ms; }
+        return aMs(info._lastModified);   // reserva: capçalera Last-Modified del fitxer a R2
+    }
+    const fmt = (ms, ambData) => new Date(ms).toLocaleString('ca-ES', {
+        timeZone: 'Europe/Madrid', hour: '2-digit', minute: '2-digit',
+        ...(ambData ? { day: '2-digit', month: '2-digit' } : {}), hour12: false
+    }).replace(',', '');
 
-    // ═══════════════════════════════════════════════════════════
-    //  PINTAR (Amb Pla B per si falla el fetch)
-    // ═══════════════════════════════════════════════════════════
-    function pintarInfoRun(info, esPlaB = false) {
+    function pintarInfoRun(info) {
         const el = document.getElementById('info_run');
         if (!el) return;
-
-        if (esPlaB) {
-            // PLA B: Si no hi ha fitxer, mostrem l'hora del sistema perquè no quedi buit ni doni error
-            const ara = new Date();
-            const runZ = String(Math.floor(ara.getUTCHours() / 3) * 3).padStart(2, '0') + 'Z';
-            el.innerHTML = `
-                <span class="punt" style="background:#d29922;box-shadow:0 0 8px #d29922;"></span>
-                <span class="run">${runZ}</span>
-                <span class="sep">·</span>
-                <span class="fa">${formatDataRun({run_ts: ara.getTime()})}</span>
-            `;
+        if (!info) {
+            el.innerHTML = `<span class="punt" style="background:#d29922;box-shadow:0 0 8px #d29922;"></span><span class="run">Info del run no disponible</span>`;
+            el.title = "No s'ha pogut carregar info_run.json";
             el.classList.add('visible');
-            el.title = "No s'ha pogut carregar info_run.json. Mostrant hora local.";
             return;
         }
-
-        if (!info) return;
-
-        // PINTAR NORMAL (Quan el fitxer es llegeix bé)
-        el.innerHTML = `
-            <span class="punt" style="background:${info.disponible ? 'var(--ok)' : 'var(--warn)'}; box-shadow:0 0 8px ${info.disponible ? 'var(--ok)' : 'var(--warn)'};"></span>
-            <span class="run">${escHtml(info.run_z || '—')}</span>
-            <span class="sep">·</span>
-            <span class="fa">${escHtml(formatDataRun(info))}</span>
-        `;
+        const color = info.disponible === false ? 'var(--warn)' : 'var(--ok)';
+        const gen = momentGeneracio(info), run = aMs(info.run_iso ?? info.run_ts);
+        el.innerHTML = `<span class="punt" style="background:${color};box-shadow:0 0 8px ${color};"></span>
+            <span class="run">${escHtml(info.run_z || '—')}</span>` +
+            (isFinite(gen) ? `<span class="sep">·</span><span class="fa">${fmt(gen, true)}</span>` : '');
+        el.title = [isFinite(run) ? `Run AROME ${info.run_z || ''} del ${fmt(run, true)}` : `Run ${info.run_z || '—'}`,
+                    isFinite(gen) ? `Dades generades: ${fmt(gen, true)} (hora local)` : ''].filter(Boolean).join('\n');
         el.classList.add('visible');
-        el.title = info.disponible ? "Dades actualitzades" : "Dades antigues o pendents de publicar";
     }
 
-    // ═══════════════════════════════════════════════════════════
-    //  CARREGAR
-    // ═══════════════════════════════════════════════════════════
     async function carregarInfoRun() {
-        const urls = getUrlsCandidates();
-
-        for (const url of urls) {
+        for (const url of getUrlsCandidates()) {
             try {
                 const r = await fetch(url + '?_cb=' + Date.now(), { cache: 'no-store' });
-                const ct = r.headers.get('content-type') || '';
-                
-                if (r.ok && !ct.includes('text/html')) {
-                    const json = await r.json();
-                    if (json && json.run_z) return json;
-                }
-            } catch (e) {
-                // Ignorem errors silenciosament per no embrutar la consola
-            }
+                if (!r.ok || (r.headers.get('content-type') || '').includes('text/html')) continue;
+                const json = await r.json();
+                if (json && json.run_z) { json._lastModified = r.headers.get('last-modified'); return json; }
+            } catch (e) {}
         }
-        return null; // Retorna null si cap URL ha funcionat
+        return null;
     }
 
-    // ═══════════════════════════════════════════════════════════
-    //  INICIALITZAR
-    // ═══════════════════════════════════════════════════════════
-    async function inicialitzar() {
-        let el = document.getElementById('info_run');
-        
-        // Si el div no existeix a l'HTML, el creem nosaltres
-        if (!el) {
-            el = document.createElement('div');
+    async function refrescar() { pintarInfoRun(await carregarInfoRun()); }
+
+    function inicialitzar() {
+        if (!document.getElementById('info_run')) {
+            const el = document.createElement('div');
             el.id = 'info_run';
-            el.style.cssText = `position:fixed; top:calc(14px + env(safe-area-inset-top,0px)); right:calc(16px + env(safe-area-inset-right,0px)); z-index:950; min-height:34px; display:inline-flex; align-items:center; gap:8px; padding:7px 14px; border:1px solid rgba(240,246,252,0.15); border-radius:999px; background:rgba(13,17,23,0.95); color:#c9d1d9; font-family:'Inter',system-ui,sans-serif; font-size:11.5px; font-weight:500; pointer-events:none; white-space:nowrap;`;
+            el.style.cssText = "position:fixed; top:calc(14px + env(safe-area-inset-top,0px)); right:calc(16px + env(safe-area-inset-right,0px)); z-index:950; min-height:34px; display:inline-flex; align-items:center; gap:8px; padding:7px 14px; border:1px solid rgba(240,246,252,0.15); border-radius:999px; background:rgba(13,17,23,0.95); color:#c9d1d9; font-family:'Inter',system-ui,sans-serif; font-size:11.5px; font-weight:500; pointer-events:none; white-space:nowrap;";
             document.body.appendChild(el);
         }
-
-        const info = await carregarInfoRun();
-        
-        if (info) {
-            pintarInfoRun(info, false); // Ho ha trobat, pintem normal
-        } else {
-            pintarInfoRun(null, true);  // NO ho ha trobat, activem el PLA B (taronja)
-        }
-        
-        // Refrescar cada 15 min
-        setInterval(async () => {
-            if (document.hidden) return;
-            const nou = await carregarInfoRun();
-            if (nou) pintarInfoRun(nou, false); // Si un cop ha carregat, ja el tenim
-        }, 15 * 60 * 1000);
+        refrescar();
+        setInterval(() => { if (!document.hidden) refrescar(); }, 15 * 60 * 1000);
     }
 
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', inicialitzar);
     else inicialitzar();
-
 })();
 </script>
 

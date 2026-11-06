@@ -8,6 +8,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!btnVent || !menu) return;
 
+    // refrescarVentIsolines ja no existeix: es recarrega amb refrescarCapes (exportada per mapapngs.js)
+    function refrescarVent() {
+        if (typeof window.refrescarVentIsolines === 'function') window.refrescarVentIsolines();
+        else if (typeof window.refrescarCapes === 'function') window.refrescarCapes(false);
+    }
+
     // Abrir/Cerrar menú flotante
     btnVent.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -15,10 +21,12 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (isActive) {
             const rect = btnVent.getBoundingClientRect();
-            menu.style.left = rect.left + 'px';
+            menu.style.left = Math.max(8, Math.min(rect.left, window.innerWidth - menu.offsetWidth - 8)) + 'px';
             menu.style.bottom = (window.innerHeight - rect.top + 8) + 'px'; 
         }
     });
+
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') menu.classList.remove('active'); });
 
     // Cerrar al hacer clic fuera
     document.addEventListener('click', () => {
@@ -38,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btnOn.addEventListener('click', () => {
             window.MOSTRAR_VENT = true;
             window.VENT_ANIMAT = false;
-            if (typeof refrescarVentIsolines === 'function') refrescarVentIsolines();
+            refrescarVent();
             if (typeof programarRedibuix === 'function') programarRedibuix(['vent']);
             
             netejarEstats();
@@ -54,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btnAnim.addEventListener('click', () => {
             window.MOSTRAR_VENT = true;
             window.VENT_ANIMAT = true;
-            if (typeof refrescarVentIsolines === 'function') refrescarVentIsolines();
+            refrescarVent();
             if (typeof programarRedibuix === 'function') programarRedibuix(['vent']);
             
             netejarEstats();
