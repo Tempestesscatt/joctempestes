@@ -1,44 +1,49 @@
 {
- "updated": "2026-11-06T23:59:38Z",
+ "updated": "2026-11-07T05:47:37Z",
  "stations": {
   "08190": {
    "name": "Barcelona",
-   "latest": "20261106_12Z.json",
+   "latest": "20261107_00Z.json",
    "files": [
     "20261106_00Z.json",
-    "20261106_12Z.json"
+    "20261106_12Z.json",
+    "20261107_00Z.json"
    ]
   },
   "08023": {
    "name": "Santander",
-   "latest": "20261106_12Z.json",
+   "latest": "20261107_00Z.json",
    "files": [
     "20261106_00Z.json",
-    "20261106_12Z.json"
+    "20261106_12Z.json",
+    "20261107_00Z.json"
    ]
   },
   "08221": {
    "name": "Madrid-Barajas",
-   "latest": "20261106_12Z.json",
+   "latest": "20261107_00Z.json",
    "files": [
     "20261106_00Z.json",
-    "20261106_12Z.json"
+    "20261106_12Z.json",
+    "20261107_00Z.json"
    ]
   },
   "08430": {
    "name": "Murcia",
-   "latest": "20261106_12Z.json",
+   "latest": "20261107_00Z.json",
    "files": [
     "20261106_00Z.json",
-    "20261106_12Z.json"
+    "20261106_12Z.json",
+    "20261107_00Z.json"
    ]
   },
   "08001": {
    "name": "La Coruna",
-   "latest": "20261106_12Z.json",
+   "latest": "20261107_00Z.json",
    "files": [
     "20261106_00Z.json",
-    "20261106_12Z.json"
+    "20261106_12Z.json",
+    "20261107_00Z.json"
    ]
   },
   "XKQLWQB": {
