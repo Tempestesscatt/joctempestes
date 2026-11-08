@@ -1,9 +1,9 @@
-name: Actualitzar Sondejos i Notícies
+name: Actualitzar Sondejos, Outlook i Notícies
 
 on:
   schedule:
-    # Cada 5 h (UTC): 00:00, 05:00, 10:00, 15:00 i 20:00
-    - cron: '0 */5 * * *'
+    # 01:00 i 13:00 UTC (una hora després dels sondejos de 00Z i 12Z)
+    - cron: '0 1,13 * * *'
   workflow_dispatch:
 
 permissions:
@@ -24,7 +24,7 @@ env:
 jobs:
   update-all:
     runs-on: ubuntu-latest
-    timeout-minutes: 130
+    timeout-minutes: 150
 
     steps:
     - name: Descarregar codi de main
@@ -47,7 +47,7 @@ jobs:
       with:
         python-version: '3.11'
 
-    # ecCodes: necessari per a noticias.py (GRIB2 de GFS)
+    # ecCodes: necessari per a noticias.py i outbrakpngs.py (GRIB2)
     - name: Instal·lar llibreria ecCodes
       run: |
         sudo apt-get update
@@ -57,6 +57,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install requests pytz numpy eccodes
+        pip install meteofetch cfgrib xarray scipy matplotlib
         python -c "import numpy, eccodes, pytz, requests; print('✅ Dependències OK, eccodes', eccodes.__version__)"
 
     # ───────────── SONDEJOS: preparar la branca pròpia ─────────────
@@ -96,7 +97,7 @@ jobs:
         cd private-scripts-new
         mkdir -p public/noticies
 
-    # ───────────── GENERACIÓ (cap de les dues pot tombar l'altra) ─────────────
+    # ───────────── GENERACIÓ (cap de les tres pot tombar les altres) ─────────────
     - name: Descarregar sondejos (sondejos.py)
       id: sondejos
       continue-on-error: true
@@ -106,6 +107,20 @@ jobs:
         cd private-scripts-new
         python -u sondejos.py
         echo "Contingut:"; ls -R "$SONDEJOS_DIR" | head -60
+
+    - name: Generar outlook (outbrakpngs.py)
+      id: outlook
+      continue-on-error: true
+      timeout-minutes: 40
+      env:
+        IMATGES_DIR: ${{ runner.temp }}/outlook_imatges
+      run: |
+        cd private-scripts-new
+        mkdir -p "$IMATGES_DIR"
+        python -u outbrakpngs.py
+        [ -f "$IMATGES_DIR/sfc_outlook_total_51h.png" ] || { echo "❌ outbrakpngs.py no ha generat el PNG"; exit 1; }
+        [ -f "$IMATGES_DIR/manifest_outlook.json" ] || { echo "❌ outbrakpngs.py no ha generat el manifest"; exit 1; }
+        ls -la "$IMATGES_DIR"
 
     - name: Generar notícies (noticias.py)
       id: noticies
@@ -166,7 +181,11 @@ jobs:
         echo "❌ No s'ha pogut guardar a data"; exit 1
 
     # ───────────── MUNTAR LA WEB COMPLETA (Cloudflare Pages substitueix tot) ─────────────
-    - name: Muntar web (main + data + notícies + sondejos)
+    - name: Muntar web (main + data + outlook + notícies + sondejos)
+      env:
+        # Mateixa clau que ENCRYPT_KEY de mapapngs.js (el visor només llegeix fitxers .enc)
+        ENCRYPT_KEY: ${{ secrets.ENCRYPT_KEY }}
+        OUTLOOK_DIR: ${{ runner.temp }}/outlook_imatges
       run: |
         set -euo pipefail
         cd repo-principal
@@ -194,6 +213,23 @@ jobs:
           fi
         done
         cp /tmp/data-branch/js/status.js "$P/js/status.js" 2>/dev/null || echo "⚠️  status.js no trobat a data"
+
+        # Outlook: si outbrakpngs.py ha anat bé se sobreescriu el de 'data' amb el fresc (xifrat com la resta);
+        # si ha fallat, es queda l'últim bo que ja hi ha a web_data_NE
+        if [ "${{ steps.outlook.outcome }}" = "success" ] \
+           && [ -f "$OUTLOOK_DIR/sfc_outlook_total_51h.png" ] && [ -f "$OUTLOOK_DIR/manifest_outlook.json" ]; then
+          if [ -n "${ENCRYPT_KEY:-}" ]; then
+            D="$P/web_data_NE/imatges"; mkdir -p "$D"
+            for f in sfc_outlook_total_51h.png manifest_outlook.json; do
+              openssl enc -aes-256-cbc -md sha256 -salt -in "$OUTLOOK_DIR/$f" -out "$D/$f.enc" -pass env:ENCRYPT_KEY
+            done
+            echo "✅ Outlook fresc xifrat i copiat"
+          else
+            echo "⚠️  Falta el secret ENCRYPT_KEY: no es pot xifrar l'outlook, es manté el de 'data'"
+          fi
+        else
+          echo "⚠️  Outlook no generat: es manté el de 'data'"
+        fi
 
         # Notícies: les acabades de generar; si noticias.py ha fallat, les últimes bones de 'data'
         if [ "${{ steps.noticies.outcome }}" = "success" ] && [ -f "$FRESC/noticies/noticies.html" ] && [ -f "$FRESC/index.html" ]; then
@@ -266,5 +302,6 @@ jobs:
         {
           echo "### Resultat"
           echo "- Sondejos: \`${{ steps.sondejos.outcome }}\`"
+          echo "- Outlook: \`${{ steps.outlook.outcome }}\`"
           echo "- Notícies: \`${{ steps.noticies.outcome }}\`"
         } >> "$GITHUB_STEP_SUMMARY"
