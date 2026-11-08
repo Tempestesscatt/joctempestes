@@ -1,0 +1,119 @@
+{
+ "generat": "2026-11-03T12:31:08",
+ "tipus": "agregat_51h",
+ "hores_cobertes": 45,
+ "runs": {
+  "2026-11-03T06": [
+   7,
+   51
+  ]
+ },
+ "outlooks": [
+  {
+   "clau": "outlook_total_51h",
+   "nom": "Outlook total (51 h)",
+   "unitat": "combinat",
+   "imatge": "sfc_outlook_total_51h.png",
+   "llegenda": [
+    {
+     "tipus": "pluja",
+     "colors": [
+      "#8fd98f",
+      "#2e7d32",
+      "#f0c32e",
+      "#ff8a2a",
+      "#d93a30",
+      "#d94bd9"
+     ],
+     "nivells": [
+      10,
+      20,
+      40,
+      60,
+      100,
+      150
+     ],
+     "unitat": "mm/6h"
+    },
+    {
+     "tipus": "neu",
+     "colors": [
+      "#cce5ff",
+      "#99ccff",
+      "#66b3ff",
+      "#3388ff",
+      "#0066cc"
+     ],
+     "nivells": [
+      2,
+      5,
+      10,
+      20,
+      40
+     ],
+     "unitat": "cm/6h"
+    },
+    {
+     "tipus": "tempestes",
+     "colors": [
+      "#ffeb3b",
+      "#ff9800",
+      "#e53935",
+      "#8b1a1a"
+     ],
+     "nivells": [
+      20,
+      40,
+      60,
+      80
+     ],
+     "unitat": "score"
+    },
+    {
+     "tipus": "calor",
+     "colors": [
+      "#ffcc80",
+      "#ff9800",
+      "#e53935",
+      "#8b1a1a"
+     ],
+     "nivells": [
+      30,
+      33,
+      36,
+      40
+     ],
+     "unitat": "°C"
+    },
+    {
+     "tipus": "fred",
+     "colors": [
+      "#bbdefb",
+      "#64b5f6",
+      "#1e88e5",
+      "#0d47a1"
+     ],
+     "nivells": [
+      -2,
+      -5,
+      -8,
+      -12
+     ],
+     "unitat": "°C"
+    }
+   ]
+  }
+ ],
+ "hores": [
+  {
+   "clau": "outlook_total_51h",
+   "hora": 0,
+   "dia": "51h",
+   "nom": "Outlook total 51 h",
+   "unitat": "combinat",
+   "vmin": 0,
+   "vmax": 100,
+   "llegenda": []
+  }
+ ]
+}
