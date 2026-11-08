@@ -1,0 +1,9 @@
+name = "visor-r2"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+
+routes = [{ pattern = "visor.tempestes.cat", custom_domain = true }]
+
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "arome"

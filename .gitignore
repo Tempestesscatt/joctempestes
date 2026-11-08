@@ -13,3 +13,7 @@ meu-mapa/public/webdata*
 private-scripts/config*.json
 private-scripts/*.log
 eines-admin/clau-servei.json
+
+
+worker-visor/node_modules/
+worker-visor/.wrangler/

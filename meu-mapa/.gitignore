@@ -30,3 +30,13 @@ public/js/*.min.js.map
 # Codi font (NO es publica mai a GitHub)
 src/
 
+
+eines-admin/clau-servei.json
+
+
+eines-admin/node_modules/
+
+
+
+worker-visor/node_modules/
+worker-visor/.wrangler/
