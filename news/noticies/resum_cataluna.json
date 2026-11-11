@@ -1,5 +1,5 @@
 {
-  "generat": "2026-11-11T20:57:39+01:00",
+  "generat": "2026-11-12T00:14:23+01:00",
   "idioma": "ca",
   "font_dades": "GFS (NOAA/NCEP)",
   "cicle_gfs": "2026-11-11T12:00Z",
@@ -10,53 +10,53 @@
   },
   "resum": {
     "titol": "Previsió meteorològica a 16 dies: inestabilitat inicial i refredament progressiu",
-    "resum_general": "El model GFS indica una setmana inicial marcada per episodis de precipitació i vent, seguits d'una tendència a temperatures més baixes. Cal tenir en compte que la fiabilitat d'aquesta previsió disminueix significativament a partir del dia 7-8.",
+    "resum_general": "El model GFS indica un inici de període marcat per episodis de precipitació i vent, seguits d'una estabilització relativa i un descens tèrmic cap a finals de mes. Cal tenir en compte que la fiabilitat de la previsió disminueix considerablement a partir del dia 7-8.",
     "setmana_1": {
-      "resum": "Inici de període amb pas de fronts que deixaran precipitacions, especialment entre el 12 i el 14 de novembre, acompanyades de ratxes de vent destacables.",
-      "temperatures": "Temperatures suaus a l'inici, amb un descens progressiu a mesura que avança la setmana.",
-      "precipitacio": "Precipitacions concentrades en els primers dies, amb acumulacions més significatives al Pirineu i punts de l'interior.",
-      "vent": "Vent moderat a fort, amb ratxes que poden superar els 60-70 km/h en zones exposades i punts de l'interior."
+      "resum": "La primera setmana estarà dominada per l'arribada de fronts que deixaran pluges, especialment entre el 12 i el 14 de novembre, amb ratxes de vent destacables en molts punts.",
+      "temperatures": "Temperatures suaus a l'inici, amb una tendència a la baixa a mesura que avanci la setmana.",
+      "precipitacio": "Precipitacions concentrades a l'inici del període, amb acumulacions més significatives al Pirineu i punts de l'interior.",
+      "vent": "Vent moderat a fort, amb ratxes que podran superar els 60 km/h en zones exposades i al litoral durant els primers dies."
     },
     "setmana_2": {
-      "resum": "Tendència a un ambient més fred i estable, amb probabilitat de precipitacions més disperses cap al final del període.",
-      "incertesa": "La fiabilitat és baixa, amb canvis probables en la posició de les masses d'aire fred."
+      "resum": "La segona setmana es preveu més estable en conjunt, tot i que amb un ambient més fred i la possibilitat de precipitacions més disperses cap al final del període.",
+      "incertesa": "La fiabilitat és baixa, amb una tendència a la incertesa en la posició de les masses d'aire fred."
     },
     "zones": [
       {
         "zona": "Litoral i prelitoral",
-        "resum": "Inici inestable amb pluja i vent, seguit d'una estabilització tèrmica. Cap al final del període, el 27 de novembre, es preveu un nou episodi de precipitacions.",
+        "resum": "Inici amb vent i pluja, seguit d'una millora progressiva. Les temperatures baixaran cap a finals de novembre.",
         "destacats": [
           {
             "comarca": "Maresme",
             "municipi": "Mataró",
-            "motiu": "Ratxes de vent destacables el 16 de novembre."
+            "motiu": "Ratxes de vent fortes el 12 i 16 de novembre."
           },
           {
             "comarca": "Garraf",
             "municipi": "Vilanova i la Geltrú",
-            "motiu": "Acumulació de pluja el 27 de novembre."
+            "motiu": "Episodi de pluja destacat el 27 de novembre."
           }
         ]
       },
       {
         "zona": "Interior",
-        "resum": "Ambient variable amb episodis de pluja el 12 i 14 de novembre. Refredament notable a partir del 25 de novembre.",
+        "resum": "Ambient variable amb episodis de pluja moderada a l'inici. Refredament notable a partir del 25 de novembre.",
         "destacats": [
+          {
+            "comarca": "Bages",
+            "municipi": "Manresa",
+            "motiu": "Ratxes de vent de fins a 65 km/h el 12 de novembre."
+          },
           {
             "comarca": "Anoia",
             "municipi": "Igualada",
-            "motiu": "Ratxes de vent fortes el 12 i 13 de novembre."
-          },
-          {
-            "comarca": "Solsonès",
-            "municipi": "Solsona",
-            "motiu": "Acumulació de pluja el 12 de novembre."
+            "motiu": "Ratxes de vent molt fortes el 12 i 13 de novembre."
           }
         ]
       },
       {
         "zona": "Pirineu i Prepirineu",
-        "resum": "Setmana marcada per precipitacions freqüents, amb neu que guanya protagonisme a cotes altes cap a finals de mes.",
+        "resum": "Setmana marcada per precipitacions que podrien ser en forma de neu a cotes altes cap a finals de mes. Ambient fred.",
         "destacats": [
           {
             "comarca": "Cerdanya",
@@ -64,15 +64,15 @@
             "motiu": "Acumulació important de neu el 27 de novembre."
           },
           {
-            "comarca": "Ripollès",
-            "municipi": "Ripoll",
-            "motiu": "Precipitacions intenses el 12 de novembre."
+            "comarca": "Val d'Aran",
+            "municipi": "Vielha",
+            "motiu": "Precipitacions persistents amb neu el 27 de novembre."
           }
         ]
       },
       {
         "zona": "Camp de Tarragona i Terres de l'Ebre",
-        "resum": "Vent fort els primers dies i temperatures suaus que baixen cap al final. Episodi de pluja previst per al 27 de novembre.",
+        "resum": "Vent fort a l'inici del període, seguit d'un ambient més fresc i estable. Final de mes amb risc de pluja.",
         "destacats": [
           {
             "comarca": "Baix Camp",
@@ -82,23 +82,12 @@
           {
             "comarca": "Ribera d'Ebre",
             "municipi": "Móra d'Ebre",
-            "motiu": "Ratxes de vent destacables el 12 i 13 de novembre."
+            "motiu": "Ratxes de vent fortes el 12 i 13 de novembre."
           }
         ]
       }
     ],
     "episodis": [
-      {
-        "model": "GFS",
-        "tipus": "pluja",
-        "data_inici": "2026-11-12",
-        "data_fi": "2026-11-12",
-        "comarca": "Berguedà",
-        "municipi": "Berga",
-        "valor": "15.1 mm",
-        "descripcio": "Episodi de precipitació generalitzada al Pirineu i Prepirineu.",
-        "gravetat": "mitjana"
-      },
       {
         "model": "GFS",
         "tipus": "vent",
@@ -107,8 +96,19 @@
         "comarca": "Baix Camp",
         "municipi": "Reus",
         "valor": "73 km/h",
-        "descripcio": "Ratxes de vent fortes afectant el Camp de Tarragona.",
-        "gravetat": "alta"
+        "descripcio": "Ratxes de vent molt fortes afectant el Camp de Tarragona.",
+        "gravetat": "mitjana"
+      },
+      {
+        "model": "GFS",
+        "tipus": "pluja",
+        "data_inici": "2026-11-12",
+        "data_fi": "2026-11-12",
+        "comarca": "Ripollès",
+        "municipi": "Ripoll",
+        "valor": "16 mm",
+        "descripcio": "Precipitacions significatives al Pirineu.",
+        "gravetat": "baixa"
       },
       {
         "model": "GFS",
@@ -117,12 +117,12 @@
         "data_fi": "2026-11-27",
         "comarca": "Cerdanya",
         "municipi": "Puigcerdà",
-        "valor": "153.8 cm",
-        "descripcio": "Acumulació significativa de neu al Pirineu.",
+        "valor": "153 cm",
+        "descripcio": "Acumulació important de neu a cotes altes del Pirineu.",
         "gravetat": "alta"
       }
     ],
-    "avis_incertesa": "La fiabilitat de la previsió disminueix dràsticament a partir del dia 7-8, per la qual cosa els valors poden variar."
+    "avis_incertesa": "La fiabilitat de la previsió disminueix molt a partir del dia 7-8, per la qual cosa els detalls sobre precipitacions i temperatures a llarg termini poden variar."
   },
   "punts": [
     {
