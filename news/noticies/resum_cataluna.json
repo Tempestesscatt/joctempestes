@@ -1,5 +1,5 @@
 {
-  "generat": "2026-11-18T22:00:06+01:00",
+  "generat": "2026-11-18T23:08:24+01:00",
   "idioma": "ca",
   "font_dades": "GFS (NOAA/NCEP)",
   "cicle_gfs": "2026-11-18T12:00Z",
@@ -10,79 +10,79 @@
   },
   "resum": {
     "titol": "Tendència meteorològica: canvi de rumb cap al fred",
-    "resum_general": "Hola, meteoaficionats! Des de tempestes.cat us portem l'anàlisi de l'evolució atmosfèrica segons el model GFS per als propers 16 dies. Tot i que els primers dies tenim una fiabilitat força bona, tingueu present que la precisió disminueix considerablement a partir del dia 7-8.",
+    "resum_general": "Hola, meteoaficionats! Des de tempestes.cat us portem l'anàlisi de l'evolució atmosfèrica per als propers 16 dies segons el model GFS. Esperem un inici amb temperatures encara suaus, però amb una tendència clara cap a un ambient més hivernal i fred a mesura que avancem, tot recordant que la fiabilitat del model GFS baixa notablement a partir del dia 7-8.",
     "setmana_1": {
-      "resum": "Iniciem la setmana amb un ambient encara suau, però des de tempestes.cat ja veiem com el model GFS apunta a un canvi de dinàmica. Els episodis de vent seran els protagonistes, especialment cap a mitjans de setmana, donant pas a un descens tèrmic progressiu.",
-      "temperatures": "Valors suaus els primers dies, però amb una tendència a la baixa clara a partir del 25 de novembre, amb gelades que començaran a ser presents a l'interior i zones altes.",
-      "precipitacio": "Poca activitat en general, amb episodis de pluja puntuals i febles, excepte algunes acumulacions més destacables al Pirineu.",
-      "vent": "Ratxes de vent destacables en moltes comarques, especialment entre el 19 i el 25 de novembre, amb cops que poden superar els 70-80 km/h en zones exposades."
+      "resum": "La primera setmana ve marcada per un descens progressiu de les temperatures i alguns episodis de vent que es deixaran sentir especialment a les zones obertes i al litoral. Des de tempestes.cat observem que les precipitacions seran, en general, poc importants, tret d'alguns ruixats puntuals a mitjans de setmana.",
+      "temperatures": "Iniciem amb valors suaus per l'època, però notareu com les màximes i mínimes van baixant dia rere dia, acostant-nos a valors més propis de finals de novembre.",
+      "precipitacio": "Poca cosa en general. Les pluges seran escasses i disperses, sense grans acumulacions previstes en aquests primers set dies.",
+      "vent": "Atenció al vent, que bufarà amb ganes en diversos moments de la setmana, especialment al litoral i zones elevades, amb ratxes que podrien superar els 70-80 km/h en alguns punts."
     },
     "setmana_2": {
-      "resum": "La segona setmana es presenta amb un ambient clarament més hivernal. Des de tempestes.cat observem que les temperatures es mantindran baixes, consolidant el fred a gran part del territori.",
-      "incertesa": "Com és habitual, la fiabilitat del model GFS cau a partir del dia 7-8, així que des de tempestes.cat us recomanem seguir les actualitzacions diàries per veure com s'acaba de definir aquest ambient fred."
+      "resum": "La segona setmana es presenta més freda i amb una estabilitat que sembla dominar el panorama, tot i que el potencial d'inestabilitat podria donar alguna sorpresa aïllada. Des de tempestes.cat us recomanem abrigar-vos bé, ja que les gelades començaran a ser més freqüents a l'interior i al Pirineu.",
+      "incertesa": "Com és habitual, a partir del dia 8 la incertesa creix molt i des de tempestes.cat us suggerim seguir les actualitzacions diàries, ja que el model GFS pot variar significativament en els detalls de precipitació i fred."
     },
     "zones": [
       {
         "zona": "Litoral i prelitoral",
-        "resum": "Setmana marcada pel vent intens en diversos punts i un descens tèrmic progressiu. Les temperatures baixaran de manera notable cap a finals de mes, deixant un ambient més propi de l'època.",
+        "resum": "Setmana de contrastos amb vent que serà protagonista en diversos moments. Les temperatures baixaran progressivament, deixant un ambient fresc i de tardor avançada.",
         "destacats": [
           {
             "comarca": "Garraf",
             "municipi": "Vilanova i la Geltrú",
-            "motiu": "Ratxes de vent fortes el 26 de novembre"
+            "motiu": "Ratxes de vent destacades el 26 i 28 de novembre."
           },
           {
             "comarca": "Maresme",
             "municipi": "Mataró",
-            "motiu": "Ratxes de vent destacables el 25 de novembre"
+            "motiu": "Ratxes de vent fortes el 25 de novembre."
           }
         ]
       },
       {
         "zona": "Interior",
-        "resum": "L'interior notarà ràpidament el canvi de temps amb l'arribada de gelades nocturnes. El vent també bufarà amb ganes en alguns moments, accentuant la sensació de fred.",
+        "resum": "Ambient clarament més fred, amb gelades que començaran a fer acte de presència a finals de mes. El vent també bufarà amb força en alguns episodis.",
         "destacats": [
           {
             "comarca": "Anoia",
             "municipi": "Igualada",
-            "motiu": "Ratxes de vent molt fortes el 25 i 26 de novembre"
+            "motiu": "Ratxes de vent molt fortes el 25 i 26 de novembre."
           },
           {
-            "comarca": "Segrià",
-            "municipi": "Lleida",
-            "motiu": "Ratxes de vent sostingudes el 28 i 29 de novembre"
+            "comarca": "Osona",
+            "municipi": "Vic",
+            "motiu": "Temperatures mínimes negatives a partir del 26 de novembre."
           }
         ]
       },
       {
         "zona": "Pirineu i Prepirineu",
-        "resum": "Setmana de contrastos amb precipitacions que podrien ser en forma de neu a cotes mitjanes i altes. El fred serà el protagonista indiscutible a partir de la segona meitat del període.",
+        "resum": "L'hivern truca a la porta amb l'arribada de neu i temperatures que cauran en picat. Caldrà estar atents a les nevades, especialment a les cotes més altes.",
         "destacats": [
           {
             "comarca": "Val d'Aran",
             "municipi": "Vielha",
-            "motiu": "Acumulacions de neu importants el 28 i 29 de novembre"
+            "motiu": "Acumulacions de neu significatives a finals de novembre."
           },
           {
             "comarca": "Cerdanya",
             "municipi": "Puigcerdà",
-            "motiu": "Temperatures mínimes molt baixes a partir del 27 de novembre"
+            "motiu": "Fred intens amb mínimes que baixaran dels -10 graus."
           }
         ]
       },
       {
         "zona": "Camp de Tarragona i Terres de l'Ebre",
-        "resum": "Ambient ventós durant bona part de la setmana, especialment a les zones més obertes. Les temperatures aniran baixant fins a valors més hivernals a l'inici de desembre.",
+        "resum": "El vent serà el factor més destacat, amb ratxes intenses en diversos moments. Les temperatures baixaran, però l'ambient serà menys fred que a l'interior.",
         "destacats": [
           {
             "comarca": "Tarragonès",
             "municipi": "Tarragona",
-            "motiu": "Ratxes de vent fortes el 26 i 28 de novembre"
+            "motiu": "Ratxes de vent molt fortes el 26 i 28 de novembre."
           },
           {
-            "comarca": "Baix Ebre",
-            "municipi": "Tortosa",
-            "motiu": "Ratxes de vent destacables el 26 i 29 de novembre"
+            "comarca": "Baix Camp",
+            "municipi": "Reus",
+            "motiu": "Ratxes de vent destacades el 28 de novembre."
           }
         ]
       }
@@ -96,7 +96,7 @@
         "comarca": "Barcelonès",
         "municipi": "Barcelona",
         "valor": "65 km/h",
-        "descripcio": "Episodi de vent notable que afectarà el litoral durant el 19 de novembre.",
+        "descripcio": "El vent bufarà amb ganes aquest dimecres, així que vigileu amb els objectes als balcons.",
         "gravetat": "mitjana"
       },
       {
@@ -107,7 +107,7 @@
         "comarca": "Garraf",
         "municipi": "Vilanova i la Geltrú",
         "valor": "87 km/h",
-        "descripcio": "Ratxes de vent molt fortes que es deixaran sentir especialment entre el 25 i el 26 de novembre.",
+        "descripcio": "Episodi de vent fort que es farà notar especialment a la costa.",
         "gravetat": "alta"
       },
       {
@@ -118,11 +118,22 @@
         "comarca": "Val d'Aran",
         "municipi": "Vielha",
         "valor": "28 cm en un dia",
-        "descripcio": "Nevada important al Pirineu occidental que deixarà gruixos destacables el 29 de novembre.",
+        "descripcio": "La neu arribarà amb ganes al Pirineu, deixant gruixos importants.",
+        "gravetat": "alta"
+      },
+      {
+        "model": "GFS",
+        "tipus": "fred",
+        "data_inici": "2026-12-01",
+        "data_fi": "2026-12-02",
+        "comarca": "Cerdanya",
+        "municipi": "Puigcerdà",
+        "valor": "-14.7 °C",
+        "descripcio": "El fred intens s'instal·la al Pirineu, amb temperatures gèlides.",
         "gravetat": "alta"
       }
     ],
-    "avis_incertesa": "Recordeu que des de tempestes.cat us avisem que, a partir del dia 7-8, la fiabilitat del model GFS baixa molt, així que no us fieu al 100% d'aquests detalls a llarg termini!"
+    "avis_incertesa": "Recordeu que des de tempestes.cat us advertim que, a partir del dia 7-8, la fiabilitat del model GFS baixa molt, així que preneu aquestes previsions com una tendència general!"
   },
   "punts": [
     {
