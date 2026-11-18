@@ -40,3 +40,7 @@ eines-admin/node_modules/
 
 worker-visor/node_modules/
 worker-visor/.wrangler/
+
+
+obfuscar.html
+private-scripts

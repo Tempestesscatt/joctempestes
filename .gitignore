@@ -17,3 +17,7 @@ eines-admin/clau-servei.json
 
 worker-visor/node_modules/
 worker-visor/.wrangler/
+
+
+obfuscar.html
+private-scripts
