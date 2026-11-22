@@ -1,0 +1,7993 @@
+{
+  "generat": "2026-11-22T08:37:43+01:00",
+  "idioma": "ca",
+  "font_dades": "GFS (NOAA/NCEP)",
+  "cicle_gfs": "2026-11-22T00:00Z",
+  "model_ia": "gemini-3.1-flash-lite",
+  "periode": {
+    "inici": "2026-11-22",
+    "fi": "2026-12-07"
+  },
+  "resum": {
+    "titol": "Tendència meteorològica: fred i estabilitat a la vista",
+    "resum_general": "Hola, meteoaficionats! Des de tempestes.cat us portem l'anàlisi de l'evolució meteorològica per als propers 16 dies segons el model GFS. Esperem un inici de període marcat pel descens de les temperatures i una estabilització general, tot recordant que la fiabilitat del model disminueix notablement a partir del dia 7-8.",
+    "setmana_1": {
+      "resum": "La primera setmana estarà marcada per una entrada d'aire més fred que farà baixar les temperatures de forma progressiva. Des de tempestes.cat observem que serà un període majoritàriament sec, amb algunes precipitacions molt puntuals i febles a l'inici.",
+      "temperatures": "Descens tèrmic progressiu, amb gelades que guanyaran terreny a l'interior i zones elevades a mesura que avanci la setmana.",
+      "precipitacio": "Molt escassa i testimonial, concentrada principalment al Pirineu i algun punt del litoral durant els primers dies.",
+      "vent": "Bufarà amb força especialment al començament del període, amb ratxes destacables en zones exposades i al sud."
+    },
+    "setmana_2": {
+      "resum": "La segona setmana es presenta amb una tendència a l'estabilitat atmosfèrica, amb temperatures que es recuperaran lleugerament però sense grans canvis bruscos. Des de tempestes.cat seguirem l'evolució, ja que el potencial d'inestabilitat és baix.",
+      "incertesa": "A partir del dia 7-8, la fiabilitat del model GFS cau significativament, per la qual cosa caldrà estar atents a les actualitzacions."
+    },
+    "zones": [
+      {
+        "zona": "Litoral i prelitoral",
+        "resum": "Ambient més fresc i ventós els primers dies, seguit d'una estabilització amb cels més nets. Les temperatures seran suaus de dia però fresques a la nit.",
+        "destacats": [
+          {
+            "comarca": "Maresme",
+            "municipi": "Mataró",
+            "motiu": "Ratxes de vent destacables a l'inici del període."
+          },
+          {
+            "comarca": "Baix Empordà",
+            "municipi": "La Bisbal d'Empordà",
+            "motiu": "Precipitació puntual el 25 de novembre."
+          }
+        ]
+      },
+      {
+        "zona": "Interior",
+        "resum": "Setmana freda amb gelades nocturnes que s'aniran consolidant. El vent serà protagonista els primers dies, especialment a les comarques de Ponent.",
+        "destacats": [
+          {
+            "comarca": "Segrià",
+            "municipi": "Lleida",
+            "motiu": "Ratxes de vent fortes el 22 de novembre."
+          },
+          {
+            "comarca": "Osona",
+            "municipi": "Vic",
+            "motiu": "Ambient fred amb gelades nocturnes persistents."
+          }
+        ]
+      },
+      {
+        "zona": "Pirineu i Prepirineu",
+        "resum": "Ambient clarament hivernal amb temperatures negatives i nevades febles al principi. La resta del període serà més estable però fred.",
+        "destacats": [
+          {
+            "comarca": "Val d'Aran",
+            "municipi": "Vielha",
+            "motiu": "Acumulacions de neu entre el 25 i 26 de novembre."
+          }
+        ]
+      },
+      {
+        "zona": "Camp de Tarragona i Terres de l'Ebre",
+        "resum": "Domini del vent fort, especialment al sud, amb temperatures que baixaran de forma clara. Temps molt estable a partir de mitjans de setmana.",
+        "destacats": [
+          {
+            "comarca": "Tarragonès",
+            "municipi": "Tarragona",
+            "motiu": "Ratxes de vent molt fortes el 22 de novembre."
+          },
+          {
+            "comarca": "Terra Alta",
+            "municipi": "Gandesa",
+            "motiu": "Vent sostingut durant els primers dies."
+          }
+        ]
+      }
+    ],
+    "episodis": [
+      {
+        "model": "GFS",
+        "tipus": "vent",
+        "data_inici": "2026-11-22",
+        "data_fi": "2026-11-22",
+        "comarca": "Segrià",
+        "municipi": "Lleida",
+        "valor": "75 km/h",
+        "descripcio": "Bufarà vent fort a l'inici del període, tingueu precaució.",
+        "gravetat": "mitjana"
+      },
+      {
+        "model": "GFS",
+        "tipus": "neu",
+        "data_inici": "2026-11-26",
+        "data_fi": "2026-11-26",
+        "comarca": "Val d'Aran",
+        "municipi": "Vielha",
+        "valor": "7.9 cm en un dia",
+        "descripcio": "Una nevada destacable al Pirineu que deixarà el paisatge emblanquinat.",
+        "gravetat": "mitjana"
+      },
+      {
+        "model": "GFS",
+        "tipus": "vent",
+        "data_inici": "2026-11-22",
+        "data_fi": "2026-11-22",
+        "comarca": "Tarragonès",
+        "municipi": "Tarragona",
+        "valor": "80 km/h",
+        "descripcio": "Jornada molt ventosa al litoral tarragoní, molta precaució.",
+        "gravetat": "alta"
+      }
+    ],
+    "avis_incertesa": "Recordeu, meteoaficionats, que des de tempestes.cat us avisem que a partir del dia 7-8 la fiabilitat del model GFS baixa molt, així que no us fieu al 100% de les previsions a llarg termini!"
+  },
+  "punts": [
+    {
+      "comarca": "Barcelonès",
+      "municipi": "Barcelona",
+      "zona": "Litoral i prelitoral",
+      "dies": [
+        {
+          "data": "2026-11-22",
+          "tmax": 18.6,
+          "tmin": 14.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 55.0,
+          "cape_jkg": 6.0,
+          "cin_jkg": -19.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-23",
+          "tmax": 16.3,
+          "tmin": 11.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 2.0,
+          "cin_jkg": -1.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-24",
+          "tmax": 15.3,
+          "tmin": 12.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 28.0,
+          "cape_jkg": 24.0,
+          "cin_jkg": -20.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-25",
+          "tmax": 14.5,
+          "tmin": 10.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 41.0,
+          "cape_jkg": 2.0,
+          "cin_jkg": -4.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-26",
+          "tmax": 12.7,
+          "tmin": 8.2,
+          "pluja_mm": 0.1,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.0,
+          "cape_jkg": 5.0,
+          "cin_jkg": -9.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-27",
+          "tmax": 13.0,
+          "tmin": 8.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-28",
+          "tmax": 12.1,
+          "tmin": 8.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -1.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-29",
+          "tmax": 12.1,
+          "tmin": 6.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 16.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-30",
+          "tmax": 12.9,
+          "tmin": 8.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-01",
+          "tmax": 13.2,
+          "tmin": 8.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-02",
+          "tmax": 14.2,
+          "tmin": 8.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-03",
+          "tmax": 15.1,
+          "tmin": 8.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-04",
+          "tmax": 14.7,
+          "tmin": 8.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-05",
+          "tmax": 14.5,
+          "tmin": 9.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-06",
+          "tmax": 14.2,
+          "tmin": 8.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-07",
+          "tmax": 14.5,
+          "tmin": 8.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        }
+      ]
+    },
+    {
+      "comarca": "Baix Llobregat",
+      "municipi": "Sant Feliu de Llobregat",
+      "zona": "Litoral i prelitoral",
+      "dies": [
+        {
+          "data": "2026-11-22",
+          "tmax": 17.2,
+          "tmin": 12.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 56.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-23",
+          "tmax": 15.9,
+          "tmin": 9.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-24",
+          "tmax": 15.0,
+          "tmin": 10.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 33.0,
+          "cape_jkg": 1.0,
+          "cin_jkg": -1.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-25",
+          "tmax": 13.6,
+          "tmin": 9.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 44.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-26",
+          "tmax": 12.5,
+          "tmin": 6.6,
+          "pluja_mm": 0.1,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 14.0,
+          "cape_jkg": 6.0,
+          "cin_jkg": -2.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-27",
+          "tmax": 12.6,
+          "tmin": 6.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-28",
+          "tmax": 11.9,
+          "tmin": 6.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.0,
+          "cape_jkg": 10.0,
+          "cin_jkg": -3.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-29",
+          "tmax": 11.8,
+          "tmin": 5.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 16.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-30",
+          "tmax": 12.5,
+          "tmin": 6.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-01",
+          "tmax": 13.3,
+          "tmin": 6.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-02",
+          "tmax": 13.7,
+          "tmin": 6.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-03",
+          "tmax": 13.9,
+          "tmin": 6.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 14.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-04",
+          "tmax": 14.6,
+          "tmin": 6.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 17.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-05",
+          "tmax": 13.9,
+          "tmin": 7.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-06",
+          "tmax": 13.3,
+          "tmin": 6.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 16.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-07",
+          "tmax": 13.7,
+          "tmin": 6.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        }
+      ]
+    },
+    {
+      "comarca": "Vallès Occidental",
+      "municipi": "Sabadell",
+      "zona": "Litoral i prelitoral",
+      "dies": [
+        {
+          "data": "2026-11-22",
+          "tmax": 17.2,
+          "tmin": 12.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 56.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-23",
+          "tmax": 15.9,
+          "tmin": 9.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-24",
+          "tmax": 15.0,
+          "tmin": 10.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 33.0,
+          "cape_jkg": 1.0,
+          "cin_jkg": -1.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-25",
+          "tmax": 13.6,
+          "tmin": 9.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 44.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-26",
+          "tmax": 12.5,
+          "tmin": 6.6,
+          "pluja_mm": 0.1,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 14.0,
+          "cape_jkg": 6.0,
+          "cin_jkg": -2.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-27",
+          "tmax": 12.6,
+          "tmin": 6.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-28",
+          "tmax": 11.9,
+          "tmin": 6.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.0,
+          "cape_jkg": 10.0,
+          "cin_jkg": -3.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-29",
+          "tmax": 11.8,
+          "tmin": 5.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 16.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-30",
+          "tmax": 12.5,
+          "tmin": 6.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-01",
+          "tmax": 13.3,
+          "tmin": 6.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-02",
+          "tmax": 13.7,
+          "tmin": 6.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-03",
+          "tmax": 13.9,
+          "tmin": 6.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 14.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-04",
+          "tmax": 14.6,
+          "tmin": 6.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 17.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-05",
+          "tmax": 13.9,
+          "tmin": 7.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-06",
+          "tmax": 13.3,
+          "tmin": 6.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 16.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-07",
+          "tmax": 13.7,
+          "tmin": 6.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        }
+      ]
+    },
+    {
+      "comarca": "Vallès Oriental",
+      "municipi": "Granollers",
+      "zona": "Litoral i prelitoral",
+      "dies": [
+        {
+          "data": "2026-11-22",
+          "tmax": 18.6,
+          "tmin": 14.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 55.0,
+          "cape_jkg": 6.0,
+          "cin_jkg": -19.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-23",
+          "tmax": 16.3,
+          "tmin": 11.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 2.0,
+          "cin_jkg": -1.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-24",
+          "tmax": 15.3,
+          "tmin": 12.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 28.0,
+          "cape_jkg": 24.0,
+          "cin_jkg": -20.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-25",
+          "tmax": 14.5,
+          "tmin": 10.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 41.0,
+          "cape_jkg": 2.0,
+          "cin_jkg": -4.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-26",
+          "tmax": 12.7,
+          "tmin": 8.2,
+          "pluja_mm": 0.1,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.0,
+          "cape_jkg": 5.0,
+          "cin_jkg": -9.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-27",
+          "tmax": 13.0,
+          "tmin": 8.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-28",
+          "tmax": 12.1,
+          "tmin": 8.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -1.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-29",
+          "tmax": 12.1,
+          "tmin": 6.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 16.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-30",
+          "tmax": 12.9,
+          "tmin": 8.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-01",
+          "tmax": 13.2,
+          "tmin": 8.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-02",
+          "tmax": 14.2,
+          "tmin": 8.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-03",
+          "tmax": 15.1,
+          "tmin": 8.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-04",
+          "tmax": 14.7,
+          "tmin": 8.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-05",
+          "tmax": 14.5,
+          "tmin": 9.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-06",
+          "tmax": 14.2,
+          "tmin": 8.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-07",
+          "tmax": 14.5,
+          "tmin": 8.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        }
+      ]
+    },
+    {
+      "comarca": "Maresme",
+      "municipi": "Mataró",
+      "zona": "Litoral i prelitoral",
+      "dies": [
+        {
+          "data": "2026-11-22",
+          "tmax": 17.5,
+          "tmin": 14.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 60.0,
+          "cape_jkg": 16.0,
+          "cin_jkg": -7.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-23",
+          "tmax": 15.7,
+          "tmin": 13.0,
+          "pluja_mm": 0.1,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.0,
+          "cape_jkg": 10.0,
+          "cin_jkg": -3.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-24",
+          "tmax": 15.6,
+          "tmin": 12.8,
+          "pluja_mm": 0.1,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 30.0,
+          "cape_jkg": 32.0,
+          "cin_jkg": -31.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-25",
+          "tmax": 14.8,
+          "tmin": 11.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 40.0,
+          "cape_jkg": 40.0,
+          "cin_jkg": -26.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-26",
+          "tmax": 12.4,
+          "tmin": 9.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.0,
+          "cape_jkg": 13.0,
+          "cin_jkg": -16.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-27",
+          "tmax": 12.0,
+          "tmin": 9.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.0,
+          "cape_jkg": 4.0,
+          "cin_jkg": -1.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-28",
+          "tmax": 11.5,
+          "tmin": 9.5,
+          "pluja_mm": 0.1,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 16.0,
+          "cape_jkg": 2.0,
+          "cin_jkg": -2.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-29",
+          "tmax": 11.4,
+          "tmin": 8.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 16.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-30",
+          "tmax": 11.8,
+          "tmin": 9.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-01",
+          "tmax": 11.8,
+          "tmin": 9.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-02",
+          "tmax": 13.0,
+          "tmin": 9.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-03",
+          "tmax": 13.8,
+          "tmin": 9.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-04",
+          "tmax": 13.4,
+          "tmin": 10.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 14.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-05",
+          "tmax": 14.0,
+          "tmin": 10.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-06",
+          "tmax": 12.8,
+          "tmin": 10.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-07",
+          "tmax": 13.5,
+          "tmin": 10.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        }
+      ]
+    },
+    {
+      "comarca": "Garraf",
+      "municipi": "Vilanova i la Geltrú",
+      "zona": "Litoral i prelitoral",
+      "dies": [
+        {
+          "data": "2026-11-22",
+          "tmax": 16.9,
+          "tmin": 13.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 66.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-23",
+          "tmax": 16.4,
+          "tmin": 10.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 25.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-24",
+          "tmax": 15.4,
+          "tmin": 11.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 43.0,
+          "cape_jkg": 1.0,
+          "cin_jkg": -28.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-25",
+          "tmax": 14.2,
+          "tmin": 10.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 60.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-26",
+          "tmax": 13.2,
+          "tmin": 7.4,
+          "pluja_mm": 0.1,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 17.0,
+          "cape_jkg": 32.0,
+          "cin_jkg": -1.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-27",
+          "tmax": 12.9,
+          "tmin": 8.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-28",
+          "tmax": 11.8,
+          "tmin": 8.2,
+          "pluja_mm": 0.1,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.0,
+          "cape_jkg": 29.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-29",
+          "tmax": 11.2,
+          "tmin": 6.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-30",
+          "tmax": 12.2,
+          "tmin": 8.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-01",
+          "tmax": 12.8,
+          "tmin": 8.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-02",
+          "tmax": 13.1,
+          "tmin": 8.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-03",
+          "tmax": 14.9,
+          "tmin": 8.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-04",
+          "tmax": 15.4,
+          "tmin": 8.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-05",
+          "tmax": 13.9,
+          "tmin": 8.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-06",
+          "tmax": 14.0,
+          "tmin": 8.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-07",
+          "tmax": 13.8,
+          "tmin": 8.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        }
+      ]
+    },
+    {
+      "comarca": "Alt Penedès",
+      "municipi": "Vilafranca del Penedès",
+      "zona": "Litoral i prelitoral",
+      "dies": [
+        {
+          "data": "2026-11-22",
+          "tmax": 16.9,
+          "tmin": 13.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 66.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-23",
+          "tmax": 16.4,
+          "tmin": 10.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 25.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-24",
+          "tmax": 15.4,
+          "tmin": 11.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 43.0,
+          "cape_jkg": 1.0,
+          "cin_jkg": -28.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-25",
+          "tmax": 14.2,
+          "tmin": 10.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 60.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-26",
+          "tmax": 13.2,
+          "tmin": 7.4,
+          "pluja_mm": 0.1,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 17.0,
+          "cape_jkg": 32.0,
+          "cin_jkg": -1.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-27",
+          "tmax": 12.9,
+          "tmin": 8.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-28",
+          "tmax": 11.8,
+          "tmin": 8.2,
+          "pluja_mm": 0.1,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.0,
+          "cape_jkg": 29.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-29",
+          "tmax": 11.2,
+          "tmin": 6.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-30",
+          "tmax": 12.2,
+          "tmin": 8.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-01",
+          "tmax": 12.8,
+          "tmin": 8.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-02",
+          "tmax": 13.1,
+          "tmin": 8.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-03",
+          "tmax": 14.9,
+          "tmin": 8.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-04",
+          "tmax": 15.4,
+          "tmin": 8.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-05",
+          "tmax": 13.9,
+          "tmin": 8.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-06",
+          "tmax": 14.0,
+          "tmin": 8.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-07",
+          "tmax": 13.8,
+          "tmin": 8.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        }
+      ]
+    },
+    {
+      "comarca": "Baix Penedès",
+      "municipi": "El Vendrell",
+      "zona": "Litoral i prelitoral",
+      "dies": [
+        {
+          "data": "2026-11-22",
+          "tmax": 16.4,
+          "tmin": 12.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 69.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-23",
+          "tmax": 15.4,
+          "tmin": 8.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 28.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-24",
+          "tmax": 14.9,
+          "tmin": 10.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 45.0,
+          "cape_jkg": 2.0,
+          "cin_jkg": -1.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-25",
+          "tmax": 13.5,
+          "tmin": 8.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 67.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-26",
+          "tmax": 13.0,
+          "tmin": 5.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-27",
+          "tmax": 12.5,
+          "tmin": 6.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-28",
+          "tmax": 11.8,
+          "tmin": 6.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 8.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-29",
+          "tmax": 11.8,
+          "tmin": 4.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-30",
+          "tmax": 11.8,
+          "tmin": 6.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-01",
+          "tmax": 12.6,
+          "tmin": 5.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-02",
+          "tmax": 13.3,
+          "tmin": 6.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-03",
+          "tmax": 14.0,
+          "tmin": 6.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 15.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-04",
+          "tmax": 14.6,
+          "tmin": 6.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 16.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-05",
+          "tmax": 13.8,
+          "tmin": 7.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-06",
+          "tmax": 13.7,
+          "tmin": 6.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-07",
+          "tmax": 13.8,
+          "tmin": 6.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        }
+      ]
+    },
+    {
+      "comarca": "Selva",
+      "municipi": "Lloret de Mar",
+      "zona": "Litoral i prelitoral",
+      "dies": [
+        {
+          "data": "2026-11-22",
+          "tmax": 16.7,
+          "tmin": 11.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 27.0,
+          "cape_jkg": 7.0,
+          "cin_jkg": -18.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-23",
+          "tmax": 14.9,
+          "tmin": 9.5,
+          "pluja_mm": 0.4,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 18.0,
+          "cape_jkg": 58.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-24",
+          "tmax": 15.3,
+          "tmin": 9.8,
+          "pluja_mm": 0.1,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 34.0,
+          "cape_jkg": 13.0,
+          "cin_jkg": -9.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-25",
+          "tmax": 14.7,
+          "tmin": 8.1,
+          "pluja_mm": 0.8,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 15.0,
+          "cape_jkg": 138.0,
+          "cin_jkg": -39.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-26",
+          "tmax": 13.4,
+          "tmin": 6.1,
+          "pluja_mm": 0.2,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.0,
+          "cape_jkg": 4.0,
+          "cin_jkg": -1.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-27",
+          "tmax": 13.0,
+          "tmin": 5.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-28",
+          "tmax": 11.1,
+          "tmin": 4.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-29",
+          "tmax": 11.3,
+          "tmin": 3.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-30",
+          "tmax": 12.2,
+          "tmin": 4.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-01",
+          "tmax": 12.6,
+          "tmin": 4.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-02",
+          "tmax": 13.0,
+          "tmin": 4.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-03",
+          "tmax": 13.4,
+          "tmin": 5.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-04",
+          "tmax": 15.0,
+          "tmin": 6.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-05",
+          "tmax": 14.8,
+          "tmin": 6.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-06",
+          "tmax": 14.4,
+          "tmin": 6.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-07",
+          "tmax": 14.2,
+          "tmin": 5.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        }
+      ]
+    },
+    {
+      "comarca": "Gironès",
+      "municipi": "Girona",
+      "zona": "Litoral i prelitoral",
+      "dies": [
+        {
+          "data": "2026-11-22",
+          "tmax": 15.5,
+          "tmin": 11.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 52.0,
+          "cape_jkg": 9.0,
+          "cin_jkg": -45.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-23",
+          "tmax": 14.9,
+          "tmin": 8.5,
+          "pluja_mm": 0.4,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.0,
+          "cape_jkg": 51.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-24",
+          "tmax": 14.6,
+          "tmin": 8.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 26.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-25",
+          "tmax": 13.1,
+          "tmin": 7.0,
+          "pluja_mm": 2.2,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 96.0,
+          "cin_jkg": -17.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-26",
+          "tmax": 12.5,
+          "tmin": 5.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-27",
+          "tmax": 12.5,
+          "tmin": 4.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-28",
+          "tmax": 10.7,
+          "tmin": 3.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-29",
+          "tmax": 11.2,
+          "tmin": 2.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-30",
+          "tmax": 11.7,
+          "tmin": 4.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-01",
+          "tmax": 12.5,
+          "tmin": 4.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-02",
+          "tmax": 13.2,
+          "tmin": 4.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-03",
+          "tmax": 13.7,
+          "tmin": 5.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-04",
+          "tmax": 15.6,
+          "tmin": 6.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-05",
+          "tmax": 14.7,
+          "tmin": 5.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-06",
+          "tmax": 13.8,
+          "tmin": 5.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-07",
+          "tmax": 13.8,
+          "tmin": 5.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        }
+      ]
+    },
+    {
+      "comarca": "Baix Empordà",
+      "municipi": "La Bisbal d'Empordà",
+      "zona": "Litoral i prelitoral",
+      "dies": [
+        {
+          "data": "2026-11-22",
+          "tmax": 15.8,
+          "tmin": 11.6,
+          "pluja_mm": 0.1,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 45.0,
+          "cape_jkg": 6.0,
+          "cin_jkg": -65.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-23",
+          "tmax": 15.4,
+          "tmin": 8.2,
+          "pluja_mm": 0.3,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.0,
+          "cape_jkg": 45.0,
+          "cin_jkg": -3.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-24",
+          "tmax": 14.4,
+          "tmin": 9.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 42.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-25",
+          "tmax": 12.8,
+          "tmin": 7.6,
+          "pluja_mm": 5.3,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 15.0,
+          "cape_jkg": 223.0,
+          "cin_jkg": -3.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-26",
+          "tmax": 12.6,
+          "tmin": 5.1,
+          "pluja_mm": 0.1,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 15.0,
+          "cape_jkg": 2.0,
+          "cin_jkg": -11.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-27",
+          "tmax": 12.7,
+          "tmin": 4.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-28",
+          "tmax": 11.1,
+          "tmin": 2.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 23.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-29",
+          "tmax": 11.3,
+          "tmin": 2.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-30",
+          "tmax": 11.6,
+          "tmin": 3.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 4.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-01",
+          "tmax": 12.8,
+          "tmin": 3.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-02",
+          "tmax": 13.3,
+          "tmin": 4.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-03",
+          "tmax": 13.9,
+          "tmin": 4.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-04",
+          "tmax": 15.9,
+          "tmin": 5.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-05",
+          "tmax": 14.7,
+          "tmin": 5.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-06",
+          "tmax": 14.0,
+          "tmin": 5.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-07",
+          "tmax": 14.3,
+          "tmin": 5.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        }
+      ]
+    },
+    {
+      "comarca": "Alt Empordà",
+      "municipi": "Figueres",
+      "zona": "Litoral i prelitoral",
+      "dies": [
+        {
+          "data": "2026-11-22",
+          "tmax": 15.8,
+          "tmin": 10.7,
+          "pluja_mm": 0.1,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 45.0,
+          "cape_jkg": 11.0,
+          "cin_jkg": -22.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-23",
+          "tmax": 15.4,
+          "tmin": 8.5,
+          "pluja_mm": 0.2,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 25.0,
+          "cin_jkg": -12.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-24",
+          "tmax": 14.5,
+          "tmin": 8.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 34.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-25",
+          "tmax": 12.5,
+          "tmin": 7.3,
+          "pluja_mm": 1.8,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 14.0,
+          "cape_jkg": 199.0,
+          "cin_jkg": -4.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-26",
+          "tmax": 13.6,
+          "tmin": 5.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 35.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-27",
+          "tmax": 13.4,
+          "tmin": 4.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-28",
+          "tmax": 11.8,
+          "tmin": 2.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 32.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-29",
+          "tmax": 10.7,
+          "tmin": 2.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-30",
+          "tmax": 11.3,
+          "tmin": 3.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-01",
+          "tmax": 11.9,
+          "tmin": 3.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-02",
+          "tmax": 12.3,
+          "tmin": 4.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-03",
+          "tmax": 13.1,
+          "tmin": 4.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-04",
+          "tmax": 14.8,
+          "tmin": 5.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-05",
+          "tmax": 14.6,
+          "tmin": 5.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-06",
+          "tmax": 15.0,
+          "tmin": 5.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 16.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-07",
+          "tmax": 14.3,
+          "tmin": 5.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        }
+      ]
+    },
+    {
+      "comarca": "Pla de l'Estany",
+      "municipi": "Banyoles",
+      "zona": "Litoral i prelitoral",
+      "dies": [
+        {
+          "data": "2026-11-22",
+          "tmax": 15.5,
+          "tmin": 11.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 52.0,
+          "cape_jkg": 9.0,
+          "cin_jkg": -45.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-23",
+          "tmax": 14.9,
+          "tmin": 8.5,
+          "pluja_mm": 0.4,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.0,
+          "cape_jkg": 51.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-24",
+          "tmax": 14.6,
+          "tmin": 8.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 26.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-25",
+          "tmax": 13.1,
+          "tmin": 7.0,
+          "pluja_mm": 2.2,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 96.0,
+          "cin_jkg": -17.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-26",
+          "tmax": 12.5,
+          "tmin": 5.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-27",
+          "tmax": 12.5,
+          "tmin": 4.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-28",
+          "tmax": 10.7,
+          "tmin": 3.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-29",
+          "tmax": 11.2,
+          "tmin": 2.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-30",
+          "tmax": 11.7,
+          "tmin": 4.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-01",
+          "tmax": 12.5,
+          "tmin": 4.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-02",
+          "tmax": 13.2,
+          "tmin": 4.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-03",
+          "tmax": 13.7,
+          "tmin": 5.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-04",
+          "tmax": 15.6,
+          "tmin": 6.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-05",
+          "tmax": 14.7,
+          "tmin": 5.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-06",
+          "tmax": 13.8,
+          "tmin": 5.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-07",
+          "tmax": 13.8,
+          "tmin": 5.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        }
+      ]
+    },
+    {
+      "comarca": "Bages",
+      "municipi": "Manresa",
+      "zona": "Interior",
+      "dies": [
+        {
+          "data": "2026-11-22",
+          "tmax": 14.8,
+          "tmin": 7.3,
+          "pluja_mm": 0.1,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 62.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-23",
+          "tmax": 13.2,
+          "tmin": 4.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-24",
+          "tmax": 13.5,
+          "tmin": 5.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 45.0,
+          "cape_jkg": 1.0,
+          "cin_jkg": -1.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-25",
+          "tmax": 10.8,
+          "tmin": 3.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 43.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-26",
+          "tmax": 11.0,
+          "tmin": 1.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-27",
+          "tmax": 10.5,
+          "tmin": 1.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-28",
+          "tmax": 10.0,
+          "tmin": 0.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-29",
+          "tmax": 9.0,
+          "tmin": -0.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-30",
+          "tmax": 9.6,
+          "tmin": 2.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-01",
+          "tmax": 10.4,
+          "tmin": 1.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-02",
+          "tmax": 11.1,
+          "tmin": 1.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-03",
+          "tmax": 11.4,
+          "tmin": 2.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-04",
+          "tmax": 12.2,
+          "tmin": 1.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-05",
+          "tmax": 11.8,
+          "tmin": 2.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-06",
+          "tmax": 10.5,
+          "tmin": 1.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-07",
+          "tmax": 11.1,
+          "tmin": 1.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        }
+      ]
+    },
+    {
+      "comarca": "Osona",
+      "municipi": "Vic",
+      "zona": "Interior",
+      "dies": [
+        {
+          "data": "2026-11-22",
+          "tmax": 12.8,
+          "tmin": 6.7,
+          "pluja_mm": 0.1,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 56.0,
+          "cape_jkg": 57.0,
+          "cin_jkg": -3.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-23",
+          "tmax": 12.4,
+          "tmin": 3.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.0,
+          "cape_jkg": 5.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-24",
+          "tmax": 10.4,
+          "tmin": 4.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 32.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-25",
+          "tmax": 9.5,
+          "tmin": 1.9,
+          "pluja_mm": 0.1,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 24.0,
+          "cape_jkg": 31.0,
+          "cin_jkg": -59.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-26",
+          "tmax": 10.2,
+          "tmin": 0.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.0,
+          "cape_jkg": 2.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-27",
+          "tmax": 10.1,
+          "tmin": 0.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 4.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-28",
+          "tmax": 8.9,
+          "tmin": -0.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 4.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-29",
+          "tmax": 8.9,
+          "tmin": -1.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 4.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-30",
+          "tmax": 10.0,
+          "tmin": 0.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-01",
+          "tmax": 10.7,
+          "tmin": 1.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 4.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-02",
+          "tmax": 10.8,
+          "tmin": 1.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-03",
+          "tmax": 11.8,
+          "tmin": 2.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-04",
+          "tmax": 14.2,
+          "tmin": 3.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 4.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-05",
+          "tmax": 11.4,
+          "tmin": 2.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-06",
+          "tmax": 11.9,
+          "tmin": 2.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 4.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-07",
+          "tmax": 11.3,
+          "tmin": 2.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 4.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        }
+      ]
+    },
+    {
+      "comarca": "Moianès",
+      "municipi": "Moià",
+      "zona": "Interior",
+      "dies": [
+        {
+          "data": "2026-11-22",
+          "tmax": 15.4,
+          "tmin": 9.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 51.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-23",
+          "tmax": 13.6,
+          "tmin": 6.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-24",
+          "tmax": 12.7,
+          "tmin": 7.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 39.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-25",
+          "tmax": 10.6,
+          "tmin": 5.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 37.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-26",
+          "tmax": 10.9,
+          "tmin": 2.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-27",
+          "tmax": 10.6,
+          "tmin": 2.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-28",
+          "tmax": 9.8,
+          "tmin": 2.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-29",
+          "tmax": 9.2,
+          "tmin": 1.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-30",
+          "tmax": 10.2,
+          "tmin": 3.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-01",
+          "tmax": 11.1,
+          "tmin": 3.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-02",
+          "tmax": 11.3,
+          "tmin": 3.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-03",
+          "tmax": 11.6,
+          "tmin": 3.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-04",
+          "tmax": 12.8,
+          "tmin": 3.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-05",
+          "tmax": 11.9,
+          "tmin": 4.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-06",
+          "tmax": 11.1,
+          "tmin": 3.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-07",
+          "tmax": 11.5,
+          "tmin": 3.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        }
+      ]
+    },
+    {
+      "comarca": "Lluçanès",
+      "municipi": "Prats de Lluçanès",
+      "zona": "Interior",
+      "dies": [
+        {
+          "data": "2026-11-22",
+          "tmax": 14.8,
+          "tmin": 6.2,
+          "pluja_mm": 0.1,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 30.0,
+          "cape_jkg": 44.0,
+          "cin_jkg": -2.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-23",
+          "tmax": 12.5,
+          "tmin": 3.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-24",
+          "tmax": 11.1,
+          "tmin": 4.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 22.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-25",
+          "tmax": 10.4,
+          "tmin": 1.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 24.0,
+          "cape_jkg": 32.0,
+          "cin_jkg": -82.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-26",
+          "tmax": 10.0,
+          "tmin": 0.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-27",
+          "tmax": 9.8,
+          "tmin": 0.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-28",
+          "tmax": 8.9,
+          "tmin": -0.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-29",
+          "tmax": 8.5,
+          "tmin": -1.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-30",
+          "tmax": 9.3,
+          "tmin": 1.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-01",
+          "tmax": 10.3,
+          "tmin": 1.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-02",
+          "tmax": 10.4,
+          "tmin": 1.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-03",
+          "tmax": 11.2,
+          "tmin": 2.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-04",
+          "tmax": 13.0,
+          "tmin": 2.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-05",
+          "tmax": 11.3,
+          "tmin": 2.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-06",
+          "tmax": 10.8,
+          "tmin": 1.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-07",
+          "tmax": 10.7,
+          "tmin": 1.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        }
+      ]
+    },
+    {
+      "comarca": "Anoia",
+      "municipi": "Igualada",
+      "zona": "Interior",
+      "dies": [
+        {
+          "data": "2026-11-22",
+          "tmax": 12.5,
+          "tmin": 7.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 77.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-23",
+          "tmax": 11.7,
+          "tmin": 4.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 22.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-24",
+          "tmax": 12.5,
+          "tmin": 6.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 53.0,
+          "cape_jkg": 7.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-25",
+          "tmax": 9.7,
+          "tmin": 4.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 77.0,
+          "cape_jkg": 1.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-26",
+          "tmax": 9.5,
+          "tmin": 1.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 24.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-27",
+          "tmax": 8.8,
+          "tmin": 1.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-28",
+          "tmax": 8.9,
+          "tmin": 1.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.0,
+          "cape_jkg": 1.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-29",
+          "tmax": 8.1,
+          "tmin": 0.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 17.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-30",
+          "tmax": 8.1,
+          "tmin": 2.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-01",
+          "tmax": 9.2,
+          "tmin": 1.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-02",
+          "tmax": 10.3,
+          "tmin": 2.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-03",
+          "tmax": 10.1,
+          "tmin": 2.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 18.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-04",
+          "tmax": 10.5,
+          "tmin": 2.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 18.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-05",
+          "tmax": 10.8,
+          "tmin": 3.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-06",
+          "tmax": 9.3,
+          "tmin": 1.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 19.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-07",
+          "tmax": 10.3,
+          "tmin": 2.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        }
+      ]
+    },
+    {
+      "comarca": "Solsonès",
+      "municipi": "Solsona",
+      "zona": "Interior",
+      "dies": [
+        {
+          "data": "2026-11-22",
+          "tmax": 13.5,
+          "tmin": 6.0,
+          "pluja_mm": 0.2,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 31.0,
+          "cape_jkg": 2.0,
+          "cin_jkg": -1.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-23",
+          "tmax": 11.6,
+          "tmin": 4.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-24",
+          "tmax": 10.8,
+          "tmin": 4.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-25",
+          "tmax": 9.9,
+          "tmin": 1.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 46.0,
+          "cape_jkg": 17.0,
+          "cin_jkg": -106.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-26",
+          "tmax": 9.2,
+          "tmin": 1.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-27",
+          "tmax": 9.3,
+          "tmin": 0.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-28",
+          "tmax": 8.4,
+          "tmin": -0.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-29",
+          "tmax": 7.9,
+          "tmin": -0.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-30",
+          "tmax": 7.9,
+          "tmin": 2.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-01",
+          "tmax": 9.0,
+          "tmin": 0.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-02",
+          "tmax": 9.6,
+          "tmin": 1.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-03",
+          "tmax": 10.3,
+          "tmin": 2.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-04",
+          "tmax": 10.9,
+          "tmin": 2.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-05",
+          "tmax": 10.7,
+          "tmin": 3.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-06",
+          "tmax": 9.1,
+          "tmin": 1.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-07",
+          "tmax": 10.0,
+          "tmin": 2.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        }
+      ]
+    },
+    {
+      "comarca": "Segarra",
+      "municipi": "Cervera",
+      "zona": "Interior",
+      "dies": [
+        {
+          "data": "2026-11-22",
+          "tmax": 14.0,
+          "tmin": 6.9,
+          "pluja_mm": 0.2,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 50.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-23",
+          "tmax": 11.4,
+          "tmin": 4.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-24",
+          "tmax": 12.1,
+          "tmin": 5.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 39.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-25",
+          "tmax": 10.2,
+          "tmin": 3.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 45.0,
+          "cape_jkg": 1.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-26",
+          "tmax": 9.0,
+          "tmin": 1.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-27",
+          "tmax": 8.0,
+          "tmin": 1.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-28",
+          "tmax": 8.3,
+          "tmin": 0.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-29",
+          "tmax": 6.5,
+          "tmin": -0.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-30",
+          "tmax": 6.5,
+          "tmin": 1.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-01",
+          "tmax": 6.9,
+          "tmin": 0.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-02",
+          "tmax": 7.8,
+          "tmin": 0.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-03",
+          "tmax": 7.9,
+          "tmin": 0.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 16.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-04",
+          "tmax": 8.1,
+          "tmin": 0.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-05",
+          "tmax": 9.0,
+          "tmin": 2.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-06",
+          "tmax": 7.6,
+          "tmin": 0.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 16.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-07",
+          "tmax": 8.1,
+          "tmin": 1.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 14.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        }
+      ]
+    },
+    {
+      "comarca": "Urgell",
+      "municipi": "Tàrrega",
+      "zona": "Interior",
+      "dies": [
+        {
+          "data": "2026-11-22",
+          "tmax": 14.0,
+          "tmin": 6.9,
+          "pluja_mm": 0.2,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 50.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-23",
+          "tmax": 11.4,
+          "tmin": 4.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-24",
+          "tmax": 12.1,
+          "tmin": 5.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 39.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-25",
+          "tmax": 10.2,
+          "tmin": 3.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 45.0,
+          "cape_jkg": 1.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-26",
+          "tmax": 9.0,
+          "tmin": 1.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-27",
+          "tmax": 8.0,
+          "tmin": 1.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-28",
+          "tmax": 8.3,
+          "tmin": 0.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-29",
+          "tmax": 6.5,
+          "tmin": -0.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-30",
+          "tmax": 6.5,
+          "tmin": 1.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-01",
+          "tmax": 6.9,
+          "tmin": 0.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-02",
+          "tmax": 7.8,
+          "tmin": 0.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-03",
+          "tmax": 7.9,
+          "tmin": 0.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 16.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-04",
+          "tmax": 8.1,
+          "tmin": 0.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-05",
+          "tmax": 9.0,
+          "tmin": 2.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-06",
+          "tmax": 7.6,
+          "tmin": 0.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 16.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-07",
+          "tmax": 8.1,
+          "tmin": 1.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 14.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        }
+      ]
+    },
+    {
+      "comarca": "Segrià",
+      "municipi": "Lleida",
+      "zona": "Interior",
+      "dies": [
+        {
+          "data": "2026-11-22",
+          "tmax": 15.3,
+          "tmin": 11.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 75.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-23",
+          "tmax": 14.8,
+          "tmin": 8.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 51.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-24",
+          "tmax": 13.8,
+          "tmin": 7.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 45.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-25",
+          "tmax": 12.4,
+          "tmin": 8.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 63.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-26",
+          "tmax": 11.6,
+          "tmin": 5.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 41.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-27",
+          "tmax": 10.8,
+          "tmin": 3.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-28",
+          "tmax": 10.3,
+          "tmin": 2.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-29",
+          "tmax": 9.7,
+          "tmin": 2.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-30",
+          "tmax": 9.1,
+          "tmin": 2.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-01",
+          "tmax": 9.9,
+          "tmin": 2.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-02",
+          "tmax": 10.6,
+          "tmin": 1.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-03",
+          "tmax": 11.4,
+          "tmin": 2.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-04",
+          "tmax": 11.8,
+          "tmin": 2.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-05",
+          "tmax": 10.2,
+          "tmin": 2.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-06",
+          "tmax": 10.8,
+          "tmin": 2.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-07",
+          "tmax": 10.7,
+          "tmin": 2.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        }
+      ]
+    },
+    {
+      "comarca": "Noguera",
+      "municipi": "Balaguer",
+      "zona": "Interior",
+      "dies": [
+        {
+          "data": "2026-11-22",
+          "tmax": 15.3,
+          "tmin": 9.2,
+          "pluja_mm": 0.1,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 60.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-23",
+          "tmax": 12.5,
+          "tmin": 5.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-24",
+          "tmax": 13.0,
+          "tmin": 7.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 35.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-25",
+          "tmax": 11.7,
+          "tmin": 5.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 55.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-26",
+          "tmax": 10.0,
+          "tmin": 3.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-27",
+          "tmax": 9.8,
+          "tmin": 2.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-28",
+          "tmax": 9.3,
+          "tmin": 2.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-29",
+          "tmax": 8.8,
+          "tmin": 1.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-30",
+          "tmax": 8.5,
+          "tmin": 2.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-01",
+          "tmax": 9.2,
+          "tmin": 1.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-02",
+          "tmax": 9.9,
+          "tmin": 1.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-03",
+          "tmax": 10.2,
+          "tmin": 2.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-04",
+          "tmax": 10.3,
+          "tmin": 1.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-05",
+          "tmax": 9.5,
+          "tmin": 3.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-06",
+          "tmax": 9.7,
+          "tmin": 2.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-07",
+          "tmax": 9.8,
+          "tmin": 2.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        }
+      ]
+    },
+    {
+      "comarca": "Garrigues",
+      "municipi": "Les Borges Blanques",
+      "zona": "Interior",
+      "dies": [
+        {
+          "data": "2026-11-22",
+          "tmax": 14.2,
+          "tmin": 10.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 69.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-23",
+          "tmax": 13.5,
+          "tmin": 6.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 39.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-24",
+          "tmax": 13.2,
+          "tmin": 7.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 40.0,
+          "cape_jkg": 2.0,
+          "cin_jkg": -10.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-25",
+          "tmax": 11.4,
+          "tmin": 6.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 60.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-26",
+          "tmax": 10.5,
+          "tmin": 3.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 31.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-27",
+          "tmax": 9.5,
+          "tmin": 3.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-28",
+          "tmax": 9.6,
+          "tmin": 2.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-29",
+          "tmax": 8.5,
+          "tmin": 1.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-30",
+          "tmax": 8.0,
+          "tmin": 2.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-01",
+          "tmax": 8.7,
+          "tmin": 2.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-02",
+          "tmax": 9.3,
+          "tmin": 1.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-03",
+          "tmax": 9.9,
+          "tmin": 2.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-04",
+          "tmax": 10.7,
+          "tmin": 2.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 14.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-05",
+          "tmax": 9.0,
+          "tmin": 2.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-06",
+          "tmax": 9.7,
+          "tmin": 2.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 15.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-07",
+          "tmax": 9.6,
+          "tmin": 2.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        }
+      ]
+    },
+    {
+      "comarca": "Pla d'Urgell",
+      "municipi": "Mollerussa",
+      "zona": "Interior",
+      "dies": [
+        {
+          "data": "2026-11-22",
+          "tmax": 15.1,
+          "tmin": 8.5,
+          "pluja_mm": 0.1,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 54.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-23",
+          "tmax": 12.3,
+          "tmin": 5.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-24",
+          "tmax": 12.8,
+          "tmin": 6.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 35.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-25",
+          "tmax": 11.6,
+          "tmin": 5.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 48.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-26",
+          "tmax": 9.8,
+          "tmin": 2.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-27",
+          "tmax": 9.1,
+          "tmin": 2.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-28",
+          "tmax": 8.9,
+          "tmin": 1.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-29",
+          "tmax": 8.2,
+          "tmin": 0.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-30",
+          "tmax": 7.8,
+          "tmin": 2.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-01",
+          "tmax": 8.2,
+          "tmin": 1.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-02",
+          "tmax": 8.9,
+          "tmin": 1.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-03",
+          "tmax": 9.3,
+          "tmin": 1.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-04",
+          "tmax": 9.4,
+          "tmin": 1.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-05",
+          "tmax": 9.2,
+          "tmin": 2.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-06",
+          "tmax": 9.1,
+          "tmin": 1.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-07",
+          "tmax": 9.1,
+          "tmin": 2.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        }
+      ]
+    },
+    {
+      "comarca": "Garrotxa",
+      "municipi": "Olot",
+      "zona": "Pirineu i Prepirineu",
+      "dies": [
+        {
+          "data": "2026-11-22",
+          "tmax": 12.3,
+          "tmin": 5.6,
+          "pluja_mm": 0.2,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 23.0,
+          "cape_jkg": 39.0,
+          "cin_jkg": -3.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-23",
+          "tmax": 12.3,
+          "tmin": 4.7,
+          "pluja_mm": 0.1,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.0,
+          "cape_jkg": 16.0,
+          "cin_jkg": -1.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-24",
+          "tmax": 10.3,
+          "tmin": 4.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 23.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-25",
+          "tmax": 10.4,
+          "tmin": 3.0,
+          "pluja_mm": 0.6,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.0,
+          "cape_jkg": 83.0,
+          "cin_jkg": -8.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-26",
+          "tmax": 9.1,
+          "tmin": 1.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.0,
+          "cape_jkg": 5.0,
+          "cin_jkg": -1.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-27",
+          "tmax": 9.9,
+          "tmin": 1.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-28",
+          "tmax": 8.6,
+          "tmin": 0.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-29",
+          "tmax": 9.4,
+          "tmin": 0.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-30",
+          "tmax": 10.1,
+          "tmin": 2.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-01",
+          "tmax": 11.5,
+          "tmin": 3.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-02",
+          "tmax": 12.0,
+          "tmin": 3.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-03",
+          "tmax": 13.3,
+          "tmin": 4.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-04",
+          "tmax": 15.0,
+          "tmin": 5.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-05",
+          "tmax": 13.0,
+          "tmin": 4.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-06",
+          "tmax": 12.4,
+          "tmin": 4.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-07",
+          "tmax": 12.3,
+          "tmin": 3.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        }
+      ]
+    },
+    {
+      "comarca": "Ripollès",
+      "municipi": "Ripoll",
+      "zona": "Pirineu i Prepirineu",
+      "dies": [
+        {
+          "data": "2026-11-22",
+          "tmax": 11.3,
+          "tmin": 3.3,
+          "pluja_mm": 0.1,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 22.0,
+          "cape_jkg": 48.0,
+          "cin_jkg": -2.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-23",
+          "tmax": 9.5,
+          "tmin": 2.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-24",
+          "tmax": 7.6,
+          "tmin": 2.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 18.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-25",
+          "tmax": 6.8,
+          "tmin": 0.2,
+          "pluja_mm": 0.3,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 52.0,
+          "cin_jkg": -13.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-26",
+          "tmax": 7.4,
+          "tmin": -0.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.0,
+          "cape_jkg": 18.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-27",
+          "tmax": 7.6,
+          "tmin": -0.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-28",
+          "tmax": 7.0,
+          "tmin": -1.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-29",
+          "tmax": 8.0,
+          "tmin": -0.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-30",
+          "tmax": 8.6,
+          "tmin": 1.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-01",
+          "tmax": 9.7,
+          "tmin": 2.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-02",
+          "tmax": 10.2,
+          "tmin": 2.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-03",
+          "tmax": 11.6,
+          "tmin": 3.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-04",
+          "tmax": 13.3,
+          "tmin": 4.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-05",
+          "tmax": 10.6,
+          "tmin": 3.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-06",
+          "tmax": 10.8,
+          "tmin": 3.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-07",
+          "tmax": 10.8,
+          "tmin": 2.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        }
+      ]
+    },
+    {
+      "comarca": "Berguedà",
+      "municipi": "Berga",
+      "zona": "Pirineu i Prepirineu",
+      "dies": [
+        {
+          "data": "2026-11-22",
+          "tmax": 14.7,
+          "tmin": 6.4,
+          "pluja_mm": 0.1,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 39.0,
+          "cape_jkg": 6.0,
+          "cin_jkg": -2.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-23",
+          "tmax": 11.3,
+          "tmin": 3.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-24",
+          "tmax": 10.9,
+          "tmin": 4.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 16.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-25",
+          "tmax": 10.8,
+          "tmin": 1.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 41.0,
+          "cape_jkg": 24.0,
+          "cin_jkg": -114.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-26",
+          "tmax": 8.9,
+          "tmin": 0.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-27",
+          "tmax": 8.9,
+          "tmin": 0.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-28",
+          "tmax": 8.3,
+          "tmin": -0.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-29",
+          "tmax": 8.2,
+          "tmin": -1.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-30",
+          "tmax": 9.0,
+          "tmin": 1.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-01",
+          "tmax": 9.9,
+          "tmin": 1.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-02",
+          "tmax": 10.5,
+          "tmin": 1.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-03",
+          "tmax": 11.5,
+          "tmin": 2.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-04",
+          "tmax": 12.9,
+          "tmin": 2.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-05",
+          "tmax": 11.0,
+          "tmin": 2.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-06",
+          "tmax": 10.6,
+          "tmin": 1.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-07",
+          "tmax": 10.8,
+          "tmin": 1.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        }
+      ]
+    },
+    {
+      "comarca": "Cerdanya",
+      "municipi": "Puigcerdà",
+      "zona": "Pirineu i Prepirineu",
+      "dies": [
+        {
+          "data": "2026-11-22",
+          "tmax": 4.3,
+          "tmin": -1.3,
+          "pluja_mm": 1.1,
+          "neu_cm": 0.6,
+          "ratxa_kmh": 31.0,
+          "cape_jkg": 8.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-23",
+          "tmax": 5.4,
+          "tmin": -1.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -2.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-24",
+          "tmax": 3.9,
+          "tmin": -1.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 16.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-25",
+          "tmax": 2.8,
+          "tmin": -4.1,
+          "pluja_mm": 1.1,
+          "neu_cm": 0.9,
+          "ratxa_kmh": 13.0,
+          "cape_jkg": 40.0,
+          "cin_jkg": -1.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-26",
+          "tmax": 0.7,
+          "tmin": -4.7,
+          "pluja_mm": 0.6,
+          "neu_cm": 0.4,
+          "ratxa_kmh": 14.0,
+          "cape_jkg": 11.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-27",
+          "tmax": 1.2,
+          "tmin": -5.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-28",
+          "tmax": -0.0,
+          "tmin": -7.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 15.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-29",
+          "tmax": 3.7,
+          "tmin": -5.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-30",
+          "tmax": 4.6,
+          "tmin": -3.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-01",
+          "tmax": 6.4,
+          "tmin": -2.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-02",
+          "tmax": 7.0,
+          "tmin": -1.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-03",
+          "tmax": 7.5,
+          "tmin": -0.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-04",
+          "tmax": 8.2,
+          "tmin": -0.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-05",
+          "tmax": 5.5,
+          "tmin": -1.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-06",
+          "tmax": 7.2,
+          "tmin": -1.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-07",
+          "tmax": 7.8,
+          "tmin": -0.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 15.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        }
+      ]
+    },
+    {
+      "comarca": "Alt Urgell",
+      "municipi": "La Seu d'Urgell",
+      "zona": "Pirineu i Prepirineu",
+      "dies": [
+        {
+          "data": "2026-11-22",
+          "tmax": 8.6,
+          "tmin": 1.0,
+          "pluja_mm": 0.6,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 14.0,
+          "cape_jkg": 9.0,
+          "cin_jkg": -2.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-23",
+          "tmax": 9.3,
+          "tmin": -0.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-24",
+          "tmax": 7.1,
+          "tmin": 0.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-25",
+          "tmax": 5.5,
+          "tmin": -1.8,
+          "pluja_mm": 0.1,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 17.0,
+          "cape_jkg": 35.0,
+          "cin_jkg": -23.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-26",
+          "tmax": 6.8,
+          "tmin": -2.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.0,
+          "cape_jkg": 18.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-27",
+          "tmax": 7.5,
+          "tmin": -2.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-28",
+          "tmax": 6.5,
+          "tmin": -3.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-29",
+          "tmax": 8.0,
+          "tmin": -2.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-30",
+          "tmax": 7.5,
+          "tmin": -0.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-01",
+          "tmax": 8.9,
+          "tmin": -0.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-02",
+          "tmax": 9.4,
+          "tmin": 0.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-03",
+          "tmax": 10.9,
+          "tmin": 0.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-04",
+          "tmax": 12.9,
+          "tmin": 1.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-05",
+          "tmax": 9.7,
+          "tmin": 0.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-06",
+          "tmax": 11.3,
+          "tmin": 0.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-07",
+          "tmax": 11.0,
+          "tmin": 1.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        }
+      ]
+    },
+    {
+      "comarca": "Pallars Jussà",
+      "municipi": "Tremp",
+      "zona": "Pirineu i Prepirineu",
+      "dies": [
+        {
+          "data": "2026-11-22",
+          "tmax": 11.2,
+          "tmin": 3.7,
+          "pluja_mm": 0.9,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 14.0,
+          "cape_jkg": 10.0,
+          "cin_jkg": -2.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-23",
+          "tmax": 11.2,
+          "tmin": 2.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-24",
+          "tmax": 9.2,
+          "tmin": 3.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-25",
+          "tmax": 7.0,
+          "tmin": 0.6,
+          "pluja_mm": 0.1,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 25.0,
+          "cape_jkg": 16.0,
+          "cin_jkg": -44.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-26",
+          "tmax": 9.4,
+          "tmin": 0.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 14.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-27",
+          "tmax": 9.0,
+          "tmin": -0.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-28",
+          "tmax": 8.2,
+          "tmin": -1.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-29",
+          "tmax": 7.8,
+          "tmin": -1.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-30",
+          "tmax": 8.0,
+          "tmin": 0.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-01",
+          "tmax": 8.5,
+          "tmin": 0.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-02",
+          "tmax": 9.4,
+          "tmin": 1.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-03",
+          "tmax": 10.6,
+          "tmin": 2.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-04",
+          "tmax": 12.7,
+          "tmin": 3.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-05",
+          "tmax": 10.4,
+          "tmin": 2.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-06",
+          "tmax": 10.8,
+          "tmin": 2.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-07",
+          "tmax": 10.5,
+          "tmin": 2.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        }
+      ]
+    },
+    {
+      "comarca": "Pallars Sobirà",
+      "municipi": "Sort",
+      "zona": "Pirineu i Prepirineu",
+      "dies": [
+        {
+          "data": "2026-11-22",
+          "tmax": 5.8,
+          "tmin": -0.8,
+          "pluja_mm": 1.2,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 23.0,
+          "cape_jkg": 4.0,
+          "cin_jkg": -7.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-23",
+          "tmax": 7.4,
+          "tmin": -0.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 19.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-24",
+          "tmax": 5.3,
+          "tmin": -0.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 14.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-25",
+          "tmax": 3.9,
+          "tmin": -2.3,
+          "pluja_mm": 1.3,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 18.0,
+          "cape_jkg": 46.0,
+          "cin_jkg": -2.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-26",
+          "tmax": 2.9,
+          "tmin": -4.0,
+          "pluja_mm": 0.6,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 17.0,
+          "cape_jkg": 13.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-27",
+          "tmax": 2.2,
+          "tmin": -4.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 22.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-28",
+          "tmax": 2.9,
+          "tmin": -6.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 22.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-29",
+          "tmax": 6.0,
+          "tmin": -4.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 18.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-30",
+          "tmax": 6.1,
+          "tmin": -3.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-01",
+          "tmax": 7.7,
+          "tmin": -3.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-02",
+          "tmax": 8.9,
+          "tmin": -1.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-03",
+          "tmax": 10.1,
+          "tmin": -0.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 16.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-04",
+          "tmax": 10.0,
+          "tmin": 0.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 19.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-05",
+          "tmax": 7.1,
+          "tmin": -1.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 19.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-06",
+          "tmax": 8.5,
+          "tmin": -1.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 22.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-07",
+          "tmax": 9.2,
+          "tmin": -0.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 24.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        }
+      ]
+    },
+    {
+      "comarca": "Alta Ribagorça",
+      "municipi": "El Pont de Suert",
+      "zona": "Pirineu i Prepirineu",
+      "dies": [
+        {
+          "data": "2026-11-22",
+          "tmax": 4.7,
+          "tmin": -0.5,
+          "pluja_mm": 2.7,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 24.0,
+          "cape_jkg": 49.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-23",
+          "tmax": 6.7,
+          "tmin": -0.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 24.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-24",
+          "tmax": 3.9,
+          "tmin": -1.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 14.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-25",
+          "tmax": 1.6,
+          "tmin": -2.9,
+          "pluja_mm": 0.9,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 23.0,
+          "cape_jkg": 30.0,
+          "cin_jkg": -2.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-26",
+          "tmax": 1.5,
+          "tmin": -3.7,
+          "pluja_mm": 1.1,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 22.0,
+          "cape_jkg": 2.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-27",
+          "tmax": 1.2,
+          "tmin": -4.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 26.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-28",
+          "tmax": 1.6,
+          "tmin": -5.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 25.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-29",
+          "tmax": 4.8,
+          "tmin": -3.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 21.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-30",
+          "tmax": 4.6,
+          "tmin": -2.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 14.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-01",
+          "tmax": 5.9,
+          "tmin": -2.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-02",
+          "tmax": 7.0,
+          "tmin": 0.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-03",
+          "tmax": 8.5,
+          "tmin": 0.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 19.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-04",
+          "tmax": 9.0,
+          "tmin": 1.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 23.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-05",
+          "tmax": 6.4,
+          "tmin": -0.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 26.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-06",
+          "tmax": 7.9,
+          "tmin": -0.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 25.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-07",
+          "tmax": 8.2,
+          "tmin": 0.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 29.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        }
+      ]
+    },
+    {
+      "comarca": "Val d'Aran",
+      "municipi": "Vielha",
+      "zona": "Pirineu i Prepirineu",
+      "dies": [
+        {
+          "data": "2026-11-22",
+          "tmax": 4.4,
+          "tmin": -0.3,
+          "pluja_mm": 3.1,
+          "neu_cm": 1.1,
+          "ratxa_kmh": 26.0,
+          "cape_jkg": 19.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-23",
+          "tmax": 4.7,
+          "tmin": -1.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-24",
+          "tmax": 5.8,
+          "tmin": -0.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 20.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-25",
+          "tmax": 0.9,
+          "tmin": -3.1,
+          "pluja_mm": 4.8,
+          "neu_cm": 4.8,
+          "ratxa_kmh": 17.0,
+          "cape_jkg": 90.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-26",
+          "tmax": -1.3,
+          "tmin": -4.7,
+          "pluja_mm": 7.8,
+          "neu_cm": 7.9,
+          "ratxa_kmh": 12.0,
+          "cape_jkg": 33.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-27",
+          "tmax": -2.1,
+          "tmin": -5.2,
+          "pluja_mm": 0.1,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.0,
+          "cape_jkg": 4.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-28",
+          "tmax": -1.1,
+          "tmin": -11.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-29",
+          "tmax": 0.9,
+          "tmin": -8.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-30",
+          "tmax": 1.9,
+          "tmin": -6.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-01",
+          "tmax": 3.6,
+          "tmin": -6.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-02",
+          "tmax": 4.9,
+          "tmin": -3.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 7.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-03",
+          "tmax": 5.2,
+          "tmin": -4.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-04",
+          "tmax": 5.5,
+          "tmin": -3.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 5.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-05",
+          "tmax": 3.0,
+          "tmin": -3.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-06",
+          "tmax": 3.4,
+          "tmin": -4.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-07",
+          "tmax": 5.0,
+          "tmin": -3.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        }
+      ]
+    },
+    {
+      "comarca": "Tarragonès",
+      "municipi": "Tarragona",
+      "zona": "Camp de Tarragona i Terres de l'Ebre",
+      "dies": [
+        {
+          "data": "2026-11-22",
+          "tmax": 18.6,
+          "tmin": 16.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 80.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-23",
+          "tmax": 16.9,
+          "tmin": 14.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 61.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-24",
+          "tmax": 16.5,
+          "tmin": 15.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 53.0,
+          "cape_jkg": 4.0,
+          "cin_jkg": -3.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-25",
+          "tmax": 15.2,
+          "tmin": 12.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 72.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-26",
+          "tmax": 13.9,
+          "tmin": 11.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 22.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-27",
+          "tmax": 13.6,
+          "tmin": 11.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 22.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-28",
+          "tmax": 13.1,
+          "tmin": 10.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 15.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-29",
+          "tmax": 13.0,
+          "tmin": 10.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 16.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-30",
+          "tmax": 12.9,
+          "tmin": 10.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-01",
+          "tmax": 13.6,
+          "tmin": 11.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-02",
+          "tmax": 14.2,
+          "tmin": 11.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-03",
+          "tmax": 15.4,
+          "tmin": 12.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-04",
+          "tmax": 16.1,
+          "tmin": 12.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 18.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-05",
+          "tmax": 14.5,
+          "tmin": 12.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-06",
+          "tmax": 14.7,
+          "tmin": 11.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 22.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-07",
+          "tmax": 14.7,
+          "tmin": 11.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 17.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        }
+      ]
+    },
+    {
+      "comarca": "Baix Camp",
+      "municipi": "Reus",
+      "zona": "Camp de Tarragona i Terres de l'Ebre",
+      "dies": [
+        {
+          "data": "2026-11-22",
+          "tmax": 12.9,
+          "tmin": 9.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 80.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-23",
+          "tmax": 12.5,
+          "tmin": 7.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 49.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-24",
+          "tmax": 12.8,
+          "tmin": 7.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 48.0,
+          "cape_jkg": 5.0,
+          "cin_jkg": -23.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-25",
+          "tmax": 10.4,
+          "tmin": 5.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 73.0,
+          "cape_jkg": 1.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-26",
+          "tmax": 10.5,
+          "tmin": 3.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 27.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-27",
+          "tmax": 9.7,
+          "tmin": 3.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-28",
+          "tmax": 9.1,
+          "tmin": 2.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-29",
+          "tmax": 9.1,
+          "tmin": 2.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-30",
+          "tmax": 8.7,
+          "tmin": 2.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-01",
+          "tmax": 9.5,
+          "tmin": 2.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-02",
+          "tmax": 10.8,
+          "tmin": 3.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-03",
+          "tmax": 11.3,
+          "tmin": 4.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-04",
+          "tmax": 11.8,
+          "tmin": 4.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 15.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-05",
+          "tmax": 10.9,
+          "tmin": 4.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-06",
+          "tmax": 10.0,
+          "tmin": 3.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 14.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-07",
+          "tmax": 10.4,
+          "tmin": 3.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        }
+      ]
+    },
+    {
+      "comarca": "Alt Camp",
+      "municipi": "Valls",
+      "zona": "Camp de Tarragona i Terres de l'Ebre",
+      "dies": [
+        {
+          "data": "2026-11-22",
+          "tmax": 15.7,
+          "tmin": 12.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 69.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-23",
+          "tmax": 15.1,
+          "tmin": 9.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 39.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-24",
+          "tmax": 14.4,
+          "tmin": 10.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 46.0,
+          "cape_jkg": 1.0,
+          "cin_jkg": -30.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-25",
+          "tmax": 13.1,
+          "tmin": 8.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 69.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-26",
+          "tmax": 12.5,
+          "tmin": 5.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 15.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-27",
+          "tmax": 12.0,
+          "tmin": 5.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-28",
+          "tmax": 11.0,
+          "tmin": 5.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-29",
+          "tmax": 11.3,
+          "tmin": 4.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-30",
+          "tmax": 10.8,
+          "tmin": 5.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-01",
+          "tmax": 11.4,
+          "tmin": 5.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 16.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-02",
+          "tmax": 12.4,
+          "tmin": 5.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-03",
+          "tmax": 13.0,
+          "tmin": 6.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 14.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-04",
+          "tmax": 13.7,
+          "tmin": 6.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 16.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-05",
+          "tmax": 12.8,
+          "tmin": 6.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 14.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-06",
+          "tmax": 12.7,
+          "tmin": 5.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 17.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-07",
+          "tmax": 12.8,
+          "tmin": 6.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        }
+      ]
+    },
+    {
+      "comarca": "Conca de Barberà",
+      "municipi": "Montblanc",
+      "zona": "Camp de Tarragona i Terres de l'Ebre",
+      "dies": [
+        {
+          "data": "2026-11-22",
+          "tmax": 11.7,
+          "tmin": 7.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 71.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-23",
+          "tmax": 10.9,
+          "tmin": 4.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 31.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-24",
+          "tmax": 11.8,
+          "tmin": 6.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 48.0,
+          "cape_jkg": 2.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-25",
+          "tmax": 9.1,
+          "tmin": 4.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 69.0,
+          "cape_jkg": 8.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-26",
+          "tmax": 8.4,
+          "tmin": 1.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 34.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-27",
+          "tmax": 7.5,
+          "tmin": 1.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-28",
+          "tmax": 8.2,
+          "tmin": 0.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-29",
+          "tmax": 6.7,
+          "tmin": 0.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 15.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-30",
+          "tmax": 6.5,
+          "tmin": 1.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-01",
+          "tmax": 7.0,
+          "tmin": 0.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-02",
+          "tmax": 8.1,
+          "tmin": 1.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 10.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-03",
+          "tmax": 8.1,
+          "tmin": 1.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 19.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-04",
+          "tmax": 8.5,
+          "tmin": 1.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 18.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-05",
+          "tmax": 9.1,
+          "tmin": 2.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-06",
+          "tmax": 7.7,
+          "tmin": 0.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 18.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-07",
+          "tmax": 8.4,
+          "tmin": 1.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        }
+      ]
+    },
+    {
+      "comarca": "Priorat",
+      "municipi": "Falset",
+      "zona": "Camp de Tarragona i Terres de l'Ebre",
+      "dies": [
+        {
+          "data": "2026-11-22",
+          "tmax": 13.5,
+          "tmin": 10.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 80.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-23",
+          "tmax": 13.2,
+          "tmin": 6.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 56.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-24",
+          "tmax": 13.7,
+          "tmin": 7.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 45.0,
+          "cape_jkg": 9.0,
+          "cin_jkg": -20.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-25",
+          "tmax": 11.1,
+          "tmin": 6.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 65.0,
+          "cape_jkg": 4.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-26",
+          "tmax": 11.0,
+          "tmin": 4.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 41.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-27",
+          "tmax": 9.3,
+          "tmin": 2.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 14.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-28",
+          "tmax": 8.8,
+          "tmin": 0.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 6.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-29",
+          "tmax": 8.0,
+          "tmin": 1.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 16.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-30",
+          "tmax": 7.4,
+          "tmin": 1.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-01",
+          "tmax": 8.3,
+          "tmin": 1.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-02",
+          "tmax": 9.5,
+          "tmin": 1.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-03",
+          "tmax": 9.8,
+          "tmin": 2.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 15.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-04",
+          "tmax": 10.8,
+          "tmin": 2.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 18.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-05",
+          "tmax": 9.0,
+          "tmin": 2.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-06",
+          "tmax": 9.2,
+          "tmin": 1.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 20.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-07",
+          "tmax": 9.7,
+          "tmin": 1.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 15.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        }
+      ]
+    },
+    {
+      "comarca": "Ribera d'Ebre",
+      "municipi": "Móra d'Ebre",
+      "zona": "Camp de Tarragona i Terres de l'Ebre",
+      "dies": [
+        {
+          "data": "2026-11-22",
+          "tmax": 15.5,
+          "tmin": 11.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 79.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-23",
+          "tmax": 15.0,
+          "tmin": 10.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 65.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-24",
+          "tmax": 14.5,
+          "tmin": 9.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 56.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-25",
+          "tmax": 13.6,
+          "tmin": 8.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 72.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-26",
+          "tmax": 13.0,
+          "tmin": 7.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 63.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-27",
+          "tmax": 11.7,
+          "tmin": 6.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 49.0,
+          "cape_jkg": 1.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-28",
+          "tmax": 11.2,
+          "tmin": 4.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 31.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-29",
+          "tmax": 10.3,
+          "tmin": 3.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 22.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-30",
+          "tmax": 9.6,
+          "tmin": 4.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 23.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-01",
+          "tmax": 10.0,
+          "tmin": 4.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 21.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-02",
+          "tmax": 11.2,
+          "tmin": 4.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 19.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-03",
+          "tmax": 11.9,
+          "tmin": 5.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 28.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-04",
+          "tmax": 12.7,
+          "tmin": 5.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 29.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-05",
+          "tmax": 11.2,
+          "tmin": 6.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 25.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-06",
+          "tmax": 12.2,
+          "tmin": 4.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 39.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-07",
+          "tmax": 12.6,
+          "tmin": 5.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 37.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        }
+      ]
+    },
+    {
+      "comarca": "Terra Alta",
+      "municipi": "Gandesa",
+      "zona": "Camp de Tarragona i Terres de l'Ebre",
+      "dies": [
+        {
+          "data": "2026-11-22",
+          "tmax": 14.8,
+          "tmin": 10.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 83.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-23",
+          "tmax": 14.7,
+          "tmin": 9.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 66.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-24",
+          "tmax": 13.6,
+          "tmin": 7.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 61.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-25",
+          "tmax": 13.2,
+          "tmin": 7.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 68.0,
+          "cape_jkg": 4.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-26",
+          "tmax": 11.8,
+          "tmin": 7.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 66.0,
+          "cape_jkg": 1.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-27",
+          "tmax": 11.7,
+          "tmin": 6.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 47.0,
+          "cape_jkg": 3.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-28",
+          "tmax": 10.2,
+          "tmin": 4.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 31.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-29",
+          "tmax": 10.0,
+          "tmin": 3.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 19.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-30",
+          "tmax": 9.1,
+          "tmin": 3.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 22.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-01",
+          "tmax": 9.4,
+          "tmin": 4.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 17.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-02",
+          "tmax": 10.7,
+          "tmin": 3.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 15.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-03",
+          "tmax": 11.4,
+          "tmin": 4.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 19.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-04",
+          "tmax": 12.8,
+          "tmin": 5.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 19.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-05",
+          "tmax": 11.3,
+          "tmin": 5.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 23.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-06",
+          "tmax": 12.0,
+          "tmin": 4.5,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 34.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-07",
+          "tmax": 12.4,
+          "tmin": 5.4,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 34.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        }
+      ]
+    },
+    {
+      "comarca": "Baix Ebre",
+      "municipi": "Tortosa",
+      "zona": "Camp de Tarragona i Terres de l'Ebre",
+      "dies": [
+        {
+          "data": "2026-11-22",
+          "tmax": 16.2,
+          "tmin": 12.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 64.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-23",
+          "tmax": 16.7,
+          "tmin": 9.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 42.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-24",
+          "tmax": 14.8,
+          "tmin": 8.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 49.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-25",
+          "tmax": 15.0,
+          "tmin": 8.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 68.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-26",
+          "tmax": 13.0,
+          "tmin": 7.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 71.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-27",
+          "tmax": 12.8,
+          "tmin": 6.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 25.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-28",
+          "tmax": 12.2,
+          "tmin": 5.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-29",
+          "tmax": 12.1,
+          "tmin": 4.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-30",
+          "tmax": 11.1,
+          "tmin": 4.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 14.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-01",
+          "tmax": 12.0,
+          "tmin": 5.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-02",
+          "tmax": 13.1,
+          "tmin": 5.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-03",
+          "tmax": 14.2,
+          "tmin": 5.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-04",
+          "tmax": 15.7,
+          "tmin": 6.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-05",
+          "tmax": 14.5,
+          "tmin": 6.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-06",
+          "tmax": 14.5,
+          "tmin": 5.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-07",
+          "tmax": 14.9,
+          "tmin": 6.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        }
+      ]
+    },
+    {
+      "comarca": "Montsià",
+      "municipi": "Amposta",
+      "zona": "Camp de Tarragona i Terres de l'Ebre",
+      "dies": [
+        {
+          "data": "2026-11-22",
+          "tmax": 16.2,
+          "tmin": 12.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 64.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-23",
+          "tmax": 16.7,
+          "tmin": 9.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 42.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-24",
+          "tmax": 14.8,
+          "tmin": 8.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 49.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-25",
+          "tmax": 15.0,
+          "tmin": 8.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 68.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-26",
+          "tmax": 13.0,
+          "tmin": 7.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 71.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-27",
+          "tmax": 12.8,
+          "tmin": 6.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 25.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-28",
+          "tmax": 12.2,
+          "tmin": 5.2,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 11.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-29",
+          "tmax": 12.1,
+          "tmin": 4.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-11-30",
+          "tmax": 11.1,
+          "tmin": 4.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 14.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-01",
+          "tmax": 12.0,
+          "tmin": 5.3,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-02",
+          "tmax": 13.1,
+          "tmin": 5.0,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 9.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-03",
+          "tmax": 14.2,
+          "tmin": 5.9,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-04",
+          "tmax": 15.7,
+          "tmin": 6.6,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 8.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-05",
+          "tmax": 14.5,
+          "tmin": 6.7,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-06",
+          "tmax": 14.5,
+          "tmin": 5.8,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 13.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        },
+        {
+          "data": "2026-12-07",
+          "tmax": 14.9,
+          "tmin": 6.1,
+          "pluja_mm": 0.0,
+          "neu_cm": 0.0,
+          "ratxa_kmh": 12.0,
+          "cape_jkg": 0.0,
+          "cin_jkg": -0.0,
+          "passos": 8
+        }
+      ]
+    }
+  ]
+}
